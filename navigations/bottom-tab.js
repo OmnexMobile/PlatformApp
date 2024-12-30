@@ -9,8 +9,6 @@ import Home from 'screens/home';
 import Calender from 'screens/calender';
 import ProfileHome from 'screens/profile/profile-home';
 import useTheme from 'theme/useTheme';
-import TaskStatus from 'screens/task-status';
-import { ProjectStack } from './stack';
 
 const Tab = createBottomTabNavigator();
 
@@ -20,14 +18,6 @@ const TabBarIcon = ({ color, focused, IconType = ICON_TYPE.MaterialCommunityIcon
     return (
         <View style={{ alignItems: 'center', justifyContent: 'center', paddingTop: SPACING.SMALL }}>
             <IconComponent type={IconType} name={`${iconName}${!focused ? '-outline' : ''}`} color={color} size={ICON_SIZE} />
-            {/* <TextComponent
-                {...{
-                    fontSize: FONT_SIZE.SMALL,
-                    color,
-                    ...(focused && { type: FONT_TYPE.BOLD }),
-                }}>
-                {name}
-            </TextComponent> */}
         </View>
     );
 };
@@ -64,33 +54,6 @@ function BottomTab({ style = {} }) {
                     options={{
                         tabBarIcon: ({ color, focused }) => (
                             <TabBarIcon {...{ color, focused, IconType: ICON_TYPE.Ionicons, iconName: 'calendar', name: 'Search' }} />
-                        ),
-                    }}
-                />
-                <Tab.Screen
-                    name="Projects"
-                    component={ProjectStack}
-                    options={{
-                        tabBarIcon: ({ color, focused }) => (
-                            <TabBarIcon {...{ color, focused, IconType: ICON_TYPE.Ionicons, iconName: 'document-text', name: 'Search' }} />
-                        ),
-                    }}
-                />
-                {/* <Tab.Screen
-                    name="TaskStatus"
-                    component={TaskStatus}
-                    options={{
-                        tabBarIcon: ({ color, focused }) => (
-                            <TabBarIcon {...{ color, focused, IconType: ICON_TYPE.Ionicons, iconName: 'reader', name: 'History' }} />
-                        ),
-                    }}
-                /> */}
-                <Tab.Screen
-                    name={'More'}
-                    component={ProfileHome}
-                    options={{
-                        tabBarIcon: ({ color, focused }) => (
-                            <TabBarIcon {...{ color, focused, IconType: ICON_TYPE.Ionicons, iconName: 'person', name: 'Profile' }} />
                         ),
                     }}
                 />

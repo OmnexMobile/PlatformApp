@@ -51,7 +51,7 @@ const GradientButton = ({
                 <View style={{ flex: 1 }}></View>
                 <View style={{ flex: 8, alignItems: 'center' }}>
                     <TextComponent
-                        fontSize={FONT_SIZE.LARGE}
+                        fontSize={FONT_SIZE.NORMAL}
                         type={FONT_TYPE.BOLD}
                         style={[
                             {
@@ -78,12 +78,11 @@ export default GradientButton;
 const styles = StyleSheet.create({
     button: {
         width: '100%',
-        height: 50,
+        height: 40,
         justifyContent: 'center',
         alignItems: 'center',
-        borderRadius: 3,
         flexDirection: 'row',
-        borderRadius: SPACING.SMALL,
+        borderRadius: SPACING.X_SMALL,
         paddingHorizontal: SPACING.NORMAL,
     },
 });

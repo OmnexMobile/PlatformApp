@@ -32,7 +32,7 @@ const red = {
 
 const blue = {
     ...common,
-    primaryThemeColor: '#0180ff',
+    primaryThemeColor: '#31A5E2',
     primaryLightThemeColor: '#8ac7ff',
     primaryDarkThemeColor: '#2239b8',
 };

@@ -38,7 +38,6 @@ const LoginFunctional = ({}) => {
 
     const handleSubmit = async () => {
         if (isRegistered) {
-            // console.log('loginDetails', loginDetails);
             // navigation.navigate(ROUTES.HOME);
             handleInputChange('loggingIn', true);
             var key = CryptoJS.enc.Utf8.parse('8080808080808080');
@@ -76,7 +75,8 @@ const LoginFunctional = ({}) => {
                 showErrorMessage('Something went wrong!!');
             }
         } else {
-            navigation.navigate(ROUTES.REGISTER);
+            // navigation.navigate(ROUTES.REGISTER);
+            navigation.navigate(ROUTES.HOME);
         }
     };
 

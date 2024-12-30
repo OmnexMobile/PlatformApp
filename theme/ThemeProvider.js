@@ -8,8 +8,8 @@ export const ThemeContext = React.createContext();
 
 const ThemeProvider = ({ children }) => {
     const [theme, setTheme] = useState({
-        selectedColor: Themes.neon,
-        colors: colors.neon,
+        selectedColor: Themes.blue,
+        colors: colors.blue,
         selectedMode: mode.light,
         mode: Modes.light,
         typography,
@@ -55,7 +55,7 @@ const ThemeProvider = ({ children }) => {
     };
 
     const handleThemeOnLoad = async () => {
-        const color = (await localStorage.getData(LOCAL_STORAGE_VARIABLES.SELECTED_THEME)) || Themes.neon;
+        const color = (await localStorage.getData(LOCAL_STORAGE_VARIABLES.SELECTED_THEME)) || Themes.blue;
         const mode = (await localStorage.getData(LOCAL_STORAGE_VARIABLES.SELECTED_MODE)) || Modes.light;
         // console.log('🚀 ~ file: ThemeProvider.js ~ line 60 ~ handleThemeOnLoad ~ mode', mode);
         let activeColor = colors[color];

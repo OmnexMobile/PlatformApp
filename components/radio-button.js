@@ -8,26 +8,7 @@ import { useAppContext } from 'contexts/app-context';
 import TextComponent from './text';
 
 const RadioButton = ({ name, label, required, value, options, onChange, editable = true }) => {
-    // const [data, setData] = useState([]);
-    // const { sites } = useAppContext();
-
-    // const getData = async SiteID => {
-    //     const formData = new FormData();
-    //     formData.append(APP_VARIABLES.SITE_ID, SiteID);
-    //     formData.append(APP_VARIABLES.RadioButtonType, '');
-    //     try {
-    //         const res = await postAPI(`${API_URL.GET_CUSTOM_DROPDOWN}`, formData);
-    //     } catch (err) {
-    //         console.log('🚀 ~ file: radio-button.js:22 ~ getData ~ err', err);
-    //     }
-    // };
-
-    // useEffect(() => {
-    //     getData(sites?.selectedSite);
-    // }, [sites?.selectedSite]);
-
     const { theme } = useTheme();
-
     if ((options?.length || 0) < 1) return null;
 
     return (
@@ -49,7 +30,7 @@ const RadioButton = ({ name, label, required, value, options, onChange, editable
                     </TextComponent>
                 )}
             </View>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
+            <View style={{ flexDirection: 'row'}}>
                 {options?.map(option => (
                     <TouchableOpacity
                         disabled={!editable}
@@ -78,21 +59,20 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         padding: SPACING.SMALL,
         paddingHorizontal: 0,
-        paddingRight: SPACING.NORMAL,
         flex: 1,
     },
     radioCircle: {
-        height: RFPercentage(3),
-        width: RFPercentage(3),
+        height: RFPercentage(2),
+        width: RFPercentage(2),
         borderRadius: 100,
         borderWidth: 2,
         alignItems: 'center',
         justifyContent: 'center',
-        marginRight: SPACING.NORMAL,
+        marginRight: SPACING.X_SMALL,
     },
     selectedRb: {
-        width: RFPercentage(2),
-        height: RFPercentage(2),
+        width: RFPercentage(1),
+        height: RFPercentage(1),
         borderRadius: 50,
     },
     result: {
