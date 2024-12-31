@@ -1,6 +1,5 @@
 import React from 'react';
-import HomeFunctional from './components/home-functional';
 
-const Home = ({ params }) => <HomeFunctional />;
+const Home = ({ params }) =>null;
 
 export default Home;

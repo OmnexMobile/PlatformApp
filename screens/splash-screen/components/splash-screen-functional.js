@@ -16,7 +16,7 @@ const SplashScreenFunctional = ({}) => {
         !loading &&
             navigation.reset({
                 index: 0,
-                routes: [{ name: profile?.Token ? ROUTES.HOME : ROUTES.LOGIN }],
+                routes: [{ name: !profile?.Token ? ROUTES.HOME : ROUTES.LOGIN }],
                 // routes: [{ name: profile?.Token ? ROUTES.LAUNCH_SCREEN : ROUTES.REGISTER }],
             });
     }, [loading]);
