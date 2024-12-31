@@ -4,7 +4,7 @@ require_relative '../node_modules/@react-native-community/cli-platform-ios/nativ
 platform :ios, '12.4'
 install! 'cocoapods', :deterministic_uuids => false
 
-target 'InspectionControl' do
+target 'IntegratedApp' do
   config = use_native_modules!
 
   # Flags change depending on the env values.
@@ -15,7 +15,7 @@ target 'InspectionControl' do
     # Hermes is now enabled by default. Disable by setting this flag to false.
     # Upcoming versions of React Native may rely on get_default_flags(), but
     # we make it explicit here to aid in the React Native upgrade process.
-    :hermes_enabled => true,
+    :hermes_enabled => false,
     :fabric_enabled => flags[:fabric_enabled],
     # Enables Flipper.
     #
@@ -26,37 +26,25 @@ target 'InspectionControl' do
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
 
-  target 'InspectionControlTests' do
+  target 'IntegratedAppTests' do
     inherit! :complete
     # Pods for testing
   end
 
   post_install do |installer|
-    PLIST_BUDDY_PATH = '/usr/libexec/PlistBuddy'
-
-  installer.pods_project.targets.each do |target|
-    target.build_configurations.each do |config|
-      if target.name == "hermes-engine"
-        installer.pods_project.files.each do |fileref|
-          if fileref.path.end_with? "hermes.xcframework"
-            hermes_plist_file = "#{fileref.real_path}/Info.plist"
-            # Patch Hermes to remove the debug symbols entry from the Info.plist (as it's not shipped with it)
-            # This might be removed once Hermes starts to ship with Debug symbols or we remove our
-            # direct dependency from the Main iOS target on "hermes.xcframework"
-            Open3.capture3(PLIST_BUDDY_PATH, '-c', 'Delete :AvailableLibraries:0:DebugSymbolsPath', hermes_plist_file)
-            Open3.capture3(PLIST_BUDDY_PATH, '-c', 'Delete :AvailableLibraries:1:DebugSymbolsPath', hermes_plist_file)
-            Open3.capture3(PLIST_BUDDY_PATH, '-c', 'Delete :AvailableLibraries:2:DebugSymbolsPath', hermes_plist_file)
-          end
-        end
+    installer.generated_projects.each do |project|
+      project.targets.each do |target|
+          target.build_configurations.each do |config|
+            # config.build_settings["EXCLUDED_ARCHS[sdk=iphonesimulator*]"] = "arm64 i386"
+              config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '12.4'
+              # # Vision Camera start
+              config.build_settings['HEADER_SEARCH_PATHS'] ||= '$(inherited) '
+              config.build_settings['HEADER_SEARCH_PATHS'] << '"${PODS_ROOT}/../../node_modules/react-native/ReactCommon" '
+              # if target.name === "RNReanimated"
+              # config.build_settings['CLANG_CXX_LANGUAGE_STANDARD'] = 'c++17'
+              # #Vision Camera end
+           end
       end
     end
-  end
-    react_native_post_install(
-      installer,
-      # Set `mac_catalyst_enabled` to `true` in order to apply patches
-      # necessary for Mac Catalyst builds
-      :mac_catalyst_enabled => false
-    )
-    __apply_Xcode_12_5_M1_post_install_workaround(installer)
   end
 end

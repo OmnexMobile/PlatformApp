@@ -7,7 +7,6 @@ import { COLORS, FONT_SIZE, SPACING } from 'constants/theme-constants';
 import useTheme from 'theme/useTheme';
 import TextComponent from './text';
 import IconComponent from './icon-component';
-import ImageComponent from './image-component';
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
     UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -17,7 +16,7 @@ const FilePicker = ({ name, label, required, value, onChange }) => {
     const { theme } = useTheme();
     const [files, setFiles] = useState([]);
 
-    const hasFile = !!files?.length;
+    const hasFile = !!files?.length
 
     const handleDocumentSelection = React.useCallback(async () => {
         try {
@@ -41,7 +40,7 @@ const FilePicker = ({ name, label, required, value, onChange }) => {
     };
 
     const renderItem = ({ item, index }) => {
-        if (item.empty) {
+        if (item.empty === true) {
             return <View key={index} style={[styles.item, styles.itemInvisible]} />;
         }
         return (
@@ -64,9 +63,11 @@ const FilePicker = ({ name, label, required, value, onChange }) => {
                     flexDirection: 'row',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    padding: SPACING.SMALL,
+                    padding: SPACING.SMALL
                 }}>
                 <TextComponent>{item?.name}</TextComponent>
+                {/* <ImageComponent source={{ uri: IMAGES.avatar }} style={{ width: '100%', height: '100%', borderRadius: 10 }} /> */}
+                {/* {item?.uploaded && ( */}
                 <TouchableOpacity
                     onPress={() => {
                         LayoutAnimation.configureNext(LayoutAnimation.Presets.spring);
@@ -84,42 +85,38 @@ const FilePicker = ({ name, label, required, value, onChange }) => {
                     }}>
                     <IconComponent name="delete" color={COLORS.white} type={ICON_TYPE.AntDesign} />
                 </TouchableOpacity>
+                {/* )} */}
             </View>
         );
     };
 
     return (
-        <View style={{ padding: SPACING.NORMAL }}>
+        <View style={{ paddingTop: SPACING.NORMAL, flex: 1 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <TextComponent style={{ fontSize: FONT_SIZE.SMALL }} type={FONT_TYPE.BOLD}>
-                    {/* {label} */}
-                    Attach
+                    {label}
                 </TextComponent>
                 {required && (
                     <TextComponent style={{ fontSize: FONT_SIZE.SMALL }} color={COLORS.ERROR}>
                         *
                     </TextComponent>
                 )}
-                {!hasFile ? (
-                    <View>
-                        <TouchableOpacity
-                            onPress={handleDocumentSelection}
-                            style={{
-                                borderRadius: SPACING.SMALL,
-                                padding: SPACING.SMALL,
-                                marginLeft: SPACING.SMALL,
-                                backgroundColor: theme.colors.primaryThemeColor,
-                            }}>
-                            <IconComponent color={COLORS.white} type={ICON_TYPE.AntDesign} name="plus" />
-                        </TouchableOpacity>
-                    </View>
-                ) : null}
+                {!hasFile ?<TouchableOpacity
+                    onPress={handleDocumentSelection}
+                    style={{
+                        borderRadius: SPACING.SMALL,
+                        padding: SPACING.SMALL,
+                        marginLeft: SPACING.SMALL,
+                        backgroundColor: theme.colors.primaryThemeColor,
+                    }}>
+                    <IconComponent color={COLORS.white} type={ICON_TYPE.AntDesign} name="plus" />
+                </TouchableOpacity> : null}
             </View>
             {!!files?.length ? (
                 <View
                     style={{
                         paddingVertical: SPACING.NORMAL,
-                        flex: 1,
+                        flex: 1
                     }}>
                     {files?.map((image, index) => renderItem({ item: image, index }))}
                 </View>

@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import localStorage from 'global/localStorage';
+import localStorage from '../global/localStorage';
 import { colors, mode } from './colors';
 import { typography } from './typography';
-import { LOCAL_STORAGE_VARIABLES, Modes, Themes } from 'constants/app-constant';
+import { LOCAL_STORAGE_VARIABLES, Modes, Themes } from '../constants/app-constant';
 
 export const ThemeContext = React.createContext();
 
 const ThemeProvider = ({ children }) => {
     const [theme, setTheme] = useState({
-        selectedColor: Themes.blue,
-        colors: colors.blue,
+        selectedColor: Themes.neon,
+        colors: colors.neon,
         selectedMode: mode.light,
         mode: Modes.light,
         typography,
@@ -55,7 +55,7 @@ const ThemeProvider = ({ children }) => {
     };
 
     const handleThemeOnLoad = async () => {
-        const color = (await localStorage.getData(LOCAL_STORAGE_VARIABLES.SELECTED_THEME)) || Themes.blue;
+        const color = (await localStorage.getData(LOCAL_STORAGE_VARIABLES.SELECTED_THEME)) || Themes.neon;
         const mode = (await localStorage.getData(LOCAL_STORAGE_VARIABLES.SELECTED_MODE)) || Modes.light;
         // console.log('🚀 ~ file: ThemeProvider.js ~ line 60 ~ handleThemeOnLoad ~ mode', mode);
         let activeColor = colors[color];

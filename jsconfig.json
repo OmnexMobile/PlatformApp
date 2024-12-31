@@ -1,5 +1,9 @@
 {
     "compilerOptions": {
+        "jsx": "react",
+        "jsx": "react",
+        "jsx": "react",
+        "jsx": "react-native",
         "baseUrl": "."
     },
     "exclude": ["node_modules", "dist"]

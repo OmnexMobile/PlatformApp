@@ -1,7 +1,9 @@
 // export var API_URL = 'http://1.22.172.236/APQPApi/'; // Static IP
 // export var API_URL = 'http://1.22.172.236/APQPApi/'; //Edited_by_Sudha
-export var API_URL = 'http://1.22.172.236/ProblemSolverAPI/'; //Edited_by_Sudha
-export var DP_API_URL = 'http://1.22.172.236/DPAPI/api/'; // Static IP - DocPro
+// export var API_URL = 'http://1.22.172.236/ProblemSolverAPI/'; //Edited_by_Sudha
+// export var DP_API_URL = 'http://1.22.172.236/DPAPI/api/'; // Static IP - DocPro
+export var API_URL = ''; //Edited_by_Sudha
+export var DP_API_URL = ''; // Static IP - DocPro
 
 export default {
     setServerUrl(serverUrl) {
@@ -1122,7 +1124,7 @@ export default {
         })
             .then(resp => resp.json())
             .then(data => {
-                // console.log(data)
+                console.log(data,'getProfileDetails data')
                 cb({
                     data,
                 });

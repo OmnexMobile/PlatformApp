@@ -1,14 +1,16 @@
 import React from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { IMAGES } from 'assets/images';
-import { AnimatableView, Content, ImageComponent, SwipeButton } from 'components';
-import { OPACITY_TRANSLATE_Y_ANIMATION, ROUTES } from 'constants/app-constant';
-import { RFPercentage } from 'helpers/utils';
-import { SPACING } from 'constants/theme-constants';
+import { IMAGES } from '../../assets/images';
+import { AnimatableView, Content, ImageComponent, SwipeButton } from '../../components';
+import { OPACITY_TRANSLATE_Y_ANIMATION, ROUTES } from '../../constants/app-constant';
+import { RFPercentage } from '../../helpers/utils';
+import useTheme from '../../theme/useTheme';
+import { SPACING } from '../../constants/theme-constants';
 
 const LaunchScreen = ({}) => {
     const navigation = useNavigation();
+    const { theme } = useTheme();
     return (
         <Content noPadding>
             <AnimatableView animationConfig={OPACITY_TRANSLATE_Y_ANIMATION} delay={500} style={styles.topArea}>
@@ -23,14 +25,15 @@ const LaunchScreen = ({}) => {
                         value &&
                         navigation.reset({
                             index: 0,
-                            routes: [{ name: ROUTES.HOME }],
+                            // routes: [{ name: ROUTES.HOME }],
+                            routes: [{ name: ROUTES.HOME_FAB_VIEW }],
                         })
                     }
                     // onToggle={handleToggle}
                 />
             </AnimatableView>
             <AnimatableView animationConfig={OPACITY_TRANSLATE_Y_ANIMATION} delay={1500} style={{ paddingVertical: SPACING.LARGE }}>
-                <ImageComponent source={IMAGES.apqp_ppap_manager} resizeMode="contain" style={{ height: RFPercentage(4), width: '100%' }} />
+                {/* <ImageComponent source={IMAGES.apqp_ppap_manager} resizeMode="contain" style={{ height: RFPercentage(4), width: '100%' }} /> */}
             </AnimatableView>
         </Content>
     );

@@ -2,29 +2,21 @@ import React from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
 // import { RFPercentage } from 'react-native-responsive-fontsize';
 import { useNavigation } from '@react-navigation/native';
-import { FONT_TYPE, ICON_TYPE } from 'constants/app-constant';
+import { FONT_TYPE, ICON_TYPE, ROUTES } from 'constants/app-constant';
 import { COLORS, SPACING } from 'constants/theme-constants';
 import useTheme from 'theme/useTheme';
 import TextComponent from './text';
 import IconComponent from './icon-component';
-import { RFPercentage } from 'helpers/utils';
 
-const Header = ({ title, leftIcon = null, rightIcon = null, back = true, rightIconClick, handleBackClick = null }) => {
+const Header = ({ title, leftIcon = null, rightIcon = null, back = true, rightIconClick, handleBackClick = null, backState }) => {
     const navigation = useNavigation();
     const { theme } = useTheme();
 
-    const handleLeftIconClick = () => {
-        console.log('clicked');
-        if (back) {
-            if (handleBackClick) {
-                handleBackClick();
-            } else {
-                navigation?.goBack();
-            }
-        } else {
-            navigation.openDrawer();
-        }
-    };
+    onNavigationToBack = () => {
+      console.log('click go back')
+      navigation?.goBack()
+    }
+
     return (
         <View
             style={[
@@ -35,7 +27,13 @@ const Header = ({ title, leftIcon = null, rightIcon = null, back = true, rightIc
                 },
             ]}>
             {leftIcon || back ? (
-                <TouchableOpacity activeOpacity={0.3} onPress={handleLeftIconClick} style={styles.leftIconContainer}>
+                <TouchableOpacity
+                    // activeOpacity={0.8}
+                    onPress={() => { backState ? onNavigationToBack() :
+                        back ? handleBackClick ? handleBackClick() : navigation?.goBack() : navigation.openDrawer()
+                    }}
+                    hitSlop={{top: 20, bottom: 20, left: 100, right: 100}}
+                    style={styles.leftIconContainer}>
                     <IconComponent
                         name={back ? 'arrowleft' : 'arrowleft'}
                         type={ICON_TYPE.AntDesign}
@@ -44,18 +42,20 @@ const Header = ({ title, leftIcon = null, rightIcon = null, back = true, rightIc
                     />
                 </TouchableOpacity>
             ) : null}
-            <View style={{ flex: 8, alignItems: 'center', paddingHorizontal: SPACING.X_LARGE }}>
-                <TextComponent numberOfLines={1} style={{ fontSize: 20 }} type={FONT_TYPE.BOLD}>
-                    {title}
-                </TextComponent>
-            </View>
-            <View style={styles.rightIconContainer}>
-                {rightIcon ? (
-                    <TouchableOpacity activeOpacity={0.3} onPress={rightIconClick}>
-                        <IconComponent type={ICON_TYPE.Entypo} name={rightIcon} color={theme.colors.primaryThemeColor} size={25} />
-                    </TouchableOpacity>
-                ) : null}
-            </View>
+            <TextComponent style={{ fontSize: 20 }} type={FONT_TYPE.BOLD}>
+                {title}
+            </TextComponent>
+            {rightIcon ? (
+                <View style={styles.rightIconContainer}>
+                    <IconComponent
+                        onPress={rightIconClick}
+                        type={ICON_TYPE.Entypo}
+                        name={rightIcon}
+                        color={theme.colors.primaryThemeColor}
+                        size={25}
+                    />
+                </View>
+            ) : null}
         </View>
     );
 };
@@ -73,10 +73,13 @@ const styles = StyleSheet.create({
         // marginBottom: RFPercentage(1),
     },
     leftIconContainer: {
+        height: '100%',
+        width: 40,
         alignItems: 'center',
         justifyContent: 'center',
+        position: 'absolute',
         top: 0,
-        flex: 1,
+        left: SPACING.SMALL,
     },
-    rightIconContainer: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+    rightIconContainer: { height: '100%', width: 40, alignItems: 'center', justifyContent: 'center', position: 'absolute', top: 0, right: 0 },
 });

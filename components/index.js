@@ -18,13 +18,13 @@ import KeyboardAwareScrollViewComponent from './keyboard-aware-scroll-view';
 import WarningComponent from './warning-component';
 import Loader from './loader';
 import InputComponent from './input-component';
-import CalendarComponent from './calender';
+import CalendarComponent from './CalenderComponent';
 import SwipeButton from './swipe-button';
 import TodayCard from './TodayCard';
 import NoRecordFound from './NoRecordFound';
 import PendingCard from './PendingCard';
 import ListCard from './ListCard';
-import ExitModal from './exit-modal';
+import ExitModal from './ExitModal';
 import FAB from './fab';
 import InputWithLabel from './input-with-label';
 import TabViewComponent from './tab-view-component';
@@ -33,7 +33,6 @@ import DatePickerComponent from './date-picker';
 import ImagePicker from './image-picker';
 import RadioButton from './radio-button';
 import CheckBox from './check-box';
-import EstimationPickerComponent from './estimation-picker';
 import TeamPickerComponent from './team-picker';
 import FilePicker from './file-picker';
 import TreeViewPickerComponent from './tree-view-picker';
@@ -44,15 +43,6 @@ import ErrorComponent from './error-component';
 import ListSearch from './list-search';
 import ProjectCard from './project-card';
 import ChooseSite from './choose-site';
-import DynamicPickerComponent from './dynamic-picker';
-import EightDDynamicInputModal from './eightd-dynamic-input-modal';
-import NumberInputWithLabel from './number-input-with-label';
-import ProblemImages from './problem-images';
-import RichTextEditor from './rich-text-editor';
-import LinkComponent from './link-component';
-import AttachmentPicker from './attachment-picker';
-import OKPicker from './ok-picker';
-import NotOKPicker from './not-ok-picker';
 
 export {
     IconComponent,
@@ -91,7 +81,6 @@ export {
     RadioButton,
     CheckBox,
     TeamPickerComponent,
-    EstimationPickerComponent,
     FilePicker,
     TreeViewPickerComponent,
     AgendaCalender,
@@ -100,14 +89,5 @@ export {
     ErrorComponent,
     ListSearch,
     ProjectCard,
-    ChooseSite,
-    DynamicPickerComponent,
-    EightDDynamicInputModal,
-    NumberInputWithLabel,
-    ProblemImages,
-    RichTextEditor,
-    LinkComponent,
-    AttachmentPicker,
-    OKPicker,
-    NotOKPicker,
+    ChooseSite
 };

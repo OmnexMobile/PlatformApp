@@ -1,11 +1,11 @@
 import React from 'react';
-import { BounceableView, Content, GradientButton, Header, TextComponent } from 'components';
+import { BounceableView, Content, GradientButton, Header, TextComponent } from '../../../components';
 import { useNavigation } from '@react-navigation/native';
 import { LayoutAnimation, Platform, TouchableOpacity, UIManager, View } from 'react-native';
-import { RFPercentage } from 'helpers/utils';
-import { COLORS, SPACING } from 'constants/theme-constants';
-import { FONT_TYPE, MODES, THEMES } from 'constants/app-constant';
-import useTheme from 'theme/useTheme';
+import { RFPercentage } from '../../../helpers/utils';
+import { COLORS, SPACING } from '../../../constants/theme-constants';
+import { FONT_TYPE, MODES, THEMES } from '../../../constants/app-constant';
+import useTheme from '../../../theme/useTheme';
 
 // if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
 //     UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -25,8 +25,10 @@ const ThemePicker = ({}) => {
             <Content>
                 <View style={{ flex: 1 }}>
                     <View>
-                        <TextComponent type={FONT_TYPE.BOLD}>Themes</TextComponent>
-                        <View style={{ padding: SPACING.NORMAL, flexDirection: 'row', paddingBottom: SPACING.LARGE, paddingLeft: 0 }}>
+                        <View>
+                            <TextComponent type={FONT_TYPE.BOLD}>Themes</TextComponent>
+                        </View>
+                        <View style={{ padding: SPACING.NORMAL, flexDirection: 'row', paddingBottom: SPACING.XX_LARGE }}>
                             {THEMES.map((themeObj, index) => (
                                 <View
                                     key={index}
@@ -62,8 +64,10 @@ const ThemePicker = ({}) => {
                         </View>
                     </View>
                     <View>
-                        <TextComponent type={FONT_TYPE.BOLD}>Modes</TextComponent>
-                        <View style={{ padding: SPACING.NORMAL, flexDirection: 'row', paddingLeft: 0 }}>
+                        <View>
+                            <TextComponent type={FONT_TYPE.BOLD}>Modes</TextComponent>
+                        </View>
+                        <View style={{ padding: SPACING.NORMAL, flexDirection: 'row', paddingBottom: SPACING.XX_LARGE }}>
                             {MODES.map((themeObj, index) => (
                                 <View key={index} style={{ alignItems: 'center', marginRight: SPACING.SMALL }}>
                                     <View

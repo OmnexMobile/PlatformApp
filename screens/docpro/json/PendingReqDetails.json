@@ -1,0 +1,106 @@
+{
+    "response": {
+      "loaded": {
+        "request": {
+          "id": "dpr2422 ",
+          "docid": "dpd2379 ",
+          "name": "bbbbv.txt ",
+          "number": "0817 ",
+          "sourcemodid": "4 ",
+          "authorid": "22 ",
+          "authorname": "Vasudevan Yamuna    ",
+          "rev": "1 ",
+          "doctypeid": "0 ",
+          "issuenumber": " ",
+          "currentReqRouteId": "3 ",
+          "TotalRows": "0 ",
+          "TemplateId": "0 ",
+          "reqid": "dpr2422 ",
+          "keyword": "dfgasdfs ",
+          "showtraingreqbutton": "1 ",
+          "revdate": " ",
+          "effectivedate": "10/28/2024 ",
+          "indate": "10/28/2024 ",
+          "reqdate": "10/28/2024 02:45:54 PM ",
+          "status": "In Process ",
+          "statusid": "1 ",
+          "reason": "fagafdgf  n ",
+          "chgs_reqd": "afgadfg  n ",
+          "rejreason": " ",
+          "fileext": "txt ",
+          "filename": "bbbbv.txt ",
+          "reqtype": "1 ",
+          "paginate": " ",
+          "sitename": "Corporate ",
+          "siteid": "sit1 ",
+          "ownername": "Vasudevan Yamuna    ",
+          "isurl": "0 ",
+          "reqliveUrl": " ",
+          "NewsLetterID": "0 ",
+          "sitelevelid": "dsl153 ",
+          "sitelevelname": "Route Approval  ",
+          "revopt": "2 ",
+          "revdateopt": "1 ",
+          "autodocnumopt": "0 ",
+          "requestbyuserid": "22 ",
+          "routingmethod": "3 ",
+          "viewaccess": "0 ",
+          "requestedby": "Vasudevan Yamuna    ",
+          "modid": "mod4 ",
+          "modname": "Document Pro ",
+          "HasMutiPrintOpt": "0 ",
+          "isdocitar": "0 ",
+          "formid": " ",
+          "isiaa": "0 ",
+          "seq": [
+            {
+              "value ": "1 ",
+              "minapprover ": "1 ",
+              "showterminatebtn ": "1 ",
+              "requestdtl ": [
+                {
+                  "userid ": "usr56 ",
+                  "fullname ": "CM1 Corp    ",
+                  "status ": "In Process ",
+                  "statusid ": "1 ",
+                  "seq ": "1 ",
+                  "required ": "0 ",
+                  "inclsignature ": "1 ",
+                  "posid ": "0 ",
+                  "posdesc ": " ",
+                  "rejreason ": " ",
+                  "has_grp_appr_Right ": "1 ",
+                  "rspdate ": " "
+                },
+                {
+                  "userid ": "usr8 ",
+                  "fullname ": "Devaraj P    ",
+                  "status ": "In Process ",
+                  "statusid ": "1 ",
+                  "seq ": "1 ",
+                  "required ": "0 ",
+                  "inclsignature ": "1 ",
+                  "posid ": "0 ",
+                  "posdesc ": " ",
+                  "rejreason ": " ",
+                  "has_grp_appr_Right ": "1 ",
+                  "rspdate ": " "
+                }
+              ]
+            },
+            {
+              "value ": "0 ",
+              "minapprover ": "0 ",
+              "showterminatebtn ": "1 "
+            }
+          ]
+        }
+      },
+      "status ": {
+        "type ": "ok ",
+        "methname ": " ",
+        "number ": "0 ",
+        "message ": " "
+      }
+    }
+  }

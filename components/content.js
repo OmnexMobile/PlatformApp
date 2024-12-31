@@ -1,8 +1,7 @@
 import React from 'react';
 import { ScrollView, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { COLORS, SPACING } from 'constants/theme-constants';
 import useTheme from 'theme/useTheme';
+import { SPACING } from 'constants/theme-constants';
 
 const Content = ({ children, noPadding = false, scroll = false, style = {}, contentContainerStyle = {}, ...rest }) => {
     const { theme } = useTheme();
@@ -18,25 +17,10 @@ const Content = ({ children, noPadding = false, scroll = false, style = {}, cont
                               backgroundColor: theme.mode.backgroundColor,
                               ...contentContainerStyle,
                               ...(noPadding && { padding: 0 }),
-                              paddingTop: useSafeAreaInsets().top,
-                              ...style,
-                          },
-                          style: {
-                              flex: 1,
-                              ...style,
                           },
                           scrollIndicatorInsets: { right: 1 },
                       }
-                    : {
-                          style: {
-                              flex: 1,
-                              backgroundColor: theme.mode.backgroundColor,
-                              padding: SPACING.NORMAL,
-                              ...style,
-                              paddingTop: useSafeAreaInsets().top,
-                              ...(noPadding && { padding: 0 }),
-                          },
-                      }),
+                    : { style: { flex: 1, backgroundColor: theme.mode.backgroundColor, padding: SPACING.NORMAL, ...style } }),
                 ...(noPadding && { padding: 0 }),
             }}
             {...rest}>

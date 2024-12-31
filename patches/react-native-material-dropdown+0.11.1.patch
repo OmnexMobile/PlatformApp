@@ -1,0 +1,22 @@
+diff --git a/node_modules/react-native-material-dropdown/src/components/dropdown/index.js b/node_modules/react-native-material-dropdown/src/components/dropdown/index.js
+index b1e65a1..a8baaa2 100644
+--- a/node_modules/react-native-material-dropdown/src/components/dropdown/index.js
++++ b/node_modules/react-native-material-dropdown/src/components/dropdown/index.js
+@@ -17,7 +17,7 @@ import { TextField } from 'react-native-material-textfield';
+ 
+ import DropdownItem from '../item';
+ import styles from './styles';
+-
++import { TextPropTypes } from 'deprecated-react-native-prop-types';
+ export default class Dropdown extends PureComponent {
+   static defaultProps = {
+     hitSlop: { top: 6, right: 4, bottom: 6, left: 4 },
+@@ -133,7 +133,7 @@ export default class Dropdown extends PureComponent {
+     disabledItemColor: PropTypes.string,
+     baseColor: PropTypes.string,
+ 
+-    itemTextStyle: Text.propTypes.style,
++    itemTextStyle: TextPropTypes.style,
+ 
+     itemCount: PropTypes.number,
+     itemPadding: PropTypes.number,

@@ -2,11 +2,15 @@ import axios from 'axios';
 import ApiError from './ApiError';
 import ERRORS from './errorConstants';
 import localStorage from '../localStorage';
-import { APP_VARIABLES, LOCAL_STORAGE_VARIABLES } from 'constants/app-constant';
+import { APP_VARIABLES, LOCAL_STORAGE_VARIABLES } from '../../constants/app-constant';
 
-export const BaseURL = () => localStorage.getStringItem(LOCAL_STORAGE_VARIABLES.SERVER_URL);
+// export const BaseURL = () => localStorage.getStringItem(LOCAL_STORAGE_VARIABLES.SERVER_URL);
+export const BaseURL = () => localStorage.getStringItem(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL);
 // export const BaseURLString = () => 'http://1.22.172.236/ProblemSolverAPI/';
 // export const BaseURL = () => 'http://1.22.172.236/ProblemSolverAPI/';
+export const LoginStatus = () => localStorage.getStringItem('appLogged');
+
+// const { globalLoginData } = useAppContext();
 
 // eslint-disable-next-line no-unused-vars
 const setupInterceptors = async store => {
@@ -18,8 +22,12 @@ const setupInterceptors = async store => {
 
     axios.interceptors.request.use(
         async config => {
+
             let url = await BaseURL();
-            url = url.substring(1, url.length - 1);
+            console.log('url-->', url)
+            let loginStatus = await LoginStatus();
+            console.log('loginStatus-->', loginStatus)
+            url = url.substring(1, url.length-1);
             config.baseURL = url;
 
             const token = await localStorage.getStringItem(APP_VARIABLES.TOKEN);
@@ -50,13 +58,12 @@ const setupInterceptors = async store => {
 
     axios.interceptors.response.use(
         response => {
-            // console.log('🚀 ~ file: index.js:58 ~ setupInterceptors ~ response:', response);
             // Process response body
             // use store.dispatch() to dispatch any redux ArticleActions
             // console.warn('---------------------Network', response);
             if (response?.status >= 500) {
                 // throw new ApiError(ERRORS.SERVER_ERROR);
-                return Promise.reject(response.data.message || response.data.Error);
+                return Promise.reject(response.data.message);
             } else if (response?.status === 401) {
                 localStorage.removeItem(APP_VARIABLES.TOKEN);
                 // throw new ApiError(ERRORS.UNAUTHORISED_ERROR);

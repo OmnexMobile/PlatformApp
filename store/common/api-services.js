@@ -1,5 +1,5 @@
 import axios from 'axios';
-import API_URL from 'global/api-urls';
+import API_URL from 'global/ApiUrl';
 
 export default class CommonServices {
     static getOrganizationServices = ({}) => {

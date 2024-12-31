@@ -1,6 +1,6 @@
 import React from 'react';
 import Ripple from 'react-native-material-ripple';
-import { Platform, ScrollView, StatusBar, View } from 'react-native';
+import { ScrollView, View } from 'react-native';
 import { TextComponent, NoRecordFound, Avatar } from 'components';
 import { Modalize } from 'react-native-modalize';
 import { getAvatarInitials, RFPercentage } from 'helpers/utils';
@@ -13,18 +13,6 @@ const ChooseSite = ({ modalizeRef, filteredSites, sites, handleSite, searchKey, 
     const { theme } = useTheme();
     return (
         <Modalize
-            onOpen={() => {
-                // if (Platform.OS === 'android') {
-                StatusBar.setBackgroundColor('rgba(0, 0, 0, 0.65)', true);
-                StatusBar.setBarStyle('light-content');
-                // }
-            }}
-            onClose={() => {
-                // if (Platform.OS === 'android') {
-                StatusBar.setBackgroundColor(COLORS.white, true);
-                StatusBar.setBarStyle('dark-content');
-                // }
-            }}
             ref={modalizeRef}
             // adjustToContentHeight
             scrollViewProps={{
@@ -34,10 +22,7 @@ const ChooseSite = ({ modalizeRef, filteredSites, sites, handleSite, searchKey, 
                     flexGrow: 1,
                 },
             }}
-            modalStyle={{
-                backgroundColor: theme.mode.backgroundColor,
-            }}
-            modalHeight={RFPercentage(Platform.OS === 'android' ? 80 : 50)}
+            modalHeight={RFPercentage(80)}
             HeaderComponent={
                 <View
                     style={{
@@ -49,23 +34,40 @@ const ChooseSite = ({ modalizeRef, filteredSites, sites, handleSite, searchKey, 
                         borderTopRightRadius: SPACING.SMALL,
                     }}>
                     <TextComponent>Choose site ({filteredSites?.length || 0})</TextComponent>
+                    {/* <TextComponent>Organizations ({organizations?.length})</TextComponent> */}
+                    {/* <View
+                            style={{
+                                width: '100%',
+                                padding: SPACING.NORMAL,
+                                paddingHorizontal: 0,
+                                paddingBottom: 0,
+                            }}>
+                            <View>
+                                <TextInput
+                                    value={searchKey}
+                                    onChangeText={searchKey => setSearchKey(searchKey)}
+                                    style={{ fontFamily: 'ProximaNova-Regular', fontSize: FONT_SIZE.LARGE }}
+                                    placeholder="search site"
+                                />
+                            </View>
+                        </View> */}
                 </View>
             }>
             <View style={{ flex: 1, backgroundColor: theme.mode.backgroundColor }}>
-                <ScrollView
-                    style={{ flex: 1, backgroundColor: theme.mode.backgroundColor, paddingBottom: SPACING.LARGE }}
-                    contentContainerStyle={{ flexGrow: 1, flex: 1, backgroundColor: theme.mode.backgroundColor }}>
-                    <View style={{ flex: 1, backgroundColor: theme.mode.backgroundColor, paddingTop: SPACING.SMALL }}>
+                <ScrollView style={{ flex: 1, paddingBottom: SPACING.LARGE }} contentContainerStyle={{ flexGrow: 1, flex: 1 }}>
+                    <View style={{ flex: 1 }}>
                         {!!filteredSites?.length ? (
                             <>
+                            {console.log('filteredSites--->', filteredSites)}
                                 {filteredSites.map(
-                                    ({ EntityNode, FullName, SiteId, SiteName, SupplierAccess, UserId, UserType, img = null }, index) => (
+                                    ({ EntityNode, FullName, Siteid, SiteName, SupplierAccess, UserId, UserType, img = null }, index) => (
                                         <Ripple
                                             onPress={() => {
                                                 setTimeout(() => {
                                                     modalizeRef.current?.close();
                                                 }, 1000);
-                                                handleSite({ EntityNode, FullName, SiteId, SiteName, SupplierAccess, UserId, UserType });
+                                                // handleSite({ EntityNode, FullName, SiteId, SiteName, SupplierAccess, UserId, UserType });
+                                                handleSite({ EntityNode, FullName, Siteid, SiteName, SupplierAccess, UserId, UserType });
                                                 toast('Loading...', 'setting up site details...', TOAST_STATUS.SUCCESS, 100);
                                             }}
                                             activeOpacity={0.8}
@@ -81,16 +83,14 @@ const ChooseSite = ({ modalizeRef, filteredSites, sites, handleSite, searchKey, 
                                                     borderWidth: 2,
                                                     borderRadius: 100,
                                                     padding: 2,
-                                                    borderColor:
-                                                        sites?.selectedSite?.SiteId === SiteId ? theme.colors.primaryThemeColor : COLORS.lightGrey,
+                                                    // borderColor: sites?.selectedSite?.SiteId === SiteId ? COLORS.primaryThemeColor : COLORS.white,
+                                                    borderColor: sites?.selectedSite?.Siteid === Siteid ? COLORS.primaryThemeColor : COLORS.white,
                                                 }}>
                                                 <Avatar
                                                     img={img}
                                                     placeholder={getAvatarInitials(SiteName)}
                                                     width={RFPercentage(5)}
                                                     height={RFPercentage(5)}
-                                                    selected={sites?.selectedSite?.SiteId === SiteId}
-                                                    theme={theme}
                                                 />
                                             </View>
                                             <TextComponent style={{ paddingLeft: SPACING.NORMAL }}>{SiteName}</TextComponent>

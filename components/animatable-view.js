@@ -17,7 +17,7 @@ const AnimatableView = ({
 }) => {
     const viewDelay = delay + (index + 1) * 100;
     return (
-        <ViewAnimatable {...{ duration, useNativeDriver: true, animation: animation || animationConfig, delay: viewDelay, style, ...rest }}>
+        <ViewAnimatable {...{ duration, useNativeDriver: false, animation: animation || animationConfig, delay: viewDelay, style, ...rest }}>
             {children}
         </ViewAnimatable>
     );

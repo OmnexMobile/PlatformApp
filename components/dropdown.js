@@ -6,7 +6,7 @@ import { COLORS, FONT_SIZE, SPACING } from 'constants/theme-constants';
 import { FONT_TYPE } from 'constants/app-constant';
 import useTheme from 'theme/useTheme';
 
-const DropdownComponent = ({ name, label, value, onChange, data = [], required = false, containerStyle = {}, editable = true, search = false }) => {
+const DropdownComponent = ({ name, label, value, onChange, data = [], required = false, containerStyle = {}, editable = true }) => {
     const { theme } = useTheme();
     return (
         <View
@@ -16,7 +16,7 @@ const DropdownComponent = ({ name, label, value, onChange, data = [], required =
                     backgroundColor: theme.mode.backgroundColor,
                     ...(!editable && { backgroundColor: theme.mode.disabledBackgroundColor }),
                     paddingBottom: SPACING.SMALL,
-                    marginBottom: SPACING.X_SMALL,
+                    marginBottom: SPACING.XX_SMALL,
                 },
                 containerStyle,
             ]}>
@@ -37,7 +37,7 @@ const DropdownComponent = ({ name, label, value, onChange, data = [], required =
                 inputSearchStyle={styles.inputSearchStyle}
                 iconStyle={styles.iconStyle}
                 data={data}
-                search={search}
+                search={false}
                 maxHeight={300}
                 labelField="label"
                 valueField="value"
@@ -48,7 +48,6 @@ const DropdownComponent = ({ name, label, value, onChange, data = [], required =
                 onChange={item => {
                     onChange?.(item.value);
                 }}
-                selectedTextProps={{ numberOfLines: 1 }}
                 //  backgroundColor={COLORS.primaryLightTransparentThemeColor}
                 renderItem={(item, selected) => (
                     <View
@@ -78,7 +77,7 @@ const styles = StyleSheet.create({
     dropdown: {
         borderBottomWidth: 1,
         borderColor: COLORS.whiteGrey,
-        paddingVertical: SPACING.SMALL,
+        // padding: SPACING.NORMAL,
         // borderWidth: 1,
         // margin: 16,
         // height: 50,

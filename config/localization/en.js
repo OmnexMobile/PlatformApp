@@ -58,4 +58,50 @@ export default {
     Clear_All: 'Clear All',
     Date: 'Date',
     Actions: 'Actions',
+
+    //DashBoard-Update
+    projectManagerView: 'Project Manager View',
+    internal: 'Internal',
+    supplier: 'Supplier',
+    home: 'Home',
+    calender: 'Calender',
+    more: 'More',
+
+    //APQP/PPAP Manager
+    apqp_ppapManager: 'APQP/PPAP Manager',
+    actions: 'Actions',
+    projects: 'Projects',
+    risk: 'Risk',
+    meeting: 'Meeting',
+    todayTask: 'Today Task',
+    dailyTask: 'Daily Task',
+
+    //PPAP Projects
+    ppapProjects: 'PPAP Projects',
+
+    //Audit Pro
+    auditPro: 'Audit Pro',
+    scheduledAudit: 'Scheduled\nAudit',
+    completedAudit: 'Completed\nAudit',
+    deadlineViolated: 'Deadline\nViolated',
+    closedOut: 'Closed\nOut',
+    scheduled: "Scheduled",
+    completed: "Completed",
+    deadlineviolated: "Deadline Violated",
+    deadlineviolatedandcompleted: "Deadline Violated & Completed",
+    abb_deadlineviolated: "D.Violated",
+    abb_deadlineviolatedandcompleted: "Closed Out",
+
+    //Problem Solver
+    problemSolver: 'Problem Solver',
+    concerns: 'Concerns\n',
+    openConcerns: 'Open\nConcerns',
+    inProgressConcerns: 'In Progress\nConcerns',
+    supplierConcerns: 'Supplier\nConcerns',
+
+    //Document Pro
+    documentPro: 'Document Pro',
+    documentLevels: 'Document\nLevels',
+    actionList: 'Actions\nList',
+    adminActions: 'Admin\nActions',
 };

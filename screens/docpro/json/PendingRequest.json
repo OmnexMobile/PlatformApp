@@ -1,0 +1,80 @@
+
+  {
+    "response": {
+      "loaded": {
+        "records": {
+          "record": [{
+            "@id ": "drc6 ",
+            "@docid ": "dpd377 ",
+            "name": "red ",
+            "number": "6385 ",
+            "rev": "1 ",
+            "@fileext ": "txt ",
+            "@filename ": "red 4.txt ",
+            "revdate": "05/31/2024",
+            "@routingmethod ": "-1 ",
+            "reqdate": "07/19/2024",
+            "status": "In Process ",
+            "@statusid ": "1 ",
+            "sitename": "Corporate ",
+            "@siteid ": "sit1 ",
+            "@requestbyuserid ": "22 ",
+            "@requestedby ": "Vasudevan Yamuna    ",
+            "@ownername ": "Vasudevan Yamuna    ",
+            "@sitelevelid ": "dsl23 ",
+            "@sitelevelname ": "AutoApproval_YV ",
+            "@revopt ": "2 "
+        },{
+          "@id ": "drc6 ",
+          "@docid ": "dpd377 ",
+          "name": "QSF_Rbb14 ",
+          "number": "BB14 ",
+          "rev": "1 ",
+          "@fileext ": "txt ",
+          "@filename ": "red 4.txt ",
+          "revdate": "10/04/2024",
+          "@routingmethod ": "-1 ",
+          "reqdate": "07/19/2024 ",
+          "status": "In Process ",
+          "@statusid ": "1 ",
+          "sitename": "Corporate ",
+          "@siteid ": "sit1 ",
+          "@requestbyuserid ": "22 ",
+          "@requestedby ": "Vasudevan Yamuna    ",
+          "@ownername ": "Vasudevan Yamuna    ",
+          "@sitelevelid ": "dsl23 ",
+          "@sitelevelname ": "AutoApproval_YV ",
+          "@revopt ": "2 "
+        },
+        {
+          "@id ": "drc6 ",
+          "@docid ": "dpd377 ",
+          "name": "QSF_Rbb14 ",
+          "number": "BB15 ",
+          "rev": "1 ",
+          "@fileext ": "txt ",
+          "@filename ": "red 4.txt ",
+          "revdate": "10/04/2024",
+          "@routingmethod ": "-1 ",
+          "reqdate": "07/19/2024 ",
+          "status": "In Process ",
+          "@statusid ": "1 ",
+          "sitename": "Corporate ",
+          "@siteid ": "sit1 ",
+          "@requestbyuserid ": "22 ",
+          "@requestedby ": "Vasudevan Yamuna    ",
+          "@ownername ": "Vasudevan Yamuna    ",
+          "@sitelevelid ": "dsl23 ",
+          "@sitelevelname ": "AutoApproval_YV ",
+          "@revopt ": "2 "
+        }]
+        }
+      },
+      "status ": {
+        "@type ": "ok ",
+        "methname ": " ",
+        "number ": "0 ",
+        "message ": " "
+      }
+    }
+  }

@@ -1,6 +1,6 @@
 // Colors palette source https://flatuicolors.com/palette/defo
 
-import { COLORS } from 'constants/theme-constants';
+import { COLORS } from '../constants/theme-constants';
 
 const SUN_FLOWER = '#f1c40f';
 const ASBESTOS = '#7f8c8d';
@@ -32,7 +32,7 @@ const red = {
 
 const blue = {
     ...common,
-    primaryThemeColor: '#31A5E2',
+    primaryThemeColor: '#0180ff',
     primaryLightThemeColor: '#8ac7ff',
     primaryDarkThemeColor: '#2239b8',
 };
@@ -54,7 +54,6 @@ const pink = {
 const light = {
     backgroundColor: COLORS.white,
     disabledBackgroundColor: COLORS.whiteGrey,
-    searchInputBackgroundColor: COLORS.loginInputBac,
     textColor: COLORS.black,
     borderColor: COLORS.whiteGrey,
 };
@@ -62,7 +61,6 @@ const light = {
 const dark = {
     backgroundColor: COLORS.themeBlack,
     disabledBackgroundColor: COLORS.themeBlack,
-    searchInputBackgroundColor: COLORS.themeBlack,
     textColor: COLORS.whiteGrey,
     borderColor: COLORS.black,
 };

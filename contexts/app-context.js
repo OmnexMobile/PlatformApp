@@ -1,8 +1,9 @@
 import React, { useState, useContext, useEffect } from 'react';
 import moment from 'moment';
-import localStorage from 'global/localStorage';
-import { API_URL, COMPANY_DETAILS, Languages, LOCAL_STORAGE_VARIABLES } from 'constants/app-constant';
-import strings from 'config/localization';
+import localStorage from '../global/localStorage';
+import { API_URL, COMPANY_DETAILS, Languages, LOCAL_STORAGE_VARIABLES } from '../constants/app-constant';
+import strings from '../config/localization';
+import AsyncStorage from '@react-native-community/async-storage';
 
 // Creating the context object and passing the default values.
 const AppContext = React.createContext({});
@@ -10,7 +11,7 @@ const AppContext = React.createContext({});
 const DEFAULT_VALUE = {
     Token: '',
     UserId: '',
-    SiteDetails: '',
+    SiteId: '',
     UserFullName: '',
     UserEmail: '',
     Address: COMPANY_DETAILS.Address,
@@ -19,6 +20,7 @@ const DEFAULT_VALUE = {
     Logo: COMPANY_DETAILS.Logo,
     Phone: COMPANY_DETAILS.Phone,
     loading: true,
+    CurrentApp: '',
 };
 
 const AppProvider = ({ children }) => {
@@ -35,8 +37,28 @@ const AppProvider = ({ children }) => {
     const [appSettings, setAppSettings] = useState({
         language: 'en',
         serverUrl: '',
-        deviceStatusSettings: null,
+        //Problem solver
+        // deviceStatusSettings: null,
     });
+    const [globalURL, setGlobalURL] = useState({
+        serverUrl: '',
+    });
+    const [globalLoginData, setGlobalLoginData] = useState({
+        loginData: [],
+        token: '',
+        userName: '',
+        userId: '',
+    });
+    const [globalDeviceDetails, setGlobalDeviceDetails] = useState({
+        deviceDetails: [],
+    });
+
+    // const handleLogout = async () => {
+    //     setProfile(DEFAULT_VALUE);
+    //     await localStorage.clearAll();
+    // };
+
+    //Problem solver
     const handleLogout = async () => {
         await localStorage.removeItem(LOCAL_STORAGE_VARIABLES.Token);
         await localStorage.removeItem(LOCAL_STORAGE_VARIABLES.UserId);
@@ -61,18 +83,60 @@ const AppProvider = ({ children }) => {
     };
 
     const handleAppSetting = (key, value) => {
-        if (typeof value === 'string') {
-            setAppSettings({
-                ...appSettings,
-                [key]: value,
-            });
-        } else {
-            setAppSettings({
-                ...appSettings,
-                ...value,
-            });
-        }
+        console.log('🚀 ~ file: app-context.js:62 ~ handleAppSetting ~ handleAppSetting', key, value);
+        setAppSettings({
+            ...appSettings,
+            [key]: value,
+        });
+        // problem solver
+        // if (typeof value === 'string') {
+        //     setAppSettings({
+        //         ...appSettings,
+        //         [key]: value,
+        //     });
+        // } else {
+        //     setAppSettings({
+        //         ...appSettings,
+        //         ...value
+        //     });
+        // }
     };
+
+    const handleGlobalURL = (key, value) => {
+        console.log('🚀 ~ file: app-context.js:93 ~ handleGlobalURL ~ handleGlobalURL', key, value);
+        setGlobalURL({
+            ...globalURL,
+            [key]: value,
+        });
+    };
+
+    const handleGlobalLogin = async (data) => {
+        await localStorage.storeData(LOCAL_STORAGE_VARIABLES.globalLogin, data);
+        setGlobalLoginData({
+            ...globalLoginData,
+            loginData: data?.Data,
+            token: data?.Token,
+            userName: data?.Data[0]?.FullName,
+            userId: data?.Data[0]?.UserId.toString(),
+        });
+        const userDetailsPS = {
+            userId: data?.Data[0]?.UserId.toString(),
+            accessToken: data?.Token,
+            userFullName: data?.Data[0]?.FullName,
+            userData: data?.Data,
+        };
+        const stringifiedUserDetails = JSON.stringify(userDetailsPS);
+        AsyncStorage.setItem('userDetailsPS', stringifiedUserDetails);
+        console.log('Set Async userDetailsPS ', stringifiedUserDetails)
+    };
+
+    const handleDeviceDetails = async deviceDetails => {
+        localStorage.storeData(LOCAL_STORAGE_VARIABLES.GLOBAL_DEVICE_STATUS, deviceDetails);
+        setGlobalDeviceDetails({
+            ...globalDeviceDetails,
+            deviceDetails,
+        })
+    }
 
     const resetContextData = () => {
         setOrganization({
@@ -82,8 +146,7 @@ const AppProvider = ({ children }) => {
     };
 
     const handleSite = async selectedSite => {
-        console.log('🚀 ~ file: app-context.js:79 ~ handleSite ~ selectedSite:', selectedSite);
-        await localStorage.storeData(LOCAL_STORAGE_VARIABLES.SiteDetails, selectedSite);
+        await localStorage.storeData(LOCAL_STORAGE_VARIABLES.SiteId, selectedSite);
         setSites({
             ...sites,
             selectedSite,
@@ -91,8 +154,10 @@ const AppProvider = ({ children }) => {
     };
 
     const handleSiteList = async siteList => {
+        console.log('handleSiteList---->siteList', siteList)
+        console.log('handleSiteList---->sites?.selectedSite', sites?.selectedSite, '---', siteList?.[0])
         await localStorage.storeData(LOCAL_STORAGE_VARIABLES.SITES, siteList);
-        !sites?.selectedSite && (await localStorage.storeData(LOCAL_STORAGE_VARIABLES.SiteDetails, siteList?.[0]));
+        !sites?.selectedSite && (await localStorage.storeData(LOCAL_STORAGE_VARIABLES.SiteId, siteList?.[0]));
         setSites({
             ...sites,
             selectedSite: siteList?.[0] || null,
@@ -105,26 +170,32 @@ const AppProvider = ({ children }) => {
             ...organization,
             selectedOrganization,
         });
+    
+    //problem solver
+    // const handleAddRecentActivities = recentActivities => {
+    //     setRecentActivities([...recentActivities]);
+    //     localStorage.storeData(LOCAL_STORAGE_VARIABLES.RECENT_ACTIVITIES, [...recentActivities]);
+    // };
 
-    const handleAddRecentActivities = recentActivities => {
-        setRecentActivities([...recentActivities]);
-        localStorage.storeData(LOCAL_STORAGE_VARIABLES.RECENT_ACTIVITIES, [...recentActivities]);
-    };
+    // const handleRecentActivity = (concern, deleteConcern = false) => {
+    //     if (deleteConcern) {
+    //         const filteredRecentActivities = recentActivities?.filter(x => x.ConcernID !== concern?.ConcernID);
+    //         handleAddRecentActivities(filteredRecentActivities);
+    //     } else {
+    //         const index = recentActivities.findIndex(x => x.ConcernID === concern?.ConcernID);
+    //         if (index === -1) {
+    //             recentActivities.push({ ...concern, lastOpened: moment() });
+    //             handleAddRecentActivities(recentActivities);
+    //         }
+    //     }
+    // };
 
-    const handleRecentActivity = (concern, deleteConcern = false) => {
-        if (deleteConcern) {
-            const filteredRecentActivities = recentActivities?.filter(x => x.ConcernID !== concern?.ConcernID);
-            handleAddRecentActivities(filteredRecentActivities);
-        } else {
-            const index = recentActivities.findIndex(x => x.ConcernID === concern?.ConcernID);
-            if (index === -1) {
-                recentActivities.push({ ...concern, lastOpened: moment() });
-                handleAddRecentActivities(recentActivities);
-            } else {
-                // If the concern is already added, update its lastOpened timestamp
-                recentActivities[index].lastOpened = moment();
-                handleAddRecentActivities(recentActivities);
-            }
+    const handleRecentActivity = concern => {
+        const index = recentActivities.findIndex(x => x.ConcernID === concern?.ConcernID);
+        if (index === -1) {
+            recentActivities.push({ ...concern, lastOpened: moment() });
+            setRecentActivities([...recentActivities]);
+            localStorage.storeData(LOCAL_STORAGE_VARIABLES.RECENT_ACTIVITIES, [...recentActivities]);
         }
     };
 
@@ -132,45 +203,42 @@ const AppProvider = ({ children }) => {
         const SiteList = await localStorage.getData(LOCAL_STORAGE_VARIABLES.SITES);
         const Token = await localStorage.getData(LOCAL_STORAGE_VARIABLES.Token);
         const UserId = await localStorage.getData(LOCAL_STORAGE_VARIABLES.UserId);
-        const SiteDetails = await localStorage.getData(LOCAL_STORAGE_VARIABLES.SiteDetails);
+        const SiteId = await localStorage.getData(LOCAL_STORAGE_VARIABLES.SiteId);
         const UserFullName = await localStorage.getData(LOCAL_STORAGE_VARIABLES.UserFullName);
         const UserEmail = await localStorage.getData(LOCAL_STORAGE_VARIABLES.UserEmail);
-        let serverUrl = (await localStorage.getData(LOCAL_STORAGE_VARIABLES.SERVER_URL)) || '';
-        let deviceStatusSettings = (await localStorage.getData(LOCAL_STORAGE_VARIABLES.DEVICE_STATUS_SETTINGS)) || '';
-        // console.log('🚀 ~ file: app-context.js:125 ~ getLocalStorageData ~ SiteDetails:', deviceStatusSettings);
+        const CurrentApp = await localStorage.getData('CurrentApp')
+        let serverUrl = await localStorage.getData(LOCAL_STORAGE_VARIABLES.SERVER_URL) || "";
         // if(!serverUrl) {
         //     await localStorage.storeData(LOCAL_STORAGE_VARIABLES.SERVER_URL, API_URL);
         //     serverUrl = API_URL
         // }
+
+        //prblem solver
+        // let deviceStatusSettings = (await localStorage.getData(LOCAL_STORAGE_VARIABLES.DEVICE_STATUS_SETTINGS)) || ''
         Token &&
             setProfile({
                 ...profile,
                 Token,
                 UserId,
-                SiteDetails,
+                SiteId,
                 UserFullName,
                 UserEmail,
                 loading: false,
+                CurrentApp,
             });
         setAppSettings({
             ...appSettings,
             serverUrl,
-            deviceStatusSettings,
+            //problem solver
+            // deviceStatusSettings
         });
         handleSiteList(SiteList);
-        SiteDetails && handleSite(SiteDetails);
+        SiteId && handleSite(SiteId);
     };
 
     const getRecentActivity = async () => {
-        let recentActivities = await localStorage.getData(LOCAL_STORAGE_VARIABLES.RECENT_ACTIVITIES);
-        recentActivities = recentActivities || [];
-
-        // Sort the recentActivities array by lastOpened in descending order
-        recentActivities.sort((a, b) => {
-            return moment(b.lastOpened).diff(moment(a.lastOpened));
-        });
-
-        setRecentActivities(recentActivities);
+        const recentActivities = await localStorage.getData(LOCAL_STORAGE_VARIABLES.RECENT_ACTIVITIES);
+        setRecentActivities(recentActivities || []);
     };
 
     useEffect(() => {
@@ -190,6 +258,9 @@ const AppProvider = ({ children }) => {
                 sites,
                 recentActivities,
                 appSettings,
+                globalURL,
+                globalLoginData,
+                globalDeviceDetails,
                 handleLogin,
                 handleLogout,
                 handleOrganization,
@@ -198,6 +269,9 @@ const AppProvider = ({ children }) => {
                 handleAppSetting,
                 handleSiteList,
                 handleRecentActivity,
+                handleGlobalURL,
+                handleGlobalLogin,
+                handleDeviceDetails,
             }}>
             {children}
         </AppContext.Provider>

@@ -7,7 +7,7 @@ import { DATE_FORMAT, FONT_TYPE } from 'constants/app-constant';
 import useTheme from 'theme/useTheme';
 import TextComponent from './text';
 
-const DatePickerComponent = ({ name, label, required, value, onChange, editable = true, containerStyle = {} }) => {
+const DatePickerComponent = ({ name, label, required, value, onChange, editable = true }) => {
     const [activePicker, setActivePicker] = useState(null);
     const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
     const { theme } = useTheme();
@@ -28,15 +28,12 @@ const DatePickerComponent = ({ name, label, required, value, onChange, editable 
     };
     return (
         <View
-            style={[
-                {
-                    padding: SPACING.NORMAL,
-                    ...(!editable && { backgroundColor: theme.mode.disabledBackgroundColor }),
-                    paddingBottom: SPACING.SMALL,
-                    marginBottom: SPACING.X_SMALL,
-                },
-                containerStyle,
-            ]}>
+            style={{
+                padding: SPACING.NORMAL,
+                ...(!editable && { backgroundColor: theme.mode.disabledBackgroundColor }),
+                paddingBottom: SPACING.SMALL,
+                marginBottom: SPACING.XX_SMALL,
+            }}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <TextComponent style={{ fontSize: FONT_SIZE.SMALL }} type={FONT_TYPE.BOLD}>
                     {label}

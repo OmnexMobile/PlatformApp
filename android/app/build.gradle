@@ -1,5 +1,4 @@
 apply plugin: "com.android.application"
-apply plugin: "com.facebook.react"
 
 import com.android.build.OutputFile
 import org.apache.tools.ant.taskdefs.condition.Os
@@ -136,12 +135,15 @@ android {
     compileSdkVersion rootProject.ext.compileSdkVersion
 
     defaultConfig {
-        applicationId "com.omnex.inspectioncontrol"
+        applicationId "com.Omnex.IntegratedApp"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
         buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", isNewArchitectureEnabled().toString()
+        multiDexEnabled true
+        missingDimensionStrategy 'react-native-camera', 'general'
+        manifestPlaceholders = [appAuthRedirectScheme: 'com.omnex.auditpro']
 
         if (isNewArchitectureEnabled()) {
             // We configure the CMake build only if you decide to opt-in for the New Architecture.
@@ -259,13 +261,16 @@ android {
 
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
-    implementation 'org.jetbrains:annotations:16.0.2'
 
     //noinspection GradleDynamicVersion
     implementation "com.facebook.react:react-native:+"  // From node_modules
     implementation "androidx.core:core-splashscreen:1.0.0" // Bootsplash
 
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
+
+    implementation project(':@react-native-community_voice')
+
+    implementation 'androidx.multidex:multidex:2.0.1'
 
     debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}") {
         exclude group:'com.facebook.fbjni'

@@ -12,7 +12,7 @@ const transition = {
     easing: Easing.inOut(Easing.ease),
 };
 
-const TextComponent = ({ color = null, fontSize = FONT_SIZE.X_SMALL, type, numberOfLines = 3, rupee = null, animate = null, ...rest }) => {
+const TextComponent = ({ color = null, fontSize = FONT_SIZE.REGULAR, type, numberOfLines = 3, rupee = null, animate = null, ...rest }) => {
     const { children, style, onPress } = rest;
     const { theme } = useTheme();
     const getFontFamily = type => {

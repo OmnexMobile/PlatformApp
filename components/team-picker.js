@@ -3,7 +3,7 @@ import { TouchableOpacity, View, FlatList } from 'react-native';
 import { COLORS, FONT_SIZE, SPACING } from 'constants/theme-constants';
 import { APP_VARIABLES, FONT_TYPE, ICON_TYPE, PLACEHOLDERS } from 'constants/app-constant';
 import { postAPI } from 'global/api-helpers';
-import API_URL from 'global/api-urls';
+import API_URL from 'global/ApiUrl';
 import useTheme from 'theme/useTheme';
 import { useAppContext } from 'contexts/app-context';
 import { formReq, objToQs, showErrorMessage, successMessage } from 'helpers/utils';
@@ -134,6 +134,7 @@ const TeamUsers = () => {
                 data: Data,
                 loading: false,
             });
+            console.log('🚀 ~ file: team-picker.js:96 ~ getListData ~ Data', Data);
         } catch (err) {
             setList({
                 data: [],
@@ -266,7 +267,7 @@ const InputContent = ({ name, label, required, value, setModalVisible, editable,
                     style={{
                         fontSize: FONT_SIZE.LARGE,
                         paddingVertical: SPACING.X_SMALL,
-                        color: !value && !selectedTeam?.name ? COLORS.searchText : theme?.mode.textColor,
+                        color: !value && !selectedTeam?.name ? COLORS.lightGrey : theme?.mode.textColor,
                     }}>
                     {value || selectedTeam?.name || 'Select Team'}
                 </TextComponent>
@@ -277,7 +278,6 @@ const InputContent = ({ name, label, required, value, setModalVisible, editable,
 
 const TeamPickerComponent = ({ name, label, required, value, editable = true, ConcernID, handleInputChange }) => {
     const [modalVisible, setModalVisible] = useState(false);
-    const { theme } = useTheme();
     return (
         <TeamProvider>
             <View
@@ -285,7 +285,7 @@ const TeamPickerComponent = ({ name, label, required, value, editable = true, Co
                     padding: SPACING.NORMAL,
                     flex: 1,
                     paddingBottom: SPACING.SMALL,
-                    marginBottom: SPACING.X_SMALL,
+                    marginBottom: SPACING.XX_SMALL,
                     ...(!editable && { backgroundColor: theme.mode.disabledBackgroundColor }),
                 }}>
                 <ModalTabs {...{ modalVisible, setModalVisible, ConcernID, handleInputChange }} />

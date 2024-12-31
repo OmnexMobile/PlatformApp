@@ -1,79 +1,50 @@
 import React from 'react';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import Ripple from 'react-native-material-ripple';
 import { useNavigation } from '@react-navigation/native';
 import moment from 'moment';
 import { COLORS, FONT_SIZE, SPACING } from 'constants/theme-constants';
-import { DATE_FORMAT, FONT_TYPE, ICON_TYPE, ROUTES, STATUS, STATUS_CODES, USER_TYPE } from 'constants/app-constant';
+import { DATE_FORMAT, FONT_TYPE, ICON_TYPE, ROUTES } from 'constants/app-constant';
 import { getElevation, RFPercentage } from 'helpers/utils';
-import { useAppContext } from 'contexts/app-context';
 import useTheme from 'theme/useTheme';
 import IconComponent from './icon-component';
 import TextComponent from './text';
 // import Tag from './tag';
 
-const ListCard = ({ item = {} }) => {
-    const { sites, handleRecentActivity } = useAppContext();
+const ListCard = ({ item = {}, handleRecentActivity }) => {
     const { theme } = useTheme();
     const elevation = getElevation();
     const navigation = useNavigation();
 
     const handleClickCard = item => {
         // navigation.navigate(ROUTES.CONCERN_SCREEN, { ConcernID: item?.ConcernID });
-        navigation.navigate(item?.Status === STATUS.CREATED ? ROUTES.CONCERN_INITIAL_EVALUATION : ROUTES.VIEW_CONCERN, {
-            ConcernID: item?.ConcernID,
-            ...(item?.StatusID === STATUS_CODES.IN_PROGRESS.toString() && { FormTypeID: 3 }),
-        });
+        navigation.navigate(ROUTES.CONCERN_INITIAL_EVALUATION, { ConcernID: item?.ConcernID });
         handleRecentActivity?.(item);
     };
     return (
         <View style={{ paddingHorizontal: SPACING.NORMAL }}>
-            <TouchableOpacity
-                activeOpacity={1}
+            <Ripple
                 onPress={() => handleClickCard?.(item)}
+                rippleContainerBorderRadius={SPACING.SMALL}
                 style={[
                     {
                         padding: SPACING.NORMAL,
                         borderRadius: SPACING.SMALL,
                         padding: SPACING.NORMAL,
                         marginBottom: SPACING.NORMAL,
-                        marginTop: SPACING.X_SMALL,
+                        marginTop: SPACING.XX_SMALL,
                     },
                     elevation,
                 ]}>
-                {sites?.selectedSite?.UserType !== USER_TYPE.SUPPLIER && (
-                    <Ripple
-                        rippleContainerBorderRadius={SPACING.SMALL}
-                        onPress={() =>
-                            navigation.navigate(ROUTES.EDIT_CONCERN, {
-                                ConcernID: item?.ConcernID,
-                            })
-                        }
-                        activeOpacity={1}
-                        style={{
-                            position: 'absolute',
-                            right: SPACING.SMALL,
-                            top: SPACING.SMALL,
-                            width: RFPercentage(5),
-                            height: RFPercentage(5),
-                            backgroundColor: theme.colors.primaryThemeColor,
-                            borderRadius: SPACING.SMALL,
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            zIndex: 100,
-                        }}>
-                        <IconComponent name="edit" size={FONT_SIZE.LARGE} type={ICON_TYPE.AntDesign} color={COLORS.white} />
-                    </Ripple>
-                )}
                 <View style={[styles.cardOuterView]}>
                     <View style={styles.projectBoxContent}>
                         <View style={{ flexDirection: 'row', paddingBottom: SPACING.SMALL, flex: 1 }}>
                             {/* <View style={[{ paddingRight: SPACING.SMALL }, styles.apqpTypeIcon]}>
                                     <ImageComponent resizeMode="contain" source={IMAGES.apqpModuleIcon} />
                                 </View> */}
-                            <View style={{ width: '100%', paddingRight: RFPercentage(5.5) }}>
+                            <View style={{ width: '100%' }}>
                                 <TextComponent
-                                    numberOfLines={2}
+                                    numberOfLines={1}
                                     fontSize={FONT_SIZE.LARGE}
                                     // type={FONT_TYPE.BOLD}
                                     style={{
@@ -99,46 +70,44 @@ const ListCard = ({ item = {} }) => {
                             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                 <View
                                     style={{
-                                        width: RFPercentage(2.5),
-                                        height: RFPercentage(2.5),
+                                        width: RFPercentage(3),
+                                        height: RFPercentage(3),
                                         backgroundColor: COLORS.WARNING,
                                         alignItems: 'center',
                                         justifyContent: 'center',
-                                        borderRadius: SPACING.X_SMALL,
+                                        borderRadius: SPACING.SMALL,
                                         marginRight: SPACING.X_SMALL,
                                     }}>
-                                    <IconComponent name="calendar" color={COLORS.white} type={ICON_TYPE.AntDesign} size={FONT_SIZE.X_SMALL} />
+                                    <IconComponent name="calendar" color={COLORS.white} type={ICON_TYPE.AntDesign} size={FONT_SIZE.SMALL} />
                                 </View>
                                 <TextComponent type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.SMALL}>
-                                    {(item?.CreatedDate).split(' ')[0]} -{' '}
+                                {console.log('listCard--->1', item?.CreatedDate)}
+                                    {moment(item?.CreatedDate).format(DATE_FORMAT.DD_MM_YYYY)} - {' '}
                                 </TextComponent>
                             </View>
                             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                 <TextComponent type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.SMALL}>
-                                    {(item?.DueDate).split(' ')[0]}
-                                    {/* {moment(item?.DueDate).format(DATE_FORMAT.DD_MM_YYYY)} */}
+                                    {console.log('listCard--->', item?.DueDate, '---', moment(item?.DueDate).format(DATE_FORMAT.DD_MM_YYYY))}
+                                    {moment(item?.DueDate).format(DATE_FORMAT.DD_MM_YYYY)}
                                 </TextComponent>
                             </View>
                         </View>
                         <TextComponent style={{ paddingLeft: SPACING.X_SMALL }} numberOfLines={1}>
                             Due by days: <TextComponent type={FONT_TYPE.BOLD}>{item?.DuebyDays}</TextComponent>
                         </TextComponent>
-                        {/* <TextComponent
-                            style={{ color: COLORS.searchText, paddingLeft: SPACING.X_SMALL, paddingTop: SPACING.X_SMALL }}
-                            fontSize={FONT_SIZE.X_SMALL}
-                            numberOfLines={1}>
-                            {moment(item?.CreatedDate, DATE_FORMAT.DD_MM_YYYY_HH_MM_SS).fromNow()}
-                        </TextComponent> */}
+                        <TextComponent style={{ color: COLORS.searchText, paddingLeft: SPACING.X_SMALL, paddingTop: SPACING.X_SMALL }} fontSize={FONT_SIZE.X_SMALL} numberOfLines={1}>
+                            created {moment(item?.CreatedDate)?.fromNow()}
+                        </TextComponent>
                         {item?.lastOpened ? (
                             <View style={{ paddingTop: SPACING.SMALL, paddingLeft: SPACING.X_SMALL }}>
-                                <TextComponent type={FONT_TYPE.BOLD} style={{ color: COLORS.green, fontSize: FONT_SIZE.X_SMALL }}>
+                                <TextComponent type={FONT_TYPE.BOLD} style={{ color: COLORS.green, fontSize: FONT_SIZE.XX_SMALL }}>
                                     Last opened: {moment(item?.lastOpened).fromNow()}
                                 </TextComponent>
                             </View>
                         ) : null}
                     </View>
                 </View>
-            </TouchableOpacity>
+            </Ripple>
         </View>
     );
 };

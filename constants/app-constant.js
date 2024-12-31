@@ -11,36 +11,21 @@ import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import Octicons from 'react-native-vector-icons/Octicons';
 import { Easing } from 'react-native-reanimated';
 import { RFPercentage } from 'react-native-responsive-fontsize';
-import { IMAGES } from 'assets/images';
+import { IMAGES } from '../assets/images';
 
-// export const API_URL = 'http://1.22.172.236/ProblemSolverAPI/';
+export const API_URL = 'http://1.22.172.236/ProblemSolverAPI/';
 
 export const INPUTS_CONSTANTS = {
     DROPDOWN: 'DROPDOWN',
     INPUT: 'INPUT',
-    NUMBER: 'NUMBER',
-    LINK: 'LINK',
-    TEXT_INPUT: 'TEXT_INPUT',
     RICH_EDITOR: 'RICH_EDITOR',
     DATE_PICKER: 'DATE_PICKER',
     TEAM_PICKER: 'TEAM_PICKER',
-    RADIO_BUTTON: 'RADIO_BUTTON',
-    CHECK_BOX: 'CHECKBOX',
+    RADIO_BUTTON: 'RADIOBUTTON',
+    CHECK_BOX: 'CHECK_BOX',
     IMAGE_PICKER: 'IMAGE_PICKER',
     FILE_PICKER: 'FILE_PICKER',
-    TREE_PICKER: 'TREE_PICKER',
-    ROOT_CAUSE_CATEGORY_PICKER: 'ROOT_CAUSE_CATEGORY_PICKER',
-    ESTIMATION_PICKER: 'ESTIMATION_PICKER',
-    CUSTOMER_PICKER: 'CUSTOMER_PICKER',
-    SUPPLIER_PICKER: 'SUPPLIER_PICKER',
-    PROBLEMINFORMATION_PICKER: 'PROBLEMINFORMATION_PICKER',
-    EQUIPMENT_PICKER: 'EQUIPMENT_PICKER',
-    OK_PICKER: 'OK_PICKER',
-    NOTOK_PICKER: 'NOTOK_PICKER',
-    FILE_UPLOAD: 'FILE_UPLOAD',
-    PROBLEM_IMAGES: 'PROBLEM_IMAGES',
-    IMAGE_PICKER: 'IMAGE_PICKER',
-    ATTACHMENT_PICKER: 'ATTACHMENT_PICKER',
+    TREE_VIEW_PICKER: 'TREE_VIEW_PICKER',
 };
 
 export const MOTI_TRANSITION = {
@@ -78,7 +63,6 @@ export const ICON_TYPE = {
 
 export const APP_VARIABLES = {
     USER_ID: 'user_id',
-    UserId: 'UserId',
     STATUS_ID: 'StatusId',
     SITE_ID: 'SiteId',
     MAX_ROW: 'maxrow',
@@ -93,11 +77,6 @@ export const APP_VARIABLES = {
     CHAMPION_ID: 'ChampionID',
     PAGE: 'Page',
     SIZE: 'Size',
-    Column: 'Column',
-    Order: 'Order',
-    Mode: 'Mode',
-    Search: 'Search',
-    PageMode: 'PageMode',
     SAVE: 'Save',
     SUBMIT: 'Submit',
     TODAY_CONCERN: 'TODAY_CONCERN',
@@ -115,10 +94,6 @@ export const APP_VARIABLES = {
     FORM_TYPE: 'FormType',
     FORM_TYPE_ID: 'FormTypeID',
     CONCERN_FORM_ID: 'ConcernFormID',
-    DocumentStatus: 'DocumentStatus',
-    Remarks: 'Remarks',
-    FileId: 'FileId',
-    Type: 'Type',
 };
 
 export const COMPANY_DETAILS = {
@@ -156,7 +131,9 @@ export const USER_TYPE = {
 
 export const LOCAL_STORAGE_VARIABLES = {
     SERVER_URL: 'SERVER_URL',
+    GLOBAL_SERVER_URL: 'GLOBAL_SERVER_URL',
     DEVICE_STATUS_SETTINGS: 'DEVICE_STATUS_SETTINGS',
+    GLOBAL_DEVICE_STATUS: 'GLOBAL_DEVICE_STATUS',
     SITES: 'SITES',
     RECENT_ACTIVITIES: 'RECENT_ACTIVITIES',
     IS_FIRST_TIME_USER: 'IS_FIRST_TIME_USER',
@@ -169,6 +146,10 @@ export const LOCAL_STORAGE_VARIABLES = {
     UserId: 'UserId',
     UserName: 'UserName',
     Password: 'Password',
+    RegisteredDeviceId: 'RegisteredDeviceId',
+    FCMRegistrationToken: 'FCMRegistrationToken',
+    LoginFlag: 'LoginFlag',
+    fromSSO: 'fromSSO',
     Filterstring: 'Filterstring',
     MaxRow: 'MaxRow',
     Token: 'Token',
@@ -176,6 +157,9 @@ export const LOCAL_STORAGE_VARIABLES = {
     SiteDetails: 'SiteDetails',
     UserFullName: 'UserFullName',
     UserEmail: 'UserEmail',
+    deviceId: 'deviceId',
+    currentApp: 'currentApp',
+    globalLogin: 'globalLogin',
 };
 
 export const POST = 'POST';
@@ -194,6 +178,8 @@ export const ROUTES = {
     PROJECT_LIST: 'PROJECT_LIST',
     LOGIN: 'LOGIN',
     REGISTER: 'REGISTER',
+    GLOBAL_LOGIN: 'GLOBAL_LOGIN',
+    GLOBAL_REGISTER: 'GLOBAL_REGISTER',
     LAUNCH_SCREEN: 'LAUNCH_SCREEN',
     SETTINGS: 'SETTINGS',
     PREFERRED_LANGUAGE: 'PREFERRED_LANGUAGE',
@@ -213,9 +199,64 @@ export const ROUTES = {
     NEW_CONCERN_CREATIONS: 'NEW_CONCERN_CREATIONS',
     CONCERN_INITIAL_EVALUATION: 'CONCERN_INITIAL_EVALUATION',
     VIEW_CONCERN: 'VIEW_CONCERN',
-    EDIT_CONCERN: 'EDIT_CONCERN',
-    EIGHTD_DYNAMIC_PAGE: 'EIGHTD_DYNAMIC_PAGE',
-    VIEW_LOGS: 'VIEW_LOGS',
+    HOME_FAB_VIEW: 'HOME_FAB_VIEW',
+    AUDIT_DASHBOARD_LISTING: 'AUDIT_DASHBOARD_LISTING',
+    AUDIT_PAGE: 'AUDIT_PAGE',
+    AUDIT_ATTACH: 'AUDIT_ATTACH',
+    AUDIT_FORM: 'AUDIT_FORM',
+    NC_OFI_PAGE: 'NC_OFI_PAGE',
+    CREATE_NC: 'CREATE_NC',
+    CONFORMACY: 'CONFORMACY',
+    AUDIT_SUMMARY: 'AUDIT_SUMMARY',
+    CREATE_ATTACH: 'CREATE_ATTACH',
+    AUDIT_WEBVIEW: 'AUDIT_WEBVIEW',
+    CAMERA_CAPTURE: 'CAMERA_CAPTURE',
+    VIDEO_CAPTURE: 'VIDEO_CAPTURE',
+    USER_PREFERENCE: 'USER_PREFERENCE',
+    CHECKLIST_MENU: 'CHECKLIST_MENU',
+    CHECKPOINT_DEMO: 'CHECKPOINT_DEMO',
+    AUDIT_STATUS: 'AUDIT_STATUS',
+    LPA_PUBLISH: 'LPA_PUBLISH',
+    AUDIT_RESULT: 'AUDIT_RESULT',
+    CONFORMACY_VOICE: 'CONFORMACY_VOICE',
+    VOICE_ASSIST: 'VOICE_ASSIST',
+    LOGINUISCREEN: 'LOGINUISCREEN',
+    REGISTRATION: 'REGISTRATION',
+    LANGUAGES: 'LANGUAGES',
+    AUDIT_HOME: 'AUDIT_HOME',
+    AUDIT_CARD: 'AUDIT_CARD',
+    //PROBLEMSOLVER//
+    LOGIN_PS: 'LOGIN_PS',
+    REGISTER_PS: 'REGISTER_PS',
+    FILTERED_LIST_PS: 'FILTERED_LIST_PS',
+    LIST_SCREEN_PS: 'LIST_SCREEN_PS',
+    CONCERN_INITIAL_EVALUATION_PS: 'CONCERN_INITIAL_EVALUATION_PS',
+    CREATE_CONCERN: 'CREATE_CONCERN',
+    VIEW_CONCERN_PS: 'VIEW_CONCERN_PS',
+    HOME_PS: 'HOME_PS',
+    SPLASH_SCREEN_PS: 'SPLASH_SCREEN_PS',
+    PROJECT_LIST_PS: 'PROJECT_LIST_PS',
+    AUDIT_LAUNCH: 'AUDIT_LAUNCH',
+    UNREGISTER: 'UNREGISTER',
+    ALLTABAUDITLIST: 'ALLTABAUDITLIST',
+    AUDITPRODASHBOARD: 'AUDITPRODASHBOARD',
+    AUDIT_NOTIFICATIONS: 'AUDIT_NOTIFICATIONS',
+    VOICE_RECOGNITION: 'VOICE_RECOGNITION',
+    FILTER_SCREEN: 'FILTER_SCREEN',
+    PROFILE_SCREEN: 'PROFILE_SCREEN',
+    DOWNLOADS: 'DOWNLOADS',
+    SYNC_DETAILS: 'SYNC_DETAILS',
+    HELP: 'HELP',
+    SUPPLY_MANAGE: 'SUPPLY_MANAGE',
+    CALENDER_LIST: 'CALENDER_LIST',
+
+    //docpro:
+    DOCPRO_DASHBOARD: 'DOCPRO_DASHBOARD',
+    DOCPRO_ACTION: 'DOCPRO_ACTION',
+    DOCPRO_ADMINACTION: 'DOCPRO_ADMINACTION',
+    DOCPRO_DOCUMENTS: 'DOCPRO_DOCUMENTS',
+    DOCPRO_NEWDOCUMENTREQUEST: 'DOCPRO_NEWDOCUMENTREQUEST',
+    DOCPRO_DOCUMENTFOLDER: 'DOCPRO_DOCUMENTFOLDER',
 };
 
 export const TRANSLATE_ANIMATION = {
@@ -276,9 +317,7 @@ export const DATE_FORMAT = {
     DD_MMM_YYYY: 'DD MMM YYYY',
     DD_MMM: 'DD MMM',
     DD_MM_YYYY: 'DD/MM/YYYY',
-    MM_DD_YYYY: 'MM/DD/YYYY',
     DD_MM_YYYY_HH_MM: 'DD/MM/YYYY HH:MM',
-    DD_MM_YYYY_HH_MM_SS: 'DD/MM/YYYY HH:mm:ss',
 };
 
 export const BUTTON_ICONS = {
@@ -379,3 +418,17 @@ export const TOAST_STATUS = {
     SUCCESS: 'success',
     ERROR: 'danger',
 };
+
+export const DASHBOARD = {
+    No_records_found: "No records found!",
+    StatusProcessing: 'In progress',
+    StatusScheduled: 'Scheduled',
+    StatusCompleted: 'Closed Out',
+    StatusDownloaded: 'Downloaded',
+    StatusNotSynced: 'Not-synced',
+    StatusSynced: 'Synced',
+    StatusDV: 'Deadline Violated',
+    StatusDVC: 'Deadline Violated and Completed',
+    StatusClosed: 'Deadline Violated and Completed',
+    Completed: 'Completed',
+}

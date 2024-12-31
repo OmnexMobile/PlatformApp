@@ -16,7 +16,7 @@ const CheckBox = ({ name, label, required, value, options, onChange, editable = 
                 padding: SPACING.NORMAL,
                 flex: 1,
                 paddingBottom: SPACING.SMALL,
-                marginBottom: SPACING.X_SMALL,
+                marginBottom: SPACING.XX_SMALL,
                 ...(!editable && { backgroundColor: theme.mode.disabledBackgroundColor }),
             }}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>

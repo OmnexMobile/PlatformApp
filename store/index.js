@@ -27,7 +27,7 @@ const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
     ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({
           shouldHotReload: true,
       })
-    : compose;
+    : compose => compose;
 const store = createStore(rootReducers, composeEnhancers(applyMiddleware(...middleware)));
 // const persistor = persistStore(store);
 sagaMiddleware.run(rootSagas);

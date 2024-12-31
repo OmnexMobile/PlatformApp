@@ -16,9 +16,6 @@ const InputWithLabel = ({
     multiline = false,
     numberOfLines = 1,
     editable = true,
-    noPadding = false,
-    keyboardType = '',
-    ...rest
 }) => {
     const { theme } = useTheme();
     return (
@@ -27,9 +24,8 @@ const InputWithLabel = ({
                 padding: SPACING.NORMAL,
                 backgroundColor: theme.mode.backgroundColor,
                 paddingBottom: SPACING.SMALL,
-                marginBottom: SPACING.X_SMALL,
+                marginBottom: SPACING.XX_SMALL,
                 ...(!editable && { backgroundColor: theme.mode.disabledBackgroundColor }),
-                ...(noPadding && { padding: 0 }),
             }}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <TextComponent style={{ fontSize: FONT_SIZE.SMALL }} type={FONT_TYPE.BOLD}>
@@ -59,12 +55,10 @@ const InputWithLabel = ({
                         multiline,
                         numberOfLines,
                         editable,
-                        ...(keyboardType && { keyboardType }),
                         value,
                         onChangeText: value => onChange(name, value),
                         placeholderTextColor: COLORS.searchText,
                         placeholder: placeholder || `Enter ${label}`,
-                        ...rest,
                     }}
                 />
             </View>

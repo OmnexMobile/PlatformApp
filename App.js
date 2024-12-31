@@ -4,7 +4,7 @@ import { SafeAreaView, useColorScheme, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 // import { Colors } from 'react-native/Libraries/NewAppScreen';
 import FlashMessage from 'react-native-flash-message';
-import { ICON_TYPE } from 'constants/app-constant';
+// import { ICON_TYPE } from 'constants/app-constant';
 import { store } from 'store';
 import { IconComponent, JailBroken, Loader, SwitchComponent, TextComponent, WarningComponent } from 'components';
 import StatusBarAndroidIOS from 'components/status-bar';
@@ -18,6 +18,7 @@ import { AppProvider } from 'contexts/app-context';
 import ThemeProvider from 'theme/ThemeProvider';
 import useTheme from 'theme/useTheme';
 import { isJailBroken } from 'helpers/utils';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 setupInterceptors();
 
@@ -54,7 +55,9 @@ const Parent = () => {
     // }
 
     return (
+        <GestureHandlerRootView style={{ flex: 1 }}>
         <View style={[backgroundStyle, { backgroundColor: theme.mode.backgroundColor }]}>
+            
             <Provider store={store}>
                 <AppProvider>
                     <StatusBarAndroidIOS />
@@ -81,7 +84,9 @@ const Parent = () => {
 
             {/* Notification Component */}
             <FlashMessage />
+            
         </View>
+        </GestureHandlerRootView>
     );
 };
 

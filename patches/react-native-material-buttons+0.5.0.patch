@@ -1,0 +1,43 @@
+diff --git a/node_modules/react-native-material-buttons/src/components/raised-text-button/index.js b/node_modules/react-native-material-buttons/src/components/raised-text-button/index.js
+index 54cf4b9..f9a665b 100644
+--- a/node_modules/react-native-material-buttons/src/components/raised-text-button/index.js
++++ b/node_modules/react-native-material-buttons/src/components/raised-text-button/index.js
+@@ -1,7 +1,7 @@
+ import PropTypes from 'prop-types';
+ import React, { PureComponent } from 'react';
+ import { Text } from 'react-native';
+-
++import { TextPropTypes } from 'deprecated-react-native-prop-types';
+ import RaisedButton from '../raised-button';
+ import { styles } from './styles';
+ 
+@@ -16,7 +16,7 @@ export default class RaisedTextButton extends PureComponent {
+ 
+     title: PropTypes.string.isRequired,
+     titleColor: PropTypes.string,
+-    titleStyle: Text.propTypes.style,
++    titleStyle: TextPropTypes.style,
+     disabledTitleColor: PropTypes.string,
+   };
+ 
+diff --git a/node_modules/react-native-material-buttons/src/components/text-button/index.js b/node_modules/react-native-material-buttons/src/components/text-button/index.js
+index 8b26f47..d816233 100644
+--- a/node_modules/react-native-material-buttons/src/components/text-button/index.js
++++ b/node_modules/react-native-material-buttons/src/components/text-button/index.js
+@@ -1,6 +1,7 @@
+ import PropTypes from 'prop-types';
+ import React, { PureComponent } from 'react';
+ import { Text } from 'react-native';
++import { TextPropTypes } from 'deprecated-react-native-prop-types';
+ 
+ import Button from '../button';
+ import { styles } from './styles';
+@@ -21,7 +22,7 @@ export default class TextButton extends PureComponent {
+ 
+     title: PropTypes.string.isRequired,
+     titleColor: PropTypes.string,
+-    titleStyle: Text.propTypes.style,
++    titleStyle: TextPropTypes.style,
+     disabledTitleColor: PropTypes.string,
+   };
+ 

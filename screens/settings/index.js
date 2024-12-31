@@ -1,8 +1,8 @@
 import React from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { Content, Header } from 'components';
-import { ICON_TYPE, ROUTES } from 'constants/app-constant';
-// import ProfileMenuButton from 'screens/profile/profile-home/components/profile-menu-button';
+import { Content, Header } from '../../components';
+import { ICON_TYPE, ROUTES } from '../../constants/app-constant';
+import ProfileMenuButton from '../../screens/profile/profile-home/components/profile-menu-button';
 
 const menus = [
     {
@@ -29,9 +29,9 @@ const Settings = ({}) => {
     return (
         <Content noPadding>
             <Header title="Settings" />
-            {/* {menus.map((menu, i) => (
+            {menus.map((menu, i) => (
                 <ProfileMenuButton key={i} {...{ navigation, menu }} />
-            ))} */}
+            ))}
         </Content>
     );
 };
