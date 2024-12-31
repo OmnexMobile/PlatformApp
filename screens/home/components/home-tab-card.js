@@ -76,6 +76,19 @@ const TabsCard = ({ countDetails, tabIndex, noTab, navigation }) => {
                       ]
                     : [],
         },
+        {
+            id: 5,
+            title: tabIndex === 0 ? strings.inspectionControl : null,
+            detail:
+                tabIndex === 0
+                    ?  [
+                        { images: IMAGES.scheduledAudit, category: strings.inspectionSchedule, status: 1,routeName:ROUTES.INSPECTION_SCHEDULE},
+                        { images: IMAGES.completedAudit, category: strings.operatorWorksheet, status: 2, routeName:ROUTES.OPERATOR_WORKSHEET},
+                        { images: IMAGES.deadlineViolated, category: strings.completedInspection, status: 3 ,routeName:ROUTES.COMPLETED_INSPECTION},
+                        { images: IMAGES.closedOut, category: strings.supervisorSchedule, status: 4,routeName:ROUTES.SUPERVISOR_SCHEDULE},
+                    ]
+                    : [],
+        },
     ];
 
     const redirectToPage = (title, status, category) => {
@@ -175,7 +188,7 @@ const TabsCard = ({ countDetails, tabIndex, noTab, navigation }) => {
         Toast.showWithGravity('No Settings Data!', Toast.LONG, Toast.TOP);
     };
 
-    const handleNavigation = async (title, status, category, auditTitle) => {
+    const handleNavigation = async (title, status, category, auditTitle,routeName) => {
         // console.log('handleNavigation params--->', title, status, category, auditTitle)
         console.log('handleNavigation currentUserData?.accessToken--->', currentUserData, globalDeviceDetails?.deviceDetails, category);
         // console.log('checkingNavigation',category);
@@ -242,6 +255,9 @@ const TabsCard = ({ countDetails, tabIndex, noTab, navigation }) => {
                 navigations.navigate(ROUTES.DOCPRO_ACTION);
             }
             console.log('current click--->', strings.documentPro);
+        }else if (title === strings.inspectionControl) {
+                navigations.navigate(routeName);
+            console.log('current click--->', strings.inspectionControl,routeName);
         } else {
             // console.log('current click--->')
         }
@@ -266,7 +282,7 @@ const TabsCard = ({ countDetails, tabIndex, noTab, navigation }) => {
                                 onPress={
                                     () =>
                                         // console.log('currentUserData---->', currentUserData)
-                                        handleNavigation(title, items?.status, items?.category, items?.auditTitle)
+                                        handleNavigation(title, items?.status, items?.category, items?.auditTitle,items?.routeName)
                                     // sendToOtherApps()
                                     // linkApps()
                                 }>

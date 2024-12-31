@@ -104,4 +104,11 @@ export default {
     documentLevels: 'Document\nLevels',
     actionList: 'Actions\nList',
     adminActions: 'Admin\nActions',
+
+    // Inspection Control
+    inspectionControl:'Inspection Control',
+    inspectionSchedule:'Inspection\nSchedule',
+    operatorWorksheet:'Operator\nWorksheet',
+    completedInspection:'Completed\nInspection',
+    supervisorSchedule:'Supervisor\nSchedule'
 };

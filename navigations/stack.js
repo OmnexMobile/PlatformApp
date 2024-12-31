@@ -80,6 +80,10 @@ import DocproAdminAction from 'screens/docpro/DocproAdminAction';
 import DocproDocuments from 'screens/docpro/DocproDocuments';
 import DocproNewDocumentRequest from 'screens/docpro/DocproNewDocumentRequest';
 import DocumentFolder from 'screens/docpro/Levels/DocumentFolder';
+import InspectionSchedule from 'screens/inspection-control/inspection-schedule';
+import OperatorWorksheet from 'screens/inspection-control/operator-worksheet';
+import CompletedInspection from 'screens/inspection-control/completed-inspection';
+import SupervisorSchedule from 'screens/inspection-control/supervisor-schedule';
 const Stack = createStackNavigator();
 
 export const AppStackData = [
@@ -447,6 +451,28 @@ export const AppStackData = [
         component: DocumentFolder,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
+
+    // INSPECTION CONTROL
+    {
+        name: ROUTES.INSPECTION_SCHEDULE,
+        component: InspectionSchedule,
+        cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
+    },
+    {
+        name: ROUTES.OPERATOR_WORKSHEET,
+        component: OperatorWorksheet,
+        cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
+    },
+    {
+        name: ROUTES.COMPLETED_INSPECTION,
+        component: CompletedInspection,
+        cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
+    },
+    {
+        name: ROUTES.SUPERVISOR_SCHEDULE,
+        component: SupervisorSchedule,
+        cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
+    }
     // ...HomeStackData,
 ];
 // export const ProfileData = [
