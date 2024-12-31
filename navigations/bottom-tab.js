@@ -1,5 +1,5 @@
 import React from 'react';
-import { Animated, StyleSheet, View } from 'react-native';
+import { Animated, StyleSheet, Text, View } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { IconComponent, TextComponent } from 'components';
 import { RFPercentage } from 'react-native-responsive-fontsize';
@@ -8,6 +8,9 @@ import { ICON_TYPE, ROUTES } from 'constants/app-constant';
 import Home from 'screens/home';
 import Calender from 'screens/calender';
 import useTheme from 'theme/useTheme';
+import { IMAGES } from 'assets/images';
+import FirstTabActive from 'assets/images/svg/bottomtab/tab1Active.svg'
+import FirstTabInActive from 'assets/images/svg/bottomtab/tab1InActive.svg'
 
 const Tab = createBottomTabNavigator();
 
@@ -43,7 +46,37 @@ function BottomTab({ style = {} }) {
                     component={Home}
                     options={{
                         tabBarIcon: ({ color, focused }) => (
-                            <TabBarIcon {...{ color, focused, IconType: ICON_TYPE.Ionicons, iconName: 'home', name: 'Ticketss' }} />
+                            <View style={[styles.tabContainner]}>
+                                {focused?<FirstTabActive/>:<FirstTabInActive/>}
+                                <TextComponent fontSize={FONT_SIZE.SMALL} style={[styles.tabText]}>Inspection
+                                Schedule</TextComponent>
+                            </View>
+                        ),
+                    }}
+                />
+                <Tab.Screen
+                    name="1"
+                    component={Home}
+                    options={{
+                        tabBarIcon: ({ color, focused }) => (
+                            <View style={[styles.tabContainner]}>
+                                {focused?<FirstTabActive/>:<FirstTabInActive/>}
+                                <TextComponent fontSize={FONT_SIZE.SMALL}>Operator
+                                Worksheet</TextComponent>
+                            </View>
+                        ),
+                    }}
+                />
+                <Tab.Screen
+                    name="2"
+                    component={Home}
+                    options={{
+                        tabBarIcon: ({ color, focused }) => (
+                            <View style={[styles.tabContainner]}>
+                                {focused?<FirstTabActive/>:<FirstTabInActive/>}
+                                <TextComponent fontSize={FONT_SIZE.SMALL}>Completed
+                                Inspection</TextComponent>
+                            </View>
                         ),
                     }}
                 />
@@ -52,7 +85,11 @@ function BottomTab({ style = {} }) {
                     component={Calender}
                     options={{
                         tabBarIcon: ({ color, focused }) => (
-                            <TabBarIcon {...{ color, focused, IconType: ICON_TYPE.Ionicons, iconName: 'calendar', name: 'Search' }} />
+                            <View style={[styles.tabContainner]}>
+                                {focused?<FirstTabActive/>:<FirstTabInActive/>}
+                                <TextComponent fontSize={FONT_SIZE.SMALL}>Supervisor
+                                Schedule</TextComponent>
+                            </View>
                         ),
                     }}
                 />
@@ -77,4 +114,11 @@ const styles = StyleSheet.create({
         borderColor: COLORS.transparent,
         overflow: 'hidden',
     },
+    tabContainner:{
+        alignItems:'center'
+    },
+    tabText:{
+        textAlign:'center',
+        lineHeight:16
+    }
 });
