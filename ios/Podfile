@@ -7,6 +7,10 @@ install! 'cocoapods', :deterministic_uuids => false
 target 'IntegratedApp' do
   config = use_native_modules!
 
+  # Add the following for react-native-fetch-blob
+  pod 'react-native-fetch-blob', :path => '../node_modules/react-native-fetch-blob'
+
+
   # Flags change depending on the env values.
   flags = get_default_flags()
 
