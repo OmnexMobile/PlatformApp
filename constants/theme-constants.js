@@ -85,6 +85,10 @@ export const COLORS = {
     headerText: '#333333',
     red: '#FF0000',
     apptheme: '#00c3d2',
+    icHeader:"#31A5E2",
+    icBackground:'#F3F3F3',
+    tabtheme: '#00c3d210',
+
 };
 
 // FONTS

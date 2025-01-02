@@ -1,13 +1,13 @@
 import { TextComponent } from 'components'
 import React from 'react'
-import { Text, View } from 'react-native'
+import { SafeAreaView, ScrollView, Text, View } from 'react-native'
+import CustomHeader from '../Components/CustomHeader'
 
 const InspectionSchedule = ({route}) => {
-  console.log(route,'route')
   return (
-   <View>
-    <TextComponent>InspectionSchedule</TextComponent>
-   </View>
+   <CustomHeader title='Inspection Schedule' activeTabId={1}>
+    <Text>Inspection Schedule</Text>
+   </CustomHeader>
   )
 }
 

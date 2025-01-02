@@ -456,22 +456,22 @@ export const AppStackData = [
     {
         name: ROUTES.INSPECTION_SCHEDULE,
         component: InspectionSchedule,
-        cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
+        cardStyleInterpolator: CardStyleInterpolators.forFadeFromCenter,
     },
     {
         name: ROUTES.OPERATOR_WORKSHEET,
         component: OperatorWorksheet,
-        cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
+        cardStyleInterpolator: CardStyleInterpolators.forFadeFromCenter,
     },
     {
         name: ROUTES.COMPLETED_INSPECTION,
         component: CompletedInspection,
-        cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
+        cardStyleInterpolator: CardStyleInterpolators.forFadeFromCenter,
     },
     {
         name: ROUTES.SUPERVISOR_SCHEDULE,
         component: SupervisorSchedule,
-        cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
+        cardStyleInterpolator: CardStyleInterpolators.forFadeFromCenter,
     }
     // ...HomeStackData,
 ];

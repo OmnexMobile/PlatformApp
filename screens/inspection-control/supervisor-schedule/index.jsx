@@ -1,12 +1,13 @@
 import { TextComponent } from 'components'
 import React from 'react'
 import { Text, View } from 'react-native'
+import CustomHeader from '../Components/CustomHeader'
 
 const SupervisorSchedule = () => {
   return (
-   <View style={{flex:1}}>
-    <TextComponent>SupervisorSchedule</TextComponent>
-   </View>
+    <CustomHeader title='Supervisor Schedule' activeTabId={4}>
+    <TextComponent>Supervisor Schedule</TextComponent>
+   </CustomHeader>
   )
 }
 

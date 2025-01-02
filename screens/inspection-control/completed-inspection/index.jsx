@@ -1,12 +1,13 @@
 import { TextComponent } from 'components'
 import React from 'react'
 import { Text, View } from 'react-native'
+import CustomHeader from '../Components/CustomHeader'
 
 const CompletedInspection = () => {
   return (
-   <View style={{flex:1}}>
+    <CustomHeader title='Completed Inspection' activeTabId={3}>
     <TextComponent>CompletedInspection</TextComponent>
-   </View>
+   </CustomHeader>
   )
 }
 
