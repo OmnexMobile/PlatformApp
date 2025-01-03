@@ -1,8 +1,8 @@
 import { useNavigation } from '@react-navigation/native';
 import { ListSearch } from 'components';
 import { COLORS, FONT_SIZE } from 'constants/theme-constants'
-import React, { useState } from 'react'
-import { FlatList, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import React, { useRef, useState } from 'react'
+import { Animated, FlatList, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import Icon from 'react-native-vector-icons/AntDesign';
 import IconF from 'react-native-vector-icons/FontAwesome';
 import IconI from 'react-native-vector-icons/Ionicons';
@@ -14,6 +14,7 @@ import OperatorWorksheetSvg from '../../../assets/images/svg/operator-worksheet.
 import CompletedInspectionnSvg from '../../../assets/images/svg/completed-inspection.svg'
 import SupervisorScheduleSvg from '../../../assets/images/svg/supervisor-schedule.svg'
 import { ROUTES } from 'constants/app-constant';
+import { RFPercentage } from 'helpers/utils';
 
 const footerList=[
   {
@@ -45,8 +46,25 @@ const footerList=[
 
 const CustomHeader = ({children,title='',activeTabId}) => {
   const navigation = useNavigation();
-  const [showSearchInput,setShowSearchInput]=useState(false)
+  const [isExpanded, setIsExpanded] = useState(false);
+  const widthAnim = useRef(new Animated.Value(0)).current;
 
+  const toggleSearchBar = () => {
+    if (isExpanded) {
+      Animated.timing(widthAnim, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: false,
+      }).start(() => setIsExpanded(false));
+    } else {
+      setIsExpanded(true);
+      Animated.timing(widthAnim, {
+        toValue: activeTabId!==4?RFPercentage(29):RFPercentage(25), // Width in pixels
+        duration: 300,
+        useNativeDriver: false,
+      }).start();
+    }
+  };
 
   const handleTabPress=(value)=>{
     if(value){
@@ -73,11 +91,17 @@ const CustomHeader = ({children,title='',activeTabId}) => {
         <Icon name='arrowleft' size={25} color={COLORS.white}/>
       </TouchableOpacity>
       <View style={{flex:1,alignItems:'center'}}>
-        {!showSearchInput?<Text style={[styles.headerText]}>{title}</Text>:<InputWithSearch/>}
+        {!isExpanded?<Text style={[styles.headerText]}>{title}</Text>:
+         <Animated.View style={[ { width: widthAnim }]}>
+          <InputWithSearch />
+        </Animated.View>
+        }
       </View>
       <View style={[styles.rightIconList]}>
-        {(activeTabId==1 || activeTabId==4 )&&<TouchableOpacity onPress={()=>{setShowSearchInput(!showSearchInput)}}>
-          <Icon name={!showSearchInput?'search1':"close"} size={25} style={styles.iconButton} color={COLORS.white}/>
+        {(activeTabId==1 || activeTabId==4 )&&<TouchableOpacity onPress={()=>{
+          toggleSearchBar()}
+          }>
+          <Icon name={!isExpanded?'search1':"close"} size={25} style={styles.iconButton} color={COLORS.white}/>
         </TouchableOpacity>}
         {activeTabId==1 &&<TouchableOpacity>
           <IconF name='qrcode' size={25} style={styles.iconButton} color={COLORS.white}/>
@@ -114,7 +138,8 @@ const styles=StyleSheet.create({
   },
   contentContainer:{
     flex:1,
-    backgroundColor:COLORS.icBackground
+    backgroundColor:COLORS.icBackground,
+    padding:10
   },
   headerBox:{
     backgroundColor:COLORS.apptheme,
@@ -129,7 +154,7 @@ const styles=StyleSheet.create({
     alignItems:'center'
   },
   iconButton:{
-    marginLeft:15
+    marginLeft:10
   },
   headerText:{
     color:COLORS.white,
@@ -150,6 +175,9 @@ const styles=StyleSheet.create({
     paddingHorizontal:14,
     paddingVertical:3,
     borderRadius:100
-  }
+  },
+  animatedContainer: {
+    flex:1,
+  },
 })
 export default CustomHeader

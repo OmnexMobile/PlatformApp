@@ -19,6 +19,7 @@ import ThemeProvider from 'theme/ThemeProvider';
 import useTheme from 'theme/useTheme';
 import { isJailBroken } from 'helpers/utils';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { PaperProvider } from 'react-native-paper';
 
 setupInterceptors();
 
@@ -60,6 +61,7 @@ const Parent = () => {
             
             <Provider store={store}>
                 <AppProvider>
+                    <PaperProvider>
                     <StatusBarAndroidIOS />
                     <NavigationContainer onReady={() => RNBootSplash.hide()}>
                         <AppStack />
@@ -73,6 +75,7 @@ const Parent = () => {
                             <AppStack />
                         </NavigationContainer>
                     )} */}
+                    </PaperProvider>
                 </AppProvider>
             </Provider>
             {/* <StatusBarAndroidIOS />

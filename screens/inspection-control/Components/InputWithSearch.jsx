@@ -22,10 +22,9 @@ const styles = StyleSheet.create({
       borderWidth: 1,
       borderColor: '#ccc',
       borderRadius: 8,
-      paddingHorizontal: 10,
-      paddingVertical: 5,
       backgroundColor: '#fff',
-      marginLeft:20
+      marginLeft:10,
+      paddingLeft:5
     },
     icon: {
       marginRight: 8,
@@ -33,7 +32,7 @@ const styles = StyleSheet.create({
     input: {
       flex: 1,
       fontSize: 16,
-      height:30,
+      height:40,
     },
   });
 

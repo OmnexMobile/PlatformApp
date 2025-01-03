@@ -88,7 +88,10 @@ export const COLORS = {
     icHeader:"#31A5E2",
     icBackground:'#F3F3F3',
     tabtheme: '#00c3d210',
-
+    icborder:'#efefef',
+    icBottomBox:"#e0e0e0",
+    ictextBlack:'#000',
+    moreIcon:'#666666'
 };
 
 // FONTS
