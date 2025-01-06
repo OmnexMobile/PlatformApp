@@ -84,6 +84,7 @@ import InspectionSchedule from 'screens/inspection-control/inspection-schedule';
 import OperatorWorksheet from 'screens/inspection-control/operator-worksheet';
 import CompletedInspection from 'screens/inspection-control/completed-inspection';
 import SupervisorSchedule from 'screens/inspection-control/supervisor-schedule';
+import InprocessInspection from 'screens/inspection-control/inprocess-inspection';
 const Stack = createStackNavigator();
 
 export const AppStackData = [
@@ -471,6 +472,11 @@ export const AppStackData = [
     {
         name: ROUTES.SUPERVISOR_SCHEDULE,
         component: SupervisorSchedule,
+        cardStyleInterpolator: CardStyleInterpolators.forFadeFromCenter,
+    },
+    {
+        name: ROUTES.INPROCESS_INSPECTION,
+        component: InprocessInspection,
         cardStyleInterpolator: CardStyleInterpolators.forFadeFromCenter,
     }
     // ...HomeStackData,

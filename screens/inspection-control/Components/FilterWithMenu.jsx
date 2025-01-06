@@ -8,7 +8,7 @@ import Icon  from 'react-native-vector-icons/Ionicons'
 import IconF  from 'react-native-vector-icons/Feather'
 import IconM  from 'react-native-vector-icons/FontAwesome'
 
-const FilterWithMenu = ({dataList=[],type='IconFilter'}) => {
+const FilterWithMenu = ({dataList=[],type='IconFilter',onSelectedPress=()=>{}}) => {
     const [visible, setVisible] =useState(false);
     const [filterText, setFilterText] =useState('');
     const openMenu = () => setVisible(true);
@@ -30,6 +30,7 @@ const FilterWithMenu = ({dataList=[],type='IconFilter'}) => {
     }
     const onMenuPress=(item)=>{
         setFilterText(item.title)
+        onSelectedPress(item)
         closeMenu()
     }
     return (
@@ -49,7 +50,7 @@ const FilterWithMenu = ({dataList=[],type='IconFilter'}) => {
                     return(
                         <TouchableOpacity key={item?.id} style={{flexDirection:item?.iconName?'row':'',alignItems:item?.iconName?'center':'baseline',borderBottomWidth:dataList?.length!==index+1?StyleSheet.hairlineWidth:0,borderBottomColor:dataList?.length!==index+1?'#666666':'#000'}}>
                             {item?.iconName &&<IconM name={item.iconName} color='#fff' size={20}/>}
-                            <Menu.Item onPress={() => {onMenuPress(item)}} title={item?.title} titleStyle={{color:'#fff',fontFamily:'ProximaNova-Regular',fontSize:RFPercentage(1.8)}}  />
+                            <Menu.Item onPress={() => {onMenuPress(item)}} title={item?.title} titleStyle={{color:'#fff',fontFamily:'ProximaNova-Regular',fontSize:RFPercentage(1.6)}}  />
                         </TouchableOpacity>
                     )
                 })}

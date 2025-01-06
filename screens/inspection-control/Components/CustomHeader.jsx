@@ -44,7 +44,7 @@ const footerList=[
 ]
 
 
-const CustomHeader = ({children,title='',activeTabId}) => {
+const CustomHeader = ({children,title='',activeTabId,showIcons=true,handleSyncPress=()=>{}}) => {
   const navigation = useNavigation();
   const [isExpanded, setIsExpanded] = useState(false);
   const widthAnim = useRef(new Animated.Value(0)).current;
@@ -59,7 +59,7 @@ const CustomHeader = ({children,title='',activeTabId}) => {
     } else {
       setIsExpanded(true);
       Animated.timing(widthAnim, {
-        toValue: activeTabId!==4?RFPercentage(29):RFPercentage(25), // Width in pixels
+        toValue: activeTabId!==4?RFPercentage(27):RFPercentage(23), // Width in pixels
         duration: 300,
         useNativeDriver: false,
       }).start();
@@ -90,7 +90,7 @@ const CustomHeader = ({children,title='',activeTabId}) => {
       <TouchableOpacity onPress={()=>{navigation.goBack()}}>
         <Icon name='arrowleft' size={25} color={COLORS.white}/>
       </TouchableOpacity>
-      <View style={{flex:1,alignItems:'center'}}>
+      <View style={{flex:1,marginLeft:10}}>
         {!isExpanded?<Text style={[styles.headerText]}>{title}</Text>:
          <Animated.View style={[ { width: widthAnim }]}>
           <InputWithSearch />
@@ -98,6 +98,7 @@ const CustomHeader = ({children,title='',activeTabId}) => {
         }
       </View>
       <View style={[styles.rightIconList]}>
+        {showIcons &&<>
         {(activeTabId==1 || activeTabId==4 )&&<TouchableOpacity onPress={()=>{
           toggleSearchBar()}
           }>
@@ -112,12 +113,13 @@ const CustomHeader = ({children,title='',activeTabId}) => {
         {activeTabId==4 &&<TouchableOpacity>
           <IconA name='filter' size={25} style={styles.iconButton} color={COLORS.white}/>
         </TouchableOpacity>}
-        {(activeTabId==3 || activeTabId==4) &&<TouchableOpacity>
+        {(activeTabId==3 || activeTabId==4) &&<TouchableOpacity onPress={()=>{handleSyncPress()}}>
           <IconO name='sync' size={25} style={styles.iconButton} color={COLORS.white}/>
         </TouchableOpacity>}
         <TouchableOpacity onPress={()=>{navigation.goBack()}}>
           <IconI name='exit-outline' size={31} style={styles.iconButton} color={COLORS.white}/>
         </TouchableOpacity>
+        </>}
       </View>
     </View>
     <View style={styles.contentContainer}>

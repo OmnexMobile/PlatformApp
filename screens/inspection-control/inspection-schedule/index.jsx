@@ -1,5 +1,5 @@
-import { ButtonComponent, TextComponent } from 'components'
-import React from 'react'
+import { ButtonComponent, ModalComponent, TextComponent } from 'components'
+import React, { useState } from 'react'
 import { FlatList, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import CustomHeader from '../Components/CustomHeader'
 import { COLORS } from 'constants/theme-constants'
@@ -10,6 +10,7 @@ import  IconF  from 'react-native-vector-icons/Feather'
 import  IconI  from 'react-native-vector-icons/Ionicons'
 import DataPickerWithIcon from '../Components/DataPickerWithIcon'
 import FilterWithMenu from '../Components/FilterWithMenu'
+import InputDataModal from '../Components/inspection-schedule/InputDataModal'
 // import ICFile from '../../../assets/images/svg/icFile.svg'
 
 const listData=[
@@ -123,8 +124,18 @@ const moreList=[
 ]
 const InspectionSchedule = ({route}) => {
   const navigation=useNavigation()
+  const [showModal,setShowModal]=useState(false)
   const handleCIbtnpress=()=>{
     navigation.navigate(ROUTES.COMPLETED_INSPECTION)
+  }
+  const handleDownloadPress=(item)=>{
+    setShowModal(true)
+  }
+  const handleMenuPress=(value)=>{
+    console.log(value,'value')
+    if(value.id==2){
+      navigation.navigate(ROUTES.OPERATOR_WORKSHEET)
+    }
   }
   const renderData=({item})=>{
     return(
@@ -144,7 +155,7 @@ const InspectionSchedule = ({route}) => {
             <TouchableOpacity style={{marginLeft:15}}>
               <IconI name='document-attach-outline'size={25} color="#666666" />
             </TouchableOpacity>
-            <TouchableOpacity style={{marginLeft:15}}>
+            <TouchableOpacity style={{marginLeft:15}} onPress={()=>{handleDownloadPress(item)}}>
             <IconF name='download' size={25} color="#666666"  />
             </TouchableOpacity>
           </View>
@@ -166,7 +177,9 @@ const InspectionSchedule = ({route}) => {
           <FilterWithMenu dataList={filterList} type='BtnFilter'/>
         </View>
         <View style={[styles.iconFilter]}>
-          <FilterWithMenu dataList={moreList} type='IconFilter'/>
+          <FilterWithMenu dataList={moreList} type='IconFilter' onSelectedPress={(value)=>{
+            handleMenuPress(value)
+          }}/>
         </View>
       </View>
       <FlatList
@@ -187,6 +200,7 @@ const InspectionSchedule = ({route}) => {
         Completed Inspections
       </ButtonComponent>
     </View>
+    <InputDataModal modalVisible={showModal} hideModal={()=>{setShowModal(false)}}/>
    </CustomHeader>
   )
 }
@@ -208,7 +222,7 @@ const styles=StyleSheet.create({
   },
   iconBox:{
     borderRadius:40,
-    backgroundColor:COLORS.ERROR,
+    backgroundColor:COLORS.apptheme,
     height:40,
     width:40,
     alignItems:'center',
