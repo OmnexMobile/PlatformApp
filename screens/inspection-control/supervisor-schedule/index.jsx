@@ -158,7 +158,7 @@ const SupervisorSchedule = () => {
                         <TouchableOpacity style={{ marginRight: 5 }} onPress={() => handleFilePress()}>
                             <ICFileIcon />
                         </TouchableOpacity>
-                        <TouchableOpacity>
+                        <TouchableOpacity onPress={()=>{navigation.navigate(ROUTES.INPROCESS_INSPECTION)}}>
                             <IconM name="battery-plus-variant" size={27} color="#666666" />
                         </TouchableOpacity>
                     </View>

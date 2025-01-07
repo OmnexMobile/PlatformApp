@@ -23,9 +23,6 @@ const FileViewModal = ({ visible = false, onDismiss = () => {} }) => {
                 case 'image':
                     fileUrl = 'https://www.w3schools.com/w3images/fjords.jpg';
                     break;
-                case 'audio':
-                    fileUrl = 'https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3';
-                    break;
                 default:
                     throw new Error('Unsupported file type');
             }

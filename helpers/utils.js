@@ -115,7 +115,9 @@ export function RFPercentage(percent) {
     const standardLength = width > height ? width : height;
     const offset = width > height ? 0 : Platform.OS === 'ios' ? 78 : StatusBar.currentHeight; // iPhone X style SafeAreaView size in portrait
     const deviceHeight = isIphoneX() || Platform.OS === 'android' ? standardLength - offset : standardLength;
+
     const heightPercent = (percent * deviceHeight) / 100;
+    console.log(deviceHeight,heightPercent,'heightPercentheightPercent')
     return Math.round(heightPercent);
 }
 

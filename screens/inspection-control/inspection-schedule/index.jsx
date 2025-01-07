@@ -116,11 +116,13 @@ const moreList = [
         id: 1,
         title: 'Get Schedule',
         iconName: 'calendar-check-o',
+        iconFrom:'FontAwesome'
     },
     {
         id: 2,
         title: 'Start Inspection',
         iconName: 'search',
+        iconFrom:'FontAwesome'
     },
 ];
 const InspectionSchedule = ({ route }) => {
