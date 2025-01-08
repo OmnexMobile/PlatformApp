@@ -7,6 +7,7 @@ import { COLORS } from 'constants/theme-constants';
 import { ButtonComponent } from 'components';
 import FilterWithMenu from '../Components/FilterWithMenu';
 import { RFPercentage } from 'helpers/utils';
+import SignatureComponent from '../Components/SignatureComponent';
 const moreList = [
     {
         id: 1,
@@ -43,6 +44,7 @@ const listData = [
 const InprocessInspection = () => {
     const [showGeneral, setShowGeneral] = useState(false);
     const [showChar, setShowChar] = useState(false);
+    const [showSignModal,setShowSignModal]=useState(false)
     const handleGenOpen = () => {
         setShowGeneral(!showGeneral);
         setShowChar(false);
@@ -51,7 +53,10 @@ const InprocessInspection = () => {
         setShowChar(!showChar);
         setShowGeneral(false);
     };
-    const handleMenuPress = value => {};
+    const handleMenuPress = value => {
+        setShowSignModal(true)
+        
+    };
     const renderItem = ({ item }) => {
         return (
             <View style={[styles.recordConatiner]}>
@@ -63,7 +68,7 @@ const InprocessInspection = () => {
                     <Text style={[styles.headerName]}>{item.name}</Text>
                 </View>
                 <View style={[styles.lastBox]}>
-                    <TouchableOpacity style={[styles.inspectBox]}>
+                    <TouchableOpacity style={[styles.inspectBox]} onPress={()=>{handleCharOpen()}}>
                         <Text style={[styles.iText]}>Inspect</Text>
                     </TouchableOpacity>
                 </View>
@@ -90,7 +95,7 @@ const InprocessInspection = () => {
                     <View style={[styles.centerBox]}>
                         <FlatList data={listData} renderItem={renderItem} keyExtractor={item => item.id} />
                         <View style={[styles.btnContainer]}>
-                            <ButtonComponent style={{ height: 40, width: '89%' }} onPress={() => {}}>
+                            <ButtonComponent style={{ height: 40, width: '87%' }} onPress={() => {}}>
                                 Save
                             </ButtonComponent>
                             <View style={[styles.iconFilter]}>
@@ -118,6 +123,7 @@ const InprocessInspection = () => {
                     {showChar && <View style={[styles.tabBox]}></View>}
                 </View>
             </View>
+            <SignatureComponent modalVisible={showSignModal}  hideModal={()=>{setShowSignModal(false)}}/>
         </CustomHeader>
     );
 };
@@ -127,7 +133,7 @@ const styles = StyleSheet.create({
     },
     headerText: {
         fontFamily: 'OpenSans-SemiBold',
-        fontSize: 18,
+        fontSize: 16,
         color: '#000',
     },
     tabStyle: {

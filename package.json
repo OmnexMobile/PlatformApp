@@ -102,6 +102,7 @@
         "react-native-screens": "^3.17.0",
         "react-native-scrollable-tab-view": "^1.0.0",
         "react-native-sectioned-multi-select": "^0.10.0",
+        "react-native-signature-canvas": "^4.7.2",
         "react-native-simple-dialogs": "^1.5.0",
         "react-native-simple-radio-button": "^2.7.4",
         "react-native-simple-toast": "^3.3.0",

@@ -10166,6 +10166,11 @@ react-native-sectioned-multi-select@^0.10.0:
     lodash.isequal "^4.5.0"
     memoize-one "^6.0.0"
 
+react-native-signature-canvas@^4.7.2:
+  version "4.7.2"
+  resolved "https://registry.npmjs.org/react-native-signature-canvas/-/react-native-signature-canvas-4.7.2.tgz"
+  integrity sha512-n4TUmYEFTHIbosLSa7ovMhirA+9EWw6pYbUIk2uUuiCfYqyF5TESb9EzjRU7VllDESWce9Djwy20VmwPKvEJWA==
+
 react-native-simple-dialogs@^1.5.0:
   version "1.5.0"
   resolved "https://registry.npmjs.org/react-native-simple-dialogs/-/react-native-simple-dialogs-1.5.0.tgz"
@@ -10300,7 +10305,7 @@ react-native-vision-camera@^2.15.4:
   resolved "https://registry.npmjs.org/react-native-vision-camera/-/react-native-vision-camera-2.16.8.tgz"
   integrity sha512-DCYkhxHw0p8dftfYxkfyeECraPOCliNWriVUTe+qit16ejs9fXoW1zXJBq48UbysUTuIOk8QwTn9OSy4jhGvTg==
 
-react-native-webview@^11.26.0, react-native-webview@>=7.5.2:
+react-native-webview@^11.26.0, react-native-webview@>=13, react-native-webview@>=7.5.2:
   version "11.26.1"
   resolved "https://registry.npmjs.org/react-native-webview/-/react-native-webview-11.26.1.tgz"
   integrity sha512-hC7BkxOpf+z0UKhxFSFTPAM4shQzYmZHoELa6/8a/MspcjEP7ukYKpuSUTLDywQditT8yI9idfcKvfZDKQExGw==

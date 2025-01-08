@@ -117,7 +117,6 @@ export function RFPercentage(percent) {
     const deviceHeight = isIphoneX() || Platform.OS === 'android' ? standardLength - offset : standardLength;
 
     const heightPercent = (percent * deviceHeight) / 100;
-    console.log(deviceHeight,heightPercent,'heightPercentheightPercent')
     return Math.round(heightPercent);
 }
 
