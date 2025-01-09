@@ -91,7 +91,8 @@ export const COLORS = {
     icborder:'#efefef',
     icBottomBox:"#e0e0e0",
     ictextBlack:'#000',
-    moreIcon:'#666666'
+    moreIcon:'#666666',
+    appthemeShadow:"#00c3d220"
 };
 
 // FONTS

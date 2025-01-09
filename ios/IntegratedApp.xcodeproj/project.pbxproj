@@ -39,27 +39,27 @@
 			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 13B07F861A680F5B00A75B9A;
-			remoteInfo = "IntegratedApp";
+			remoteInfo = IntegratedApp;
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		00E356EE1AD99517003FC87E /* IntegratedAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "IntegratedAppTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		00E356EE1AD99517003FC87E /* IntegratedAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IntegratedAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		00E356F21AD99517003FC87E /* IntegratedAppTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "IntegratedAppTests.m"; sourceTree = "<group>"; };
+		00E356F21AD99517003FC87E /* IntegratedAppTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IntegratedAppTests.m; sourceTree = "<group>"; };
 		050AC55FC31248108F64CAB2 /* ProximaNova-Bold.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "ProximaNova-Bold.otf"; path = "../assets/fonts/ProximaNova-Bold.otf"; sourceTree = "<group>"; };
-		13B07F961A680F5B00A75B9A /* IntegratedApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "IntegratedApp.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = "IntegratedApp/AppDelegate.h"; sourceTree = "<group>"; };
-		13B07FB01A68108700A75B9A /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = "IntegratedApp/AppDelegate.mm"; sourceTree = "<group>"; };
-		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = "IntegratedApp/Images.xcassets"; sourceTree = "<group>"; };
-		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = "IntegratedApp/Info.plist"; sourceTree = "<group>"; };
-		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = "IntegratedApp/main.m"; sourceTree = "<group>"; };
+		13B07F961A680F5B00A75B9A /* IntegratedApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = IntegratedApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = IntegratedApp/AppDelegate.h; sourceTree = "<group>"; };
+		13B07FB01A68108700A75B9A /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = IntegratedApp/AppDelegate.mm; sourceTree = "<group>"; };
+		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = IntegratedApp/Images.xcassets; sourceTree = "<group>"; };
+		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = IntegratedApp/Info.plist; sourceTree = "<group>"; };
+		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = IntegratedApp/main.m; sourceTree = "<group>"; };
 		1DE62702023F496AA9EF42BD /* ProximaNova-Extrabld.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "ProximaNova-Extrabld.otf"; path = "../assets/fonts/ProximaNova-Extrabld.otf"; sourceTree = "<group>"; };
 		1F514A465A3B991B9D179928 /* Pods-IntegratedApp-IntegratedAppTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-IntegratedApp-IntegratedAppTests.debug.xcconfig"; path = "Target Support Files/Pods-IntegratedApp-IntegratedAppTests/Pods-IntegratedApp-IntegratedAppTests.debug.xcconfig"; sourceTree = "<group>"; };
 		23DD8F3A28D467E300871915 /* BootSplash.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = BootSplash.storyboard; path = IntegratedApp/BootSplash.storyboard; sourceTree = "<group>"; };
 		2C9B4D9302F826B3F0B24AC5 /* Pods-IntegratedApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-IntegratedApp.debug.xcconfig"; path = "Target Support Files/Pods-IntegratedApp/Pods-IntegratedApp.debug.xcconfig"; sourceTree = "<group>"; };
 		7B25108800D62D077F06CFEA /* libPods-IntegratedApp-IntegratedAppTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-IntegratedApp-IntegratedAppTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = "IntegratedApp/LaunchScreen.storyboard"; sourceTree = "<group>"; };
+		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = IntegratedApp/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		8B7B88A12B8E006E009506FF /* OpenSans-LightItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "OpenSans-LightItalic.ttf"; path = "../assets/fonts/OpenSans-LightItalic.ttf"; sourceTree = "<group>"; };
 		8B7B88A22B8E006E009506FF /* OpenSans-BoldItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "OpenSans-BoldItalic.ttf"; path = "../assets/fonts/OpenSans-BoldItalic.ttf"; sourceTree = "<group>"; };
 		8B7B88A32B8E006E009506FF /* OpenSans-Light.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "OpenSans-Light.ttf"; path = "../assets/fonts/OpenSans-Light.ttf"; sourceTree = "<group>"; };
@@ -107,7 +107,7 @@
 				00E356F21AD99517003FC87E /* IntegratedAppTests.m */,
 				00E356F01AD99517003FC87E /* Supporting Files */,
 			);
-			path = "IntegratedAppTests";
+			path = IntegratedAppTests;
 			sourceTree = "<group>";
 		};
 		00E356F01AD99517003FC87E /* Supporting Files */ = {
@@ -129,7 +129,7 @@
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
 				13B07FB71A68108700A75B9A /* main.m */,
 			);
-			name = "IntegratedApp";
+			name = IntegratedApp;
 			sourceTree = "<group>";
 		};
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
@@ -220,16 +220,15 @@
 				00E356EA1AD99517003FC87E /* Sources */,
 				00E356EB1AD99517003FC87E /* Frameworks */,
 				00E356EC1AD99517003FC87E /* Resources */,
-				D19F96DBBC4E2429B66E3B36 /* [CP] Embed Pods Frameworks */,
 				59F736BBE6EC750D3A5966B7 /* [CP] Copy Pods Resources */,
+				68607C90E007F25FD87D3A73 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				00E356F51AD99517003FC87E /* PBXTargetDependency */,
 			);
-			name = "IntegratedAppTests";
-			productname = "IntegratedAppTests";
+			name = IntegratedAppTests;
 			productReference = 00E356EE1AD99517003FC87E /* IntegratedAppTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
@@ -243,15 +242,15 @@
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
-				02D3E375F84A292B36579F86 /* [CP] Embed Pods Frameworks */,
 				29643B56F820BACD6E499D65 /* [CP] Copy Pods Resources */,
+				2541FFDE76330F48004A19C8 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
-			name = "IntegratedApp";
-			productName = "IntegratedApp";
+			name = IntegratedApp;
+			productName = IntegratedApp;
 			productReference = 13B07F961A680F5B00A75B9A /* IntegratedApp.app */;
 			productType = "com.apple.product-type.application";
 		};
@@ -344,23 +343,6 @@
 			shellPath = /bin/sh;
 			shellScript = "set -e\n\nWITH_ENVIRONMENT=\"../node_modules/react-native/scripts/xcode/with-environment.sh\"\nREACT_NATIVE_XCODE=\"../node_modules/react-native/scripts/react-native-xcode.sh\"\n\n/bin/sh -c \"$WITH_ENVIRONMENT $REACT_NATIVE_XCODE\"\n";
 		};
-		02D3E375F84A292B36579F86 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-IntegratedApp/Pods-IntegratedApp-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-IntegratedApp/Pods-IntegratedApp-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-IntegratedApp/Pods-IntegratedApp-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 		1403597B04DB079C8FA8477E /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -381,6 +363,23 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		2541FFDE76330F48004A19C8 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-IntegratedApp/Pods-IntegratedApp-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-IntegratedApp/Pods-IntegratedApp-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-IntegratedApp/Pods-IntegratedApp-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		29643B56F820BACD6E499D65 /* [CP] Copy Pods Resources */ = {
@@ -417,7 +416,7 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-IntegratedApp-IntegratedAppTests/Pods-IntegratedApp-IntegratedAppTests-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		D19F96DBBC4E2429B66E3B36 /* [CP] Embed Pods Frameworks */ = {
+		68607C90E007F25FD87D3A73 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -515,7 +514,7 @@
 					"DEBUG=1",
 					"$(inherited)",
 				);
-				INFOPLIST_FILE = "IntegratedAppTests/Info.plist";
+				INFOPLIST_FILE = IntegratedAppTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -527,7 +526,7 @@
 					"-lc++",
 					"$(inherited)",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.Omnex.IntegratedApp";
+				PRODUCT_BUNDLE_IDENTIFIER = com.Omnex.IntegratedApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/IntegratedApp.app/IntegratedApp";
 			};
@@ -539,7 +538,7 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COPY_PHASE_STRIP = NO;
-				INFOPLIST_FILE = "IntegratedAppTests/Info.plist";
+				INFOPLIST_FILE = IntegratedAppTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -551,7 +550,7 @@
 					"-lc++",
 					"$(inherited)",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.Omnex.IntegratedApp";
+				PRODUCT_BUNDLE_IDENTIFIER = com.Omnex.IntegratedApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/IntegratedApp.app/IntegratedApp";
 			};
@@ -566,8 +565,8 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = LY2C7C52LP;
 				ENABLE_BITCODE = NO;
-				INFOPLIST_FILE = "IntegratedApp/Info.plist";
-             INFOPLIST_KEY_CFBundleDisplayName = "IntegratedApp";
+				INFOPLIST_FILE = IntegratedApp/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = IntegratedApp;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -578,8 +577,8 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.Omnex.IntegratedApp";
-				PRODUCT_NAME = "IntegratedApp";
+				PRODUCT_BUNDLE_IDENTIFIER = com.Omnex.IntegratedApp;
+				PRODUCT_NAME = IntegratedApp;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -594,8 +593,8 @@
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = LY2C7C52LP;
-				INFOPLIST_FILE = "IntegratedApp/Info.plist";
-             INFOPLIST_KEY_CFBundleDisplayName = "IntegratedApp";
+				INFOPLIST_FILE = IntegratedApp/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = IntegratedApp;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -606,8 +605,8 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.Omnex.IntegratedApp";
-				PRODUCT_NAME = "IntegratedApp";
+				PRODUCT_BUNDLE_IDENTIFIER = com.Omnex.IntegratedApp;
+				PRODUCT_NAME = IntegratedApp;
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
 			};

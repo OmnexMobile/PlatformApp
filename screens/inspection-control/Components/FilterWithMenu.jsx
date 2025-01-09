@@ -8,6 +8,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import IconF from 'react-native-vector-icons/Feather';
 import IconM from 'react-native-vector-icons/FontAwesome';
 import IconFF from 'react-native-vector-icons/FontAwesome5';
+import IconA from 'react-native-vector-icons/AntDesign';
 
 const FilterWithMenu = ({ dataList = [], type = 'IconFilter', onSelectedPress = () => {}, anchorPosition = 'bottom' }) => {
     const [visible, setVisible] = useState(false);
@@ -35,7 +36,7 @@ const FilterWithMenu = ({ dataList = [], type = 'IconFilter', onSelectedPress = 
                 onPress={() => {
                     openMenu();
                 }}>
-                {visible?<Icon name="close" size={20} color={COLORS.moreIcon} />:<IconF name="more-vertical" size={20} color={COLORS.moreIcon} />}
+                {visible ? <Icon name="close" size={20} color={COLORS.moreIcon} /> : <IconF name="more-vertical" size={20} color={COLORS.moreIcon} />}
             </TouchableOpacity>
         );
     };
@@ -52,6 +53,10 @@ const FilterWithMenu = ({ dataList = [], type = 'IconFilter', onSelectedPress = 
                 return <IconFF name={iconName} color="#fff" size={20} />;
             case 'FontAwesome':
                 return <IconM name={iconName} color="#fff" size={20} />;
+            case 'Ionicons':
+                return <Icon name={iconName} color="#fff" size={20} />;
+            case 'AntDesign':
+                return <IconA name={iconName} color="#fff" size={20} />;
             default:
                 return null;
         }

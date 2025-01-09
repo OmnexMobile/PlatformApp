@@ -8,6 +8,7 @@ import { ButtonComponent } from 'components';
 import FilterWithMenu from '../Components/FilterWithMenu';
 import { RFPercentage } from 'helpers/utils';
 import SignatureComponent from '../Components/SignatureComponent';
+import CharacteristicsIfo from '../Components/inprocess-inspection/CharacteristicsIfo';
 const moreList = [
     {
         id: 1,
@@ -120,7 +121,9 @@ const InprocessInspection = () => {
                         <Text style={[styles.headerText]}>Characteristics Info</Text>
                         <Icon name={showChar ? 'down' : 'right'} size={20} />
                     </TouchableOpacity>
-                    {showChar && <View style={[styles.tabBox]}></View>}
+                    {showChar && <View style={[styles.tabBox]}>
+                            <CharacteristicsIfo/>
+                        </View>}
                 </View>
             </View>
             <SignatureComponent modalVisible={showSignModal}  hideModal={()=>{setShowSignModal(false)}}/>
@@ -201,11 +204,13 @@ const styles = StyleSheet.create({
     },
     headerTitle:{
       fontFamily:'OpenSans-SemiBold',
-      fontSize:16
+      fontSize:16,
+      color: '#000',
     },
     headerName:{
       fontFamily:'OpenSans-Regular',
-      fontSize:14
+      fontSize:14,
+      color: '#000'
     }
 });
 

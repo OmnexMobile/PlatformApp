@@ -249,18 +249,18 @@ const styles = StyleSheet.create({
     },
     cardText: {
         fontSize: 16,
-        fontFamily: 'ProximaNova-Bold',
+        fontFamily: 'OpenSans-SemiBold',
         color: COLORS.ictextBlack,
     },
     operationText: {
         fontSize: 14,
-        fontFamily: 'ProximaNova-Regular',
+        fontFamily: 'OpenSans-Regular',
         color: COLORS.ictextBlack,
         lineHeight: 22,
     },
     secondText: {
         color: COLORS.textDark,
-        fontFamily: 'ProximaNova-Regular',
+        fontFamily: 'OpenSans-Regular',
     },
     iconlist: {
         flexDirection: 'row',
@@ -288,7 +288,7 @@ const styles = StyleSheet.create({
     },
     bottomText: {
         fontSize: 14,
-        fontFamily: 'ProximaNova-Bold',
+        fontFamily: 'OpenSans-SemiBold',
     },
     filterBox: {
         width: '30%',

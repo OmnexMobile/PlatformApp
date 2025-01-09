@@ -80,6 +80,7 @@ const styles = StyleSheet.create({
     btnText:{
         color:COLORS.white,
         fontSize:16,
+        fontFamily:'OpenSans-SemiBold'
     }
 });
 
