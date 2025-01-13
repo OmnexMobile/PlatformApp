@@ -1,6 +1,6 @@
 import { COLORS } from 'constants/theme-constants';
-import React, { useState } from 'react';
-import {  ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
+import {  BackHandler, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import IconF from 'react-native-vector-icons/Feather';
 import IconM from 'react-native-vector-icons/MaterialCommunityIcons';
 import FilterWithMenu from '../FilterWithMenu';
@@ -20,36 +20,7 @@ const moreList = [
         iconFrom: 'AntDesign',
     },
 ];
-const listData = [
-    {
-        id: 1,
-        count: '1',
-        actualValue: '',
-        finalValue: 4,
-        diffValue: 1,
-    },
-    {
-        id: 2,
-        count: '2',
-        actualValue: '',
-        finalValue: 4,
-        diffValue: 1,
-    },
-    {
-        id: 3,
-        count: '3',
-        actualValue: '',
-        finalValue: 4,
-        diffValue: 1,
-    },
-    {
-        id: 4,
-        count: '4',
-        actualValue: '',
-        finalValue: 4,
-        diffValue: 1,
-    },
-];
+
 const BorderContent = ({ title = 'Title', count = 0, color = '#000' }) => {
     return (
         <View style={[styles.borderContainer]}>
@@ -61,22 +32,34 @@ const BorderContent = ({ title = 'Title', count = 0, color = '#000' }) => {
         </View>
     );
 };
-const CharacteristicsIfo = () => {
-    const [masterData, setMasterData] = useState([...listData]);
+const CharacteristicsInfo = ({backHandle=()=>{},listData=[],type='number'}) => {
+    console.log(type,'typeOK')
+
+    const [masterData, setMasterData] = useState([]);
+    useEffect(()=>{
+        if(listData.length){
+            setMasterData([...listData])
+        }else{
+            setMasterData([])
+        }
+    },[listData])
+
+
     const handleInputChange = (val, id) => {
         const updatedData = masterData.map(item => (item.id === id ? { ...item, actualValue: val, } : item));
         setMasterData(updatedData);
     };
     const renderItem = (item, index) => {
         let tolleranceValue = item.finalValue + item.diffValue;
-        const renderBackGroundColor = (value, fValue) => {
-            if (value == '') {
+        const renderBackGroundColor = (value, fValue,type) => {
+            if (value === '') {
                 return COLORS.white;
-            } else if (value >= fValue && value <= tolleranceValue) {
-                return COLORS.SUCCESS;
-            } else {
-                return COLORS.ERROR;
-            }
+            } 
+            if (type === 'number') {
+                return value >= fValue && value <= tolleranceValue ? COLORS.SUCCESS : COLORS.ERROR;
+            } 
+            return value.toLowerCase() === 'ok' ? COLORS.SUCCESS : COLORS.ERROR;
+           
         };
         return (
             <View style={[styles.contentBox]} key={item?.id}>
@@ -98,11 +81,12 @@ const CharacteristicsIfo = () => {
                 </View>
                 <View style={{ flex: 2, flexDirection: 'row', justifyContent: 'space-between' }}>
                     <TextInput
-                        style={[styles.inputBox, { backgroundColor: renderBackGroundColor(item.actualValue, item.finalValue) }]}
+                        style={[styles.inputBox, { backgroundColor: renderBackGroundColor(item.actualValue, item.finalValue,type) }]}
                         value={item.actualValue}
                         onChangeText={val => {
                             handleInputChange(val, item.id);
                         }}
+                        keyboardType={type=='number'?'number-pad':'default'}
                     />
                     <TouchableOpacity style={[styles.deleteIcon]} onPress={()=>{handleDeletePress(item,index)}}>
                             <IconM name="delete-outline" size={25} color={COLORS.ALERT} />
@@ -112,7 +96,6 @@ const CharacteristicsIfo = () => {
         );
     };
     const handleDeletePress=(item,index)=>{
-        console.log(item,index,'index')
         let temp = JSON.parse(JSON.stringify(masterData));
         temp.splice(index,1)
         setMasterData(temp);
@@ -132,13 +115,13 @@ const CharacteristicsIfo = () => {
     };
     const renderOkCount=(value=[])=>{
         let tolleranceValue = value[0]?.finalValue + value[0]?.diffValue;
-        let temp=value?.filter((x)=>x?.actualValue!=''&&(x?.actualValue >= x?.finalValue && x?.actualValue <= tolleranceValue))
+        let temp=type=='number'?value?.filter((x)=>x?.actualValue!=''&&(x?.actualValue >= x?.finalValue && x?.actualValue <= tolleranceValue)):value.filter((x)=>x?.actualValue?.toLowerCase()=='ok' && x?.actualValue!=='' )
         return temp.length || 0
     }
     const renderNotOkCount=(value=[])=>{
-        let tolleranceValue = value[0]?.finalValue + value[0]?.diffValue;
-        let temp=value.filter((x)=>x?.actualValue!=''&& !(x?.actualValue >= x?.finalValue && x?.actualValue <= tolleranceValue))
-        return temp?.length || 0
+            let tolleranceValue = value[0]?.finalValue + value[0]?.diffValue;
+            let temp=type=='number'?value.filter((x)=>x?.actualValue!=''&& !(x?.actualValue >= x?.finalValue && x?.actualValue <= tolleranceValue)):value.filter((x)=>x?.actualValue?.toLowerCase()!='ok' && x?.actualValue!=='' )
+            return temp?.length || 0
     }
     return (
         <View style={[styles.container]}>
@@ -270,4 +253,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default CharacteristicsIfo;
+export default CharacteristicsInfo;

@@ -92,7 +92,9 @@ export const COLORS = {
     icBottomBox:"#e0e0e0",
     ictextBlack:'#000',
     moreIcon:'#666666',
-    appthemeShadow:"#00c3d220"
+    appthemeShadow:"#00c3d220",
+    inputBorder:'#ececec',
+    inputBG:'#f5f5f5'
 };
 
 // FONTS

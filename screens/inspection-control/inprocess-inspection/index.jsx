@@ -8,7 +8,8 @@ import { ButtonComponent } from 'components';
 import FilterWithMenu from '../Components/FilterWithMenu';
 import { RFPercentage } from 'helpers/utils';
 import SignatureComponent from '../Components/SignatureComponent';
-import CharacteristicsIfo from '../Components/inprocess-inspection/CharacteristicsIfo';
+import CharacteristicsInfo from '../Components/inprocess-inspection/CharacteristicsInfo';
+import GeneralInfo from '../Components/inprocess-inspection/GeneralInfo';
 const moreList = [
     {
         id: 1,
@@ -41,11 +42,42 @@ const listData = [
         name: 'Machine Speeds add feeds',
     },
 ];
+const varData = [
+    {
+        id: 1,
+        count: '1',
+        actualValue: '',
+        finalValue: 4,
+        diffValue: 1,
+    },
+    {
+        id: 2,
+        count: '2',
+        actualValue: '',
+        finalValue: 4,
+        diffValue: 1,
+    },
+    {
+        id: 3,
+        count: '3',
+        actualValue: '',
+        finalValue: 4,
+        diffValue: 1,
+    },
+    {
+        id: 4,
+        count: '4',
+        actualValue: '',
+        finalValue: 4,
+        diffValue: 1,
+    },
+];
 
 const InprocessInspection = () => {
     const [showGeneral, setShowGeneral] = useState(false);
     const [showChar, setShowChar] = useState(false);
-    const [showSignModal,setShowSignModal]=useState(false)
+    const [showSignModal, setShowSignModal] = useState(false);
+    const [formType,setFormType]=useState('number')
     const handleGenOpen = () => {
         setShowGeneral(!showGeneral);
         setShowChar(false);
@@ -55,10 +87,9 @@ const InprocessInspection = () => {
         setShowGeneral(false);
     };
     const handleMenuPress = value => {
-        setShowSignModal(true)
-        
+        setShowSignModal(true);
     };
-    const renderItem = ({ item }) => {
+    const renderItem = ({ item,index }) => {
         return (
             <View style={[styles.recordConatiner]}>
                 <View style={[styles.iconBox]}>
@@ -69,7 +100,17 @@ const InprocessInspection = () => {
                     <Text style={[styles.headerName]}>{item.name}</Text>
                 </View>
                 <View style={[styles.lastBox]}>
-                    <TouchableOpacity style={[styles.inspectBox]} onPress={()=>{handleCharOpen()}}>
+                    <TouchableOpacity
+                        style={[styles.inspectBox]}
+                        onPress={() => {
+                            handleCharOpen();
+                            if(index%2==0){
+                                setFormType('char')
+                            }else{
+                                setFormType('number')
+                            }
+
+                        }}>
                         <Text style={[styles.iText]}>Inspect</Text>
                     </TouchableOpacity>
                 </View>
@@ -89,7 +130,11 @@ const InprocessInspection = () => {
                             <Text style={[styles.headerText]}>General Info</Text>
                             <Icon name={showGeneral ? 'down' : 'right'} size={20} />
                         </TouchableOpacity>
-                        {showGeneral && <View style={[styles.tabBox]}></View>}
+                        {showGeneral && (
+                            <View style={[styles.tabBox]}>
+                                <GeneralInfo />
+                            </View>
+                        )}
                     </View>
                 )}
                 {!showChar && !showGeneral && (
@@ -121,12 +166,19 @@ const InprocessInspection = () => {
                         <Text style={[styles.headerText]}>Characteristics Info</Text>
                         <Icon name={showChar ? 'down' : 'right'} size={20} />
                     </TouchableOpacity>
-                    {showChar && <View style={[styles.tabBox]}>
-                            <CharacteristicsIfo/>
-                        </View>}
+                    {showChar && (
+                        <View style={[styles.tabBox]}>
+                            <CharacteristicsInfo listData={varData} type={formType} />
+                        </View>
+                    )}
                 </View>
             </View>
-            <SignatureComponent modalVisible={showSignModal}  hideModal={()=>{setShowSignModal(false)}}/>
+            <SignatureComponent
+                modalVisible={showSignModal}
+                hideModal={() => {
+                    setShowSignModal(false);
+                }}
+            />
         </CustomHeader>
     );
 };
@@ -189,7 +241,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     lastBox: {
-      alignSelf:'center'
+        alignSelf: 'center',
     },
     inspectBox: {
         backgroundColor: COLORS.apptheme,
@@ -202,16 +254,16 @@ const styles = StyleSheet.create({
         fontFamily: 'OpenSans-Regular',
         color: COLORS.white,
     },
-    headerTitle:{
-      fontFamily:'OpenSans-SemiBold',
-      fontSize:16,
-      color: '#000',
+    headerTitle: {
+        fontFamily: 'OpenSans-SemiBold',
+        fontSize: 16,
+        color: '#000',
     },
-    headerName:{
-      fontFamily:'OpenSans-Regular',
-      fontSize:14,
-      color: '#000'
-    }
+    headerName: {
+        fontFamily: 'OpenSans-Regular',
+        fontSize: 14,
+        color: '#000',
+    },
 });
 
 export default InprocessInspection;
