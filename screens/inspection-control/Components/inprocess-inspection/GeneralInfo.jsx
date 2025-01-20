@@ -1,8 +1,22 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import InputBoxWithHeader from '../InputBoxWithHeader';
+import DataPickerWithIcon from '../DataPickerWithIcon';
+import { COLORS } from 'constants/theme-constants';
+import SingleDropDown from '../SingleDropDown';
 
+const data = [
+    { label: 'Balu', value: '1' },
+    { label: 'Ajith', value: '2' },
+    { label: 'Vijay', value: '3' },
+];
 const GeneralInfo = () => {
+    const [formData,setFormData]=useState({
+        approver:null,
+        supplierName:'',
+        partName:'',
+        inspectedDate:''
+    })
     return (
         <View style={[styles.container]}>
             <ScrollView style={[styles.overallBox]} showsVerticalScrollIndicator={false}>
@@ -16,10 +30,10 @@ const GeneralInfo = () => {
                 </View>
                 <View style={[styles.mainBox]}>
                     <View style={[styles.subBox]}>
-                        <InputBoxWithHeader title="Inspected Date" />
+                        <DataPickerWithIcon borderRadius={5} showHeader={true} title="Inspected Date" backgroundColor={COLORS.inputBG} borderWidth={StyleSheet.hairlineWidth}  borderColor={COLORS.inputBorder} paddingVertical={10} placeHolder=''/>
                     </View>
                     <View style={[styles.subBox]}>
-                        <InputBoxWithHeader title=" " />
+                        <DataPickerWithIcon borderRadius={5} showHeader={true}  backgroundColor={COLORS.inputBG} borderWidth={StyleSheet.hairlineWidth}  borderColor={COLORS.inputBorder}paddingVertical={10} type='time' placeHolder=''/>
                     </View>
                 </View>
                 <View style={[styles.mainBox]}>
@@ -27,7 +41,7 @@ const GeneralInfo = () => {
                         <InputBoxWithHeader title="Lot Quantity" />
                     </View>
                     <View style={[styles.subBox]}>
-                        <InputBoxWithHeader title="Approver" />
+                        <SingleDropDown data={data} onChange={(val)=>{setFormData((pre)=>({...pre,approver:val}))}} value={formData.approver} title='Approver'/>
                     </View>
                 </View>
                 <View style={[styles.mainBox]}>
@@ -56,10 +70,10 @@ const GeneralInfo = () => {
                 </View>
                 <View style={[styles.mainBox]}>
                     <View style={[styles.subBox]}>
-                        <InputBoxWithHeader title="GRN Date" />
+                        <DataPickerWithIcon borderRadius={5} showHeader={true} title="GRN Date" backgroundColor={COLORS.inputBG} borderWidth={StyleSheet.hairlineWidth}  borderColor={COLORS.inputBorder} paddingVertical={10} placeHolder='' />
                     </View>
                     <View style={[styles.subBox]}>
-                        <InputBoxWithHeader title="Invoice Date" />
+                        <DataPickerWithIcon borderRadius={5} showHeader={true} title="Invoice Date"  backgroundColor={COLORS.inputBG} borderWidth={StyleSheet.hairlineWidth}  borderColor={COLORS.inputBorder} paddingVertical={10} placeHolder='' />
                     </View>
                 </View>
                 <View style={[styles.mainBox]}>

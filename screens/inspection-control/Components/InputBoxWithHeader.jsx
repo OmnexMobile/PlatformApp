@@ -2,11 +2,11 @@ import { COLORS } from 'constants/theme-constants';
 import React from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 
-const InputBoxWithHeader = ({ title = 'Title' }) => {
+const InputBoxWithHeader = ({ title = 'Title', onChangeText=()=>{},value=''}) => {
     return (
         <View style={[styles.container]}>
             <Text style={[styles.headerText]}>{title}</Text>
-            <TextInput style={[styles.inputBox]}/>
+            <TextInput style={[styles.inputBox]} onChangeText={onChangeText} value={value}/>
         </View>
     );
 };
@@ -17,6 +17,7 @@ const styles = StyleSheet.create({
     headerText: {
         fontFamily: 'OpenSans-Regular',
         fontSize: 14,
+        color:COLORS.headerText
     },
     inputBox:{
         borderWidth:StyleSheet.hairlineWidth,
@@ -26,7 +27,8 @@ const styles = StyleSheet.create({
         padding:0,
         paddingHorizontal:10,
         backgroundColor:COLORS.inputBG,
-        marginTop:8
+        marginTop:8,
+        color:"#000"
     }
 });
 export default InputBoxWithHeader;

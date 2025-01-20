@@ -1,11 +1,12 @@
 import { COLORS } from 'constants/theme-constants';
 import React, { useEffect, useLayoutEffect, useState } from 'react';
-import {  BackHandler, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import IconF from 'react-native-vector-icons/Feather';
 import IconM from 'react-native-vector-icons/MaterialCommunityIcons';
 import FilterWithMenu from '../FilterWithMenu';
 import { ButtonComponent } from 'components';
 import { RFPercentage } from 'helpers/utils';
+import { useNavigation } from '@react-navigation/native';
 const moreList = [
     {
         id: 1,
@@ -32,9 +33,8 @@ const BorderContent = ({ title = 'Title', count = 0, color = '#000' }) => {
         </View>
     );
 };
-const CharacteristicsInfo = ({backHandle=()=>{},listData=[],type='number'}) => {
-    console.log(type,'typeOK')
-
+const CharacteristicsInfo = ({listData=[],type='number'}) => {
+    const navigation=useNavigation()
     const [masterData, setMasterData] = useState([]);
     useEffect(()=>{
         if(listData.length){
