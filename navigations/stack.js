@@ -85,6 +85,7 @@ import OperatorWorksheet from 'screens/inspection-control/operator-worksheet';
 import CompletedInspection from 'screens/inspection-control/completed-inspection';
 import SupervisorSchedule from 'screens/inspection-control/supervisor-schedule';
 import InprocessInspection from 'screens/inspection-control/inprocess-inspection';
+import ContainmentActions from 'screens/inspection-control/containmentActions';
 const Stack = createStackNavigator();
 
 export const AppStackData = [
@@ -477,6 +478,11 @@ export const AppStackData = [
     {
         name: ROUTES.INPROCESS_INSPECTION,
         component: InprocessInspection,
+        cardStyleInterpolator: CardStyleInterpolators.forFadeFromCenter,
+    },
+    {
+        name: ROUTES.CONTAINMENT_ACTIONS,
+        component: ContainmentActions,
         cardStyleInterpolator: CardStyleInterpolators.forFadeFromCenter,
     }
     // ...HomeStackData,

@@ -7,6 +7,7 @@ import FilterWithMenu from '../FilterWithMenu';
 import { ButtonComponent } from 'components';
 import { RFPercentage } from 'helpers/utils';
 import { useNavigation } from '@react-navigation/native';
+import { ROUTES } from 'constants/app-constant';
 const moreList = [
     {
         id: 1,
@@ -49,6 +50,10 @@ const CharacteristicsInfo = ({listData=[],type='number'}) => {
         const updatedData = masterData.map(item => (item.id === id ? { ...item, actualValue: val, } : item));
         setMasterData(updatedData);
     };
+    const handleSendPress=(type,item)=>{
+        console.log(type,item,'typreer')
+        navigation.navigate(ROUTES.CONTAINMENT_ACTIONS)
+    }
     const renderItem = (item, index) => {
         let tolleranceValue = item.finalValue + item.diffValue;
         const renderBackGroundColor = (value, fValue,type) => {
@@ -74,7 +79,7 @@ const CharacteristicsInfo = ({listData=[],type='number'}) => {
                     }}>
                     <Text style={[styles.headerText]}>{item.count}</Text>
                     {masterData.length == index + 1 && (
-                        <TouchableOpacity style={[styles.iconContainer]}>
+                        <TouchableOpacity style={[styles.iconContainer]} onPress={()=>{handleSendPress(type,item)}}>
                             <IconF name="send" size={20} />
                         </TouchableOpacity>
                     )}
