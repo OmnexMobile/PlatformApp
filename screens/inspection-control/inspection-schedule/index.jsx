@@ -1,5 +1,5 @@
 import { ButtonComponent, ModalComponent, TextComponent } from 'components';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FlatList, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import CustomHeader from '../Components/CustomHeader';
 import { COLORS } from 'constants/theme-constants';
@@ -11,9 +11,9 @@ import IconI from 'react-native-vector-icons/Ionicons';
 import DataPickerWithIcon from '../Components/DataPickerWithIcon';
 import FilterWithMenu from '../Components/FilterWithMenu';
 import InputDataModal from '../Components/inspection-schedule/InputDataModal';
-// import ICFile from '../../../assets/images/svg/icFile.svg'
-import ICFileIcon from '../../../assets/images/svg/icFile.svg'
-
+import ICFileIcon from '../../../assets/images/svg/icFile.svg';
+import { useAppContext } from 'contexts/app-context';
+import moment from 'moment';
 
 const listData = [
     {
@@ -116,18 +116,54 @@ const moreList = [
         id: 1,
         title: 'Get Schedule',
         iconName: 'calendar-check-o',
-        iconFrom:'FontAwesome'
+        iconFrom: 'FontAwesome',
     },
     {
         id: 2,
         title: 'Start Inspection',
         iconName: 'search',
-        iconFrom:'FontAwesome'
+        iconFrom: 'FontAwesome',
     },
 ];
-const InspectionSchedule = ({ route }) => {
+const InspectionSchedule = () => {
+    const { profile } = useAppContext();
     const navigation = useNavigation();
     const [showModal, setShowModal] = useState(false);
+    const [filterData, setFilterData] = useState({
+        startDate: '',
+        endDate: '',
+        type: '',
+    });
+
+    const handleListFetch = (inspect='') => {
+        const {startDate,endDate,type}=filterData
+        let dateFlag=startDate!==''&&endDate!==''
+        const formData = new FormData();
+        formData.append('UserID', profile?.UserId);
+        formData.append('SiteID', parseInt(profile?.SiteId?.Siteid));
+        formData.append('LanguageID', 1);
+        formData.append('StartDate',dateFlag?startDate:'');
+        formData.append('EndDate', dateFlag?endDate:'');
+        formData.append('InspectionType', inspect||type);
+        console.log(moment(startDate).format('YYYY-MM-DD'),endDate,inspect||type,'called')
+    };
+
+    useEffect(()=>{
+        const {startDate,endDate}=filterData
+        if(startDate!=='' && endDate!=='' ){
+            handleListFetch();
+        }
+    },[filterData])
+
+    const handleInputChange = (key, value) => {
+        setFilterData(pre => ({ ...pre, [key]: value }));
+    };
+    useEffect(() => {
+        if (profile?.SiteId) {
+            handleListFetch();
+        }
+    }, [profile?.SiteId]);
+
     const handleCIbtnpress = () => {
         navigation.navigate(ROUTES.COMPLETED_INSPECTION);
     };
@@ -179,13 +215,25 @@ const InspectionSchedule = ({ route }) => {
             <View style={[styles.mainContainer]}>
                 <View style={[styles.overAllBox]}>
                     <View style={[styles.filterBox]}>
-                        <DataPickerWithIcon />
+                        <DataPickerWithIcon
+                            onSelectedDate={val => {
+                                handleInputChange('startDate', val);
+                            }}
+                        />
                     </View>
                     <View style={[styles.filterBox]}>
-                        <DataPickerWithIcon placeHolder="End Date" />
+                        <DataPickerWithIcon
+                            placeHolder="End Date"
+                            onSelectedDate={val => {
+                                handleInputChange('endDate', val);
+                            }}
+                        />
                     </View>
                     <View style={[styles.filterList]}>
-                        <FilterWithMenu dataList={filterList} type="BtnFilter" />
+                        <FilterWithMenu dataList={filterList} type="BtnFilter" onSelectedPress={(val)=>{
+                                handleListFetch(val.title)
+                                handleInputChange('type', val.title);
+                        }} />
                     </View>
                     <View style={[styles.iconFilter]}>
                         <FilterWithMenu

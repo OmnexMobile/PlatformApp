@@ -108,9 +108,10 @@ const styles = StyleSheet.create({
         paddingHorizontal: 5,
     },
     textStyle: {
-        fontSize: RFPercentage(1.5),
+        fontSize: RFPercentage(1.6),
         fontFamily: 'ProximaNova-Regular',
         flex: 1,
+        color:'#000'
     },
     containerIconBox: {
         flexDirection: 'row',
