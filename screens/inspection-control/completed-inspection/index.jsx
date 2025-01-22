@@ -167,7 +167,7 @@ const CompletedInspection = () => {
                             <IconO name="sync" size={20} color={COLORS.grey} />
                         </TouchableOpacity>
                         <TouchableOpacity>
-                            <IconA name="delete" size={20} color={COLORS.ERROR} />
+                            <Icon name="delete-outline" size={25} color={COLORS.ERROR} />
                         </TouchableOpacity>
                     </View>
                 </View>

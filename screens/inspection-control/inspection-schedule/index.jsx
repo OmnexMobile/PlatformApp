@@ -23,6 +23,7 @@ const listData = [
         InvoiceNo: 3,
         createdDate: '04/06/2024',
         isDownloaded: false,
+        icType: 'IP',
     },
     {
         id: 2,
@@ -31,6 +32,7 @@ const listData = [
         InvoiceNo: 4,
         createdDate: '03/07/2024',
         isDownloaded: false,
+        icType: 'IC',
     },
     {
         id: 3,
@@ -39,6 +41,7 @@ const listData = [
         InvoiceNo: 6,
         createdDate: '03/07/2024',
         isDownloaded: false,
+        icType: 'IP',
     },
     {
         id: 4,
@@ -47,6 +50,7 @@ const listData = [
         InvoiceNo: 7,
         createdDate: '01/07/2024',
         isDownloaded: false,
+        icType: 'CP',
     },
     {
         id: 5,
@@ -55,6 +59,7 @@ const listData = [
         InvoiceNo: 8,
         createdDate: '03/07/2024',
         isDownloaded: false,
+        icType: 'CP',
     },
     {
         id: 6,
@@ -63,6 +68,7 @@ const listData = [
         InvoiceNo: 9,
         createdDate: '03/07/2024',
         isDownloaded: false,
+        icType: 'IP',
     },
     {
         id: 51,
@@ -71,6 +77,7 @@ const listData = [
         InvoiceNo: 8,
         createdDate: '03/07/2024',
         isDownloaded: false,
+        icType: 'IC',
     },
     {
         id: 16,
@@ -79,6 +86,7 @@ const listData = [
         InvoiceNo: 9,
         createdDate: '03/07/2024',
         isDownloaded: false,
+        icType: 'IP',
     },
     {
         id: 7,
@@ -87,6 +95,7 @@ const listData = [
         InvoiceNo: 8,
         createdDate: '03/07/2024',
         isDownloaded: false,
+        icType: 'Cp',
     },
     {
         id: 9,
@@ -95,6 +104,7 @@ const listData = [
         InvoiceNo: 9,
         createdDate: '03/07/2024',
         isDownloaded: false,
+        icType: 'IP',
     },
 ];
 const filterList = [
@@ -135,25 +145,25 @@ const InspectionSchedule = () => {
         type: '',
     });
 
-    const handleListFetch = (inspect='') => {
-        const {startDate,endDate,type}=filterData
-        let dateFlag=startDate!==''&&endDate!==''
+    const handleListFetch = (inspect = '') => {
+        const { startDate, endDate, type } = filterData;
+        let dateFlag = startDate !== '' && endDate !== '';
         const formData = new FormData();
         formData.append('UserID', profile?.UserId);
         formData.append('SiteID', parseInt(profile?.SiteId?.Siteid));
         formData.append('LanguageID', 1);
-        formData.append('StartDate',dateFlag?startDate:'');
-        formData.append('EndDate', dateFlag?endDate:'');
-        formData.append('InspectionType', inspect||type);
-        console.log(moment(startDate).format('YYYY-MM-DD'),endDate,inspect||type,'called')
+        formData.append('StartDate', dateFlag ? startDate : '');
+        formData.append('EndDate', dateFlag ? endDate : '');
+        formData.append('InspectionType', inspect || type);
+        // console.log(moment(startDate).format('YYYY-MM-DD'), endDate, inspect || type, 'called');
     };
 
-    useEffect(()=>{
-        const {startDate,endDate}=filterData
-        if(startDate!=='' && endDate!=='' ){
+    useEffect(() => {
+        const { startDate, endDate } = filterData;
+        if (startDate !== '' && endDate !== '') {
             handleListFetch();
         }
-    },[filterData])
+    }, [filterData]);
 
     const handleInputChange = (key, value) => {
         setFilterData(pre => ({ ...pre, [key]: value }));
@@ -175,10 +185,13 @@ const InspectionSchedule = () => {
             navigation.navigate(ROUTES.OPERATOR_WORKSHEET);
         }
     };
+    const renderIconBgColor = value => {
+        return value == 'IC' ? COLORS.apptheme : value == 'IP' ? COLORS.ipBgColor : COLORS.ciBgColor;
+    };
     const renderData = ({ item }) => {
         return (
             <View style={[styles.recordConatiner]}>
-                <View style={[styles.iconBox]}>
+                <View style={[styles.iconBox,{backgroundColor:renderIconBgColor(item.icType)}]}>
                     <Icon name="layers-outline" size={25} color={COLORS.white} />
                 </View>
                 <View style={{ flex: 1, paddingHorizontal: 10 }}>
@@ -230,10 +243,14 @@ const InspectionSchedule = () => {
                         />
                     </View>
                     <View style={[styles.filterList]}>
-                        <FilterWithMenu dataList={filterList} type="BtnFilter" onSelectedPress={(val)=>{
-                                handleListFetch(val.title)
+                        <FilterWithMenu
+                            dataList={filterList}
+                            type="BtnFilter"
+                            onSelectedPress={val => {
+                                handleListFetch(val.title);
                                 handleInputChange('type', val.title);
-                        }} />
+                            }}
+                        />
                     </View>
                     <View style={[styles.iconFilter]}>
                         <FilterWithMenu

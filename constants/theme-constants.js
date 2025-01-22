@@ -94,7 +94,9 @@ export const COLORS = {
     moreIcon:'#666666',
     appthemeShadow:"#00c3d220",
     inputBorder:'#ececec',
-    inputBG:'#f5f5f5'
+    inputBG:'#f5f5f5',
+    ipBgColor:'#FFA726',
+    ciBgColor:'#66BB6B'
 };
 
 // FONTS

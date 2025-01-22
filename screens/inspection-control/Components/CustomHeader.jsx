@@ -2,7 +2,7 @@ import { useNavigation } from '@react-navigation/native';
 import { ListSearch } from 'components';
 import { COLORS, FONT_SIZE } from 'constants/theme-constants';
 import React, { useRef, useState } from 'react';
-import { Animated, FlatList, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Animated, FlatList, Platform, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Icon from 'react-native-vector-icons/AntDesign';
 import IconF from 'react-native-vector-icons/FontAwesome';
 import IconI from 'react-native-vector-icons/Ionicons';
@@ -58,7 +58,7 @@ const CustomHeader = ({ children, title = '', activeTabId, showIcons = true, han
         } else {
             setIsExpanded(true);
             Animated.timing(widthAnim, {
-                toValue: activeTabId !== 4 ? RFPercentage(27) : RFPercentage(23), // Width in pixels
+                toValue: activeTabId !== 4 ? RFPercentage(Platform.OS === 'android'?30:27) : RFPercentage(Platform.OS === 'android'?26:23), // Width in pixels
                 duration: 300,
                 useNativeDriver: false,
             }).start();

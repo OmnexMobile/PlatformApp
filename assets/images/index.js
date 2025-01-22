@@ -48,5 +48,8 @@ export const IMAGES = {
     docnewdocument: require('./docnewdocument.png'),
     document: require('./document.png'),
     folder: require('./folder.png'),
-
+    ICIS: require('./dashboard/InspectionSchedule.png'),
+    ICOS: require('./dashboard/OperatorWorksheet.png'),
+    ICCI: require('./dashboard/CompletedInspection.png'),
+    ICSS: require('./dashboard/SupervisorSchedule.png'),
 };
