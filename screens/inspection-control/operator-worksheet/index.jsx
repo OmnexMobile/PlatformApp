@@ -1,10 +1,9 @@
-import { ButtonComponent, TextComponent } from 'components'
+import { ButtonComponent } from 'components'
 import React from 'react'
 import CustomHeader from '../Components/CustomHeader'
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { COLORS } from 'constants/theme-constants'
 import  Icon  from 'react-native-vector-icons/MaterialCommunityIcons'
-import  IconA  from 'react-native-vector-icons/AntDesign'
 import { useNavigation } from '@react-navigation/native'
 import { ROUTES } from 'constants/app-constant'
 
@@ -116,7 +115,7 @@ const OperatorWorksheet = () => {
             <Text style={[styles.launchText]}>Launch</Text>
           </TouchableOpacity>
           <TouchableOpacity>
-            <IconA name='delete' size={20} color={COLORS.ERROR}/>
+            <Icon name='delete-outline' size={25} color={COLORS.ERROR}/>
           </TouchableOpacity>
         </View>
       </View>

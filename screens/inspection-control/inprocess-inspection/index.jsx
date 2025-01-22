@@ -49,6 +49,7 @@ const varData = [
         actualValue: '',
         finalValue: 4,
         diffValue: 1,
+        editvalue: '',
     },
     {
         id: 2,
@@ -56,6 +57,7 @@ const varData = [
         actualValue: '',
         finalValue: 4,
         diffValue: 1,
+        editvalue: '',
     },
     {
         id: 3,
@@ -63,6 +65,7 @@ const varData = [
         actualValue: '',
         finalValue: 4,
         diffValue: 1,
+        editvalue: '',
     },
     {
         id: 4,
@@ -70,6 +73,7 @@ const varData = [
         actualValue: '',
         finalValue: 4,
         diffValue: 1,
+        editvalue: '',
     },
 ];
 
@@ -77,7 +81,7 @@ const InprocessInspection = () => {
     const [showGeneral, setShowGeneral] = useState(false);
     const [showChar, setShowChar] = useState(false);
     const [showSignModal, setShowSignModal] = useState(false);
-    const [formType,setFormType]=useState('number')
+    const [formType, setFormType] = useState('number');
     const handleGenOpen = () => {
         setShowGeneral(!showGeneral);
         setShowChar(false);
@@ -89,7 +93,7 @@ const InprocessInspection = () => {
     const handleMenuPress = value => {
         setShowSignModal(true);
     };
-    const renderItem = ({ item,index }) => {
+    const renderItem = ({ item, index }) => {
         return (
             <View style={[styles.recordConatiner]}>
                 <View style={[styles.iconBox]}>
@@ -103,13 +107,13 @@ const InprocessInspection = () => {
                     <TouchableOpacity
                         style={[styles.inspectBox]}
                         onPress={() => {
+                            console.log(index % 2 == 0, 'index%2==0');
                             handleCharOpen();
-                            if(index%2==0){
-                                setFormType('char')
-                            }else{
-                                setFormType('number')
+                            if (index % 2 == 0) {
+                                setFormType('char');
+                            } else {
+                                setFormType('number');
                             }
-
                         }}>
                         <Text style={[styles.iText]}>Inspect</Text>
                     </TouchableOpacity>

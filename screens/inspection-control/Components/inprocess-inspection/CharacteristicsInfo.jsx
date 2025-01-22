@@ -1,5 +1,5 @@
 import { COLORS } from 'constants/theme-constants';
-import React, { useEffect, useLayoutEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import IconF from 'react-native-vector-icons/Feather';
 import IconM from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -50,9 +50,12 @@ const CharacteristicsInfo = ({listData=[],type='number'}) => {
         const updatedData = masterData.map(item => (item.id === id ? { ...item, actualValue: val, } : item));
         setMasterData(updatedData);
     };
-    const handleSendPress=(type,item)=>{
-        console.log(type,item,'typreer')
-        navigation.navigate(ROUTES.CONTAINMENT_ACTIONS)
+    const handleSendPress=(type,item,index)=>{
+        navigation.navigate(ROUTES.CONTAINMENT_ACTIONS,{
+            type:type,
+            listData:masterData,
+            index:index
+        })
     }
     const renderItem = (item, index) => {
         let tolleranceValue = item.finalValue + item.diffValue;
@@ -79,7 +82,7 @@ const CharacteristicsInfo = ({listData=[],type='number'}) => {
                     }}>
                     <Text style={[styles.headerText]}>{item.count}</Text>
                     {masterData.length == index + 1 && (
-                        <TouchableOpacity style={[styles.iconContainer]} onPress={()=>{handleSendPress(type,item)}}>
+                        <TouchableOpacity style={[styles.iconContainer]} onPress={()=>{handleSendPress(type,item,index)}}>
                             <IconF name="send" size={20} />
                         </TouchableOpacity>
                     )}
@@ -114,6 +117,7 @@ const CharacteristicsInfo = ({listData=[],type='number'}) => {
                 actualValue: '',
                 finalValue: temp[0]?.finalValue,
                 diffValue: temp[0]?.diffValue,
+                editvalue:''
             });
             setMasterData(temp);
         }
