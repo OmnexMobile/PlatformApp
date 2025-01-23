@@ -34,40 +34,47 @@ const BorderContent = ({ title = 'Title', count = 0, color = '#000' }) => {
         </View>
     );
 };
-const CharacteristicsInfo = ({listData=[],type='number'}) => {
-    const navigation=useNavigation()
+const CharacteristicsInfo = ({ listData = [], type = 'number' }) => {
+    const navigation = useNavigation();
     const [masterData, setMasterData] = useState([]);
-    useEffect(()=>{
-        if(listData.length){
-            setMasterData([...listData])
-        }else{
-            setMasterData([])
+    useEffect(() => {
+        if (listData.length) {
+            setMasterData([...listData]);
+        } else {
+            setMasterData([]);
         }
-    },[listData])
-
+    }, [listData]);
 
     const handleInputChange = (val, id) => {
-        const updatedData = masterData.map(item => (item.id === id ? { ...item, actualValue: val, } : item));
+        const updatedData = masterData.map(item => (item.id === id ? { ...item, actualValue: val } : item));
         setMasterData(updatedData);
     };
-    const handleSendPress=(type,item,index)=>{
-        navigation.navigate(ROUTES.CONTAINMENT_ACTIONS,{
-            type:type,
-            listData:masterData,
-            index:index
-        })
-    }
+    const handleSendPress = (type, item, index) => {
+        navigation.navigate(ROUTES.CONTAINMENT_ACTIONS, {
+            type: type,
+            listData: masterData,
+            index: index,
+        });
+    };
     const renderItem = (item, index) => {
         let tolleranceValue = item.finalValue + item.diffValue;
-        const renderBackGroundColor = (value, fValue,type) => {
+        const renderBackGroundColor = (value, fValue, type) => {
             if (value === '') {
                 return COLORS.white;
-            } 
+            }
             if (type === 'number') {
                 return value >= fValue && value <= tolleranceValue ? COLORS.SUCCESS : COLORS.ERROR;
-            } 
+            }
             return value.toLowerCase() === 'ok' ? COLORS.SUCCESS : COLORS.ERROR;
-           
+        };
+        const renderIcon = (value, fValue, type) => {
+            if (value === '') {
+                return false;
+            }
+            if (type === 'number') {
+                return value >= fValue && value <= tolleranceValue ? false : true;
+            }
+            return value.toLowerCase() === 'ok' ? false : true;
         };
         return (
             <View style={[styles.contentBox]} key={item?.id}>
@@ -81,33 +88,41 @@ const CharacteristicsInfo = ({listData=[],type='number'}) => {
                         marginRight: 5,
                     }}>
                     <Text style={[styles.headerText]}>{item.count}</Text>
-                    {masterData.length == index + 1 && (
-                        <TouchableOpacity style={[styles.iconContainer]} onPress={()=>{handleSendPress(type,item,index)}}>
+                    {renderIcon(item.actualValue, item.finalValue, type) && (
+                        <TouchableOpacity
+                            style={[styles.iconContainer]}
+                            onPress={() => {
+                                handleSendPress(type, item, index);
+                            }}>
                             <IconF name="send" size={20} />
                         </TouchableOpacity>
                     )}
                 </View>
                 <View style={{ flex: 2, flexDirection: 'row', justifyContent: 'space-between' }}>
                     <TextInput
-                        style={[styles.inputBox, { backgroundColor: renderBackGroundColor(item.actualValue, item.finalValue,type) }]}
+                        style={[styles.inputBox, { backgroundColor: renderBackGroundColor(item.actualValue, item.finalValue, type) }]}
                         value={item.actualValue}
                         onChangeText={val => {
                             handleInputChange(val, item.id);
                         }}
-                        keyboardType={type=='number'?'number-pad':'default'}
+                        keyboardType={type == 'number' ? 'number-pad' : 'default'}
                     />
-                    <TouchableOpacity style={[styles.deleteIcon]} onPress={()=>{handleDeletePress(item,index)}}>
-                            <IconM name="delete-outline" size={25} color={COLORS.ALERT} />
+                    <TouchableOpacity
+                        style={[styles.deleteIcon]}
+                        onPress={() => {
+                            handleDeletePress(item, index);
+                        }}>
+                        <IconM name="delete-outline" size={25} color={COLORS.ALERT} />
                     </TouchableOpacity>
                 </View>
             </View>
         );
     };
-    const handleDeletePress=(item,index)=>{
+    const handleDeletePress = (item, index) => {
         let temp = JSON.parse(JSON.stringify(masterData));
-        temp.splice(index,1)
+        temp.splice(index, 1);
         setMasterData(temp);
-    }
+    };
     const handleMenuPress = value => {
         if (value.id == 2) {
             let temp = JSON.parse(JSON.stringify(masterData));
@@ -117,21 +132,27 @@ const CharacteristicsInfo = ({listData=[],type='number'}) => {
                 actualValue: '',
                 finalValue: temp[0]?.finalValue,
                 diffValue: temp[0]?.diffValue,
-                editvalue:''
+                editvalue: '',
             });
             setMasterData(temp);
         }
     };
-    const renderOkCount=(value=[])=>{
+    const renderOkCount = (value = []) => {
         let tolleranceValue = value[0]?.finalValue + value[0]?.diffValue;
-        let temp=type=='number'?value?.filter((x)=>x?.actualValue!=''&&(x?.actualValue >= x?.finalValue && x?.actualValue <= tolleranceValue)):value.filter((x)=>x?.actualValue?.toLowerCase()=='ok' && x?.actualValue!=='' )
-        return temp.length || 0
-    }
-    const renderNotOkCount=(value=[])=>{
-            let tolleranceValue = value[0]?.finalValue + value[0]?.diffValue;
-            let temp=type=='number'?value.filter((x)=>x?.actualValue!=''&& !(x?.actualValue >= x?.finalValue && x?.actualValue <= tolleranceValue)):value.filter((x)=>x?.actualValue?.toLowerCase()!='ok' && x?.actualValue!=='' )
-            return temp?.length || 0
-    }
+        let temp =
+            type == 'number'
+                ? value?.filter(x => x?.actualValue != '' && x?.actualValue >= x?.finalValue && x?.actualValue <= tolleranceValue)
+                : value.filter(x => x?.actualValue?.toLowerCase() == 'ok' && x?.actualValue !== '');
+        return temp.length || 0;
+    };
+    const renderNotOkCount = (value = []) => {
+        let tolleranceValue = value[0]?.finalValue + value[0]?.diffValue;
+        let temp =
+            type == 'number'
+                ? value.filter(x => x?.actualValue != '' && !(x?.actualValue >= x?.finalValue && x?.actualValue <= tolleranceValue))
+                : value.filter(x => x?.actualValue?.toLowerCase() != 'ok' && x?.actualValue !== '');
+        return temp?.length || 0;
+    };
     return (
         <View style={[styles.container]}>
             <ScrollView style={[styles.overallBox]} showsVerticalScrollIndicator={false}>
@@ -152,7 +173,7 @@ const CharacteristicsInfo = ({listData=[],type='number'}) => {
                 <View>
                     <BorderContent title="Total Samples Tested" color={COLORS.apptheme} count={masterData?.length} />
                     <BorderContent title="Sample(s) OK " color={COLORS.SUCCESS} count={renderOkCount(masterData)} />
-                    <BorderContent title="Sample(s) Not OK " color={COLORS.ERROR} count={renderNotOkCount(masterData)}/>
+                    <BorderContent title="Sample(s) Not OK " color={COLORS.ERROR} count={renderNotOkCount(masterData)} />
                 </View>
             </ScrollView>
             <View style={[styles.btnContainer]}>
@@ -223,9 +244,9 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         borderColor: COLORS.icBottomBox,
         textAlign: 'center',
-        color:COLORS.white,
-        fontFamily:'OpenSans-SemiBold',
-        fontSize:16
+        color: COLORS.white,
+        fontFamily: 'OpenSans-SemiBold',
+        fontSize: 16,
     },
     btnContainer: {
         paddingTop: 7,
@@ -256,10 +277,10 @@ const styles = StyleSheet.create({
         fontSize: 15,
         color: '#000',
     },
-    deleteIcon:{
-        marginLeft:10,
-        alignSelf:'center'
-    }
+    deleteIcon: {
+        marginLeft: 10,
+        alignSelf: 'center',
+    },
 });
 
 export default CharacteristicsInfo;

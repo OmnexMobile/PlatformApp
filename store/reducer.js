@@ -11,6 +11,7 @@ const rootReducer = combineReducers({
     notifications: require('./AuditPro/notificationsRedux').reducer, // audits: auditReducer,
     search: require('./AuditPro/searchRedux').reducer,
     projects: require('./APQP/apqpRedux').reducer,
+    inspection: require('./InspectionControl/inspectionRedux').reducer,
 });
 
 export default rootReducer;

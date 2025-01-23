@@ -1,10 +1,10 @@
-import { ButtonComponent, ModalComponent, TextComponent } from 'components';
+import { ButtonComponent } from 'components';
 import React, { useEffect, useState } from 'react';
-import { FlatList, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { FlatList, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import CustomHeader from '../Components/CustomHeader';
 import { COLORS } from 'constants/theme-constants';
 import { useNavigation } from '@react-navigation/native';
-import { ROUTES } from 'constants/app-constant';
+import { PLACEHOLDERS, ROUTES } from 'constants/app-constant';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import IconF from 'react-native-vector-icons/Feather';
 import IconI from 'react-native-vector-icons/Ionicons';
@@ -14,6 +14,10 @@ import InputDataModal from '../Components/inspection-schedule/InputDataModal';
 import ICFileIcon from '../../../assets/images/svg/icFile.svg';
 import { useAppContext } from 'contexts/app-context';
 import moment from 'moment';
+import FileViewModal from '../Components/supervisor-schedule/FileViewModal';
+import IcSkeleton from '../Components/IcSkeleton';
+import { useDispatch, useSelector } from 'react-redux';
+import { showMessage } from 'react-native-flash-message';
 
 const listData = [
     {
@@ -136,6 +140,9 @@ const moreList = [
     },
 ];
 const InspectionSchedule = () => {
+    const {inspectList} = useSelector(state => state.inspection);
+    const dispatch = useDispatch();
+    console.log(inspectList, '************state');
     const { profile } = useAppContext();
     const navigation = useNavigation();
     const [showModal, setShowModal] = useState(false);
@@ -144,8 +151,17 @@ const InspectionSchedule = () => {
         endDate: '',
         type: '',
     });
+    const [showFileModal, setShowFileModal] = useState(false);
+    const [showSkeleton, setShowSkeleton] = useState(false);
+    setTimeout(() => {
+        setShowSkeleton(false);
+    }, 1000);
+    const handleFilePress = () => {
+        setShowFileModal(true);
+    };
 
     const handleListFetch = (inspect = '') => {
+        setShowSkeleton(true);
         const { startDate, endDate, type } = filterData;
         let dateFlag = startDate !== '' && endDate !== '';
         const formData = new FormData();
@@ -188,10 +204,21 @@ const InspectionSchedule = () => {
     const renderIconBgColor = value => {
         return value == 'IC' ? COLORS.apptheme : value == 'IP' ? COLORS.ipBgColor : COLORS.ciBgColor;
     };
+    handleSubmitPress=()=>{
+        dispatch({type: 'INSPECT_LIST',inspectList:listData })
+        setShowModal(false);
+        showMessage({
+            message: "Hello World",
+            description: "This is our second message",
+            type: "success",
+            position:'top',
+            statusBarHeight:Platform.OS=='android'?0: 40
+        });
+    }
     const renderData = ({ item }) => {
         return (
             <View style={[styles.recordConatiner]}>
-                <View style={[styles.iconBox,{backgroundColor:renderIconBgColor(item.icType)}]}>
+                <View style={[styles.iconBox, { backgroundColor: renderIconBgColor(item.icType) }]}>
                     <Icon name="layers-outline" size={25} color={COLORS.white} />
                 </View>
                 <View style={{ flex: 1, paddingHorizontal: 10 }}>
@@ -206,8 +233,11 @@ const InspectionSchedule = () => {
                 <View style={[styles.lastBox]}>
                     <Text style={[styles.secondText]}>{item.createdDate}</Text>
                     <View style={[styles.iconlist]}>
-                        {/* <ICFile/> */}
-                        <TouchableOpacity style={{ marginLeft: 15 }}>
+                        <TouchableOpacity
+                            style={{ marginLeft: 15 }}
+                            onPress={() => {
+                                handleFilePress();
+                            }}>
                             <ICFileIcon />
                             {/* <IconI name='document-attach-outline'size={25} color="#666666" /> */}
                         </TouchableOpacity>
@@ -262,7 +292,11 @@ const InspectionSchedule = () => {
                         />
                     </View>
                 </View>
-                <FlatList data={listData} renderItem={renderData} keyExtractor={item => item.id} showsVerticalScrollIndicator={false} />
+                {showSkeleton ? (
+                    <IcSkeleton type={PLACEHOLDERS.INSPECTION_CARD} />
+                ) : (
+                    <FlatList data={listData} renderItem={renderData} keyExtractor={item => item.id} showsVerticalScrollIndicator={false} />
+                )}
                 <View style={[styles.bottombox]}>
                     <Text style={[styles.bottomText]}>Total Inspections </Text>
                     <View style={[styles.totalBox]}>
@@ -283,6 +317,13 @@ const InspectionSchedule = () => {
                 modalVisible={showModal}
                 hideModal={() => {
                     setShowModal(false);
+                }}
+                handleSubmitPress={handleSubmitPress}
+            />
+            <FileViewModal
+                visible={showFileModal}
+                onDismiss={() => {
+                    setShowFileModal(false);
                 }}
             />
         </CustomHeader>

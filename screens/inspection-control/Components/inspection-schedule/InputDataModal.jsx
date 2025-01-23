@@ -6,17 +6,7 @@ import { showMessage } from 'react-native-flash-message'
 import { Divider, Modal } from 'react-native-paper'
 import { RFPercentage } from 'react-native-responsive-fontsize'
 
-const InputDataModal = ({modalVisible=false,hideModal=()=>{}}) => {
-    const handleSubmitPress=()=>{
-        hideModal()
-        showMessage({
-            message: "Hello World",
-            description: "This is our second message",
-            type: "success",
-            position:'top',
-            statusBarHeight:40
-          });
-    }
+const InputDataModal = ({modalVisible=false,hideModal=()=>{},handleSubmitPress=()=>{}}) => {
   return (
     <Modal visible={modalVisible} onDismiss={hideModal} contentContainerStyle={{flexDirection:'row',justifyContent:'center'}}>
         <View style={[styles.container]}>

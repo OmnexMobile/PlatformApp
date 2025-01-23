@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useState } from 'react';
+import React, { useLayoutEffect, useRef, useState } from 'react';
 import CustomHeader from '../Components/CustomHeader';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Icon from 'react-native-vector-icons/AntDesign';
@@ -6,43 +6,48 @@ import { COLORS } from 'constants/theme-constants';
 import CharGenInfo from '../Components/inprocess-inspection/CharGenInfo';
 import ContainmentActionsForm from '../Components/inprocess-inspection/ContainmentActionsForm';
 
-const ContainmentActions = ({route}) => {
+const ContainmentActions = ({ route }) => {
+    const { index } = route?.params;
     const [showGeneral, setShowGeneral] = useState(false);
     const [showAction, setShowAction] = useState(true);
-    const [masterData,setMasterData]=useState([])
-    const [genType,setGenType]=useState('')
-
-    useLayoutEffect(()=>{
-        if(route?.params?.listData){
-            setMasterData([...route?.params?.listData])
+    const [masterData, setMasterData] = useState([]);
+    const [genType, setGenType] = useState('');
+    console.log(index, 'route?.params');
+    useLayoutEffect(() => {
+        if (route?.params?.listData) {
+            setMasterData([...route?.params?.listData]);
         }
-        setGenType(route?.params?.type)
-    },[route?.params])
+        setGenType(route?.params?.type);
+    }, [route?.params]);
     const handleGenOpen = () => {
         setShowGeneral(!showGeneral);
-        setShowAction(false)
+        setShowAction(false);
     };
-    const handleActionOpen=()=>{
-        setShowAction(!showAction)
-        setShowGeneral(false)
-    }
+    const handleActionOpen = () => {
+        setShowAction(!showAction);
+        setShowGeneral(false);
+    };
     return (
         <CustomHeader title="Inprocess Inspection" activeTabId={2} showIcons={false}>
             <View style={[styles.conatiner]}>
-                {genType !=='number'&&<View style={{ flex: showGeneral ? 1 : 0 }}>
-                    <TouchableOpacity
-                        style={[styles.tabStyle, { borderBottomLeftRadius: showGeneral ? 0 : 10, borderBottomRightRadius: showGeneral ? 0 : 10 }]}
-                        onPress={() => {
-                            handleGenOpen();
-                        }}>
-                        <Text style={[styles.headerText]}>General Info</Text>
-                        <Icon name={showGeneral ? 'down' : 'right'} size={20} />
-                    </TouchableOpacity>
-                    {showGeneral && <View style={[styles.tabBox]}>
-                        <CharGenInfo/>
-                        </View>}
-                </View>}
-                <View style={{ flex: showAction ? 1 : 0 ,marginTop:10}}>
+                {genType !== 'number' && (
+                    <View style={{ flex: showGeneral ? 1 : 0 }}>
+                        <TouchableOpacity
+                            style={[styles.tabStyle, { borderBottomLeftRadius: showGeneral ? 0 : 10, borderBottomRightRadius: showGeneral ? 0 : 10 }]}
+                            onPress={() => {
+                                handleGenOpen();
+                            }}>
+                            <Text style={[styles.headerText]}>General Info</Text>
+                            <Icon name={showGeneral ? 'down' : 'right'} size={20} />
+                        </TouchableOpacity>
+                        {showGeneral && (
+                            <View style={[styles.tabBox]}>
+                                <CharGenInfo />
+                            </View>
+                        )}
+                    </View>
+                )}
+                <View style={{ flex: showAction ? 1 : 0, marginTop: 10 }}>
                     <TouchableOpacity
                         style={[styles.tabStyle, { borderBottomLeftRadius: showAction ? 0 : 10, borderBottomRightRadius: showAction ? 0 : 10 }]}
                         onPress={() => {
@@ -51,9 +56,11 @@ const ContainmentActions = ({route}) => {
                         <Text style={[styles.headerText]}>Containment Actions</Text>
                         <Icon name={showAction ? 'down' : 'right'} size={20} />
                     </TouchableOpacity>
-                    {showAction && <View style={[styles.tabBox]}>
-                        <ContainmentActionsForm listData={masterData} type={genType}/>
-                        </View>}
+                    {showAction && (
+                        <View style={[styles.tabBox]}>
+                            <ContainmentActionsForm listData={masterData} type={genType} index={index} />
+                        </View>
+                    )}
                 </View>
             </View>
         </CustomHeader>
