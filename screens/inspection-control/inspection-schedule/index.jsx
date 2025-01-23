@@ -292,6 +292,7 @@ const InspectionSchedule = () => {
                         />
                     </View>
                 </View>
+                <Text style={{color:'#000'}}>{inspectList?.length}</Text>
                 {showSkeleton ? (
                     <IcSkeleton type={PLACEHOLDERS.INSPECTION_CARD} />
                 ) : (
