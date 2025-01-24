@@ -11,7 +11,7 @@ const KeyValueList = ({ title = '', value = '' }) => {
                 <Text style={[styles.cardTitle]}>{title}</Text>
             </View>
             <View style={[styles.boxOne]}>
-                <Text>{value}</Text>
+                <Text style={[styles.cardTitle]} >{value}</Text>
             </View>
         </View>
     );
@@ -61,9 +61,10 @@ const styles = StyleSheet.create({
         paddingTop: 20,
     },
     headerText: {
-        fontFamily: 'ProximaNova-Bold',
+        fontFamily: 'OpenSans-Bold',
         fontSize: 18,
         marginBottom: 13,
+        color:COLORS.ictextBlack
     },
     contentBox: {
         paddingVertical: 15,
@@ -80,8 +81,9 @@ const styles = StyleSheet.create({
         borderRadius: 3,
     },
     cardTitle: {
-        fontFamily: 'ProximaNova-Bold',
-        fontSize: 14,
+        fontFamily: 'OpenSans-SemiBold',
+        fontSize: 12,
+        color:COLORS.headerText
     },
     btnConatiner: {
         flexDirection: 'row',
@@ -93,8 +95,13 @@ const styles = StyleSheet.create({
     },
     btnStyle: {
         color: COLORS.apptheme,
-        fontFamily: 'ProximaNova-Bold',
+        fontFamily: 'OpenSans-Bold',
         fontSize: RFPercentage(1.8),
+    },
+    cardValue: {
+        fontFamily: 'OpenSans-SemiBold',
+        fontSize: 12,
+        color:COLORS.headerText
     },
 });
 export default PartDetails;

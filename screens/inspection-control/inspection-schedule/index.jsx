@@ -397,7 +397,8 @@ const styles = StyleSheet.create({
     },
     bottomText: {
         fontSize: 14,
-        fontFamily: 'OpenSans-SemiBold',
+        fontFamily: 'OpenSans-Regular',
+        color:COLORS.headerText
     },
     filterBox: {
         width: '30%',

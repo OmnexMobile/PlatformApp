@@ -296,7 +296,8 @@ const styles = StyleSheet.create({
     },
     bottomText: {
         fontSize: 14,
-        fontFamily: 'OpenSans-SemiBold',
+        fontFamily: 'OpenSans-Regular',
+        color:COLORS.headerText
     },
     bottombox: {
         flexDirection: 'row',
