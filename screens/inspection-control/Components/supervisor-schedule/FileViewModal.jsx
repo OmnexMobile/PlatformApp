@@ -56,7 +56,7 @@ const FileViewModal = ({ visible = false, onDismiss = () => {} }) => {
                                 <Icon name="file-document-outline" size={25} color={COLORS.white} />
                             </View>
                             <View style={[styles.textContainer]}>
-                                <Text style={[styles.fileText]}>Process Segment Processecvrerv</Text>
+                                <Text style={[styles.fileText]}>Process Segment Process</Text>
                             </View>
                             <TouchableOpacity
                                 style={{ marginLeft: 10 }}

@@ -212,10 +212,10 @@ const InspectionSchedule = () => {
             backgroundColor: COLORS.SUCCESS,
             color: COLORS.white,
             duration: 1500,
-            position: 'top',
-            statusBarHeight: Platform.OS == 'android' ? 0 : 40,
+            statusBarHeight:  40,
             icon: "success",
-            position: "right"
+            position: "right",
+            style:Platform.OS === "ios" ?{height:90,alignItems:'flex-end'}:{}
         });
     };
     const renderData = ({ item }) => {
