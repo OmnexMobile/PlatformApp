@@ -257,18 +257,18 @@ const styles = StyleSheet.create({
     },
     cardText: {
         fontSize: 16,
-        fontFamily: 'ProximaNova-Bold',
+        fontFamily: 'OpenSans-Bold',
         color: COLORS.ictextBlack,
     },
     operationText: {
         fontSize: 14,
-        fontFamily: 'ProximaNova-Regular',
+        fontFamily: 'OpenSans-Regular',
         color: COLORS.ictextBlack,
         lineHeight: 22,
     },
     secondText: {
         color: COLORS.textDark,
-        fontFamily: 'ProximaNova-Regular',
+        fontFamily: 'OpenSans-Regular',
     },
     launchCard: {
         backgroundColor: COLORS.apptheme,
@@ -278,7 +278,7 @@ const styles = StyleSheet.create({
     },
     launchText: {
         color: '#fff',
-        fontFamily: 'ProximaNova-Bold',
+        fontFamily: 'OpenSans-SemiBold',
     },
     lastBox: {
         flexDirection: 'column',
@@ -296,7 +296,7 @@ const styles = StyleSheet.create({
     },
     bottomText: {
         fontSize: 14,
-        fontFamily: 'ProximaNova-Bold',
+        fontFamily: 'OpenSans-SemiBold',
     },
     bottombox: {
         flexDirection: 'row',
@@ -316,9 +316,10 @@ const styles = StyleSheet.create({
         borderRadius: 3,
     },
     headerText: {
-        fontFamily: 'ProximaNova-Bold',
-        fontSize: 18,
+        fontFamily: 'OpenSans-SemiBold',
+        fontSize: RFPercentage(2.1),
         marginBottom: 13,
+        color:COLORS.ictextBlack
     },
     contentBox: {
         paddingVertical: 15,
@@ -328,7 +329,7 @@ const styles = StyleSheet.create({
     },
     btnStyle: {
         color: COLORS.apptheme,
-        fontFamily: 'ProximaNova-Bold',
+        fontFamily: 'OpenSans-SemiBold',
         fontSize: RFPercentage(1.8),
     },
     btnConatiner: {
