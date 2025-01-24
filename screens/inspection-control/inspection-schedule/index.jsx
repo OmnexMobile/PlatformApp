@@ -140,7 +140,7 @@ const moreList = [
     },
 ];
 const InspectionSchedule = () => {
-    const {inspectList} = useSelector(state => state.inspection);
+    const { inspectList } = useSelector(state => state.inspection);
     const dispatch = useDispatch();
     console.log(inspectList, '************state');
     const { profile } = useAppContext();
@@ -204,17 +204,20 @@ const InspectionSchedule = () => {
     const renderIconBgColor = value => {
         return value == 'IC' ? COLORS.apptheme : value == 'IP' ? COLORS.ipBgColor : COLORS.ciBgColor;
     };
-    handleSubmitPress=()=>{
-        dispatch({type: 'INSPECT_LIST',inspectList:listData })
+    handleSubmitPress = () => {
+        console.log(dispatch({ type: 'INSPECT_LIST', inspectList: listData }));
         setShowModal(false);
         showMessage({
-            message: "Hello World",
-            description: "This is our second message",
-            type: "success",
-            position:'top',
-            statusBarHeight:Platform.OS=='android'?0: 40
+            message: 'Form Downloaded Successfully',
+            backgroundColor: COLORS.SUCCESS,
+            color: COLORS.white,
+            duration: 1500,
+            position: 'top',
+            statusBarHeight: Platform.OS == 'android' ? 0 : 40,
+            icon: "success",
+            position: "right"
         });
-    }
+    };
     const renderData = ({ item }) => {
         return (
             <View style={[styles.recordConatiner]}>
@@ -292,7 +295,6 @@ const InspectionSchedule = () => {
                         />
                     </View>
                 </View>
-                <Text style={{color:'#000'}}>{inspectList?.length}</Text>
                 {showSkeleton ? (
                     <IcSkeleton type={PLACEHOLDERS.INSPECTION_CARD} />
                 ) : (

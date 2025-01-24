@@ -20,6 +20,8 @@ import useTheme from 'theme/useTheme';
 import { isJailBroken } from 'helpers/utils';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { PaperProvider } from 'react-native-paper';
+import { PersistGate } from 'redux-persist/integration/react';
+import { persistor } from 'store';
 
 setupInterceptors();
 
@@ -57,16 +59,16 @@ const Parent = () => {
 
     return (
         <GestureHandlerRootView style={{ flex: 1 }}>
-        <View style={[backgroundStyle, { backgroundColor: theme.mode.backgroundColor }]}>
-            
-            <Provider store={store}>
-                <AppProvider>
-                    <PaperProvider>
-                    <StatusBarAndroidIOS />
-                    <NavigationContainer onReady={() => RNBootSplash.hide()}>
-                        <AppStack />
-                    </NavigationContainer>
-                    {/* {warningList?.loading ? (x
+            <View style={[backgroundStyle, { backgroundColor: theme.mode.backgroundColor }]}>
+                <Provider store={store}>
+                    <PersistGate loading={null} persistor={persistor}>
+                        <AppProvider>
+                            <PaperProvider>
+                                <StatusBarAndroidIOS />
+                                <NavigationContainer onReady={() => RNBootSplash.hide()}>
+                                    <AppStack />
+                                </NavigationContainer>
+                                {/* {warningList?.loading ? (x
                         <Loader />
                     ) : !isInternetReachable ? (
                         <WarningComponent />
@@ -75,10 +77,11 @@ const Parent = () => {
                             <AppStack />
                         </NavigationContainer>
                     )} */}
-                    </PaperProvider>
-                </AppProvider>
-            </Provider>
-            {/* <StatusBarAndroidIOS />
+                            </PaperProvider>
+                        </AppProvider>
+                    </PersistGate>
+                </Provider>
+                {/* <StatusBarAndroidIOS />
             <IconComponent name="home" type={ICON_TYPE.AntDesign} />
             <TextComponent>Hai</TextComponent>
             <View style={{ width: RFPercentage(10), height: RFPercentage(10) }}>
@@ -86,9 +89,8 @@ const Parent = () => {
             </View>
 
             {/* Notification Component */}
-            <FlashMessage />
-            
-        </View>
+                <FlashMessage />
+            </View>
         </GestureHandlerRootView>
     );
 };

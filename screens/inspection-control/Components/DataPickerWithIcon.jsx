@@ -54,7 +54,7 @@ const DataPickerWithIcon = ({
                 <Text numberOfLines={1} style={[styles.textStyle]}>
                     {date !== null ? (type == 'date' ? moment(date).format('DD/MM/YYYY') : moment(date).format('hh:mm A')) : placeHolder}
                 </Text>
-                {type == 'date' ? <Icon name="calendar" size={20} /> : <IconE name="clock" size={19} />}
+                {type == 'date' ? <Icon name="calendar" size={20} color={COLORS.moreIcon} /> : <IconE name="clock" size={19} color={COLORS.moreIcon} />}
             </TouchableOpacity>
             {showPicker && Platform.OS === 'ios' && (
                 <Modal transparent={true} animationType="slide" onRequestClose={handleCancel}>

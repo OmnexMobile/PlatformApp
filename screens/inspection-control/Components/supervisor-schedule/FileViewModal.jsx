@@ -95,9 +95,10 @@ const styles = StyleSheet.create({
         paddingTop: 20,
     },
     headerText: {
-        fontFamily: 'ProximaNova-Bold',
+        fontFamily: 'OpenSans-SemiBold',
         fontSize: 18,
         marginBottom: 13,
+        color:COLORS.ictextBlack
     },
     contentBox: {
         paddingVertical: 15,
@@ -118,7 +119,7 @@ const styles = StyleSheet.create({
     },
     btnStyle: {
         color: COLORS.apptheme,
-        fontFamily: 'ProximaNova-Bold',
+        fontFamily: 'OpenSans-Bold',
         fontSize: RFPercentage(1.8),
     },
     iconConatiner: {
@@ -136,8 +137,9 @@ const styles = StyleSheet.create({
         marginLeft: 10,
     },
     fileText: {
-        fontFamily: 'ProximaNova-Bold',
+        fontFamily: 'OpenSans-SemiBold',
         fontSize: RFPercentage(1.7),
+        color:COLORS.ictextBlack
     },
 });
 export default FileViewModal;

@@ -58,7 +58,7 @@ const CustomHeader = ({ children, title = '', activeTabId, showIcons = true, han
         } else {
             setIsExpanded(true);
             Animated.timing(widthAnim, {
-                toValue: activeTabId !== 4 ? RFPercentage(Platform.OS === 'android'?30:27) : RFPercentage(Platform.OS === 'android'?26:23), // Width in pixels
+                toValue: activeTabId !== 4 ? RFPercentage(Platform.OS === 'android'?29:27) : RFPercentage(Platform.OS === 'android'?26:23), // Width in pixels
                 duration: 300,
                 useNativeDriver: false,
             }).start();

@@ -1,30 +1,30 @@
 import {  RadioButton } from 'components'
 import { COLORS } from 'constants/theme-constants'
 import React from 'react'
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import { showMessage } from 'react-native-flash-message'
 import { Divider, Modal } from 'react-native-paper'
 import { RFPercentage } from 'react-native-responsive-fontsize'
 
 const InputDataModal = ({modalVisible=false,hideModal=()=>{},handleSubmitPress=()=>{}}) => {
   return (
-    <Modal visible={modalVisible} onDismiss={hideModal} contentContainerStyle={{flexDirection:'row',justifyContent:'center'}}>
-        <View style={[styles.container]}>
+    <Modal visible={modalVisible} onDismiss={hideModal} contentContainerStyle={{flexDirection:'row',justifyContent:'center',width:'90%',alignSelf:'center'}}>
+        <ScrollView style={[styles.container]}>
            <View style={[styles.containerOne]}>
                 <Text style={styles.headertext}>Form Input Data</Text>
                 <Divider/>
                 <View style={[styles.inputContainer]}>
-                    <Text>Lot Number <Text style={[styles.rquired]}>*</Text></Text>
+                    <Text style={styles.inputText}>Lot Number <Text style={[styles.rquired]}>*</Text></Text>
                     <TextInput style={styles.inputBox}/>
                 </View>
                 <View style={[styles.inputContainer]}>
-                    <Text>Lot Quantity <Text style={[styles.rquired]}>*</Text></Text>
+                    <Text style={styles.inputText}>Lot Quantity <Text style={[styles.rquired]}>*</Text></Text>
                     <TextInput style={styles.inputBox}/>
                 </View>
                 <View style={[styles.inputContainer]}>
-                    <Text>Choose Frequency <Text style={[styles.rquired]}>*</Text></Text>
+                    <Text style={styles.inputText}>Choose Frequency <Text style={[styles.rquired]}>*</Text></Text>
                    <View style={{height:30,marginTop:-10}}>
-                    <RadioButton value='' options={[
+                    <RadioButton onChange={()=>{}} value='' options={[
                             {value:'Each Lot',label:'Each Lot'}
                         ]}/>
                    </View>
@@ -39,23 +39,23 @@ const InputDataModal = ({modalVisible=false,hideModal=()=>{},handleSubmitPress=(
                     <Text style={styles.btnStyle}>SUBMIT</Text>
                 </TouchableOpacity>
            </View>
-        </View>
+        </ScrollView>
   </Modal>
   )
 }
 const styles=StyleSheet.create({
     container:{
-        width:'90%',
         backgroundColor:'#fff',
-        borderRadius:3
+        borderRadius:3,
     },
     containerOne:{
         padding:20
     },
     headertext:{
-        fontFamily:'ProximaNova-Bold',
-        fontSize:RFPercentage(2.2),
-        paddingBottom:12
+        fontFamily:'OpenSans-SemiBold',
+        fontSize:RFPercentage(2),
+        paddingBottom:12,
+        color:"#000"
     },
     inputContainer:{
         paddingVertical:15
@@ -65,7 +65,8 @@ const styles=StyleSheet.create({
         height:40,
         borderRadius:3,
         borderColor:COLORS.icBottomBox,
-        marginTop:15
+        marginTop:15,
+        color:COLORS.ictextBlack
     },
     btnConatiner:{
         flexDirection:'row',
@@ -77,11 +78,15 @@ const styles=StyleSheet.create({
     },
     btnStyle:{
         color:COLORS.apptheme,
-        fontFamily:'ProximaNova-Bold',
+        fontFamily:'OpenSans-Bold',
         fontSize:RFPercentage(1.8),
     },
     rquired:{
         color:COLORS.ERROR
+    },
+    inputText:{
+        color:"#000",
+        fontFamily:'OpenSans-Regular',
     }
 })
 

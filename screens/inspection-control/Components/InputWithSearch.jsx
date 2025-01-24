@@ -1,3 +1,4 @@
+import { COLORS } from 'constants/theme-constants';
 import React from 'react';
 import { View, TextInput, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -32,6 +33,7 @@ const styles = StyleSheet.create({
       flex: 1,
       fontSize: 16,
       height:40,
+      color:COLORS.ictextBlack
     },
   });
 

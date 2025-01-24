@@ -25,7 +25,7 @@ const FilterWithMenu = ({ dataList = [], type = 'IconFilter', onSelectedPress = 
                 <Text numberOfLines={1} style={[styles.textStyle]}>
                     {filterText == '' ? 'Filter' : filterText}
                 </Text>
-                <Icon name="filter" size={20} />
+                <Icon name="filter" size={20} color={COLORS.moreIcon}/>
             </TouchableOpacity>
         );
     };

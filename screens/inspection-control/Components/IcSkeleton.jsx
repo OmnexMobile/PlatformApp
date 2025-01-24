@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { RFPercentage } from 'react-native-responsive-fontsize';
 import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
 import { SPACING } from 'constants/theme-constants';
@@ -14,10 +14,10 @@ const IcSkeleton = ({ type, noPadding = false }) => {
         switch (type) {
             case PLACEHOLDERS.INSPECTION_CARD:
                 return (
-                    <View
+                    <ScrollView
                         style={{
                             flex: 1,
-                        }}>
+                        }} showsVerticalScrollIndicator={false}>
                         {Array(10)
                             .fill('')
                             .map((data, index) => (
@@ -44,7 +44,7 @@ const IcSkeleton = ({ type, noPadding = false }) => {
                                     </View>
                                 </View>
                             ))}
-                    </View>
+                    </ScrollView>
                 );
             default:
                 return null;

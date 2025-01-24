@@ -1,4 +1,4 @@
-import { SPACING } from 'constants/theme-constants';
+import { COLORS, SPACING } from 'constants/theme-constants';
 import { RFPercentage } from 'helpers/utils';
 import React from 'react'
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -45,8 +45,9 @@ const styles = StyleSheet.create({
         backgroundColor: '#F3FBFE',
     },
     radioText:{
-        fontFamily:'ProximaNova-Regular',
-        fontSize:RFPercentage(2)
+        fontFamily:'OpenSans-Regular',
+        fontSize:RFPercentage(1.9),
+        color:COLORS.ictextBlack
     }
 });
 

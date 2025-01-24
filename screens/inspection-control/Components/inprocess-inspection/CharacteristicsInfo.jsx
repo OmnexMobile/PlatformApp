@@ -94,7 +94,7 @@ const CharacteristicsInfo = ({ listData = [], type = 'number' }) => {
                             onPress={() => {
                                 handleSendPress(type, item, index);
                             }}>
-                            <IconF name="send" size={20} />
+                            <IconF name="send" size={20} color={COLORS.moreIcon} />
                         </TouchableOpacity>
                     )}
                 </View>

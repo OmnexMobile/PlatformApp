@@ -97,7 +97,7 @@ const InprocessInspection = () => {
         return (
             <View style={[styles.recordConatiner]}>
                 <View style={[styles.iconBox]}>
-                    <IconM name="information-variant" size={25} />
+                    <IconM name="information-variant" size={25}  color={COLORS.moreIcon}/>
                 </View>
                 <View style={{ flex: 1, paddingHorizontal: 10 }}>
                     <Text style={[styles.headerTitle]}>{item.title}</Text>
@@ -132,7 +132,7 @@ const InprocessInspection = () => {
                                 handleGenOpen();
                             }}>
                             <Text style={[styles.headerText]}>General Info</Text>
-                            <Icon name={showGeneral ? 'down' : 'right'} size={20} />
+                            <Icon name={showGeneral ? 'down' : 'right'} size={20} color={COLORS.moreIcon} />
                         </TouchableOpacity>
                         {showGeneral && (
                             <View style={[styles.tabBox]}>
@@ -168,7 +168,7 @@ const InprocessInspection = () => {
                             handleCharOpen();
                         }}>
                         <Text style={[styles.headerText]}>Characteristics Info</Text>
-                        <Icon name={showChar ? 'down' : 'right'} size={20} />
+                        <Icon name={showChar ? 'down' : 'right'} size={20} color={COLORS.moreIcon} />
                     </TouchableOpacity>
                     {showChar && (
                         <View style={[styles.tabBox]}>
@@ -219,7 +219,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     iconFilter: {
-        width: RFPercentage(4.2),
+        width: RFPercentage(5),
     },
     tabBox: {
         flex: 1,

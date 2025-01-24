@@ -252,18 +252,18 @@ const styles = StyleSheet.create({
     },
     cardText: {
         fontSize: 16,
-        fontFamily: 'ProximaNova-Bold',
+        fontFamily: 'OpenSans-SemiBold',
         color: COLORS.ictextBlack,
     },
     operationText: {
         fontSize: 14,
-        fontFamily: 'ProximaNova-Regular',
+        fontFamily: 'OpenSans-Regular',
         color: COLORS.ictextBlack,
         lineHeight: 22,
     },
     secondText: {
         color: COLORS.textDark,
-        fontFamily: 'ProximaNova-Regular',
+        fontFamily: 'OpenSans-Regular',
     },
     launchCard: {
         backgroundColor: COLORS.SUCCESS,
@@ -273,7 +273,7 @@ const styles = StyleSheet.create({
     },
     launchText: {
         color: '#fff',
-        fontFamily: 'ProximaNova-Bold',
+        fontFamily: 'OpenSans-SemiBold',
     },
     lastBox: {
         flexDirection: 'column',
@@ -292,9 +292,10 @@ const styles = StyleSheet.create({
         padding: 20,
     },
     headertext: {
-        fontFamily: 'ProximaNova-Bold',
+        fontFamily: 'OpenSans-SemiBold',
         fontSize: RFPercentage(2.2),
         paddingBottom: 12,
+        color:COLORS.ictextBlack
     },
     contentBox: {
         paddingVertical: 15,
@@ -309,7 +310,7 @@ const styles = StyleSheet.create({
     },
     btnStyle: {
         color: COLORS.apptheme,
-        fontFamily: 'ProximaNova-Bold',
+        fontFamily: 'OpenSans-SemiBold',
         fontSize: RFPercentage(1.8),
     },
 });

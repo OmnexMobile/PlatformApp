@@ -18,15 +18,15 @@ const ICCheckBox = ({isChecked=false,label='label',onChange=()=>{}}) => {
 
 const styles=StyleSheet.create({
   container:{
-    
     height: RFPercentage(2.5),
     width: RFPercentage(2.5),
     alignItems:'center'
   },
   radioText:{
-    fontFamily:'ProximaNova-Regular',
+    fontFamily:'OpenSans-Regular',
     fontSize:RFPercentage(2),
-    marginLeft:10
+    marginLeft:10,
+    color:COLORS.ictextBlack
   },
   box:{
     flexDirection:'row',
