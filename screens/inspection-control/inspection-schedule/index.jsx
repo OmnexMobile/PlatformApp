@@ -18,6 +18,7 @@ import FileViewModal from '../Components/supervisor-schedule/FileViewModal';
 import IcSkeleton from '../Components/IcSkeleton';
 import { useDispatch, useSelector } from 'react-redux';
 import { showMessage } from 'react-native-flash-message';
+import QRCodeScannerScreen from '../Components/QRCodeScannerScreen';
 
 const dummyData = [
     {
@@ -118,7 +119,10 @@ const moreList = [
 const InspectionSchedule = () => {
     const { inspectList } = useSelector(state => state.inspection);
     const dispatch = useDispatch();
-    const { profile ,sites:{selectedSite}} = useAppContext();
+    const {
+        profile,
+        sites: { selectedSite },
+    } = useAppContext();
     const navigation = useNavigation();
     const [showModal, setShowModal] = useState(false);
     const [filterData, setFilterData] = useState({
@@ -128,7 +132,9 @@ const InspectionSchedule = () => {
     });
     const [showFileModal, setShowFileModal] = useState(false);
     const [showSkeleton, setShowSkeleton] = useState(false);
-    const [masterData,setMasterData]=useState([])
+    const [masterData, setMasterData] = useState([]);
+    const [showQR, setShowQR] = useState(false);
+
     setTimeout(() => {
         setShowSkeleton(false);
     }, 1000);
@@ -137,7 +143,7 @@ const InspectionSchedule = () => {
     };
 
     const handleListFetch = (inspect = '') => {
-        console.log('**********Called')
+        console.log('**********Called');
         setShowSkeleton(true);
         const { startDate, endDate, type } = filterData;
         let dateFlag = startDate !== '' && endDate !== '';
@@ -148,10 +154,10 @@ const InspectionSchedule = () => {
         formData.append('StartDate', dateFlag ? startDate : '');
         formData.append('EndDate', dateFlag ? endDate : '');
         formData.append('InspectionType', inspect || type);
-        if(dummyData.length){
-            setMasterData(dummyData)
-        }else{
-            setMasterData([])
+        if (dummyData.length) {
+            setMasterData(dummyData);
+        } else {
+            setMasterData([]);
         }
     };
 
@@ -182,13 +188,13 @@ const InspectionSchedule = () => {
             navigation.navigate(ROUTES.OPERATOR_WORKSHEET);
             return null;
         }
-        if(value.id==1){
-            const {startDate,endDate}=filterData;
-            const tempStart=moment(startDate);
-            const tempEnd=moment(endDate)
-            if(tempStart.isBefore(tempEnd)){
-                handleListFetch()
-            }else{
+        if (value.id == 1) {
+            const { startDate, endDate } = filterData;
+            const tempStart = moment(startDate);
+            const tempEnd = moment(endDate);
+            if (tempStart.isBefore(tempEnd)) {
+                handleListFetch();
+            } else {
                 showMessage({
                     message: 'Start Date must be less than End Date',
                     backgroundColor: COLORS.ERROR,
@@ -257,7 +263,12 @@ const InspectionSchedule = () => {
         );
     };
     return (
-        <CustomHeader title="Inspection Schedule" activeTabId={1}>
+        <CustomHeader
+            title="Inspection Schedule"
+            activeTabId={1}
+            handleQRPress={() => {
+                setShowQR(true);
+            }}>
             <View style={[styles.mainContainer]}>
                 <View style={[styles.overAllBox]}>
                     <View style={[styles.filterBox]}>
@@ -300,7 +311,12 @@ const InspectionSchedule = () => {
                 {showSkeleton ? (
                     <IcSkeleton type={PLACEHOLDERS.INSPECTION_CARD} />
                 ) : (
-                    <FlatList data={masterData} renderItem={renderData} keyExtractor={item => item?.ICInspectionEntryID} showsVerticalScrollIndicator={false} />
+                    <FlatList
+                        data={masterData}
+                        renderItem={renderData}
+                        keyExtractor={item => item?.ICInspectionEntryID}
+                        showsVerticalScrollIndicator={false}
+                    />
                 )}
                 <View style={[styles.bottombox]}>
                     <Text style={[styles.bottomText]}>Total Inspections </Text>
@@ -331,6 +347,14 @@ const InspectionSchedule = () => {
                     setShowFileModal(false);
                 }}
             />
+            {Boolean(showQR) && (
+                <QRCodeScannerScreen
+                    modalVisible={showQR}
+                    hideModal={() => {
+                        setShowQR(false);
+                    }}
+                />
+            )}
         </CustomHeader>
     );
 };

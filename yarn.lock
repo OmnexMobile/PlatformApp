@@ -1797,6 +1797,13 @@
     htmlparser2 "^7.1.2"
     ramda "^0.27.2"
 
+"@react-native-async-storage/async-storage@^1.13.4":
+  version "1.24.0"
+  resolved "https://registry.npmjs.org/@react-native-async-storage/async-storage/-/async-storage-1.24.0.tgz"
+  integrity sha512-W4/vbwUOYOjco0x3toB8QCr7EjIP6nE9G7o8PMguvvjYT5Awg09lyV4enACRx4s++PPulBiBSjL0KTFx2u0Z/g==
+  dependencies:
+    merge-options "^3.0.4"
+
 "@react-native-community/art@^1.0.3", "@react-native-community/art@^1.2.0":
   version "1.2.0"
   resolved "https://registry.npmjs.org/@react-native-community/art/-/art-1.2.0.tgz"
@@ -6653,6 +6660,11 @@ is-plain-obj@^1.0.0:
   resolved "https://registry.npmjs.org/is-plain-obj/-/is-plain-obj-1.1.0.tgz"
   integrity sha512-yvkRyxmFKEOQ4pNXCmJG5AEQNlXJS5LaONXo5/cLdTZdWvsZ1ioJEonLGAosKlMWE8lwUy/bJzMjcw8az73+Fg==
 
+is-plain-obj@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.npmjs.org/is-plain-obj/-/is-plain-obj-2.1.0.tgz"
+  integrity sha512-YWnfyRwxL/+SsrWYfOpUtz5b3YD+nyfkHvjbcanzk8zgyO4ASD67uVMRt8k5bM4lLMDnXfriRhOpemw+NfT1eA==
+
 is-plain-object@^2.0.3, is-plain-object@^2.0.4:
   version "2.0.4"
   resolved "https://registry.npmjs.org/is-plain-object/-/is-plain-object-2.0.4.tgz"
@@ -8031,6 +8043,13 @@ meow@^3.1.0, meow@^3.3.0, meow@^3.5.0:
     read-pkg-up "^1.0.1"
     redent "^1.0.0"
     trim-newlines "^1.0.0"
+
+merge-options@^3.0.4:
+  version "3.0.4"
+  resolved "https://registry.npmjs.org/merge-options/-/merge-options-3.0.4.tgz"
+  integrity sha512-2Sug1+knBjkaMsMgf1ctR1Ujx+Ayku4EdJN4Z+C2+JzoeF7A3OZ9KM2GY0CpQS51NR61LTurMJrRKPhSs3ZRTQ==
+  dependencies:
+    is-plain-obj "^2.1.0"
 
 merge-stream@^1.0.0:
   version "1.0.1"
@@ -9733,7 +9752,7 @@ react-native-calendars@^1.1289.0:
   optionalDependencies:
     moment "^2.24.0"
 
-react-native-camera@^4.2.1:
+react-native-camera@^4.2.1, react-native-camera@>=1.0.2:
   version "4.2.1"
   resolved "https://registry.npmjs.org/react-native-camera/-/react-native-camera-4.2.1.tgz"
   integrity sha512-+Vkql24PFYQfsPRznJCvPwJQfyzCnjlcww/iZ4Ej80bgivKjL9eU0IMQIXp4yi6XCrKi4voWXxIDPMupQZKeIQ==
@@ -10048,6 +10067,16 @@ react-native-pell-rich-editor@^1.9.0:
   resolved "https://registry.npmjs.org/react-native-pell-rich-editor/-/react-native-pell-rich-editor-1.9.0.tgz"
   integrity sha512-BKzlu++FySzPXrb5bczD8b/ZZJtfzcD4z7FvW7TrH+4OENEQtaIiEMfmb5N09Kv3YVJcfm8fut8Y+GLNAcCQHA==
 
+react-native-permissions@^2.0.2:
+  version "2.2.2"
+  resolved "https://registry.npmjs.org/react-native-permissions/-/react-native-permissions-2.2.2.tgz"
+  integrity sha512-ihf4shQDSX5Oo9ChQXb9kr13mmyyNem5MaEvOpr3dCjhBOBWyEMztXm9/uPK1Qg5PsNpaYLa1KpcPZDCw87LXg==
+
+react-native-permissions@^5.2.4:
+  version "5.2.4"
+  resolved "https://registry.npmjs.org/react-native-permissions/-/react-native-permissions-5.2.4.tgz"
+  integrity sha512-WmFY3mDBwj0eO93ziEi8r+6uuZo6XrcEIdQ66AfzC8CeNXXclDwypTnewBj51K0mn4QVRJxM6PSgIlj0ii5qig==
+
 react-native-photo-editor@^1.0.13:
   version "1.0.13"
   resolved "https://registry.npmjs.org/react-native-photo-editor/-/react-native-photo-editor-1.0.13.tgz"
@@ -10057,6 +10086,15 @@ react-native-progress-circle@^2.1.0:
   version "2.1.0"
   resolved "https://registry.npmjs.org/react-native-progress-circle/-/react-native-progress-circle-2.1.0.tgz"
   integrity sha512-VP0s92bgbTMQy4hQzPU4LlGyFj3z5u7i1HYFG8/yzXXfGkX1cxKS4xOlE+OTaObWC99w7Bodi3h8R7En2nQPYw==
+
+react-native-qrcode-scanner@^1.5.5:
+  version "1.5.5"
+  resolved "https://registry.npmjs.org/react-native-qrcode-scanner/-/react-native-qrcode-scanner-1.5.5.tgz"
+  integrity sha512-il79uStkFqUvofqXJQfOL30qgQyU17MUKxj7IGHv6oT2OxIY/vutTwuPPDbsivtv0yTMHP4dGx/79oys4eAuNw==
+  dependencies:
+    "@react-native-async-storage/async-storage" "^1.13.4"
+    prop-types "^15.5.10"
+    react-native-permissions "^2.0.2"
 
 react-native-ratings@8.0.4:
   version "8.0.4"
@@ -10313,7 +10351,7 @@ react-native-webview@^11.26.0, react-native-webview@>=13, react-native-webview@>
     escape-string-regexp "2.0.0"
     invariant "2.2.4"
 
-react-native-windows@*, react-native-windows@>=0.63.x, react-native-windows@>0.64, react-native-windows@0.41.0-rc.1:
+react-native-windows@*, react-native-windows@>=0.63.x, react-native-windows@>=0.70.0, react-native-windows@>0.64, react-native-windows@0.41.0-rc.1:
   version "0.41.0-rc.1"
   resolved "https://registry.npmjs.org/react-native-windows/-/react-native-windows-0.41.0-rc.1.tgz"
   integrity sha512-Jstgrs2fP3rgdrlWCzxUjZJQNTnQyVmx4ilYPpkUyR8pYHwEJ9YXMb5Q8jyspQJyJzsLLZtYsaYeVlztT84tng==
@@ -10326,7 +10364,7 @@ react-native-windows@*, react-native-windows@>=0.63.x, react-native-windows@>0.6
     yeoman-environment "^1.5.3"
     yeoman-generator "^0.21.2"
 
-react-native@*, react-native@^*, react-native@^0.41.2, "react-native@> 0.50.0", "react-native@>= 0.30.0", "react-native@>= 0.59.0", "react-native@>= 0.63.0", react-native@>=0.19.0, react-native@>=0.20.0, react-native@>=0.40.0, react-native@>=0.42.0, react-native@>=0.44, react-native@>=0.46, react-native@>=0.47, react-native@>=0.48.0, react-native@>=0.48.4, react-native@>=0.50.0, react-native@>=0.50.1, react-native@>=0.57, react-native@>=0.59, react-native@>=0.59.0, react-native@>=0.60.0, react-native@>=0.61.3, react-native@>=0.63.0, react-native@>=0.65.0, react-native@>=0.71.0, react-native@>0.62.0, react-native@>0.64, react-native@~0.41.0, react-native@0.70.0:
+react-native@*, react-native@^*, "react-native@^0.0.0-0 || >=0.60 <1.0", react-native@^0.41.2, "react-native@> 0.50.0", "react-native@>= 0.30.0", "react-native@>= 0.59.0", "react-native@>= 0.63.0", react-native@>=0.19.0, react-native@>=0.20.0, react-native@>=0.40.0, react-native@>=0.42.0, react-native@>=0.44, react-native@>=0.46, react-native@>=0.47, react-native@>=0.48.0, react-native@>=0.48.4, react-native@>=0.50.0, react-native@>=0.50.1, react-native@>=0.57, react-native@>=0.59, react-native@>=0.59.0, react-native@>=0.60.0, react-native@>=0.61.3, react-native@>=0.63.0, react-native@>=0.65.0, react-native@>=0.70.0, react-native@>=0.71.0, react-native@>0.62.0, react-native@>0.64, react-native@~0.41.0, react-native@0.70.0:
   version "0.70.0"
   resolved "https://registry.npmjs.org/react-native/-/react-native-0.70.0.tgz"
   integrity sha512-QjXLbrK9f+/B2eCzn6kAvglLV/8nwPuFGaFv7ggPpAzFRyx5bVN1dwQLHL3MrP7iXR/M7Jc6Nnid7tmRSic6vA==
@@ -10411,7 +10449,7 @@ react-timer-mixin@^0.13.3:
   resolved "https://registry.npmjs.org/react-timer-mixin/-/react-timer-mixin-0.13.4.tgz"
   integrity sha512-4+ow23tp/Tv7hBM5Az5/Be/eKKF7DIvJ09voz5LyHGQaqqz9WV8YMs31eFvcYQs7d451LSg7kDJV70XYN/Ug/Q==
 
-react@*, "react@^0.14.0 || ^15.0.0 || ^16.0.0", "react@^16.0.0 || ^17.0.0 || ^18.0.0", react@^16.8, "react@^16.8 || ^17.0 || ^18.0", "react@^16.8.0 || ^17.0.0 || ^18.0.0", "react@^17 || ^18", "react@^18.0.0 || ^17.0.0 || ^16.0.0 || ^15.6.0", react@^18.1.0, react@^18.2.0, "react@> 15.0.0", "react@>= 15.2.1", "react@>= 16.8.0", "react@>=0.13.2 || ^0.14 || ^15.0.0", react@>=0.14.8, react@>=15, react@>=15.0.0, react@>=15.4.0, react@>=16, react@>=16.11.0, react@>=16.3.0, react@>=16.8, "react@>=16.8 || ^17.0.0 || ^18.0.0", react@>=16.8.0, react@>=17.0.0, react@>15.6.0, react@~15.4.0, react@18.1.0:
+react@*, "react@^0.14.0 || ^15.0.0 || ^16.0.0", "react@^16.0.0 || ^17.0.0 || ^18.0.0", react@^16.8, "react@^16.8 || ^17.0 || ^18.0", "react@^16.8.0 || ^17.0.0 || ^18.0.0", "react@^17 || ^18", "react@^18.0.0 || ^17.0.0 || ^16.0.0 || ^15.6.0", react@^18.1.0, react@^18.2.0, "react@> 15.0.0", "react@>= 15.2.1", "react@>= 16.8.0", "react@>=0.13.2 || ^0.14 || ^15.0.0", react@>=0.14.8, react@>=15, react@>=15.0.0, react@>=15.4.0, react@>=16, react@>=16.11.0, react@>=16.3.0, react@>=16.8, "react@>=16.8 || ^17.0.0 || ^18.0.0", react@>=16.8.0, react@>=16.8.6, react@>=17.0.0, react@>=18.1.0, react@>15.6.0, react@~15.4.0, react@18.1.0:
   version "18.1.0"
   resolved "https://registry.npmjs.org/react/-/react-18.1.0.tgz"
   integrity sha512-4oL8ivCz5ZEPyclFQXaNksK3adutVS8l2xzZU0cqEFrE9Sb7fC0EFK5uEk74wIreL1DERyjvsU915j1pcT2uEQ==

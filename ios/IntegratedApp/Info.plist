@@ -44,7 +44,7 @@
 	<key>NSCameraUsageDescription</key>
 	<string>Please allow the app to access the Camera.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
+	<string>We need your location to show relevant data</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Please allow the app to access the Microphone.</string>
 	<key>NSPhotoLibraryUsageDescription</key>

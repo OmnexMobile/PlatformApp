@@ -7,6 +7,18 @@ install! 'cocoapods', :deterministic_uuids => false
 target 'IntegratedApp' do
   config = use_native_modules!
 
+ def node_require(script)
+   # Resolve script with node to allow for hoisting
+   require Pod::Executable.execute_command('node', ['-p',
+     "require.resolve(
+       '#{script}',
+       {paths: [process.argv[1]]},
+     )", __dir__]).strip
+ end
+
+# Use it to require both react-native's and this package's scripts:
+ node_require('react-native/scripts/react_native_pods.rb')
+ node_require('react-native-permissions/scripts/setup.rb')
   # Add the following for react-native-fetch-blob
   pod 'react-native-fetch-blob', :path => '../node_modules/react-native-fetch-blob'
 
@@ -29,7 +41,13 @@ target 'IntegratedApp' do
     # An absolute path to your application root.
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
-
+  setup_permissions([
+    # Uncomment only the permissions your app needs
+    'Camera',
+    'Microphone',
+    'LocationWhenInUse',
+    # Add more permissions as needed...
+  ])
   target 'IntegratedAppTests' do
     inherit! :complete
     # Pods for testing

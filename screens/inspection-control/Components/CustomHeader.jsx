@@ -43,7 +43,7 @@ const footerList = [
     },
 ];
 
-const CustomHeader = ({ children, title = '', activeTabId, showIcons = true, handleSyncPress = () => {}, handleFilterPress = () => {} }) => {
+const CustomHeader = ({ children, title = '', activeTabId, showIcons = true, handleSyncPress = () => {}, handleFilterPress = () => {} ,handleQRPress=()=>{}}) => {
     const navigation = useNavigation();
     const [isExpanded, setIsExpanded] = useState(false);
     const widthAnim = useRef(new Animated.Value(0)).current;
@@ -115,7 +115,7 @@ const CustomHeader = ({ children, title = '', activeTabId, showIcons = true, han
                                 </TouchableOpacity>
                             )}
                             {activeTabId == 1 && (
-                                <TouchableOpacity>
+                                <TouchableOpacity onPress={()=>{handleQRPress()}}>
                                     <IconF name="qrcode" size={25} style={styles.iconButton} color={COLORS.white} />
                                 </TouchableOpacity>
                             )}
