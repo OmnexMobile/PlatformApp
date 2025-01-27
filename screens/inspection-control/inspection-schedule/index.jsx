@@ -205,7 +205,7 @@ const InspectionSchedule = () => {
         return value == 'IC' ? COLORS.apptheme : value == 'IP' ? COLORS.ipBgColor : COLORS.ciBgColor;
     };
     handleSubmitPress = () => {
-        console.log(dispatch({ type: 'INSPECT_LIST', inspectList: listData }));
+        dispatch({ type: 'INSPECT_LIST', inspectList: listData });
         setShowModal(false);
         showMessage({
             message: 'Form Downloaded Successfully',
