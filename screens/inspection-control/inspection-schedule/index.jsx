@@ -19,96 +19,72 @@ import IcSkeleton from '../Components/IcSkeleton';
 import { useDispatch, useSelector } from 'react-redux';
 import { showMessage } from 'react-native-flash-message';
 
-const listData = [
+const dummyData = [
     {
-        id: 1,
-        title: '0906 Engine',
-        OperationName: '2-Stroke Engine',
-        InvoiceNo: 3,
-        createdDate: '04/06/2024',
-        isDownloaded: false,
-        icType: 'IP',
+        ICInspectionEntryID: 1,
+        ICInspectionLotDetailsID: 2,
+        ICInspectionEntryDetailsID: 2,
+        ProductionItemID: 21727,
+        ProductionItemName: 'Battery Management System',
+        OperationName: 'Voltage reading',
+        OperationID: '21777',
+        EnteredDate: '2024-05-23T18:13:34',
+        InspectionType: '2',
     },
     {
-        id: 2,
-        title: '1000 IC Test',
-        OperationName: '5-Stroke Engine',
-        InvoiceNo: 4,
-        createdDate: '03/07/2024',
-        isDownloaded: false,
-        icType: 'IC',
+        ICInspectionEntryID: 2,
+        ICInspectionLotDetailsID: 3,
+        ICInspectionEntryDetailsID: 3,
+        ProductionItemID: 31727,
+        ProductionItemName: 'Battery Management System 1',
+        OperationName: 'Voltage reading 1',
+        OperationID: '21777',
+        EnteredDate: '2024-05-23T18:13:34',
+        InspectionType: '2',
     },
     {
-        id: 3,
-        title: '200 IC Test',
-        OperationName: '6-Stroke Engine',
-        InvoiceNo: 6,
-        createdDate: '03/07/2024',
-        isDownloaded: false,
-        icType: 'IP',
+        ICInspectionEntryID: 3,
+        ICInspectionLotDetailsID: 4,
+        ICInspectionEntryDetailsID: 4,
+        ProductionItemID: 43727,
+        ProductionItemName: 'Battery Management System 2',
+        OperationName: 'Voltage reading 2',
+        OperationID: '21777',
+        EnteredDate: '2024-05-23T18:13:34',
+        InspectionType: '1',
     },
     {
-        id: 4,
-        title: '400 IC Test',
-        OperationName: '9-Stroke Engine',
-        InvoiceNo: 7,
-        createdDate: '01/07/2024',
-        isDownloaded: false,
-        icType: 'CP',
+        ICInspectionEntryID: 4,
+        ICInspectionLotDetailsID: 5,
+        ICInspectionEntryDetailsID: 5,
+        ProductionItemID: 56427,
+        ProductionItemName: 'Battery Management System 3',
+        OperationName: 'Voltage reading 3',
+        OperationID: '21777',
+        EnteredDate: '2024-05-23T18:13:34',
+        InspectionType: '3',
     },
     {
-        id: 5,
-        title: '100 TC Test',
-        OperationName: '9-Stroke Engine',
-        InvoiceNo: 8,
-        createdDate: '03/07/2024',
-        isDownloaded: false,
-        icType: 'CP',
+        ICInspectionEntryID: 5,
+        ICInspectionLotDetailsID: 6,
+        ICInspectionEntryDetailsID: 6,
+        ProductionItemID: 72447,
+        ProductionItemName: 'Battery Management System 4',
+        OperationName: 'Voltage reading 4',
+        OperationID: '21777',
+        EnteredDate: '2024-05-23T18:13:34',
+        InspectionType: '1',
     },
     {
-        id: 6,
-        title: '9000 IC Test',
-        OperationName: '900-Stroke Engine',
-        InvoiceNo: 9,
-        createdDate: '03/07/2024',
-        isDownloaded: false,
-        icType: 'IP',
-    },
-    {
-        id: 51,
-        title: '100 TC Test',
-        OperationName: '9-Stroke Engine',
-        InvoiceNo: 8,
-        createdDate: '03/07/2024',
-        isDownloaded: false,
-        icType: 'IC',
-    },
-    {
-        id: 16,
-        title: '9000 IC Test',
-        OperationName: '900-Stroke Engine',
-        InvoiceNo: 9,
-        createdDate: '03/07/2024',
-        isDownloaded: false,
-        icType: 'IP',
-    },
-    {
-        id: 7,
-        title: '100 TC Test',
-        OperationName: '9-Stroke Engine',
-        InvoiceNo: 8,
-        createdDate: '03/07/2024',
-        isDownloaded: false,
-        icType: 'Cp',
-    },
-    {
-        id: 9,
-        title: '9000 IC Test',
-        OperationName: '900-Stroke Engine',
-        InvoiceNo: 9,
-        createdDate: '03/07/2024',
-        isDownloaded: false,
-        icType: 'IP',
+        ICInspectionEntryID: 6,
+        ICInspectionLotDetailsID: 7,
+        ICInspectionEntryDetailsID: 7,
+        ProductionItemID: 91727,
+        ProductionItemName: 'Battery Management System 5',
+        OperationName: 'Voltage reading 5',
+        OperationID: '21777',
+        EnteredDate: '2024-05-23T18:13:34',
+        InspectionType: '2',
     },
 ];
 const filterList = [
@@ -142,17 +118,17 @@ const moreList = [
 const InspectionSchedule = () => {
     const { inspectList } = useSelector(state => state.inspection);
     const dispatch = useDispatch();
-    console.log(inspectList, '************state');
-    const { profile } = useAppContext();
+    const { profile ,sites:{selectedSite}} = useAppContext();
     const navigation = useNavigation();
     const [showModal, setShowModal] = useState(false);
     const [filterData, setFilterData] = useState({
-        startDate: '',
-        endDate: '',
+        startDate: moment().subtract(7, 'days').toDate(),
+        endDate: new Date(),
         type: '',
     });
     const [showFileModal, setShowFileModal] = useState(false);
     const [showSkeleton, setShowSkeleton] = useState(false);
+    const [masterData,setMasterData]=useState([])
     setTimeout(() => {
         setShowSkeleton(false);
     }, 1000);
@@ -161,34 +137,39 @@ const InspectionSchedule = () => {
     };
 
     const handleListFetch = (inspect = '') => {
+        console.log('**********Called')
         setShowSkeleton(true);
         const { startDate, endDate, type } = filterData;
         let dateFlag = startDate !== '' && endDate !== '';
         const formData = new FormData();
         formData.append('UserID', profile?.UserId);
-        formData.append('SiteID', parseInt(profile?.SiteId?.Siteid));
+        formData.append('SiteID', parseInt(selectedSite?.Siteid));
         formData.append('LanguageID', 1);
         formData.append('StartDate', dateFlag ? startDate : '');
         formData.append('EndDate', dateFlag ? endDate : '');
         formData.append('InspectionType', inspect || type);
-        // console.log(moment(startDate).format('YYYY-MM-DD'), endDate, inspect || type, 'called');
+        if(dummyData.length){
+            setMasterData(dummyData)
+        }else{
+            setMasterData([])
+        }
     };
 
-    useEffect(() => {
-        const { startDate, endDate } = filterData;
-        if (startDate !== '' && endDate !== '') {
-            handleListFetch();
-        }
-    }, [filterData]);
+    // useEffect(() => {
+    //     const { startDate, endDate } = filterData;
+    //     if (startDate !== '' && endDate !== '') {
+    //         handleListFetch();
+    //     }
+    // }, [filterData]);
 
     const handleInputChange = (key, value) => {
         setFilterData(pre => ({ ...pre, [key]: value }));
     };
     useEffect(() => {
-        if (profile?.SiteId) {
+        if (selectedSite?.Siteid) {
             handleListFetch();
         }
-    }, [profile?.SiteId]);
+    }, [selectedSite?.Siteid]);
 
     const handleCIbtnpress = () => {
         navigation.navigate(ROUTES.COMPLETED_INSPECTION);
@@ -199,42 +180,62 @@ const InspectionSchedule = () => {
     const handleMenuPress = value => {
         if (value.id == 2) {
             navigation.navigate(ROUTES.OPERATOR_WORKSHEET);
+            return null;
+        }
+        if(value.id==1){
+            const {startDate,endDate}=filterData;
+            const tempStart=moment(startDate);
+            const tempEnd=moment(endDate)
+            if(tempStart.isBefore(tempEnd)){
+                handleListFetch()
+            }else{
+                showMessage({
+                    message: 'Start Date must be less than End Date',
+                    backgroundColor: COLORS.ERROR,
+                    color: COLORS.white,
+                    duration: 1500,
+                    statusBarHeight: 40,
+                    icon: 'danger',
+                    position: 'right',
+                    style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+                });
+            }
         }
     };
     const renderIconBgColor = value => {
-        return value == 'IC' ? COLORS.apptheme : value == 'IP' ? COLORS.ipBgColor : COLORS.ciBgColor;
+        return value == '1' ? COLORS.apptheme : value == '2' ? COLORS.ipBgColor : COLORS.ciBgColor;
     };
     handleSubmitPress = () => {
-        dispatch({ type: 'INSPECT_LIST', inspectList: listData });
+        dispatch({ type: 'INSPECT_LIST', inspectList: masterData });
         setShowModal(false);
         showMessage({
             message: 'Form Downloaded Successfully',
             backgroundColor: COLORS.SUCCESS,
             color: COLORS.white,
             duration: 1500,
-            statusBarHeight:  40,
-            icon: "success",
-            position: "right",
-            style:Platform.OS === "ios" ?{height:90,alignItems:'flex-end'}:{}
+            statusBarHeight: 40,
+            icon: 'success',
+            position: 'right',
+            style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
         });
     };
     const renderData = ({ item }) => {
         return (
             <View style={[styles.recordConatiner]}>
-                <View style={[styles.iconBox, { backgroundColor: renderIconBgColor(item.icType) }]}>
+                <View style={[styles.iconBox, { backgroundColor: renderIconBgColor(item?.InspectionType) }]}>
                     <Icon name="layers-outline" size={25} color={COLORS.white} />
                 </View>
                 <View style={{ flex: 1, paddingHorizontal: 10 }}>
-                    <Text style={[styles.cardText]}>{item?.title}</Text>
+                    <Text style={[styles.cardText]}>{item?.ProductionItemName}</Text>
                     <Text style={[styles.operationText]}>
-                        Operation Name : <Text style={[styles.secondText]}>{item.OperationName}</Text>
+                        Operation Name : <Text style={[styles.secondText]}>{item?.OperationName}</Text>
                     </Text>
                     <Text style={[styles.operationText]}>
-                        Invoice No : <Text style={[styles.secondText]}>{item.InvoiceNo}</Text>
+                        Invoice No : <Text style={[styles.secondText]}>{item?.ProductionItemID}</Text>
                     </Text>
                 </View>
                 <View style={[styles.lastBox]}>
-                    <Text style={[styles.secondText]}>{item.createdDate}</Text>
+                    <Text style={[styles.secondText]}>{moment(item.EnteredDate).format('DD/MM/YYYY')}</Text>
                     <View style={[styles.iconlist]}>
                         <TouchableOpacity
                             style={{ marginLeft: 15 }}
@@ -242,7 +243,6 @@ const InspectionSchedule = () => {
                                 handleFilePress();
                             }}>
                             <ICFileIcon />
-                            {/* <IconI name='document-attach-outline'size={25} color="#666666" /> */}
                         </TouchableOpacity>
                         <TouchableOpacity
                             style={{ marginLeft: 15 }}
@@ -262,6 +262,7 @@ const InspectionSchedule = () => {
                 <View style={[styles.overAllBox]}>
                     <View style={[styles.filterBox]}>
                         <DataPickerWithIcon
+                            value={filterData?.startDate || null}
                             onSelectedDate={val => {
                                 handleInputChange('startDate', val);
                             }}
@@ -269,6 +270,7 @@ const InspectionSchedule = () => {
                     </View>
                     <View style={[styles.filterBox]}>
                         <DataPickerWithIcon
+                            value={filterData?.endDate || null}
                             placeHolder="End Date"
                             onSelectedDate={val => {
                                 handleInputChange('endDate', val);
@@ -298,12 +300,12 @@ const InspectionSchedule = () => {
                 {showSkeleton ? (
                     <IcSkeleton type={PLACEHOLDERS.INSPECTION_CARD} />
                 ) : (
-                    <FlatList data={listData} renderItem={renderData} keyExtractor={item => item.id} showsVerticalScrollIndicator={false} />
+                    <FlatList data={masterData} renderItem={renderData} keyExtractor={item => item?.ICInspectionEntryID} showsVerticalScrollIndicator={false} />
                 )}
                 <View style={[styles.bottombox]}>
                     <Text style={[styles.bottomText]}>Total Inspections </Text>
                     <View style={[styles.totalBox]}>
-                        <Text style={[styles.bottomText, { color: COLORS.white }]}>{listData?.length}</Text>
+                        <Text style={[styles.bottomText, { color: COLORS.white }]}>{masterData?.length}</Text>
                     </View>
                 </View>
             </View>
@@ -398,7 +400,7 @@ const styles = StyleSheet.create({
     bottomText: {
         fontSize: 14,
         fontFamily: 'OpenSans-Regular',
-        color:COLORS.headerText
+        color: COLORS.headerText,
     },
     filterBox: {
         width: '30%',

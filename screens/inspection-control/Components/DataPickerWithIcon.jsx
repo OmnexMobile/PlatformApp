@@ -1,5 +1,5 @@
 import { COLORS } from 'constants/theme-constants';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Icon from 'react-native-vector-icons/Entypo';
 import IconE from 'react-native-vector-icons/Fontisto';
@@ -17,11 +17,19 @@ const DataPickerWithIcon = ({
     borderWidth = 1,
     paddingVertical = 7,
     type = 'date',
-    borderColor=COLORS.staysIcon
+    borderColor=COLORS.staysIcon,
+    value=null
 }) => {
     const [date, setDate] = useState(null);
     const [tempDate, setTempDate] = useState(new Date());
     const [showPicker, setShowPicker] = useState(false);
+
+    useEffect(()=>{
+        if(value!==null){
+            setDate(value)
+            setTempDate(value)
+        }
+    },[value])
 
     const onChange = (event, selectedDate) => {
         if (selectedDate) {
