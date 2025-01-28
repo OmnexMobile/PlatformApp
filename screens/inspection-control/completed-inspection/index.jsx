@@ -12,6 +12,7 @@ import { Divider, Modal } from 'react-native-paper';
 import { RFPercentage } from 'react-native-responsive-fontsize';
 import RadioButtonComponent from '../Components/RadioButtonComponent';
 import ICCheckBox from '../Components/ICCheckBox';
+import DeleteModal from '../Components/DeleteModal';
 const listData = [
     {
         id: 1,
@@ -127,6 +128,8 @@ const CompletedInspection = () => {
     const [selectedRadio, setSelectedRadio] = useState('Sync');
     const [checkBox,setCheckBox]=useState(false)
     const navigation = useNavigation();
+    const [showDelete,setShowDelete]=useState(false)
+
     const handleISbtnpress = () => {
         navigation.navigate(ROUTES.INSPECTION_SCHEDULE);
     };
@@ -136,6 +139,9 @@ const CompletedInspection = () => {
     const hideModal = () => {
         setSyncModal(false);
     };
+    const handleDeletePress=()=>{
+        setShowDelete(true)
+    }
     const renderItem = ({ item }) => {
         return (
             <View style={[styles.recordConatiner]}>
@@ -166,7 +172,7 @@ const CompletedInspection = () => {
                             }}>
                             <IconO name="sync" size={20} color={COLORS.grey} />
                         </TouchableOpacity>
-                        <TouchableOpacity>
+                        <TouchableOpacity onPress={handleDeletePress}>
                             <Icon name="delete-outline" size={25} color={COLORS.ERROR} />
                         </TouchableOpacity>
                     </View>
@@ -227,6 +233,7 @@ const CompletedInspection = () => {
                     </View>
                 </View>
             </Modal>
+            <DeleteModal visible={showDelete} handleClose={()=>{setShowDelete(false)}}/>
         </CustomHeader>
     );
 };

@@ -3,20 +3,33 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 
-const SingleDropDown = ({ data = [], onChange = () => {}, value ,title=''}) => {
+const SingleDropDown = ({
+    data = [],
+    onChange = () => {},
+    value,
+    title = '',
+    backgroundColor = COLORS.inputBG,
+    borderWidth = StyleSheet.hairlineWidth,
+    padding= 2,
+    marginTop=8,
+    borderRadius=5,
+    borderColor=COLORS.inputBorder,
+    showSearch=true,
+    maxHeight=300
+}) => {
     return (
         <View style={[styles.container]}>
-            <Text style={[styles.headerText]}>{title}</Text>
+            {title!=='' &&<Text style={[styles.headerText]}>{title}</Text>}
             <Dropdown
-                style={styles.dropdown}
+                style={[{ backgroundColor: backgroundColor, borderWidth: borderWidth,padding:padding,marginTop:marginTop ,borderRadius: borderRadius,borderColor:borderColor}]}
                 placeholderStyle={styles.placeholderStyle}
                 selectedTextStyle={styles.selectedTextStyle}
                 inputSearchStyle={styles.inputSearchStyle}
                 iconStyle={styles.iconStyle}
                 itemTextStyle={styles.itemTextStyle}
                 data={data}
-                search
-                maxHeight={300}
+                search={showSearch}
+                maxHeight={maxHeight}
                 labelField="label"
                 valueField="value"
                 placeholder="Select"
@@ -25,6 +38,7 @@ const SingleDropDown = ({ data = [], onChange = () => {}, value ,title=''}) => {
                 onChange={item => {
                     onChange(item.value);
                 }}
+                
             />
         </View>
     );
@@ -33,14 +47,7 @@ const SingleDropDown = ({ data = [], onChange = () => {}, value ,title=''}) => {
 export default SingleDropDown;
 
 const styles = StyleSheet.create({
-    dropdown: {
-        borderColor: COLORS.inputBorder,
-        borderWidth: StyleSheet.hairlineWidth,
-        backgroundColor: COLORS.inputBG,
-        borderRadius: 5,
-        padding: 2,
-        marginTop:8,
-    },
+
     icon: {
         marginRight: 5,
     },
@@ -70,6 +77,6 @@ const styles = StyleSheet.create({
     headerText: {
         fontFamily: 'OpenSans-Regular',
         fontSize: 14,
-        color:COLORS.headerText
+        color: COLORS.headerText,
     },
 });

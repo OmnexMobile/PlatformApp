@@ -7,7 +7,6 @@ import { useNavigation } from '@react-navigation/native';
 import { PLACEHOLDERS, ROUTES } from 'constants/app-constant';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import IconF from 'react-native-vector-icons/Feather';
-import IconI from 'react-native-vector-icons/Ionicons';
 import DataPickerWithIcon from '../Components/DataPickerWithIcon';
 import FilterWithMenu from '../Components/FilterWithMenu';
 import InputDataModal from '../Components/inspection-schedule/InputDataModal';
