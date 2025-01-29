@@ -18,6 +18,7 @@ import IcSkeleton from '../Components/IcSkeleton';
 import { useDispatch, useSelector } from 'react-redux';
 import { showMessage } from 'react-native-flash-message';
 import QRCodeScannerScreen from '../Components/QRCodeScannerScreen';
+import NoDataFound from '../Components/NoDataFound';
 
 const dummyData = [
     {
@@ -90,11 +91,11 @@ const dummyData = [
 const filterList = [
     {
         id: 1,
-        title: 'Inprocess Inspection',
+        title: 'Receiving Inspection',
     },
     {
         id: 2,
-        title: 'Receiving Inspection',
+        title: 'In-process Inspection',
     },
     {
         id: 3,
@@ -310,12 +311,12 @@ const InspectionSchedule = () => {
                 {showSkeleton ? (
                     <IcSkeleton type={PLACEHOLDERS.INSPECTION_CARD} />
                 ) : (
-                    <FlatList
+                    Boolean(masterData?.length)?<FlatList
                         data={masterData}
                         renderItem={renderData}
                         keyExtractor={item => item?.ICInspectionEntryID}
                         showsVerticalScrollIndicator={false}
-                    />
+                    />:<NoDataFound/>
                 )}
                 <View style={[styles.bottombox]}>
                     <Text style={[styles.bottomText]}>Total Inspections </Text>

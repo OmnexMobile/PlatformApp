@@ -9,6 +9,7 @@ import { ROUTES } from 'constants/app-constant';
 import { Divider, Modal } from 'react-native-paper';
 import { RFPercentage } from 'helpers/utils';
 import DeleteModal from '../Components/DeleteModal';
+import NoDataFound from '../Components/NoDataFound';
 
 const listData = [
     {
@@ -144,7 +145,7 @@ const OperatorWorksheet = () => {
     return (
         <CustomHeader title="Operator Worksheet" activeTabId={2}>
             <View style={[styles.container]}>
-                <FlatList data={listData} renderItem={renderItem} keyExtractor={item => item.id} showsVerticalScrollIndicator={false} />
+                {Boolean(listData?.length)?<FlatList data={listData} renderItem={renderItem} keyExtractor={item => item.id} showsVerticalScrollIndicator={false} />:<NoDataFound/>}
             </View>
             <View style={[styles.btnContainer]}>
                 <ButtonComponent

@@ -1,5 +1,5 @@
 import { ButtonComponent, TextComponent } from 'components';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import CustomHeader from '../Components/CustomHeader';
 import { useState } from 'react';
@@ -9,12 +9,14 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import IconM from 'react-native-vector-icons/MaterialCommunityIcons';
 import IconI from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
-import { ROUTES } from 'constants/app-constant';
+import { PLACEHOLDERS, ROUTES } from 'constants/app-constant';
 import ICFileIcon from '../../../assets/images/svg/icFile.svg';
 import RadioButtonComponent from '../Components/RadioButtonComponent';
 import { RFPercentage } from 'helpers/utils';
 import PartDetails from '../Components/supervisor-schedule/PartDetails';
 import FileViewModal from '../Components/supervisor-schedule/FileViewModal';
+import IcSkeleton from '../Components/IcSkeleton';
+import NoDataFound from '../Components/NoDataFound';
 const listData = [
     {
         id: 1,
@@ -116,20 +118,34 @@ const optionsList = [
 ];
 const SupervisorSchedule = () => {
     const navigation = useNavigation();
-    
+
     const [showFilterList, setShowFilterList] = useState(false);
     const [selectedRadio, setSelectedRadio] = useState('');
-    const [showEye,setShowEye]=useState(false);
-    const[showFileModal,setShowFileModal]=useState(false)
-    const handleEyePress=()=>{
-      setShowEye(true)
-    }
+    const [showEye, setShowEye] = useState(false);
+    const [showFileModal, setShowFileModal] = useState(false);
+    const [masterData, setMasterData] = useState([]);
+    const [showSkeleton, setShowSkeleton] = useState(false);
+
+    const handleEyePress = () => {
+        setShowEye(true);
+    };
     const hideModal = () => {
         setShowFilterList(false);
     };
-    const handleFilePress=()=>{
-      setShowFileModal(true)
-    }
+    const handleFilePress = () => {
+        setShowFileModal(true);
+    };
+    setTimeout(() => {
+        setShowSkeleton(false);
+    }, 1000);
+    handleGetAllData = () => {
+        setShowSkeleton(true);
+        setMasterData([...listData]);
+    };
+    useEffect(() => {
+        handleGetAllData();
+    }, []);
+
     const renderItem = ({ item }) => {
         return (
             <View style={[styles.recordConatiner]}>
@@ -159,7 +175,10 @@ const SupervisorSchedule = () => {
                         <TouchableOpacity style={{ marginRight: 5 }} onPress={() => handleFilePress()}>
                             <ICFileIcon />
                         </TouchableOpacity>
-                        <TouchableOpacity onPress={()=>{navigation.navigate(ROUTES.INPROCESS_INSPECTION)}}>
+                        <TouchableOpacity
+                            onPress={() => {
+                                navigation.navigate(ROUTES.INPROCESS_INSPECTION);
+                            }}>
                             <IconM name="battery-plus-variant" size={27} color="#666666" />
                         </TouchableOpacity>
                     </View>
@@ -175,12 +194,18 @@ const SupervisorSchedule = () => {
                 setShowFilterList(true);
             }}>
             <View style={[styles.container]}>
-                <FlatList data={listData} renderItem={renderItem} keyExtractor={item => item.id} showsVerticalScrollIndicator={false} />
+                {Boolean(showSkeleton) ? (
+                    <IcSkeleton type={PLACEHOLDERS.SUPERVISOR_CARD} />
+                ) : Boolean(masterData?.length) ? (
+                    <FlatList data={masterData} renderItem={renderItem} keyExtractor={item => item.id} showsVerticalScrollIndicator={false} />
+                ) : (
+                    <NoDataFound />
+                )}
             </View>
             <View style={[styles.bottombox]}>
                 <Text style={[styles.bottomText]}>Total Inspections </Text>
                 <View style={[styles.totalBox]}>
-                    <Text style={[styles.bottomText, { color: COLORS.white }]}>{listData?.length}</Text>
+                    <Text style={[styles.bottomText, { color: COLORS.white }]}>{masterData?.length}</Text>
                 </View>
             </View>
             <View style={[styles.btnContainer]}>
@@ -226,8 +251,18 @@ const SupervisorSchedule = () => {
                     </View>
                 </View>
             </Modal>
-            <PartDetails visible={showEye} onDismiss={()=>{setShowEye(false)}} />
-            <FileViewModal visible={showFileModal} onDismiss={()=>{setShowFileModal(false)}} />
+            <PartDetails
+                visible={showEye}
+                onDismiss={() => {
+                    setShowEye(false);
+                }}
+            />
+            <FileViewModal
+                visible={showFileModal}
+                onDismiss={() => {
+                    setShowFileModal(false);
+                }}
+            />
         </CustomHeader>
     );
 };
@@ -298,7 +333,7 @@ const styles = StyleSheet.create({
     bottomText: {
         fontSize: 14,
         fontFamily: 'OpenSans-Regular',
-        color:COLORS.headerText
+        color: COLORS.headerText,
     },
     bottombox: {
         flexDirection: 'row',
@@ -310,7 +345,7 @@ const styles = StyleSheet.create({
     },
     modalBoxOne: {
         paddingHorizontal: 20,
-        paddingTop:20
+        paddingTop: 20,
     },
     modalcontainer: {
         width: '90%',
@@ -321,7 +356,7 @@ const styles = StyleSheet.create({
         fontFamily: 'OpenSans-SemiBold',
         fontSize: RFPercentage(2.1),
         marginBottom: 13,
-        color:COLORS.ictextBlack
+        color: COLORS.ictextBlack,
     },
     contentBox: {
         paddingVertical: 15,
