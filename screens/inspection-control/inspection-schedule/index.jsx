@@ -1,6 +1,6 @@
 import { ButtonComponent } from 'components';
 import React, { useEffect, useState } from 'react';
-import { FlatList, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { FlatList, Platform, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import CustomHeader from '../Components/CustomHeader';
 import { COLORS } from 'constants/theme-constants';
 import { useNavigation } from '@react-navigation/native';
@@ -134,17 +134,20 @@ const InspectionSchedule = () => {
     const [showSkeleton, setShowSkeleton] = useState(false);
     const [masterData, setMasterData] = useState([]);
     const [showQR, setShowQR] = useState(false);
-
+    const [ refreshing,setRefreshing]=useState(false)
+    setTimeout(() => {
+        setRefreshing(false);
+    }, 1000);
     setTimeout(() => {
         setShowSkeleton(false);
     }, 1000);
+
     const handleFilePress = () => {
         setShowFileModal(true);
     };
 
-    const handleListFetch = (inspect = '') => {
-        console.log('**********Called');
-        setShowSkeleton(true);
+    const handleListFetch = (inspect = '',showSktn=true) => {
+        showSktn && setShowSkeleton(true);
         const { startDate, endDate, type } = filterData;
         let dateFlag = startDate !== '' && endDate !== '';
         const formData = new FormData();
@@ -262,6 +265,11 @@ const InspectionSchedule = () => {
             </View>
         );
     };
+    const onRefresh=()=>{
+        setRefreshing(true)
+        handleListFetch(filterData.type,false)
+    }
+
     return (
         <CustomHeader
             title="Inspection Schedule"
@@ -316,6 +324,9 @@ const InspectionSchedule = () => {
                         renderItem={renderData}
                         keyExtractor={item => item?.ICInspectionEntryID}
                         showsVerticalScrollIndicator={false}
+                        refreshControl={
+                            <RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>
+                        }
                     />:<NoDataFound/>
                 )}
                 <View style={[styles.bottombox]}>

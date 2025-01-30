@@ -1,6 +1,6 @@
 import { ButtonComponent, TextComponent } from 'components';
 import React, { useEffect } from 'react';
-import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { FlatList, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import CustomHeader from '../Components/CustomHeader';
 import { useState } from 'react';
 import { Divider, Modal } from 'react-native-paper';
@@ -125,6 +125,14 @@ const SupervisorSchedule = () => {
     const [showFileModal, setShowFileModal] = useState(false);
     const [masterData, setMasterData] = useState([]);
     const [showSkeleton, setShowSkeleton] = useState(false);
+    const [refreshing, setRefreshing] = useState(false);
+
+    setTimeout(() => {
+        setRefreshing(false);
+    }, 1000);
+    const onRefresh=()=>{
+        setRefreshing(true)
+    }
 
     const handleEyePress = () => {
         setShowEye(true);
@@ -197,7 +205,13 @@ const SupervisorSchedule = () => {
                 {Boolean(showSkeleton) ? (
                     <IcSkeleton type={PLACEHOLDERS.SUPERVISOR_CARD} />
                 ) : Boolean(masterData?.length) ? (
-                    <FlatList data={masterData} renderItem={renderItem} keyExtractor={item => item.id} showsVerticalScrollIndicator={false} />
+                    <FlatList
+                        data={masterData}
+                        renderItem={renderItem}
+                        keyExtractor={item => item.id}
+                        showsVerticalScrollIndicator={false}
+                        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+                    />
                 ) : (
                     <NoDataFound />
                 )}

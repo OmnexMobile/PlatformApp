@@ -2,7 +2,7 @@ import { useNavigation } from '@react-navigation/native';
 import { ListSearch } from 'components';
 import { COLORS, FONT_SIZE } from 'constants/theme-constants';
 import React, { useRef, useState } from 'react';
-import { Animated, FlatList, Platform, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Animated, FlatList, Platform, SafeAreaView, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import Icon from 'react-native-vector-icons/AntDesign';
 import IconF from 'react-native-vector-icons/FontAwesome';
 import IconI from 'react-native-vector-icons/Ionicons';
@@ -43,7 +43,17 @@ const footerList = [
     },
 ];
 
-const CustomHeader = ({ children, title = '', activeTabId, showIcons = true, handleSyncPress = () => {}, handleFilterPress = () => {} ,handleQRPress=()=>{}}) => {
+const CustomHeader = ({
+    children,
+    title = '',
+    activeTabId,
+    showIcons = true,
+    handleSyncPress = () => {},
+    handleFilterPress = () => {},
+    handleQRPress = () => {},
+}) => {
+    const {width}=useWindowDimensions()
+    console.log(width,'*****************width')
     const navigation = useNavigation();
     const [isExpanded, setIsExpanded] = useState(false);
     const widthAnim = useRef(new Animated.Value(0)).current;
@@ -58,7 +68,8 @@ const CustomHeader = ({ children, title = '', activeTabId, showIcons = true, han
         } else {
             setIsExpanded(true);
             Animated.timing(widthAnim, {
-                toValue: activeTabId !== 4 ? RFPercentage(Platform.OS === 'android'?29:27) : RFPercentage(Platform.OS === 'android'?26:23), // Width in pixels
+                // toValue: activeTabId !== 4 ? RFPercentage(Platform.OS === 'android' ? 29 : 27) : RFPercentage(Platform.OS === 'android' ? 26 : 23), // Width in pixels
+                toValue:activeTabId !== 4?width/1.7:width/2,
                 duration: 300,
                 useNativeDriver: false,
             }).start();
@@ -115,7 +126,10 @@ const CustomHeader = ({ children, title = '', activeTabId, showIcons = true, han
                                 </TouchableOpacity>
                             )}
                             {activeTabId == 1 && (
-                                <TouchableOpacity onPress={()=>{handleQRPress()}}>
+                                <TouchableOpacity
+                                    onPress={() => {
+                                        handleQRPress();
+                                    }}>
                                     <IconF name="qrcode" size={25} style={styles.iconButton} color={COLORS.white} />
                                 </TouchableOpacity>
                             )}

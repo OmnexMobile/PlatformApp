@@ -97,7 +97,7 @@ const InprocessInspection = () => {
         return (
             <View style={[styles.recordConatiner]}>
                 <View style={[styles.iconBox]}>
-                    <IconM name="information-variant" size={25}  color={COLORS.moreIcon}/>
+                    <IconM name="information-variant" size={25} color={COLORS.moreIcon} />
                 </View>
                 <View style={{ flex: 1, paddingHorizontal: 10 }}>
                     <Text style={[styles.headerTitle]}>{item.title}</Text>
@@ -143,7 +143,7 @@ const InprocessInspection = () => {
                 )}
                 {!showChar && !showGeneral && (
                     <View style={[styles.centerBox]}>
-                        <FlatList data={listData} renderItem={renderItem} keyExtractor={item => item.id} />
+                        <FlatList data={listData} renderItem={renderItem} keyExtractor={item => item.id} showsVerticalScrollIndicator={false} />
                         <View style={[styles.btnContainer]}>
                             <ButtonComponent style={{ height: 40, width: '87%' }} onPress={() => {}}>
                                 Save

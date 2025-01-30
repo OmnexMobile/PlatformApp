@@ -20,10 +20,10 @@ const DeleteModal = ({ visible = false,handleClose=()=>{} ,handleYesPress=()=>{}
                     <Text style={[styles.contentText]}>Do you want to delete this form ?</Text>
                 </View>
                 <View style={[styles.btnStyle]}>
-                    <ButtonComponent style={{ height: 27, width: RFPercentage(10), marginRight: 10 }} onPress={() => {handleClose()}}>
+                    <ButtonComponent style={{ height: 30, width: RFPercentage(10), marginRight: 10 }} onPress={() => {handleClose()}}>
                         No
                     </ButtonComponent>
-                    <ButtonComponent style={{ height: 27, width: RFPercentage(10) }} onPress={() => {handleYesPress()}}>
+                    <ButtonComponent style={{ height: 30, width: RFPercentage(10) }} onPress={() => {handleYesPress()}}>
                         Yes
                     </ButtonComponent>
                 </View>
