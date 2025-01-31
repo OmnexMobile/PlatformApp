@@ -1,6 +1,6 @@
 import { COLORS } from 'constants/theme-constants';
 import React, { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import {  BackHandler, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import IconF from 'react-native-vector-icons/Feather';
 import IconM from 'react-native-vector-icons/MaterialCommunityIcons';
 import FilterWithMenu from '../FilterWithMenu';
@@ -34,7 +34,17 @@ const BorderContent = ({ title = 'Title', count = 0, color = '#000' }) => {
         </View>
     );
 };
-const CharacteristicsInfo = ({ listData = [], type = 'number' }) => {
+const CharacteristicsInfo = ({ listData = [], type = 'number', setShowChar = () => {} }) => {
+
+    useEffect(() => {
+        const backAction = () => {
+            setShowChar(false);
+            return true;
+        };
+        const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+        return () => backHandler.remove();
+    }, []);
+
     const navigation = useNavigation();
     const [masterData, setMasterData] = useState([]);
     useEffect(() => {

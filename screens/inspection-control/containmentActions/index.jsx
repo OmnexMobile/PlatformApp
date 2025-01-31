@@ -5,15 +5,16 @@ import Icon from 'react-native-vector-icons/AntDesign';
 import { COLORS } from 'constants/theme-constants';
 import CharGenInfo from '../Components/inprocess-inspection/CharGenInfo';
 import ContainmentActionsForm from '../Components/inprocess-inspection/ContainmentActionsForm';
+import { useNavigation } from '@react-navigation/native';
 
 const ContainmentActions = ({ route }) => {
-    const { index } = route?.params;
+    const navigation = useNavigation();
     const [showGeneral, setShowGeneral] = useState(false);
     const [showAction, setShowAction] = useState(true);
     const [masterData, setMasterData] = useState([]);
     const [genType, setGenType] = useState('');
-    console.log(index, 'route?.params');
     useLayoutEffect(() => {
+        console.log(route?.params?.listData[0],'*******route?.params?.listData]')
         if (route?.params?.listData) {
             setMasterData([...route?.params?.listData]);
         }
@@ -24,13 +25,14 @@ const ContainmentActions = ({ route }) => {
         setShowAction(false);
     };
     const handleActionOpen = () => {
-        setShowAction(!showAction);
-        setShowGeneral(false);
+        // setShowAction(!showAction);
+        // setShowGeneral(false);
+        navigation.goBack();
     };
     return (
         <CustomHeader title="Inprocess Inspection" activeTabId={2} showIcons={false}>
             <View style={[styles.conatiner]}>
-                {genType !== 'number' && (
+                {/* {genType !== 'number' && (
                     <View style={{ flex: showGeneral ? 1 : 0 }}>
                         <TouchableOpacity
                             style={[styles.tabStyle, { borderBottomLeftRadius: showGeneral ? 0 : 10, borderBottomRightRadius: showGeneral ? 0 : 10 }]}
@@ -46,7 +48,7 @@ const ContainmentActions = ({ route }) => {
                             </View>
                         )}
                     </View>
-                )}
+                )} */}
                 <View style={{ flex: showAction ? 1 : 0, marginTop: 10 }}>
                     <TouchableOpacity
                         style={[styles.tabStyle, { borderBottomLeftRadius: showAction ? 0 : 10, borderBottomRightRadius: showAction ? 0 : 10 }]}
@@ -56,11 +58,9 @@ const ContainmentActions = ({ route }) => {
                         <Text style={[styles.headerText]}>Containment Actions</Text>
                         <Icon name={showAction ? 'down' : 'right'} size={20} />
                     </TouchableOpacity>
-                    {showAction && (
-                        <View style={[styles.tabBox]}>
-                            <ContainmentActionsForm listData={masterData} type={genType} index={index} />
-                        </View>
-                    )}
+                    <View style={[styles.tabBox]}>
+                        <ContainmentActionsForm  type={genType}  />
+                    </View>
                 </View>
             </View>
         </CustomHeader>

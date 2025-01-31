@@ -7,7 +7,6 @@ import Icon from 'react-native-vector-icons/AntDesign';
 import IconF from 'react-native-vector-icons/FontAwesome';
 import IconI from 'react-native-vector-icons/Ionicons';
 import IconO from 'react-native-vector-icons/Octicons';
-import IconA from 'react-native-vector-icons/AntDesign';
 import InputWithSearch from './InputWithSearch';
 import InspectionInspectionSvg from '../../../assets/images/svg/inspection-scedule.svg';
 import OperatorWorksheetSvg from '../../../assets/images/svg/operator-worksheet.svg';
@@ -48,12 +47,13 @@ const CustomHeader = ({
     title = '',
     activeTabId,
     showIcons = true,
+    showFileIcon = false,
     handleSyncPress = () => {},
     handleFilterPress = () => {},
     handleQRPress = () => {},
+    handleFileIconPress=()=>{}
 }) => {
-    const {width}=useWindowDimensions()
-    console.log(width,'*****************width')
+    const { width } = useWindowDimensions();
     const navigation = useNavigation();
     const [isExpanded, setIsExpanded] = useState(false);
     const widthAnim = useRef(new Animated.Value(0)).current;
@@ -69,7 +69,7 @@ const CustomHeader = ({
             setIsExpanded(true);
             Animated.timing(widthAnim, {
                 // toValue: activeTabId !== 4 ? RFPercentage(Platform.OS === 'android' ? 29 : 27) : RFPercentage(Platform.OS === 'android' ? 26 : 23), // Width in pixels
-                toValue:activeTabId !== 4?width/1.7:width/2,
+                toValue: activeTabId !== 4 ? width / 1.8 : width / 2.2,
                 duration: 300,
                 useNativeDriver: false,
             }).start();
@@ -140,7 +140,7 @@ const CustomHeader = ({
                             )}
                             {activeTabId == 4 && (
                                 <TouchableOpacity onPress={handleFilterPress}>
-                                    <IconA name="filter" size={25} style={styles.iconButton} color={COLORS.white} />
+                                    <Icon name="filter" size={25} style={styles.iconButton} color={COLORS.white} />
                                 </TouchableOpacity>
                             )}
                             {(activeTabId == 3 || activeTabId == 4) && (
@@ -153,11 +153,23 @@ const CustomHeader = ({
                             )}
                             <TouchableOpacity
                                 onPress={() => {
-                                    navigation.goBack();
+                                    // navigation.goBack();
+                                    navigation.reset({
+                                        index: 0,
+                                        routes: [{ name: ROUTES.HOME_FAB_VIEW }],
+                                    });
                                 }}>
                                 <IconI name="exit-outline" size={31} style={styles.iconButton} color={COLORS.white} />
                             </TouchableOpacity>
                         </>
+                    )}
+                    {showFileIcon && (
+                        <TouchableOpacity
+                            onPress={() => {
+                                handleFileIconPress();
+                            }}>
+                            <IconI name="images" size={25} style={styles.iconButton} color={COLORS.white} />
+                        </TouchableOpacity>
                     )}
                 </View>
             </View>

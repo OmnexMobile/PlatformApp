@@ -10,6 +10,8 @@ import { RFPercentage } from 'helpers/utils';
 import SignatureComponent from '../Components/SignatureComponent';
 import CharacteristicsInfo from '../Components/inprocess-inspection/CharacteristicsInfo';
 import GeneralInfo from '../Components/inprocess-inspection/GeneralInfo';
+import { showMessage } from 'react-native-flash-message';
+import ModalFilePickerWithList from '../Components/inprocess-inspection/ModalFilePickerWithList';
 const moreList = [
     {
         id: 1,
@@ -82,6 +84,8 @@ const InprocessInspection = () => {
     const [showChar, setShowChar] = useState(false);
     const [showSignModal, setShowSignModal] = useState(false);
     const [formType, setFormType] = useState('number');
+    const [showFilePage,setShowFilePage]=useState(false)
+
     const handleGenOpen = () => {
         setShowGeneral(!showGeneral);
         setShowChar(false);
@@ -122,7 +126,7 @@ const InprocessInspection = () => {
         );
     };
     return (
-        <CustomHeader title="Inprocess Inspection" activeTabId={2} showIcons={false}>
+        <CustomHeader title="Inprocess Inspection" activeTabId={2} showIcons={false} showFileIcon={showChar} handleFileIconPress={()=>{setShowFilePage(true)}}>
             <View style={[styles.conatiner]}>
                 {!showChar && (
                     <View style={{ flex: showGeneral ? 1 : 0 }}>
@@ -165,14 +169,26 @@ const InprocessInspection = () => {
                     <TouchableOpacity
                         style={[styles.tabStyle, { borderBottomLeftRadius: showChar ? 0 : 10, borderBottomRightRadius: showChar ? 0 : 10 }]}
                         onPress={() => {
-                            handleCharOpen();
+                            if (showChar) {
+                                handleCharOpen();
+                            } else {
+                                showMessage({
+                                    message: 'Please press the "Inspect" button.',
+                                    backgroundColor: COLORS.WARNING,
+                                    color: COLORS.white,
+                                    duration: 1500,
+                                    statusBarHeight: 40,
+                                    // style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+                                    position:'bottom',
+                                });
+                            }
                         }}>
                         <Text style={[styles.headerText]}>Characteristics Info</Text>
                         <Icon name={showChar ? 'down' : 'right'} size={20} color={COLORS.moreIcon} />
                     </TouchableOpacity>
                     {showChar && (
                         <View style={[styles.tabBox]}>
-                            <CharacteristicsInfo listData={varData} type={formType} />
+                            <CharacteristicsInfo listData={varData} type={formType} setShowChar={setShowChar} />
                         </View>
                     )}
                 </View>
@@ -183,6 +199,7 @@ const InprocessInspection = () => {
                     setShowSignModal(false);
                 }}
             />
+            <ModalFilePickerWithList visible={showFilePage} onDismiss={()=>{setShowFilePage(false)}}/>
         </CustomHeader>
     );
 };

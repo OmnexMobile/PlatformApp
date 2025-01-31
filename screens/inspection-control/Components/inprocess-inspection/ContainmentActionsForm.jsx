@@ -4,7 +4,11 @@ import InputBoxWithHeader from '../InputBoxWithHeader';
 import { ButtonComponent } from 'components';
 import { COLORS } from 'constants/theme-constants';
 
-const ContainmentActionsForm = ({ listData = [], type = '' }) => {
+const listData = [
+    { actualValue: 'okk', count: '1', diffValue: 1, editvalue: '', finalValue: 4, id: 1 ,sampleNo:'1'},
+    { actualValue: 'okk', count: '1', diffValue: 1, editvalue: '', finalValue: 4, id: 2,sampleNo:'1'},
+];
+const ContainmentActionsForm = ({ type = '' }) => {
     const [masterData, setMasterData] = useState([]);
     useEffect(() => {
         if (listData?.length) {
@@ -13,7 +17,7 @@ const ContainmentActionsForm = ({ listData = [], type = '' }) => {
     }, [listData]);
     const handleInputChage = (val, id) => {
         const updatedData = masterData?.map(item => (item?.id === id ? { ...item, editvalue: val } : item));
-        setMasterData(updatedData)
+        setMasterData(updatedData);
     };
     const renderItem = ({ item, index }) => {
         let tolleranceValue = item?.finalValue + item?.diffValue;
@@ -30,7 +34,7 @@ const ContainmentActionsForm = ({ listData = [], type = '' }) => {
             <View>
                 <View style={[styles.mainBox]}>
                     <View style={[styles.subBox]}>
-                        <InputBoxWithHeader title="Sample No" value="1" editable={false} />
+                        <InputBoxWithHeader title="Sample No" value={`${item.sampleNo}`} editable={false} />
                     </View>
                     <View style={[styles.subBox]}>
                         <InputBoxWithHeader
@@ -44,7 +48,7 @@ const ContainmentActionsForm = ({ listData = [], type = '' }) => {
                 </View>
                 <View style={[styles.mainBox]}>
                     <View style={[styles.subBox]}>
-                        <InputBoxWithHeader title="No" value={item.count} editable={false} />
+                        <InputBoxWithHeader title="No" value={`${index+1}`} editable={false} />
                     </View>
                     <View style={[styles.subBox]}>
                         <InputBoxWithHeader
@@ -52,7 +56,7 @@ const ContainmentActionsForm = ({ listData = [], type = '' }) => {
                             value={item.editvalue}
                             title="Value"
                             onChangeText={val => {
-                                handleInputChage(val,item.id);
+                                handleInputChage(val, item.id);
                             }}
                             color="#fff"
                         />

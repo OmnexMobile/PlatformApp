@@ -1,0 +1,168 @@
+import { ButtonComponent } from 'components';
+import { COLORS } from 'constants/theme-constants';
+import { RFPercentage } from 'helpers/utils';
+import React, { useState } from 'react';
+import { Alert, FlatList, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Divider, Modal } from 'react-native-paper';
+import Icon from 'react-native-vector-icons/AntDesign';
+import IconI from 'react-native-vector-icons/Ionicons';
+import IconM from 'react-native-vector-icons/MaterialCommunityIcons';
+import DocumentPicker from 'react-native-document-picker';
+import uuid from 'react-native-uuid';
+import RNFS from 'react-native-fs';
+import FileViewer from 'react-native-file-viewer';
+import NoDataFound from '../NoDataFound';
+
+const ModalFilePickerWithList = ({ visible = false, onDismiss = () => {} }) => {
+    const [fileList, setFileList] = useState([]);
+
+    const handlePickFile = async () => {
+        try {
+            const response = await DocumentPicker.pick({
+                presentationStyle: 'fullScreen',
+            });
+            if (response[0]?.size && response[0]?.size <= 5 * 1024 * 1024) {
+                const base64 = await RNFS.readFile(response[0].uri, 'base64');
+                const fileExtension = response[0]?.name?.split('.').pop();
+                const file = {
+                    ...response[0],
+                    id: uuid.v4(),
+                    base64Url: base64,
+                    fileExtension: fileExtension,
+                };
+                console.log('🚀 ~ file: file-picker.js:28 ~ handleDocumentSelection ~ file', file);
+                setFileList([...fileList, file]);
+            }else{
+                console.warn('File size exceeds 5MB limit.');
+            }
+        } catch (err) {
+            console.warn(err);
+        }
+    };
+    const openBase64File = async (base64String, fileType, name) => {
+        try {
+            // Create a temporary file path
+            const path = `${RNFS.CachesDirectoryPath}/${name}.${fileType}`;
+
+            // Write the base64 string to a file
+            await RNFS.writeFile(path, base64String, 'base64');
+
+            // Open the file using react-native-file-viewer
+            await FileViewer.open(path);
+        } catch (error) {
+            Alert.alert('Error', 'Unable to open file: ' + error.message);
+        }
+    };
+    console.log(fileList, 'fileList');
+    const handleDeletePress = index => {
+        let temp = JSON.parse(JSON.stringify(fileList));
+        temp.splice(index, 1);
+        setFileList(temp);
+    };
+    const renderFileList = ({ item, index }) => {
+        return (
+            <View key={index + 1} style={[styles.listBox]}>
+                <View>
+                    <Text style={[styles.fileText, { marginRight: 10 }]}>{index + 1}</Text>
+                </View>
+                <View style={styles.textContainer}>
+                    <Text style={[styles.fileText]}>{item?.name}</Text>
+                </View>
+                <View style={[styles.iconContainer]}>
+                    <TouchableOpacity
+                        style={[styles.iconBoxStyle]}
+                        onPress={() => {
+                            openBase64File(item.base64Url, item.fileExtension, item?.name);
+                        }}>
+                        <IconI name="eye-outline" size={22} color={COLORS.grey} />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        onPress={() => {
+                            handleDeletePress(index);
+                        }}>
+                        <IconM name="delete-outline" size={22} color={COLORS.ERROR} />
+                    </TouchableOpacity>
+                </View>
+            </View>
+        );
+    };
+    return (
+        <Modal visible={visible} onDismiss={onDismiss} onRequestClose={onDismiss} contentContainerStyle={[styles.modalContainer]}>
+            <View style={[styles.container]}>
+                <View style={[styles.iconBox]}>
+                    <TouchableOpacity style={[styles.closeIcon]} onPress={onDismiss}>
+                        <Icon name="close" size={20} color={COLORS.white} />
+                    </TouchableOpacity>
+                </View>
+                {Boolean(fileList.length) ? (
+                    <FlatList
+                        data={fileList}
+                        renderItem={renderFileList}
+                        contentContainerStyle={{ marginHorizontal: 10 }}
+                        showsVerticalScrollIndicator={false}
+                    />
+                ) : (
+                    <NoDataFound />
+                )}
+                <View style={[styles.btnContainer]}>
+                    <ButtonComponent style={{ height: 40 }} onPress={handlePickFile}>
+                        Select from device
+                    </ButtonComponent>
+                </View>
+            </View>
+        </Modal>
+    );
+};
+
+const styles = StyleSheet.create({
+    modalContainer: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+    },
+    container: {
+        width: '95%',
+        backgroundColor: '#fff',
+        borderRadius: 3,
+        height: RFPercentage(80),
+    },
+    btnContainer: {
+        padding: 10,
+    },
+    closeIcon: {
+        backgroundColor: COLORS.apptheme,
+        height: 30,
+        width: 30,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 30,
+    },
+    iconBox: {
+        alignItems: 'flex-end',
+        padding: 5,
+    },
+    textContainer: {
+        flex: 1,
+        marginEnd: 20,
+    },
+    listBox: {
+        flex: 1,
+        flexDirection: 'row',
+        padding: 10,
+        alignItems: 'center',
+        borderBottomWidth: StyleSheet.hairlineWidth,
+        borderBottomColor: COLORS.grey,
+    },
+    fileText: {
+        fontFamily: 'OpenSans-SemiBold',
+        fontSize: 14,
+        color: COLORS.black,
+    },
+    iconContainer: {
+        flexDirection: 'row',
+    },
+    iconBoxStyle: {
+        marginEnd: 10,
+    },
+});
+
+export default ModalFilePickerWithList;
