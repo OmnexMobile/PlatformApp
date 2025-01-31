@@ -2,8 +2,8 @@ import { ButtonComponent } from 'components';
 import { COLORS } from 'constants/theme-constants';
 import { RFPercentage } from 'helpers/utils';
 import React, { useState } from 'react';
-import { Alert, FlatList, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Divider, Modal } from 'react-native-paper';
+import { Alert, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {  Modal } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/AntDesign';
 import IconI from 'react-native-vector-icons/Ionicons';
 import IconM from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -12,6 +12,7 @@ import uuid from 'react-native-uuid';
 import RNFS from 'react-native-fs';
 import FileViewer from 'react-native-file-viewer';
 import NoDataFound from '../NoDataFound';
+import { showMessage } from 'react-native-flash-message';
 
 const ModalFilePickerWithList = ({ visible = false, onDismiss = () => {} }) => {
     const [fileList, setFileList] = useState([]);
@@ -30,13 +31,30 @@ const ModalFilePickerWithList = ({ visible = false, onDismiss = () => {} }) => {
                     base64Url: base64,
                     fileExtension: fileExtension,
                 };
-                console.log('🚀 ~ file: file-picker.js:28 ~ handleDocumentSelection ~ file', file);
                 setFileList([...fileList, file]);
-            }else{
-                console.warn('File size exceeds 5MB limit.');
+            } else {
+                showMessage({
+                    message: 'File size exceeds 5MB limit.',
+                    backgroundColor: COLORS.ERROR,
+                    color: COLORS.white,
+                    duration: 1500,
+                    statusBarHeight: 40,
+                    icon: 'danger',
+                    position: 'right',
+                    style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+                });
             }
         } catch (err) {
-            console.warn(err);
+            showMessage({
+                message: `${err}`,
+                backgroundColor: COLORS.ERROR,
+                color: COLORS.white,
+                duration: 1500,
+                statusBarHeight: 40,
+                icon: 'danger',
+                position: 'right',
+                style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+            });
         }
     };
     const openBase64File = async (base64String, fileType, name) => {
@@ -53,7 +71,6 @@ const ModalFilePickerWithList = ({ visible = false, onDismiss = () => {} }) => {
             Alert.alert('Error', 'Unable to open file: ' + error.message);
         }
     };
-    console.log(fileList, 'fileList');
     const handleDeletePress = index => {
         let temp = JSON.parse(JSON.stringify(fileList));
         temp.splice(index, 1);
