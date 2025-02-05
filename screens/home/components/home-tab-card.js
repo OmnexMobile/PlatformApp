@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { TouchableOpacity, SafeAreaView, View, FlatList, StyleSheet, Text, Linking, Dimensions } from 'react-native';
+import { TouchableOpacity, SafeAreaView, View, FlatList, StyleSheet, Text, Linking, Dimensions, Modal, Platform } from 'react-native';
 import { Card, IconButton } from 'react-native-paper';
 import { COLORS, FONT_SIZE, SPACING } from 'constants/theme-constants';
 import strings from 'config/localization';
@@ -7,13 +7,20 @@ import { IconComponent, ImageComponent } from 'components';
 import { IMAGES } from 'assets/images';
 import FastImage from 'react-native-fast-image';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
-import { ICON_TYPE, LOCAL_STORAGE_VARIABLES, ROUTES } from 'constants/app-constant';
+import { APP_VARIABLES, ICON_TYPE, LOCAL_STORAGE_VARIABLES, ROUTES } from 'constants/app-constant';
 import { RFPercentage, showWarningMessage } from 'helpers/utils';
 import AsyncStorage from '@react-native-community/async-storage';
 import Toast from 'react-native-simple-toast';
 import { useAppContext } from 'contexts/app-context';
 import localStorage from 'global/localStorage';
 import globalAuth from '../../../services/Auditpro-Auth';
+import auth from '../../../services/APQP-Auth';
+import CryptoJS from 'react-native-crypto-js';
+import { postAPI } from 'global/api-helpers';
+import ApiUrl from 'global/ApiUrl';
+import { Bubbles } from 'react-native-loader';
+import { useDispatch } from 'react-redux';
+import { showMessage } from 'react-native-flash-message';
 
 const screenWidth = Dimensions.get('window').width;
 const TabsCard = ({ countDetails, tabIndex, noTab, navigation }) => {
@@ -27,6 +34,8 @@ const TabsCard = ({ countDetails, tabIndex, noTab, navigation }) => {
     const [isRegister, setIsRegister] = useState(null);
     const [isRegisterPS, setIsRegisterPS] = useState(null);
     const { handleGlobalURL, globalDeviceDetails } = useAppContext();
+    const [loading, setLoading] = useState(false);
+    const dispatch = useDispatch();
 
     const data = [
         {
@@ -72,7 +81,7 @@ const TabsCard = ({ countDetails, tabIndex, noTab, navigation }) => {
                     ? [
                           { images: IMAGES.docproIcon, category: strings.documentLevels, status: 0 },
                           { images: IMAGES.docAction, category: strings.actionList, status: 0 },
-                        //   { images: IMAGES.inProgressConcerns, category: strings.adminActions, status: 0 },
+                          //   { images: IMAGES.inProgressConcerns, category: strings.adminActions, status: 0 },
                       ]
                     : [],
         },
@@ -81,12 +90,12 @@ const TabsCard = ({ countDetails, tabIndex, noTab, navigation }) => {
             title: tabIndex === 0 ? strings.inspectionControl : null,
             detail:
                 tabIndex === 0
-                    ?  [
-                        { images: IMAGES.ICIS, category: strings.inspectionSchedule, status: 1,routeName:ROUTES.INSPECTION_SCHEDULE},
-                        { images: IMAGES.ICOS, category: strings.operatorWorksheet, status: 2, routeName:ROUTES.OPERATOR_WORKSHEET},
-                        { images: IMAGES.ICCI, category: strings.completedInspection, status: 3 ,routeName:ROUTES.COMPLETED_INSPECTION},
-                        { images: IMAGES.ICSS, category: strings.supervisorSchedule, status: 4,routeName:ROUTES.SUPERVISOR_SCHEDULE},
-                    ]
+                    ? [
+                          { images: IMAGES.ICIS, category: strings.inspectionSchedule, status: 1, routeName: ROUTES.INSPECTION_SCHEDULE },
+                          { images: IMAGES.ICOS, category: strings.operatorWorksheet, status: 2, routeName: ROUTES.OPERATOR_WORKSHEET },
+                          { images: IMAGES.ICCI, category: strings.completedInspection, status: 3, routeName: ROUTES.COMPLETED_INSPECTION },
+                          { images: IMAGES.ICSS, category: strings.supervisorSchedule, status: 4, routeName: ROUTES.SUPERVISOR_SCHEDULE },
+                      ]
                     : [],
         },
     ];
@@ -188,7 +197,7 @@ const TabsCard = ({ countDetails, tabIndex, noTab, navigation }) => {
         Toast.showWithGravity('No Settings Data!', Toast.LONG, Toast.TOP);
     };
 
-    const handleNavigation = async (title, status, category, auditTitle,routeName) => {
+    const handleNavigation = async (title, status, category, auditTitle, routeName) => {
         // console.log('handleNavigation params--->', title, status, category, auditTitle)
         console.log('handleNavigation currentUserData?.accessToken--->', currentUserData, globalDeviceDetails?.deviceDetails, category);
         // console.log('checkingNavigation',category);
@@ -248,7 +257,7 @@ const TabsCard = ({ countDetails, tabIndex, noTab, navigation }) => {
                     navigations.navigate(ROUTES.GLOBAL_REGISTER);
                 }
             }
-        } else if (title === strings.documentPro) {
+        }  else if (title === strings.documentPro) {
             if (category == 'Document\nLevels') {
                 navigations.navigate(ROUTES.DOCPRO_DOCUMENTFOLDER);
             } else if (category == 'Actions\nList') {
@@ -256,11 +265,47 @@ const TabsCard = ({ countDetails, tabIndex, noTab, navigation }) => {
             }
             console.log('current click--->', strings.documentPro);
         }else if (title === strings.inspectionControl) {
-                navigations.navigate(routeName);
-            console.log('current click--->', strings.inspectionControl,routeName);
+            localStorage.storeData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL, globalDeviceDetails?.deviceDetails?.ICURL);
+            setLoading(true);
+            loginCallIC(routeName);
+            console.log('*************current click', globalDeviceDetails, category, strings.inspectionControl, routeName);
         } else {
             // console.log('current click--->')
         }
+    };
+    const loginCallIC = async routeName => {
+        let Password = 'a1';
+        var key = CryptoJS.enc.Utf8.parse('8080808080808080');
+        var iv = CryptoJS.enc.Utf8.parse('8080808080808080');
+        var encryptedpassword = CryptoJS.AES.encrypt(CryptoJS.enc.Utf8.parse(Password), key, {
+            keySize: 128 / 8,
+            iv: iv,
+            mode: CryptoJS.mode.CBC,
+            padding: CryptoJS.pad.Pkcs7,
+        });
+        const formData = new FormData();
+        formData.append('UserName', 'swetha');
+        formData.append('RegisteredDeviceId', 'testdevice');
+        formData.append('Password', encryptedpassword.toString());
+        formData.append('LoginFlag', 1);
+        const response = await postAPI(`${ApiUrl.IC_LOGIN}`, formData);
+        if (response?.Success) {
+            let icUserData = {
+                userData: response?.Data[0] || {},
+                token: response?.Token || '',
+            };
+            dispatch({ type: 'IC_USER_DATA', icUserData: icUserData });
+            navigations.navigate(routeName);
+        } else {
+            showMessage({
+                message: `${response.Message}`,
+                backgroundColor: COLORS.ERROR,
+                color: COLORS.white,
+                duration: 1500,
+                style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+            });
+        }
+        setLoading(false);
     };
 
     const Item = ({ title, detail, images }) => (
@@ -282,7 +327,7 @@ const TabsCard = ({ countDetails, tabIndex, noTab, navigation }) => {
                                 onPress={
                                     () =>
                                         // console.log('currentUserData---->', currentUserData)
-                                        handleNavigation(title, items?.status, items?.category, items?.auditTitle,items?.routeName)
+                                        handleNavigation(title, items?.status, items?.category, items?.auditTitle, items?.routeName)
                                     // sendToOtherApps()
                                     // linkApps()
                                 }>
@@ -310,6 +355,19 @@ const TabsCard = ({ countDetails, tabIndex, noTab, navigation }) => {
 
     return (
         <SafeAreaView style={styles.container}>
+            {loading ? (
+                <Modal
+                    transparent={true}
+                    animationType={'none'}
+                    visible={loading}
+                    onRequestClose={() => {
+                        console.log('close modal');
+                    }}>
+                    <View style={styles.modalBackground}>
+                        <Bubbles size={10} color="#12C0CF" />
+                    </View>
+                </Modal>
+            ) : null}
             <FlatList
                 data={data}
                 renderItem={({ item }) => (item.title === null ? null : <Item detail={item.detail} title={item.title} images={item.images} />)}
@@ -401,6 +459,13 @@ const styles = StyleSheet.create({
         width: 36,
         marginVertical: 4,
         marginHorizontal: 8,
+    },
+    modalBackground: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'rgba(0,0,0,0.7)',
+        height: '50%',
     },
 });
 

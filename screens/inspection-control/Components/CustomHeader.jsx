@@ -51,7 +51,7 @@ const CustomHeader = ({
     handleSyncPress = () => {},
     handleFilterPress = () => {},
     handleQRPress = () => {},
-    handleFileIconPress=()=>{}
+    handleFileIconPress = () => {},
 }) => {
     const { width } = useWindowDimensions();
     const navigation = useNavigation();
@@ -96,12 +96,23 @@ const CustomHeader = ({
             </TouchableOpacity>
         );
     };
+    const handleGoBack = () => {
+        console.log(navigation.canGoBack(),'navigation.canGoBack()')
+        if (navigation.canGoBack()) {
+            navigation.goBack();
+        } else {
+            navigation.reset({
+                index: 0,
+                routes: [{ name: ROUTES.HOME_FAB_VIEW }],
+            });
+        }
+    };
     return (
         <SafeAreaView style={[styles.container]}>
             <View style={[styles.headerBox]}>
                 <TouchableOpacity
                     onPress={() => {
-                        navigation.goBack();
+                        handleGoBack()
                     }}>
                     <Icon name="arrowleft" size={25} color={COLORS.white} />
                 </TouchableOpacity>

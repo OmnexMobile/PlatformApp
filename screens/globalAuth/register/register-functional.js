@@ -146,7 +146,8 @@ const RegisterFunctional = ({}) => {
             console.log('state?.globalServerURL-->', state?.globalServerURL)
             handleGlobalURL('serverUrl', state?.globalServerURL)
             localStorage.storeData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL, state?.globalServerURL)
-            handleDeviceDetails(data?.Data)
+            // handleDeviceDetails(data?.Data)
+            handleDeviceDetails({...data?.Data,ICURL:'https://mobility-dev.ewqims.com/InspectionControlAPI/api/'})
             console.log('🚀 ~ file: DEVICE_STATUS ~ res', data, '---', data?.Data);
         } catch (err) {
             console.log('🚀 ~ file: DEVICE_STATUS ~ err', err);

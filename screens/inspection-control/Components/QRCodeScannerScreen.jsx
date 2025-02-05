@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, Text, Alert, Dimensions, TouchableOpacity, Modal, SafeAreaView } from 'react-native';
+import { StyleSheet, View, Text, Alert, Dimensions, TouchableOpacity, Modal, SafeAreaView, StatusBar } from 'react-native';
 import QRCodeScanner from 'react-native-qrcode-scanner';
 import { RNCamera } from 'react-native-camera';
 import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
@@ -37,8 +37,8 @@ const QRCodeScannerScreen = ({ modalVisible, hideModal = () => {} }) => {
 
     return (
         <Modal visible={modalVisible} onDismiss={hideModal} style={{ flex: 1, backgroundColor: '#000' }} onRequestClose={hideModal}>
-            <SafeAreaView style={{ flex: 1, backgroundColor: '#000' }}>
-                <View style={{ position: 'absolute', width: '100%', padding: 10, zIndex: 1000 }}>
+            <SafeAreaView style={{ flex: 1, backgroundColor: '#000'}}>
+                <View style={{ position: 'absolute', width: '100%', padding: 30, zIndex: 10000 }}>
                     <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
                         <TouchableOpacity style={[styles.iconBox]} onPress={hideModal}>
                             <Icon name="close" size={20} color={COLORS.moreIcon} />

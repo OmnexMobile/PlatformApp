@@ -117,7 +117,7 @@ const moreList = [
     },
 ];
 const InspectionSchedule = () => {
-    const { inspectList } = useSelector(state => state.inspection);
+    const { inspectList,icUserData } = useSelector(state => state.inspection);
     const dispatch = useDispatch();
     const {
         profile,
