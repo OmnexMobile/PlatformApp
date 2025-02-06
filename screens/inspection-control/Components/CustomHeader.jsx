@@ -52,6 +52,7 @@ const CustomHeader = ({
     handleFilterPress = () => {},
     handleQRPress = () => {},
     handleFileIconPress = () => {},
+    handleSearch = () => {},
 }) => {
     const { width } = useWindowDimensions();
     const navigation = useNavigation();
@@ -97,7 +98,7 @@ const CustomHeader = ({
         );
     };
     const handleGoBack = () => {
-        console.log(navigation.canGoBack(),'navigation.canGoBack()')
+        console.log(navigation.canGoBack(), 'navigation.canGoBack()');
         if (navigation.canGoBack()) {
             navigation.goBack();
         } else {
@@ -112,7 +113,7 @@ const CustomHeader = ({
             <View style={[styles.headerBox]}>
                 <TouchableOpacity
                     onPress={() => {
-                        handleGoBack()
+                        handleGoBack();
                     }}>
                     <Icon name="arrowleft" size={25} color={COLORS.white} />
                 </TouchableOpacity>
@@ -121,7 +122,11 @@ const CustomHeader = ({
                         <Text style={[styles.headerText]}>{title}</Text>
                     ) : (
                         <Animated.View style={[{ width: widthAnim }]}>
-                            <InputWithSearch />
+                            <InputWithSearch
+                                onSearch={val => {
+                                    handleSearch(val);
+                                }}
+                            />
                         </Animated.View>
                     )}
                 </View>
@@ -150,7 +155,7 @@ const CustomHeader = ({
                                 </TouchableOpacity>
                             )}
                             {activeTabId == 4 && (
-                                <TouchableOpacity onPress={handleFilterPress}>
+                                <TouchableOpacity onPress={()=>{handleFilterPress()}}>
                                     <Icon name="filter" size={25} style={styles.iconButton} color={COLORS.white} />
                                 </TouchableOpacity>
                             )}

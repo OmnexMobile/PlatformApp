@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { FlatList, Platform, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import CustomHeader from '../Components/CustomHeader';
 import { COLORS } from 'constants/theme-constants';
-import { useNavigation } from '@react-navigation/native';
+import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { PLACEHOLDERS, ROUTES } from 'constants/app-constant';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import IconF from 'react-native-vector-icons/Feather';
@@ -19,6 +19,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { showMessage } from 'react-native-flash-message';
 import QRCodeScannerScreen from '../Components/QRCodeScannerScreen';
 import NoDataFound from '../Components/NoDataFound';
+import { postAPI } from 'global/api-helpers';
+import ApiUrl from 'global/ApiUrl';
 
 const dummyData = [
     {
@@ -117,8 +119,9 @@ const moreList = [
     },
 ];
 const InspectionSchedule = () => {
-    const { inspectList,icUserData } = useSelector(state => state.inspection);
+    const { inspectList, icUserData } = useSelector(state => state.inspection);
     const dispatch = useDispatch();
+    const isFocused = useIsFocused();
     const {
         profile,
         sites: { selectedSite },
@@ -134,19 +137,13 @@ const InspectionSchedule = () => {
     const [showSkeleton, setShowSkeleton] = useState(false);
     const [masterData, setMasterData] = useState([]);
     const [showQR, setShowQR] = useState(false);
-    const [ refreshing,setRefreshing]=useState(false)
-    setTimeout(() => {
-        setRefreshing(false);
-    }, 1000);
-    setTimeout(() => {
-        setShowSkeleton(false);
-    }, 1000);
+    const [refreshing, setRefreshing] = useState(false);
 
     const handleFilePress = () => {
         setShowFileModal(true);
     };
 
-    const handleListFetch = (inspect = '',showSktn=true) => {
+    const handleListFetch = async (inspect = '', showSktn = true) => {
         showSktn && setShowSkeleton(true);
         const { startDate, endDate, type } = filterData;
         let dateFlag = startDate !== '' && endDate !== '';
@@ -154,31 +151,28 @@ const InspectionSchedule = () => {
         formData.append('UserID', profile?.UserId);
         formData.append('SiteID', parseInt(selectedSite?.Siteid));
         formData.append('LanguageID', 1);
-        formData.append('StartDate', dateFlag ? startDate : '');
-        formData.append('EndDate', dateFlag ? endDate : '');
+        // formData.append('StartDate', dateFlag ? moment(startDate).format('YYYY-MM-DD') : '');
+        // formData.append('EndDate', dateFlag ? moment(endDate).format('YYYY-MM-DD') : '');
         formData.append('InspectionType', inspect || type);
-        if (dummyData.length) {
-            setMasterData(dummyData);
+        const response = await postAPI(`${ApiUrl.IC_GET_IS}`, formData);
+        if (response.Success) {
+            setMasterData(response?.Data || []);
         } else {
             setMasterData([]);
         }
-    };
 
-    // useEffect(() => {
-    //     const { startDate, endDate } = filterData;
-    //     if (startDate !== '' && endDate !== '') {
-    //         handleListFetch();
-    //     }
-    // }, [filterData]);
+        setRefreshing(false);
+        showSktn && setShowSkeleton(false);
+    };
 
     const handleInputChange = (key, value) => {
         setFilterData(pre => ({ ...pre, [key]: value }));
     };
     useEffect(() => {
-        if (selectedSite?.Siteid) {
+        if (selectedSite?.Siteid && isFocused) {
             handleListFetch();
         }
-    }, [selectedSite?.Siteid]);
+    }, [selectedSite?.Siteid, isFocused]);
 
     const handleCIbtnpress = () => {
         navigation.navigate(ROUTES.COMPLETED_INSPECTION);
@@ -265,10 +259,10 @@ const InspectionSchedule = () => {
             </View>
         );
     };
-    const onRefresh=()=>{
-        setRefreshing(true)
-        handleListFetch(filterData.type,false)
-    }
+    const onRefresh = () => {
+        setRefreshing(true);
+        handleListFetch(filterData.type, false);
+    };
 
     return (
         <CustomHeader
@@ -276,7 +270,9 @@ const InspectionSchedule = () => {
             activeTabId={1}
             handleQRPress={() => {
                 setShowQR(true);
-            }}>
+            }} hideSearch={isFocused}
+            handleSearch={(value)=>{console.log(value,'searchval')}}
+            >
             <View style={[styles.mainContainer]}>
                 <View style={[styles.overAllBox]}>
                     <View style={[styles.filterBox]}>
@@ -301,8 +297,8 @@ const InspectionSchedule = () => {
                             dataList={filterList}
                             type="BtnFilter"
                             onSelectedPress={val => {
-                                handleListFetch(val.title);
-                                handleInputChange('type', val.title);
+                                handleListFetch(val.id);
+                                handleInputChange('type', val.id);
                             }}
                         />
                     </View>
@@ -318,16 +314,16 @@ const InspectionSchedule = () => {
                 </View>
                 {showSkeleton ? (
                     <IcSkeleton type={PLACEHOLDERS.INSPECTION_CARD} />
-                ) : (
-                    Boolean(masterData?.length)?<FlatList
+                ) : Boolean(masterData?.length) ? (
+                    <FlatList
                         data={masterData}
                         renderItem={renderData}
-                        keyExtractor={item => item?.ICInspectionEntryID}
+                        keyExtractor={item => item?.ICInspectionEntryDetailsID}
                         showsVerticalScrollIndicator={false}
-                        refreshControl={
-                            <RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>
-                        }
-                    />:<NoDataFound/>
+                        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+                    />
+                ) : (
+                    <NoDataFound />
                 )}
                 <View style={[styles.bottombox]}>
                     <Text style={[styles.bottomText]}>Total Inspections </Text>

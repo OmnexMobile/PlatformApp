@@ -200,7 +200,8 @@ const SupervisorSchedule = () => {
             activeTabId={4}
             handleFilterPress={() => {
                 setShowFilterList(true);
-            }}>
+            }}
+            >
             <View style={[styles.container]}>
                 {Boolean(showSkeleton) ? (
                     <IcSkeleton type={PLACEHOLDERS.SUPERVISOR_CARD} />

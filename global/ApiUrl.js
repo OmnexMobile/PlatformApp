@@ -29,5 +29,6 @@ module.exports = {
     GET_USERS: '/api/?results=5',
     GET_TEAM_LIST: 'Teams/List?',
     GET_TEAM_USERS: 'Teams/Users',
-    IC_LOGIN:'Login'
+    IC_LOGIN:'Login',
+    IC_GET_IS:'GetInspectionSchedule'
 };

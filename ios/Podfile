@@ -3,7 +3,8 @@ require_relative '../node_modules/@react-native-community/cli-platform-ios/nativ
 
 platform :ios, '12.4'
 install! 'cocoapods', :deterministic_uuids => false
-
+# Add Flipper dependencies
+use_flipper!({ 'Flipper' => '0.125.0' }) # Use the appropriate Flipper version
 target 'IntegratedApp' do
   config = use_native_modules!
 
@@ -54,6 +55,7 @@ target 'IntegratedApp' do
   end
 
   post_install do |installer|
+    flipper_post_install(installer)
     installer.generated_projects.each do |project|
       project.targets.each do |target|
           target.build_configurations.each do |config|
