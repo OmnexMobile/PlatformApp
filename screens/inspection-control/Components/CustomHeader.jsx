@@ -1,7 +1,7 @@
 import { useNavigation } from '@react-navigation/native';
 import { ListSearch } from 'components';
 import { COLORS, FONT_SIZE } from 'constants/theme-constants';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Animated, FlatList, Platform, SafeAreaView, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import Icon from 'react-native-vector-icons/AntDesign';
 import IconF from 'react-native-vector-icons/FontAwesome';
@@ -53,11 +53,23 @@ const CustomHeader = ({
     handleQRPress = () => {},
     handleFileIconPress = () => {},
     handleSearch = () => {},
+    searchValue=''
 }) => {
     const { width } = useWindowDimensions();
     const navigation = useNavigation();
     const [isExpanded, setIsExpanded] = useState(false);
     const widthAnim = useRef(new Animated.Value(0)).current;
+
+    useEffect(()=>{
+        if(searchValue?.length){
+            setIsExpanded(true);
+            Animated.timing(widthAnim, {
+                toValue: activeTabId !== 4 ? width / 1.8 : width / 2.2,
+                duration: 0,
+                useNativeDriver: false,
+            }).start();
+        }
+    },[searchValue])
 
     const toggleSearchBar = () => {
         if (isExpanded) {
@@ -69,7 +81,6 @@ const CustomHeader = ({
         } else {
             setIsExpanded(true);
             Animated.timing(widthAnim, {
-                // toValue: activeTabId !== 4 ? RFPercentage(Platform.OS === 'android' ? 29 : 27) : RFPercentage(Platform.OS === 'android' ? 26 : 23), // Width in pixels
                 toValue: activeTabId !== 4 ? width / 1.8 : width / 2.2,
                 duration: 300,
                 useNativeDriver: false,
@@ -126,6 +137,7 @@ const CustomHeader = ({
                                 onSearch={val => {
                                     handleSearch(val);
                                 }}
+                                searchValue={searchValue}
                             />
                         </Animated.View>
                     )}

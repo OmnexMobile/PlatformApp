@@ -22,75 +22,11 @@ import NoDataFound from '../Components/NoDataFound';
 import { postAPI } from 'global/api-helpers';
 import ApiUrl from 'global/ApiUrl';
 
-const dummyData = [
-    {
-        ICInspectionEntryID: 1,
-        ICInspectionLotDetailsID: 2,
-        ICInspectionEntryDetailsID: 2,
-        ProductionItemID: 21727,
-        ProductionItemName: 'Battery Management System',
-        OperationName: 'Voltage reading',
-        OperationID: '21777',
-        EnteredDate: '2024-05-23T18:13:34',
-        InspectionType: '2',
-    },
-    {
-        ICInspectionEntryID: 2,
-        ICInspectionLotDetailsID: 3,
-        ICInspectionEntryDetailsID: 3,
-        ProductionItemID: 31727,
-        ProductionItemName: 'Battery Management System 1',
-        OperationName: 'Voltage reading 1',
-        OperationID: '21777',
-        EnteredDate: '2024-05-23T18:13:34',
-        InspectionType: '2',
-    },
-    {
-        ICInspectionEntryID: 3,
-        ICInspectionLotDetailsID: 4,
-        ICInspectionEntryDetailsID: 4,
-        ProductionItemID: 43727,
-        ProductionItemName: 'Battery Management System 2',
-        OperationName: 'Voltage reading 2',
-        OperationID: '21777',
-        EnteredDate: '2024-05-23T18:13:34',
-        InspectionType: '1',
-    },
-    {
-        ICInspectionEntryID: 4,
-        ICInspectionLotDetailsID: 5,
-        ICInspectionEntryDetailsID: 5,
-        ProductionItemID: 56427,
-        ProductionItemName: 'Battery Management System 3',
-        OperationName: 'Voltage reading 3',
-        OperationID: '21777',
-        EnteredDate: '2024-05-23T18:13:34',
-        InspectionType: '3',
-    },
-    {
-        ICInspectionEntryID: 5,
-        ICInspectionLotDetailsID: 6,
-        ICInspectionEntryDetailsID: 6,
-        ProductionItemID: 72447,
-        ProductionItemName: 'Battery Management System 4',
-        OperationName: 'Voltage reading 4',
-        OperationID: '21777',
-        EnteredDate: '2024-05-23T18:13:34',
-        InspectionType: '1',
-    },
-    {
-        ICInspectionEntryID: 6,
-        ICInspectionLotDetailsID: 7,
-        ICInspectionEntryDetailsID: 7,
-        ProductionItemID: 91727,
-        ProductionItemName: 'Battery Management System 5',
-        OperationName: 'Voltage reading 5',
-        OperationID: '21777',
-        EnteredDate: '2024-05-23T18:13:34',
-        InspectionType: '2',
-    },
-];
 const filterList = [
+    {
+        id: 0,
+        title: 'All',
+    },
     {
         id: 1,
         title: 'Receiving Inspection',
@@ -136,14 +72,15 @@ const InspectionSchedule = () => {
     const [showFileModal, setShowFileModal] = useState(false);
     const [showSkeleton, setShowSkeleton] = useState(false);
     const [masterData, setMasterData] = useState([]);
+    const [overAllData,setOverAllData]=useState([])
     const [showQR, setShowQR] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
-
+    const [search, setSearch] = useState('');
     const handleFilePress = () => {
         setShowFileModal(true);
     };
 
-    const handleListFetch = async (inspect = '', showSktn = true) => {
+    const handleListFetch = async (inspect = null, showSktn = true) => {
         showSktn && setShowSkeleton(true);
         const { startDate, endDate, type } = filterData;
         let dateFlag = startDate !== '' && endDate !== '';
@@ -153,12 +90,14 @@ const InspectionSchedule = () => {
         formData.append('LanguageID', 1);
         // formData.append('StartDate', dateFlag ? moment(startDate).format('YYYY-MM-DD') : '');
         // formData.append('EndDate', dateFlag ? moment(endDate).format('YYYY-MM-DD') : '');
-        formData.append('InspectionType', inspect || type);
+        formData.append('InspectionType', inspect!==null?inspect:type);
         const response = await postAPI(`${ApiUrl.IC_GET_IS}`, formData);
         if (response.Success) {
             setMasterData(response?.Data || []);
+            setOverAllData(response?.Data || [])
         } else {
             setMasterData([]);
+            setOverAllData([])
         }
 
         setRefreshing(false);
@@ -170,7 +109,7 @@ const InspectionSchedule = () => {
     };
     useEffect(() => {
         if (selectedSite?.Siteid && isFocused) {
-            handleListFetch();
+            handleListFetch(null);
         }
     }, [selectedSite?.Siteid, isFocused]);
 
@@ -190,7 +129,7 @@ const InspectionSchedule = () => {
             const tempStart = moment(startDate);
             const tempEnd = moment(endDate);
             if (tempStart.isBefore(tempEnd)) {
-                handleListFetch();
+                handleListFetch(null);
             } else {
                 showMessage({
                     message: 'Start Date must be less than End Date',
@@ -234,7 +173,7 @@ const InspectionSchedule = () => {
                         Operation Name : <Text style={[styles.secondText]}>{item?.OperationName}</Text>
                     </Text>
                     <Text style={[styles.operationText]}>
-                        Invoice No : <Text style={[styles.secondText]}>{item?.ProductionItemID}</Text>
+                        Invoice No : <Text style={[styles.secondText]}>{item?.ProductionItemId}</Text>
                     </Text>
                 </View>
                 <View style={[styles.lastBox]}>
@@ -261,17 +200,46 @@ const InspectionSchedule = () => {
     };
     const onRefresh = () => {
         setRefreshing(true);
+        setSearch('')
         handleListFetch(filterData.type, false);
     };
+    const handleSearch=(value)=>{
+        let temp=JSON.parse(JSON.stringify(overAllData))
+        if(value.length){
+            const tempSearch=temp.filter((item)=>item.ProductionItemName.toLowerCase().includes(value.toLowerCase()) || item.OperationName.toLowerCase().includes(value.toLowerCase()) )
+            setMasterData(tempSearch)
+        }else{
+            setMasterData(overAllData)
+        }
 
+    }
+    useEffect(() => {
+        var handler;
+        if(search.length && isFocused){
+            handler = setTimeout(() => {
+                handleSearch(search);
+              }, 500);
+        }
+        return () => {
+          clearTimeout(handler);
+        };
+    }, [search,isFocused]);
     return (
         <CustomHeader
             title="Inspection Schedule"
             activeTabId={1}
             handleQRPress={() => {
                 setShowQR(true);
-            }} hideSearch={isFocused}
-            handleSearch={(value)=>{console.log(value,'searchval')}}
+            }}
+            hideSearch={isFocused}
+            handleSearch={value => {
+                setSearch(value);
+
+                if(!value?.length){
+                    handleSearch('')
+                }
+            }}
+            searchValue={search}
             >
             <View style={[styles.mainContainer]}>
                 <View style={[styles.overAllBox]}>
@@ -297,8 +265,8 @@ const InspectionSchedule = () => {
                             dataList={filterList}
                             type="BtnFilter"
                             onSelectedPress={val => {
-                                handleListFetch(val.id);
-                                handleInputChange('type', val.id);
+                                handleListFetch(val.id!=0?val.id:'');
+                                handleInputChange('type', val.id!=0?val.id:'');
                             }}
                         />
                     </View>

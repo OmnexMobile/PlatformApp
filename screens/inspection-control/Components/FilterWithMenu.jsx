@@ -75,7 +75,7 @@ const FilterWithMenu = ({ dataList = [], type = 'IconFilter', onSelectedPress = 
             {dataList?.map((item, index) => {
                 return (
                     <TouchableOpacity
-                        key={item?.id}
+                        key={index+1}
                         style={{
                             flexDirection: 'row',
                             alignItems: item?.iconName ? 'center' : 'baseline',

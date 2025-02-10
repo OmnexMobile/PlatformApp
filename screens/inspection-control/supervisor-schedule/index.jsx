@@ -201,6 +201,7 @@ const SupervisorSchedule = () => {
             handleFilterPress={() => {
                 setShowFilterList(true);
             }}
+            searchValue=''
             >
             <View style={[styles.container]}>
                 {Boolean(showSkeleton) ? (

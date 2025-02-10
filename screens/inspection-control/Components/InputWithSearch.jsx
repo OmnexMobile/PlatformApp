@@ -3,14 +3,11 @@ import React, { useEffect, useState } from 'react';
 import { View, TextInput, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 
-const InputWithSearch = ({ placeholder, onSearch ,clearText=false}) => {
+const InputWithSearch = ({ placeholder, onSearch ,clearText=false,searchValue=''}) => {
     const [search, setSearch] = useState('');
-    console.log(clearText,'clearTextclearText')
     useEffect(()=>{
-      if(clearText){
-        setSearch('')
-      }
-    },[clearText])
+        setSearch(searchValue)
+    },[searchValue])
     return (
         <View style={styles.container}>
             <TextInput style={styles.input} placeholder={placeholder || 'Search...'} placeholderTextColor="#888" onChangeText={(text)=>{
