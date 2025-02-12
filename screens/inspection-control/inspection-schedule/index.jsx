@@ -55,7 +55,7 @@ const moreList = [
     },
 ];
 const InspectionSchedule = () => {
-    const { inspectList, icUserData } = useSelector(state => state.inspection);
+    const { inspectList, icUserData, icSettings } = useSelector(state => state.inspection);
     const dispatch = useDispatch();
     const isFocused = useIsFocused();
     const {
@@ -72,14 +72,14 @@ const InspectionSchedule = () => {
     const [showFileModal, setShowFileModal] = useState(false);
     const [showSkeleton, setShowSkeleton] = useState(false);
     const [masterData, setMasterData] = useState([]);
-    const [overAllData,setOverAllData]=useState([])
+    const [overAllData, setOverAllData] = useState([]);
     const [showQR, setShowQR] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
     const [search, setSearch] = useState('');
+
     const handleFilePress = () => {
         setShowFileModal(true);
     };
-
     const handleListFetch = async (inspect = null, showSktn = true) => {
         showSktn && setShowSkeleton(true);
         const { startDate, endDate, type } = filterData;
@@ -88,22 +88,20 @@ const InspectionSchedule = () => {
         formData.append('UserID', profile?.UserId);
         formData.append('SiteID', parseInt(selectedSite?.Siteid));
         formData.append('LanguageID', 1);
-        // formData.append('StartDate', dateFlag ? moment(startDate).format('YYYY-MM-DD') : '');
-        // formData.append('EndDate', dateFlag ? moment(endDate).format('YYYY-MM-DD') : '');
-        formData.append('InspectionType', inspect!==null?inspect:type);
+        formData.append('StartDate', dateFlag ? moment(startDate).format('YYYY-MM-DD') : '');
+        formData.append('EndDate', dateFlag ? moment(endDate).format('YYYY-MM-DD') : '');
+        formData.append('InspectionType', inspect !== null ? inspect : type);
         const response = await postAPI(`${ApiUrl.IC_GET_IS}`, formData);
         if (response.Success) {
             setMasterData(response?.Data || []);
-            setOverAllData(response?.Data || [])
+            setOverAllData(response?.Data || []);
         } else {
             setMasterData([]);
-            setOverAllData([])
+            setOverAllData([]);
         }
-
         setRefreshing(false);
         showSktn && setShowSkeleton(false);
     };
-
     const handleInputChange = (key, value) => {
         setFilterData(pre => ({ ...pre, [key]: value }));
     };
@@ -112,7 +110,6 @@ const InspectionSchedule = () => {
             handleListFetch(null);
         }
     }, [selectedSite?.Siteid, isFocused]);
-
     const handleCIbtnpress = () => {
         navigation.navigate(ROUTES.COMPLETED_INSPECTION);
     };
@@ -173,7 +170,7 @@ const InspectionSchedule = () => {
                         Operation Name : <Text style={[styles.secondText]}>{item?.OperationName}</Text>
                     </Text>
                     <Text style={[styles.operationText]}>
-                        Invoice No : <Text style={[styles.secondText]}>{item?.ProductionItemId}</Text>
+                        Invoice No : <Text style={[styles.secondText]}>{item?.OrderNumber ? item?.OrderNumber : '-'}</Text>
                     </Text>
                 </View>
                 <View style={[styles.lastBox]}>
@@ -200,30 +197,33 @@ const InspectionSchedule = () => {
     };
     const onRefresh = () => {
         setRefreshing(true);
-        setSearch('')
+        setSearch('');
         handleListFetch(filterData.type, false);
     };
-    const handleSearch=(value)=>{
-        let temp=JSON.parse(JSON.stringify(overAllData))
-        if(value.length){
-            const tempSearch=temp.filter((item)=>item.ProductionItemName.toLowerCase().includes(value.toLowerCase()) || item.OperationName.toLowerCase().includes(value.toLowerCase()) )
-            setMasterData(tempSearch)
-        }else{
-            setMasterData(overAllData)
+    const handleSearch = value => {
+        let temp = JSON.parse(JSON.stringify(overAllData));
+        if (value.length) {
+            const tempSearch = temp.filter(
+                item =>
+                    item.ProductionItemName.toLowerCase().includes(value.toLowerCase()) ||
+                    item.OperationName.toLowerCase().includes(value.toLowerCase()),
+            );
+            setMasterData(tempSearch);
+        } else {
+            setMasterData(overAllData);
         }
-
-    }
+    };
     useEffect(() => {
         var handler;
-        if(search.length && isFocused){
+        if (search.length && isFocused) {
             handler = setTimeout(() => {
                 handleSearch(search);
-              }, 500);
+            }, 500);
         }
         return () => {
-          clearTimeout(handler);
+            clearTimeout(handler);
         };
-    }, [search,isFocused]);
+    }, [search, isFocused]);
     return (
         <CustomHeader
             title="Inspection Schedule"
@@ -234,13 +234,14 @@ const InspectionSchedule = () => {
             hideSearch={isFocused}
             handleSearch={value => {
                 setSearch(value);
-
-                if(!value?.length){
-                    handleSearch('')
+                if (!value?.length) {
+                    handleSearch('');
                 }
             }}
             searchValue={search}
-            >
+            handleClosePress={() => {
+                console.log('close prsss');
+            }}>
             <View style={[styles.mainContainer]}>
                 <View style={[styles.overAllBox]}>
                     <View style={[styles.filterBox]}>
@@ -265,8 +266,8 @@ const InspectionSchedule = () => {
                             dataList={filterList}
                             type="BtnFilter"
                             onSelectedPress={val => {
-                                handleListFetch(val.id!=0?val.id:'');
-                                handleInputChange('type', val.id!=0?val.id:'');
+                                handleListFetch(val.id != 0 ? val.id : '');
+                                handleInputChange('type', val.id != 0 ? val.id : '');
                             }}
                         />
                     </View>

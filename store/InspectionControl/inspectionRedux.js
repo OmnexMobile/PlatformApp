@@ -8,7 +8,8 @@ import Immutable from 'seamless-immutable';
 const { Types, Creators } = createActions({
   // Define your actions here
   inspectList:['inspectList'],
-  icUserData:["icUserData"]
+  icUserData:["icUserData"],
+  icSettings:["icSettings"]
 });
 
 export const InspectTypes = Types;
@@ -19,6 +20,7 @@ export default Creators;
 export const INITIAL_STATE = {
     inspectList: [], 
     icUserData:{},
+    icSettings:{},
 };
 
 /* ------------- Reducers ------------- */
@@ -30,10 +32,14 @@ const storeInspectList = (state, { inspectList }) => {
 const storeIcUserData=(state, { icUserData })=>{
   return {...state,icUserData:icUserData}
 }
+const storeIcSettings=(state, { icSettings })=>{
+  return {...state,icSettings:icSettings}
+}
 /* ------------- Hookup Reducers To Types ------------- */
 const rawReducer = createReducer(INITIAL_STATE, {
   [Types.INSPECT_LIST]: storeInspectList,
   [Types.IC_USER_DATA]: storeIcUserData,
+  [Types.IC_SETTINGS]: storeIcSettings,
 });
 const persistConfig = {
   key: 'inspect', // Unique key for the reducer's data

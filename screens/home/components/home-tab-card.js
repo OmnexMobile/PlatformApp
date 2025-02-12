@@ -294,7 +294,11 @@ const TabsCard = ({ countDetails, tabIndex, noTab, navigation }) => {
                 userData: response?.Data[0] || {},
                 token: response?.Token || '',
             };
+            const icSettings={
+                IsRespPartyNonEditable:1
+            } 
             dispatch({ type: 'IC_USER_DATA', icUserData: icUserData });
+            dispatch({ type: 'IC_SETTINGS', icSettings: icSettings });
             navigations.navigate(routeName);
         } else {
             showMessage({

@@ -1,8 +1,7 @@
 import { useNavigation } from '@react-navigation/native';
-import { ListSearch } from 'components';
 import { COLORS, FONT_SIZE } from 'constants/theme-constants';
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, FlatList, Platform, SafeAreaView, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
+import { Animated, FlatList, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import Icon from 'react-native-vector-icons/AntDesign';
 import IconF from 'react-native-vector-icons/FontAwesome';
 import IconI from 'react-native-vector-icons/Ionicons';
@@ -13,7 +12,6 @@ import OperatorWorksheetSvg from '../../../assets/images/svg/operator-worksheet.
 import CompletedInspectionnSvg from '../../../assets/images/svg/completed-inspection.svg';
 import SupervisorScheduleSvg from '../../../assets/images/svg/supervisor-schedule.svg';
 import { ROUTES } from 'constants/app-constant';
-import { RFPercentage } from 'helpers/utils';
 
 const footerList = [
     {
@@ -53,15 +51,16 @@ const CustomHeader = ({
     handleQRPress = () => {},
     handleFileIconPress = () => {},
     handleSearch = () => {},
-    searchValue=''
+    searchValue = '',
+    handleClosePress=()=>{}
 }) => {
     const { width } = useWindowDimensions();
     const navigation = useNavigation();
     const [isExpanded, setIsExpanded] = useState(false);
     const widthAnim = useRef(new Animated.Value(0)).current;
 
-    useEffect(()=>{
-        if(searchValue?.length){
+    useEffect(() => {
+        if (searchValue?.length) {
             setIsExpanded(true);
             Animated.timing(widthAnim, {
                 toValue: activeTabId !== 4 ? width / 1.8 : width / 2.2,
@@ -69,7 +68,7 @@ const CustomHeader = ({
                 useNativeDriver: false,
             }).start();
         }
-    },[searchValue])
+    }, [searchValue]);
 
     const toggleSearchBar = () => {
         if (isExpanded) {
@@ -109,7 +108,6 @@ const CustomHeader = ({
         );
     };
     const handleGoBack = () => {
-        console.log(navigation.canGoBack(), 'navigation.canGoBack()');
         if (navigation.canGoBack()) {
             navigation.goBack();
         } else {
@@ -140,6 +138,9 @@ const CustomHeader = ({
                                 searchValue={searchValue}
                             />
                         </Animated.View>
+                        // <View>
+                        //     <TextInput onChangeText={()=>{}} placeholder='Search......'  placeholderTextColor={COLORS.white} style={styles.inputBox}/>
+                        // </View>
                     )}
                 </View>
                 <View style={[styles.rightIconList]}>
@@ -149,6 +150,9 @@ const CustomHeader = ({
                                 <TouchableOpacity
                                     onPress={() => {
                                         toggleSearchBar();
+                                        if(isExpanded){
+                                            handleClosePress()
+                                        }
                                     }}>
                                     <Icon name={!isExpanded ? 'search1' : 'close'} size={25} style={styles.iconButton} color={COLORS.white} />
                                 </TouchableOpacity>
@@ -167,7 +171,10 @@ const CustomHeader = ({
                                 </TouchableOpacity>
                             )}
                             {activeTabId == 4 && (
-                                <TouchableOpacity onPress={()=>{handleFilterPress()}}>
+                                <TouchableOpacity
+                                    onPress={() => {
+                                        handleFilterPress();
+                                    }}>
                                     <Icon name="filter" size={25} style={styles.iconButton} color={COLORS.white} />
                                 </TouchableOpacity>
                             )}
@@ -260,5 +267,10 @@ const styles = StyleSheet.create({
     animatedContainer: {
         flex: 1,
     },
+    inputBox:{
+        color:COLORS.white,
+        fontFamily:'OpenSans-SemiBold',
+        fontSize:16,
+    }
 });
 export default CustomHeader;
