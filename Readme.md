@@ -20,3 +20,6 @@ npx react-native bundle --platform android --dev false --entry-file index.js --b
 
 To create debug build
 cd android && ./gradlew clean && ./gradlew assembleDebug
+
+To create Apk
+cd android && ./gradlew clean && ./gradlew assembleRelease

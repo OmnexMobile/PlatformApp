@@ -2,7 +2,9 @@
     "name": "integratedapp",
     "version": "0.0.1",
     "private": true,
-    "reactNativePermissionsIOS": ["Camera"],
+    "reactNativePermissionsIOS": [
+        "Camera"
+    ],
     "scripts": {
         "android": "react-native run-android",
         "ios": "react-native run-ios",
