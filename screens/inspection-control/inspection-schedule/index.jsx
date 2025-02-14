@@ -85,8 +85,8 @@ const InspectionSchedule = () => {
         const { startDate, endDate, type } = filterData;
         let dateFlag = startDate !== '' && endDate !== '';
         const formData = new FormData();
-        formData.append('UserID', profile?.UserId);
-        formData.append('SiteID', parseInt(selectedSite?.Siteid));
+        formData.append('UserID', icUserData?.userData?.UserId);
+        formData.append('SiteID', parseInt(icUserData?.userData?.Siteid));
         formData.append('LanguageID', 1);
         formData.append('StartDate', dateFlag ? moment(startDate).format('YYYY-MM-DD') : '');
         formData.append('EndDate', dateFlag ? moment(endDate).format('YYYY-MM-DD') : '');
@@ -106,10 +106,10 @@ const InspectionSchedule = () => {
         setFilterData(pre => ({ ...pre, [key]: value }));
     };
     useEffect(() => {
-        if (selectedSite?.Siteid && isFocused) {
+        if (icUserData && isFocused) {
             handleListFetch(null);
         }
-    }, [selectedSite?.Siteid, isFocused]);
+    }, [icUserData, isFocused]);
     const handleCIbtnpress = () => {
         navigation.navigate(ROUTES.COMPLETED_INSPECTION);
     };
@@ -310,13 +310,13 @@ const InspectionSchedule = () => {
                     Completed Inspections
                 </ButtonComponent>
             </View>
-            <InputDataModal
+           {showModal&& <InputDataModal
                 modalVisible={showModal}
                 hideModal={() => {
                     setShowModal(false);
                 }}
                 handleSubmitPress={handleSubmitPress}
-            />
+            />}
             <FileViewModal
                 visible={showFileModal}
                 onDismiss={() => {

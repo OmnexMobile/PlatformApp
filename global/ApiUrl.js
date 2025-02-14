@@ -30,5 +30,6 @@ module.exports = {
     GET_TEAM_LIST: 'Teams/List?',
     GET_TEAM_USERS: 'Teams/Users',
     IC_LOGIN:'Login',
-    IC_GET_IS:'GetInspectionSchedule'
+    IC_GET_IS:'GetInspectionSchedule',
+    IC_SETTINGS:'GetICSettings'
 };

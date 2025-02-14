@@ -294,12 +294,12 @@ const TabsCard = ({ countDetails, tabIndex, noTab, navigation }) => {
                 userData: response?.Data[0] || {},
                 token: response?.Token || '',
             };
-            const icSettings={
-                IsRespPartyNonEditable:1
-            } 
             dispatch({ type: 'IC_USER_DATA', icUserData: icUserData });
-            dispatch({ type: 'IC_SETTINGS', icSettings: icSettings });
-            navigations.navigate(routeName);
+            const settingsRes=await postAPI(`${ApiUrl.IC_SETTINGS}`)
+            if(settingsRes.Success){
+                dispatch({ type: 'IC_SETTINGS', icSettings: settingsRes?.Data[0] || {} });
+                navigations.navigate(routeName);
+            }
         } else {
             showMessage({
                 message: `${response.Message}`,

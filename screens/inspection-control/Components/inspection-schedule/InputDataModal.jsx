@@ -1,10 +1,12 @@
 import { RadioButton } from 'components';
 import { COLORS } from 'constants/theme-constants';
-import React from 'react';
+import React, { useState } from 'react';
 import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Divider, Modal } from 'react-native-paper';
 import { RFPercentage } from 'react-native-responsive-fontsize';
 import SingleDropDown from '../SingleDropDown';
+import DynamicDropDown from '../DynamicDropDown';
+import { useSelector } from 'react-redux';
 const data = [
     { label: 'Default', value: '1' },
     { label: 'Noon shift', value: '2' },
@@ -16,20 +18,46 @@ const data = [
     { label: 'wc Shift', value: '8' },
 ];
 const InputDataModal = ({ modalVisible = false, hideModal = () => {}, handleSubmitPress = () => {} }) => {
+    const { icSettings } = useSelector(state => state.inspection);
+    console.log(icSettings,'*********icSettings')
+    const [formData, setFormData] = useState({
+        shift: '',
+        lotNumber: '',
+        lotQty: '',
+        frequency: '',
+        responsible: [],
+    });
     return (
         <Modal
             visible={modalVisible}
             onDismiss={hideModal}
-            contentContainerStyle={{ flexDirection: 'row', justifyContent: 'center', width: '90%', alignSelf: 'center' }}>
-            <ScrollView style={[styles.container]}>
-                <View style={[styles.containerOne]}>
-                    <Text style={styles.headertext}>Form Input Data</Text>
-                    <Divider />
+            contentContainerStyle={{
+                backgroundColor: '#fff',
+                width: '90%',
+                alignSelf: 'center',
+                height: 500,
+                paddingHorizontal: 20,
+                paddingTop: 20,
+            }}>
+            <Text style={styles.headertext}>Form Input Data</Text>
+            <Divider />
+            <ScrollView style={[styles.container]} nestedScrollEnabled showsVerticalScrollIndicator={false}>
+                <View style={[]}>
                     <View style={[styles.inputContainer]}>
                         <Text style={styles.inputText}>
                             Shift <Text style={[styles.rquired]}>*</Text>
                         </Text>
-                        <SingleDropDown data={data} backgroundColor={COLORS.white} borderWidth={1} marginTop={15} title='' borderRadius={4}  borderColor={COLORS.icBottomBox} showSearch={false} maxHeight={200} />
+                        <SingleDropDown
+                            data={data}
+                            backgroundColor={COLORS.white}
+                            borderWidth={1}
+                            marginTop={15}
+                            title=""
+                            borderRadius={4}
+                            borderColor={COLORS.icBottomBox}
+                            showSearch={false}
+                            maxHeight={200}
+                        />
                     </View>
                     <View style={[styles.inputContainer]}>
                         <Text style={styles.inputText}>
@@ -47,25 +75,44 @@ const InputDataModal = ({ modalVisible = false, hideModal = () => {}, handleSubm
                         <Text style={styles.inputText}>
                             Choose Frequency <Text style={[styles.rquired]}>*</Text>
                         </Text>
-                        <View style={{ height: 30, marginTop: -10 }}>
-                            <RadioButton onChange={() => {}} value="" options={[{ value: 'Each Lot', label: 'Each Lot' }]} />
-                        </View>
+                        <SingleDropDown
+                            data={data}
+                            backgroundColor={COLORS.white}
+                            borderWidth={1}
+                            marginTop={15}
+                            title=""
+                            borderRadius={4}
+                            borderColor={COLORS.icBottomBox}
+                            showSearch={false}
+                            maxHeight={200}
+                        />
+                    </View>
+                    <View style={[styles.inputContainer]}>
+                        <Text style={styles.inputText}>Responsible Person</Text>
+                        <DynamicDropDown
+                            isMultiSelect={icSettings.IsRespPartyMultiSelect}
+                            list={data}
+                            handleSelectedList={value => {
+                                console.log(value, '**************value');
+                            }}
+                            isDisable={icSettings.IsRespPartyNonEditable}
+                        />
                     </View>
                 </View>
-                <Divider />
-                <View style={styles.btnConatiner}>
-                    <TouchableOpacity style={styles.cancelConatiner} onPress={hideModal}>
-                        <Text style={styles.btnStyle}>CANCEL</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={styles.cancelConatiner}
-                        onPress={() => {
-                            handleSubmitPress();
-                        }}>
-                        <Text style={styles.btnStyle}>SUBMIT</Text>
-                    </TouchableOpacity>
-                </View>
             </ScrollView>
+            <Divider />
+            <View style={styles.btnConatiner}>
+                <TouchableOpacity style={styles.cancelConatiner} onPress={hideModal}>
+                    <Text style={styles.btnStyle}>CANCEL</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={styles.cancelConatiner}
+                    onPress={() => {
+                        handleSubmitPress();
+                    }}>
+                    <Text style={styles.btnStyle}>SUBMIT</Text>
+                </TouchableOpacity>
+            </View>
         </Modal>
     );
 };
@@ -73,9 +120,6 @@ const styles = StyleSheet.create({
     container: {
         backgroundColor: '#fff',
         borderRadius: 3,
-    },
-    containerOne: {
-        padding: 20,
     },
     headertext: {
         fontFamily: 'OpenSans-SemiBold',
@@ -93,6 +137,7 @@ const styles = StyleSheet.create({
         borderColor: COLORS.icBottomBox,
         marginTop: 15,
         color: COLORS.ictextBlack,
+        paddingHorizontal:10
     },
     btnConatiner: {
         flexDirection: 'row',

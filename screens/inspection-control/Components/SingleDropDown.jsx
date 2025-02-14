@@ -36,9 +36,8 @@ const SingleDropDown = ({
                 searchPlaceholder="Search..."
                 value={value}
                 onChange={item => {
-                    onChange(item.value);
+                    onChange(item);
                 }}
-                
             />
         </View>
     );
