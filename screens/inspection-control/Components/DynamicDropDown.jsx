@@ -8,7 +8,15 @@ import { Menu } from 'react-native-paper';
 import IconA from 'react-native-vector-icons/AntDesign';
 import ICCheckBox from './ICCheckBox';
 
-const DynamicDropDown = ({ list = [], height = 40, anchorPosition = 'top', handleSelectedList = () => {}, isMultiSelect = true,isDisable=false }) => {
+const DynamicDropDown = ({
+    list = [],
+    height = 40,
+    anchorPosition = 'top',
+    handleSelectedList = () => {},
+    isMultiSelect = true,
+    isDisable = false,
+}) => {
+    console.log(isDisable, 'isDisable');
     const width = useWindowDimensions().width;
     const [multiValue, setMultiValue] = useState([]);
     const [visible, setVisible] = useState(false);
@@ -25,14 +33,16 @@ const DynamicDropDown = ({ list = [], height = 40, anchorPosition = 'top', handl
     }, [list]);
     const openMenu = () => setVisible(true);
     const closeMenu = () => setVisible(false);
-    const renderItem = ({ item,index }) => {
+    const renderItem = ({ item, index }) => {
         return (
-            <TouchableOpacity style={[styles.itemBox]} activeOpacity={1} key={index+1}>
+            <TouchableOpacity style={[styles.itemBox]} activeOpacity={1} key={index + 1}>
                 <Text style={[styles.selectedText]}>{item.label}</Text>
                 <TouchableOpacity
                     onPress={() => {
-                        isMultiSelect ? handleCheckPress(item) : handleRemove(item);
-                    }}>
+                        if (!isDisable) {
+                            isMultiSelect ? handleCheckPress(item) : handleRemove(item);
+                        }
+                    }} activeOpacity={!isDisable ? 0.5 : 1}>
                     <IconA name="close" size={15} color={COLORS.white} style={{ paddingHorizontal: 5 }} />
                 </TouchableOpacity>
             </TouchableOpacity>
@@ -49,7 +59,7 @@ const DynamicDropDown = ({ list = [], height = 40, anchorPosition = 'top', handl
     };
     const handleSingleSelected = val => {
         let temp = JSON.parse(JSON.stringify(listData));
-        const updatedData = temp.map(item => ({ ...item, isChecked: item.value === val.value ?true:false }))
+        const updatedData = temp.map(item => ({ ...item, isChecked: item.value === val.value ? true : false }));
         const filterList = updatedData.filter(item => item.isChecked);
         handleSelectedList(filterList);
         setListData([...updatedData]);
@@ -69,7 +79,14 @@ const DynamicDropDown = ({ list = [], height = 40, anchorPosition = 'top', handl
             visible={visible}
             onDismiss={closeMenu}
             anchor={
-                <TouchableOpacity style={[styles.container, { height: height, zIndex: 10 }]} onPress={openMenu} activeOpacity={0.5}>
+                <TouchableOpacity
+                    style={[styles.container, { height: height, zIndex: 10 }]}
+                    onPress={() => {
+                        if (!isDisable) {
+                            openMenu();
+                        }
+                    }}
+                    activeOpacity={!isDisable ? 0.5 : 1}>
                     <View style={[styles.mainBox]}>
                         <FlatList
                             nestedScrollEnabled
@@ -79,7 +96,14 @@ const DynamicDropDown = ({ list = [], height = 40, anchorPosition = 'top', handl
                             style={{ zIndex: 10000, elevation: 10 }}
                             showsHorizontalScrollIndicator={false}
                         />
-                        <TouchableOpacity style={{ padding: 10 }} onPress={openMenu}>
+                        <TouchableOpacity
+                            style={{ padding: 10 }}
+                            onPress={() => {
+                                if (!isDisable) {
+                                    openMenu();
+                                }
+                            }}
+                            activeOpacity={!isDisable ? 0.5 : 1}>
                             <IconA name="down" color={COLORS.charcoal} />
                         </TouchableOpacity>
                     </View>
@@ -98,7 +122,7 @@ const DynamicDropDown = ({ list = [], height = 40, anchorPosition = 'top', handl
                 {listData.length &&
                     listData.map((item, index) => {
                         return (
-                            <View key={index+1}>
+                            <View key={index + 1}>
                                 {isMultiSelect ? (
                                     <View key={index + 1} style={[styles.listItem]}>
                                         <ICCheckBox
@@ -116,7 +140,14 @@ const DynamicDropDown = ({ list = [], height = 40, anchorPosition = 'top', handl
                                         onPress={() => {
                                             handleSingleSelected(item);
                                         }}
-                                        style={[{ backgroundColor: item.isChecked ? COLORS.cloud : '#fff',paddingVertical:10,paddingLeft:5,borderRadius:2 }]}>
+                                        style={[
+                                            {
+                                                backgroundColor: item.isChecked ? COLORS.cloud : '#fff',
+                                                paddingVertical: 10,
+                                                paddingLeft: 5,
+                                                borderRadius: 2,
+                                            },
+                                        ]}>
                                         <Text style={[styles.listText]}>{item.label}</Text>
                                     </TouchableOpacity>
                                 )}
