@@ -310,24 +310,34 @@ const InspectionSchedule = () => {
                     Completed Inspections
                 </ButtonComponent>
             </View>
-           {showModal&& <InputDataModal
-                modalVisible={showModal}
-                hideModal={() => {
-                    setShowModal(false);
-                }}
-                handleSubmitPress={handleSubmitPress}
-            />}
-            <FileViewModal
-                visible={showFileModal}
-                onDismiss={() => {
-                    setShowFileModal(false);
-                }}
-            />
+            {showModal && (
+                <InputDataModal
+                    modalVisible={showModal}
+                    hideModal={() => {
+                        setShowModal(false);
+                    }}
+                    handleSubmitPress={() => {
+                        handleSubmitPress();
+                    }}
+                />
+            )}
+            {Boolean(showFileModal) && (
+                <FileViewModal
+                    visible={showFileModal}
+                    onDismiss={() => {
+                        setShowFileModal(false);
+                    }}
+                />
+            )}
             {Boolean(showQR) && (
                 <QRCodeScannerScreen
                     modalVisible={showQR}
                     hideModal={() => {
                         setShowQR(false);
+                    }}
+                    handleScanData={val => {
+                        handleSearch(val);
+                        console.log(val, 'val');
                     }}
                 />
             )}

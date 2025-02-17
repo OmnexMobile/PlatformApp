@@ -7,8 +7,9 @@ import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { COLORS } from 'constants/theme-constants';
 const { width, height } = Dimensions.get('screen');
-const QRCodeScannerScreen = ({ modalVisible, hideModal = () => {} }) => {
-    const [hasCameraPermission, setHasCameraPermission] = useState(false);
+const QRCodeScannerScreen = ({ modalVisible, hideModal = () => {}, handleScanData = () => {} }) => {
+    const [hasCameraPermission, setHasCameraPermission] = useState(true);
+    const [reScan, setReSacn] = useState(true);
 
     // Function to request camera permission
     const requestCameraPermission = async () => {
@@ -32,12 +33,28 @@ const QRCodeScannerScreen = ({ modalVisible, hideModal = () => {} }) => {
     }, []);
 
     const handleQRCodeRead = e => {
-        Alert.alert('QR Code Scanned!', `Data: ${e.data}`);
+        Alert.alert('Alert Title', `Data: ${e.data}`, [
+            {
+                text: 'Cancel',
+                onPress: () => {
+                    setReSacn(true);
+                },
+                style: 'cancel',
+            },
+            {
+                text: 'Submit',
+                onPress: () => {
+                    handleScanData(e.data);
+                    hideModal();
+                },
+            },
+        ]);
+        setReSacn(false);
     };
 
     return (
         <Modal visible={modalVisible} onDismiss={hideModal} style={{ flex: 1, backgroundColor: '#000' }} onRequestClose={hideModal}>
-            <SafeAreaView style={{ flex: 1, backgroundColor: '#000'}}>
+            <SafeAreaView style={{ flex: 1, backgroundColor: '#000' }}>
                 <View style={{ position: 'absolute', width: '100%', padding: 30, zIndex: 10000 }}>
                     <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
                         <TouchableOpacity style={[styles.iconBox]} onPress={hideModal}>
@@ -46,14 +63,18 @@ const QRCodeScannerScreen = ({ modalVisible, hideModal = () => {} }) => {
                     </View>
                 </View>
                 {hasCameraPermission ? (
-                    <View style={styles.container}>
-                        <QRCodeScanner
-                            onRead={handleQRCodeRead}
-                            flashMode={RNCamera.Constants.FlashMode.auto}
-                            bottomContent={<Text style={styles.footer}>Position the QR code within the frame</Text>}
-                            cameraStyle={styles.cameraStyle}
-                        />
-                    </View>
+                    reScan && (
+                        <View style={styles.container}>
+                            <QRCodeScanner
+                                onRead={handleQRCodeRead}
+                                flashMode={RNCamera.Constants.FlashMode.auto}
+                                bottomContent={<Text style={styles.footer}>Position the QR code within the frame</Text>}
+                                cameraStyle={styles.cameraStyle}
+                                reactivate={reScan}
+                                reactivateTimeout={2000}
+                            />
+                        </View>
+                    )
                 ) : (
                     <View style={styles.permissionContainer}>
                         <Text style={styles.permissionText}>Please grant camera access to use the QR Code Scanner.</Text>
