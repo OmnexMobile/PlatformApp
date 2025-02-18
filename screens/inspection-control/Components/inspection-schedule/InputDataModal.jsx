@@ -19,14 +19,17 @@ const data = [
 ];
 const InputDataModal = ({ modalVisible = false, hideModal = () => {}, handleSubmitPress = () => {} }) => {
     const { icSettings } = useSelector(state => state.inspection);
-    console.log(icSettings,'*********icSettings')
+    console.log(icSettings, '*********icSettings');
     const [formData, setFormData] = useState({
-        shift: '',
+        shift: { label: 'Default', value: '1' },
         lotNumber: '',
         lotQty: '',
         frequency: '',
         responsible: [],
     });
+    const handleInputChange = (key, value) => {
+        setFormData(pre => ({ ...pre, [key]: value }));
+    };
     return (
         <Modal
             visible={modalVisible}
@@ -57,19 +60,33 @@ const InputDataModal = ({ modalVisible = false, hideModal = () => {}, handleSubm
                             borderColor={COLORS.icBottomBox}
                             showSearch={false}
                             maxHeight={200}
+                            value={formData.shift}
+                            onChange={val => {
+                                handleInputChange('shift', val);
+                            }}
                         />
                     </View>
                     <View style={[styles.inputContainer]}>
                         <Text style={styles.inputText}>
                             Lot Number <Text style={[styles.rquired]}>*</Text>
                         </Text>
-                        <TextInput style={styles.inputBox} />
+                        <TextInput
+                            style={styles.inputBox}
+                            onChangeText={val => {
+                                handleInputChange('lotNumber', val);
+                            }}
+                        />
                     </View>
                     <View style={[styles.inputContainer]}>
                         <Text style={styles.inputText}>
                             Lot Quantity <Text style={[styles.rquired]}>*</Text>
                         </Text>
-                        <TextInput style={styles.inputBox} />
+                        <TextInput
+                            style={styles.inputBox}
+                            onChangeText={val => {
+                                handleInputChange('lotQty', val);
+                            }}
+                        />
                     </View>
                     <View style={[styles.inputContainer]}>
                         <Text style={styles.inputText}>
@@ -137,7 +154,7 @@ const styles = StyleSheet.create({
         borderColor: COLORS.icBottomBox,
         marginTop: 15,
         color: COLORS.ictextBlack,
-        paddingHorizontal:10
+        paddingHorizontal: 10,
     },
     btnConatiner: {
         flexDirection: 'row',
