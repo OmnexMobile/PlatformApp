@@ -1,12 +1,13 @@
 import { RadioButton } from 'components';
 import { COLORS } from 'constants/theme-constants';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Divider, Modal } from 'react-native-paper';
 import { RFPercentage } from 'react-native-responsive-fontsize';
 import SingleDropDown from '../SingleDropDown';
 import DynamicDropDown from '../DynamicDropDown';
 import { useSelector } from 'react-redux';
+import { Bubbles } from 'react-native-loader';
 const data = [
     { label: 'Default', value: '1' },
     { label: 'Noon shift', value: '2' },
@@ -27,110 +28,139 @@ const InputDataModal = ({ modalVisible = false, hideModal = () => {}, handleSubm
         frequency: '',
         responsible: [],
     });
+    const [showLoader, setShowLoader] = useState(true);
+
+    useEffect(() => {
+        setTimeout(() => {
+            setShowLoader(false);
+        }, 3000);
+    }, []);
+
     const handleInputChange = (key, value) => {
         setFormData(pre => ({ ...pre, [key]: value }));
     };
     return (
-        <Modal
-            visible={modalVisible}
-            onDismiss={hideModal}
-            contentContainerStyle={{
-                backgroundColor: '#fff',
-                width: '90%',
-                alignSelf: 'center',
-                height: 500,
-                paddingHorizontal: 20,
-                paddingTop: 20,
-            }}>
-            <Text style={styles.headertext}>Form Input Data</Text>
-            <Divider />
-            <ScrollView style={[styles.container]} nestedScrollEnabled showsVerticalScrollIndicator={false}>
-                <View style={[]}>
-                    <View style={[styles.inputContainer]}>
-                        <Text style={styles.inputText}>
-                            Shift <Text style={[styles.rquired]}>*</Text>
-                        </Text>
-                        <SingleDropDown
-                            data={data}
-                            backgroundColor={COLORS.white}
-                            borderWidth={1}
-                            marginTop={15}
-                            title=""
-                            borderRadius={4}
-                            borderColor={COLORS.icBottomBox}
-                            showSearch={false}
-                            maxHeight={200}
-                            value={formData.shift}
-                            onChange={val => {
-                                handleInputChange('shift', val);
-                            }}
-                        />
-                    </View>
-                    <View style={[styles.inputContainer]}>
-                        <Text style={styles.inputText}>
-                            Lot Number <Text style={[styles.rquired]}>*</Text>
-                        </Text>
-                        <TextInput
-                            style={styles.inputBox}
-                            onChangeText={val => {
-                                handleInputChange('lotNumber', val);
-                            }}
-                        />
-                    </View>
-                    <View style={[styles.inputContainer]}>
-                        <Text style={styles.inputText}>
-                            Lot Quantity <Text style={[styles.rquired]}>*</Text>
-                        </Text>
-                        <TextInput
-                            style={styles.inputBox}
-                            onChangeText={val => {
-                                handleInputChange('lotQty', val);
-                            }}
-                        />
-                    </View>
-                    <View style={[styles.inputContainer]}>
-                        <Text style={styles.inputText}>
-                            Choose Frequency <Text style={[styles.rquired]}>*</Text>
-                        </Text>
-                        <SingleDropDown
-                            data={data}
-                            backgroundColor={COLORS.white}
-                            borderWidth={1}
-                            marginTop={15}
-                            title=""
-                            borderRadius={4}
-                            borderColor={COLORS.icBottomBox}
-                            showSearch={false}
-                            maxHeight={200}
-                        />
-                    </View>
-                    <View style={[styles.inputContainer]}>
-                        <Text style={styles.inputText}>Responsible Person</Text>
-                        <DynamicDropDown
-                            isMultiSelect={icSettings.IsRespPartyMultiSelect}
-                            list={data}
-                            handleSelectedList={value => {
-                                console.log(value, '**************value');
-                            }}
-                            isDisable={icSettings.IsRespPartyNonEditable}
-                        />
-                    </View>
-                </View>
-            </ScrollView>
-            <Divider />
-            <View style={styles.btnConatiner}>
-                <TouchableOpacity style={styles.cancelConatiner} onPress={hideModal}>
-                    <Text style={styles.btnStyle}>CANCEL</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={styles.cancelConatiner}
-                    onPress={() => {
-                        handleSubmitPress();
+        <>
+            {showLoader ? (
+                <Modal
+                    transparent={true}
+                    animationType={'none'}
+                    visible={showLoader}
+                    onRequestClose={() => {
+                        console.log('close modal');
+                    }} 
+                    contentContainerStyle={{
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flex:1,
+                        height:'100%'
+                    }}
+                    >
+                    <Bubbles size={10} color="#12C0CF" />
+                </Modal>
+            ) : (
+                <Modal
+                    visible={modalVisible}
+                    onDismiss={hideModal}
+                    contentContainerStyle={{
+                        backgroundColor: '#fff',
+                        width: '90%',
+                        alignSelf: 'center',
+                        height: 500,
+                        paddingHorizontal: 20,
+                        paddingTop: 20,
                     }}>
-                    <Text style={styles.btnStyle}>SUBMIT</Text>
-                </TouchableOpacity>
-            </View>
-        </Modal>
+                    <Text style={styles.headertext}>Form Input Data</Text>
+                    <Divider />
+                    <ScrollView style={[styles.container]} nestedScrollEnabled showsVerticalScrollIndicator={false}>
+                        <View style={[]}>
+                            <View style={[styles.inputContainer]}>
+                                <Text style={styles.inputText}>
+                                    Shift <Text style={[styles.rquired]}>*</Text>
+                                </Text>
+                                <SingleDropDown
+                                    data={data}
+                                    backgroundColor={COLORS.white}
+                                    borderWidth={1}
+                                    marginTop={15}
+                                    title=""
+                                    borderRadius={4}
+                                    borderColor={COLORS.icBottomBox}
+                                    showSearch={false}
+                                    maxHeight={200}
+                                    value={formData.shift}
+                                    onChange={val => {
+                                        handleInputChange('shift', val);
+                                    }}
+                                />
+                            </View>
+                            <View style={[styles.inputContainer]}>
+                                <Text style={styles.inputText}>
+                                    Lot Number <Text style={[styles.rquired]}>*</Text>
+                                </Text>
+                                <TextInput
+                                    style={styles.inputBox}
+                                    onChangeText={val => {
+                                        handleInputChange('lotNumber', val);
+                                    }}
+                                />
+                            </View>
+                            <View style={[styles.inputContainer]}>
+                                <Text style={styles.inputText}>
+                                    Lot Quantity <Text style={[styles.rquired]}>*</Text>
+                                </Text>
+                                <TextInput
+                                    style={styles.inputBox}
+                                    onChangeText={val => {
+                                        handleInputChange('lotQty', val);
+                                    }}
+                                />
+                            </View>
+                            <View style={[styles.inputContainer]}>
+                                <Text style={styles.inputText}>
+                                    Choose Frequency <Text style={[styles.rquired]}>*</Text>
+                                </Text>
+                                <SingleDropDown
+                                    data={data}
+                                    backgroundColor={COLORS.white}
+                                    borderWidth={1}
+                                    marginTop={15}
+                                    title=""
+                                    borderRadius={4}
+                                    borderColor={COLORS.icBottomBox}
+                                    showSearch={false}
+                                    maxHeight={200}
+                                />
+                            </View>
+                            <View style={[styles.inputContainer]}>
+                                <Text style={styles.inputText}>Responsible Person</Text>
+                                <DynamicDropDown
+                                    isMultiSelect={icSettings.IsRespPartyMultiSelect}
+                                    list={data}
+                                    handleSelectedList={value => {
+                                        console.log(value, '**************value');
+                                    }}
+                                    isDisable={icSettings.IsRespPartyNonEditable}
+                                />
+                            </View>
+                        </View>
+                    </ScrollView>
+                    <Divider />
+                    <View style={styles.btnConatiner}>
+                        <TouchableOpacity style={styles.cancelConatiner} onPress={hideModal}>
+                            <Text style={styles.btnStyle}>CANCEL</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={styles.cancelConatiner}
+                            onPress={() => {
+                                handleSubmitPress();
+                            }}>
+                            <Text style={styles.btnStyle}>SUBMIT</Text>
+                        </TouchableOpacity>
+                    </View>
+                </Modal>
+            )}
+        </>
     );
 };
 const styles = StyleSheet.create({

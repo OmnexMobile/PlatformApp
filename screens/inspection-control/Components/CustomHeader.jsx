@@ -12,6 +12,7 @@ import OperatorWorksheetSvg from '../../../assets/images/svg/operator-worksheet.
 import CompletedInspectionnSvg from '../../../assets/images/svg/completed-inspection.svg';
 import SupervisorScheduleSvg from '../../../assets/images/svg/supervisor-schedule.svg';
 import { ROUTES } from 'constants/app-constant';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const footerList = [
     {
@@ -54,11 +55,11 @@ const CustomHeader = ({
     searchValue = '',
     handleClosePress=()=>{}
 }) => {
+    const insets= useSafeAreaInsets()
     const { width } = useWindowDimensions();
     const navigation = useNavigation();
     const [isExpanded, setIsExpanded] = useState(false);
     const widthAnim = useRef(new Animated.Value(0)).current;
-
     useEffect(() => {
         if (searchValue?.length) {
             setIsExpanded(true);
@@ -118,7 +119,7 @@ const CustomHeader = ({
         }
     };
     return (
-        <SafeAreaView style={[styles.container]}>
+        <SafeAreaView style={[styles.container,{paddingTop:insets.top}]}>
             <View style={[styles.headerBox]}>
                 <TouchableOpacity
                     onPress={() => {
