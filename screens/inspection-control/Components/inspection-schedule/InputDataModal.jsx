@@ -8,6 +8,7 @@ import SingleDropDown from '../SingleDropDown';
 import DynamicDropDown from '../DynamicDropDown';
 import { useSelector } from 'react-redux';
 import { Bubbles } from 'react-native-loader';
+import DynamicFormField from '../DynamicFormField';
 const data = [
     { label: 'Default', value: '1' },
     { label: 'Noon shift', value: '2' },
@@ -18,9 +19,9 @@ const data = [
     { label: 'Ok Shift', value: '7' },
     { label: 'wc Shift', value: '8' },
 ];
-const InputDataModal = ({ modalVisible = false, hideModal = () => {}, handleSubmitPress = () => {} }) => {
+const InputDataModal = ({ modalVisible = false, hideModal = () => {}, handleSubmitPress = () => {}, selectedValue = {} }) => {
     const { icSettings } = useSelector(state => state.inspection);
-    console.log(icSettings, '*********icSettings');
+    console.log(selectedValue, '*********icSettings');
     const [formData, setFormData] = useState({
         shift: { label: 'Default', value: '1' },
         lotNumber: '',
@@ -48,14 +49,13 @@ const InputDataModal = ({ modalVisible = false, hideModal = () => {}, handleSubm
                     visible={showLoader}
                     onRequestClose={() => {
                         console.log('close modal');
-                    }} 
+                    }}
                     contentContainerStyle={{
                         alignItems: 'center',
                         justifyContent: 'center',
-                        flex:1,
-                        height:'100%'
-                    }}
-                    >
+                        flex: 1,
+                        height: '100%',
+                    }}>
                     <Bubbles size={10} color="#12C0CF" />
                 </Modal>
             ) : (
@@ -113,6 +113,17 @@ const InputDataModal = ({ modalVisible = false, hideModal = () => {}, handleSubm
                                     style={styles.inputBox}
                                     onChangeText={val => {
                                         handleInputChange('lotQty', val);
+                                    }}
+                                />
+                            </View>
+                            <View style={[styles.inputContainer]}>
+                                <Text style={styles.inputText}>
+                                    Receipt Number <Text style={[styles.rquired]}>*</Text>
+                                </Text>
+                                <TextInput
+                                    style={styles.inputBox}
+                                    onChangeText={val => {
+                                        handleInputChange('reciptNumber', val);
                                     }}
                                 />
                             </View>

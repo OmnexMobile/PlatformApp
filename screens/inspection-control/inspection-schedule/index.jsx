@@ -76,6 +76,7 @@ const InspectionSchedule = () => {
     const [showQR, setShowQR] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
     const [search, setSearch] = useState('');
+    const [selectedData,setSelectedData]=useState({}) 
 
     const handleFilePress = () => {
         setShowFileModal(true);
@@ -85,11 +86,12 @@ const InspectionSchedule = () => {
         const { startDate, endDate, type } = filterData;
         let dateFlag = startDate !== '' && endDate !== '';
         const formData = new FormData();
-        formData.append('UserID', icUserData?.userData?.UserId);
+        // formData.append('UserID', icUserData?.userData?.UserId);
+        formData.append('UserID', 7);
         formData.append('SiteID', parseInt(icUserData?.userData?.Siteid));
         formData.append('LanguageID', 1);
-        formData.append('StartDate', dateFlag ? moment(startDate).format('YYYY-MM-DD') : '');
-        formData.append('EndDate', dateFlag ? moment(endDate).format('YYYY-MM-DD') : '');
+        formData.append('StartDate', dateFlag ? moment(startDate).format('MM/DD/YYYY') : '');
+        formData.append('EndDate', dateFlag ? moment(endDate).format('MM/DD/YYYY') : '');
         formData.append('InspectionType', inspect !== null ? inspect : type);
         const response = await postAPI(`${ApiUrl.IC_GET_IS}`, formData);
         if (response.Success) {
@@ -114,6 +116,7 @@ const InspectionSchedule = () => {
         navigation.navigate(ROUTES.COMPLETED_INSPECTION);
     };
     const handleDownloadPress = item => {
+        setSelectedData(item);
         setShowModal(true);
     };
     const handleMenuPress = value => {
@@ -142,7 +145,7 @@ const InspectionSchedule = () => {
         }
     };
     const renderIconBgColor = value => {
-        return value == '1' ? COLORS.apptheme : value == '2' ? COLORS.ipBgColor : COLORS.ciBgColor;
+        return value == '1' ? COLORS.apptheme : value == '2' ? COLORS.ipBgColor : COLORS.fiBgColor;
     };
     handleSubmitPress = () => {
         dispatch({ type: 'INSPECT_LIST', inspectList: masterData });
@@ -161,11 +164,11 @@ const InspectionSchedule = () => {
     const renderData = ({ item }) => {
         return (
             <View style={[styles.recordConatiner]}>
-                <View style={[styles.iconBox, { backgroundColor: renderIconBgColor(item?.InspectionType) }]}>
+                <View style={[styles.iconBox, { backgroundColor: renderIconBgColor(item?.TypeOfInspection) }]}>
                     <Icon name="layers-outline" size={25} color={COLORS.white} />
                 </View>
                 <View style={{ flex: 1, paddingHorizontal: 10 }}>
-                    <Text style={[styles.cardText]}>{item?.ProductionItemName}</Text>
+                    <Text style={[styles.cardText]}>{item?.ProductionItem}</Text>
                     <Text style={[styles.operationText]}>
                         Operation Name : <Text style={[styles.secondText]}>{item?.OperationName}</Text>
                     </Text>
@@ -174,7 +177,7 @@ const InspectionSchedule = () => {
                     </Text>
                 </View>
                 <View style={[styles.lastBox]}>
-                    <Text style={[styles.secondText]}>{moment(item.EnteredDate).format('DD/MM/YYYY')}</Text>
+                    <Text style={[styles.secondText]}>{moment(new Date(item.ProductionStartDate)).format('DD/MM/YYYY')}</Text>
                     <View style={[styles.iconlist]}>
                         <TouchableOpacity
                             style={{ marginLeft: 15 }}
@@ -205,7 +208,7 @@ const InspectionSchedule = () => {
         if (value.length) {
             const tempSearch = temp.filter(
                 item =>
-                    item.ProductionItemName.toLowerCase().includes(value.toLowerCase()) ||
+                    item.ProductionItem.toLowerCase().includes(value.toLowerCase()) ||
                     item.OperationName.toLowerCase().includes(value.toLowerCase()),
             );
             setMasterData(tempSearch);
@@ -287,7 +290,7 @@ const InspectionSchedule = () => {
                     <FlatList
                         data={masterData}
                         renderItem={renderData}
-                        keyExtractor={item => item?.ICInspectionEntryDetailsID}
+                        keyExtractor={(item,index) => index+1}
                         showsVerticalScrollIndicator={false}
                         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
                     />
@@ -312,6 +315,7 @@ const InspectionSchedule = () => {
             </View>
             {showModal && (
                 <InputDataModal
+                    selectedValue={selectedData}
                     modalVisible={showModal}
                     hideModal={() => {
                         setShowModal(false);
