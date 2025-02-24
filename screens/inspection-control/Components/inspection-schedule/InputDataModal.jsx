@@ -2,13 +2,14 @@ import { RadioButton } from 'components';
 import { COLORS } from 'constants/theme-constants';
 import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { Divider, Modal } from 'react-native-paper';
+import { Divider, HelperText, Modal } from 'react-native-paper';
 import { RFPercentage } from 'react-native-responsive-fontsize';
 import SingleDropDown from '../SingleDropDown';
 import DynamicDropDown from '../DynamicDropDown';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Bubbles } from 'react-native-loader';
-import DynamicFormField from '../DynamicFormField';
+import { showMessage } from 'react-native-flash-message';
+
 const data = [
     { label: 'Default', value: '1' },
     { label: 'Noon shift', value: '2' },
@@ -19,26 +20,85 @@ const data = [
     { label: 'Ok Shift', value: '7' },
     { label: 'wc Shift', value: '8' },
 ];
-const InputDataModal = ({ modalVisible = false, hideModal = () => {}, handleSubmitPress = () => {}, selectedValue = {} }) => {
+const errorObj = {
+    shift: false,
+    lotNumber: false,
+    lotQty: false,
+    receiptNumber: false,
+    frequency: false,
+};
+
+const InputDataModal = ({ modalVisible = false, hideModal = () => {}, selectedValue = {}, shiftData = [] }) => {
+    const dispatch = useDispatch();
     const { icSettings } = useSelector(state => state.inspection);
-    console.log(selectedValue, '*********icSettings');
     const [formData, setFormData] = useState({
-        shift: { label: 'Default', value: '1' },
+        shift: null,
         lotNumber: '',
         lotQty: '',
-        frequency: '',
+        frequency: null,
         responsible: [],
+        receiptNumber: '',
     });
+    const [errorList, setErrorList] = useState(errorObj);
     const [showLoader, setShowLoader] = useState(true);
 
     useEffect(() => {
         setTimeout(() => {
             setShowLoader(false);
-        }, 3000);
+        }, 1000);
     }, []);
 
+    useEffect(() => {
+        if (Object.keys(selectedValue).length) {
+            setFormData(pre => ({ ...pre, lotNumber: selectedValue?.LotNo, lotQty: selectedValue?.ProductionQty?.toString() }));
+        }
+    }, [selectedValue]);
     const handleInputChange = (key, value) => {
         setFormData(pre => ({ ...pre, [key]: value }));
+    };
+    const handleValidation = () => {
+        const { shift, lotNumber, lotQty, frequency, receiptNumber } = formData;
+        const errorobj = {
+            shift: false,
+            lotNumber: false,
+            lotQty: false,
+            frequency: false,
+            receiptNumber: false,
+        };
+        if (shift == null) {
+            errorobj.shift = true;
+        }
+        if (lotNumber == '') {
+            errorobj.lotNumber = true;
+        }
+        if (lotQty == '') {
+            errorobj.lotQty = true;
+        }
+        if (frequency == null) {
+            errorobj.frequency = true;
+        }
+        if (receiptNumber == '') {
+            errorobj.receiptNumber = true;
+        }
+        setErrorList(errorobj);
+        return Object.values(errorobj).every(item => item == false);
+    };
+    const handleSubmitBtnPress = () => {
+        const result = handleValidation();
+        if (result) {
+            dispatch({ type: 'INSPECT_LIST', inspectList: [] });
+            showMessage({
+                message: 'Form Downloaded Successfully',
+                backgroundColor: COLORS.SUCCESS,
+                color: COLORS.white,
+                duration: 1500,
+                statusBarHeight: 40,
+                icon: 'success',
+                position: 'right',
+                style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+            });
+            hideModal();
+        }
     };
     return (
         <>
@@ -79,10 +139,10 @@ const InputDataModal = ({ modalVisible = false, hideModal = () => {}, handleSubm
                                     Shift <Text style={[styles.rquired]}>*</Text>
                                 </Text>
                                 <SingleDropDown
-                                    data={data}
+                                    data={shiftData}
                                     backgroundColor={COLORS.white}
                                     borderWidth={1}
-                                    marginTop={15}
+                                    marginTop={10}
                                     title=""
                                     borderRadius={4}
                                     borderColor={COLORS.icBottomBox}
@@ -93,17 +153,28 @@ const InputDataModal = ({ modalVisible = false, hideModal = () => {}, handleSubm
                                         handleInputChange('shift', val);
                                     }}
                                 />
+                                {Boolean(errorList.shift) && (
+                                    <HelperText type="error" visible={errorList.shift} padding={'none'} style={styles.errorStyle}>
+                                        This field is required
+                                    </HelperText>
+                                )}
                             </View>
                             <View style={[styles.inputContainer]}>
                                 <Text style={styles.inputText}>
                                     Lot Number <Text style={[styles.rquired]}>*</Text>
                                 </Text>
                                 <TextInput
+                                    value={formData.lotNumber}
                                     style={styles.inputBox}
                                     onChangeText={val => {
                                         handleInputChange('lotNumber', val);
                                     }}
                                 />
+                                {Boolean(errorList.lotNumber) && (
+                                    <HelperText type="error" visible={errorList.lotNumber} padding={'none'} style={styles.errorStyle}>
+                                        This field is required
+                                    </HelperText>
+                                )}
                             </View>
                             <View style={[styles.inputContainer]}>
                                 <Text style={styles.inputText}>
@@ -114,7 +185,14 @@ const InputDataModal = ({ modalVisible = false, hideModal = () => {}, handleSubm
                                     onChangeText={val => {
                                         handleInputChange('lotQty', val);
                                     }}
+                                    value={formData.lotQty}
+                                    keyboardType="numeric"
                                 />
+                                {Boolean(errorList.lotQty) && (
+                                    <HelperText type="error" visible={errorList.lotQty} padding={'none'} style={styles.errorStyle}>
+                                        This field is required
+                                    </HelperText>
+                                )}
                             </View>
                             <View style={[styles.inputContainer]}>
                                 <Text style={styles.inputText}>
@@ -123,9 +201,15 @@ const InputDataModal = ({ modalVisible = false, hideModal = () => {}, handleSubm
                                 <TextInput
                                     style={styles.inputBox}
                                     onChangeText={val => {
-                                        handleInputChange('reciptNumber', val);
+                                        handleInputChange('receiptNumber', val);
                                     }}
+                                    value={formData.receiptNumber}
                                 />
+                                {Boolean(errorList.receiptNumber) && (
+                                    <HelperText type="error" visible={errorList.receiptNumber} padding={'none'} style={styles.errorStyle}>
+                                        This field is required
+                                    </HelperText>
+                                )}
                             </View>
                             <View style={[styles.inputContainer]}>
                                 <Text style={styles.inputText}>
@@ -135,13 +219,21 @@ const InputDataModal = ({ modalVisible = false, hideModal = () => {}, handleSubm
                                     data={data}
                                     backgroundColor={COLORS.white}
                                     borderWidth={1}
-                                    marginTop={15}
+                                    marginTop={10}
                                     title=""
                                     borderRadius={4}
                                     borderColor={COLORS.icBottomBox}
                                     showSearch={false}
                                     maxHeight={200}
+                                    onChange={val => {
+                                        handleInputChange('frequency', val);
+                                    }}
                                 />
+                                {Boolean(errorList.frequency) && (
+                                    <HelperText type="error" visible={errorList.frequency} padding={'none'} style={[styles.errorStyle]}>
+                                        This field is required
+                                    </HelperText>
+                                )}
                             </View>
                             <View style={[styles.inputContainer]}>
                                 <Text style={styles.inputText}>Responsible Person</Text>
@@ -164,7 +256,7 @@ const InputDataModal = ({ modalVisible = false, hideModal = () => {}, handleSubm
                         <TouchableOpacity
                             style={styles.cancelConatiner}
                             onPress={() => {
-                                handleSubmitPress();
+                                handleSubmitBtnPress();
                             }}>
                             <Text style={styles.btnStyle}>SUBMIT</Text>
                         </TouchableOpacity>
@@ -193,7 +285,7 @@ const styles = StyleSheet.create({
         height: 40,
         borderRadius: 3,
         borderColor: COLORS.icBottomBox,
-        marginTop: 15,
+        marginTop: 10,
         color: COLORS.ictextBlack,
         paddingHorizontal: 10,
     },
@@ -216,6 +308,10 @@ const styles = StyleSheet.create({
     inputText: {
         color: '#000',
         fontFamily: 'OpenSans-Regular',
+    },
+    errorStyle: {
+        color: COLORS.ERROR,
+        marginBottom: -5,
     },
 });
 

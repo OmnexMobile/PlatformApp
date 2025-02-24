@@ -15,7 +15,8 @@ const SingleDropDown = ({
     borderRadius=5,
     borderColor=COLORS.inputBorder,
     showSearch=true,
-    maxHeight=300
+    maxHeight=300,
+    placeholder=''
 }) => {
     return (
         <View style={[styles.container]}>
@@ -32,7 +33,7 @@ const SingleDropDown = ({
                 maxHeight={maxHeight}
                 labelField="label"
                 valueField="value"
-                placeholder="Select"
+                placeholder={placeholder}
                 searchPlaceholder="Search..."
                 value={value}
                 onChange={item => {

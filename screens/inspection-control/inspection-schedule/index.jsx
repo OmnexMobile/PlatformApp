@@ -76,7 +76,12 @@ const InspectionSchedule = () => {
     const [showQR, setShowQR] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
     const [search, setSearch] = useState('');
-    const [selectedData,setSelectedData]=useState({}) 
+    const [selectedData, setSelectedData] = useState({});
+    const [formList, setFormList] = useState({
+        shiftList: [],
+        frequencyList: [],
+        personList: [],
+    });
 
     const handleFilePress = () => {
         setShowFileModal(true);
@@ -95,8 +100,10 @@ const InspectionSchedule = () => {
         formData.append('InspectionType', inspect !== null ? inspect : type);
         const response = await postAPI(`${ApiUrl.IC_GET_IS}`, formData);
         if (response.Success) {
-            setMasterData(response?.Data || []);
-            setOverAllData(response?.Data || []);
+            setMasterData(response?.Data?.InspectionSchedules || []);
+            setOverAllData(response?.Data?.InspectionSchedules || []);
+            let tempShift=response?.Data?.InspectionShifts.map((item)=>({...item,label:item.ShiftName, value: item.ShiftID}))
+            setFormList(pre => ({ ...pre, shiftList: tempShift || [] }));
         } else {
             setMasterData([]);
             setOverAllData([]);
@@ -147,20 +154,6 @@ const InspectionSchedule = () => {
     const renderIconBgColor = value => {
         return value == '1' ? COLORS.apptheme : value == '2' ? COLORS.ipBgColor : COLORS.fiBgColor;
     };
-    handleSubmitPress = () => {
-        dispatch({ type: 'INSPECT_LIST', inspectList: masterData });
-        setShowModal(false);
-        showMessage({
-            message: 'Form Downloaded Successfully',
-            backgroundColor: COLORS.SUCCESS,
-            color: COLORS.white,
-            duration: 1500,
-            statusBarHeight: 40,
-            icon: 'success',
-            position: 'right',
-            style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
-        });
-    };
     const renderData = ({ item }) => {
         return (
             <View style={[styles.recordConatiner]}>
@@ -208,8 +201,7 @@ const InspectionSchedule = () => {
         if (value.length) {
             const tempSearch = temp.filter(
                 item =>
-                    item.ProductionItem.toLowerCase().includes(value.toLowerCase()) ||
-                    item.OperationName.toLowerCase().includes(value.toLowerCase()),
+                    item.ProductionItem.toLowerCase().includes(value.toLowerCase()) || item.OperationName.toLowerCase().includes(value.toLowerCase()),
             );
             setMasterData(tempSearch);
         } else {
@@ -290,7 +282,7 @@ const InspectionSchedule = () => {
                     <FlatList
                         data={masterData}
                         renderItem={renderData}
-                        keyExtractor={(item,index) => index+1}
+                        keyExtractor={(item, index) => index + 1}
                         showsVerticalScrollIndicator={false}
                         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
                     />
@@ -321,8 +313,9 @@ const InspectionSchedule = () => {
                         setShowModal(false);
                     }}
                     handleSubmitPress={() => {
-                        handleSubmitPress();
+                        handleSubmitBtnPress();
                     }}
+                    shiftData={formList.shiftList}
                 />
             )}
             {Boolean(showFileModal) && (
