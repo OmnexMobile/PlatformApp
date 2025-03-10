@@ -31,5 +31,7 @@ module.exports = {
     GET_TEAM_USERS: 'Teams/Users',
     IC_LOGIN:'Login',
     IC_GET_IS:'GetInspectionSchedule',
-    IC_SETTINGS:'GetICSettings'
+    IC_SETTINGS:'GetICSettings',
+    IC_FRQ_FORM:'GetFrequency',
+    IC_RESPONSIBLE_PERSON:"GetLotCreation"
 };

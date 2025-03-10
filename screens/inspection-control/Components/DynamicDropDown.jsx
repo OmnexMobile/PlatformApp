@@ -23,7 +23,7 @@ const DynamicDropDown = ({
     const [listData, setListData] = useState([]);
 
     useEffect(() => {
-        if (list.length) {
+        if (list?.length) {
             let temp = JSON.parse(JSON.stringify(list));
             let updatedtemp = temp.map(item => ({ ...item, isChecked: false }));
             setListData([...updatedtemp]);
@@ -114,12 +114,12 @@ const DynamicDropDown = ({
                 borderRadius: 10,
                 paddingHorizontal: 10,
                 width: width / 1.2,
-                height: 200,
+                maxHeight:200,
                 marginTop: height + 10,
             }}
             anchorPosition={anchorPosition}>
             <ScrollView>
-                {listData.length &&
+                {Boolean(listData.length) &&
                     listData.map((item, index) => {
                         return (
                             <View key={index + 1}>

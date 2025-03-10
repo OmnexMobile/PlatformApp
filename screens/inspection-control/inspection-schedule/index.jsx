@@ -316,6 +316,7 @@ const InspectionSchedule = () => {
                         handleSubmitBtnPress();
                     }}
                     shiftData={formList.shiftList}
+                    userData={icUserData?.userData}
                 />
             )}
             {Boolean(showFileModal) && (

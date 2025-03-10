@@ -9,17 +9,10 @@ import DynamicDropDown from '../DynamicDropDown';
 import { useDispatch, useSelector } from 'react-redux';
 import { Bubbles } from 'react-native-loader';
 import { showMessage } from 'react-native-flash-message';
+import { postAPI } from 'global/api-helpers';
+import ApiUrl from 'global/ApiUrl';
 
-const data = [
-    { label: 'Default', value: '1' },
-    { label: 'Noon shift', value: '2' },
-    { label: '12 Shift', value: '3' },
-    { label: 'No Shift', value: '4' },
-    { label: '2 Shift', value: '5' },
-    { label: 'Yes Shift', value: '6' },
-    { label: 'Ok Shift', value: '7' },
-    { label: 'wc Shift', value: '8' },
-];
+
 const errorObj = {
     shift: false,
     lotNumber: false,
@@ -28,9 +21,10 @@ const errorObj = {
     frequency: false,
 };
 
-const InputDataModal = ({ modalVisible = false, hideModal = () => {}, selectedValue = {}, shiftData = [] }) => {
+const InputDataModal = ({ modalVisible = false, hideModal = () => {}, selectedValue = {}, shiftData = [], userData = {} }) => {
     const dispatch = useDispatch();
     const { icSettings } = useSelector(state => state.inspection);
+    console.log(icSettings, 'icSettings', selectedValue.ReferenceNo);
     const [formData, setFormData] = useState({
         shift: null,
         lotNumber: '',
@@ -39,20 +33,80 @@ const InputDataModal = ({ modalVisible = false, hideModal = () => {}, selectedVa
         responsible: [],
         receiptNumber: '',
     });
+    const [frqList, setFrqList] = useState([]);
+    const [resList, setResList] = useState([]);
     const [errorList, setErrorList] = useState(errorObj);
     const [showLoader, setShowLoader] = useState(true);
+    const [isEditableField,setIsEditableField]=useState({
+        lotNo:true
+    })
 
-    useEffect(() => {
-        setTimeout(() => {
-            setShowLoader(false);
-        }, 1000);
-    }, []);
-
-    useEffect(() => {
-        if (Object.keys(selectedValue).length) {
-            setFormData(pre => ({ ...pre, lotNumber: selectedValue?.LotNo, lotQty: selectedValue?.ProductionQty?.toString() }));
+    const getFrequencyList = async () => {
+        let strType = selectedValue?.TypeOfInspection == '2' ? 'Aqua' : 'Custom';
+        const formData = new FormData();
+        formData.append('strType', strType);
+        formData.append('strId', selectedValue?.ProductionItemId);
+        formData.append('strOperationId', selectedValue?.OperationID);
+        formData.append('intUserID', userData?.UserId);
+        const response = await postAPI(`${ApiUrl.IC_FRQ_FORM}`, formData);
+        if (response.Success) {
+            if (response?.Data?.length) {
+                let temp = [];
+                response?.Data.forEach(item => {
+                    temp.push({
+                        label: item?.SampleFrequency,
+                        value: item?.FrequencyId,
+                        ...item,
+                    });
+                });
+                setFrqList(temp || []);
+            } else {
+                setFrqList([]);
+            }
+        } else {
+            setFrqList([]);
         }
-    }, [selectedValue]);
+        return true;
+    };
+    const getResponsibleList = async () => {
+        const formData = new FormData();
+        formData.append('strUserID', userData?.UserId);
+        formData.append('strOperationID', selectedValue?.OperationID);
+        formData.append('strProductionitemID', selectedValue?.ProductionItemId);
+        // formData.append('strOperationID', '20823;20828;20841');
+        // formData.append('strProductionitemID', '20818');
+        formData.append('strFrequencyID', '');
+        const response = await postAPI(`${ApiUrl.IC_RESPONSIBLE_PERSON}`, formData);
+        console.log(response, 'userData');
+        if (response.length) {
+            let temp = [];
+            response.forEach(item => {
+                temp.push({
+                    label: item?.Name,
+                    value: item?.Code,
+                    ...item,
+                });
+            });
+            setResList(temp);
+        } else {
+            setResList([]);
+        }
+        return true;
+    };
+    const getPageApi = async () => {
+        await getFrequencyList();
+        await getResponsibleList();
+        setShowLoader(false);
+    };
+    useEffect(() => {
+        if (Object.keys(selectedValue).length && Object.keys(userData).length) {
+            setFormData(pre => ({ ...pre, lotNumber: selectedValue?.LotNo, lotQty: selectedValue?.ProductionQty?.toString() }));
+            if(selectedValue?.LotNo){
+                setIsEditableField((pre)=>({...pre,lotNo:false}))
+            }
+            getPageApi();
+        }
+    }, [selectedValue, userData]);
     const handleInputChange = (key, value) => {
         setFormData(pre => ({ ...pre, [key]: value }));
     };
@@ -169,6 +223,7 @@ const InputDataModal = ({ modalVisible = false, hideModal = () => {}, selectedVa
                                     onChangeText={val => {
                                         handleInputChange('lotNumber', val);
                                     }}
+                                    editable={isEditableField.lotNo}
                                 />
                                 {Boolean(errorList.lotNumber) && (
                                     <HelperText type="error" visible={errorList.lotNumber} padding={'none'} style={styles.errorStyle}>
@@ -194,6 +249,18 @@ const InputDataModal = ({ modalVisible = false, hideModal = () => {}, selectedVa
                                     </HelperText>
                                 )}
                             </View>
+                            {Boolean(selectedValue?.ReferenceNo?.length) && (
+                                <View style={[styles.inputContainer]}>
+                                    <Text style={styles.inputText}>
+                                        Serial Number
+                                    </Text>
+                                    <TextInput
+                                        style={[styles.inputBox,{backgroundColor:COLORS.icborder}]}
+                                        value={selectedValue?.ReferenceNo}
+                                        editable={false}
+                                    />
+                                </View>
+                            )}
                             <View style={[styles.inputContainer]}>
                                 <Text style={styles.inputText}>
                                     Receipt Number <Text style={[styles.rquired]}>*</Text>
@@ -216,7 +283,7 @@ const InputDataModal = ({ modalVisible = false, hideModal = () => {}, selectedVa
                                     Choose Frequency <Text style={[styles.rquired]}>*</Text>
                                 </Text>
                                 <SingleDropDown
-                                    data={data}
+                                    data={frqList}
                                     backgroundColor={COLORS.white}
                                     borderWidth={1}
                                     marginTop={10}
@@ -235,17 +302,19 @@ const InputDataModal = ({ modalVisible = false, hideModal = () => {}, selectedVa
                                     </HelperText>
                                 )}
                             </View>
-                            <View style={[styles.inputContainer]}>
-                                <Text style={styles.inputText}>Responsible Person</Text>
-                                <DynamicDropDown
-                                    isMultiSelect={icSettings.IsRespPartyMultiSelect}
-                                    list={data}
-                                    handleSelectedList={value => {
-                                        console.log(value, '**************value');
-                                    }}
-                                    isDisable={icSettings.IsRespPartyNonEditable}
-                                />
-                            </View>
+                            {Boolean(!icSettings.IsRespPartyBasedOnTeam) && (
+                                <View style={[styles.inputContainer]}>
+                                    <Text style={styles.inputText}>Responsible Person</Text>
+                                    <DynamicDropDown
+                                        isMultiSelect={icSettings?.IsRespPartyMultiSelect}
+                                        list={resList || []}
+                                        handleSelectedList={value => {
+                                            console.log(value, '**************value');
+                                        }}
+                                        isDisable={icSettings?.IsRespPartyNonEditable}
+                                    />
+                                </View>
+                            )}
                         </View>
                     </ScrollView>
                     <Divider />
