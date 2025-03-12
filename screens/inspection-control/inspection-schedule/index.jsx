@@ -86,23 +86,30 @@ const InspectionSchedule = () => {
     const handleFilePress = () => {
         setShowFileModal(true);
     };
-    const handleListFetch = async (inspect = null, showSktn = true) => {
+    const handleListFetch = async (inspect = null, showSktn = true, filterType = '') => {
         showSktn && setShowSkeleton(true);
         const { startDate, endDate, type } = filterData;
         let dateFlag = startDate !== '' && endDate !== '';
         const formData = new FormData();
-        // formData.append('UserID', icUserData?.userData?.UserId);
-        formData.append('UserID', 7);
+        formData.append('UserID', icUserData?.userData?.UserId);
+        // formData.append('UserID', 7);
         formData.append('SiteID', parseInt(icUserData?.userData?.Siteid));
         formData.append('LanguageID', 1);
         formData.append('StartDate', dateFlag ? moment(startDate).format('MM/DD/YYYY') : '');
         formData.append('EndDate', dateFlag ? moment(endDate).format('MM/DD/YYYY') : '');
-        formData.append('InspectionType', inspect !== null ? inspect : type);
+        // formData.append('InspectionType', inspect !== null ? inspect : type);
         const response = await postAPI(`${ApiUrl.IC_GET_IS}`, formData);
         if (response.Success) {
-            setMasterData(response?.Data?.InspectionSchedules || []);
+            console.log(filterType,'filterType')
+            if (filterType !== '') {
+                let temp = response?.Data?.InspectionSchedules;
+                let filterTemp = temp.filter(item => item.TypeOfInspection == filterType);
+                setMasterData(filterTemp || []);
+            } else {
+                setMasterData(response?.Data?.InspectionSchedules || []);
+            }
             setOverAllData(response?.Data?.InspectionSchedules || []);
-            let tempShift=response?.Data?.InspectionShifts.map((item)=>({...item,label:item.ShiftName, value: item.ShiftID}))
+            let tempShift = response?.Data?.InspectionShifts.map(item => ({ ...item, label: item.ShiftName, value: item.ShiftID }));
             setFormList(pre => ({ ...pre, shiftList: tempShift || [] }));
         } else {
             setMasterData([]);
@@ -111,12 +118,31 @@ const InspectionSchedule = () => {
         setRefreshing(false);
         showSktn && setShowSkeleton(false);
     };
+    console.log(filterData, 'filterData');
     const handleInputChange = (key, value) => {
         setFilterData(pre => ({ ...pre, [key]: value }));
+        handleFilterInspection(value);
+    };
+    const handleFilterInspection = value => {
+        let temp = JSON.parse(JSON.stringify(overAllData));
+        let tempSearch = [];
+        if (value !== '') {
+            tempSearch = temp.filter(item => item.TypeOfInspection == value);
+        } else {
+            tempSearch = temp;
+        }
+        if (search.length) {
+            tempSearch = tempSearch.filter(
+                item =>
+                    item.ProductionItem.toLowerCase().includes(search.toLowerCase()) ||
+                    item.OperationName.toLowerCase().includes(search.toLowerCase()),
+            );
+        }
+        setMasterData(tempSearch);
     };
     useEffect(() => {
         if (icUserData && isFocused) {
-            handleListFetch(null);
+            handleListFetch(null, true);
         }
     }, [icUserData, isFocused]);
     const handleCIbtnpress = () => {
@@ -194,7 +220,7 @@ const InspectionSchedule = () => {
     const onRefresh = () => {
         setRefreshing(true);
         setSearch('');
-        handleListFetch(filterData.type, false);
+        handleListFetch(null, false,filterData.type);
     };
     const handleSearch = value => {
         let temp = JSON.parse(JSON.stringify(overAllData));
@@ -261,7 +287,7 @@ const InspectionSchedule = () => {
                             dataList={filterList}
                             type="BtnFilter"
                             onSelectedPress={val => {
-                                handleListFetch(val.id != 0 ? val.id : '');
+                                // handleListFetch(val.id != 0 ? val.id : '');
                                 handleInputChange('type', val.id != 0 ? val.id : '');
                             }}
                         />
