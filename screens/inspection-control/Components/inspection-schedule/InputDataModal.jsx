@@ -11,7 +11,7 @@ import { Bubbles } from 'react-native-loader';
 import { showMessage } from 'react-native-flash-message';
 import { postAPI } from 'global/api-helpers';
 import ApiUrl from 'global/ApiUrl';
-
+import AsyncStorage from '@react-native-community/async-storage';
 
 const errorObj = {
     shift: false,
@@ -23,9 +23,9 @@ const errorObj = {
 
 const InputDataModal = ({ modalVisible = false, hideModal = () => {}, selectedValue = {}, shiftData = [], userData = {} }) => {
     const dispatch = useDispatch();
+
     const { icSettings } = useSelector(state => state.inspection);
-    console.log(icSettings, 'icSettings', selectedValue.ReferenceNo);
-    const [formData, setFormData] = useState({
+    const [formFields, setFormFields] = useState({
         shift: null,
         lotNumber: '',
         lotQty: '',
@@ -37,9 +37,9 @@ const InputDataModal = ({ modalVisible = false, hideModal = () => {}, selectedVa
     const [resList, setResList] = useState([]);
     const [errorList, setErrorList] = useState(errorObj);
     const [showLoader, setShowLoader] = useState(true);
-    const [isEditableField,setIsEditableField]=useState({
-        lotNo:true
-    })
+    const [isEditableField, setIsEditableField] = useState({
+        lotNo: true,
+    });
 
     const getFrequencyList = async () => {
         let strType = selectedValue?.TypeOfInspection == '2' ? 'Aqua' : 'Custom';
@@ -100,18 +100,18 @@ const InputDataModal = ({ modalVisible = false, hideModal = () => {}, selectedVa
     };
     useEffect(() => {
         if (Object.keys(selectedValue).length && Object.keys(userData).length) {
-            setFormData(pre => ({ ...pre, lotNumber: selectedValue?.LotNo, lotQty: selectedValue?.ProductionQty?.toString() }));
-            if(selectedValue?.LotNo){
-                setIsEditableField((pre)=>({...pre,lotNo:false}))
+            setFormFields(pre => ({ ...pre, lotNumber: selectedValue?.LotNo, lotQty: selectedValue?.ProductionQty?.toString() }));
+            if (selectedValue?.LotNo) {
+                setIsEditableField(pre => ({ ...pre, lotNo: false }));
             }
             getPageApi();
         }
     }, [selectedValue, userData]);
     const handleInputChange = (key, value) => {
-        setFormData(pre => ({ ...pre, [key]: value }));
+        setFormFields(pre => ({ ...pre, [key]: value }));
     };
     const handleValidation = () => {
-        const { shift, lotNumber, lotQty, frequency, receiptNumber } = formData;
+        const { shift, lotNumber, lotQty, frequency, receiptNumber } = formFields;
         const errorobj = {
             shift: false,
             lotNumber: false,
@@ -137,94 +137,87 @@ const InputDataModal = ({ modalVisible = false, hideModal = () => {}, selectedVa
         setErrorList(errorobj);
         return Object.values(errorobj).every(item => item == false);
     };
-    const handleSubmitBtnPress = () => {
+    const handleSubmitBtnPress = async () => {
+        console.log(formFields, 'selectedValue');
         const result = handleValidation();
         if (result) {
-            const formData=new FormData()
-            formData.append("ProductionItemID",);
-            formData.append("ProductionItemName",);
-            formData.append("OperationWSID",);
-            formData.append("OperationIds",);
-            formData.append("OperationName",);
-            formData.append("OperationHierarchy",);
-            formData.append("InspectionType",);
-            formData.append("ActiveStatus",);
-            formData.append("CreatedByID",);
-            formData.append("Multioperations",);
-            formData.append("Return",);
-            formData.append("ICInspectionEntryID",);
-            formData.append("DepartmentID",);
-            formData.append("SupplierID",);
-            formData.append("Supplier",);
-            formData.append("CustomerID",);
-            formData.append("CustomerName",);
-            formData.append("LotNo",);
-            formData.append("UserID",);
-            formData.append("ReceiptNo",);
-            formData.append("LotSize",);
-            formData.append("InspectionLevelId",);
-            formData.append("strSampleSize",);
-            formData.append("strAcceptanceNo",);
-            formData.append("strRejectionNo",);
-            formData.append("InspectionStatus",);
-            formData.append("EditStatus",);
-            formData.append("EnteredBy",);
-            formData.append("EnteredDate",);
-            formData.append("InspectorInTime",);
-            formData.append("InspectorOutTime",);
-            formData.append("SegmentID",);
-            formData.append("InspectionLotDetails",);
-            formData.append("ShiftId",);
-            formData.append("SiteID",);
-            formData.append("FrequencyID",);
-            formData.append("SampleFrequency",);
-            formData.append("FormId",);
-            formData.append("Remainder",);
-            formData.append("EquipmentID",);
-            formData.append("InspectionStatus",);
-            formData.append("Executor",);
-            formData.append("EditStatus",);
-            formData.append("InspectedBy",);
-            formData.append("Operator",);
-            formData.append("InspectionDate",);
-            formData.append("ProductionItemH",);
-            formData.append("SamplingHierarchy",);
-            formData.append("InvoiceNumber",);
-            formData.append("InvoiceDate",);
-            formData.append("ProducedQty",);
-            formData.append("ProducedQty",);
-            formData.append("Characteristicsclass",);
-            formData.append("ICInspectionEntryDetailsId",);
-            formData.append("OrderDetailsID",);
-            formData.append("DurationHours",);
-            formData.append("InspectedDateTime",);
-            formData.append("NextInspectionDateTime",);
-            formData.append("BeforeRemainderDateTime",);
-            formData.append("AfterRemainderDateTime",);
-            formData.append("RContextId",);
-            formData.append("Status",);
-            formData.append("OperatorId",);
-            formData.append("RCount",);
-            formData.append("EContextId",);
-            formData.append("LanguageId",);
-            formData.append("RemainderSent",);
-            formData.append("lblVariable",);
-            formData.append("strSampleSize",);
-            formData.append("PIDHierarchy",);
-            formData.append("Shift",);
-            // formData.append("",);
-            dispatch({ type: 'INSPECT_LIST', inspectList: [] });
-            showMessage({
-                message: 'Form Downloaded Successfully',
-                backgroundColor: COLORS.SUCCESS,
-                color: COLORS.white,
-                duration: 1500,
-                statusBarHeight: 40,
-                icon: 'success',
-                position: 'right',
-                style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
-            });
-            hideModal();
+            const deviceId = await AsyncStorage.getItem('deviceid');
+            const formData = new FormData();
+            formData.append('OrderDetailsId', selectedValue?.OrderDetailsId);
+            formData.append('OrderNumber', selectedValue?.OrderNumber);
+            formData.append('OperationWSID', selectedValue?.OperationWSID);
+            formData.append('ProductionItemId', selectedValue?.ProductionItemId);
+            formData.append('ProductionItem', selectedValue?.ProductionItem);
+            formData.append('Description', selectedValue?.Description);
+            formData.append('PIHierarchy', selectedValue?.PIHierarchy);
+            formData.append('OperationID', selectedValue?.OperationID);
+            formData.append('OperationName', selectedValue?.OperationName);
+            formData.append('OperationHierarchy', selectedValue?.OperationHierarchy);
+            formData.append('SupplierId', selectedValue.SupplierId);
+            formData.append('SupplierName', selectedValue.SupplierName);
+            formData.append('CustomerId', selectedValue?.CustomerId);
+            formData.append('CustomerName', selectedValue?.CustomerName);
+            formData.append('InspectionLevelId', selectedValue?.InspectionLevelId);
+            formData.append('InspectionLevel', selectedValue?.InspectionLevel);
+            formData.append('SamplingPlanId', selectedValue?.SamplingPlanId);
+            formData.append('SamplingPlan', selectedValue?.SamplingPlan);
+            formData.append('DefectTypeId', selectedValue?.DefectTypeId);
+            formData.append('DefectTypeNumber', selectedValue?.DefectTypeNumber);
+            formData.append('InspectionId', selectedValue?.InspectionId);
+            formData.append('Inspection', selectedValue?.Inspection);
+            formData.append('InspectionType', selectedValue?.InspectionType);
+            formData.append('ProductionStartDate', selectedValue?.ProductionStartDate);
+            formData.append('ProductionStartTime', selectedValue?.ProductionStartTime);
+            formData.append('ProductionEndTime', selectedValue?.ProductionEndTime);
+            formData.append('StartDate', selectedValue?.StartDate);
+            formData.append('EndDate', selectedValue?.EndDate);
+            formData.append('AreaID', '');
+            formData.append('DeptID', '');
+            formData.append('CDepartmentName', '');
+            formData.append('Area', '');
+            formData.append('syncMode', 0);
+            formData.append('supervisorApproved', 0);
+
+            formData.append('deviceid', deviceId);
+            formData.append('UserId', userData?.UserId);
+            formData.append('UserName', userData?.FullName);
+            formData.append('SiteId', userData?.Siteid);
+            formData.append('LanguageId', 1);
+            formData.append('LotNo', formFields.lotNumber);
+            formData.append('ShiftId', formFields.shift.ShiftID);
+            formData.append('Shift', formFields.shift.ShiftName);
+            formData.append('FrequencyID', formFields.frequency.FrequencyId);
+            formData.append('SampleFrequency', formFields.frequency.SampleFrequency);
+            formData.append('ProductionQty', formFields.lotQty);
+            formData.append('ReceiptNo', formFields.receiptNumber);
+            formData.append('Executor', JSON.stringify(formFields.responsible)); // responsible party
+            const response = await postAPI(ApiUrl.IC_FORM_SUBMIT, formData);
+            console.log(response, 'response');
+            if (response.Success) {
+                dispatch({ type: 'INSPECT_LIST', inspectList: [] });
+                showMessage({
+                    message: 'Form Downloaded Successfully',
+                    backgroundColor: COLORS.SUCCESS,
+                    color: COLORS.white,
+                    duration: 1500,
+                    statusBarHeight: 40,
+                    icon: 'success',
+                    position: 'right',
+                    style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+                });
+                hideModal();
+            }else{
+                showMessage({
+                    message: 'Something went wrong',
+                    backgroundColor: COLORS.ERROR,
+                    color: COLORS.white,
+                    duration: 1500,
+                    statusBarHeight: 40,
+                    icon: 'warning',
+                    position: 'right',
+                    style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+                });
+            }
         }
     };
     return (
@@ -275,7 +268,7 @@ const InputDataModal = ({ modalVisible = false, hideModal = () => {}, selectedVa
                                     borderColor={COLORS.icBottomBox}
                                     showSearch={false}
                                     maxHeight={200}
-                                    value={formData.shift}
+                                    value={formFields.shift}
                                     onChange={val => {
                                         handleInputChange('shift', val);
                                     }}
@@ -291,7 +284,7 @@ const InputDataModal = ({ modalVisible = false, hideModal = () => {}, selectedVa
                                     Lot Number <Text style={[styles.rquired]}>*</Text>
                                 </Text>
                                 <TextInput
-                                    value={formData.lotNumber}
+                                    value={formFields.lotNumber}
                                     style={styles.inputBox}
                                     onChangeText={val => {
                                         handleInputChange('lotNumber', val);
@@ -313,7 +306,7 @@ const InputDataModal = ({ modalVisible = false, hideModal = () => {}, selectedVa
                                     onChangeText={val => {
                                         handleInputChange('lotQty', val);
                                     }}
-                                    value={formData.lotQty}
+                                    value={formFields.lotQty}
                                     keyboardType="numeric"
                                 />
                                 {Boolean(errorList.lotQty) && (
@@ -324,11 +317,9 @@ const InputDataModal = ({ modalVisible = false, hideModal = () => {}, selectedVa
                             </View>
                             {Boolean(selectedValue?.ReferenceNo?.length) && (
                                 <View style={[styles.inputContainer]}>
-                                    <Text style={styles.inputText}>
-                                        Serial Number
-                                    </Text>
+                                    <Text style={styles.inputText}>Serial Number</Text>
                                     <TextInput
-                                        style={[styles.inputBox,{backgroundColor:COLORS.icborder}]}
+                                        style={[styles.inputBox, { backgroundColor: COLORS.icborder }]}
                                         value={selectedValue?.ReferenceNo}
                                         editable={false}
                                     />
@@ -343,7 +334,7 @@ const InputDataModal = ({ modalVisible = false, hideModal = () => {}, selectedVa
                                     onChangeText={val => {
                                         handleInputChange('receiptNumber', val);
                                     }}
-                                    value={formData.receiptNumber}
+                                    value={formFields.receiptNumber}
                                 />
                                 {Boolean(errorList.receiptNumber) && (
                                     <HelperText type="error" visible={errorList.receiptNumber} padding={'none'} style={styles.errorStyle}>
@@ -383,6 +374,7 @@ const InputDataModal = ({ modalVisible = false, hideModal = () => {}, selectedVa
                                         list={resList || []}
                                         handleSelectedList={value => {
                                             console.log(value, '**************value');
+                                            handleInputChange('responsible', value);
                                         }}
                                         isDisable={icSettings?.IsRespPartyNonEditable}
                                     />

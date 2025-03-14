@@ -33,5 +33,7 @@ module.exports = {
     IC_GET_IS:'GetInspectionSchedule',
     IC_SETTINGS:'GetICSettings',
     IC_FRQ_FORM:'GetFrequency',
-    IC_RESPONSIBLE_PERSON:"GetLotCreation"
+    IC_RESPONSIBLE_PERSON:"GetLotCreation",
+    IC_FORM_SUBMIT:"SaveICInspectionEntry",
+    IC_SUPERVISOR_LIST:'SupervisorApprovalList'
 };
