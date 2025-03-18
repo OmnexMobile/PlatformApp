@@ -100,7 +100,6 @@ const InspectionSchedule = () => {
         // formData.append('InspectionType', inspect !== null ? inspect : type);
         const response = await postAPI(`${ApiUrl.IC_GET_IS}`, formData);
         if (response.Success) {
-            console.log(filterType,'filterType')
             if (filterType !== '') {
                 let temp = response?.Data?.InspectionSchedules;
                 let filterTemp = temp.filter(item => item.TypeOfInspection == filterType);

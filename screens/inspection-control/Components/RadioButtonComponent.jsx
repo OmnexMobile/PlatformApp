@@ -4,11 +4,11 @@ import React from 'react'
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import useTheme from 'theme/useTheme';
 
-const RadioButtonComponent = ({lable='Radio Text',value='',onChange=()=>{}}) => {
+const RadioButtonComponent = ({lable='Radio Text',value='',onChange=()=>{},obj={}}) => {
     const { theme } = useTheme();
   return (
     <TouchableOpacity
-        onPress={() => onChange(lable)}
+        onPress={() => onChange(obj)}
         activeOpacity={0.8}
         style={styles.container}
     >

@@ -8,7 +8,7 @@ import { COLORS } from 'constants/theme-constants';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import IconM from 'react-native-vector-icons/MaterialCommunityIcons';
 import IconI from 'react-native-vector-icons/Ionicons';
-import { useNavigation } from '@react-navigation/native';
+import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { PLACEHOLDERS, ROUTES } from 'constants/app-constant';
 import ICFileIcon from '../../../assets/images/svg/icFile.svg';
 import RadioButtonComponent from '../Components/RadioButtonComponent';
@@ -17,89 +17,17 @@ import PartDetails from '../Components/supervisor-schedule/PartDetails';
 import FileViewModal from '../Components/supervisor-schedule/FileViewModal';
 import IcSkeleton from '../Components/IcSkeleton';
 import NoDataFound from '../Components/NoDataFound';
-const listData = [
-    {
-        id: 1,
-        title: '0906 Engine',
-        OperationName: '2-Stroke Engine',
-        InvoiceNo: 3,
-        createdDate: '04/06/2024',
-        isDownloaded: false,
-    },
-    {
-        id: 2,
-        title: '1000 IC Test',
-        OperationName: '5-Stroke Engine',
-        InvoiceNo: 4,
-        createdDate: '03/07/2024',
-        isDownloaded: false,
-    },
-    {
-        id: 3,
-        title: '200 IC Test',
-        OperationName: '6-Stroke Engine',
-        InvoiceNo: 6,
-        createdDate: '03/07/2024',
-        isDownloaded: false,
-    },
-    {
-        id: 4,
-        title: '400 IC Test',
-        OperationName: '9-Stroke Engine',
-        InvoiceNo: 7,
-        createdDate: '01/07/2024',
-        isDownloaded: false,
-    },
-    {
-        id: 5,
-        title: '100 TC Test',
-        OperationName: '9-Stroke Engine',
-        InvoiceNo: 8,
-        createdDate: '03/07/2024',
-        isDownloaded: false,
-    },
-    {
-        id: 6,
-        title: '9000 IC Test',
-        OperationName: '900-Stroke Engine',
-        InvoiceNo: 9,
-        createdDate: '03/07/2024',
-        isDownloaded: false,
-    },
-    {
-        id: 51,
-        title: '100 TC Test',
-        OperationName: '9-Stroke Engine',
-        InvoiceNo: 8,
-        createdDate: '03/07/2024',
-        isDownloaded: false,
-    },
-    {
-        id: 16,
-        title: '9000 IC Test',
-        OperationName: '900-Stroke Engine',
-        InvoiceNo: 9,
-        createdDate: '03/07/2024',
-        isDownloaded: false,
-    },
-    {
-        id: 7,
-        title: '100 TC Test',
-        OperationName: '9-Stroke Engine',
-        InvoiceNo: 8,
-        createdDate: '03/07/2024',
-        isDownloaded: false,
-    },
-    {
-        id: 9,
-        title: '9000 IC Test',
-        OperationName: '900-Stroke Engine',
-        InvoiceNo: 9,
-        createdDate: '03/07/2024',
-        isDownloaded: false,
-    },
-];
+import { useSelector } from 'react-redux';
+import { postAPI } from 'global/api-helpers';
+import ApiUrl from 'global/ApiUrl';
+import moment from 'moment';
+
 const optionsList = [
+    {
+        id: 0,
+        value: 'All',
+        label: 'All',
+    },
     {
         id: 1,
         value: 'Recieving Inspections',
@@ -118,21 +46,28 @@ const optionsList = [
 ];
 const SupervisorSchedule = () => {
     const navigation = useNavigation();
-
+    const { inspectList, icUserData, icSettings } = useSelector(state => state.inspection);
+    const isFocused = useIsFocused();
     const [showFilterList, setShowFilterList] = useState(false);
-    const [selectedRadio, setSelectedRadio] = useState('');
     const [showEye, setShowEye] = useState(false);
     const [showFileModal, setShowFileModal] = useState(false);
     const [masterData, setMasterData] = useState([]);
+    const [overAllData, setOverAllData] = useState([]);
     const [showSkeleton, setShowSkeleton] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
+    const [filters, setFilters] = useState({
+        search: '',
+        inspectionType: {
+            id: 0,
+            value: 'All',
+            label: 'All',
+        },
+    });
 
-    setTimeout(() => {
-        setRefreshing(false);
-    }, 1000);
-    const onRefresh=()=>{
-        setRefreshing(true)
-    }
+    const onRefresh = () => {
+        setRefreshing(true);
+        handleGetAllData(false);
+    };
 
     const handleEyePress = () => {
         setShowEye(true);
@@ -143,33 +78,45 @@ const SupervisorSchedule = () => {
     const handleFilePress = () => {
         setShowFileModal(true);
     };
-    setTimeout(() => {
+    const handleGetAllData = async (showSKT = true) => {
+        showSKT && setShowSkeleton(true);
+        const formData = new FormData();
+        formData.append('UserID', icUserData?.userData?.UserId);
+        const response = await postAPI(ApiUrl.IC_SUPERVISOR_LIST, formData);
+        if (response.Success) {
+            setMasterData(response?.Data || []);
+            setOverAllData(response?.Data || []);
+        } else {
+            setMasterData([]);
+            setOverAllData([]);
+        }
         setShowSkeleton(false);
-    }, 1000);
-    handleGetAllData = () => {
-        setShowSkeleton(true);
-        setMasterData([...listData]);
+        setRefreshing(false);
     };
     useEffect(() => {
-        handleGetAllData();
-    }, []);
-
+        if (icUserData) {
+            handleGetAllData();
+        }
+    }, [icUserData]);
+    const renderIconBgColor = value => {
+        return value == '1' ? COLORS.apptheme : value == '2' ? COLORS.ipBgColor : COLORS.fiBgColor;
+    };
     const renderItem = ({ item }) => {
         return (
             <View style={[styles.recordConatiner]}>
-                <View style={[styles.iconBox]}>
+                <View style={[styles.iconBox, { backgroundColor: renderIconBgColor(item?.TypeOfInspection) }]}>
                     <Icon name="layers-outline" size={25} color={COLORS.white} />
                 </View>
                 <View style={{ flex: 1, paddingHorizontal: 10 }}>
-                    <Text style={[styles.cardText]}>{item?.title}</Text>
+                    <Text style={[styles.cardText]}>{item?.ProductionItemName}</Text>
                     <Text style={[styles.operationText]}>
                         Operation Name : <Text style={[styles.secondText]}>{item.OperationName}</Text>
                     </Text>
                     <Text style={[styles.operationText]}>
-                        Inspection Date : <Text style={[styles.secondText]}>{item.createdDate}</Text>
+                        Inspection Date : <Text style={[styles.secondText]}>{moment(item.EnteredDate).format('DD/MM/YYYY')}</Text>
                     </Text>
                     <Text style={[styles.operationText]}>
-                        Lot Number : <Text style={[styles.secondText]}>{item.InvoiceNo}</Text>
+                        Lot Number : <Text style={[styles.secondText]}>{item.LotNo}</Text>
                     </Text>
                 </View>
                 <View style={[styles.lastBox]}>
@@ -194,6 +141,37 @@ const SupervisorSchedule = () => {
             </View>
         );
     };
+
+    useEffect(() => {
+        var handler;
+        if (filters?.search?.length && isFocused) {
+            handler = setTimeout(() => {
+                handleTypeFilter(filters.inspectionType.id,filters.search);
+            }, 500);
+        }
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [filters?.search, isFocused]);
+    const handleTypeFilter=(value,search='')=>{
+        let temp = JSON.parse(JSON.stringify(overAllData));
+        let tempSearch = [];
+        if (value !== 0) {
+            tempSearch = temp.filter(item => item.InspectionType == value);
+        } else {
+            tempSearch = temp;
+        }
+        if (search?.length) {
+            tempSearch = tempSearch.filter(
+                item =>
+                    item.ProductionItemName.toLowerCase().includes(search.toLowerCase()) ||
+                    item.OperationName.toLowerCase().includes(search.toLowerCase()),
+            );
+        }
+        setMasterData(tempSearch)
+        hideModal()
+    }
+
     return (
         <CustomHeader
             title="Supervisor Schedule"
@@ -201,8 +179,14 @@ const SupervisorSchedule = () => {
             handleFilterPress={() => {
                 setShowFilterList(true);
             }}
-            searchValue=''
-            >
+            hideSearch={isFocused}
+            searchValue=""
+            handleSearch={value => {
+                setFilters(pre => ({ ...pre, search: value }));
+                if (!value?.length) {
+                    setMasterData(overAllData);
+                }
+            }}>
             <View style={[styles.container]}>
                 {Boolean(showSkeleton) ? (
                     <IcSkeleton type={PLACEHOLDERS.SUPERVISOR_CARD} />
@@ -210,7 +194,7 @@ const SupervisorSchedule = () => {
                     <FlatList
                         data={masterData}
                         renderItem={renderItem}
-                        keyExtractor={item => item.id}
+                        keyExtractor={item => item.ProductionItemId}
                         showsVerticalScrollIndicator={false}
                         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
                     />
@@ -244,10 +228,11 @@ const SupervisorSchedule = () => {
                                     <View style={{ marginVertical: 10 }} key={item.id}>
                                         <RadioButtonComponent
                                             lable={item.label}
-                                            value={selectedRadio}
+                                            value={filters.inspectionType.label}
                                             onChange={val => {
-                                                setSelectedRadio(val);
+                                                setFilters((pre)=>({...pre,inspectionType:val}))
                                             }}
+                                            obj={item}
                                         />
                                     </View>
                                 );
@@ -260,7 +245,9 @@ const SupervisorSchedule = () => {
                             <TouchableOpacity style={styles.cancelConatiner} onPress={hideModal}>
                                 <Text style={styles.btnStyle}>CANCEL</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity style={styles.cancelConatiner} onPress={() => {}}>
+                            <TouchableOpacity style={styles.cancelConatiner} onPress={() => {
+                                 handleTypeFilter(filters.inspectionType.id,filters.search)
+                            }}>
                                 <Text style={styles.btnStyle}>SUBMIT</Text>
                             </TouchableOpacity>
                         </View>

@@ -12,6 +12,7 @@ import { showMessage } from 'react-native-flash-message';
 import { postAPI } from 'global/api-helpers';
 import ApiUrl from 'global/ApiUrl';
 import AsyncStorage from '@react-native-community/async-storage';
+import moment from 'moment';
 
 const errorObj = {
     shift: false,
@@ -42,9 +43,9 @@ const InputDataModal = ({ modalVisible = false, hideModal = () => {}, selectedVa
     });
 
     const getFrequencyList = async () => {
-        let strType = selectedValue?.TypeOfInspection == '2' ? 'Aqua' : 'Custom';
+        // let strType = selectedValue?.TypeOfInspection == '2' ? 'Aqua' : 'Custom';
         const formData = new FormData();
-        formData.append('strType', strType);
+        formData.append('strType', selectedValue?.InspectionType);
         formData.append('strId', selectedValue?.ProductionItemId);
         formData.append('strOperationId', selectedValue?.OperationID);
         formData.append('intUserID', userData?.UserId);
@@ -64,7 +65,27 @@ const InputDataModal = ({ modalVisible = false, hideModal = () => {}, selectedVa
                 setFrqList([]);
             }
         } else {
-            setFrqList([]);
+            let response = {
+                Data: [
+                    {
+                        FrequencyId: 1,
+                        SampleFrequency: 'Frequency1',
+                        FrequencyCode: 'obi02171',
+                    },
+                ],
+                Success: true,
+                Message: 'Success',
+            };
+            let temp = [];
+            response?.Data.forEach(item => {
+                temp.push({
+                    label: item?.SampleFrequency,
+                    value: item?.FrequencyId,
+                    ...item,
+                });
+            });
+            setFrqList(temp || []);
+            // setFrqList([]);
         }
         return true;
     };
@@ -145,12 +166,11 @@ const InputDataModal = ({ modalVisible = false, hideModal = () => {}, selectedVa
             const formData = new FormData();
             formData.append('OrderDetailsId', selectedValue?.OrderDetailsId);
             formData.append('OrderNumber', selectedValue?.OrderNumber);
-            formData.append('OperationWSID', selectedValue?.OperationWSID);
             formData.append('ProductionItemId', selectedValue?.ProductionItemId);
-            formData.append('ProductionItem', selectedValue?.ProductionItem);
+            formData.append('ProductionItemName', selectedValue?.ProductionItem);
             formData.append('Description', selectedValue?.Description);
-            formData.append('PIHierarchy', selectedValue?.PIHierarchy);
-            formData.append('OperationID', selectedValue?.OperationID);
+            formData.append('PIDHierarchy', selectedValue?.PIHierarchy);
+            formData.append('OperationIds', selectedValue?.OperationID);
             formData.append('OperationName', selectedValue?.OperationName);
             formData.append('OperationHierarchy', selectedValue?.OperationHierarchy);
             formData.append('SupplierId', selectedValue.SupplierId);
@@ -178,9 +198,16 @@ const InputDataModal = ({ modalVisible = false, hideModal = () => {}, selectedVa
             formData.append('syncMode', 0);
             formData.append('supervisorApproved', 0);
 
+            // other 
+            if(selectedValue.TypeOfInspection=='2'){
+                formData.append('OperationWSIDs', selectedValue?.OperationWSID);
+            }else{
+                formData.append('OperationWSID', selectedValue?.OperationWSID);
+            }
+
             formData.append('deviceid', deviceId);
             formData.append('UserId', userData?.UserId);
-            formData.append('UserName', userData?.FullName);
+            formData.append('Operator', userData?.FullName);
             formData.append('SiteId', userData?.Siteid);
             formData.append('LanguageId', 1);
             formData.append('LotNo', formFields.lotNumber);
@@ -191,6 +218,11 @@ const InputDataModal = ({ modalVisible = false, hideModal = () => {}, selectedVa
             formData.append('ProductionQty', formFields.lotQty);
             formData.append('ReceiptNo', formFields.receiptNumber);
             formData.append('Executor', JSON.stringify(formFields.responsible)); // responsible party
+            // need to update asper API change
+            formData.append('EnteredDate', moment(new Date()).format('MM/DD/YYYY h:mm:ss A '));
+            formData.append('SamplingHierarchy', ', , AQL=');
+            formData.append('CreatedByID', '9');
+
             const response = await postAPI(ApiUrl.IC_FORM_SUBMIT, formData);
             console.log(response, 'response');
             if (response.Success) {
@@ -206,7 +238,7 @@ const InputDataModal = ({ modalVisible = false, hideModal = () => {}, selectedVa
                     style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
                 });
                 hideModal();
-            }else{
+            } else {
                 showMessage({
                     message: 'Something went wrong',
                     backgroundColor: COLORS.ERROR,
