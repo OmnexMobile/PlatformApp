@@ -65,27 +65,27 @@ const InputDataModal = ({ modalVisible = false, hideModal = () => {}, selectedVa
                 setFrqList([]);
             }
         } else {
-            let response = {
-                Data: [
-                    {
-                        FrequencyId: 1,
-                        SampleFrequency: 'Frequency1',
-                        FrequencyCode: 'obi02171',
-                    },
-                ],
-                Success: true,
-                Message: 'Success',
-            };
-            let temp = [];
-            response?.Data.forEach(item => {
-                temp.push({
-                    label: item?.SampleFrequency,
-                    value: item?.FrequencyId,
-                    ...item,
-                });
-            });
-            setFrqList(temp || []);
-            // setFrqList([]);
+            // let response = {
+            //     Data: [
+            //         {
+            //             FrequencyId: 1,
+            //             SampleFrequency: 'Frequency1',
+            //             FrequencyCode: 'obi02171',
+            //         },
+            //     ],
+            //     Success: true,
+            //     Message: 'Success',
+            // };
+            // let temp = [];
+            // response?.Data.forEach(item => {
+            //     temp.push({
+            //         label: item?.SampleFrequency,
+            //         value: item?.FrequencyId,
+            //         ...item,
+            //     });
+            // });
+            // setFrqList(temp || []);
+            setFrqList([]);
         }
         return true;
     };
