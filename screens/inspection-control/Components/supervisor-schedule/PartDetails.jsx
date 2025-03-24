@@ -1,7 +1,8 @@
 import { COLORS } from 'constants/theme-constants';
 import { RFPercentage } from 'helpers/utils';
+import moment from 'moment';
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Divider, Modal } from 'react-native-paper';
 
 const KeyValueList = ({ title = '', value = '' }) => {
@@ -17,22 +18,24 @@ const KeyValueList = ({ title = '', value = '' }) => {
     );
 };
 
-const PartDetails = ({ visible = false, onDismiss = () => {} }) => {
+const PartDetails = ({ visible = false, onDismiss = () => {},selectedData={} }) => {
     return (
         <Modal visible={visible} onDismiss={onDismiss} contentContainerStyle={[styles.modalConatiner]}>
             <View style={[styles.modalcontainer]}>
                 <View style={[styles.modalBoxOne]}>
                     <Text style={[styles.headerText]}>Crank Shaft - Details</Text>
                     <Divider />
-                    <View style={[styles.contentBox]}>
-                        <KeyValueList title="Reference No" value="001" />
-                        <KeyValueList title="Operation" value="001" />
-                        <KeyValueList title="Lot Number" value="001" />
-                        <KeyValueList title="Lot Size" value="001" />
-                        <KeyValueList title="Supplier" value="001" />
-                        <KeyValueList title="Production Line Name" value="001" />
-                        <KeyValueList title="Sample Frequency" value="001" />
-                    </View>
+                    <ScrollView style={[styles.contentBox]} showsVerticalScrollIndicator={false}>
+                        <KeyValueList title="Reference No" value={selectedData?.ReferenceNo} />
+                        <KeyValueList title="Operation" value={selectedData?.OperationName} />
+                        <KeyValueList title="Lot Number" value={selectedData?.LotNo} />
+                        <KeyValueList title="Lot Size" value={selectedData?.LotSize} />
+                        <KeyValueList title="Supplier" value={selectedData?.SupplierName} />
+                        <KeyValueList title="Production Line Name" value={selectedData?.ProductionLineName} />
+                        <KeyValueList title="Sample Frequency" value={selectedData?.SampleFrequency} />
+                        <KeyValueList title="Inspector" value={selectedData?.Operator} />
+                        <KeyValueList title="Inspected Date" value={selectedData?.EnteredDate!==''?moment(new Date(selectedData?.EnteredDate)).format('DD/MM/YYYY hh:mm A'):''} />
+                    </ScrollView>
                 </View>
                 <View>
                     <Divider />
@@ -67,7 +70,8 @@ const styles = StyleSheet.create({
         color:COLORS.ictextBlack
     },
     contentBox: {
-        paddingVertical: 15,
+        height:400,
+        marginVertical:15
     },
     boxConatiner: {
         flexDirection: 'row',
@@ -82,7 +86,7 @@ const styles = StyleSheet.create({
     },
     cardTitle: {
         fontFamily: 'OpenSans-SemiBold',
-        fontSize: 12,
+        fontSize: 14,
         color:COLORS.headerText
     },
     btnConatiner: {

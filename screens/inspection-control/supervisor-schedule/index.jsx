@@ -63,13 +63,15 @@ const SupervisorSchedule = () => {
             label: 'All',
         },
     });
+    const [selectedData,setSelectedData]=useState({})
 
     const onRefresh = () => {
         setRefreshing(true);
         handleGetAllData(false);
     };
 
-    const handleEyePress = () => {
+    const handleEyePress = (value) => {
+        setSelectedData(value)
         setShowEye(true);
     };
     const hideModal = () => {
@@ -104,7 +106,7 @@ const SupervisorSchedule = () => {
     const renderItem = ({ item }) => {
         return (
             <View style={[styles.recordConatiner]}>
-                <View style={[styles.iconBox, { backgroundColor: renderIconBgColor(item?.TypeOfInspection) }]}>
+                <View style={[styles.iconBox, { backgroundColor: renderIconBgColor(item?.InspectionType) }]}>
                     <Icon name="layers-outline" size={25} color={COLORS.white} />
                 </View>
                 <View style={{ flex: 1, paddingHorizontal: 10 }}>
@@ -124,7 +126,7 @@ const SupervisorSchedule = () => {
                         <Text style={[styles.launchText]}>Awaiting</Text>
                     </TouchableOpacity>
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <TouchableOpacity style={{ marginRight: 10 }} onPress={() => handleEyePress()}>
+                        <TouchableOpacity style={{ marginRight: 10 }} onPress={() => handleEyePress(item)}>
                             <IconI name="eye-outline" size={25} color={COLORS.grey} />
                         </TouchableOpacity>
                         <TouchableOpacity style={{ marginRight: 5 }} onPress={() => handleFilePress()}>
@@ -254,12 +256,13 @@ const SupervisorSchedule = () => {
                     </View>
                 </View>
             </Modal>
-            <PartDetails
+            {Boolean(showEye)&&<PartDetails
                 visible={showEye}
                 onDismiss={() => {
                     setShowEye(false);
                 }}
-            />
+                selectedData={selectedData}
+            />}
             <FileViewModal
                 visible={showFileModal}
                 onDismiss={() => {

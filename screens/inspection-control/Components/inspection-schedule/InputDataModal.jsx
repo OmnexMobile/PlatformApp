@@ -24,7 +24,6 @@ const errorObj = {
 
 const InputDataModal = ({ modalVisible = false, hideModal = () => {}, selectedValue = {}, shiftData = [], userData = {} }) => {
     const dispatch = useDispatch();
-
     const { icSettings } = useSelector(state => state.inspection);
     const [formFields, setFormFields] = useState({
         shift: null,
@@ -41,6 +40,7 @@ const InputDataModal = ({ modalVisible = false, hideModal = () => {}, selectedVa
     const [isEditableField, setIsEditableField] = useState({
         lotNo: true,
     });
+    console.log(icSettings,'icSettings')
 
     const getFrequencyList = async () => {
         // let strType = selectedValue?.TypeOfInspection == '2' ? 'Aqua' : 'Custom';
@@ -94,11 +94,8 @@ const InputDataModal = ({ modalVisible = false, hideModal = () => {}, selectedVa
         formData.append('strUserID', userData?.UserId);
         formData.append('strOperationID', selectedValue?.OperationID);
         formData.append('strProductionitemID', selectedValue?.ProductionItemId);
-        // formData.append('strOperationID', '20823;20828;20841');
-        // formData.append('strProductionitemID', '20818');
         formData.append('strFrequencyID', '');
         const response = await postAPI(`${ApiUrl.IC_RESPONSIBLE_PERSON}`, formData);
-        console.log(response, 'userData');
         if (response.length) {
             let temp = [];
             response.forEach(item => {
@@ -159,7 +156,6 @@ const InputDataModal = ({ modalVisible = false, hideModal = () => {}, selectedVa
         return Object.values(errorobj).every(item => item == false);
     };
     const handleSubmitBtnPress = async () => {
-        console.log(formFields, 'selectedValue');
         const result = handleValidation();
         if (result) {
             const deviceId = await AsyncStorage.getItem('deviceid');
@@ -207,7 +203,7 @@ const InputDataModal = ({ modalVisible = false, hideModal = () => {}, selectedVa
 
             formData.append('deviceid', deviceId);
             formData.append('UserId', userData?.UserId);
-            formData.append('Operator', userData?.FullName);
+            formData.append('UserName', userData?.FullName);
             formData.append('SiteId', userData?.Siteid);
             formData.append('LanguageId', 1);
             formData.append('LotNo', formFields.lotNumber);
@@ -220,11 +216,10 @@ const InputDataModal = ({ modalVisible = false, hideModal = () => {}, selectedVa
             formData.append('Executor', JSON.stringify(formFields.responsible)); // responsible party
             // need to update asper API change
             formData.append('EnteredDate', moment(new Date()).format('MM/DD/YYYY h:mm:ss A '));
-            formData.append('SamplingHierarchy', ', , AQL=');
-            formData.append('CreatedByID', '9');
+            // formData.append('SamplingHierarchy', ', , AQL=');
+            formData.append('CreatedByID', userData?.UserId);
 
             const response = await postAPI(ApiUrl.IC_FORM_SUBMIT, formData);
-            console.log(response, 'response');
             if (response.Success) {
                 dispatch({ type: 'INSPECT_LIST', inspectList: [] });
                 showMessage({
