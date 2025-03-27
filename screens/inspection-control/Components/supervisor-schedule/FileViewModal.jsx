@@ -1,32 +1,36 @@
 import { COLORS } from 'constants/theme-constants';
 import { RFPercentage } from 'helpers/utils';
-import React from 'react';
-import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Alert, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Divider, Modal } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import IconF from 'react-native-vector-icons/Feather';
 import FileViewer from 'react-native-file-viewer';
 import RNFS from 'react-native-fs';
+import { postAPI } from 'global/api-helpers';
+import ApiUrl from 'global/ApiUrl';
 
-const FileViewModal = ({ visible = false, onDismiss = () => {} }) => {
-    const handleFileViewPress = async (fileName, fileType) => {
+const FileViewModal = ({ visible = false, onDismiss = () => {}, selectedValue = {} }) => {
+    const [fileList, setFileList] = useState([]);
+    
+    const handleFileViewPress = async (fileName, url) => {
         // Example directory path for saving the file
         const filePath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
 
         try {
             // Example files - Replace with URLs or local assets as needed
-            let fileUrl;
-            switch (fileType) {
-                case 'pdf':
-                    fileUrl = 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf';
-                    break;
-                case 'image':
-                    fileUrl = 'https://www.w3schools.com/w3images/fjords.jpg';
-                    break;
-                default:
-                    throw new Error('Unsupported file type');
-            }
-
+            // let fileUrl;
+            // switch (fileType) {
+            //     case 'pdf':
+            //         fileUrl = 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf';
+            //         break;
+            //     case 'image':
+            //         fileUrl = 'https://www.w3schools.com/w3images/fjords.jpg';
+            //         break;
+            //     default:
+            //         throw new Error('Unsupported file type');
+            // }
+            let fileUrl=url
             // Download the file
             const downloadResult = await RNFS.downloadFile({
                 fromUrl: fileUrl,
@@ -44,28 +48,51 @@ const FileViewModal = ({ visible = false, onDismiss = () => {} }) => {
             Alert.alert('Error', 'Failed to open the file');
         }
     };
+    const getAllFiles = async () => {
+        const formData = new FormData();
+        formData.append('operationId', selectedValue?.OperationID);
+        formData.append('productionItemH', selectedValue?.ProductionItemId);
+        const response = await postAPI(ApiUrl.IC_GET_ATTACHEMENTS, formData);
+        if (response.Success) {
+            setFileList(response.Data || []);
+        } else {
+            setFileList([]);
+        }
+        console.log(response, 'response');
+    };
+    useEffect(() => {
+        if (Object.keys(selectedValue)?.length) {
+            getAllFiles();
+        }
+    }, [selectedValue]);
+    const renderFiles = ({ item, index }) => {
+        return (
+            <View style={[styles.fileContainer]} key={index+1}>
+                <View style={[styles.iconConatiner]}>
+                    <Icon name="file-document-outline" size={25} color={COLORS.white} />
+                </View>
+                <View style={[styles.textContainer]}>
+                    <Text style={[styles.fileText]}>{item?.FileName}</Text>
+                </View>
+                <TouchableOpacity
+                    style={{ marginLeft: 10 }}
+                    onPress={() => {
+                        handleFileViewPress(item?.FileName,item.FilePath);
+                    }}>
+                    <IconF name="eye" size={25} color={COLORS.grey} />
+                </TouchableOpacity>
+            </View>
+        );
+    };
     return (
         <Modal visible={visible} onDismiss={onDismiss} contentContainerStyle={[styles.modalConatiner]}>
             <View style={[styles.modalcontainer]}>
                 <View style={[styles.modalBoxOne]}>
-                    <Text style={[styles.headerText]}>Crank Shaft - Details</Text>
+                    <Text style={[styles.headerText]}>{selectedValue?.ProductionItem || ''} - Attachments</Text>
                     <Divider />
+
                     <View style={[styles.contentBox]}>
-                        <View style={[styles.fileContainer]}>
-                            <View style={[styles.iconConatiner]}>
-                                <Icon name="file-document-outline" size={25} color={COLORS.white} />
-                            </View>
-                            <View style={[styles.textContainer]}>
-                                <Text style={[styles.fileText]}>Process Segment Process</Text>
-                            </View>
-                            <TouchableOpacity
-                                style={{ marginLeft: 10 }}
-                                onPress={() => {
-                                    handleFileViewPress('dummy.pdf', 'pdf');
-                                }}>
-                                <IconF name="eye" size={25} color={COLORS.grey} />
-                            </TouchableOpacity>
-                        </View>
+                        <FlatList data={fileList} renderItem={renderFiles} />
                     </View>
                 </View>
                 <View>
@@ -98,7 +125,7 @@ const styles = StyleSheet.create({
         fontFamily: 'OpenSans-SemiBold',
         fontSize: 18,
         marginBottom: 13,
-        color:COLORS.ictextBlack
+        color: COLORS.ictextBlack,
     },
     contentBox: {
         paddingVertical: 15,
@@ -139,7 +166,7 @@ const styles = StyleSheet.create({
     fileText: {
         fontFamily: 'OpenSans-SemiBold',
         fontSize: RFPercentage(1.7),
-        color:COLORS.ictextBlack
+        color: COLORS.ictextBlack,
     },
 });
 export default FileViewModal;

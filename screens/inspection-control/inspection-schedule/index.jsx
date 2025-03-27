@@ -83,7 +83,8 @@ const InspectionSchedule = () => {
         personList: [],
     });
 
-    const handleFilePress = () => {
+    const handleFilePress = (item) => {
+        setSelectedData(item);
         setShowFileModal(true);
     };
     const handleListFetch = async (inspect = null, showSktn = true, filterType = '') => {
@@ -200,7 +201,7 @@ const InspectionSchedule = () => {
                         <TouchableOpacity
                             style={{ marginLeft: 15 }}
                             onPress={() => {
-                                handleFilePress();
+                                handleFilePress(item);
                             }}>
                             <ICFileIcon />
                         </TouchableOpacity>
@@ -346,6 +347,7 @@ const InspectionSchedule = () => {
             )}
             {Boolean(showFileModal) && (
                 <FileViewModal
+                    selectedValue={selectedData}
                     visible={showFileModal}
                     onDismiss={() => {
                         setShowFileModal(false);
