@@ -1,15 +1,19 @@
 import { ButtonComponent } from 'components';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import CustomHeader from '../Components/CustomHeader';
-import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { FlatList, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { COLORS } from 'constants/theme-constants';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { useNavigation } from '@react-navigation/native';
-import { ROUTES } from 'constants/app-constant';
+import { useIsFocused, useNavigation } from '@react-navigation/native';
+import { PLACEHOLDERS, ROUTES } from 'constants/app-constant';
 import { Divider, Modal } from 'react-native-paper';
 import { RFPercentage } from 'helpers/utils';
 import DeleteModal from '../Components/DeleteModal';
 import NoDataFound from '../Components/NoDataFound';
+import { useSelector } from 'react-redux';
+import ApiUrl from 'global/ApiUrl';
+import { postAPI } from 'global/api-helpers';
+import IcSkeleton from '../Components/IcSkeleton';
 
 const listData = [
     {
@@ -95,8 +99,41 @@ const listData = [
 ];
 
 const OperatorWorksheet = () => {
+    const { icUserData } = useSelector(state => state.inspection);
     const [showDelete, setShowDelete] = useState(false);
     const navigation = useNavigation();
+    const [masterData, setMasterData] = useState([]);
+    const [showSkeleton, setShowSkeleton] = useState(false);
+    const [refreshing, setRefreshing] = useState(false);
+
+    const isFocused = useIsFocused();
+
+    const getOperatorListData = async (showSkt = true) => {
+        showSkt && setShowSkeleton(true);
+        const formData = new FormData();
+        formData.append('UserID', icUserData?.userData?.UserId);
+        formData.append('StartDate', '2025-3-20');
+        formData.append('EndDate', '2025-3-27');
+        formData.append('SiteID', '1');
+        formData.append('LanguageID', '1');
+        const response = await postAPI(`${ApiUrl.IC_OPERATOR_LIST}`, formData);
+        if (response.Success) {
+            setMasterData(response?.Data || []);
+        } else {
+            setMasterData([]);
+        }
+        setShowSkeleton(false);
+        setRefreshing(false);
+    };
+    const onRefresh = () => {
+        setRefreshing(true);
+        getOperatorListData(false);
+    };
+    useEffect(() => {
+        if (icUserData && isFocused) {
+            getOperatorListData();
+        }
+    }, [icUserData, isFocused]);
     const handleCIbtnpress = () => {
         navigation.navigate(ROUTES.COMPLETED_INSPECTION);
     };
@@ -106,22 +143,25 @@ const OperatorWorksheet = () => {
     const handleDeletePress = () => {
         setShowDelete(true);
     };
+    const renderIconBgColor = value => {
+        return value == '1' ? COLORS.apptheme : value == '2' ? COLORS.ipBgColor : COLORS.fiBgColor;
+    };
     const renderItem = ({ item }) => {
         return (
             <View style={[styles.recordConatiner]}>
-                <View style={[styles.iconBox]}>
+                <View style={[styles.iconBox, { backgroundColor: renderIconBgColor(item?.intInspectionTypeID) }]}>
                     <Icon name="layers-outline" size={25} color={COLORS.white} />
                 </View>
                 <View style={{ flex: 1, paddingHorizontal: 10 }}>
-                    <Text style={[styles.cardText]}>{item?.title}</Text>
+                    <Text style={[styles.cardText]}>{item?.strProductionItemName}</Text>
                     <Text style={[styles.operationText]}>
-                        Operation Name : <Text style={[styles.secondText]}>{item.OperationName}</Text>
+                        Operation Name : <Text style={[styles.secondText]}>{item.strOperationName}</Text>
                     </Text>
                     <Text style={[styles.operationText]}>
-                        Frequency : <Text style={[styles.secondText]}>{item.InvoiceNo}</Text>
+                        Frequency : <Text style={[styles.secondText]}>{item.strFrequencyName}</Text>
                     </Text>
                     <Text style={[styles.operationText]}>
-                        Lot Number : <Text style={[styles.secondText]}>{item.InvoiceNo}</Text>
+                        Lot Number : <Text style={[styles.secondText]}>{item.strLotNo}</Text>
                     </Text>
                 </View>
                 <View style={[styles.lastBox]}>
@@ -145,7 +185,19 @@ const OperatorWorksheet = () => {
     return (
         <CustomHeader title="Operator Worksheet" activeTabId={2}>
             <View style={[styles.container]}>
-                {Boolean(listData?.length)?<FlatList data={listData} renderItem={renderItem} keyExtractor={item => item.id} showsVerticalScrollIndicator={false} />:<NoDataFound/>}
+                {Boolean(showSkeleton) ? (
+                    <IcSkeleton type={PLACEHOLDERS.OPERATOR_CARD} />
+                ) : Boolean(masterData?.length) ? (
+                    <FlatList
+                        data={masterData}
+                        renderItem={renderItem}
+                        keyExtractor={item => item.intInspectionID}
+                        showsVerticalScrollIndicator={false}
+                        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+                    />
+                ) : (
+                    <NoDataFound />
+                )}
             </View>
             <View style={[styles.btnContainer]}>
                 <ButtonComponent

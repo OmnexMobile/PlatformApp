@@ -1,5 +1,5 @@
 import { COLORS } from 'constants/theme-constants';
-import { RFPercentage } from 'helpers/utils';
+import { RFPercentage, RFValue } from 'helpers/utils';
 import React, { useEffect, useState } from 'react';
 import { Alert, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Divider, Modal } from 'react-native-paper';
@@ -9,46 +9,29 @@ import FileViewer from 'react-native-file-viewer';
 import RNFS from 'react-native-fs';
 import { postAPI } from 'global/api-helpers';
 import ApiUrl from 'global/ApiUrl';
+import { Bubbles } from 'react-native-loader';
+import NoDataFound from '../NoDataFound';
 
 const FileViewModal = ({ visible = false, onDismiss = () => {}, selectedValue = {} }) => {
     const [fileList, setFileList] = useState([]);
-    
-    const handleFileViewPress = async (fileName, url) => {
-        // Example directory path for saving the file
-        const filePath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
+    const [showLoader, setShowLoader] = useState(false);
 
+    const handleFileViewPress = async (fileName, url,fileExtension) => {
         try {
-            // Example files - Replace with URLs or local assets as needed
-            // let fileUrl;
-            // switch (fileType) {
-            //     case 'pdf':
-            //         fileUrl = 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf';
-            //         break;
-            //     case 'image':
-            //         fileUrl = 'https://www.w3schools.com/w3images/fjords.jpg';
-            //         break;
-            //     default:
-            //         throw new Error('Unsupported file type');
-            // }
-            let fileUrl=url
-            // Download the file
-            const downloadResult = await RNFS.downloadFile({
-                fromUrl: fileUrl,
-                toFile: filePath,
-            }).promise;
+            // Define the file path (change extension based on file type)
+            const filePath = `${RNFS.DocumentDirectoryPath}/${fileName}.${fileExtension}`;
 
-            if (downloadResult.statusCode === 200) {
-                // Open the file
-                await FileViewer.open(filePath);
-            } else {
-                Alert.alert('Error', 'Failed to download the file');
-            }
+            // Write the Base64 string to a file
+            await RNFS.writeFile(filePath, url, 'base64');
+
+            // Open the file using FileViewer
+            await FileViewer.open(filePath);
         } catch (error) {
-            console.error(error);
-            Alert.alert('Error', 'Failed to open the file');
+            Alert.alert('Error', 'Failed to open file: ' + error.message);
         }
     };
     const getAllFiles = async () => {
+        setShowLoader(true);
         const formData = new FormData();
         formData.append('operationId', selectedValue?.OperationID);
         formData.append('productionItemH', selectedValue?.ProductionItemId);
@@ -58,7 +41,7 @@ const FileViewModal = ({ visible = false, onDismiss = () => {}, selectedValue = 
         } else {
             setFileList([]);
         }
-        console.log(response, 'response');
+        setShowLoader(false);
     };
     useEffect(() => {
         if (Object.keys(selectedValue)?.length) {
@@ -67,7 +50,7 @@ const FileViewModal = ({ visible = false, onDismiss = () => {}, selectedValue = 
     }, [selectedValue]);
     const renderFiles = ({ item, index }) => {
         return (
-            <View style={[styles.fileContainer]} key={index+1}>
+            <View style={[styles.fileContainer]} key={index + 1}>
                 <View style={[styles.iconConatiner]}>
                     <Icon name="file-document-outline" size={25} color={COLORS.white} />
                 </View>
@@ -77,7 +60,7 @@ const FileViewModal = ({ visible = false, onDismiss = () => {}, selectedValue = 
                 <TouchableOpacity
                     style={{ marginLeft: 10 }}
                     onPress={() => {
-                        handleFileViewPress(item?.FileName,item.FilePath);
+                        handleFileViewPress(item?.FileName, item.FileContentBase64,item.FileExtension);
                     }}>
                     <IconF name="eye" size={25} color={COLORS.grey} />
                 </TouchableOpacity>
@@ -92,7 +75,17 @@ const FileViewModal = ({ visible = false, onDismiss = () => {}, selectedValue = 
                     <Divider />
 
                     <View style={[styles.contentBox]}>
-                        <FlatList data={fileList} renderItem={renderFiles} />
+                        {Boolean(showLoader) ? (
+                            <View style={[styles.loaderStyle]}>
+                                <Bubbles size={10} color="#12C0CF" />
+                            </View>
+                        ) : Boolean(fileList.length) ? (
+                            <FlatList data={fileList} renderItem={renderFiles} showsVerticalScrollIndicator={false} />
+                        ) : (
+                            <View style={{ height: 170 }}>
+                                <NoDataFound />
+                            </View>
+                        )}
                     </View>
                 </View>
                 <View>
@@ -129,6 +122,7 @@ const styles = StyleSheet.create({
     },
     contentBox: {
         paddingVertical: 15,
+        maxHeight: RFValue(300),
     },
     boxOne: {
         width: '49%',
@@ -167,6 +161,11 @@ const styles = StyleSheet.create({
         fontFamily: 'OpenSans-SemiBold',
         fontSize: RFPercentage(1.7),
         color: COLORS.ictextBlack,
+    },
+    loaderStyle: {
+        alignItems: 'center',
+        height: 50,
+        justifyContent: 'center',
     },
 });
 export default FileViewModal;

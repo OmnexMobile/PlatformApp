@@ -1,100 +1,24 @@
 import { ButtonComponent, CheckBox, RadioButton, TextComponent } from 'components';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import CustomHeader from '../Components/CustomHeader';
-import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { FlatList, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { COLORS } from 'constants/theme-constants';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import IconA from 'react-native-vector-icons/AntDesign';
 import IconO from 'react-native-vector-icons/Octicons';
-import { useNavigation } from '@react-navigation/native';
-import { ROUTES } from 'constants/app-constant';
+import { useIsFocused, useNavigation } from '@react-navigation/native';
+import { PLACEHOLDERS, ROUTES } from 'constants/app-constant';
 import { Divider, Modal } from 'react-native-paper';
 import { RFPercentage } from 'react-native-responsive-fontsize';
 import RadioButtonComponent from '../Components/RadioButtonComponent';
 import ICCheckBox from '../Components/ICCheckBox';
 import DeleteModal from '../Components/DeleteModal';
-const listData = [
-    {
-        id: 1,
-        title: '0906 Engine',
-        OperationName: '2-Stroke Engine',
-        InvoiceNo: 3,
-        createdDate: '04/06/2024',
-        isDownloaded: false,
-    },
-    {
-        id: 2,
-        title: '1000 IC Test',
-        OperationName: '5-Stroke Engine',
-        InvoiceNo: 4,
-        createdDate: '03/07/2024',
-        isDownloaded: false,
-    },
-    {
-        id: 3,
-        title: '200 IC Test',
-        OperationName: '6-Stroke Engine',
-        InvoiceNo: 6,
-        createdDate: '03/07/2024',
-        isDownloaded: false,
-    },
-    {
-        id: 4,
-        title: '400 IC Test',
-        OperationName: '9-Stroke Engine',
-        InvoiceNo: 7,
-        createdDate: '01/07/2024',
-        isDownloaded: false,
-    },
-    {
-        id: 5,
-        title: '100 TC Test',
-        OperationName: '9-Stroke Engine',
-        InvoiceNo: 8,
-        createdDate: '03/07/2024',
-        isDownloaded: false,
-    },
-    {
-        id: 6,
-        title: '9000 IC Test',
-        OperationName: '900-Stroke Engine',
-        InvoiceNo: 9,
-        createdDate: '03/07/2024',
-        isDownloaded: false,
-    },
-    {
-        id: 51,
-        title: '100 TC Test',
-        OperationName: '9-Stroke Engine',
-        InvoiceNo: 8,
-        createdDate: '03/07/2024',
-        isDownloaded: false,
-    },
-    {
-        id: 16,
-        title: '9000 IC Test',
-        OperationName: '900-Stroke Engine',
-        InvoiceNo: 9,
-        createdDate: '03/07/2024',
-        isDownloaded: false,
-    },
-    {
-        id: 7,
-        title: '100 TC Test',
-        OperationName: '9-Stroke Engine',
-        InvoiceNo: 8,
-        createdDate: '03/07/2024',
-        isDownloaded: false,
-    },
-    {
-        id: 9,
-        title: '9000 IC Test',
-        OperationName: '900-Stroke Engine',
-        InvoiceNo: 9,
-        createdDate: '03/07/2024',
-        isDownloaded: false,
-    },
-];
+import IcSkeleton from '../Components/IcSkeleton';
+import NoDataFound from '../Components/NoDataFound';
+import { useSelector } from 'react-redux';
+import { postAPI } from 'global/api-helpers';
+import ApiUrl from 'global/ApiUrl';
+
 const optionsList = [
     {
         id: 1,
@@ -124,11 +48,46 @@ const optionsList = [
 ];
 
 const CompletedInspection = () => {
+    const { icUserData } = useSelector(state => state.inspection);
+
     const [syncModal, setSyncModal] = useState(false);
     const [selectedRadio, setSelectedRadio] = useState('Sync');
-    const [checkBox,setCheckBox]=useState(false)
+    const [checkBox, setCheckBox] = useState(false);
     const navigation = useNavigation();
-    const [showDelete,setShowDelete]=useState(false)
+    const [showDelete, setShowDelete] = useState(false);
+    const [masterData, setMasterData] = useState([]);
+    const [showSkeleton, setShowSkeleton] = useState(false);
+    const [refreshing, setRefreshing] = useState(false);
+
+    const isFocused = useIsFocused();
+
+    const getAllCompletedData = async (showSkt = true) => {
+        showSkt && setShowSkeleton(true);
+        const formData = new FormData();
+        formData.append('UserID', icUserData?.userData?.UserId);
+        formData.append('siteId', '1');
+        formData.append('Condition', `LotStatus like N''%Completed%''`);
+        formData.append('strStartDate', '2024-3-1');
+        formData.append('strEndDate', '2025-3-26');
+        formData.append('strInspectionType', '');
+        const response = await postAPI(`${ApiUrl.IC_COMPLETED_LIST}`, formData);
+        if (response.Success) {
+            setMasterData(response?.Data || []);
+        } else {
+            setMasterData([]);
+        }
+        setShowSkeleton(false);
+        setRefreshing(false);
+    };
+    const onRefresh = () => {
+        setRefreshing(true);
+        getAllCompletedData(false);
+    };
+    useEffect(() => {
+        if (icUserData && isFocused) {
+            getAllCompletedData();
+        }
+    }, [icUserData, isFocused]);
 
     const handleISbtnpress = () => {
         navigation.navigate(ROUTES.INSPECTION_SCHEDULE);
@@ -139,30 +98,33 @@ const CompletedInspection = () => {
     const hideModal = () => {
         setSyncModal(false);
     };
-    const handleDeletePress=()=>{
-        setShowDelete(true)
-    }
+    const handleDeletePress = () => {
+        setShowDelete(true);
+    };
+    const renderIconBgColor = value => {
+        return value == '1' ? COLORS.apptheme : value == '2' ? COLORS.ipBgColor : COLORS.fiBgColor;
+    };
     const renderItem = ({ item }) => {
         return (
             <View style={[styles.recordConatiner]}>
-                <View style={[styles.iconBox]}>
+                <View style={[styles.iconBox, { backgroundColor: renderIconBgColor(item?.TypeOfInspection) }]}>
                     <Icon name="layers-outline" size={25} color={COLORS.white} />
                 </View>
                 <View style={{ flex: 1, paddingHorizontal: 10 }}>
-                    <Text style={[styles.cardText]}>{item?.title}</Text>
+                    <Text style={[styles.cardText]}>{item?.strProductionItemName}</Text>
                     <Text style={[styles.operationText]}>
-                        Operation Name : <Text style={[styles.secondText]}>{item.OperationName}</Text>
+                        Operation Name : <Text style={[styles.secondText]}>{item?.strOperationName}</Text>
                     </Text>
                     <Text style={[styles.operationText]}>
-                        Frequency : <Text style={[styles.secondText]}>{item.InvoiceNo}</Text>
+                        Frequency : <Text style={[styles.secondText]}>{item?.strSampleFrequency}</Text>
                     </Text>
                     <Text style={[styles.operationText]}>
-                        Lot Number : <Text style={[styles.secondText]}>{item.InvoiceNo}</Text>
+                        Lot Number : <Text style={[styles.secondText]}>{item?.strLotNo}</Text>
                     </Text>
                 </View>
                 <View style={[styles.lastBox]}>
                     <TouchableOpacity style={styles.launchCard}>
-                        <Text style={[styles.launchText]}>Completed</Text>
+                        <Text style={[styles.launchText]}>{item?.strLotStatus}</Text>
                     </TouchableOpacity>
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                         <TouchableOpacity
@@ -183,7 +145,19 @@ const CompletedInspection = () => {
     return (
         <CustomHeader title="Completed Inspection" activeTabId={3} handleSyncPress={handleSyncPress}>
             <View style={[styles.container]}>
-                <FlatList data={listData} renderItem={renderItem} keyExtractor={item => item.id} showsVerticalScrollIndicator={false} />
+                {Boolean(showSkeleton) ? (
+                    <IcSkeleton type={PLACEHOLDERS.INSPECTION_CARD} />
+                ) : Boolean(masterData?.length) ? (
+                    <FlatList
+                        data={masterData}
+                        renderItem={renderItem}
+                        keyExtractor={item => item.id}
+                        showsVerticalScrollIndicator={false}
+                        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+                    />
+                ) : (
+                    <NoDataFound />
+                )}
             </View>
             <View style={[styles.btnContainer]}>
                 <ButtonComponent
@@ -215,9 +189,13 @@ const CompletedInspection = () => {
                             })}
                         </View>
                         <View>
-                            <ICCheckBox isChecked={checkBox} label='Supervisor Approved' onChange={()=>{
-                                setCheckBox(!checkBox)
-                            }}/>
+                            <ICCheckBox
+                                isChecked={checkBox}
+                                label="Supervisor Approved"
+                                onChange={() => {
+                                    setCheckBox(!checkBox);
+                                }}
+                            />
                         </View>
                     </View>
                     <View>
@@ -233,7 +211,12 @@ const CompletedInspection = () => {
                     </View>
                 </View>
             </Modal>
-            <DeleteModal visible={showDelete} handleClose={()=>{setShowDelete(false)}}/>
+            <DeleteModal
+                visible={showDelete}
+                handleClose={() => {
+                    setShowDelete(false);
+                }}
+            />
         </CustomHeader>
     );
 };
@@ -302,7 +285,7 @@ const styles = StyleSheet.create({
         fontFamily: 'OpenSans-SemiBold',
         fontSize: RFPercentage(2.2),
         paddingBottom: 12,
-        color:COLORS.ictextBlack
+        color: COLORS.ictextBlack,
     },
     contentBox: {
         paddingVertical: 15,

@@ -36,5 +36,7 @@ module.exports = {
     IC_RESPONSIBLE_PERSON:"GetLotCreation",
     IC_FORM_SUBMIT:"SaveICInspectionEntry",
     IC_SUPERVISOR_LIST:'SupervisorApprovalList',
-    IC_GET_ATTACHEMENTS:'GetAttachment'
+    IC_GET_ATTACHEMENTS:'GetAttachment',
+    IC_COMPLETED_LIST:'GetCompletedInspection',
+    IC_OPERATOR_LIST:'GetOperatorWorksheet'
 };

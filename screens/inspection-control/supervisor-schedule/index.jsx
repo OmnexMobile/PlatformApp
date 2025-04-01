@@ -77,7 +77,13 @@ const SupervisorSchedule = () => {
     const hideModal = () => {
         setShowFilterList(false);
     };
-    const handleFilePress = () => {
+    const handleFilePress = (item) => {
+        let temp={
+            ProductionItem:item.ProductionItemName,
+            OperationID:item.OperationID,
+            ProductionItemId:item.ProductionItemId
+        }
+        setSelectedData(temp)
         setShowFileModal(true);
     };
     const handleGetAllData = async (showSKT = true) => {
@@ -129,7 +135,7 @@ const SupervisorSchedule = () => {
                         <TouchableOpacity style={{ marginRight: 10 }} onPress={() => handleEyePress(item)}>
                             <IconI name="eye-outline" size={25} color={COLORS.grey} />
                         </TouchableOpacity>
-                        <TouchableOpacity style={{ marginRight: 5 }} onPress={() => handleFilePress()}>
+                        <TouchableOpacity style={{ marginRight: 5 }} onPress={() => handleFilePress(item)}>
                             <ICFileIcon />
                         </TouchableOpacity>
                         <TouchableOpacity
@@ -264,6 +270,7 @@ const SupervisorSchedule = () => {
                 selectedData={selectedData}
             />}
             <FileViewModal
+            selectedValue={selectedData}
                 visible={showFileModal}
                 onDismiss={() => {
                     setShowFileModal(false);

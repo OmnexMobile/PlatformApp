@@ -84,7 +84,12 @@ const InspectionSchedule = () => {
     });
 
     const handleFilePress = (item) => {
-        setSelectedData(item);
+        let temp={
+            ProductionItem:item.ProductionItem,
+            OperationID:item.OperationID,
+            ProductionItemId:item.ProductionItemId
+        }
+        setSelectedData(temp);
         setShowFileModal(true);
     };
     const handleListFetch = async (inspect = null, showSktn = true, filterType = '') => {
