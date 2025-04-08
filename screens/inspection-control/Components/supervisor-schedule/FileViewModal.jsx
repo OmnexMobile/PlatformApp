@@ -17,18 +17,45 @@ const FileViewModal = ({ visible = false, onDismiss = () => {}, selectedValue = 
     const [showLoader, setShowLoader] = useState(false);
 
     const handleFileViewPress = async (fileName, url,fileExtension) => {
+        // try {
+        //     // Define the file path (change extension based on file type)
+        //     const filePath = `${RNFS.DocumentDirectoryPath}/${fileName}.${fileExtension}`;
+
+        //     // Write the Base64 string to a file
+        //     await RNFS.writeFile(filePath, url, 'base64');
+
+        //     // Open the file using FileViewer
+        //     await FileViewer.open(filePath);
+        // } catch (error) {
+        //     Alert.alert('Error', 'Failed to open file: ' + error.message);
+        // }
+
+        let dumyUrl='https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf'
+        let fileNameText=fileName.split('.');
+        console.log(fileNameText[0])
         try {
-            // Define the file path (change extension based on file type)
-            const filePath = `${RNFS.DocumentDirectoryPath}/${fileName}.${fileExtension}`;
+        // Define the local file path (change extension based on file type)
+        const localFilePath = `${RNFS.DocumentDirectoryPath}/${fileNameText[0]}.${fileExtension}`;
 
-            // Write the Base64 string to a file
-            await RNFS.writeFile(filePath, url, 'base64');
+        // Download the file
+        const options = {
+          fromUrl: url,
+          toFile: localFilePath,
+          background: true,
+        };
 
-            // Open the file using FileViewer
-            await FileViewer.open(filePath);
-        } catch (error) {
-            Alert.alert('Error', 'Failed to open file: ' + error.message);
+        const downloadResult = await RNFS.downloadFile(options).promise;
+
+        // Check if the file downloaded successfully
+        if (downloadResult.statusCode === 200) {
+          // Open the downloaded file
+          await FileViewer.open(localFilePath);
+        } else {
+          throw new Error('Failed to download file');
         }
+      } catch (error) {
+        Alert.alert('Error', 'Failed to open file: ' + error.message);
+      }
     };
     const getAllFiles = async () => {
         setShowLoader(true);
@@ -60,7 +87,7 @@ const FileViewModal = ({ visible = false, onDismiss = () => {}, selectedValue = 
                 <TouchableOpacity
                     style={{ marginLeft: 10 }}
                     onPress={() => {
-                        handleFileViewPress(item?.FileName, item.FileContentBase64,item.FileExtension);
+                        handleFileViewPress(item?.FileName, item.FileUrl,item.FileExtension);
                     }}>
                     <IconF name="eye" size={25} color={COLORS.grey} />
                 </TouchableOpacity>
