@@ -10,7 +10,7 @@ import { Divider, Modal } from 'react-native-paper';
 import { RFPercentage } from 'helpers/utils';
 import DeleteModal from '../Components/DeleteModal';
 import NoDataFound from '../Components/NoDataFound';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import ApiUrl from 'global/ApiUrl';
 import { postAPI } from 'global/api-helpers';
 import IcSkeleton from '../Components/IcSkeleton';
@@ -99,14 +99,18 @@ const listData = [
 ];
 
 const OperatorWorksheet = () => {
-    const { icUserData } = useSelector(state => state.inspection);
+    const { inspectList, icUserData } = useSelector(state => state.inspection);
     const [showDelete, setShowDelete] = useState(false);
     const navigation = useNavigation();
     const [masterData, setMasterData] = useState([]);
     const [showSkeleton, setShowSkeleton] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
+    const [selectedValue, setSelectedValue] = useState(null);
 
     const isFocused = useIsFocused();
+    const dispatch = useDispatch();
+
+    console.log(inspectList, '*********************************inspectList');
 
     const getOperatorListData = async (showSkt = true) => {
         showSkt && setShowSkeleton(true);
@@ -140,7 +144,8 @@ const OperatorWorksheet = () => {
     const handleLaunchPress = () => {
         navigation.navigate(ROUTES.INPROCESS_INSPECTION);
     };
-    const handleDeletePress = () => {
+    const handleDeletePress = (item) => {
+        setSelectedValue(item)
         setShowDelete(true);
     };
     const renderIconBgColor = value => {
@@ -174,7 +179,7 @@ const OperatorWorksheet = () => {
                     </TouchableOpacity>
                     <TouchableOpacity
                         onPress={() => {
-                            handleDeletePress();
+                            handleDeletePress(item);
                         }}>
                         <Icon name="delete-outline" size={25} color={COLORS.ERROR} />
                     </TouchableOpacity>
@@ -187,9 +192,9 @@ const OperatorWorksheet = () => {
             <View style={[styles.container]}>
                 {Boolean(showSkeleton) ? (
                     <IcSkeleton type={PLACEHOLDERS.OPERATOR_CARD} />
-                ) : Boolean(masterData?.length) ? (
+                ) : Boolean(inspectList?.length) ? (
                     <FlatList
-                        data={masterData}
+                        data={inspectList}
                         renderItem={renderItem}
                         keyExtractor={item => item.intInspectionID}
                         showsVerticalScrollIndicator={false}
@@ -213,7 +218,11 @@ const OperatorWorksheet = () => {
                 handleClose={() => {
                     setShowDelete(false);
                 }}
-                handleYesPress={() => {
+                handleYesPress={ () => {
+                    dispatch({
+                        type: 'REMOVE_INSPECT_LIST',
+                        inspectionToRemove: selectedValue,
+                    });
                     setShowDelete(false);
                 }}
             />

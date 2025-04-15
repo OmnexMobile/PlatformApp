@@ -40,7 +40,7 @@ const InputDataModal = ({ modalVisible = false, hideModal = () => {}, selectedVa
     const [isEditableField, setIsEditableField] = useState({
         lotNo: true,
     });
-    console.log(icSettings,'icSettings')
+    console.log(icSettings, 'icSettings');
 
     const getFrequencyList = async () => {
         // let strType = selectedValue?.TypeOfInspection == '2' ? 'Aqua' : 'Custom';
@@ -65,27 +65,29 @@ const InputDataModal = ({ modalVisible = false, hideModal = () => {}, selectedVa
                 setFrqList([]);
             }
         } else {
-            // let response = {
-            //     Data: [
-            //         {
-            //             FrequencyId: 1,
-            //             SampleFrequency: 'Frequency1',
-            //             FrequencyCode: 'obi02171',
-            //         },
-            //     ],
-            //     Success: true,
-            //     Message: 'Success',
-            // };
-            // let temp = [];
-            // response?.Data.forEach(item => {
-            //     temp.push({
-            //         label: item?.SampleFrequency,
-            //         value: item?.FrequencyId,
-            //         ...item,
-            //     });
-            // });
-            // setFrqList(temp || []);
-            setFrqList([]);
+            let response = {
+                Data: [
+                    {
+                        FrequencyId: 1,
+                        SampleFrequency: 'Frequency1',
+                        FrequencyCode: 'obi02171',
+                    },
+                ],
+                Success: true,
+                Message: 'Success',
+            };
+            let temp = [];
+            response?.Data.forEach(item => {
+                temp.push({
+                    label: item?.SampleFrequency,
+                    value: item?.FrequencyId,
+                    ...item,
+                });
+            });
+            setFrqList(temp || []);
+
+            
+            // setFrqList([]);
         }
         return true;
     };
@@ -194,10 +196,10 @@ const InputDataModal = ({ modalVisible = false, hideModal = () => {}, selectedVa
             formData.append('syncMode', 0);
             formData.append('supervisorApproved', 0);
 
-            // other 
-            if(selectedValue.TypeOfInspection=='2'){
+            // other
+            if (selectedValue.TypeOfInspection == '2') {
                 formData.append('OperationWSIDs', selectedValue?.OperationWSID);
-            }else{
+            } else {
                 formData.append('OperationWSID', selectedValue?.OperationWSID);
             }
 
@@ -221,7 +223,29 @@ const InputDataModal = ({ modalVisible = false, hideModal = () => {}, selectedVa
 
             const response = await postAPI(ApiUrl.IC_FORM_SUBMIT, formData);
             if (response.Success) {
-                dispatch({ type: 'INSPECT_LIST', inspectList: [] });
+                dispatch({
+                    type: 'INSPECT_LIST',
+                    inspectList: [
+                        {
+                            intProductionItemID: selectedValue?.ProductionItemId,
+                            strProductionItemName: selectedValue?.ProductionItem,
+                            intShiftID: 1,
+                            strShiftName: 'Default',
+                            dtInspectedDate: '3/20/2025 ',
+                            strOperationName: 'Mode of Inspection',
+                            strFrequencyName: 'Frequency1',
+                            intInspectionTypeID: selectedValue?.TypeOfInspection,
+                            strInspectionType: 'Custom',
+                            strSupplierName: '',
+                            strCustomerName: '',
+                            strProductionLine: '',
+                            strLotNo: '1234',
+                            intInspectionID: selectedValue?.ProductionItemId,
+                            intInspectionEntryDetailsID: 170,
+                            intLotCreatedBy: 9,
+                        },
+                    ],
+                });
                 showMessage({
                     message: 'Form Downloaded Successfully',
                     backgroundColor: COLORS.SUCCESS,
