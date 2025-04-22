@@ -12,6 +12,8 @@ import CharacteristicsInfo from '../Components/inprocess-inspection/Characterist
 import GeneralInfo from '../Components/inprocess-inspection/GeneralInfo';
 import { showMessage } from 'react-native-flash-message';
 import ModalFilePickerWithList from '../Components/inprocess-inspection/ModalFilePickerWithList';
+import { useNavigation } from '@react-navigation/native';
+import { useSelector } from 'react-redux';
 const moreList = [
     {
         id: 1,
@@ -80,11 +82,14 @@ const varData = [
 ];
 
 const InprocessInspection = () => {
+    const { inspectList } = useSelector(state => state.inspection);
     const [showGeneral, setShowGeneral] = useState(false);
     const [showChar, setShowChar] = useState(false);
     const [showSignModal, setShowSignModal] = useState(false);
     const [formType, setFormType] = useState('number');
-    const [showFilePage,setShowFilePage]=useState(false)
+    const [showFilePage, setShowFilePage] = useState(false);
+    const navigation = useNavigation();
+    console.log(inspectList, '*********************************inspectList');
 
     const handleGenOpen = () => {
         setShowGeneral(!showGeneral);
@@ -126,7 +131,29 @@ const InprocessInspection = () => {
         );
     };
     return (
-        <CustomHeader title="Inprocess Inspection" activeTabId={2} showIcons={false} showFileIcon={showChar} handleFileIconPress={()=>{setShowFilePage(true)}}>
+        <CustomHeader
+            title="Inprocess Inspection"
+            activeTabId={2}
+            showIcons={false}
+            showFileIcon={showChar}
+            handleFileIconPress={() => {
+                setShowFilePage(true);
+            }}
+            customBackHandler={true}
+            customHandleGoBack={() => {
+                if (!showChar) {
+                    if (navigation.canGoBack()) {
+                        navigation.goBack();
+                    } else {
+                        navigation.reset({
+                            index: 0,
+                            routes: [{ name: ROUTES.HOME_FAB_VIEW }],
+                        });
+                    }
+                } else {
+                    setShowChar(false);
+                }
+            }}>
             <View style={[styles.conatiner]}>
                 {!showChar && (
                     <View style={{ flex: showGeneral ? 1 : 0 }}>
@@ -179,7 +206,7 @@ const InprocessInspection = () => {
                                     duration: 1500,
                                     statusBarHeight: 40,
                                     // style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
-                                    position:'bottom',
+                                    position: 'bottom',
                                 });
                             }
                         }}>
@@ -199,7 +226,12 @@ const InprocessInspection = () => {
                     setShowSignModal(false);
                 }}
             />
-            <ModalFilePickerWithList visible={showFilePage} onDismiss={()=>{setShowFilePage(false)}}/>
+            <ModalFilePickerWithList
+                visible={showFilePage}
+                onDismiss={() => {
+                    setShowFilePage(false);
+                }}
+            />
         </CustomHeader>
     );
 };

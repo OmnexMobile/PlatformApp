@@ -104,9 +104,9 @@ const CompletedInspection = () => {
     const renderIconBgColor = value => {
         return value == '1' ? COLORS.apptheme : value == '2' ? COLORS.ipBgColor : COLORS.fiBgColor;
     };
-    const renderItem = ({ item }) => {
+    const renderItem = ({ item ,index}) => {
         return (
-            <View style={[styles.recordConatiner]}>
+            <View style={[styles.recordConatiner]} key={index+1}>
                 <View style={[styles.iconBox, { backgroundColor: renderIconBgColor(item?.TypeOfInspection) }]}>
                     <Icon name="layers-outline" size={25} color={COLORS.white} />
                 </View>
@@ -151,7 +151,7 @@ const CompletedInspection = () => {
                     <FlatList
                         data={masterData}
                         renderItem={renderItem}
-                        keyExtractor={item => item.id}
+                        keyExtractor={item => item?.intProductionItemID}
                         showsVerticalScrollIndicator={false}
                         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
                     />
@@ -168,7 +168,7 @@ const CompletedInspection = () => {
                     Inspection Schedule
                 </ButtonComponent>
             </View>
-            <Modal visible={syncModal} onDismiss={hideModal} contentContainerStyle={{ flexDirection: 'row', justifyContent: 'center' }}>
+            {Boolean(syncModal) && <Modal visible={syncModal} onDismiss={hideModal} contentContainerStyle={{ flexDirection: 'row', justifyContent: 'center' }}>
                 <View style={[styles.modalContainer]}>
                     <View style={[styles.containerOne]}>
                         <Text style={styles.headertext}>Choose Sync Options</Text>
@@ -210,7 +210,7 @@ const CompletedInspection = () => {
                         </View>
                     </View>
                 </View>
-            </Modal>
+            </Modal>}
             <DeleteModal
                 visible={showDelete}
                 handleClose={() => {

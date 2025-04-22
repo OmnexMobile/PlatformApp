@@ -53,7 +53,9 @@ const CustomHeader = ({
     handleFileIconPress = () => {},
     handleSearch = () => {},
     searchValue = '',
-    handleClosePress=()=>{}
+    handleClosePress=()=>{},
+    customBackHandler=false,
+    customHandleGoBack=()=>{},
 }) => {
     const insets= useSafeAreaInsets()
     const { width } = useWindowDimensions();
@@ -123,7 +125,7 @@ const CustomHeader = ({
             <View style={[styles.headerBox]}>
                 <TouchableOpacity
                     onPress={() => {
-                        handleGoBack();
+                        !customBackHandler ? handleGoBack() : customHandleGoBack();
                     }}>
                     <Icon name="arrowleft" size={25} color={COLORS.white} />
                 </TouchableOpacity>

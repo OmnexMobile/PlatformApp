@@ -15,88 +15,6 @@ import ApiUrl from 'global/ApiUrl';
 import { postAPI } from 'global/api-helpers';
 import IcSkeleton from '../Components/IcSkeleton';
 
-const listData = [
-    {
-        id: 1,
-        title: '0906 Engine',
-        OperationName: '2-Stroke Engine',
-        InvoiceNo: 3,
-        createdDate: '04/06/2024',
-        isDownloaded: false,
-    },
-    {
-        id: 2,
-        title: '1000 IC Test',
-        OperationName: '5-Stroke Engine',
-        InvoiceNo: 4,
-        createdDate: '03/07/2024',
-        isDownloaded: false,
-    },
-    {
-        id: 3,
-        title: '200 IC Test',
-        OperationName: '6-Stroke Engine',
-        InvoiceNo: 6,
-        createdDate: '03/07/2024',
-        isDownloaded: false,
-    },
-    {
-        id: 4,
-        title: '400 IC Test',
-        OperationName: '9-Stroke Engine',
-        InvoiceNo: 7,
-        createdDate: '01/07/2024',
-        isDownloaded: false,
-    },
-    {
-        id: 5,
-        title: '100 TC Test',
-        OperationName: '9-Stroke Engine',
-        InvoiceNo: 8,
-        createdDate: '03/07/2024',
-        isDownloaded: false,
-    },
-    {
-        id: 6,
-        title: '9000 IC Test',
-        OperationName: '900-Stroke Engine',
-        InvoiceNo: 9,
-        createdDate: '03/07/2024',
-        isDownloaded: false,
-    },
-    {
-        id: 51,
-        title: '100 TC Test',
-        OperationName: '9-Stroke Engine',
-        InvoiceNo: 8,
-        createdDate: '03/07/2024',
-        isDownloaded: false,
-    },
-    {
-        id: 16,
-        title: '9000 IC Test',
-        OperationName: '900-Stroke Engine',
-        InvoiceNo: 9,
-        createdDate: '03/07/2024',
-        isDownloaded: false,
-    },
-    {
-        id: 7,
-        title: '100 TC Test',
-        OperationName: '9-Stroke Engine',
-        InvoiceNo: 8,
-        createdDate: '03/07/2024',
-        isDownloaded: false,
-    },
-    {
-        id: 9,
-        title: '9000 IC Test',
-        OperationName: '900-Stroke Engine',
-        InvoiceNo: 9,
-        createdDate: '03/07/2024',
-        isDownloaded: false,
-    },
-];
 
 const OperatorWorksheet = () => {
     const { inspectList, icUserData } = useSelector(state => state.inspection);
@@ -110,7 +28,6 @@ const OperatorWorksheet = () => {
     const isFocused = useIsFocused();
     const dispatch = useDispatch();
 
-    console.log(inspectList, '*********************************inspectList');
 
     const getOperatorListData = async (showSkt = true) => {
         showSkt && setShowSkeleton(true);

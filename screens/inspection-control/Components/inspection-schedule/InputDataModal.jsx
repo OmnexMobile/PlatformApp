@@ -86,7 +86,6 @@ const InputDataModal = ({ modalVisible = false, hideModal = () => {}, selectedVa
             });
             setFrqList(temp || []);
 
-            
             // setFrqList([]);
         }
         return true;
@@ -243,6 +242,77 @@ const InputDataModal = ({ modalVisible = false, hideModal = () => {}, selectedVa
                             intInspectionID: selectedValue?.ProductionItemId,
                             intInspectionEntryDetailsID: 170,
                             intLotCreatedBy: 9,
+                            generalInfo: {
+                                partNamme: {
+                                    label:'Part Name',
+                                    value: selectedValue?.ProductionItem,
+                                    isEditable: false,
+                                },
+                                supplierName: {
+                                    label:'Supplier Name',
+                                    value: 'Omnex',
+                                    isEditable: false,
+                                },
+                                productionLine: {
+                                    label:'Production Line',
+                                    value: '',
+                                    isEditable: true,
+                                },
+                                lotNo: {
+                                    label:'Lot No',
+                                    value: '',
+                                    isEditable: true,
+                                },
+                                inspectDate: {
+                                    label:'Inspect Date',
+                                    value: '',
+                                    isEditable: true,
+                                },
+                                approver: {
+                                    label:'Approver',
+                                    list: [
+                                        { label: 'Balu', value: '1' },
+                                        { label: 'Ajith', value: '2' },
+                                        { label: 'Vijay', value: '3' },
+                                    ],
+                                    isEditable: true,
+                                    value: '',
+                                },
+                            },
+                            charInfo: {
+                                generalInfo: {
+                                    operation: {
+                                        label:'Operation',
+                                        value: 'Mode of Inspection',
+                                        isEditable: false,
+                                    },
+                                    operationNo: {
+                                        label:'Operation No',
+                                        value: 'Frequency1',
+                                        isEditable: false,
+                                    },
+                                    charNo: {
+                                        label:'Char. No',
+                                        value: '1234',
+                                        isEditable: false,
+                                    },
+                                    Low: {
+                                        label:'Low',
+                                        value: '',
+                                        isEditable: false,
+                                    },
+                                    High: {
+                                        label:'High',
+                                        value: '',
+                                        isEditable: false,
+                                    }
+                                },
+                                totalSamples:4,
+                                formType : 'number',
+                                tolernceMin:10,
+                                tolerncemax:30,
+                                
+                            },
                         },
                     ],
                 });
@@ -273,7 +343,7 @@ const InputDataModal = ({ modalVisible = false, hideModal = () => {}, selectedVa
     };
     return (
         <>
-            {showLoader ? (
+            {Boolean(showLoader) ? (
                 <Modal
                     transparent={true}
                     animationType={'none'}
