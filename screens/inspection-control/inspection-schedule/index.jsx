@@ -1,5 +1,5 @@
 import { ButtonComponent } from 'components';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { FlatList, Platform, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import CustomHeader from '../Components/CustomHeader';
 import { COLORS } from 'constants/theme-constants';
@@ -56,6 +56,8 @@ const moreList = [
 ];
 const InspectionSchedule = () => {
     const { inspectList, icUserData, icSettings } = useSelector(state => state.inspection);
+    const inspectionRef = useRef(inspectList);
+
     const dispatch = useDispatch();
     const isFocused = useIsFocused();
     const {
@@ -83,12 +85,17 @@ const InspectionSchedule = () => {
         personList: [],
     });
 
-    const handleFilePress = (item) => {
-        let temp={
-            ProductionItem:item.ProductionItem,
-            OperationID:item.OperationID,
-            ProductionItemId:item.ProductionItemId
-        }
+    // Keep it updated
+    useEffect(() => {
+        inspectionRef.current = inspectList;
+    }, [inspectList]);
+
+    const handleFilePress = item => {
+        let temp = {
+            ProductionItem: item.ProductionItem,
+            OperationID: item.OperationID,
+            ProductionItemId: item.ProductionItemId,
+        };
         setSelectedData(temp);
         setShowFileModal(true);
     };
@@ -106,14 +113,21 @@ const InspectionSchedule = () => {
         // formData.append('InspectionType', inspect !== null ? inspect : type);
         const response = await postAPI(`${ApiUrl.IC_GET_IS}`, formData);
         if (response.Success) {
+            let temp = response?.Data?.InspectionSchedules || [];
+            const updatedArray = temp.map(item => {
+                const match = inspectList.some(compareItem => compareItem.intProductionItemID === item.ProductionItemId);
+                return {
+                    ...item,
+                    isDownloaded: match,
+                };
+            });
             if (filterType !== '') {
-                let temp = response?.Data?.InspectionSchedules;
-                let filterTemp = temp.filter(item => item.TypeOfInspection == filterType);
+                let filterTemp = updatedArray.filter(item => item.TypeOfInspection == filterType);
                 setMasterData(filterTemp || []);
             } else {
-                setMasterData(response?.Data?.InspectionSchedules || []);
+                setMasterData(updatedArray || []);
             }
-            setOverAllData(response?.Data?.InspectionSchedules || []);
+            setOverAllData(updatedArray || []);
             let tempShift = response?.Data?.InspectionShifts.map(item => ({ ...item, label: item.ShiftName, value: item.ShiftID }));
             setFormList(pre => ({ ...pre, shiftList: tempShift || [] }));
         } else {
@@ -123,7 +137,6 @@ const InspectionSchedule = () => {
         setRefreshing(false);
         showSktn && setShowSkeleton(false);
     };
-    console.log(filterData, 'filterData');
     const handleInputChange = (key, value) => {
         setFilterData(pre => ({ ...pre, [key]: value }));
         handleFilterInspection(value);
@@ -215,7 +228,7 @@ const InspectionSchedule = () => {
                             onPress={() => {
                                 handleDownloadPress(item);
                             }}>
-                            <IconF name="download" size={25} color="#666666" />
+                            <IconF name="download" size={25} color={item.isDownloaded ? '#66BB6B' : '#666666'} />
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -225,7 +238,7 @@ const InspectionSchedule = () => {
     const onRefresh = () => {
         setRefreshing(true);
         setSearch('');
-        handleListFetch(null, false,filterData.type);
+        handleListFetch(null, false, filterData.type);
     };
     const handleSearch = value => {
         let temp = JSON.parse(JSON.stringify(overAllData));
@@ -250,6 +263,18 @@ const InspectionSchedule = () => {
             clearTimeout(handler);
         };
     }, [search, isFocused]);
+    const handleSubmitBtnPress = () => {
+        const latestInspection = inspectionRef.current;
+        let temp = [...overAllData] || [];
+        const updatedArray = temp.map(item => {
+            const match = latestInspection.some(compareItem => compareItem.intProductionItemID === item.ProductionItemId);
+            return {
+                ...item,
+                isDownloaded: match,
+            };
+        });
+        setMasterData(updatedArray);
+    };
     return (
         <CustomHeader
             title="Inspection Schedule"
@@ -367,7 +392,6 @@ const InspectionSchedule = () => {
                     }}
                     handleScanData={val => {
                         handleSearch(val);
-                        console.log(val, 'val');
                     }}
                 />
             )}

@@ -28,7 +28,6 @@ const OperatorWorksheet = () => {
     const isFocused = useIsFocused();
     const dispatch = useDispatch();
 
-
     const getOperatorListData = async (showSkt = true) => {
         showSkt && setShowSkeleton(true);
         const formData = new FormData();

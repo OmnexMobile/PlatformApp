@@ -22,7 +22,14 @@ const errorObj = {
     frequency: false,
 };
 
-const InputDataModal = ({ modalVisible = false, hideModal = () => {}, selectedValue = {}, shiftData = [], userData = {} }) => {
+const InputDataModal = ({
+    modalVisible = false,
+    hideModal = () => {},
+    selectedValue = {},
+    shiftData = [],
+    userData = {},
+    handleSubmitPress = () => {},
+}) => {
     const dispatch = useDispatch();
     const { icSettings } = useSelector(state => state.inspection);
     const [formFields, setFormFields] = useState({
@@ -222,97 +229,24 @@ const InputDataModal = ({ modalVisible = false, hideModal = () => {}, selectedVa
 
             const response = await postAPI(ApiUrl.IC_FORM_SUBMIT, formData);
             if (response.Success) {
+                const { shift, lotNumber, lotQty, frequency, receiptNumber } = formFields;
                 dispatch({
                     type: 'INSPECT_LIST',
                     inspectList: [
                         {
                             intProductionItemID: selectedValue?.ProductionItemId,
                             strProductionItemName: selectedValue?.ProductionItem,
-                            intShiftID: 1,
-                            strShiftName: 'Default',
-                            dtInspectedDate: '3/20/2025 ',
-                            strOperationName: 'Mode of Inspection',
-                            strFrequencyName: 'Frequency1',
+                            intShiftID: shift?.ShiftID,
+                            strShiftName: shift?.ShiftName,
+                            strOperationName: selectedValue.OperationName,
+                            strFrequencyName: frequency?.SampleFrequency,
                             intInspectionTypeID: selectedValue?.TypeOfInspection,
-                            strInspectionType: 'Custom',
-                            strSupplierName: '',
-                            strCustomerName: '',
-                            strProductionLine: '',
-                            strLotNo: '1234',
+                            strInspectionType: selectedValue.InspectionType,
+                            strLotNo: lotNumber,
                             intInspectionID: selectedValue?.ProductionItemId,
-                            intInspectionEntryDetailsID: 170,
-                            intLotCreatedBy: 9,
-                            generalInfo: {
-                                partNamme: {
-                                    label:'Part Name',
-                                    value: selectedValue?.ProductionItem,
-                                    isEditable: false,
-                                },
-                                supplierName: {
-                                    label:'Supplier Name',
-                                    value: 'Omnex',
-                                    isEditable: false,
-                                },
-                                productionLine: {
-                                    label:'Production Line',
-                                    value: '',
-                                    isEditable: true,
-                                },
-                                lotNo: {
-                                    label:'Lot No',
-                                    value: '',
-                                    isEditable: true,
-                                },
-                                inspectDate: {
-                                    label:'Inspect Date',
-                                    value: '',
-                                    isEditable: true,
-                                },
-                                approver: {
-                                    label:'Approver',
-                                    list: [
-                                        { label: 'Balu', value: '1' },
-                                        { label: 'Ajith', value: '2' },
-                                        { label: 'Vijay', value: '3' },
-                                    ],
-                                    isEditable: true,
-                                    value: '',
-                                },
-                            },
-                            charInfo: {
-                                generalInfo: {
-                                    operation: {
-                                        label:'Operation',
-                                        value: 'Mode of Inspection',
-                                        isEditable: false,
-                                    },
-                                    operationNo: {
-                                        label:'Operation No',
-                                        value: 'Frequency1',
-                                        isEditable: false,
-                                    },
-                                    charNo: {
-                                        label:'Char. No',
-                                        value: '1234',
-                                        isEditable: false,
-                                    },
-                                    Low: {
-                                        label:'Low',
-                                        value: '',
-                                        isEditable: false,
-                                    },
-                                    High: {
-                                        label:'High',
-                                        value: '',
-                                        isEditable: false,
-                                    }
-                                },
-                                totalSamples:4,
-                                formType : 'number',
-                                tolernceMin:10,
-                                tolerncemax:30,
-                                
-                            },
+                            receiptNumber: receiptNumber,
+                            GeneralInfo: response.GeneralInfo,
+                            Characteristics: response.Characteristics,
                         },
                     ],
                 });
@@ -326,6 +260,7 @@ const InputDataModal = ({ modalVisible = false, hideModal = () => {}, selectedVa
                     position: 'right',
                     style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
                 });
+                handleSubmitPress();
                 hideModal();
             } else {
                 showMessage({
