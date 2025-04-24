@@ -3,27 +3,30 @@ import React from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
 import SingleDropDown from './SingleDropDown';
 import DataPickerWithIcon from './DataPickerWithIcon';
+import moment from 'moment';
 
-const DynamicFormField = ({ fieldType = '', handleChange = () => {}, dropDownData = [], value = '', placeHolder = '' }) => {
+const DynamicFormField = ({ fieldType = '', handleChange = () => {}, dropDownData = [], value = '', placeHolder = '', isEditable = true }) => {
     switch (fieldType) {
-        case 'inputbox':
+        case 'textinput':
+        case 'text':
             return (
                 <TextInput
                     value={value || ''}
-                    style={styles.inputBox}
+                    style={[styles.inputBox,{backgroundColor:isEditable?COLORS.inputBG:COLORS.whiteGrey}]}
                     onChangeText={val => {
                         handleChange(val);
                     }}
                     placeholder={placeHolder}
+                    editable={isEditable}
                 />
             );
         case 'singleDropDown':
             return (
                 <SingleDropDown
                     data={dropDownData}
-                    backgroundColor={COLORS.white}
+                    backgroundColor={isEditable?COLORS.inputBG:COLORS.whiteGrey}
                     borderWidth={1}
-                    marginTop={15}
+                    marginTop={8}
                     title=""
                     borderRadius={4}
                     borderColor={COLORS.icBottomBox}
@@ -33,13 +36,15 @@ const DynamicFormField = ({ fieldType = '', handleChange = () => {}, dropDownDat
                     onChange={val => {
                         handleChange(val);
                     }}
+                    editable={isEditable}
                 />
             );
         case 'datePicker':
+        case 'datetime':
             return (
-                <View style={{ marginTop: 10 }}>
+                <View style={{ marginTop: 8 }}>
                     <DataPickerWithIcon
-                        value={value || null}
+                        value={value?moment(value, 'MM/DD/YYYY').toDate():null }
                         onSelectedDate={val => {
                             handleChange(val);
                         }}
@@ -47,12 +52,14 @@ const DynamicFormField = ({ fieldType = '', handleChange = () => {}, dropDownDat
                         paddingVertical={9}
                         borderColor={COLORS.icBottomBox}
                         placeHolder={placeHolder}
+                        backgroundColor={isEditable?COLORS.inputBG:COLORS.whiteGrey}
+                        editable={isEditable}
                     />
                 </View>
             );
         case 'timePicker':
             return (
-                <View style={{ marginTop: 10 }}>
+                <View style={{ marginTop: 8 }}>
                     <DataPickerWithIcon
                         value={value || null}
                         onSelectedDate={val => {
@@ -62,7 +69,9 @@ const DynamicFormField = ({ fieldType = '', handleChange = () => {}, dropDownDat
                         paddingVertical={9}
                         borderColor={COLORS.icBottomBox}
                         placeHolder={placeHolder}
-                        type='time'
+                        type="time"
+                        backgroundColor={isEditable?COLORS.inputBG:COLORS.whiteGrey}
+                        editable={isEditable}
                     />
                 </View>
             );
@@ -74,11 +83,12 @@ const styles = StyleSheet.create({
     inputBox: {
         borderWidth: 1,
         height: 40,
-        borderRadius: 3,
+        borderRadius: 4,
         borderColor: COLORS.icBottomBox,
-        marginTop: 15,
+        marginTop: 8,
         color: COLORS.ictextBlack,
         paddingHorizontal: 10,
+        
     },
 });
 

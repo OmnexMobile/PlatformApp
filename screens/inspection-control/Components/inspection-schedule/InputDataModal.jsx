@@ -246,7 +246,8 @@ const InputDataModal = ({
                             intInspectionID: selectedValue?.ProductionItemId,
                             receiptNumber: receiptNumber,
                             GeneralInfo: response.GeneralInfo,
-                            Characteristics: response.Characteristics,
+                            VariableCharacteristics: response.VariableCharacteristics,
+                            AttributeCharacteristics: response.AttributeCharacteristics,
                         },
                     ],
                 });

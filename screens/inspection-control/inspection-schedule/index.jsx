@@ -137,14 +137,14 @@ const InspectionSchedule = () => {
         setRefreshing(false);
         showSktn && setShowSkeleton(false);
     };
-    const handleInputChange = (key, value) => {
+    const handleInputChange = (key, value,filter) => {
         setFilterData(pre => ({ ...pre, [key]: value }));
-        handleFilterInspection(value);
+        handleFilterInspection(value,filter);
     };
-    const handleFilterInspection = value => {
+    const handleFilterInspection = (value,filtertype) => {
         let temp = JSON.parse(JSON.stringify(overAllData));
         let tempSearch = [];
-        if (value !== '') {
+        if (value !== '' && filtertype=='typeFilter') {
             tempSearch = temp.filter(item => item.TypeOfInspection == value);
         } else {
             tempSearch = temp;
@@ -299,7 +299,7 @@ const InspectionSchedule = () => {
                         <DataPickerWithIcon
                             value={filterData?.startDate || null}
                             onSelectedDate={val => {
-                                handleInputChange('startDate', val);
+                                handleInputChange('startDate', val,'dateFilter');
                             }}
                         />
                     </View>
@@ -308,7 +308,7 @@ const InspectionSchedule = () => {
                             value={filterData?.endDate || null}
                             placeHolder="End Date"
                             onSelectedDate={val => {
-                                handleInputChange('endDate', val);
+                                handleInputChange('endDate', val,'dateFilter');
                             }}
                         />
                     </View>
@@ -318,7 +318,7 @@ const InspectionSchedule = () => {
                             type="BtnFilter"
                             onSelectedPress={val => {
                                 // handleListFetch(val.id != 0 ? val.id : '');
-                                handleInputChange('type', val.id != 0 ? val.id : '');
+                                handleInputChange('type', val.id != 0 ? val.id : '','typeFilter');
                             }}
                         />
                     </View>

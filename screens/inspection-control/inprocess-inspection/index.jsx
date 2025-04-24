@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 import CustomHeader from '../Components/CustomHeader';
 import { FlatList, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Icon from 'react-native-vector-icons/AntDesign';
@@ -29,23 +29,7 @@ const moreList = [
     },
 ];
 
-const listData = [
-    {
-        id: 1,
-        title: `PCGR00`,
-        name: 'Machine Speeds add feeds',
-    },
-    {
-        id: 2,
-        title: `WERRCGR00`,
-        name: 'Machine Speeds add feeds',
-    },
-    {
-        id: 3,
-        title: `PCGWEDFRR00`,
-        name: 'Machine Speeds add feeds',
-    },
-];
+
 const varData = [
     {
         id: 1,
@@ -81,15 +65,20 @@ const varData = [
     },
 ];
 
-const InprocessInspection = () => {
+const InprocessInspection = ({ route }) => {
+    const { inspectData } = route.params;
     const { inspectList } = useSelector(state => state.inspection);
     const [showGeneral, setShowGeneral] = useState(false);
     const [showChar, setShowChar] = useState(false);
     const [showSignModal, setShowSignModal] = useState(false);
     const [formType, setFormType] = useState('number');
     const [showFilePage, setShowFilePage] = useState(false);
+    const [infoData, setInfoData] = useState({});
     const navigation = useNavigation();
-    console.log(inspectList, '*********************************inspectList');
+    console.log(inspectData, '*********************************inspectList');
+    useLayoutEffect(() => {
+        setInfoData(inspectData);
+    }, [inspectData]);
 
     const handleGenOpen = () => {
         setShowGeneral(!showGeneral);
@@ -102,15 +91,16 @@ const InprocessInspection = () => {
     const handleMenuPress = value => {
         setShowSignModal(true);
     };
+
     const renderItem = ({ item, index }) => {
         return (
-            <View style={[styles.recordConatiner]}>
+            <View style={[styles.recordConatiner]} key={index+1}>
                 <View style={[styles.iconBox]}>
                     <IconM name="information-variant" size={25} color={COLORS.moreIcon} />
                 </View>
                 <View style={{ flex: 1, paddingHorizontal: 10 }}>
-                    <Text style={[styles.headerTitle]}>{item.title}</Text>
-                    <Text style={[styles.headerName]}>{item.name}</Text>
+                    <Text style={[styles.headerTitle]}>{item.strCharacteristicName}</Text>
+                    <Text style={[styles.headerName]}>{item.strOperationName}</Text>
                 </View>
                 <View style={[styles.lastBox]}>
                     <TouchableOpacity
@@ -167,14 +157,18 @@ const InprocessInspection = () => {
                         </TouchableOpacity>
                         {showGeneral && (
                             <View style={[styles.tabBox]}>
-                                <GeneralInfo />
+                                <GeneralInfo infoData={infoData} setInfoData={setInfoData} />
                             </View>
                         )}
                     </View>
                 )}
                 {!showChar && !showGeneral && (
                     <View style={[styles.centerBox]}>
-                        <FlatList data={listData} renderItem={renderItem} keyExtractor={item => item.id} showsVerticalScrollIndicator={false} />
+                        <FlatList
+                            data={infoData?.VariableCharacteristics || []}
+                            renderItem={renderItem}
+                            showsVerticalScrollIndicator={false}
+                        />
                         <View style={[styles.btnContainer]}>
                             <ButtonComponent style={{ height: 40, width: '87%' }} onPress={() => {}}>
                                 Save

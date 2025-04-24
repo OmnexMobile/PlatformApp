@@ -17,19 +17,20 @@ const DataPickerWithIcon = ({
     borderWidth = 1,
     paddingVertical = 7,
     type = 'date',
-    borderColor=COLORS.staysIcon,
-    value=null
+    borderColor = COLORS.staysIcon,
+    value = null,
+    editable = true,
 }) => {
     const [date, setDate] = useState(null);
     const [tempDate, setTempDate] = useState(new Date());
     const [showPicker, setShowPicker] = useState(false);
 
-    useEffect(()=>{
-        if(value!==null){
-            setDate(value)
-            setTempDate(value)
+    useEffect(() => {
+        if (value !== null) {
+            setDate(value);
+            setTempDate(value);
         }
-    },[value])
+    }, [value]);
 
     const onChange = (event, selectedDate) => {
         if (selectedDate) {
@@ -55,16 +56,24 @@ const DataPickerWithIcon = ({
         <>
             {showHeader && <Text style={[styles.headerText]}>{title}</Text>}
             <TouchableOpacity
-                style={[styles.container, { borderRadius: borderRadius, backgroundColor: backgroundColor, borderWidth, paddingVertical, borderColor: borderColor }]}
+                style={[
+                    styles.container,
+                    { borderRadius: borderRadius, backgroundColor: backgroundColor, borderWidth, paddingVertical, borderColor: borderColor },
+                ]}
                 onPress={() => {
                     showDatePicker();
-                }}>
+                }}
+                activeOpacity={editable ? 0.5 : 1}>
                 <Text numberOfLines={1} style={[styles.textStyle]}>
                     {date !== null ? (type == 'date' ? moment(date).format('DD/MM/YYYY') : moment(date).format('hh:mm A')) : placeHolder}
                 </Text>
-                {type == 'date' ? <Icon name="calendar" size={20} color={COLORS.moreIcon} /> : <IconE name="clock" size={19} color={COLORS.moreIcon} />}
+                {type == 'date' ? (
+                    <Icon name="calendar" size={20} color={COLORS.moreIcon} />
+                ) : (
+                    <IconE name="clock" size={19} color={COLORS.moreIcon} />
+                )}
             </TouchableOpacity>
-            {showPicker && Platform.OS === 'ios' && (
+            {editable && showPicker && Platform.OS === 'ios' && (
                 <Modal transparent={true} animationType="slide" onRequestClose={handleCancel}>
                     <View
                         style={{
@@ -79,12 +88,7 @@ const DataPickerWithIcon = ({
                                 borderTopLeftRadius: 10,
                                 borderTopRightRadius: 10,
                             }}>
-                            <DateTimePicker
-                                value={tempDate}
-                                mode={type}
-                                display="spinner"
-                                onChange={onChange} 
-                            />
+                            <DateTimePicker value={tempDate} mode={type} display="spinner" onChange={onChange} />
                             <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                                 <Button title="Cancel" onPress={handleCancel} />
                                 <Button title="Done" onPress={handleDone} />
@@ -94,7 +98,7 @@ const DataPickerWithIcon = ({
                 </Modal>
             )}
 
-            {showPicker && Platform.OS === 'android' && (
+            {editable && showPicker && Platform.OS === 'android' && (
                 <DateTimePicker
                     value={tempDate}
                     mode={type}
@@ -122,13 +126,13 @@ const styles = StyleSheet.create({
         fontSize: RFPercentage(1.6),
         fontFamily: 'OpenSans-Regular',
         flex: 1,
-        color:"#000"
+        color: '#000',
     },
     headerText: {
         fontFamily: 'OpenSans-Regular',
         fontSize: 14,
         marginBottom: 8,
-        color:COLORS.headerText
+        color: COLORS.headerText,
     },
 });
 

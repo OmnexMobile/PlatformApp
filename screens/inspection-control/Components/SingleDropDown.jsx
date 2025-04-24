@@ -16,7 +16,8 @@ const SingleDropDown = ({
     borderColor=COLORS.inputBorder,
     showSearch=true,
     maxHeight=300,
-    placeholder=''
+    placeholder='',
+    editable=true
 }) => {
     return (
         <View style={[styles.container]}>
@@ -39,6 +40,7 @@ const SingleDropDown = ({
                 onChange={item => {
                     onChange(item);
                 }}
+                disable={!editable}
             />
         </View>
     );

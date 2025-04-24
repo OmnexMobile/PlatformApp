@@ -28,37 +28,37 @@ const OperatorWorksheet = () => {
     const isFocused = useIsFocused();
     const dispatch = useDispatch();
 
-    const getOperatorListData = async (showSkt = true) => {
-        showSkt && setShowSkeleton(true);
-        const formData = new FormData();
-        formData.append('UserID', icUserData?.userData?.UserId);
-        formData.append('StartDate', '2025-3-20');
-        formData.append('EndDate', '2025-3-27');
-        formData.append('SiteID', '1');
-        formData.append('LanguageID', '1');
-        const response = await postAPI(`${ApiUrl.IC_OPERATOR_LIST}`, formData);
-        if (response.Success) {
-            setMasterData(response?.Data || []);
-        } else {
-            setMasterData([]);
-        }
-        setShowSkeleton(false);
-        setRefreshing(false);
-    };
-    const onRefresh = () => {
-        setRefreshing(true);
-        getOperatorListData(false);
-    };
-    useEffect(() => {
-        if (icUserData && isFocused) {
-            getOperatorListData();
-        }
-    }, [icUserData, isFocused]);
+    // const getOperatorListData = async (showSkt = true) => {
+    //     showSkt && setShowSkeleton(true);
+    //     const formData = new FormData();
+    //     formData.append('UserID', icUserData?.userData?.UserId);
+    //     formData.append('StartDate', '2025-3-20');
+    //     formData.append('EndDate', '2025-3-27');
+    //     formData.append('SiteID', '1');
+    //     formData.append('LanguageID', '1');
+    //     const response = await postAPI(`${ApiUrl.IC_OPERATOR_LIST}`, formData);
+    //     if (response.Success) {
+    //         setMasterData(response?.Data || []);
+    //     } else {
+    //         setMasterData([]);
+    //     }
+    //     setShowSkeleton(false);
+    //     setRefreshing(false);
+    // };
+    // const onRefresh = () => {
+    //     setRefreshing(true);
+    //     getOperatorListData(false);
+    // };
+    // useEffect(() => {
+    //     if (icUserData && isFocused) {
+    //         // getOperatorListData();
+    //     }
+    // }, [icUserData, isFocused]);
     const handleCIbtnpress = () => {
         navigation.navigate(ROUTES.COMPLETED_INSPECTION);
     };
-    const handleLaunchPress = () => {
-        navigation.navigate(ROUTES.INPROCESS_INSPECTION);
+    const handleLaunchPress = (item) => {
+        navigation.navigate(ROUTES.INPROCESS_INSPECTION,{inspectData:item});
     };
     const handleDeletePress = (item) => {
         setSelectedValue(item)
@@ -89,7 +89,7 @@ const OperatorWorksheet = () => {
                     <TouchableOpacity
                         style={styles.launchCard}
                         onPress={() => {
-                            handleLaunchPress();
+                            handleLaunchPress(item);
                         }}>
                         <Text style={[styles.launchText]}>Launch</Text>
                     </TouchableOpacity>
@@ -106,15 +106,13 @@ const OperatorWorksheet = () => {
     return (
         <CustomHeader title="Operator Worksheet" activeTabId={2}>
             <View style={[styles.container]}>
-                {Boolean(showSkeleton) ? (
-                    <IcSkeleton type={PLACEHOLDERS.OPERATOR_CARD} />
-                ) : Boolean(inspectList?.length) ? (
+                {Boolean(inspectList?.length) ? (
                     <FlatList
                         data={inspectList}
                         renderItem={renderItem}
                         keyExtractor={item => item.intInspectionID}
                         showsVerticalScrollIndicator={false}
-                        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+                        // refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
                     />
                 ) : (
                     <NoDataFound />
