@@ -57,7 +57,6 @@ const moreList = [
 const InspectionSchedule = () => {
     const { inspectList, icUserData, icSettings } = useSelector(state => state.inspection);
     const inspectionRef = useRef(inspectList);
-
     const dispatch = useDispatch();
     const isFocused = useIsFocused();
     const {
@@ -99,6 +98,12 @@ const InspectionSchedule = () => {
         setSelectedData(temp);
         setShowFileModal(true);
     };
+    const getOverAllSettings = async () => {
+        const settingsRes = await postAPI(`${ApiUrl.IC_SETTINGS}`);
+        if (settingsRes.Success) {
+            dispatch({ type: 'IC_SETTINGS', icSettings: settingsRes?.Data[0] || {} });
+        }
+    };
     const handleListFetch = async (inspect = null, showSktn = true, filterType = '') => {
         showSktn && setShowSkeleton(true);
         const { startDate, endDate, type } = filterData;
@@ -112,6 +117,7 @@ const InspectionSchedule = () => {
         formData.append('EndDate', dateFlag ? moment(endDate).format('MM/DD/YYYY') : '');
         // formData.append('InspectionType', inspect !== null ? inspect : type);
         const response = await postAPI(`${ApiUrl.IC_GET_IS}`, formData);
+        await getOverAllSettings();
         if (response.Success) {
             let temp = response?.Data?.InspectionSchedules || [];
             const updatedArray = temp.map(item => {
@@ -137,14 +143,14 @@ const InspectionSchedule = () => {
         setRefreshing(false);
         showSktn && setShowSkeleton(false);
     };
-    const handleInputChange = (key, value,filter) => {
+    const handleInputChange = (key, value, filter) => {
         setFilterData(pre => ({ ...pre, [key]: value }));
-        handleFilterInspection(value,filter);
+        handleFilterInspection(value, filter);
     };
-    const handleFilterInspection = (value,filtertype) => {
+    const handleFilterInspection = (value, filtertype) => {
         let temp = JSON.parse(JSON.stringify(overAllData));
         let tempSearch = [];
-        if (value !== '' && filtertype=='typeFilter') {
+        if (value !== '' && filtertype == 'typeFilter') {
             tempSearch = temp.filter(item => item.TypeOfInspection == value);
         } else {
             tempSearch = temp;
@@ -166,8 +172,9 @@ const InspectionSchedule = () => {
     const handleCIbtnpress = () => {
         navigation.navigate(ROUTES.COMPLETED_INSPECTION);
     };
-    const handleDownloadPress = item => {
+    const handleDownloadPress = async item => {
         setSelectedData(item);
+        await getOverAllSettings();
         setShowModal(true);
     };
     const handleMenuPress = value => {
@@ -299,7 +306,7 @@ const InspectionSchedule = () => {
                         <DataPickerWithIcon
                             value={filterData?.startDate || null}
                             onSelectedDate={val => {
-                                handleInputChange('startDate', val,'dateFilter');
+                                handleInputChange('startDate', val, 'dateFilter');
                             }}
                         />
                     </View>
@@ -308,7 +315,7 @@ const InspectionSchedule = () => {
                             value={filterData?.endDate || null}
                             placeHolder="End Date"
                             onSelectedDate={val => {
-                                handleInputChange('endDate', val,'dateFilter');
+                                handleInputChange('endDate', val, 'dateFilter');
                             }}
                         />
                     </View>
@@ -318,7 +325,7 @@ const InspectionSchedule = () => {
                             type="BtnFilter"
                             onSelectedPress={val => {
                                 // handleListFetch(val.id != 0 ? val.id : '');
-                                handleInputChange('type', val.id != 0 ? val.id : '','typeFilter');
+                                handleInputChange('type', val.id != 0 ? val.id : '', 'typeFilter');
                             }}
                         />
                     </View>
@@ -361,7 +368,7 @@ const InspectionSchedule = () => {
                     Completed Inspections
                 </ButtonComponent>
             </View>
-            {showModal && (
+            {Boolean(showModal) && (
                 <InputDataModal
                     selectedValue={selectedData}
                     modalVisible={showModal}

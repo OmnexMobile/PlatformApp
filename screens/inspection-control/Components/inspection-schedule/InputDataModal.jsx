@@ -47,7 +47,7 @@ const InputDataModal = ({
     const [isEditableField, setIsEditableField] = useState({
         lotNo: true,
     });
-    console.log(icSettings, 'icSettings');
+    console.log(selectedValue?.TypeOfInspection, 'TypeOfInspection');
 
     const getFrequencyList = async () => {
         // let strType = selectedValue?.TypeOfInspection == '2' ? 'Aqua' : 'Custom';
@@ -154,10 +154,10 @@ const InputDataModal = ({
         if (lotQty == '') {
             errorobj.lotQty = true;
         }
-        if (frequency == null) {
+        if (frequency == null && selectedValue.TypeOfInspection == 2) {
             errorobj.frequency = true;
         }
-        if (receiptNumber == '') {
+        if (receiptNumber == '' && selectedValue.TypeOfInspection == 1) {
             errorobj.receiptNumber = true;
         }
         setErrorList(errorobj);
@@ -214,13 +214,13 @@ const InputDataModal = ({
             formData.append('UserName', userData?.FullName);
             formData.append('SiteId', userData?.Siteid);
             formData.append('LanguageId', 1);
-            formData.append('LotNo', formFields.lotNumber);
-            formData.append('ShiftId', formFields.shift.ShiftID);
-            formData.append('Shift', formFields.shift.ShiftName);
-            formData.append('FrequencyID', formFields.frequency.FrequencyId);
-            formData.append('SampleFrequency', formFields.frequency.SampleFrequency);
-            formData.append('ProductionQty', formFields.lotQty);
-            formData.append('ReceiptNo', formFields.receiptNumber);
+            formData.append('LotNo', formFields?.lotNumber);
+            formData.append('ShiftId', formFields?.shift?.ShiftID);
+            formData.append('Shift', formFields?.shift?.ShiftName);
+            formData.append('FrequencyID', formFields?.frequency?.FrequencyId || '');
+            formData.append('SampleFrequency', formFields?.frequency?.SampleFrequency || '');
+            formData.append('ProductionQty', formFields?.lotQty);
+            formData.append('ReceiptNo', formFields?.receiptNumber || '');
             formData.append('Executor', JSON.stringify(formFields.responsible)); // responsible party
             // need to update asper API change
             formData.append('EnteredDate', moment(new Date()).format('MM/DD/YYYY h:mm:ss A '));
@@ -303,7 +303,7 @@ const InputDataModal = ({
                         backgroundColor: '#fff',
                         width: '90%',
                         alignSelf: 'center',
-                        height: 500,
+                        maxHeight: 500,
                         paddingHorizontal: 20,
                         paddingTop: 20,
                     }}>
@@ -372,7 +372,7 @@ const InputDataModal = ({
                                     </HelperText>
                                 )}
                             </View>
-                            {Boolean(selectedValue?.ReferenceNo?.length) && (
+                            {Boolean(icSettings?.IsRefNo) && (
                                 <View style={[styles.inputContainer]}>
                                     <Text style={styles.inputText}>Serial Number</Text>
                                     <TextInput
@@ -382,26 +382,28 @@ const InputDataModal = ({
                                     />
                                 </View>
                             )}
+                            {Boolean(selectedValue.TypeOfInspection == 1) && (
+                                <View style={[styles.inputContainer]}>
+                                    <Text style={styles.inputText}>
+                                        Receipt Number <Text style={[styles.rquired]}>*</Text>
+                                    </Text>
+                                    <TextInput
+                                        style={styles.inputBox}
+                                        onChangeText={val => {
+                                            handleInputChange('receiptNumber', val);
+                                        }}
+                                        value={formFields.receiptNumber}
+                                    />
+                                    {Boolean(errorList.receiptNumber) && (
+                                        <HelperText type="error" visible={errorList.receiptNumber} padding={'none'} style={styles.errorStyle}>
+                                            This field is required
+                                        </HelperText>
+                                    )}
+                                </View>
+                            )}
                             <View style={[styles.inputContainer]}>
                                 <Text style={styles.inputText}>
-                                    Receipt Number <Text style={[styles.rquired]}>*</Text>
-                                </Text>
-                                <TextInput
-                                    style={styles.inputBox}
-                                    onChangeText={val => {
-                                        handleInputChange('receiptNumber', val);
-                                    }}
-                                    value={formFields.receiptNumber}
-                                />
-                                {Boolean(errorList.receiptNumber) && (
-                                    <HelperText type="error" visible={errorList.receiptNumber} padding={'none'} style={styles.errorStyle}>
-                                        This field is required
-                                    </HelperText>
-                                )}
-                            </View>
-                            <View style={[styles.inputContainer]}>
-                                <Text style={styles.inputText}>
-                                    Choose Frequency <Text style={[styles.rquired]}>*</Text>
+                                    Choose Frequency {Boolean(selectedValue.TypeOfInspection == 2) && <Text style={[styles.rquired]}>*</Text>}
                                 </Text>
                                 <SingleDropDown
                                     data={frqList}
@@ -423,7 +425,7 @@ const InputDataModal = ({
                                     </HelperText>
                                 )}
                             </View>
-                            {Boolean(!icSettings.IsRespPartyBasedOnTeam) && (
+                            {Boolean(!icSettings.IsRespPartyBasedOnTeam) && Boolean(selectedValue.TypeOfInspection == 2) && (
                                 <View style={[styles.inputContainer]}>
                                     <Text style={styles.inputText}>Responsible Person</Text>
                                     <DynamicDropDown
