@@ -1,6 +1,6 @@
 import { COLORS } from 'constants/theme-constants';
 import React, { useEffect, useState } from 'react';
-import {  BackHandler, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { BackHandler, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import IconF from 'react-native-vector-icons/Feather';
 import IconM from 'react-native-vector-icons/MaterialCommunityIcons';
 import FilterWithMenu from '../FilterWithMenu';
@@ -34,8 +34,7 @@ const BorderContent = ({ title = 'Title', count = 0, color = '#000' }) => {
         </View>
     );
 };
-const CharacteristicsInfo = ({ listData = [], type = 'number', setShowChar = () => {} }) => {
-
+const CharacteristicsInfo = ({ selectedData = {}, type = '', setShowChar = () => {}, infoData = {}, setInfoData = () => {} }) => {
     useEffect(() => {
         const backAction = () => {
             setShowChar(false);
@@ -48,15 +47,35 @@ const CharacteristicsInfo = ({ listData = [], type = 'number', setShowChar = () 
     const navigation = useNavigation();
     const [masterData, setMasterData] = useState([]);
     useEffect(() => {
-        if (listData.length) {
-            setMasterData([...listData]);
-        } else {
-            setMasterData([]);
+        if (Object.keys(selectedData).length && type == 'number' && !selectedData?.sampleList?.length) {
+            let sampleSize = selectedData.strSampleSize;
+            const temp = Array.from({ length: sampleSize }, (_, index) => ({
+                id: index + 1,
+                count: index + 1,
+                value: '',
+                lowValue: selectedData.strLowValue,
+                highValue: selectedData.strHighValue,
+            }));
+            setMasterData([...temp]);
+        } else if (type == 'number' && selectedData?.sampleList?.length > 0) {
+            setMasterData([...selectedData?.sampleList]);
         }
-    }, [listData]);
-
+    }, [selectedData, type]);
+    const handleSavePress = () => {
+        let temp = JSON.parse(JSON.stringify(infoData.VariableCharacteristics));
+        const index = temp.findIndex(obj => obj.intCharacteristicId === selectedData.intCharacteristicId);
+        let updatedObj = {
+            ...selectedData,
+            sampleList: masterData,
+        };
+        if (index !== -1) {
+            temp[index] = updatedObj;
+        }
+        setInfoData(pre => ({ ...pre, VariableCharacteristics: temp }));
+        setShowChar(false);
+    };
     const handleInputChange = (val, id) => {
-        const updatedData = masterData.map(item => (item.id === id ? { ...item, actualValue: val } : item));
+        const updatedData = masterData.map(item => (item.id === id ? { ...item, value: val } : item));
         setMasterData(updatedData);
     };
     const handleSendPress = (type, item, index) => {
@@ -67,22 +86,22 @@ const CharacteristicsInfo = ({ listData = [], type = 'number', setShowChar = () 
         });
     };
     const renderItem = (item, index) => {
-        let tolleranceValue = item.finalValue + item.diffValue;
-        const renderBackGroundColor = (value, fValue, type) => {
+        const renderBackGroundColor = (value, type) => {
             if (value === '') {
                 return COLORS.white;
             }
             if (type === 'number') {
-                return value >= fValue && value <= tolleranceValue ? COLORS.SUCCESS : COLORS.ERROR;
+                return Number(value) >= Number(item.lowValue)&& Number(value) <= Number(item.highValue) ? COLORS.SUCCESS : COLORS.ERROR;
+                
             }
             return value.toLowerCase() === 'ok' ? COLORS.SUCCESS : COLORS.ERROR;
         };
-        const renderIcon = (value, fValue, type) => {
+        const renderIcon = (value, type) => {
             if (value === '') {
                 return false;
             }
             if (type === 'number') {
-                return value >= fValue && value <= tolleranceValue ? false : true;
+                return Number(value) >= Number(item.lowValue) && Number(value) <= Number(item.highValue) ? false : true;
             }
             return value.toLowerCase() === 'ok' ? false : true;
         };
@@ -98,7 +117,7 @@ const CharacteristicsInfo = ({ listData = [], type = 'number', setShowChar = () 
                         marginRight: 5,
                     }}>
                     <Text style={[styles.headerText]}>{item.count}</Text>
-                    {renderIcon(item.actualValue, item.finalValue, type) && (
+                    {renderIcon(item.value, type) && (
                         <TouchableOpacity
                             style={[styles.iconContainer]}
                             onPress={() => {
@@ -110,8 +129,8 @@ const CharacteristicsInfo = ({ listData = [], type = 'number', setShowChar = () 
                 </View>
                 <View style={{ flex: 2, flexDirection: 'row', justifyContent: 'space-between' }}>
                     <TextInput
-                        style={[styles.inputBox, { backgroundColor: renderBackGroundColor(item.actualValue, item.finalValue, type) }]}
-                        value={item.actualValue}
+                        style={[styles.inputBox, { backgroundColor: renderBackGroundColor(item.value, type) }]}
+                        value={item.value}
                         onChangeText={val => {
                             handleInputChange(val, item.id);
                         }}
@@ -131,36 +150,38 @@ const CharacteristicsInfo = ({ listData = [], type = 'number', setShowChar = () 
     const handleDeletePress = (item, index) => {
         let temp = JSON.parse(JSON.stringify(masterData));
         temp.splice(index, 1);
-        setMasterData(temp);
+        const updatedData = temp.map((obj, i) => ({
+            ...obj,
+            id: i + 1,
+            count: i + 1,
+        }));
+        setMasterData(updatedData);
     };
     const handleMenuPress = value => {
         if (value.id == 2) {
             let temp = JSON.parse(JSON.stringify(masterData));
             temp.push({
                 id: temp?.length + 1,
-                count: `${temp?.length + 1}`,
-                actualValue: '',
-                finalValue: temp[0]?.finalValue,
-                diffValue: temp[0]?.diffValue,
-                editvalue: '',
+                count: temp?.length + 1,
+                value: '',
+                lowValue: selectedData.strLowValue,
+                highValue: selectedData.strHighValue,
             });
             setMasterData(temp);
         }
     };
     const renderOkCount = (value = []) => {
-        let tolleranceValue = value[0]?.finalValue + value[0]?.diffValue;
         let temp =
             type == 'number'
-                ? value?.filter(x => x?.actualValue != '' && x?.actualValue >= x?.finalValue && x?.actualValue <= tolleranceValue)
-                : value.filter(x => x?.actualValue?.toLowerCase() == 'ok' && x?.actualValue !== '');
+                ? value?.filter(x => x?.value != '' && x?.value >= x?.lowValue && x?.value <= x?.highValue)
+                : value.filter(x => x?.value?.toLowerCase() == 'ok' && x?.value !== '');
         return temp.length || 0;
     };
     const renderNotOkCount = (value = []) => {
-        let tolleranceValue = value[0]?.finalValue + value[0]?.diffValue;
         let temp =
             type == 'number'
-                ? value.filter(x => x?.actualValue != '' && !(x?.actualValue >= x?.finalValue && x?.actualValue <= tolleranceValue))
-                : value.filter(x => x?.actualValue?.toLowerCase() != 'ok' && x?.actualValue !== '');
+                ? value.filter(x => x?.value != '' && !(x?.value >= x?.lowValue && x?.value <= x.highValue))
+                : value.filter(x => x?.value?.toLowerCase() != 'ok' && x?.value !== '');
         return temp?.length || 0;
     };
     return (
@@ -187,7 +208,11 @@ const CharacteristicsInfo = ({ listData = [], type = 'number', setShowChar = () 
                 </View>
             </ScrollView>
             <View style={[styles.btnContainer]}>
-                <ButtonComponent style={{ height: 40, width: '89%' }} onPress={() => {}}>
+                <ButtonComponent
+                    style={{ height: 40, width: '89%' }}
+                    onPress={() => {
+                        handleSavePress();
+                    }}>
                     Save
                 </ButtonComponent>
                 <View style={[styles.iconFilter]}>

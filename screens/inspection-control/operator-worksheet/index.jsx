@@ -110,7 +110,7 @@ const OperatorWorksheet = () => {
                     <FlatList
                         data={inspectList}
                         renderItem={renderItem}
-                        keyExtractor={item => item.intInspectionID}
+                        keyExtractor={(item,index) => index+1}
                         showsVerticalScrollIndicator={false}
                         // refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
                     />

@@ -121,7 +121,9 @@ const InspectionSchedule = () => {
         if (response.Success) {
             let temp = response?.Data?.InspectionSchedules || [];
             const updatedArray = temp.map(item => {
-                const match = inspectList.some(compareItem => compareItem.intProductionItemID === item.ProductionItemId);
+                const match = inspectList.some(
+                    compareItem => compareItem.intProductionItemID === item.ProductionItemId && compareItem.OperationID == item.OperationID,
+                );
                 return {
                     ...item,
                     isDownloaded: match,
@@ -274,7 +276,10 @@ const InspectionSchedule = () => {
         const latestInspection = inspectionRef.current;
         let temp = [...overAllData] || [];
         const updatedArray = temp.map(item => {
-            const match = latestInspection.some(compareItem => compareItem.intProductionItemID === item.ProductionItemId);
+            const match = latestInspection.some(
+                compareItem => compareItem.intProductionItemID === item.ProductionItemId && compareItem.OperationID == item.OperationID,
+            );
+            console.log(match, 'match');
             return {
                 ...item,
                 isDownloaded: match,

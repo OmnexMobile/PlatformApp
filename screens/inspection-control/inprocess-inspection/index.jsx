@@ -29,7 +29,6 @@ const moreList = [
     },
 ];
 
-
 const varData = [
     {
         id: 1,
@@ -71,11 +70,11 @@ const InprocessInspection = ({ route }) => {
     const [showGeneral, setShowGeneral] = useState(false);
     const [showChar, setShowChar] = useState(false);
     const [showSignModal, setShowSignModal] = useState(false);
-    const [formType, setFormType] = useState('number');
+    const [formType, setFormType] = useState('');
     const [showFilePage, setShowFilePage] = useState(false);
     const [infoData, setInfoData] = useState({});
+    const[selectedData,setSelectedData]=useState({});   
     const navigation = useNavigation();
-    console.log(inspectData, '*********************************inspectList');
     useLayoutEffect(() => {
         setInfoData(inspectData);
     }, [inspectData]);
@@ -94,7 +93,7 @@ const InprocessInspection = ({ route }) => {
 
     const renderItem = ({ item, index }) => {
         return (
-            <View style={[styles.recordConatiner]} key={index+1}>
+            <View style={[styles.recordConatiner]} key={index + 1}>
                 <View style={[styles.iconBox]}>
                     <IconM name="information-variant" size={25} color={COLORS.moreIcon} />
                 </View>
@@ -106,13 +105,9 @@ const InprocessInspection = ({ route }) => {
                     <TouchableOpacity
                         style={[styles.inspectBox]}
                         onPress={() => {
-                            console.log(index % 2 == 0, 'index%2==0');
                             handleCharOpen();
-                            if (index % 2 == 0) {
-                                setFormType('char');
-                            } else {
-                                setFormType('number');
-                            }
+                            setSelectedData(item);
+                            setFormType('number');
                         }}>
                         <Text style={[styles.iText]}>Inspect</Text>
                     </TouchableOpacity>
@@ -164,11 +159,7 @@ const InprocessInspection = ({ route }) => {
                 )}
                 {!showChar && !showGeneral && (
                     <View style={[styles.centerBox]}>
-                        <FlatList
-                            data={infoData?.VariableCharacteristics || []}
-                            renderItem={renderItem}
-                            showsVerticalScrollIndicator={false}
-                        />
+                        <FlatList data={infoData?.VariableCharacteristics || []} renderItem={renderItem} showsVerticalScrollIndicator={false} />
                         <View style={[styles.btnContainer]}>
                             <ButtonComponent style={{ height: 40, width: '87%' }} onPress={() => {}}>
                                 Save
@@ -209,7 +200,13 @@ const InprocessInspection = ({ route }) => {
                     </TouchableOpacity>
                     {showChar && (
                         <View style={[styles.tabBox]}>
-                            <CharacteristicsInfo listData={varData} type={formType} setShowChar={setShowChar} />
+                            <CharacteristicsInfo
+                                selectedData={selectedData}
+                                type={formType}
+                                setShowChar={setShowChar}
+                                infoData={infoData}
+                                setInfoData={setInfoData}
+                            />
                         </View>
                     )}
                 </View>

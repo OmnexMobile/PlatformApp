@@ -234,6 +234,7 @@ const InputDataModal = ({
                     type: 'INSPECT_LIST',
                     inspectList: [
                         {
+                            OperationID:selectedValue?.OperationID,
                             intProductionItemID: selectedValue?.ProductionItemId,
                             strProductionItemName: selectedValue?.ProductionItem,
                             intShiftID: shift?.ShiftID,
