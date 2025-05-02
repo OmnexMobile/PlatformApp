@@ -355,7 +355,7 @@ const InprocessInspection = ({ route }) => {
                     }}
                     contentContainerStyle={[styles.modalContainer]}>
                     <View style={[styles.modalBox]}>
-                        <Text style={[styles.modalHeader]}>Unsaved Changes</Text>
+                        <Text style={[styles.modalHeader]}>Confirm</Text>
                         <View>
                             <Text style={[styles.modalText]} t>
                                 There are unsaved changes. Do you want to save them?
