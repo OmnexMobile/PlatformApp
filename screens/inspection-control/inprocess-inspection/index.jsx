@@ -1,8 +1,9 @@
-import React, { useEffect, useLayoutEffect, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 import CustomHeader from '../Components/CustomHeader';
-import { FlatList, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { BackHandler, FlatList, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Icon from 'react-native-vector-icons/AntDesign';
 import IconM from 'react-native-vector-icons/MaterialCommunityIcons';
+import IconF from 'react-native-vector-icons/Feather';
 import { COLORS } from 'constants/theme-constants';
 import { ButtonComponent } from 'components';
 import FilterWithMenu from '../Components/FilterWithMenu';
@@ -13,7 +14,9 @@ import GeneralInfo from '../Components/inprocess-inspection/GeneralInfo';
 import { showMessage } from 'react-native-flash-message';
 import ModalFilePickerWithList from '../Components/inprocess-inspection/ModalFilePickerWithList';
 import { useNavigation } from '@react-navigation/native';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { ROUTES } from 'constants/app-constant';
+import { Modal } from 'react-native-paper';
 const moreList = [
     {
         id: 1,
@@ -29,41 +32,6 @@ const moreList = [
     },
 ];
 
-const varData = [
-    {
-        id: 1,
-        count: '1',
-        actualValue: '',
-        finalValue: 4,
-        diffValue: 1,
-        editvalue: '',
-    },
-    {
-        id: 2,
-        count: '2',
-        actualValue: '',
-        finalValue: 4,
-        diffValue: 1,
-        editvalue: '',
-    },
-    {
-        id: 3,
-        count: '3',
-        actualValue: '',
-        finalValue: 4,
-        diffValue: 1,
-        editvalue: '',
-    },
-    {
-        id: 4,
-        count: '4',
-        actualValue: '',
-        finalValue: 4,
-        diffValue: 1,
-        editvalue: '',
-    },
-];
-
 const InprocessInspection = ({ route }) => {
     const { inspectData } = route.params;
     const { inspectList } = useSelector(state => state.inspection);
@@ -73,8 +41,15 @@ const InprocessInspection = ({ route }) => {
     const [formType, setFormType] = useState('');
     const [showFilePage, setShowFilePage] = useState(false);
     const [infoData, setInfoData] = useState({});
-    const[selectedData,setSelectedData]=useState({});   
+    const [selectedData, setSelectedData] = useState({});
+    const [showAlart, setShowAlart] = useState(false);
+    const [masterData, setMasterData] = useState([]);
+    const [valueUpadted, setValueUpadted] = useState([]);
+    const [signType, setSignType] = useState('');
+
     const navigation = useNavigation();
+    const dispatch = useDispatch();
+
     useLayoutEffect(() => {
         setInfoData(inspectData);
     }, [inspectData]);
@@ -88,10 +63,30 @@ const InprocessInspection = ({ route }) => {
         setShowGeneral(false);
     };
     const handleMenuPress = value => {
+        console.log(value);
+        setSignType(value?.id);
         setShowSignModal(true);
     };
-
-    const renderItem = ({ item, index }) => {
+    const renderBtnText = (item, type) => {
+        const list = item?.sampleList || [];
+        let iconFlag = false;
+        const allValues = list.length > 0 && list.every(({ value }) => value.trim() !== '');
+        const someValues = list.some(({ value }) => value.trim() !== '');
+        let status = allValues ? 'Completed' : someValues ? 'In Progress' : 'Inspect';
+        if (allValues) {
+            let temp =
+                type == 'number'
+                    ? list.filter(x => x?.value != '' && !(x?.value >= x?.lowValue && x?.value <= x.highValue))
+                    : list.filter(x => x?.value?.toLowerCase() != 'ok' && x?.value !== '');
+            iconFlag = temp?.length ? true : false;
+        }
+        let colorCode = COLORS.apptheme;
+        if (status === 'Completed') colorCode = COLORS.fiBgColor;
+        else if (status === 'In Progress') colorCode = COLORS.ipBgColor;
+        return { status, colorCode, iconFlag };
+    };
+    const renderItem = ({ item, index, type }) => {
+        const { status, colorCode, iconFlag } = renderBtnText(item, type);
         return (
             <View style={[styles.recordConatiner]} key={index + 1}>
                 <View style={[styles.iconBox]}>
@@ -101,23 +96,131 @@ const InprocessInspection = ({ route }) => {
                     <Text style={[styles.headerTitle]}>{item.strCharacteristicName}</Text>
                     <Text style={[styles.headerName]}>{item.strOperationName}</Text>
                 </View>
-                <View style={[styles.lastBox]}>
+                <View style={[styles.lastBox, { flexDirection: 'row' }]}>
+                    {Boolean(iconFlag) && <IconF name="alert-triangle" size={22} color={COLORS.ipBgColor} style={{ marginRight: 5 }} />}
                     <TouchableOpacity
-                        style={[styles.inspectBox]}
+                        style={[styles.inspectBox, { backgroundColor: colorCode }]}
                         onPress={() => {
                             handleCharOpen();
                             setSelectedData(item);
-                            setFormType('number');
+                            setFormType(type);
                         }}>
-                        <Text style={[styles.iText]}>Inspect</Text>
+                        <Text style={[styles.iText]}>{status}</Text>
                     </TouchableOpacity>
                 </View>
             </View>
         );
     };
+    const renderHeader = value => {
+        return value == '1' ? 'Receiving Inspection' : value == '2' ? 'Inprocess Inspection' : 'Final Inspection';
+    };
+
+    const MyHeader = ({ title }) => (
+        <View style={[styles.flatHeaderContainer]}>
+            <Text style={[styles.flatHeader]}>Sample Information - {title}</Text>
+        </View>
+    );
+    const handleFinalSavePress = () => {
+        dispatch({
+            type: 'UPDATE_INSPECT_LIST',
+            updatedData: infoData,
+        });
+        // navigation.goBack();
+    };
+    const handleBackPress = () => {
+        if (!showChar) {
+            if (navigation.canGoBack()) {
+                navigation.goBack();
+            } else {
+                navigation.reset({
+                    index: 0,
+                    routes: [{ name: ROUTES.HOME_FAB_VIEW }],
+                });
+            }
+        } else {
+            setShowChar(false);
+        }
+        setShowAlart(false);
+    };
+    const handleSaveAlert = useCallback(() => {
+        console.log('caLLED');
+        let isChanged = false;
+        const filterdData = inspectList.filter(
+            item => item.intProductionItemID == infoData.intProductionItemID && item.OperationID == infoData.OperationID,
+        );
+        const finalData = filterdData[0];
+        if (showChar) {
+            if (formType == 'number' || formType == 'char') {
+                // if sampleList avilable we need to check this or we need to use masterData
+                isChanged = selectedData?.sampleList?.some((item, index) => {
+                    return item.value !== masterData[index].value;
+                });
+                if (!selectedData?.sampleList?.length && masterData?.length > 0) {
+                    isChanged = masterData?.some((item, index) => {
+                        return item.value !== valueUpadted[index].value;
+                    });
+                }
+                if (isChanged) {
+                    setShowAlart(true);
+                } else {
+                    handleBackPress();
+                }
+            }
+        } else {
+            const hasChanges = JSON.stringify(finalData) !== JSON.stringify(infoData);
+            console.log('hasChanges', hasChanges);
+            console.log('finalData:', finalData);
+            console.log('infoData:', infoData);
+            console.log('equal:', JSON.stringify(finalData) === JSON.stringify(infoData));
+
+            if (!hasChanges) {
+                handleBackPress();
+            } else {
+                setShowAlart(true);
+            }
+        }
+    }, [inspectList, infoData, showChar, formType, selectedData, masterData, valueUpadted,handleBackPress]);
+    useEffect(() => {
+        const backAction = () => {
+            handleSaveAlert();
+            return true;
+        };
+        const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+
+        return () => backHandler.remove(); // cleanup on unmount
+    }, [handleSaveAlert]);
+    const handleSavePress = () => {
+        if (showChar) {
+            const list = masterData || [];
+            const allValues = list.length > 0 && list.every(({ value }) => value.trim() !== '');
+            const someValues = list.some(({ value }) => value.trim() !== '');
+            let status = allValues ? 'Completed' : someValues ? 'In Progress' : 'Launch';
+            const updatedObj = {
+                ...selectedData,
+                sampleList: masterData,
+                status: status,
+            };
+            const { VariableCharacteristics, AttributeCharacteristics } = infoData;
+            const characteristicsList = formType === 'number' ? VariableCharacteristics : AttributeCharacteristics;
+            const index = characteristicsList.findIndex(obj => obj.intCharacteristicId === selectedData.intCharacteristicId);
+            const newCharacteristicsList = [...characteristicsList];
+            if (index !== -1) {
+                newCharacteristicsList[index] = updatedObj;
+            }
+            setInfoData(pre => ({
+                ...pre,
+                [formType === 'number' ? 'VariableCharacteristics' : 'AttributeCharacteristics']: newCharacteristicsList,
+            }));
+        } else {
+            handleFinalSavePress();
+        }
+        setShowChar(false);
+        handleBackPress();
+    };
+
     return (
         <CustomHeader
-            title="Inprocess Inspection"
+            title={renderHeader(inspectData.intInspectionTypeID)}
             activeTabId={2}
             showIcons={false}
             showFileIcon={showChar}
@@ -126,18 +229,7 @@ const InprocessInspection = ({ route }) => {
             }}
             customBackHandler={true}
             customHandleGoBack={() => {
-                if (!showChar) {
-                    if (navigation.canGoBack()) {
-                        navigation.goBack();
-                    } else {
-                        navigation.reset({
-                            index: 0,
-                            routes: [{ name: ROUTES.HOME_FAB_VIEW }],
-                        });
-                    }
-                } else {
-                    setShowChar(false);
-                }
+                handleSaveAlert();
             }}>
             <View style={[styles.conatiner]}>
                 {!showChar && (
@@ -159,9 +251,31 @@ const InprocessInspection = ({ route }) => {
                 )}
                 {!showChar && !showGeneral && (
                     <View style={[styles.centerBox]}>
-                        <FlatList data={infoData?.VariableCharacteristics || []} renderItem={renderItem} showsVerticalScrollIndicator={false} />
+                        <ScrollView showsVerticalScrollIndicator={false}>
+                            {Boolean(infoData?.VariableCharacteristics?.length) && (
+                                <View>
+                                    <MyHeader title={'VARIABLE'} />
+                                    {infoData?.VariableCharacteristics.map((item, index) => {
+                                        return renderItem({ item, index, type: 'number' });
+                                    })}
+                                </View>
+                            )}
+                            {Boolean(infoData?.AttributeCharacteristics?.length) && (
+                                <View style={{ marginVertical: 10 }}>
+                                    <MyHeader title={'ATTRIBUTE'} />
+                                    {infoData?.AttributeCharacteristics.map((item, index) => {
+                                        return renderItem({ item, index, type: 'char' });
+                                    })}
+                                </View>
+                            )}
+                        </ScrollView>
+
                         <View style={[styles.btnContainer]}>
-                            <ButtonComponent style={{ height: 40, width: '87%' }} onPress={() => {}}>
+                            <ButtonComponent
+                                style={{ height: 40, width: '87%' }}
+                                onPress={() => {
+                                    handleFinalSavePress();
+                                }}>
                                 Save
                             </ButtonComponent>
                             <View style={[styles.iconFilter]}>
@@ -206,16 +320,23 @@ const InprocessInspection = ({ route }) => {
                                 setShowChar={setShowChar}
                                 infoData={infoData}
                                 setInfoData={setInfoData}
+                                setMasterData={setMasterData}
+                                masterData={masterData}
+                                setValueUpadted={setValueUpadted}
+                                handleSavePress={handleSavePress}
                             />
                         </View>
                     )}
                 </View>
             </View>
             <SignatureComponent
+                infoData={infoData}
+                setInfoData={setInfoData}
                 modalVisible={showSignModal}
                 hideModal={() => {
                     setShowSignModal(false);
                 }}
+                signType={signType}
             />
             <ModalFilePickerWithList
                 visible={showFilePage}
@@ -223,6 +344,44 @@ const InprocessInspection = ({ route }) => {
                     setShowFilePage(false);
                 }}
             />
+            {Boolean(showAlart) && (
+                <Modal
+                    visible={showAlart}
+                    onDismiss={() => {
+                        setShowAlart(false);
+                    }}
+                    onRequestClose={() => {
+                        setShowAlart(false);
+                    }}
+                    contentContainerStyle={[styles.modalContainer]}>
+                    <View style={[styles.modalBox]}>
+                        <Text style={[styles.modalHeader]}>Unsaved Changes</Text>
+                        <View>
+                            <Text style={[styles.modalText]} t>
+                                There are unsaved changes. Do you want to save them?
+                            </Text>
+                        </View>
+                        <View style={[styles.modalBtnContainer]}>
+                            <View style={[styles.modalBtn]}>
+                                <ButtonComponent
+                                    style={{ height: 40, width: '45%' }}
+                                    onPress={() => {
+                                        handleBackPress();
+                                    }}>
+                                    No
+                                </ButtonComponent>
+                                <ButtonComponent
+                                    style={{ height: 40, width: '45%' }}
+                                    onPress={() => {
+                                        handleSavePress();
+                                    }}>
+                                    yes
+                                </ButtonComponent>
+                            </View>
+                        </View>
+                    </View>
+                </Modal>
+            )}
         </CustomHeader>
     );
 };
@@ -288,7 +447,6 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
     },
     inspectBox: {
-        backgroundColor: COLORS.apptheme,
         paddingHorizontal: 10,
         paddingVertical: 3,
         borderRadius: 5,
@@ -307,6 +465,49 @@ const styles = StyleSheet.create({
         fontFamily: 'OpenSans-Regular',
         fontSize: 14,
         color: '#000',
+    },
+    flatHeader: {
+        fontFamily: 'OpenSans-SemiBold',
+        fontSize: 16,
+        color: '#000',
+    },
+    flatHeaderContainer: {
+        padding: 8,
+        backgroundColor: COLORS.icBackground,
+        borderRadius: 5,
+    },
+    modalContainer: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+    },
+    modalBox: {
+        width: '95%',
+        backgroundColor: '#fff',
+        borderRadius: 5,
+        height: RFPercentage(20),
+        padding: 10,
+    },
+    modalHeader: {
+        fontFamily: 'OpenSans-SemiBold',
+        fontSize: 18,
+        color: '#000',
+        padding: 10,
+    },
+    modalText: {
+        fontFamily: 'OpenSans-Regular',
+        fontSize: 15,
+        color: '#000',
+        padding: 10,
+        textAlign: 'center',
+    },
+    modalBtn: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+    },
+    modalBtnContainer: {
+        flex: 1,
+        flexDirection: 'column',
+        justifyContent: 'flex-end',
     },
 });
 

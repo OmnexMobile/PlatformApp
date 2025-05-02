@@ -19,6 +19,7 @@ const KeyValueList = ({ title = '', value = '' }) => {
 };
 
 const PartDetails = ({ visible = false, onDismiss = () => {},selectedData={} }) => {
+    console.log(selectedData,'selectedData')
     return (
         <Modal visible={visible} onDismiss={onDismiss} contentContainerStyle={[styles.modalConatiner]}>
             <View style={[styles.modalcontainer]}>
@@ -30,8 +31,8 @@ const PartDetails = ({ visible = false, onDismiss = () => {},selectedData={} }) 
                         <KeyValueList title="Operation" value={selectedData?.OperationName} />
                         <KeyValueList title="Lot Number" value={selectedData?.LotNo} />
                         <KeyValueList title="Lot Size" value={selectedData?.LotSize} />
-                        <KeyValueList title="Supplier" value={selectedData?.SupplierName} />
-                        <KeyValueList title="Production Line Name" value={selectedData?.ProductionLineName} />
+                        {Boolean(selectedData?.InspectionType !==2) &&<KeyValueList title="Supplier" value={selectedData?.SupplierName} />}
+                        {Boolean(selectedData?.InspectionType ==2) && <KeyValueList title="Production Line Name" value={selectedData?.ProductionLineName} />}
                         <KeyValueList title="Sample Frequency" value={selectedData?.SampleFrequency} />
                         <KeyValueList title="Inspector" value={selectedData?.Operator} />
                         <KeyValueList title="Inspected Date" value={selectedData?.EnteredDate!==''?moment(new Date(selectedData?.EnteredDate)).format('DD/MM/YYYY hh:mm A'):''} />

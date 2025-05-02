@@ -15,7 +15,6 @@ import ApiUrl from 'global/ApiUrl';
 import { postAPI } from 'global/api-helpers';
 import IcSkeleton from '../Components/IcSkeleton';
 
-
 const OperatorWorksheet = () => {
     const { inspectList, icUserData } = useSelector(state => state.inspection);
     const [showDelete, setShowDelete] = useState(false);
@@ -57,17 +56,52 @@ const OperatorWorksheet = () => {
     const handleCIbtnpress = () => {
         navigation.navigate(ROUTES.COMPLETED_INSPECTION);
     };
-    const handleLaunchPress = (item) => {
-        navigation.navigate(ROUTES.INPROCESS_INSPECTION,{inspectData:item});
+    const handleLaunchPress = item => {
+        navigation.navigate(ROUTES.INPROCESS_INSPECTION, { inspectData: item });
     };
-    const handleDeletePress = (item) => {
-        setSelectedValue(item)
+    const handleDeletePress = item => {
+        setSelectedValue(item);
         setShowDelete(true);
     };
     const renderIconBgColor = value => {
         return value == '1' ? COLORS.apptheme : value == '2' ? COLORS.ipBgColor : COLORS.fiBgColor;
     };
+
+    const rendetBtnText = item => {
+        const combined = [...item?.VariableCharacteristics, ...item?.AttributeCharacteristics];
+        if (!combined.some(item => 'status' in item)) {
+            return {
+                status: 'launch',
+                colorCode: COLORS.apptheme,
+            };
+        }
+        let hasInprogress = false;
+        let hasCompleted = false;
+        let hasMissingStatus = false;
+
+        for (const item of combined) {
+            if ('status' in item) {
+                if (item.status === 'In Progress') {
+                    hasInprogress = true;
+                } else if (item.status === 'Completed') {
+                    hasCompleted = true;
+                }
+            } else {
+                hasMissingStatus = true;
+            }
+        }
+
+        if (hasInprogress) return { colorCode: COLORS.ipBgColor, status: 'In Progress' };
+        if (hasCompleted && hasMissingStatus) return { colorCode: COLORS.ipBgColor, status: 'In Progress' };
+        if (hasCompleted && !hasMissingStatus) return { colorCode: COLORS.fiBgColor, status: 'Completed' };
+
+        return {
+            status: 'launch',
+            colorCode: COLORS.apptheme,
+        };
+    };
     const renderItem = ({ item }) => {
+        const { status, colorCode } = rendetBtnText(item);
         return (
             <View style={[styles.recordConatiner]}>
                 <View style={[styles.iconBox, { backgroundColor: renderIconBgColor(item?.intInspectionTypeID) }]}>
@@ -87,11 +121,11 @@ const OperatorWorksheet = () => {
                 </View>
                 <View style={[styles.lastBox]}>
                     <TouchableOpacity
-                        style={styles.launchCard}
+                        style={[styles.launchCard, { backgroundColor: colorCode }]}
                         onPress={() => {
                             handleLaunchPress(item);
                         }}>
-                        <Text style={[styles.launchText]}>Launch</Text>
+                        <Text style={[styles.launchText]}>{status}</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                         onPress={() => {
@@ -110,7 +144,7 @@ const OperatorWorksheet = () => {
                     <FlatList
                         data={inspectList}
                         renderItem={renderItem}
-                        keyExtractor={(item,index) => index+1}
+                        keyExtractor={(item, index) => index + 1}
                         showsVerticalScrollIndicator={false}
                         // refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
                     />
@@ -132,7 +166,7 @@ const OperatorWorksheet = () => {
                 handleClose={() => {
                     setShowDelete(false);
                 }}
-                handleYesPress={ () => {
+                handleYesPress={() => {
                     dispatch({
                         type: 'REMOVE_INSPECT_LIST',
                         inspectionToRemove: selectedValue,

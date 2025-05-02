@@ -34,7 +34,7 @@ const BorderContent = ({ title = 'Title', count = 0, color = '#000' }) => {
         </View>
     );
 };
-const CharacteristicsInfo = ({ selectedData = {}, type = '', setShowChar = () => {}, infoData = {}, setInfoData = () => {} }) => {
+const CharacteristicsInfo = ({ selectedData = {}, type = '', setShowChar = () => {}, infoData = {}, setInfoData = () => {} ,masterData,setMasterData=()=>{},setValueUpadted=()=>{},handleSavePress=()=>{}}) => {
     useEffect(() => {
         const backAction = () => {
             setShowChar(false);
@@ -45,35 +45,41 @@ const CharacteristicsInfo = ({ selectedData = {}, type = '', setShowChar = () =>
     }, []);
 
     const navigation = useNavigation();
-    const [masterData, setMasterData] = useState([]);
+
     useEffect(() => {
-        if (Object.keys(selectedData).length && type == 'number' && !selectedData?.sampleList?.length) {
-            let sampleSize = selectedData.strSampleSize;
-            const temp = Array.from({ length: sampleSize }, (_, index) => ({
-                id: index + 1,
-                count: index + 1,
-                value: '',
-                lowValue: selectedData.strLowValue,
-                highValue: selectedData.strHighValue,
-            }));
-            setMasterData([...temp]);
-        } else if (type == 'number' && selectedData?.sampleList?.length > 0) {
-            setMasterData([...selectedData?.sampleList]);
+        if (type == 'number') {
+            if (Object.keys(selectedData).length && !selectedData?.sampleList?.length) {
+                let sampleSize = selectedData.strSampleSize;
+                const temp = Array.from({ length: sampleSize }, (_, index) => ({
+                    id: index + 1,
+                    count: index + 1,
+                    value: '',
+                    lowValue: selectedData.strLowValue,
+                    highValue: selectedData.strHighValue,
+                }));
+                setMasterData([...temp]);
+                setValueUpadted([...temp])
+            } else if (selectedData?.sampleList?.length > 0) {
+                setMasterData([...selectedData?.sampleList]);
+                setValueUpadted([...selectedData?.sampleList])
+            }
+        } else if (type == 'char') {
+            if (Object.keys(selectedData).length && !selectedData?.sampleList?.length) {
+                let sampleSize = selectedData.strSampleSize;
+                const temp = Array.from({ length: sampleSize }, (_, index) => ({
+                    id: index + 1,
+                    count: index + 1,
+                    value: '',
+                }));
+                setMasterData([...temp]);
+                setValueUpadted([...temp])
+            } else if (selectedData?.sampleList?.length > 0) {
+                setMasterData([...selectedData?.sampleList]);
+                setValueUpadted([...selectedData?.sampleList])
+            }
         }
     }, [selectedData, type]);
-    const handleSavePress = () => {
-        let temp = JSON.parse(JSON.stringify(infoData.VariableCharacteristics));
-        const index = temp.findIndex(obj => obj.intCharacteristicId === selectedData.intCharacteristicId);
-        let updatedObj = {
-            ...selectedData,
-            sampleList: masterData,
-        };
-        if (index !== -1) {
-            temp[index] = updatedObj;
-        }
-        setInfoData(pre => ({ ...pre, VariableCharacteristics: temp }));
-        setShowChar(false);
-    };
+
     const handleInputChange = (val, id) => {
         const updatedData = masterData.map(item => (item.id === id ? { ...item, value: val } : item));
         setMasterData(updatedData);
@@ -91,8 +97,7 @@ const CharacteristicsInfo = ({ selectedData = {}, type = '', setShowChar = () =>
                 return COLORS.white;
             }
             if (type === 'number') {
-                return Number(value) >= Number(item.lowValue)&& Number(value) <= Number(item.highValue) ? COLORS.SUCCESS : COLORS.ERROR;
-                
+                return Number(value) >= Number(item.lowValue) && Number(value) <= Number(item.highValue) ? COLORS.SUCCESS : COLORS.ERROR;
             }
             return value.toLowerCase() === 'ok' ? COLORS.SUCCESS : COLORS.ERROR;
         };
@@ -156,6 +161,7 @@ const CharacteristicsInfo = ({ selectedData = {}, type = '', setShowChar = () =>
             count: i + 1,
         }));
         setMasterData(updatedData);
+        setValueUpadted(updatedData)
     };
     const handleMenuPress = value => {
         if (value.id == 2) {
@@ -168,6 +174,7 @@ const CharacteristicsInfo = ({ selectedData = {}, type = '', setShowChar = () =>
                 highValue: selectedData.strHighValue,
             });
             setMasterData(temp);
+            setValueUpadted(temp)
         }
     };
     const renderOkCount = (value = []) => {

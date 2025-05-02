@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-community/async-storage';
+import { update } from 'ramda';
 import { persistReducer } from 'redux-persist';
 import { createReducer, createActions } from 'reduxsauce';
 import Immutable from 'seamless-immutable';
@@ -11,6 +12,7 @@ const { Types, Creators } = createActions({
     icUserData: ['icUserData'],
     icSettings: ['icSettings'],
     removeInspectList: ['removeInspectList'],
+    updateInspectList: ['updateInspectList'],
 });
 
 export const InspectTypes = Types;
@@ -50,12 +52,25 @@ const storeIcUserData = (state, { icUserData }) => {
 const storeIcSettings = (state, { icSettings }) => {
     return { ...state, icSettings: icSettings };
 };
+const updateInspectList = (state, { updatedData }) => {
+    const updatedArray = state.inspectList.map(item => {
+        if (
+          item.intProductionItemID === updatedData.intProductionItemID &&
+          item.OperationID === updatedData.OperationID
+        ) {
+          return { ...item, ...updatedData }; // merge changes
+        }
+        return item; // leave others unchanged
+      });
+    return { ...state, inspectList: updatedArray };
+}
 /* ------------- Hookup Reducers To Types ------------- */
 const rawReducer = createReducer(INITIAL_STATE, {
     [Types.INSPECT_LIST]: storeInspectList,
     [Types.IC_USER_DATA]: storeIcUserData,
     [Types.IC_SETTINGS]: storeIcSettings,
     [Types.REMOVE_INSPECT_LIST]: removeInspectList,
+    [Types.UPDATE_INSPECT_LIST]: updateInspectList,
 });
 const persistConfig = {
     key: 'inspect', // Unique key for the reducer's data
