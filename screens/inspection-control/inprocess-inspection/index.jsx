@@ -484,7 +484,7 @@ const styles = StyleSheet.create({
         width: '95%',
         backgroundColor: '#fff',
         borderRadius: 5,
-        height: RFPercentage(20),
+        height: 180,
         padding: 10,
     },
     modalHeader: {
