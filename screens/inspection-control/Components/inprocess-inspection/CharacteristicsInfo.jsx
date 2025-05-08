@@ -34,7 +34,19 @@ const BorderContent = ({ title = 'Title', count = 0, color = '#000' }) => {
         </View>
     );
 };
-const CharacteristicsInfo = ({ selectedData = {}, type = '', setShowChar = () => {}, infoData = {}, setInfoData = () => {} ,masterData,setMasterData=()=>{},setValueUpadted=()=>{},handleSavePress=()=>{}}) => {
+const CharacteristicsInfo = ({
+    selectedData = {},
+    type = '',
+    setShowChar = () => {},
+    infoData = {},
+    setInfoData = () => {},
+    masterData,
+    setMasterData = () => {},
+    setValueUpadted = () => {},
+    handleSavePress = () => {},
+    handleNextSamplePress = () => {},
+    icSettings={}
+}) => {
     useEffect(() => {
         const backAction = () => {
             setShowChar(false);
@@ -58,10 +70,10 @@ const CharacteristicsInfo = ({ selectedData = {}, type = '', setShowChar = () =>
                     highValue: selectedData.strHighValue,
                 }));
                 setMasterData([...temp]);
-                setValueUpadted([...temp])
+                setValueUpadted([...temp]);
             } else if (selectedData?.sampleList?.length > 0) {
                 setMasterData([...selectedData?.sampleList]);
-                setValueUpadted([...selectedData?.sampleList])
+                setValueUpadted([...selectedData?.sampleList]);
             }
         } else if (type == 'char') {
             if (Object.keys(selectedData).length && !selectedData?.sampleList?.length) {
@@ -69,13 +81,13 @@ const CharacteristicsInfo = ({ selectedData = {}, type = '', setShowChar = () =>
                 const temp = Array.from({ length: sampleSize }, (_, index) => ({
                     id: index + 1,
                     count: index + 1,
-                    value: '',
+                    value:icSettings?.defaultAllOk?'OK': '',
                 }));
                 setMasterData([...temp]);
-                setValueUpadted([...temp])
+                setValueUpadted([...temp]);
             } else if (selectedData?.sampleList?.length > 0) {
                 setMasterData([...selectedData?.sampleList]);
-                setValueUpadted([...selectedData?.sampleList])
+                setValueUpadted([...selectedData?.sampleList]);
             }
         }
     }, [selectedData, type]);
@@ -161,7 +173,7 @@ const CharacteristicsInfo = ({ selectedData = {}, type = '', setShowChar = () =>
             count: i + 1,
         }));
         setMasterData(updatedData);
-        setValueUpadted(updatedData)
+        setValueUpadted(updatedData);
     };
     const handleMenuPress = value => {
         if (value.id == 2) {
@@ -174,7 +186,9 @@ const CharacteristicsInfo = ({ selectedData = {}, type = '', setShowChar = () =>
                 highValue: selectedData.strHighValue,
             });
             setMasterData(temp);
-            setValueUpadted(temp)
+            setValueUpadted(temp);
+        } else if (value.id == 1) {
+            handleNextSamplePress();
         }
     };
     const renderOkCount = (value = []) => {
@@ -218,7 +232,7 @@ const CharacteristicsInfo = ({ selectedData = {}, type = '', setShowChar = () =>
                 <ButtonComponent
                     style={{ height: 40, width: '89%' }}
                     onPress={() => {
-                        handleSavePress();
+                        handleSavePress(true,'saveBtn');
                     }}>
                     Save
                 </ButtonComponent>

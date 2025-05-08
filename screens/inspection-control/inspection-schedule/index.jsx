@@ -279,7 +279,6 @@ const InspectionSchedule = () => {
             const match = latestInspection.some(
                 compareItem => compareItem.intProductionItemID === item.ProductionItemId && compareItem.OperationID == item.OperationID,
             );
-            console.log(match, 'match');
             return {
                 ...item,
                 isDownloaded: match,

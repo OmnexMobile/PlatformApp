@@ -16,7 +16,7 @@ import { postAPI } from 'global/api-helpers';
 import IcSkeleton from '../Components/IcSkeleton';
 
 const OperatorWorksheet = () => {
-    const { inspectList, icUserData } = useSelector(state => state.inspection);
+    const { inspectList, icUserData, icSettings } = useSelector(state => state.inspection);
     const [showDelete, setShowDelete] = useState(false);
     const navigation = useNavigation();
     const [masterData, setMasterData] = useState([]);
@@ -58,6 +58,15 @@ const OperatorWorksheet = () => {
     };
     const handleLaunchPress = item => {
         navigation.navigate(ROUTES.INPROCESS_INSPECTION, { inspectData: item });
+    };
+    useEffect(() => {
+        getOverAllSettings();
+    },[])
+    const getOverAllSettings = async () => {
+        const settingsRes = await postAPI(`${ApiUrl.IC_SETTINGS}`);
+        if (settingsRes?.Success) {
+            dispatch({ type: 'IC_SETTINGS', icSettings: settingsRes?.Data[0] || {} });
+        }
     };
     const handleDeletePress = item => {
         setSelectedValue(item);

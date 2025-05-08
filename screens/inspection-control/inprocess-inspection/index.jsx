@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 import CustomHeader from '../Components/CustomHeader';
-import { BackHandler, FlatList, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, BackHandler, FlatList, Keyboard, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Icon from 'react-native-vector-icons/AntDesign';
 import IconM from 'react-native-vector-icons/MaterialCommunityIcons';
 import IconF from 'react-native-vector-icons/Feather';
@@ -34,7 +34,7 @@ const moreList = [
 
 const InprocessInspection = ({ route }) => {
     const { inspectData } = route.params;
-    const { inspectList } = useSelector(state => state.inspection);
+    const { inspectList,icSettings } = useSelector(state => state.inspection);
     const [showGeneral, setShowGeneral] = useState(false);
     const [showChar, setShowChar] = useState(false);
     const [showSignModal, setShowSignModal] = useState(false);
@@ -46,6 +46,11 @@ const InprocessInspection = ({ route }) => {
     const [masterData, setMasterData] = useState([]);
     const [valueUpadted, setValueUpadted] = useState([]);
     const [signType, setSignType] = useState('');
+    const [currentIndex, setCurrentIndex] = useState({
+        index: 0,
+        type: '',
+    });
+    const [nextSave, setNextSave] = useState(true);
 
     const navigation = useNavigation();
     const dispatch = useDispatch();
@@ -63,7 +68,6 @@ const InprocessInspection = ({ route }) => {
         setShowGeneral(false);
     };
     const handleMenuPress = value => {
-        console.log(value);
         setSignType(value?.id);
         setShowSignModal(true);
     };
@@ -104,6 +108,7 @@ const InprocessInspection = ({ route }) => {
                             handleCharOpen();
                             setSelectedData(item);
                             setFormType(type);
+                            setCurrentIndex({ index, type });
                         }}>
                         <Text style={[styles.iText]}>{status}</Text>
                     </TouchableOpacity>
@@ -125,7 +130,7 @@ const InprocessInspection = ({ route }) => {
             type: 'UPDATE_INSPECT_LIST',
             updatedData: infoData,
         });
-        // navigation.goBack();
+        navigation.goBack();
     };
     const handleBackPress = () => {
         if (!showChar) {
@@ -142,44 +147,60 @@ const InprocessInspection = ({ route }) => {
         }
         setShowAlart(false);
     };
-    const handleSaveAlert = useCallback(() => {
-        console.log('caLLED');
-        let isChanged = false;
-        const filterdData = inspectList.filter(
-            item => item.intProductionItemID == infoData.intProductionItemID && item.OperationID == infoData.OperationID,
-        );
-        const finalData = filterdData[0];
-        if (showChar) {
-            if (formType == 'number' || formType == 'char') {
-                // if sampleList avilable we need to check this or we need to use masterData
-                isChanged = selectedData?.sampleList?.some((item, index) => {
-                    return item.value !== masterData[index].value;
-                });
-                if (!selectedData?.sampleList?.length && masterData?.length > 0) {
-                    isChanged = masterData?.some((item, index) => {
-                        return item.value !== valueUpadted[index].value;
+    const handleSaveAlert = useCallback(
+        (movenext = '') => {
+            let isChanged = false;
+            const filterdData = inspectList.filter(
+                item => item.intProductionItemID == infoData.intProductionItemID && item.OperationID == infoData.OperationID,
+            );
+            const finalData = filterdData[0];
+            if (showChar) {
+                if (formType == 'number' || formType == 'char') {
+                    console.log(masterData?.length, selectedData?.sampleList?.length, 'masterData');
+                    // if sampleList avilable we need to check this or we need to use masterData
+                    isChanged = selectedData?.sampleList?.some((item, index) => {
+                        return item?.value !== masterData[index]?.value;
                     });
-                }
-                if (isChanged) {
-                    setShowAlart(true);
-                } else {
-                    handleBackPress();
-                }
-            }
-        } else {
-            const hasChanges = JSON.stringify(finalData) !== JSON.stringify(infoData);
-            console.log('hasChanges', hasChanges);
-            console.log('finalData:', finalData);
-            console.log('infoData:', infoData);
-            console.log('equal:', JSON.stringify(finalData) === JSON.stringify(infoData));
+                    if (!selectedData?.sampleList?.length && masterData?.length > 0) {
+                        isChanged = masterData?.some((item, index) => {
+                            return item?.value !== valueUpadted[index]?.value;
+                        });
+                    }
+                    if (selectedData?.sampleList?.length !== undefined && selectedData?.sampleList?.length !== masterData?.length) {
+                        isChanged = true;
+                    }
+                    console.log(selectedData?.sampleList?.length, masterData?.length);
+                    if (isChanged) {
+                        setShowAlart(true);
+                    } else {
+                        console.log('handleBackPress');
+                        if (movenext == 'nextSample') {
+                            // let tempData = formType == 'number' ? infoData?.VariableCharacteristics : infoData.AttributeCharacteristics;
+                            // const nextIndex = currentIndex.index + 1;
+                            // setCurrentIndex({ index: nextIndex, type: formType });
+                            // setSelectedData(tempData[nextIndex]);
+                            // setShowAlart(false);
+                            // setNextSave(true);
 
-            if (!hasChanges) {
-                handleBackPress();
+                            handleNextItem()
+                        } else {
+                            handleBackPress();
+                        }
+                    }
+                }
             } else {
-                setShowAlart(true);
+                const hasChanges = JSON.stringify(finalData) !== JSON.stringify(infoData);
+                if (!hasChanges) {
+                    handleBackPress();
+                } else {
+                    setShowAlart(true);
+                }
             }
-        }
-    }, [inspectList, infoData, showChar, formType, selectedData, masterData, valueUpadted,handleBackPress]);
+
+            return true;
+        },
+        [inspectList, infoData, showChar, formType, selectedData, masterData, valueUpadted, handleBackPress],
+    );
     useEffect(() => {
         const backAction = () => {
             handleSaveAlert();
@@ -189,7 +210,7 @@ const InprocessInspection = ({ route }) => {
 
         return () => backHandler.remove(); // cleanup on unmount
     }, [handleSaveAlert]);
-    const handleSavePress = () => {
+    const handleSavePress = (close = true, btnText = 'noBtn') => {
         if (showChar) {
             const list = masterData || [];
             const allValues = list.length > 0 && list.every(({ value }) => value.trim() !== '');
@@ -207,6 +228,7 @@ const InprocessInspection = ({ route }) => {
             if (index !== -1) {
                 newCharacteristicsList[index] = updatedObj;
             }
+            setSelectedData(updatedObj);
             setInfoData(pre => ({
                 ...pre,
                 [formType === 'number' ? 'VariableCharacteristics' : 'AttributeCharacteristics']: newCharacteristicsList,
@@ -214,8 +236,37 @@ const InprocessInspection = ({ route }) => {
         } else {
             handleFinalSavePress();
         }
-        setShowChar(false);
-        handleBackPress();
+        if (close) {
+            setShowChar(false);
+            handleBackPress();
+        }
+        if (!close && btnText == 'noBtn') {
+            // const nextIndex = currentIndex.index + 1;
+            // setCurrentIndex({ index: nextIndex, type: formType });
+            // setSelectedData(formType == 'number' ? infoData?.VariableCharacteristics[nextIndex] : infoData.AttributeCharacteristics[nextIndex]);
+            // setShowAlart(false);
+            // setNextSave(true);
+            handleNextItem()
+        }
+    };
+    const handleNextSamplePress = () => {
+        let tempData = formType == 'number' ? infoData?.VariableCharacteristics : infoData.AttributeCharacteristics;
+        if (currentIndex.index < tempData?.length - 1) {
+            setNextSave(false);
+            handleSaveAlert('nextSample');
+            Keyboard.dismiss();
+        } else {
+            Alert.alert('End of List', 'You have reached the last item.');
+        }
+    };
+
+    const handleNextItem = () => {
+        let tempData = formType == 'number' ? infoData?.VariableCharacteristics : infoData.AttributeCharacteristics;
+        const nextIndex = currentIndex.index + 1;
+        setCurrentIndex({ index: nextIndex, type: formType });
+        setSelectedData(tempData[nextIndex]);
+        setShowAlart(false);
+        setNextSave(true);
     };
 
     return (
@@ -324,6 +375,8 @@ const InprocessInspection = ({ route }) => {
                                 masterData={masterData}
                                 setValueUpadted={setValueUpadted}
                                 handleSavePress={handleSavePress}
+                                handleNextSamplePress={handleNextSamplePress}
+                                icSettings={icSettings}
                             />
                         </View>
                     )}
@@ -366,14 +419,14 @@ const InprocessInspection = ({ route }) => {
                                 <ButtonComponent
                                     style={{ height: 40, width: '45%' }}
                                     onPress={() => {
-                                        handleBackPress();
+                                        nextSave ? handleBackPress() : handleNextItem();
                                     }}>
                                     No
                                 </ButtonComponent>
                                 <ButtonComponent
                                     style={{ height: 40, width: '45%' }}
                                     onPress={() => {
-                                        handleSavePress();
+                                        handleSavePress(nextSave);
                                     }}>
                                     yes
                                 </ButtonComponent>
