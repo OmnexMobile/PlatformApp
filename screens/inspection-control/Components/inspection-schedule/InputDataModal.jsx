@@ -72,28 +72,28 @@ const InputDataModal = ({
                 setFrqList([]);
             }
         } else {
-            // let response = {
-            //     Data: [
-            //         {
-            //             FrequencyId: 1,
-            //             SampleFrequency: 'Frequency1',
-            //             FrequencyCode: 'obi02171',
-            //         },
-            //     ],
-            //     Success: true,
-            //     Message: 'Success',
-            // };
-            // let temp = [];
-            // response?.Data.forEach(item => {
-            //     temp.push({
-            //         label: item?.SampleFrequency,
-            //         value: item?.FrequencyId,
-            //         ...item,
-            //     });
-            // });
-            // setFrqList(temp || []);
+            let response = {
+                Data: [
+                    {
+                        FrequencyId: "20949",
+                        SampleFrequency: 'lot',
+                        FrequencyCode: '20949',
+                    },
+                ],
+                Success: true,
+                Message: 'Success',
+            };
+            let temp = [];
+            response?.Data.forEach(item => {
+                temp.push({
+                    label: item?.SampleFrequency,
+                    value: item?.FrequencyId,
+                    ...item,
+                });
+            });
+            setFrqList(temp || []);
 
-            setFrqList([]);
+            // setFrqList([]);
         }
         return true;
     };
@@ -201,6 +201,7 @@ const InputDataModal = ({
             formData.append('Area', '');
             formData.append('syncMode', 0);
             formData.append('supervisorApproved', 0);
+            formData.append('ProcessId',selectedValue?.TypeOfInspection == '2'? 1:0);
 
             // other
             if (selectedValue.TypeOfInspection == '2') {
@@ -221,7 +222,7 @@ const InputDataModal = ({
             formData.append('SampleFrequency', formFields?.frequency?.SampleFrequency || '');
             formData.append('ProductionQty', formFields?.lotQty);
             formData.append('ReceiptNo', formFields?.receiptNumber || '');
-            formData.append('Executor', JSON.stringify(formFields.responsible)); // responsible party
+            formData.append('Executor', formFields.responsible.length>0?JSON.stringify(formFields.responsible):''); // responsible party
             // need to update asper API change
             formData.append('EnteredDate', moment(new Date()).format('MM/DD/YYYY h:mm:ss A '));
             // formData.append('SamplingHierarchy', ', , AQL=');

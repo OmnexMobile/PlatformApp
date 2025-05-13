@@ -13,7 +13,8 @@ const InputBoxWithHeader = ({
     numberOfLines = 1,
     textAlignVertical = 'center',
     backgroundColor=COLORS.inputBG,
-    color= '#000'
+    color= '#000',
+    onFocus=()=>{},
 }) => {
     return (
         <View style={[styles.container]}>
@@ -26,6 +27,8 @@ const InputBoxWithHeader = ({
                 numberOfLines={numberOfLines}
                 multiline={multiline}
                 textAlignVertical={textAlignVertical}
+                onFocus={onFocus}
+                
             />
         </View>
     );

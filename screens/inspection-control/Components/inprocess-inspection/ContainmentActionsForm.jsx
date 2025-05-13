@@ -4,29 +4,43 @@ import InputBoxWithHeader from '../InputBoxWithHeader';
 import { ButtonComponent } from 'components';
 import { COLORS } from 'constants/theme-constants';
 
-const listData = [
-    { actualValue: 'okk', count: '1', diffValue: 1, editvalue: '', finalValue: 4, id: 1 ,sampleNo:'1'},
-    { actualValue: 'okk', count: '1', diffValue: 1, editvalue: '', finalValue: 4, id: 2,sampleNo:'1'},
-];
-const ContainmentActionsForm = ({ type = '' }) => {
-    const [masterData, setMasterData] = useState([]);
+const ContainmentActionsForm = ({ type = '', masterData, handleSubmit = () => {} }) => {
+    const [pageData, setPageData] = useState({});
     useEffect(() => {
-        if (listData?.length) {
-            setMasterData(listData);
-        }
-    }, [listData]);
-    const handleInputChage = (val, id) => {
-        const updatedData = masterData?.map(item => (item?.id === id ? { ...item, editvalue: val } : item));
-        setMasterData(updatedData);
+        setPageData(masterData);
+    }, [masterData]);
+    const handleInputChage = (val, id, key) => {
+        const updatedData = pageData?.map(item => (item?.id === id ? { ...item, [key]: val } : item));
+        setPageData(updatedData);
+    };
+    const handleSubmitPress = value => {
+        let temp = JSON.parse(JSON.stringify(pageData));
+        let updatedtemp = temp.map(item =>
+            item?.id === value?.id
+                ? {
+                      ...value,
+                      showBtn: Number(value?.value) >= Number(item.lowValue) && Number(value.value) <= Number(item.highValue) ? false : true,
+                      isEditable: Number(value?.value) >= Number(item.lowValue) && Number(value.value) <= Number(item.highValue) ? false : true,
+                      actualValue: value?.value,
+                  }
+                : { ...item, showBtn: true, isEditable: true, actualValue: value?.value, isCommentsEditable: true },
+        );
+        setPageData([...updatedtemp]);
+        handleSubmit(updatedtemp);
+    };
+    const handleInputBlur = id => {
+        console.log(id, 'fghj');
+        const updatedData = pageData.map(item => (item?.id === id ? { ...item, showBtn: true } : { ...item, showBtn: false }));
+        setPageData(updatedData);
     };
     const renderItem = ({ item, index }) => {
-        let tolleranceValue = item?.finalValue + item?.diffValue;
-        const renderBackGroundColor = (value, fValue, type) => {
+        // let tolleranceValue = item?.finalValue + item?.diffValue;
+        const renderBackGroundColor = (value, type) => {
             if (value === '') {
                 return COLORS.inputBG;
             }
             if (type === 'number') {
-                return value >= fValue && value <= tolleranceValue ? COLORS.SUCCESS : COLORS.ERROR;
+                return Number(value) >= Number(item.lowValue) && Number(value) <= Number(item.highValue) ? COLORS.SUCCESS : COLORS.ERROR;
             }
             return value?.toLowerCase() === 'ok' ? COLORS.SUCCESS : COLORS.ERROR;
         };
@@ -34,31 +48,33 @@ const ContainmentActionsForm = ({ type = '' }) => {
             <View>
                 <View style={[styles.mainBox]}>
                     <View style={[styles.subBox]}>
-                        <InputBoxWithHeader title="Sample No" value={`${item.sampleNo}`} editable={false} />
+                        <InputBoxWithHeader title="Sample No" value={`${item?.count}`} editable={false} />
                     </View>
                     <View style={[styles.subBox]}>
                         <InputBoxWithHeader
                             title="Actual Value"
                             value={item.actualValue}
                             editable={false}
-                            backgroundColor={renderBackGroundColor(item.actualValue, item.finalValue, type)}
+                            backgroundColor={renderBackGroundColor(item.actualValue, type)}
                             color="#fff"
                         />
                     </View>
                 </View>
                 <View style={[styles.mainBox]}>
                     <View style={[styles.subBox]}>
-                        <InputBoxWithHeader title="No" value={`${index+1}`} editable={false} />
+                        <InputBoxWithHeader title="No" value={`${index + 1}`} editable={false} />
                     </View>
                     <View style={[styles.subBox]}>
                         <InputBoxWithHeader
-                            backgroundColor={renderBackGroundColor(item.editvalue, item.finalValue, type)}
-                            value={item.editvalue}
+                            backgroundColor={renderBackGroundColor(item.value, type)}
+                            value={item.value}
                             title="Value"
                             onChangeText={val => {
-                                handleInputChage(val, item.id);
+                                handleInputChage(val, item?.id, 'value');
                             }}
                             color="#fff"
+                            onFocus={() => handleInputBlur(item?.id)}
+                            editable={item?.isEditable}
                         />
                     </View>
                 </View>
@@ -69,21 +85,31 @@ const ContainmentActionsForm = ({ type = '' }) => {
                             multiline={true}
                             title="Comments"
                             height={80}
-                            value=""
+                            value={item.comments}
                             numberOfLines={4}
                             textAlignVertical="top"
+                            onChangeText={val => {
+                                handleInputChage(val, item.id, 'comments');
+                            }}
+                            editable={item?.isCommentsEditable}
                         />
                     </View>
                 </View>
-                <ButtonComponent style={{ height: 40, marginBottom: 10 }} onPress={() => {}}>
-                    Submit
-                </ButtonComponent>
+                {Boolean(item?.showBtn) && (
+                    <ButtonComponent
+                        style={{ height: 40, marginBottom: 10 }}
+                        onPress={() => {
+                            handleSubmitPress(item);
+                        }}>
+                        Submit
+                    </ButtonComponent>
+                )}
             </View>
         );
     };
     return (
         <View style={[styles.container]}>
-            <FlatList data={masterData} renderItem={renderItem} keyExtractor={item => item.id} showsVerticalScrollIndicator={false} />
+            <FlatList data={pageData} renderItem={renderItem} keyExtractor={item => item.id} showsVerticalScrollIndicator={false} />
         </View>
     );
 };

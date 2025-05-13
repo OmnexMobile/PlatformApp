@@ -51,7 +51,6 @@ const InprocessInspection = ({ route }) => {
         type: '',
     });
     const [nextSave, setNextSave] = useState(true);
-
     const navigation = useNavigation();
     const dispatch = useDispatch();
 
@@ -80,7 +79,7 @@ const InprocessInspection = ({ route }) => {
         if (allValues) {
             let temp =
                 type == 'number'
-                    ? list.filter(x => x?.value != '' && !(x?.value >= x?.lowValue && x?.value <= x.highValue))
+                    ? list.filter(x => x?.value != '' && !(Number(x?.value) >= Number(inspectData?.intInspectionTypeID == 2 ? x?.tolerance : 0) - Number(x?.lowValue) && Number(x?.value)  <= Number(x?.highValue) + Number(inspectData.intInspectionTypeID == 2 ? x?.tolerance : 0)))
                     : list.filter(x => x?.value?.toLowerCase() != 'ok' && x?.value !== '');
             iconFlag = temp?.length ? true : false;
         }
@@ -126,6 +125,7 @@ const InprocessInspection = ({ route }) => {
         </View>
     );
     const handleFinalSavePress = () => {
+        console.log('callleddd2')
         dispatch({
             type: 'UPDATE_INSPECT_LIST',
             updatedData: infoData,
@@ -133,6 +133,7 @@ const InprocessInspection = ({ route }) => {
         navigation.goBack();
     };
     const handleBackPress = () => {
+        console.log('callleddd1')
         if (!showChar) {
             if (navigation.canGoBack()) {
                 navigation.goBack();
@@ -169,7 +170,6 @@ const InprocessInspection = ({ route }) => {
                     if (selectedData?.sampleList?.length !== undefined && selectedData?.sampleList?.length !== masterData?.length) {
                         isChanged = true;
                     }
-                    console.log(selectedData?.sampleList?.length, masterData?.length);
                     if (isChanged) {
                         setShowAlart(true);
                     } else {
@@ -223,7 +223,7 @@ const InprocessInspection = ({ route }) => {
             };
             const { VariableCharacteristics, AttributeCharacteristics } = infoData;
             const characteristicsList = formType === 'number' ? VariableCharacteristics : AttributeCharacteristics;
-            const index = characteristicsList.findIndex(obj => obj.intCharacteristicId === selectedData.intCharacteristicId);
+            const index = characteristicsList.findIndex(obj => obj?.intCCharacteristicId === selectedData?.intCCharacteristicId);
             const newCharacteristicsList = [...characteristicsList];
             if (index !== -1) {
                 newCharacteristicsList[index] = updatedObj;
@@ -377,6 +377,7 @@ const InprocessInspection = ({ route }) => {
                                 handleSavePress={handleSavePress}
                                 handleNextSamplePress={handleNextSamplePress}
                                 icSettings={icSettings}
+                                inspectionType={inspectData.intInspectionTypeID}
                             />
                         </View>
                     )}

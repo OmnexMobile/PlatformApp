@@ -45,7 +45,8 @@ const CharacteristicsInfo = ({
     setValueUpadted = () => {},
     handleSavePress = () => {},
     handleNextSamplePress = () => {},
-    icSettings={}
+    icSettings = {},
+    inspectionType = '',
 }) => {
     useEffect(() => {
         const backAction = () => {
@@ -57,8 +58,8 @@ const CharacteristicsInfo = ({
     }, []);
 
     const navigation = useNavigation();
-
     useEffect(() => {
+        console.log(masterData, 'selectedData');
         if (type == 'number') {
             if (Object.keys(selectedData).length && !selectedData?.sampleList?.length) {
                 let sampleSize = selectedData.strSampleSize;
@@ -68,6 +69,7 @@ const CharacteristicsInfo = ({
                     value: '',
                     lowValue: selectedData.strLowValue,
                     highValue: selectedData.strHighValue,
+                    tolerance: inspectionType == 2 ? selectedData?.strTolerance || 0 : 0,
                 }));
                 setMasterData([...temp]);
                 setValueUpadted([...temp]);
@@ -81,7 +83,7 @@ const CharacteristicsInfo = ({
                 const temp = Array.from({ length: sampleSize }, (_, index) => ({
                     id: index + 1,
                     count: index + 1,
-                    value:icSettings?.defaultAllOk?'OK': '',
+                    value: icSettings?.DefaultAllOK ? 'OK' : '',
                 }));
                 setMasterData([...temp]);
                 setValueUpadted([...temp]);
@@ -96,11 +98,15 @@ const CharacteristicsInfo = ({
         const updatedData = masterData.map(item => (item.id === id ? { ...item, value: val } : item));
         setMasterData(updatedData);
     };
+    const handleContainmentSave = value => {
+        console.log(value, 'value');
+    };
     const handleSendPress = (type, item, index) => {
         navigation.navigate(ROUTES.CONTAINMENT_ACTIONS, {
             type: type,
-            listData: masterData,
             index: index,
+            selectedData: item,
+            onSave: handleContainmentSave,
         });
     };
     const renderItem = (item, index) => {
@@ -109,7 +115,9 @@ const CharacteristicsInfo = ({
                 return COLORS.white;
             }
             if (type === 'number') {
-                return Number(value) >= Number(item.lowValue) && Number(value) <= Number(item.highValue) ? COLORS.SUCCESS : COLORS.ERROR;
+                let lowValue = inspectionType == 2 ? Number(item?.tolerance) - Number(item?.lowValue) : item?.lowValue;
+                let highValue = inspectionType == 2 ? Number(item?.tolerance) + Number(item?.highValue) : item?.highValue;
+                return Number(value) >= Number(lowValue) && Number(value) <= Number(highValue) ? COLORS.SUCCESS : COLORS.ERROR;
             }
             return value.toLowerCase() === 'ok' ? COLORS.SUCCESS : COLORS.ERROR;
         };
@@ -118,7 +126,9 @@ const CharacteristicsInfo = ({
                 return false;
             }
             if (type === 'number') {
-                return Number(value) >= Number(item.lowValue) && Number(value) <= Number(item.highValue) ? false : true;
+                let lowValue = inspectionType == 2 ? Number(item?.tolerance) - Number(item?.lowValue) : item?.lowValue;
+                let highValue = inspectionType == 2 ? Number(item?.tolerance) + Number(item?.highValue) : item?.highValue;
+                return Number(value) >= Number(lowValue) && Number(value) <= Number(highValue) ? false : true;
             }
             return value.toLowerCase() === 'ok' ? false : true;
         };
@@ -134,7 +144,7 @@ const CharacteristicsInfo = ({
                         marginRight: 5,
                     }}>
                     <Text style={[styles.headerText]}>{item.count}</Text>
-                    {renderIcon(item.value, type) && (
+                    {renderIcon(item.value, type) && Boolean(icSettings?.ISContainmentAction) && (
                         <TouchableOpacity
                             style={[styles.iconContainer]}
                             onPress={() => {
@@ -184,6 +194,7 @@ const CharacteristicsInfo = ({
                 value: '',
                 lowValue: selectedData.strLowValue,
                 highValue: selectedData.strHighValue,
+                tolerance: inspectionType == 2 ? selectedData?.strTolerance || 0 : 0,
             });
             setMasterData(temp);
             setValueUpadted(temp);
@@ -194,14 +205,26 @@ const CharacteristicsInfo = ({
     const renderOkCount = (value = []) => {
         let temp =
             type == 'number'
-                ? value?.filter(x => x?.value != '' && x?.value >= x?.lowValue && x?.value <= x?.highValue)
+                ? value?.filter(
+                      x =>
+                          x?.value != '' &&
+                          Number(x?.value) >= Number(inspectionType == 2 ? x?.tolerance : 0) - Number(x?.lowValue) &&
+                          Number(x?.value) <= Number(x?.highValue) + Number(inspectionType == 2 ? x?.tolerance : 0),
+                  )
                 : value.filter(x => x?.value?.toLowerCase() == 'ok' && x?.value !== '');
         return temp.length || 0;
     };
     const renderNotOkCount = (value = []) => {
         let temp =
             type == 'number'
-                ? value.filter(x => x?.value != '' && !(x?.value >= x?.lowValue && x?.value <= x.highValue))
+                ? value.filter(
+                      x =>
+                          x?.value != '' &&
+                          !(
+                              Number(x?.value) >= Number(inspectionType == 2 ? x?.tolerance : 0) - Number(x?.lowValue) &&
+                              Number(x?.value) <= Number(x?.highValue) + Number(inspectionType == 2 ? x?.tolerance : 0)
+                          ),
+                  )
                 : value.filter(x => x?.value?.toLowerCase() != 'ok' && x?.value !== '');
         return temp?.length || 0;
     };
@@ -232,7 +255,7 @@ const CharacteristicsInfo = ({
                 <ButtonComponent
                     style={{ height: 40, width: '89%' }}
                     onPress={() => {
-                        handleSavePress(true,'saveBtn');
+                        handleSavePress(true, 'saveBtn');
                     }}>
                     Save
                 </ButtonComponent>

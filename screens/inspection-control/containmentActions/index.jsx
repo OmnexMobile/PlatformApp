@@ -14,9 +14,24 @@ const ContainmentActions = ({ route }) => {
     const [masterData, setMasterData] = useState([]);
     const [genType, setGenType] = useState('');
     useLayoutEffect(() => {
-        console.log(route?.params?.listData[0],'*******route?.params?.listData]')
-        if (route?.params?.listData) {
-            setMasterData([...route?.params?.listData]);
+        if (route?.params?.selectedData?.containmentList) {
+            setMasterData(route?.params?.selectedData?.containmentList);
+        } else {
+            const { lowValue, highValue, value, count } = route?.params?.selectedData;
+            const temp = Array.from({ length: 2 }, (_, index) => ({
+                count: count,
+                highValue: highValue,
+                id: index + 1,
+                lowValue: lowValue,
+                value: '',
+                actualValue: value,
+                showBtn: index + 1 == 1 ? true : false,
+                comments: '',
+                isEditable: index + 1 == 1 ? true : false,
+                isCommentsEditable: index + 1 == 1 ? true : false,
+
+            }));
+            setMasterData(temp);
         }
         setGenType(route?.params?.type);
     }, [route?.params]);
@@ -25,30 +40,31 @@ const ContainmentActions = ({ route }) => {
         setShowAction(false);
     };
     const handleActionOpen = () => {
-        // setShowAction(!showAction);
-        // setShowGeneral(false);
-        navigation.goBack();
+        setShowAction(!showAction);
+        setShowGeneral(false);
+        // navigation.goBack();
+    };
+    const handleSubmit = value => {
+        setMasterData(value);
     };
     return (
         <CustomHeader title="Inprocess Inspection" activeTabId={2} showIcons={false}>
             <View style={[styles.conatiner]}>
-                {/* {genType !== 'number' && (
-                    <View style={{ flex: showGeneral ? 1 : 0 }}>
-                        <TouchableOpacity
-                            style={[styles.tabStyle, { borderBottomLeftRadius: showGeneral ? 0 : 10, borderBottomRightRadius: showGeneral ? 0 : 10 }]}
-                            onPress={() => {
-                                handleGenOpen();
-                            }}>
-                            <Text style={[styles.headerText]}>General Info</Text>
-                            <Icon name={showGeneral ? 'down' : 'right'} size={20} />
-                        </TouchableOpacity>
-                        {showGeneral && (
-                            <View style={[styles.tabBox]}>
-                                <CharGenInfo />
-                            </View>
-                        )}
-                    </View>
-                )} */}
+                <View style={{ flex: showGeneral ? 1 : 0 }}>
+                    <TouchableOpacity
+                        style={[styles.tabStyle, { borderBottomLeftRadius: showGeneral ? 0 : 10, borderBottomRightRadius: showGeneral ? 0 : 10 }]}
+                        onPress={() => {
+                            handleGenOpen();
+                        }}>
+                        <Text style={[styles.headerText]}>General Info</Text>
+                        <Icon name={showGeneral ? 'down' : 'right'} size={20} />
+                    </TouchableOpacity>
+                    {showGeneral && (
+                        <View style={[styles.tabBox]}>
+                            <CharGenInfo />
+                        </View>
+                    )}
+                </View>
                 <View style={{ flex: showAction ? 1 : 0, marginTop: 10 }}>
                     <TouchableOpacity
                         style={[styles.tabStyle, { borderBottomLeftRadius: showAction ? 0 : 10, borderBottomRightRadius: showAction ? 0 : 10 }]}
@@ -59,7 +75,7 @@ const ContainmentActions = ({ route }) => {
                         <Icon name={showAction ? 'down' : 'right'} size={20} />
                     </TouchableOpacity>
                     <View style={[styles.tabBox]}>
-                        <ContainmentActionsForm  type={genType}  />
+                        <ContainmentActionsForm type={genType} masterData={masterData} setMasterData={setMasterData} handleSubmit={handleSubmit} />
                     </View>
                 </View>
             </View>
