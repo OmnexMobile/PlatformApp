@@ -38,8 +38,6 @@ const CharacteristicsInfo = ({
     selectedData = {},
     type = '',
     setShowChar = () => {},
-    infoData = {},
-    setInfoData = () => {},
     masterData,
     setMasterData = () => {},
     setValueUpadted = () => {},

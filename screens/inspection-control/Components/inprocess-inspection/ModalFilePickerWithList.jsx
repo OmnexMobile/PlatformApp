@@ -1,9 +1,9 @@
 import { ButtonComponent } from 'components';
 import { COLORS } from 'constants/theme-constants';
 import { RFPercentage } from 'helpers/utils';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Alert, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import {  Modal } from 'react-native-paper';
+import { Modal } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/AntDesign';
 import IconI from 'react-native-vector-icons/Ionicons';
 import IconM from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -13,9 +13,29 @@ import RNFS from 'react-native-fs';
 import FileViewer from 'react-native-file-viewer';
 import NoDataFound from '../NoDataFound';
 import { showMessage } from 'react-native-flash-message';
+import CameraScreen from './CameraScreen';
 
-const ModalFilePickerWithList = ({ visible = false, onDismiss = () => {} }) => {
+const ModalFilePickerWithList = ({
+    visible = false,
+    onDismiss = () => {},
+    selectedData = {},
+    masterData = {},
+    setSelectedData = () => {},
+    infoData = {},
+    setInfoData = () => {},
+    formType = '',
+    showCamer = false,
+    setShowCamer = () => {},
+}) => {
     const [fileList, setFileList] = useState([]);
+console.log(fileList,'fileList')
+    useEffect(() => {
+        if (selectedData?.fileList?.length) {
+            setFileList(selectedData?.fileList);
+        } else {
+            setFileList([]);
+        }
+    }, [selectedData]);
 
     const handlePickFile = async () => {
         try {
@@ -32,6 +52,7 @@ const ModalFilePickerWithList = ({ visible = false, onDismiss = () => {} }) => {
                     fileExtension: fileExtension,
                 };
                 setFileList([...fileList, file]);
+                // setSelectedData({ ...selectedData, fileList: [...fileList, file] });
             } else {
                 showMessage({
                     message: 'File size exceeds 5MB limit.',
@@ -75,6 +96,26 @@ const ModalFilePickerWithList = ({ visible = false, onDismiss = () => {} }) => {
         let temp = JSON.parse(JSON.stringify(fileList));
         temp.splice(index, 1);
         setFileList(temp);
+        // setSelectedData({ ...selectedData, fileList: temp });
+    };
+    const handleSaveFile = () => {
+        const updatedObj = {
+            ...selectedData,
+            fileList: fileList,
+        };
+        const { VariableCharacteristics, AttributeCharacteristics } = infoData;
+        const characteristicsList = formType === 'number' ? VariableCharacteristics : AttributeCharacteristics;
+        const index = characteristicsList.findIndex(obj => obj?.intCCharacteristicId === selectedData?.intCCharacteristicId);
+        const newCharacteristicsList = [...characteristicsList];
+        if (index !== -1) {
+            newCharacteristicsList[index] = updatedObj;
+        }
+        setSelectedData(updatedObj);
+        setInfoData(pre => ({
+            ...pre,
+            [formType === 'number' ? 'VariableCharacteristics' : 'AttributeCharacteristics']: newCharacteristicsList,
+        }));
+        onDismiss();
     };
     const renderFileList = ({ item, index }) => {
         return (
@@ -103,30 +144,53 @@ const ModalFilePickerWithList = ({ visible = false, onDismiss = () => {} }) => {
             </View>
         );
     };
+    const handleCameraPress = () => {
+        setShowCamer(true);
+    };
     return (
         <Modal visible={visible} onDismiss={onDismiss} onRequestClose={onDismiss} contentContainerStyle={[styles.modalContainer]}>
-            <View style={[styles.container]}>
-                <View style={[styles.iconBox]}>
-                    <TouchableOpacity style={[styles.closeIcon]} onPress={onDismiss}>
-                        <Icon name="close" size={20} color={COLORS.white} />
-                    </TouchableOpacity>
+            {Boolean(showCamer) ? (
+                <CameraScreen 
+                setShowCamer={setShowCamer}
+                setFileList={setFileList}
+                />
+            ) : (
+                <View style={[styles.container]}>
+                    <View style={[styles.iconBox]}>
+                        <TouchableOpacity style={[styles.closeIcon]} onPress={onDismiss}>
+                            <Icon name="close" size={20} color={COLORS.white} />
+                        </TouchableOpacity>
+                    </View>
+                    {Boolean(fileList.length) ? (
+                        <FlatList
+                            data={fileList}
+                            renderItem={renderFileList}
+                            contentContainerStyle={{ marginHorizontal: 10 }}
+                            showsVerticalScrollIndicator={false}
+                        />
+                    ) : (
+                        <NoDataFound />
+                    )}
+                    <View style={[styles.btnContainer]}>
+                        <View style={[styles.btnBox]}>
+                            <ButtonComponent
+                                style={{ height: 40, width: '48%' }}
+                                onPress={() => {
+                                    handleCameraPress();
+                                }}>
+                                Camera
+                            </ButtonComponent>
+                            <ButtonComponent style={{ height: 40, width: '48%' }} onPress={handlePickFile}>
+                                Upload
+                            </ButtonComponent>
+                        </View>
+
+                        <ButtonComponent style={{ height: 40 }} onPress={handleSaveFile}>
+                            Save
+                        </ButtonComponent>
+                    </View>
                 </View>
-                {Boolean(fileList.length) ? (
-                    <FlatList
-                        data={fileList}
-                        renderItem={renderFileList}
-                        contentContainerStyle={{ marginHorizontal: 10 }}
-                        showsVerticalScrollIndicator={false}
-                    />
-                ) : (
-                    <NoDataFound />
-                )}
-                <View style={[styles.btnContainer]}>
-                    <ButtonComponent style={{ height: 40 }} onPress={handlePickFile}>
-                        Select from device
-                    </ButtonComponent>
-                </View>
-            </View>
+            )}
         </Modal>
     );
 };
@@ -135,6 +199,9 @@ const styles = StyleSheet.create({
     modalContainer: {
         flexDirection: 'row',
         justifyContent: 'center',
+        width: '100%',
+        backgroundColor: '#fff',
+        height: '100%',
     },
     container: {
         width: '95%',
@@ -179,6 +246,11 @@ const styles = StyleSheet.create({
     },
     iconBoxStyle: {
         marginEnd: 10,
+    },
+    btnBox: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginBottom: 10,
     },
 });
 

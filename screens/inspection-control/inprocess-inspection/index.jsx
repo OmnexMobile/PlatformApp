@@ -34,7 +34,7 @@ const moreList = [
 
 const InprocessInspection = ({ route }) => {
     const { inspectData } = route.params;
-    const { inspectList,icSettings } = useSelector(state => state.inspection);
+    const { inspectList, icSettings } = useSelector(state => state.inspection);
     const [showGeneral, setShowGeneral] = useState(false);
     const [showChar, setShowChar] = useState(false);
     const [showSignModal, setShowSignModal] = useState(false);
@@ -51,6 +51,7 @@ const InprocessInspection = ({ route }) => {
         type: '',
     });
     const [nextSave, setNextSave] = useState(true);
+    const [showCamer, setShowCamer] = useState(false);
     const navigation = useNavigation();
     const dispatch = useDispatch();
 
@@ -79,7 +80,14 @@ const InprocessInspection = ({ route }) => {
         if (allValues) {
             let temp =
                 type == 'number'
-                    ? list.filter(x => x?.value != '' && !(Number(x?.value) >= Number(inspectData?.intInspectionTypeID == 2 ? x?.tolerance : 0) - Number(x?.lowValue) && Number(x?.value)  <= Number(x?.highValue) + Number(inspectData.intInspectionTypeID == 2 ? x?.tolerance : 0)))
+                    ? list.filter(
+                          x =>
+                              x?.value != '' &&
+                              !(
+                                  Number(x?.value) >= Number(inspectData?.intInspectionTypeID == 2 ? x?.tolerance : 0) - Number(x?.lowValue) &&
+                                  Number(x?.value) <= Number(x?.highValue) + Number(inspectData.intInspectionTypeID == 2 ? x?.tolerance : 0)
+                              ),
+                      )
                     : list.filter(x => x?.value?.toLowerCase() != 'ok' && x?.value !== '');
             iconFlag = temp?.length ? true : false;
         }
@@ -125,7 +133,7 @@ const InprocessInspection = ({ route }) => {
         </View>
     );
     const handleFinalSavePress = () => {
-        console.log('callleddd2')
+        console.log('callleddd2');
         dispatch({
             type: 'UPDATE_INSPECT_LIST',
             updatedData: infoData,
@@ -133,18 +141,26 @@ const InprocessInspection = ({ route }) => {
         navigation.goBack();
     };
     const handleBackPress = () => {
-        console.log('callleddd1')
-        if (!showChar) {
-            if (navigation.canGoBack()) {
-                navigation.goBack();
+        console.log('callleddd1');
+        if (!showCamer) {
+            if (!showFilePage) {
+                if (!showChar) {
+                    if (navigation.canGoBack()) {
+                        navigation.goBack();
+                    } else {
+                        navigation.reset({
+                            index: 0,
+                            routes: [{ name: ROUTES.HOME_FAB_VIEW }],
+                        });
+                    }
+                } else {
+                    setShowChar(false);
+                }
             } else {
-                navigation.reset({
-                    index: 0,
-                    routes: [{ name: ROUTES.HOME_FAB_VIEW }],
-                });
+                setShowFilePage(false);
             }
-        } else {
-            setShowChar(false);
+        }else{
+            setShowCamer(false);
         }
         setShowAlart(false);
     };
@@ -173,7 +189,6 @@ const InprocessInspection = ({ route }) => {
                     if (isChanged) {
                         setShowAlart(true);
                     } else {
-                        console.log('handleBackPress');
                         if (movenext == 'nextSample') {
                             // let tempData = formType == 'number' ? infoData?.VariableCharacteristics : infoData.AttributeCharacteristics;
                             // const nextIndex = currentIndex.index + 1;
@@ -182,7 +197,7 @@ const InprocessInspection = ({ route }) => {
                             // setShowAlart(false);
                             // setNextSave(true);
 
-                            handleNextItem()
+                            handleNextItem();
                         } else {
                             handleBackPress();
                         }
@@ -246,7 +261,7 @@ const InprocessInspection = ({ route }) => {
             // setSelectedData(formType == 'number' ? infoData?.VariableCharacteristics[nextIndex] : infoData.AttributeCharacteristics[nextIndex]);
             // setShowAlart(false);
             // setNextSave(true);
-            handleNextItem()
+            handleNextItem();
         }
     };
     const handleNextSamplePress = () => {
@@ -369,8 +384,6 @@ const InprocessInspection = ({ route }) => {
                                 selectedData={selectedData}
                                 type={formType}
                                 setShowChar={setShowChar}
-                                infoData={infoData}
-                                setInfoData={setInfoData}
                                 setMasterData={setMasterData}
                                 masterData={masterData}
                                 setValueUpadted={setValueUpadted}
@@ -392,12 +405,22 @@ const InprocessInspection = ({ route }) => {
                 }}
                 signType={signType}
             />
-            <ModalFilePickerWithList
-                visible={showFilePage}
-                onDismiss={() => {
-                    setShowFilePage(false);
-                }}
-            />
+            {Boolean(showFilePage) && (
+                <ModalFilePickerWithList
+                    selectedData={selectedData}
+                    visible={showFilePage}
+                    masterData={masterData}
+                    onDismiss={() => {
+                        setShowFilePage(false);
+                    }}
+                    setSelectedData={setSelectedData}
+                    infoData={infoData}
+                    setInfoData={setInfoData}
+                    formType={formType}
+                    showCamer={showCamer}
+                    setShowCamer={setShowCamer}
+                />
+            )}
             {Boolean(showAlart) && (
                 <Modal
                     visible={showAlart}
