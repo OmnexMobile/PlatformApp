@@ -13,23 +13,32 @@ const ContainmentActionsForm = ({ type = '', masterData, handleSubmit = () => {}
         const updatedData = pageData?.map(item => (item?.id === id ? { ...item, [key]: val } : item));
         setPageData(updatedData);
     };
+
     const handleSubmitPress = value => {
-        let temp = JSON.parse(JSON.stringify(pageData));
-        let updatedtemp = temp.map(item =>
-            item?.id === value?.id
-                ? {
-                      ...value,
-                      showBtn: Number(value?.value) >= Number(item.lowValue) && Number(value.value) <= Number(item.highValue) ? false : true,
-                      isEditable: Number(value?.value) >= Number(item.lowValue) && Number(value.value) <= Number(item.highValue) ? false : true,
-                      actualValue: value?.value,
-                  }
-                : { ...item, showBtn: true, isEditable: true, actualValue: value?.value, isCommentsEditable: true },
-        );
-        setPageData([...updatedtemp]);
-        handleSubmit(updatedtemp);
+        const temp = JSON.parse(JSON.stringify(pageData));
+
+        if (value.id === 1 || value.id === 2) {
+            temp[0] = {
+                ...temp[0],
+                showBtn: false,
+                isEditable: false,
+                actualValue: value?.value,
+                isCommentsEditable: false,
+            };
+
+            temp[1] = {
+                ...temp[1],
+                showBtn: true,
+                isEditable: true,
+                actualValue: value?.value,
+                isCommentsEditable: true,
+            };
+        }
+
+        setPageData([...temp]);
+        handleSubmit(temp,value?.value,value.id );
     };
     const handleInputBlur = id => {
-        console.log(id, 'fghj');
         const updatedData = pageData.map(item => (item?.id === id ? { ...item, showBtn: true } : { ...item, showBtn: false }));
         setPageData(updatedData);
     };

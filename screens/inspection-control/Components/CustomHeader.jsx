@@ -168,11 +168,11 @@ const CustomHeader = ({
                                     <IconF name="qrcode" size={25} style={styles.iconButton} color={COLORS.white} />
                                 </TouchableOpacity>
                             )}
-                            {activeTabId == 2 && (
+                            {/* {activeTabId == 2 && (
                                 <TouchableOpacity>
                                     <IconI name="settings-outline" size={25} style={styles.iconButton} color={COLORS.white} />
                                 </TouchableOpacity>
-                            )}
+                            )} */}
                             {activeTabId == 4 && (
                                 <TouchableOpacity
                                     onPress={() => {

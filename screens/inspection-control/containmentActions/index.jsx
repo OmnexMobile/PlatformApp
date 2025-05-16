@@ -15,9 +15,18 @@ const ContainmentActions = ({ route }) => {
     const [genType, setGenType] = useState('');
     useLayoutEffect(() => {
         if (route?.params?.selectedData?.containmentList) {
-            setMasterData(route?.params?.selectedData?.containmentList);
+            let temp = route?.params?.selectedData?.containmentList.map((item, index) => {
+                return {
+                    ...item,
+                    isEditable: index + 1 == 1 ? true : false,
+                    isCommentsEditable: index + 1 == 1 ? true : false,
+                    showBtn: index + 1 == 1 ? true : false,
+                    actualValue: route?.params?.selectedData?.value,
+                };
+            });
+            setMasterData(temp);
         } else {
-            const { lowValue, highValue, value, count } = route?.params?.selectedData;
+            const { lowValue, highValue, value, count, tolerance } = route?.params?.selectedData;
             const temp = Array.from({ length: 2 }, (_, index) => ({
                 count: count,
                 highValue: highValue,
@@ -25,11 +34,11 @@ const ContainmentActions = ({ route }) => {
                 lowValue: lowValue,
                 value: '',
                 actualValue: value,
-                showBtn: index + 1 == 1 ? true : false,
+                tolerance: tolerance,
                 comments: '',
                 isEditable: index + 1 == 1 ? true : false,
                 isCommentsEditable: index + 1 == 1 ? true : false,
-
+                showBtn: index + 1 == 1 ? true : false,
             }));
             setMasterData(temp);
         }
@@ -44,11 +53,21 @@ const ContainmentActions = ({ route }) => {
         setShowGeneral(false);
         // navigation.goBack();
     };
-    const handleSubmit = value => {
+    const handleSubmit = (value, changedValue, id) => {
         setMasterData(value);
+        if (route.params?.onSave) {
+            let finalValue = { ...route?.params?.selectedData, value: changedValue, containmentList: value };
+            route.params.onSave(finalValue); // send data back
+        }
+        if (id == 2) {
+            navigation.goBack();
+        }
+    };
+    const renderHeader = value => {
+        return value == '1' ? 'Receiving Inspection' : value == '2' ? 'Inprocess Inspection' : 'Final Inspection';
     };
     return (
-        <CustomHeader title="Inprocess Inspection" activeTabId={2} showIcons={false}>
+        <CustomHeader title={renderHeader(route?.params?.inspectionType)} activeTabId={2} showIcons={false}>
             <View style={[styles.conatiner]}>
                 <View style={{ flex: showGeneral ? 1 : 0 }}>
                     <TouchableOpacity

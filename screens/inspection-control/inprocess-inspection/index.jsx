@@ -52,6 +52,7 @@ const InprocessInspection = ({ route }) => {
     });
     const [nextSave, setNextSave] = useState(true);
     const [showCamer, setShowCamer] = useState(false);
+    const [mixedList, setMixedList] = useState('');
     const navigation = useNavigation();
     const dispatch = useDispatch();
 
@@ -80,13 +81,13 @@ const InprocessInspection = ({ route }) => {
         if (allValues) {
             let temp =
                 type == 'number'
-                    ? list.filter(
-                          x =>
-                              x?.value != '' &&
-                              !(
-                                  Number(x?.value) >= Number(inspectData?.intInspectionTypeID == 2 ? x?.tolerance : 0) - Number(x?.lowValue) &&
-                                  Number(x?.value) <= Number(x?.highValue) + Number(inspectData.intInspectionTypeID == 2 ? x?.tolerance : 0)
-                              ),
+                    ? list.filter(x =>
+                          x?.value != '' && inspectData?.intInspectionTypeID == 2
+                              ? !(
+                                    Number(x?.value) >= Number(inspectData?.intInspectionTypeID == 2 ? x?.tolerance : 0) - Number(x?.lowValue) &&
+                                    Number(x?.value) <= Number(x?.highValue) + Number(inspectData.intInspectionTypeID == 2 ? x?.tolerance : 0)
+                                )
+                              : !(Number(x?.value) >= Number(x?.lowValue) && Number(x?.value) <= Number(x?.highValue)),
                       )
                     : list.filter(x => x?.value?.toLowerCase() != 'ok' && x?.value !== '');
             iconFlag = temp?.length ? true : false;
@@ -132,16 +133,15 @@ const InprocessInspection = ({ route }) => {
             <Text style={[styles.flatHeader]}>Sample Information - {title}</Text>
         </View>
     );
-    const handleFinalSavePress = () => {
+    const handleFinalSavePress = (flag = false) => {
         console.log('callleddd2');
         dispatch({
             type: 'UPDATE_INSPECT_LIST',
             updatedData: infoData,
         });
-        navigation.goBack();
+        Boolean(flag) && navigation.goBack();
     };
     const handleBackPress = () => {
-        console.log('callleddd1');
         if (!showCamer) {
             if (!showFilePage) {
                 if (!showChar) {
@@ -159,13 +159,13 @@ const InprocessInspection = ({ route }) => {
             } else {
                 setShowFilePage(false);
             }
-        }else{
+        } else {
             setShowCamer(false);
         }
         setShowAlart(false);
     };
     const handleSaveAlert = useCallback(
-        (movenext = '') => {
+        (movenext = '', typeid = '') => {
             let isChanged = false;
             const filterdData = inspectList.filter(
                 item => item.intProductionItemID == infoData.intProductionItemID && item.OperationID == infoData.OperationID,
@@ -173,7 +173,6 @@ const InprocessInspection = ({ route }) => {
             const finalData = filterdData[0];
             if (showChar) {
                 if (formType == 'number' || formType == 'char') {
-                    console.log(masterData?.length, selectedData?.sampleList?.length, 'masterData');
                     // if sampleList avilable we need to check this or we need to use masterData
                     isChanged = selectedData?.sampleList?.some((item, index) => {
                         return item?.value !== masterData[index]?.value;
@@ -190,14 +189,7 @@ const InprocessInspection = ({ route }) => {
                         setShowAlart(true);
                     } else {
                         if (movenext == 'nextSample') {
-                            // let tempData = formType == 'number' ? infoData?.VariableCharacteristics : infoData.AttributeCharacteristics;
-                            // const nextIndex = currentIndex.index + 1;
-                            // setCurrentIndex({ index: nextIndex, type: formType });
-                            // setSelectedData(tempData[nextIndex]);
-                            // setShowAlart(false);
-                            // setNextSave(true);
-
-                            handleNextItem();
+                            handleNextItem(typeid);
                         } else {
                             handleBackPress();
                         }
@@ -214,7 +206,7 @@ const InprocessInspection = ({ route }) => {
 
             return true;
         },
-        [inspectList, infoData, showChar, formType, selectedData, masterData, valueUpadted, handleBackPress],
+        [inspectList, infoData, showChar, formType, selectedData, masterData, valueUpadted, handleBackPress, handleNextItem],
     );
     useEffect(() => {
         const backAction = () => {
@@ -252,36 +244,56 @@ const InprocessInspection = ({ route }) => {
             handleFinalSavePress();
         }
         if (close) {
+            console.log('close');
             setShowChar(false);
             handleBackPress();
         }
         if (!close && btnText == 'noBtn') {
-            // const nextIndex = currentIndex.index + 1;
-            // setCurrentIndex({ index: nextIndex, type: formType });
-            // setSelectedData(formType == 'number' ? infoData?.VariableCharacteristics[nextIndex] : infoData.AttributeCharacteristics[nextIndex]);
-            // setShowAlart(false);
-            // setNextSave(true);
             handleNextItem();
         }
     };
     const handleNextSamplePress = () => {
-        let tempData = formType == 'number' ? infoData?.VariableCharacteristics : infoData.AttributeCharacteristics;
-        if (currentIndex.index < tempData?.length - 1) {
-            setNextSave(false);
-            handleSaveAlert('nextSample');
-            Keyboard.dismiss();
+        if (infoData.intInspectionTypeID != 2) {
+            let tempData = formType == 'number' ? infoData?.VariableCharacteristics : infoData.AttributeCharacteristics;
+            if (currentIndex.index < tempData?.length - 1) {
+                setNextSave(false);
+                handleSaveAlert('nextSample');
+                Keyboard.dismiss();
+            } else {
+                Alert.alert('End of Sample List', 'You have reached the last sample.');
+            }
         } else {
-            Alert.alert('End of List', 'You have reached the last item.');
+            let tempData = formType == 'number' ? infoData?.VariableCharacteristics : infoData.AttributeCharacteristics;
+            if (currentIndex.index < tempData?.length - 1) {
+                setNextSave(false);
+                handleSaveAlert('nextSample');
+                Keyboard.dismiss();
+            } else if (currentIndex.index == tempData?.length - 1 && formType == 'number') {
+                setMixedList('2');
+                setNextSave(false);
+                handleSaveAlert('nextSample', infoData.intInspectionTypeID);
+                Keyboard.dismiss();
+            } else {
+                Alert.alert('End of Sample List', 'You have reached the last sample.');
+            }
         }
     };
 
-    const handleNextItem = () => {
-        let tempData = formType == 'number' ? infoData?.VariableCharacteristics : infoData.AttributeCharacteristics;
-        const nextIndex = currentIndex.index + 1;
-        setCurrentIndex({ index: nextIndex, type: formType });
-        setSelectedData(tempData[nextIndex]);
+    const handleNextItem = (id = mixedList) => {
+        if (id == '' || id == undefined) {
+            let tempData = formType == 'number' ? infoData?.VariableCharacteristics : infoData.AttributeCharacteristics;
+            const nextIndex = currentIndex.index + 1;
+            setCurrentIndex({ index: nextIndex, type: formType });
+            setSelectedData(tempData[nextIndex]);
+        } else {
+            let tempData = infoData.AttributeCharacteristics;
+            setCurrentIndex({ index: 0, type: 'char' });
+            setFormType('char');
+            setSelectedData(tempData[0]);
+        }
         setShowAlart(false);
         setNextSave(true);
+        setMixedList('');
     };
 
     return (
@@ -320,7 +332,7 @@ const InprocessInspection = ({ route }) => {
                         <ScrollView showsVerticalScrollIndicator={false}>
                             {Boolean(infoData?.VariableCharacteristics?.length) && (
                                 <View>
-                                    <MyHeader title={'VARIABLE'} />
+                                    {Boolean(inspectData.intInspectionTypeID != 2) && <MyHeader title={'VARIABLE'} />}
                                     {infoData?.VariableCharacteristics.map((item, index) => {
                                         return renderItem({ item, index, type: 'number' });
                                     })}
@@ -328,7 +340,7 @@ const InprocessInspection = ({ route }) => {
                             )}
                             {Boolean(infoData?.AttributeCharacteristics?.length) && (
                                 <View style={{ marginVertical: 10 }}>
-                                    <MyHeader title={'ATTRIBUTE'} />
+                                    {Boolean(inspectData.intInspectionTypeID != 2) && <MyHeader title={'ATTRIBUTE'} />}
                                     {infoData?.AttributeCharacteristics.map((item, index) => {
                                         return renderItem({ item, index, type: 'char' });
                                     })}
@@ -340,7 +352,7 @@ const InprocessInspection = ({ route }) => {
                             <ButtonComponent
                                 style={{ height: 40, width: '87%' }}
                                 onPress={() => {
-                                    handleFinalSavePress();
+                                    handleFinalSavePress(true);
                                 }}>
                                 Save
                             </ButtonComponent>
@@ -357,28 +369,28 @@ const InprocessInspection = ({ route }) => {
                         </View>
                     </View>
                 )}
-                <View style={{ flex: showChar ? 1 : 0 }}>
-                    <TouchableOpacity
-                        style={[styles.tabStyle, { borderBottomLeftRadius: showChar ? 0 : 10, borderBottomRightRadius: showChar ? 0 : 10 }]}
-                        onPress={() => {
-                            if (showChar) {
-                                handleCharOpen();
-                            } else {
-                                showMessage({
-                                    message: 'Please press the "Inspect" button.',
-                                    backgroundColor: COLORS.WARNING,
-                                    color: COLORS.white,
-                                    duration: 1500,
-                                    statusBarHeight: 40,
-                                    // style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
-                                    position: 'bottom',
-                                });
-                            }
-                        }}>
-                        <Text style={[styles.headerText]}>Characteristics Info</Text>
-                        <Icon name={showChar ? 'down' : 'right'} size={20} color={COLORS.moreIcon} />
-                    </TouchableOpacity>
-                    {showChar && (
+                {showChar && (
+                    <View style={{ flex: showChar ? 1 : 0 }}>
+                        <TouchableOpacity
+                            style={[styles.tabStyle, { borderBottomLeftRadius: showChar ? 0 : 10, borderBottomRightRadius: showChar ? 0 : 10 }]}
+                            onPress={() => {
+                                if (showChar) {
+                                    handleCharOpen();
+                                } else {
+                                    showMessage({
+                                        message: 'Please press the "Inspect" button.',
+                                        backgroundColor: COLORS.WARNING,
+                                        color: COLORS.white,
+                                        duration: 1500,
+                                        statusBarHeight: 40,
+                                        // style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+                                        position: 'bottom',
+                                    });
+                                }
+                            }}>
+                            <Text style={[styles.headerText]}>Characteristics Info</Text>
+                            <Icon name={showChar ? 'down' : 'right'} size={20} color={COLORS.moreIcon} />
+                        </TouchableOpacity>
                         <View style={[styles.tabBox]}>
                             <CharacteristicsInfo
                                 selectedData={selectedData}
@@ -393,8 +405,8 @@ const InprocessInspection = ({ route }) => {
                                 inspectionType={inspectData.intInspectionTypeID}
                             />
                         </View>
-                    )}
-                </View>
+                    </View>
+                )}
             </View>
             <SignatureComponent
                 infoData={infoData}

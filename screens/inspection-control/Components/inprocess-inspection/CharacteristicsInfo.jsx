@@ -57,7 +57,6 @@ const CharacteristicsInfo = ({
 
     const navigation = useNavigation();
     useEffect(() => {
-        console.log(masterData, 'selectedData');
         if (type == 'number') {
             if (Object.keys(selectedData).length && !selectedData?.sampleList?.length) {
                 let sampleSize = selectedData.strSampleSize;
@@ -97,13 +96,15 @@ const CharacteristicsInfo = ({
         setMasterData(updatedData);
     };
     const handleContainmentSave = value => {
-        console.log(value, 'value');
+        const updatedData = masterData.map(item => (item.id === value.id ? { ...value } : item));
+        setMasterData(updatedData);
     };
     const handleSendPress = (type, item, index) => {
         navigation.navigate(ROUTES.CONTAINMENT_ACTIONS, {
             type: type,
             index: index,
             selectedData: item,
+            inspectionType:inspectionType,
             onSave: handleContainmentSave,
         });
     };
