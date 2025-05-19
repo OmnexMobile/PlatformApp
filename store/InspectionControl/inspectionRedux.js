@@ -33,12 +33,10 @@ const storeInspectList = (state, { inspectList }) => {
     return { ...state, inspectList: [...state.inspectList, ...inspectList] };
 };
 const removeInspectList = (state, { inspectionToRemove }) => {
-    const indexToRemove = state.inspectList.findIndex(
-        inspection =>
-            inspection.intProductionItemID == inspectionToRemove.intProductionItemID &&
-            inspection.OperationID == inspectionToRemove.OperationID && 
-            inspection?.OrderDetailsId == inspectionToRemove?.OrderDetailsId
-    );
+    //  inspection.intProductionItemID == inspectionToRemove.intProductionItemID &&
+    //         inspection.OperationID == inspectionToRemove.OperationID &&
+    //         inspection?.OrderDetailsId == inspectionToRemove?.OrderDetailsId
+    const indexToRemove = state.inspectList.findIndex(inspection => inspection?.uniqueId == inspectionToRemove?.uniqueId);
     if (indexToRemove > -1) {
         const updatedInspectList = [...state.inspectList];
         updatedInspectList.splice(indexToRemove, 1);
@@ -54,18 +52,17 @@ const storeIcSettings = (state, { icSettings }) => {
     return { ...state, icSettings: icSettings };
 };
 const updateInspectList = (state, { updatedData }) => {
+    // item.intProductionItemID === updatedData.intProductionItemID &&
+    //       item.OperationID === updatedData.OperationID &&
+    //       item?.OrderDetailsId === updatedData?.OrderDetailsId
     const updatedArray = state.inspectList.map(item => {
-        if (
-          item.intProductionItemID === updatedData.intProductionItemID &&
-          item.OperationID === updatedData.OperationID && 
-          item?.OrderDetailsId === updatedData?.OrderDetailsId
-        ) {
-          return { ...item, ...updatedData }; // merge changes
+        if (item?.uniqueId === updatedData?.uniqueId) {
+            return { ...item, ...updatedData }; // merge changes
         }
         return item; // leave others unchanged
-      });
+    });
     return { ...state, inspectList: updatedArray };
-}
+};
 /* ------------- Hookup Reducers To Types ------------- */
 const rawReducer = createReducer(INITIAL_STATE, {
     [Types.INSPECT_LIST]: storeInspectList,

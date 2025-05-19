@@ -167,7 +167,7 @@ const InprocessInspection = ({ route }) => {
         (movenext = '', typeid = '') => {
             let isChanged = false;
             const filterdData = inspectList.filter(
-                item => item.intProductionItemID == infoData.intProductionItemID && item.OperationID == infoData.OperationID && item?.OrderDetailsId == infoData?.OrderDetailsId,
+                item => item.intProductionItemID == infoData.intProductionItemID && item.OperationID == infoData.OperationID && item?.OrderDetailsId == infoData?.OrderDetailsId && item?.uniqueId == infoData?.uniqueId,
             );
             const finalData = filterdData[0];
             if (showChar) {

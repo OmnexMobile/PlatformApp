@@ -13,6 +13,8 @@ import { postAPI } from 'global/api-helpers';
 import ApiUrl from 'global/ApiUrl';
 import AsyncStorage from '@react-native-community/async-storage';
 import moment from 'moment';
+import uuid from 'react-native-uuid';
+
 
 const errorObj = {
     shift: false,
@@ -234,7 +236,8 @@ const InputDataModal = ({
                 dispatch({
                     type: 'INSPECT_LIST',
                     inspectList: [
-                        {
+                        { 
+                            uniqueId: uuid.v4(),
                             OperationID:selectedValue?.OperationID,
                             intProductionItemID: selectedValue?.ProductionItemId,
                             strProductionItemName: selectedValue?.ProductionItem,
