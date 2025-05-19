@@ -36,7 +36,8 @@ const removeInspectList = (state, { inspectionToRemove }) => {
     const indexToRemove = state.inspectList.findIndex(
         inspection =>
             inspection.intProductionItemID == inspectionToRemove.intProductionItemID &&
-            inspection.OperationID == inspectionToRemove.OperationID
+            inspection.OperationID == inspectionToRemove.OperationID && 
+            inspection?.OrderDetailsId == inspectionToRemove?.OrderDetailsId
     );
     if (indexToRemove > -1) {
         const updatedInspectList = [...state.inspectList];
@@ -56,7 +57,8 @@ const updateInspectList = (state, { updatedData }) => {
     const updatedArray = state.inspectList.map(item => {
         if (
           item.intProductionItemID === updatedData.intProductionItemID &&
-          item.OperationID === updatedData.OperationID
+          item.OperationID === updatedData.OperationID && 
+          item?.OrderDetailsId === updatedData?.OrderDetailsId
         ) {
           return { ...item, ...updatedData }; // merge changes
         }

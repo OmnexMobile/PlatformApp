@@ -1,6 +1,6 @@
-import React, { useLayoutEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import CustomHeader from '../Components/CustomHeader';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { BackHandler, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Icon from 'react-native-vector-icons/AntDesign';
 import { COLORS } from 'constants/theme-constants';
 import CharGenInfo from '../Components/inprocess-inspection/CharGenInfo';
@@ -13,6 +13,14 @@ const ContainmentActions = ({ route }) => {
     const [showAction, setShowAction] = useState(true);
     const [masterData, setMasterData] = useState([]);
     const [genType, setGenType] = useState('');
+    useEffect(() => {
+        const backAction = () => {
+            navigation.goBack();
+            return true;
+        };
+        const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+        return () => backHandler.remove();
+    }, []);
     useLayoutEffect(() => {
         if (route?.params?.selectedData?.containmentList) {
             let temp = route?.params?.selectedData?.containmentList.map((item, index) => {
@@ -94,7 +102,7 @@ const ContainmentActions = ({ route }) => {
                         <Icon name={showAction ? 'down' : 'right'} size={20} />
                     </TouchableOpacity>
                     <View style={[styles.tabBox]}>
-                        <ContainmentActionsForm type={genType} masterData={masterData} setMasterData={setMasterData} handleSubmit={handleSubmit} />
+                        <ContainmentActionsForm type={genType} masterData={masterData} setMasterData={setMasterData} handleSubmit={handleSubmit} inspectionType={route?.params?.inspectionType} />
                     </View>
                 </View>
             </View>

@@ -122,7 +122,10 @@ const InspectionSchedule = () => {
             let temp = response?.Data?.InspectionSchedules || [];
             const updatedArray = temp.map(item => {
                 const match = inspectList.some(
-                    compareItem => compareItem.intProductionItemID === item.ProductionItemId && compareItem.OperationID == item.OperationID,
+                    compareItem =>
+                        compareItem.intProductionItemID === item.ProductionItemId &&
+                        compareItem.OperationID == item.OperationID &&
+                        compareItem?.OrderDetailsId == item?.OrderDetailsId,
                 );
                 return {
                     ...item,
@@ -277,7 +280,10 @@ const InspectionSchedule = () => {
         let temp = [...overAllData] || [];
         const updatedArray = temp.map(item => {
             const match = latestInspection.some(
-                compareItem => compareItem.intProductionItemID === item.ProductionItemId && compareItem.OperationID == item.OperationID,
+                compareItem =>
+                    compareItem.intProductionItemID === item.ProductionItemId &&
+                    compareItem.OperationID == item.OperationID &&
+                    compareItem?.OrderDetailsId == item?.OrderDetailsId,
             );
             return {
                 ...item,

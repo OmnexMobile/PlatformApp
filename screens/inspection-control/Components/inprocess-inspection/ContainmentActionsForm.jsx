@@ -4,7 +4,7 @@ import InputBoxWithHeader from '../InputBoxWithHeader';
 import { ButtonComponent } from 'components';
 import { COLORS } from 'constants/theme-constants';
 
-const ContainmentActionsForm = ({ type = '', masterData, handleSubmit = () => {} }) => {
+const ContainmentActionsForm = ({ type = '', masterData, handleSubmit = () => {}, inspectionType = '' }) => {
     const [pageData, setPageData] = useState({});
     useEffect(() => {
         setPageData(masterData);
@@ -36,7 +36,7 @@ const ContainmentActionsForm = ({ type = '', masterData, handleSubmit = () => {}
         }
 
         setPageData([...temp]);
-        handleSubmit(temp,value?.value,value.id );
+        handleSubmit(temp, value?.value, value.id);
     };
     const handleInputBlur = id => {
         const updatedData = pageData.map(item => (item?.id === id ? { ...item, showBtn: true } : { ...item, showBtn: false }));
@@ -48,10 +48,17 @@ const ContainmentActionsForm = ({ type = '', masterData, handleSubmit = () => {}
             if (value === '') {
                 return COLORS.inputBG;
             }
+            // if (type === 'number') {
+            //     return Number(value) >= Number(item.lowValue) && Number(value) <= Number(item.highValue) ? COLORS.SUCCESS : COLORS.ERROR;
+            // }
+            // return value?.toLowerCase() === 'ok' ? COLORS.SUCCESS : COLORS.ERROR;
+          
             if (type === 'number') {
-                return Number(value) >= Number(item.lowValue) && Number(value) <= Number(item.highValue) ? COLORS.SUCCESS : COLORS.ERROR;
+                let lowValue = inspectionType == 2 ? Number(item?.tolerance) - Number(item?.lowValue) : item?.lowValue;
+                let highValue = inspectionType == 2 ? Number(item?.tolerance) + Number(item?.highValue) : item?.highValue;
+                return Number(value) >= Number(lowValue) && Number(value) <= Number(highValue) ? COLORS.SUCCESS : COLORS.ERROR;
             }
-            return value?.toLowerCase() === 'ok' ? COLORS.SUCCESS : COLORS.ERROR;
+            return value.toLowerCase() === 'ok' ? COLORS.SUCCESS : COLORS.ERROR;
         };
         return (
             <View>

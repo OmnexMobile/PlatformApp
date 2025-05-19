@@ -1,6 +1,6 @@
 import { COLORS } from 'constants/theme-constants';
-import React, { useEffect, useState } from 'react';
-import { BackHandler, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { BackHandler, Keyboard, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import IconF from 'react-native-vector-icons/Feather';
 import IconM from 'react-native-vector-icons/MaterialCommunityIcons';
 import FilterWithMenu from '../FilterWithMenu';
@@ -54,7 +54,7 @@ const CharacteristicsInfo = ({
         const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
         return () => backHandler.remove();
     }, []);
-
+  const inputsRef = useRef([]);
     const navigation = useNavigation();
     useEffect(() => {
         if (type == 'number') {
@@ -104,9 +104,16 @@ const CharacteristicsInfo = ({
             type: type,
             index: index,
             selectedData: item,
-            inspectionType:inspectionType,
+            inspectionType: inspectionType,
             onSave: handleContainmentSave,
         });
+    };
+    const handleSubmit = index => {
+        if (index < masterData?.length - 1) {
+            inputsRef.current[index + 1].focus(); // Focus next input
+        } else {
+            Keyboard.dismiss(); // Last input: dismiss keyboard
+        }
     };
     const renderItem = (item, index) => {
         const renderBackGroundColor = (value, type) => {
@@ -161,6 +168,10 @@ const CharacteristicsInfo = ({
                             handleInputChange(val, item.id);
                         }}
                         keyboardType={type == 'number' ? 'number-pad' : 'default'}
+                        returnKeyType="done"
+                        onSubmitEditing={() => handleSubmit(index)}
+                        ref={ref => (inputsRef.current[index] = ref)}
+                        blurOnSubmit={false}
                     />
                     <TouchableOpacity
                         style={[styles.deleteIcon]}

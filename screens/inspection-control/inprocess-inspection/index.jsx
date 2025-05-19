@@ -134,7 +134,6 @@ const InprocessInspection = ({ route }) => {
         </View>
     );
     const handleFinalSavePress = (flag = false) => {
-        console.log('callleddd2');
         dispatch({
             type: 'UPDATE_INSPECT_LIST',
             updatedData: infoData,
@@ -168,7 +167,7 @@ const InprocessInspection = ({ route }) => {
         (movenext = '', typeid = '') => {
             let isChanged = false;
             const filterdData = inspectList.filter(
-                item => item.intProductionItemID == infoData.intProductionItemID && item.OperationID == infoData.OperationID,
+                item => item.intProductionItemID == infoData.intProductionItemID && item.OperationID == infoData.OperationID && item?.OrderDetailsId == infoData?.OrderDetailsId,
             );
             const finalData = filterdData[0];
             if (showChar) {
@@ -244,7 +243,6 @@ const InprocessInspection = ({ route }) => {
             handleFinalSavePress();
         }
         if (close) {
-            console.log('close');
             setShowChar(false);
             handleBackPress();
         }

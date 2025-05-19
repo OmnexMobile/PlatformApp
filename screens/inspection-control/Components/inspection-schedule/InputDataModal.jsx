@@ -250,6 +250,7 @@ const InputDataModal = ({
                             GeneralInfo: response.GeneralInfo,
                             VariableCharacteristics: response.VariableCharacteristics,
                             AttributeCharacteristics: response.AttributeCharacteristics,
+                            OrderDetailsId: selectedValue?.OrderDetailsId,
                         },
                     ],
                 });
