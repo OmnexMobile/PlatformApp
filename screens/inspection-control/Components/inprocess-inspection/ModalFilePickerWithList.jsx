@@ -28,7 +28,6 @@ const ModalFilePickerWithList = ({
     setShowCamer = () => {},
 }) => {
     const [fileList, setFileList] = useState([]);
-console.log(fileList,'fileList')
     useEffect(() => {
         if (selectedData?.fileList?.length) {
             setFileList(selectedData?.fileList);

@@ -23,7 +23,6 @@ const OperatorWorksheet = () => {
     const [showSkeleton, setShowSkeleton] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
     const [selectedValue, setSelectedValue] = useState(null);
-    console.log(inspectList,'inspectList1')
     const isFocused = useIsFocused();
     const dispatch = useDispatch();
 

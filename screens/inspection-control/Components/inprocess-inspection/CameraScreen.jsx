@@ -30,7 +30,6 @@ const CameraScreen = ({ setShowCamer = () => {}, setFileList = () => {} }) => {
         setPhotoUri(null);
         setFileData({})
     };
-    console.log(photoUri, 'photoUri');
     const handleClose = () => {
         setPhotoUri(null);
         setFileData({})

@@ -49,7 +49,6 @@ const InputDataModal = ({
     const [isEditableField, setIsEditableField] = useState({
         lotNo: true,
     });
-    console.log(selectedValue?.TypeOfInspection, 'TypeOfInspection');
 
     const getFrequencyList = async () => {
         // let strType = selectedValue?.TypeOfInspection == '2' ? 'Aqua' : 'Custom';
@@ -438,7 +437,6 @@ const InputDataModal = ({
                                         isMultiSelect={icSettings?.IsRespPartyMultiSelect}
                                         list={resList || []}
                                         handleSelectedList={value => {
-                                            console.log(value, '**************value');
                                             handleInputChange('responsible', value);
                                         }}
                                         isDisable={icSettings?.IsRespPartyNonEditable}

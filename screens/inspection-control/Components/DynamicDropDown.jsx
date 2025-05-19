@@ -16,7 +16,6 @@ const DynamicDropDown = ({
     isMultiSelect = true,
     isDisable = false,
 }) => {
-    console.log(isDisable, 'isDisable');
     const width = useWindowDimensions().width;
     const [multiValue, setMultiValue] = useState([]);
     const [visible, setVisible] = useState(false);
