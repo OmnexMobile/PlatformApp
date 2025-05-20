@@ -8,6 +8,7 @@ import { ButtonComponent } from 'components';
 import { RFPercentage } from 'helpers/utils';
 import { useNavigation } from '@react-navigation/native';
 import { ROUTES } from 'constants/app-constant';
+import SampleCharInfo from './SampleCharInfo';
 const moreList = [
     {
         id: 1,
@@ -45,6 +46,9 @@ const CharacteristicsInfo = ({
     handleNextSamplePress = () => {},
     icSettings = {},
     inspectionType = '',
+    showCharInfo = false,
+    setInfoData = () => {},
+    infoData = {},
 }) => {
     useEffect(() => {
         const backAction = () => {
@@ -54,7 +58,7 @@ const CharacteristicsInfo = ({
         const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
         return () => backHandler.remove();
     }, []);
-  const inputsRef = useRef([]);
+    const inputsRef = useRef([]);
     const navigation = useNavigation();
     useEffect(() => {
         if (type == 'number') {
@@ -82,8 +86,18 @@ const CharacteristicsInfo = ({
                     count: index + 1,
                     value: icSettings?.DefaultAllOK ? 'OK' : '',
                 }));
+                // if you want alert to ask enable temp1 and stroe in valueUpadted
+                const temp1 = Array.from({ length: sampleSize }, (_, index) => ({
+                    id: index + 1,
+                    count: index + 1,
+                    value: '',
+                }));
                 setMasterData([...temp]);
-                setValueUpadted([...temp]);
+                if (icSettings?.DefaultAllOK) {
+                    setValueUpadted([...temp1]);
+                } else {
+                    setValueUpadted([...temp]);
+                }
             } else if (selectedData?.sampleList?.length > 0) {
                 setMasterData([...selectedData?.sampleList]);
                 setValueUpadted([...selectedData?.sampleList]);
@@ -241,6 +255,8 @@ const CharacteristicsInfo = ({
     return (
         <View style={[styles.container]}>
             <ScrollView style={[styles.overallBox]} showsVerticalScrollIndicator={false}>
+                {/* need to chage the infodata as selectedData and setSelectedData */}
+                {showCharInfo && <SampleCharInfo infoData={infoData} setInfoData={setInfoData} />}
                 <View style={[styles.tableBox]}>
                     <View style={[styles.headerBox]}>
                         <View style={{ flex: 1 }}>

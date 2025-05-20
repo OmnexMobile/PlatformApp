@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 import CustomHeader from '../Components/CustomHeader';
-import { Alert, BackHandler, FlatList, Keyboard, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, BackHandler, FlatList, Keyboard, ScrollView, StyleSheet, Text, Touchable, TouchableOpacity, View } from 'react-native';
 import Icon from 'react-native-vector-icons/AntDesign';
 import IconM from 'react-native-vector-icons/MaterialCommunityIcons';
 import IconF from 'react-native-vector-icons/Feather';
@@ -53,6 +53,7 @@ const InprocessInspection = ({ route }) => {
     const [nextSave, setNextSave] = useState(true);
     const [showCamer, setShowCamer] = useState(false);
     const [mixedList, setMixedList] = useState('');
+    const [showCharInfo,setShowCharInfo] = useState(false)
     const navigation = useNavigation();
     const dispatch = useDispatch();
 
@@ -167,7 +168,11 @@ const InprocessInspection = ({ route }) => {
         (movenext = '', typeid = '') => {
             let isChanged = false;
             const filterdData = inspectList.filter(
-                item => item.intProductionItemID == infoData.intProductionItemID && item.OperationID == infoData.OperationID && item?.OrderDetailsId == infoData?.OrderDetailsId && item?.uniqueId == infoData?.uniqueId,
+                item =>
+                    item.intProductionItemID == infoData.intProductionItemID &&
+                    item.OperationID == infoData.OperationID &&
+                    item?.OrderDetailsId == infoData?.OrderDetailsId &&
+                    item?.uniqueId == infoData?.uniqueId,
             );
             const finalData = filterdData[0];
             if (showChar) {
@@ -293,6 +298,9 @@ const InprocessInspection = ({ route }) => {
         setNextSave(true);
         setMixedList('');
     };
+    const handleShowCharInfo = () => {
+        setShowCharInfo(!showCharInfo);
+    };
 
     return (
         <CustomHeader
@@ -369,26 +377,28 @@ const InprocessInspection = ({ route }) => {
                 )}
                 {showChar && (
                     <View style={{ flex: showChar ? 1 : 0 }}>
-                        <TouchableOpacity
+                        <View
                             style={[styles.tabStyle, { borderBottomLeftRadius: showChar ? 0 : 10, borderBottomRightRadius: showChar ? 0 : 10 }]}
                             onPress={() => {
-                                if (showChar) {
-                                    handleCharOpen();
-                                } else {
-                                    showMessage({
-                                        message: 'Please press the "Inspect" button.',
-                                        backgroundColor: COLORS.WARNING,
-                                        color: COLORS.white,
-                                        duration: 1500,
-                                        statusBarHeight: 40,
-                                        // style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
-                                        position: 'bottom',
-                                    });
-                                }
+                                // if (showChar) {
+                                //     handleCharOpen();
+                                // } else {
+                                //     showMessage({
+                                //         message: 'Please press the "Inspect" button.',
+                                //         backgroundColor: COLORS.WARNING,
+                                //         color: COLORS.white,
+                                //         duration: 1500,
+                                //         statusBarHeight: 40,
+                                //         // style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+                                //         position: 'bottom',
+                                //     });
+                                // }
                             }}>
                             <Text style={[styles.headerText]}>Characteristics Info</Text>
-                            <Icon name={showChar ? 'down' : 'right'} size={20} color={COLORS.moreIcon} />
-                        </TouchableOpacity>
+                            <TouchableOpacity onPress={handleShowCharInfo}>
+                                <Icon name={showCharInfo ? 'down' : 'right'} size={20} color={COLORS.moreIcon} />
+                            </TouchableOpacity>
+                        </View>
                         <View style={[styles.tabBox]}>
                             <CharacteristicsInfo
                                 selectedData={selectedData}
@@ -401,6 +411,9 @@ const InprocessInspection = ({ route }) => {
                                 handleNextSamplePress={handleNextSamplePress}
                                 icSettings={icSettings}
                                 inspectionType={inspectData.intInspectionTypeID}
+                                showCharInfo={showCharInfo}
+                                setInfoData={setInfoData}
+                                infoData={infoData}
                             />
                         </View>
                     </View>

@@ -1,5 +1,5 @@
 import { ButtonComponent, CheckBox, RadioButton, TextComponent } from 'components';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import CustomHeader from '../Components/CustomHeader';
 import { FlatList, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { COLORS } from 'constants/theme-constants';
@@ -15,9 +15,7 @@ import ICCheckBox from '../Components/ICCheckBox';
 import DeleteModal from '../Components/DeleteModal';
 import IcSkeleton from '../Components/IcSkeleton';
 import NoDataFound from '../Components/NoDataFound';
-import { useSelector } from 'react-redux';
-import { postAPI } from 'global/api-helpers';
-import ApiUrl from 'global/ApiUrl';
+import { useDispatch, useSelector } from 'react-redux';
 
 const optionsList = [
     {
@@ -48,8 +46,8 @@ const optionsList = [
 ];
 
 const CompletedInspection = () => {
-    const { icUserData } = useSelector(state => state.inspection);
-
+    const { icUserData, inspectList } = useSelector(state => state.inspection);
+    const inspectionRef = useRef(inspectList);
     const [syncModal, setSyncModal] = useState(false);
     const [selectedRadio, setSelectedRadio] = useState('Sync');
     const [checkBox, setCheckBox] = useState(false);
@@ -58,21 +56,20 @@ const CompletedInspection = () => {
     const [masterData, setMasterData] = useState([]);
     const [showSkeleton, setShowSkeleton] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
+    const [selectedValue, setSelectedValue] = useState({});
 
     const isFocused = useIsFocused();
+    const dispatch = useDispatch();
 
+    // Keep it updated
+    useEffect(() => {
+        inspectionRef.current = inspectList;
+    }, [inspectList]);
     const getAllCompletedData = async (showSkt = true) => {
         showSkt && setShowSkeleton(true);
-        const formData = new FormData();
-        formData.append('UserID', icUserData?.userData?.UserId);
-        formData.append('siteId', '1');
-        formData.append('Condition', `LotStatus like N''%Completed%''`);
-        formData.append('strStartDate', '2024-3-1');
-        formData.append('strEndDate', '2025-3-26');
-        formData.append('strInspectionType', '');
-        const response = await postAPI(`${ApiUrl.IC_COMPLETED_LIST}`, formData);
-        if (response.Success) {
-            setMasterData(response?.Data || []);
+        const completedList = inspectionRef?.current?.filter(item => item?.status == 'Completed');
+        if (completedList?.length) {
+            setMasterData(completedList);
         } else {
             setMasterData([]);
         }
@@ -84,10 +81,8 @@ const CompletedInspection = () => {
         getAllCompletedData(false);
     };
     useEffect(() => {
-        if (icUserData && isFocused) {
-            getAllCompletedData();
-        }
-    }, [icUserData, isFocused]);
+        getAllCompletedData();
+    }, []);
 
     const handleISbtnpress = () => {
         navigation.navigate(ROUTES.INSPECTION_SCHEDULE);
@@ -98,33 +93,41 @@ const CompletedInspection = () => {
     const hideModal = () => {
         setSyncModal(false);
     };
-    const handleDeletePress = () => {
+    const handleDeletePress = item => {
+        setSelectedValue(item);
         setShowDelete(true);
     };
     const renderIconBgColor = value => {
         return value == '1' ? COLORS.apptheme : value == '2' ? COLORS.ipBgColor : COLORS.fiBgColor;
     };
-    const renderItem = ({ item ,index}) => {
+    const handleCompletedPress = item => {
+        navigation.navigate(ROUTES.INPROCESS_INSPECTION, { inspectData: item });
+    };
+    const renderItem = ({ item, index }) => {
         return (
-            <View style={[styles.recordConatiner]} key={index+1}>
-                <View style={[styles.iconBox, { backgroundColor: renderIconBgColor(item?.TypeOfInspection) }]}>
+            <View style={[styles.recordConatiner]} key={index + 1}>
+                <View style={[styles.iconBox, { backgroundColor: renderIconBgColor(item?.intInspectionTypeID) }]}>
                     <Icon name="layers-outline" size={25} color={COLORS.white} />
                 </View>
                 <View style={{ flex: 1, paddingHorizontal: 10 }}>
                     <Text style={[styles.cardText]}>{item?.strProductionItemName}</Text>
                     <Text style={[styles.operationText]}>
-                        Operation Name : <Text style={[styles.secondText]}>{item?.strOperationName}</Text>
+                        Operation Name : <Text style={[styles.secondText]}>{item.strOperationName}</Text>
                     </Text>
                     <Text style={[styles.operationText]}>
-                        Frequency : <Text style={[styles.secondText]}>{item?.strSampleFrequency}</Text>
+                        Frequency : <Text style={[styles.secondText]}>{item.strFrequencyName}</Text>
                     </Text>
                     <Text style={[styles.operationText]}>
-                        Lot Number : <Text style={[styles.secondText]}>{item?.strLotNo}</Text>
+                        Lot Number : <Text style={[styles.secondText]}>{item.strLotNo}</Text>
                     </Text>
                 </View>
                 <View style={[styles.lastBox]}>
-                    <TouchableOpacity style={styles.launchCard}>
-                        <Text style={[styles.launchText]}>{item?.strLotStatus}</Text>
+                    <TouchableOpacity
+                        style={styles.launchCard}
+                        onPress={() => {
+                            handleCompletedPress(item);
+                        }}>
+                        <Text style={[styles.launchText]}>{item?.status}</Text>
                     </TouchableOpacity>
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                         <TouchableOpacity
@@ -134,7 +137,7 @@ const CompletedInspection = () => {
                             }}>
                             <IconO name="sync" size={20} color={COLORS.grey} />
                         </TouchableOpacity>
-                        <TouchableOpacity onPress={handleDeletePress}>
+                        <TouchableOpacity onPress={() => handleDeletePress(item)}>
                             <Icon name="delete-outline" size={25} color={COLORS.ERROR} />
                         </TouchableOpacity>
                     </View>
@@ -151,7 +154,7 @@ const CompletedInspection = () => {
                     <FlatList
                         data={masterData}
                         renderItem={renderItem}
-                        keyExtractor={item => item?.intProductionItemID}
+                        keyExtractor={item => item?.uniqueId}
                         showsVerticalScrollIndicator={false}
                         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
                     />
@@ -168,53 +171,64 @@ const CompletedInspection = () => {
                     Inspection Schedule
                 </ButtonComponent>
             </View>
-            {Boolean(syncModal) && <Modal visible={syncModal} onDismiss={hideModal} contentContainerStyle={{ flexDirection: 'row', justifyContent: 'center' }}>
-                <View style={[styles.modalContainer]}>
-                    <View style={[styles.containerOne]}>
-                        <Text style={styles.headertext}>Choose Sync Options</Text>
-                        <Divider />
-                        <View style={[styles.contentBox]}>
-                            {optionsList.map(item => {
-                                return (
-                                    <View style={{ marginVertical: 10 }} key={item.id}>
-                                        <RadioButtonComponent
-                                            lable={item.label}
-                                            value={selectedRadio}
-                                            onChange={val => {
-                                                setSelectedRadio(val);
-                                            }}
-                                        />
-                                    </View>
-                                );
-                            })}
+            {Boolean(syncModal) && (
+                <Modal visible={syncModal} onDismiss={hideModal} contentContainerStyle={{ flexDirection: 'row', justifyContent: 'center' }}>
+                    <View style={[styles.modalContainer]}>
+                        <View style={[styles.containerOne]}>
+                            <Text style={styles.headertext}>Choose Sync Options</Text>
+                            <Divider />
+                            <View style={[styles.contentBox]}>
+                                {optionsList.map(item => {
+                                    return (
+                                        <View style={{ marginVertical: 10 }} key={item.id}>
+                                            <RadioButtonComponent
+                                                lable={item.label}
+                                                value={selectedRadio}
+                                                onChange={val => {
+                                                    setSelectedRadio(val.value);
+                                                }}
+                                                obj={item}
+                                            />
+                                        </View>
+                                    );
+                                })}
+                            </View>
+                            <View>
+                                <ICCheckBox
+                                    isChecked={checkBox}
+                                    label="Supervisor Approved"
+                                    onChange={() => {
+                                        setCheckBox(!checkBox);
+                                    }}
+                                />
+                            </View>
                         </View>
                         <View>
-                            <ICCheckBox
-                                isChecked={checkBox}
-                                label="Supervisor Approved"
-                                onChange={() => {
-                                    setCheckBox(!checkBox);
-                                }}
-                            />
+                            <Divider />
+                            <View style={styles.btnConatiner}>
+                                <TouchableOpacity style={styles.cancelConatiner} onPress={hideModal}>
+                                    <Text style={styles.btnStyle}>CANCEL</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={styles.cancelConatiner} onPress={() => {}}>
+                                    <Text style={styles.btnStyle}>SUBMIT</Text>
+                                </TouchableOpacity>
+                            </View>
                         </View>
                     </View>
-                    <View>
-                        <Divider />
-                        <View style={styles.btnConatiner}>
-                            <TouchableOpacity style={styles.cancelConatiner} onPress={hideModal}>
-                                <Text style={styles.btnStyle}>CANCEL</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={styles.cancelConatiner} onPress={() => {}}>
-                                <Text style={styles.btnStyle}>SUBMIT</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                </View>
-            </Modal>}
+                </Modal>
+            )}
             <DeleteModal
                 visible={showDelete}
                 handleClose={() => {
                     setShowDelete(false);
+                }}
+                handleYesPress={() => {
+                    dispatch({
+                        type: 'REMOVE_INSPECT_LIST',
+                        inspectionToRemove: selectedValue,
+                    });
+                    setShowDelete(false);
+                    getAllCompletedData(false);
                 }}
             />
         </CustomHeader>
@@ -242,7 +256,7 @@ const styles = StyleSheet.create({
     },
     cardText: {
         fontSize: 16,
-        fontFamily: 'OpenSans-SemiBold',
+        fontFamily: 'OpenSans-Bold',
         color: COLORS.ictextBlack,
     },
     operationText: {
@@ -256,14 +270,14 @@ const styles = StyleSheet.create({
         fontFamily: 'OpenSans-Regular',
     },
     launchCard: {
-        backgroundColor: COLORS.SUCCESS,
-        paddingHorizontal: 10,
+        backgroundColor: COLORS.fiBgColor,
+        paddingHorizontal: 13,
         paddingVertical: 4,
         borderRadius: 5,
     },
     launchText: {
         color: '#fff',
-        fontFamily: 'OpenSans-SemiBold',
+        fontFamily: 'OpenSans-Bold',
     },
     lastBox: {
         flexDirection: 'column',

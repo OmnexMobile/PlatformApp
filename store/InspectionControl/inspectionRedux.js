@@ -51,13 +51,23 @@ const storeIcUserData = (state, { icUserData }) => {
 const storeIcSettings = (state, { icSettings }) => {
     return { ...state, icSettings: icSettings };
 };
+const getStatus = updatedData => {
+    const ststusBoolean = (updatedData?.VariableCharacteristics || [])
+        .concat(updatedData?.AttributeCharacteristics || [])
+        .every(item => item?.status =='Completed');
+    const someValues = (updatedData?.VariableCharacteristics || [])
+        .concat(updatedData?.AttributeCharacteristics || [])
+        .some(item => item?.status =='Completed');
+    return {
+        status: ststusBoolean ? 'Completed' : someValues ? 'In Progress' : 'Launch',
+    };
+};
 const updateInspectList = (state, { updatedData }) => {
-    // item.intProductionItemID === updatedData.intProductionItemID &&
-    //       item.OperationID === updatedData.OperationID &&
-    //       item?.OrderDetailsId === updatedData?.OrderDetailsId
+    const { status } = getStatus(updatedData);
+    console.log(status, 'status');
     const updatedArray = state.inspectList.map(item => {
         if (item?.uniqueId === updatedData?.uniqueId) {
-            return { ...item, ...updatedData }; // merge changes
+            return { ...item, ...updatedData, status: status }; // merge changes
         }
         return item; // leave others unchanged
     });

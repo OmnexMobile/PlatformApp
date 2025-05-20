@@ -207,18 +207,18 @@ const styles = StyleSheet.create({
     },
     cardText: {
         fontSize: 16,
-        fontFamily: 'ProximaNova-Bold',
+        fontFamily: 'OpenSans-Bold',
         color: COLORS.ictextBlack,
     },
     operationText: {
         fontSize: 14,
-        fontFamily: 'ProximaNova-Regular',
+        fontFamily: 'OpenSans-Regular',
         color: COLORS.ictextBlack,
         lineHeight: 22,
     },
     secondText: {
         color: COLORS.textDark,
-        fontFamily: 'ProximaNova-Regular',
+        fontFamily: 'OpenSans-Regular',
     },
     launchCard: {
         backgroundColor: COLORS.apptheme,
@@ -228,7 +228,7 @@ const styles = StyleSheet.create({
     },
     launchText: {
         color: '#fff',
-        fontFamily: 'ProximaNova-Bold',
+        fontFamily: 'OpenSans-Bold',
     },
     lastBox: {
         flexDirection: 'column',
