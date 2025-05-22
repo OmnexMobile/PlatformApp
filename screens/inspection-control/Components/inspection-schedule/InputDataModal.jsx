@@ -15,7 +15,6 @@ import AsyncStorage from '@react-native-community/async-storage';
 import moment from 'moment';
 import uuid from 'react-native-uuid';
 
-
 const errorObj = {
     shift: false,
     lotNumber: false,
@@ -76,7 +75,7 @@ const InputDataModal = ({
             let response = {
                 Data: [
                     {
-                        FrequencyId: "20949",
+                        FrequencyId: '20949',
                         SampleFrequency: 'lot',
                         FrequencyCode: '20949',
                     },
@@ -202,7 +201,7 @@ const InputDataModal = ({
             formData.append('Area', '');
             formData.append('syncMode', 0);
             formData.append('supervisorApproved', 0);
-            formData.append('ProcessId',selectedValue?.TypeOfInspection == '2'? 1:0);
+            formData.append('ProcessId', selectedValue?.TypeOfInspection == '2' ? 1 : 0);
 
             // other
             if (selectedValue.TypeOfInspection == '2') {
@@ -223,7 +222,7 @@ const InputDataModal = ({
             formData.append('SampleFrequency', formFields?.frequency?.SampleFrequency || '');
             formData.append('ProductionQty', formFields?.lotQty);
             formData.append('ReceiptNo', formFields?.receiptNumber || '');
-            formData.append('Executor', formFields.responsible.length>0?JSON.stringify(formFields.responsible):''); // responsible party
+            formData.append('Executor', formFields.responsible.length > 0 ? JSON.stringify(formFields.responsible) : ''); // responsible party
             // need to update asper API change
             formData.append('EnteredDate', moment(new Date()).format('MM/DD/YYYY h:mm:ss A '));
             // formData.append('SamplingHierarchy', ', , AQL=');
@@ -235,9 +234,9 @@ const InputDataModal = ({
                 dispatch({
                     type: 'INSPECT_LIST',
                     inspectList: [
-                        { 
+                        {
                             uniqueId: uuid.v4(),
-                            OperationID:selectedValue?.OperationID,
+                            OperationID: selectedValue?.OperationID,
                             intProductionItemID: selectedValue?.ProductionItemId,
                             strProductionItemName: selectedValue?.ProductionItem,
                             intShiftID: shift?.ShiftID,
