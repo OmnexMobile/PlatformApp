@@ -19,12 +19,11 @@ const KeyValueList = ({ title = '', value = '' }) => {
 };
 
 const PartDetails = ({ visible = false, onDismiss = () => {},selectedData={} }) => {
-    console.log(selectedData,'selectedData')
     return (
         <Modal visible={visible} onDismiss={onDismiss} contentContainerStyle={[styles.modalConatiner]}>
             <View style={[styles.modalcontainer]}>
                 <View style={[styles.modalBoxOne]}>
-                    <Text style={[styles.headerText]}>Crank Shaft - Details</Text>
+                    <Text style={[styles.headerText]}>{selectedData?.ProductionItemName} - Details</Text>
                     <Divider />
                     <ScrollView style={[styles.contentBox]} showsVerticalScrollIndicator={false}>
                         <KeyValueList title="Reference No" value={selectedData?.ReferenceNo} />
@@ -71,7 +70,7 @@ const styles = StyleSheet.create({
         color:COLORS.ictextBlack
     },
     contentBox: {
-        height:400,
+        maxHeight:370,
         marginVertical:15
     },
     boxConatiner: {

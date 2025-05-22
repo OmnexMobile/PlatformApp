@@ -63,27 +63,27 @@ const SupervisorSchedule = () => {
             label: 'All',
         },
     });
-    const [selectedData,setSelectedData]=useState({})
+    const [selectedData, setSelectedData] = useState({});
 
     const onRefresh = () => {
         setRefreshing(true);
         handleGetAllData(false);
     };
 
-    const handleEyePress = (value) => {
-        setSelectedData(value)
+    const handleEyePress = value => {
+        setSelectedData(value);
         setShowEye(true);
     };
     const hideModal = () => {
         setShowFilterList(false);
     };
-    const handleFilePress = (item) => {
-        let temp={
-            ProductionItem:item.ProductionItemName,
-            OperationID:item.OperationID,
-            ProductionItemId:item.ProductionItemId
-        }
-        setSelectedData(temp)
+    const handleFilePress = item => {
+        let temp = {
+            ProductionItem: item.ProductionItemName,
+            OperationID: item.OperationID,
+            ProductionItemId: item.ProductionItemId,
+        };
+        setSelectedData(temp);
         setShowFileModal(true);
     };
     const handleGetAllData = async (showSKT = true) => {
@@ -136,7 +136,7 @@ const SupervisorSchedule = () => {
                             <IconI name="eye-outline" size={25} color={COLORS.grey} />
                         </TouchableOpacity>
                         <TouchableOpacity style={{ marginRight: 5 }} onPress={() => handleFilePress(item)}>
-                            <ICFileIcon />
+                            <IconI name="document-attach-outline" size={25} color={COLORS.grey} />
                         </TouchableOpacity>
                         <TouchableOpacity
                             onPress={() => {
@@ -154,14 +154,14 @@ const SupervisorSchedule = () => {
         var handler;
         if (filters?.search?.length && isFocused) {
             handler = setTimeout(() => {
-                handleTypeFilter(filters.inspectionType.id,filters.search);
+                handleTypeFilter(filters.inspectionType.id, filters.search);
             }, 500);
         }
         return () => {
             clearTimeout(handler);
         };
     }, [filters?.search, isFocused]);
-    const handleTypeFilter=(value,search='')=>{
+    const handleTypeFilter = (value, search = '') => {
         let temp = JSON.parse(JSON.stringify(overAllData));
         let tempSearch = [];
         if (value !== 0) {
@@ -176,9 +176,9 @@ const SupervisorSchedule = () => {
                     item.OperationName.toLowerCase().includes(search.toLowerCase()),
             );
         }
-        setMasterData(tempSearch)
-        hideModal()
-    }
+        setMasterData(tempSearch);
+        hideModal();
+    };
 
     return (
         <CustomHeader
@@ -188,7 +188,7 @@ const SupervisorSchedule = () => {
                 setShowFilterList(true);
             }}
             hideSearch={isFocused}
-            searchValue=""
+            searchValue={filters?.search}
             handleSearch={value => {
                 setFilters(pre => ({ ...pre, search: value }));
                 if (!value?.length) {
@@ -238,7 +238,7 @@ const SupervisorSchedule = () => {
                                             lable={item.label}
                                             value={filters.inspectionType.label}
                                             onChange={val => {
-                                                setFilters((pre)=>({...pre,inspectionType:val}))
+                                                setFilters(pre => ({ ...pre, inspectionType: val }));
                                             }}
                                             obj={item}
                                         />
@@ -253,24 +253,28 @@ const SupervisorSchedule = () => {
                             <TouchableOpacity style={styles.cancelConatiner} onPress={hideModal}>
                                 <Text style={styles.btnStyle}>CANCEL</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity style={styles.cancelConatiner} onPress={() => {
-                                 handleTypeFilter(filters.inspectionType.id,filters.search)
-                            }}>
+                            <TouchableOpacity
+                                style={styles.cancelConatiner}
+                                onPress={() => {
+                                    handleTypeFilter(filters.inspectionType.id, filters.search);
+                                }}>
                                 <Text style={styles.btnStyle}>SUBMIT</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
                 </View>
             </Modal>
-            {Boolean(showEye)&&<PartDetails
-                visible={showEye}
-                onDismiss={() => {
-                    setShowEye(false);
-                }}
-                selectedData={selectedData}
-            />}
+            {Boolean(showEye) && (
+                <PartDetails
+                    visible={showEye}
+                    onDismiss={() => {
+                        setShowEye(false);
+                    }}
+                    selectedData={selectedData}
+                />
+            )}
             <FileViewModal
-            selectedValue={selectedData}
+                selectedValue={selectedData}
                 visible={showFileModal}
                 onDismiss={() => {
                     setShowFileModal(false);
