@@ -146,17 +146,21 @@ const InprocessInspection = ({ route }) => {
     const handleBackPress = () => {
         if (!showCamer) {
             if (!showFilePage) {
-                if (!showChar) {
-                    if (navigation.canGoBack()) {
-                        navigation.goBack();
+                if (!showGeneral) {
+                    if (!showChar) {
+                        if (navigation.canGoBack()) {
+                            navigation.goBack();
+                        } else {
+                            navigation.reset({
+                                index: 0,
+                                routes: [{ name: ROUTES.HOME_FAB_VIEW }],
+                            });
+                        }
                     } else {
-                        navigation.reset({
-                            index: 0,
-                            routes: [{ name: ROUTES.HOME_FAB_VIEW }],
-                        });
+                        setShowChar(false);
                     }
                 } else {
-                    setShowChar(false);
+                    setShowGeneral(false);
                 }
             } else {
                 setShowFilePage(false);

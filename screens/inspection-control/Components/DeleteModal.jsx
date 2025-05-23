@@ -35,7 +35,7 @@ const styles = StyleSheet.create({
     modalcontainer: {
         width: '90%',
         backgroundColor: '#fff',
-        borderRadius: 3,
+        borderRadius: 5,
     },
     modalConatiner: {
         flexDirection: 'row',

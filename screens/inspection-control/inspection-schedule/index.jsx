@@ -192,7 +192,7 @@ const InspectionSchedule = () => {
             const tempStart = moment(startDate);
             const tempEnd = moment(endDate);
             if (tempStart.isBefore(tempEnd)) {
-                handleListFetch(null);
+                handleListFetch(null,true, filterData.type);
             } else {
                 showMessage({
                     message: 'Start Date must be less than End Date',

@@ -9,10 +9,11 @@ const DynamicFormField = ({ fieldType = '', handleChange = () => {}, dropDownDat
     switch (fieldType) {
         case 'textinput':
         case 'text':
+        case 'Integer':
             return (
                 <TextInput
                     value={value || ''}
-                    style={[styles.inputBox,{backgroundColor:isEditable?COLORS.inputBG:COLORS.whiteGrey}]}
+                    style={[styles.inputBox, { backgroundColor: isEditable ? COLORS.inputBG : COLORS.whiteGrey }]}
                     onChangeText={val => {
                         handleChange(val);
                     }}
@@ -24,7 +25,7 @@ const DynamicFormField = ({ fieldType = '', handleChange = () => {}, dropDownDat
             return (
                 <SingleDropDown
                     data={dropDownData}
-                    backgroundColor={isEditable?COLORS.inputBG:COLORS.whiteGrey}
+                    backgroundColor={isEditable ? COLORS.inputBG : COLORS.whiteGrey}
                     borderWidth={1}
                     marginTop={8}
                     title=""
@@ -44,7 +45,7 @@ const DynamicFormField = ({ fieldType = '', handleChange = () => {}, dropDownDat
             return (
                 <View style={{ marginTop: 8 }}>
                     <DataPickerWithIcon
-                        value={value?moment(value, 'MM/DD/YYYY').toDate():null }
+                        value={value ? moment(value, 'MM/DD/YYYY').toDate() : null}
                         onSelectedDate={val => {
                             handleChange(val);
                         }}
@@ -52,7 +53,7 @@ const DynamicFormField = ({ fieldType = '', handleChange = () => {}, dropDownDat
                         paddingVertical={9}
                         borderColor={COLORS.icBottomBox}
                         placeHolder={placeHolder}
-                        backgroundColor={isEditable?COLORS.inputBG:COLORS.whiteGrey}
+                        backgroundColor={isEditable ? COLORS.inputBG : COLORS.whiteGrey}
                         editable={isEditable}
                     />
                 </View>
@@ -70,13 +71,23 @@ const DynamicFormField = ({ fieldType = '', handleChange = () => {}, dropDownDat
                         borderColor={COLORS.icBottomBox}
                         placeHolder={placeHolder}
                         type="time"
-                        backgroundColor={isEditable?COLORS.inputBG:COLORS.whiteGrey}
+                        backgroundColor={isEditable ? COLORS.inputBG : COLORS.whiteGrey}
                         editable={isEditable}
                     />
                 </View>
             );
         default:
-            return null;
+            return (
+                <TextInput
+                    value={value || ''}
+                    style={[styles.inputBox, { backgroundColor: isEditable ? COLORS.inputBG : COLORS.whiteGrey }]}
+                    onChangeText={val => {
+                        handleChange(val);
+                    }}
+                    placeholder={placeHolder}
+                    editable={isEditable}
+                />
+            );
     }
 };
 const styles = StyleSheet.create({
@@ -88,7 +99,6 @@ const styles = StyleSheet.create({
         marginTop: 8,
         color: COLORS.ictextBlack,
         paddingHorizontal: 10,
-        
     },
 });
 
