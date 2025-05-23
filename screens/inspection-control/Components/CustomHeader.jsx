@@ -33,12 +33,12 @@ const footerList = [
         svg: CompletedInspectionnSvg,
         routeName: ROUTES.COMPLETED_INSPECTION,
     },
-    // {
-    //     id: 4,
-    //     title: 'Supervisor\nSchedule',
-    //     svg: SupervisorScheduleSvg,
-    //     routeName: ROUTES.SUPERVISOR_SCHEDULE,
-    // },
+    {
+        id: 4,
+        title: 'Supervisor\nSchedule',
+        svg: SupervisorScheduleSvg,
+        routeName: ROUTES.SUPERVISOR_SCHEDULE,
+    },
 ];
 
 const CustomHeader = ({

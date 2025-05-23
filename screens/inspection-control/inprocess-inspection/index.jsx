@@ -17,6 +17,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 import { ROUTES } from 'constants/app-constant';
 import { Modal } from 'react-native-paper';
+import NoDataFound from '../Components/NoDataFound';
 const moreList = [
     {
         id: 1,
@@ -53,7 +54,7 @@ const InprocessInspection = ({ route }) => {
     const [nextSave, setNextSave] = useState(true);
     const [showCamer, setShowCamer] = useState(false);
     const [mixedList, setMixedList] = useState('');
-    const [showCharInfo,setShowCharInfo] = useState(false)
+    const [showCharInfo, setShowCharInfo] = useState(false);
     const navigation = useNavigation();
     const dispatch = useDispatch();
 
@@ -114,6 +115,7 @@ const InprocessInspection = ({ route }) => {
                     <TouchableOpacity
                         style={[styles.inspectBox, { backgroundColor: colorCode }]}
                         onPress={() => {
+                            setShowCharInfo(false);
                             handleCharOpen();
                             setSelectedData(item);
                             setFormType(type);
@@ -262,6 +264,7 @@ const InprocessInspection = ({ route }) => {
                 setNextSave(false);
                 handleSaveAlert('nextSample');
                 Keyboard.dismiss();
+                setShowCharInfo(false);
             } else {
                 Alert.alert('End of Sample List', 'You have reached the last sample.');
             }
@@ -271,11 +274,13 @@ const InprocessInspection = ({ route }) => {
                 setNextSave(false);
                 handleSaveAlert('nextSample');
                 Keyboard.dismiss();
+                setShowCharInfo(false);
             } else if (currentIndex.index == tempData?.length - 1 && formType == 'number') {
                 setMixedList('2');
                 setNextSave(false);
                 handleSaveAlert('nextSample', infoData.intInspectionTypeID);
                 Keyboard.dismiss();
+                setShowCharInfo(false);
             } else {
                 Alert.alert('End of Sample List', 'You have reached the last sample.');
             }
@@ -333,48 +338,53 @@ const InprocessInspection = ({ route }) => {
                         )}
                     </View>
                 )}
-                {!showChar && !showGeneral && (
-                    <View style={[styles.centerBox]}>
-                        <ScrollView showsVerticalScrollIndicator={false}>
-                            {Boolean(infoData?.VariableCharacteristics?.length) && (
-                                <View>
-                                    {Boolean(inspectData.intInspectionTypeID != 2) && <MyHeader title={'VARIABLE'} />}
-                                    {infoData?.VariableCharacteristics.map((item, index) => {
-                                        return renderItem({ item, index, type: 'number' });
-                                    })}
+                {!showChar &&
+                    !showGeneral &&
+                    (Boolean(infoData?.VariableCharacteristics?.length == 0) && Boolean(infoData?.AttributeCharacteristics?.length == 0) ? (
+                        <View style={[styles.centerBox]}>
+                            <NoDataFound />
+                        </View>
+                    ) : (
+                        <View style={[styles.centerBox]}>
+                            <ScrollView showsVerticalScrollIndicator={false}>
+                                {Boolean(infoData?.VariableCharacteristics?.length) && (
+                                    <View>
+                                        {Boolean(inspectData.intInspectionTypeID != 2) && <MyHeader title={'VARIABLE'} />}
+                                        {infoData?.VariableCharacteristics.map((item, index) => {
+                                            return renderItem({ item, index, type: 'number' });
+                                        })}
+                                    </View>
+                                )}
+                                {Boolean(infoData?.AttributeCharacteristics?.length) && (
+                                    <View style={{ marginVertical: 10 }}>
+                                        {Boolean(inspectData.intInspectionTypeID != 2) && <MyHeader title={'ATTRIBUTE'} />}
+                                        {infoData?.AttributeCharacteristics.map((item, index) => {
+                                            return renderItem({ item, index, type: 'char' });
+                                        })}
+                                    </View>
+                                )}
+                            </ScrollView>
+                            <View style={[styles.btnContainer]}>
+                                <ButtonComponent
+                                    style={{ height: 40, width: '87%' }}
+                                    onPress={() => {
+                                        handleFinalSavePress(true);
+                                    }}>
+                                    Save
+                                </ButtonComponent>
+                                <View style={[styles.iconFilter]}>
+                                    <FilterWithMenu
+                                        dataList={moreList}
+                                        type="IconFilter"
+                                        onSelectedPress={value => {
+                                            handleMenuPress(value);
+                                        }}
+                                        anchorPosition="top"
+                                    />
                                 </View>
-                            )}
-                            {Boolean(infoData?.AttributeCharacteristics?.length) && (
-                                <View style={{ marginVertical: 10 }}>
-                                    {Boolean(inspectData.intInspectionTypeID != 2) && <MyHeader title={'ATTRIBUTE'} />}
-                                    {infoData?.AttributeCharacteristics.map((item, index) => {
-                                        return renderItem({ item, index, type: 'char' });
-                                    })}
-                                </View>
-                            )}
-                        </ScrollView>
-
-                        <View style={[styles.btnContainer]}>
-                            <ButtonComponent
-                                style={{ height: 40, width: '87%' }}
-                                onPress={() => {
-                                    handleFinalSavePress(true);
-                                }}>
-                                Save
-                            </ButtonComponent>
-                            <View style={[styles.iconFilter]}>
-                                <FilterWithMenu
-                                    dataList={moreList}
-                                    type="IconFilter"
-                                    onSelectedPress={value => {
-                                        handleMenuPress(value);
-                                    }}
-                                    anchorPosition="top"
-                                />
                             </View>
                         </View>
-                    </View>
-                )}
+                    ))}
                 {showChar && (
                     <View style={{ flex: showChar ? 1 : 0 }}>
                         <View

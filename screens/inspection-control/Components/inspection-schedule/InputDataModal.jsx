@@ -14,6 +14,7 @@ import ApiUrl from 'global/ApiUrl';
 import AsyncStorage from '@react-native-community/async-storage';
 import moment from 'moment';
 import uuid from 'react-native-uuid';
+import { isArray } from 'underscore';
 
 const errorObj = {
     shift: false,
@@ -71,29 +72,17 @@ const InputDataModal = ({
             } else {
                 setFrqList([]);
             }
-        } else {
-            let response = {
-                Data: [
-                    {
-                        FrequencyId: '20949',
-                        SampleFrequency: 'lot',
-                        FrequencyCode: '20949',
-                    },
-                ],
-                Success: true,
-                Message: 'Success',
-            };
+        } else if(isArray(response) && response?.length ) {
             let temp = [];
-            response?.Data.forEach(item => {
+            response.forEach((item,index) => {
                 temp.push({
-                    label: item?.SampleFrequency,
-                    value: item?.FrequencyId,
-                    ...item,
+                    label: item?.SampleFrequency['@Name'],
+                    value: index+1,
                 });
-            });
-            setFrqList(temp || []);
-
-            // setFrqList([]);
+            })
+            setFrqList([...temp]);
+        } else {
+            setFrqList([]);
         }
         return true;
     };

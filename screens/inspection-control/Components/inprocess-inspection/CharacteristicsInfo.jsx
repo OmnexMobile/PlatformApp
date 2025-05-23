@@ -1,6 +1,6 @@
 import { COLORS } from 'constants/theme-constants';
 import React, { useEffect, useRef, useState } from 'react';
-import { BackHandler, Keyboard, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { BackHandler, Keyboard, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import IconF from 'react-native-vector-icons/Feather';
 import IconM from 'react-native-vector-icons/MaterialCommunityIcons';
 import FilterWithMenu from '../FilterWithMenu';
@@ -232,8 +232,12 @@ const CharacteristicsInfo = ({
                 ? value?.filter(
                       x =>
                           x?.value != '' &&
-                          Number(x?.value) >= Number(inspectionType == 2 ? x?.tolerance : 0) - Number(x?.lowValue) &&
-                          Number(x?.value) <= Number(x?.highValue) + Number(inspectionType == 2 ? x?.tolerance : 0),
+                          (inspectionType == 2
+                              ? Number(x?.value) >= Number(x?.tolerance) - Number(x?.lowValue)
+                              : Number(x?.value) >= Number(x?.lowValue)) &&
+                          (inspectionType == 2
+                              ? Number(x?.value) <= Number(x?.tolerance) + Number(x?.highValue)
+                              : Number(x?.value) <= Number(x?.highValue))
                   )
                 : value.filter(x => x?.value?.toLowerCase() == 'ok' && x?.value !== '');
         return temp.length || 0;
@@ -245,58 +249,67 @@ const CharacteristicsInfo = ({
                       x =>
                           x?.value != '' &&
                           !(
-                              Number(x?.value) >= Number(inspectionType == 2 ? x?.tolerance : 0) - Number(x?.lowValue) &&
-                              Number(x?.value) <= Number(x?.highValue) + Number(inspectionType == 2 ? x?.tolerance : 0)
+                              (inspectionType == 2
+                                  ? Number(x?.value) >= Number(x?.tolerance) - Number(x?.lowValue)
+                                  : Number(x?.value) >= Number(x?.lowValue)) &&
+                              (inspectionType == 2
+                                  ? Number(x?.value) <= Number(x?.tolerance) + Number(x?.highValue)
+                                  : Number(x?.value) <= Number(x?.highValue))
                           ),
                   )
                 : value.filter(x => x?.value?.toLowerCase() != 'ok' && x?.value !== '');
         return temp?.length || 0;
     };
     return (
-        <View style={[styles.container]}>
-            <ScrollView style={[styles.overallBox]} showsVerticalScrollIndicator={false}>
-                {/* need to chage the infodata as selectedData and setSelectedData */}
-                {showCharInfo && <SampleCharInfo infoData={infoData} setInfoData={setInfoData} />}
-                <View style={[styles.tableBox]}>
-                    <View style={[styles.headerBox]}>
-                        <View style={{ flex: 1 }}>
-                            <Text style={[styles.headerText, { marginLeft: 15 }]}>No</Text>
+        <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            style={{ flex: 1 }}
+            keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 0}>
+            <View style={[styles.container]}>
+                <ScrollView style={[styles.overallBox]} showsVerticalScrollIndicator={false}>
+                    {/* need to chage the infodata as selectedData and setSelectedData */}
+                    {showCharInfo && <SampleCharInfo infoData={infoData} setInfoData={setInfoData} />}
+                    <View style={[styles.tableBox]}>
+                        <View style={[styles.headerBox]}>
+                            <View style={{ flex: 1 }}>
+                                <Text style={[styles.headerText, { marginLeft: 15 }]}>No</Text>
+                            </View>
+                            <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center' }}>
+                                <Text style={[styles.headerText]}>Actual Value</Text>
+                            </View>
                         </View>
-                        <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center' }}>
-                            <Text style={[styles.headerText]}>Actual Value</Text>
-                        </View>
+                        {Boolean(masterData?.length) &&
+                            masterData.map((item, index) => {
+                                return renderItem(item, index);
+                            })}
                     </View>
-                    {Boolean(masterData?.length) &&
-                        masterData.map((item, index) => {
-                            return renderItem(item, index);
-                        })}
-                </View>
-                <View>
-                    <BorderContent title="Total Samples Tested" color={COLORS.apptheme} count={masterData?.length} />
-                    <BorderContent title="Sample(s) OK " color={COLORS.SUCCESS} count={renderOkCount(masterData)} />
-                    <BorderContent title="Sample(s) Not OK " color={COLORS.ERROR} count={renderNotOkCount(masterData)} />
-                </View>
-            </ScrollView>
-            <View style={[styles.btnContainer]}>
-                <ButtonComponent
-                    style={{ height: 40, width: '89%' }}
-                    onPress={() => {
-                        handleSavePress(true, 'saveBtn');
-                    }}>
-                    Save
-                </ButtonComponent>
-                <View style={[styles.iconFilter]}>
-                    <FilterWithMenu
-                        dataList={moreList}
-                        type="IconFilter"
-                        onSelectedPress={value => {
-                            handleMenuPress(value);
-                        }}
-                        anchorPosition="top"
-                    />
+                    <View>
+                        <BorderContent title="Total Samples Tested" color={COLORS.apptheme} count={masterData?.length} />
+                        <BorderContent title="Sample(s) OK " color={COLORS.SUCCESS} count={renderOkCount(masterData)} />
+                        <BorderContent title="Sample(s) Not OK " color={COLORS.ERROR} count={renderNotOkCount(masterData)} />
+                    </View>
+                </ScrollView>
+                <View style={[styles.btnContainer]}>
+                    <ButtonComponent
+                        style={{ height: 40, width: '89%' }}
+                        onPress={() => {
+                            handleSavePress(true, 'saveBtn');
+                        }}>
+                        Save
+                    </ButtonComponent>
+                    <View style={[styles.iconFilter]}>
+                        <FilterWithMenu
+                            dataList={moreList}
+                            type="IconFilter"
+                            onSelectedPress={value => {
+                                handleMenuPress(value);
+                            }}
+                            anchorPosition="top"
+                        />
+                    </View>
                 </View>
             </View>
-        </View>
+        </KeyboardAvoidingView>
     );
 };
 const styles = StyleSheet.create({
