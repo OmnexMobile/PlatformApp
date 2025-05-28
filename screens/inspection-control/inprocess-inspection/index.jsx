@@ -57,7 +57,6 @@ const InprocessInspection = ({ route }) => {
     const [showCharInfo, setShowCharInfo] = useState(false);
     const navigation = useNavigation();
     const dispatch = useDispatch();
-
     useLayoutEffect(() => {
         setInfoData(inspectData);
     }, [inspectData]);
@@ -75,7 +74,7 @@ const InprocessInspection = ({ route }) => {
         setShowSignModal(true);
     };
     const renderBtnText = (item, type) => {
-        const list = item?.sampleList || [];
+        const list = item?.Samples || [];
         let iconFlag = false;
         const allValues = list.length > 0 && list.every(({ value }) => value.trim() !== '');
         const someValues = list.some(({ value }) => value.trim() !== '');
@@ -183,16 +182,16 @@ const InprocessInspection = ({ route }) => {
             const finalData = filterdData[0];
             if (showChar) {
                 if (formType == 'number' || formType == 'char') {
-                    // if sampleList avilable we need to check this or we need to use masterData
-                    isChanged = selectedData?.sampleList?.some((item, index) => {
+                    // if Samples avilable we need to check this or we need to use masterData
+                    isChanged = selectedData?.Samples?.some((item, index) => {
                         return item?.value !== masterData[index]?.value;
                     });
-                    if (!selectedData?.sampleList?.length && masterData?.length > 0) {
+                    if (!selectedData?.Samples?.length && masterData?.length > 0) {
                         isChanged = masterData?.some((item, index) => {
                             return item?.value !== valueUpadted[index]?.value;
                         });
                     }
-                    if (selectedData?.sampleList?.length !== undefined && selectedData?.sampleList?.length !== masterData?.length) {
+                    if (selectedData?.Samples?.length !== undefined && selectedData?.Samples?.length !== masterData?.length) {
                         isChanged = true;
                     }
                     if (isChanged) {
@@ -235,7 +234,7 @@ const InprocessInspection = ({ route }) => {
             let status = allValues ? 'Completed' : someValues ? 'In Progress' : 'Launch';
             const updatedObj = {
                 ...selectedData,
-                sampleList: masterData,
+                Samples: masterData,
                 status: status,
             };
             const { VariableCharacteristics, AttributeCharacteristics } = infoData;

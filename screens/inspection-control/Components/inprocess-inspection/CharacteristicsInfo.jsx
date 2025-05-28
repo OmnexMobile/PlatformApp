@@ -9,6 +9,7 @@ import { RFPercentage } from 'helpers/utils';
 import { useNavigation } from '@react-navigation/native';
 import { ROUTES } from 'constants/app-constant';
 import SampleCharInfo from './SampleCharInfo';
+import moment from 'moment';
 const moreList = [
     {
         id: 1,
@@ -62,7 +63,7 @@ const CharacteristicsInfo = ({
     const navigation = useNavigation();
     useEffect(() => {
         if (type == 'number') {
-            if (Object.keys(selectedData).length && !selectedData?.sampleList?.length) {
+            if (Object.keys(selectedData).length && !selectedData?.Samples?.length) {
                 let sampleSize = selectedData.strSampleSize;
                 const temp = Array.from({ length: sampleSize }, (_, index) => ({
                     id: index + 1,
@@ -71,37 +72,65 @@ const CharacteristicsInfo = ({
                     lowValue: selectedData.strLowValue,
                     highValue: selectedData.strHighValue,
                     tolerance: inspectionType == 2 ? selectedData?.strTolerance || 0 : 0,
-                    // "sampleName": "1",
-                    // "SerialNo": "",
-                    // "FunctionValue": "",
-                    // "status": "",
-                    // "backColor": "",
-                    // "fontColor": "",
-                    // "EnteredDate": "",
-                    // "IsApproved": "",
-                    // "IsNumericSample": "",
-                    // "IsRejected": "",
-                    // "Comments": ""
+                    // newly add based on syn api
+                    sampleName: index + 1,
+                    SerialNo: index + 1,
+                    status: 1,
+                    fontColor: '#000000',
+                    IsApproved: 0,
+                    IsNumericSample: '1',
+                    Comments: '',
+                    FuncDetailsId: selectedData?.FuncDetailsId,
+                    FunctionValue: '',
+                    backColor: '',
+                    EnteredDate: '',
+                    IsRejected: 1,
                 }));
                 setMasterData([...temp]);
                 setValueUpadted([...temp]);
-            } else if (selectedData?.sampleList?.length > 0) {
-                setMasterData([...selectedData?.sampleList]);
-                setValueUpadted([...selectedData?.sampleList]);
+            } else if (selectedData?.Samples?.length > 0) {
+                setMasterData([...selectedData?.Samples]);
+                setValueUpadted([...selectedData?.Samples]);
             }
         } else if (type == 'char') {
-            if (Object.keys(selectedData).length && !selectedData?.sampleList?.length) {
+            if (Object.keys(selectedData).length && !selectedData?.Samples?.length) {
                 let sampleSize = selectedData.strSampleSize;
                 const temp = Array.from({ length: sampleSize }, (_, index) => ({
                     id: index + 1,
                     count: index + 1,
                     value: icSettings?.DefaultAllOK ? 'OK' : '',
+                    // newly add based on syn api
+                    sampleName: index + 1,
+                    SerialNo: index + 1,
+                    FunctionValue: icSettings?.DefaultAllOK ? 'OK' : '',
+                    status: 0,
+                    backColor: icSettings?.DefaultAllOK ? '#00FF00' : '',
+                    fontColor: '#000000',
+                    EnteredDate: moment(new Date()).format('MM/DD/YYYY h:mm:ss A '),
+                    IsApproved: 0,
+                    IsNumericSample: '1',
+                    IsRejected: 0,
+                    Comments: '',
+                    FuncDetailsId: selectedData?.FuncDetailsId,
                 }));
                 // if you want alert to ask enable temp1 and stroe in valueUpadted
                 const temp1 = Array.from({ length: sampleSize }, (_, index) => ({
                     id: index + 1,
                     count: index + 1,
                     value: '',
+                    // newly add based on syn api
+                    sampleName: index + 1,
+                    SerialNo: index + 1,
+                    FunctionValue: '',
+                    status: 0,
+                    backColor: '',
+                    fontColor: '#000000',
+                    EnteredDate: '',
+                    IsApproved: 0,
+                    IsNumericSample: '1',
+                    IsRejected: 1,
+                    Comments: '',
+                    FuncDetailsId: selectedData?.FuncDetailsId,
                 }));
                 setMasterData([...temp]);
                 if (icSettings?.DefaultAllOK) {
@@ -109,15 +138,37 @@ const CharacteristicsInfo = ({
                 } else {
                     setValueUpadted([...temp]);
                 }
-            } else if (selectedData?.sampleList?.length > 0) {
-                setMasterData([...selectedData?.sampleList]);
-                setValueUpadted([...selectedData?.sampleList]);
+            } else if (selectedData?.Samples?.length > 0) {
+                setMasterData([...selectedData?.Samples]);
+                setValueUpadted([...selectedData?.Samples]);
             }
         }
     }, [selectedData, type]);
-
-    const handleInputChange = (val, id) => {
-        const updatedData = masterData.map(item => (item.id === id ? { ...item, value: val } : item));
+    const getBackColor = (value, type, item) => {
+        if (value === '') {
+            return COLORS.white;
+        }
+        if (type === 'number') {
+            let lowValue = inspectionType == 2 ? Number(item?.tolerance) - Number(item?.lowValue) : item?.lowValue;
+            let highValue = inspectionType == 2 ? Number(item?.tolerance) + Number(item?.highValue) : item?.highValue;
+            return Number(value) >= Number(lowValue) && Number(value) <= Number(highValue) ? '#00FF00' : '#FF0100';
+        }
+        return value.toLowerCase() === 'ok' ? '#00FF00' : '#FF0100';
+    };
+    const handleInputChange = (val, id, type, items) => {
+        const getBackColorValue = getBackColor(val, type, items);
+        const updatedData = masterData.map(item =>
+            item.id === id
+                ? {
+                      ...item,
+                      value: val,
+                      FunctionValue: val,
+                      EnteredDate: moment(new Date()).format('MM/DD/YYYY h:mm:ss A '),
+                      backColor: getBackColorValue,
+                      IsRejected: getBackColorValue == '#00FF00' ? 0 : 1,
+                  }
+                : item,
+        );
         setMasterData(updatedData);
     };
     const handleContainmentSave = value => {
@@ -190,7 +241,7 @@ const CharacteristicsInfo = ({
                         style={[styles.inputBox, { backgroundColor: renderBackGroundColor(item.value, type) }]}
                         value={item.value}
                         onChangeText={val => {
-                            handleInputChange(val, item.id);
+                            handleInputChange(val, item.id, type, item);
                         }}
                         keyboardType={type == 'number' ? 'number-pad' : 'default'}
                         returnKeyType="done"
@@ -248,7 +299,7 @@ const CharacteristicsInfo = ({
                               : Number(x?.value) >= Number(x?.lowValue)) &&
                           (inspectionType == 2
                               ? Number(x?.value) <= Number(x?.tolerance) + Number(x?.highValue)
-                              : Number(x?.value) <= Number(x?.highValue))
+                              : Number(x?.value) <= Number(x?.highValue)),
                   )
                 : value.filter(x => x?.value?.toLowerCase() == 'ok' && x?.value !== '');
         return temp.length || 0;
