@@ -217,6 +217,11 @@ const InputDataModal = ({
             // formData.append('SamplingHierarchy', ', , AQL=');
             formData.append('CreatedByID', userData?.UserId);
 
+            // as of now we added once check with backend dev
+            formData.append('FormId', 199);
+            formData.append('PropertyName', 'ActualValue');
+
+
             const response = await postAPI(ApiUrl.IC_FORM_SUBMIT, formData);
             if (response.Success) {
                 const { shift, lotNumber, lotQty, frequency, receiptNumber } = formFields;

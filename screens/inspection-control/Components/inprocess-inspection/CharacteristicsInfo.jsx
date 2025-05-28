@@ -71,6 +71,17 @@ const CharacteristicsInfo = ({
                     lowValue: selectedData.strLowValue,
                     highValue: selectedData.strHighValue,
                     tolerance: inspectionType == 2 ? selectedData?.strTolerance || 0 : 0,
+                    // "sampleName": "1",
+                    // "SerialNo": "",
+                    // "FunctionValue": "",
+                    // "status": "",
+                    // "backColor": "",
+                    // "fontColor": "",
+                    // "EnteredDate": "",
+                    // "IsApproved": "",
+                    // "IsNumericSample": "",
+                    // "IsRejected": "",
+                    // "Comments": ""
                 }));
                 setMasterData([...temp]);
                 setValueUpadted([...temp]);
