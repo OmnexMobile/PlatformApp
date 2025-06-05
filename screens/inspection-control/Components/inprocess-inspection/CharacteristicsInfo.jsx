@@ -305,11 +305,11 @@ const CharacteristicsInfo = ({
                     FunctionValue: '',
                 }));
                 if (icSettings?.DefaultAllOK) {
-                    setValueUpadted([...filterMasterData,...temp1]);
+                    setValueUpadted([...filterMasterData, ...temp1]);
                 } else {
-                    setValueUpadted([...filterMasterData,...temp]);
+                    setValueUpadted([...filterMasterData, ...temp]);
                 }
-            }else if (selectedData.CSampleSize <= sampleEnterdSize) {
+            } else if (selectedData.CSampleSize <= sampleEnterdSize) {
                 console.log('********************step5');
                 showMessage({
                     message: 'Something went wrong',
@@ -425,7 +425,12 @@ const CharacteristicsInfo = ({
                         style={[styles.inputBox, { backgroundColor: renderBackGroundColor(item.value, type) }]}
                         value={item.value}
                         onChangeText={val => {
-                            handleInputChange(val, item.id, type, item);
+                            // 1. Trim start/end spaces
+                            let cleaned = val.trim();
+
+                            // 2. Remove special characters (keep letters, digits, and space)
+                            cleaned = cleaned.replace(/[^a-zA-Z0-9 ]/g, '');
+                            handleInputChange(cleaned, item.id, type, item);
                         }}
                         keyboardType={type == 'number' ? 'number-pad' : 'default'}
                         returnKeyType="done"

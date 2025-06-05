@@ -153,6 +153,7 @@ const InspectionSchedule = () => {
         handleFilterInspection(value, filter);
     };
     const handleFilterInspection = (value, filtertype) => {
+        console.log('value', value,filtertype);
         let temp = JSON.parse(JSON.stringify(overAllData));
         let tempSearch = [];
         if (value !== '' && filtertype == 'typeFilter') {
@@ -316,7 +317,8 @@ const InspectionSchedule = () => {
                         <DataPickerWithIcon
                             value={filterData?.startDate || null}
                             onSelectedDate={val => {
-                                handleInputChange('startDate', val, 'dateFilter');
+                                // handleInputChange('startDate', val, 'dateFilter');
+                                setFilterData(pre => ({ ...pre, startDate: val }));
                             }}
                         />
                     </View>
@@ -325,7 +327,8 @@ const InspectionSchedule = () => {
                             value={filterData?.endDate || null}
                             placeHolder="End Date"
                             onSelectedDate={val => {
-                                handleInputChange('endDate', val, 'dateFilter');
+                                setFilterData(pre => ({ ...pre, endDate: val }));
+                                // handleInputChange('endDate', val, 'dateFilter');
                             }}
                         />
                     </View>
