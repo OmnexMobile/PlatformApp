@@ -13,7 +13,7 @@ import DynamicFormField from '../DynamicFormField';
 const GeneralInfo = ({ infoData = {}, setInfoData = () => {} }) => {
   const handleInputChange = (val, item) => {
     const updatedData = infoData.GeneralInfo.map(i =>
-      i.strPropertyName === item.strPropertyName ? { ...i, strValue: val } : i
+      i.PropertyName === item.PropertyName ? { ...i, Value: val } : i
     );
     setInfoData(pre => ({ ...pre, GeneralInfo: updatedData }));
   };
@@ -31,13 +31,13 @@ const GeneralInfo = ({ infoData = {}, setInfoData = () => {} }) => {
       >
         <View style={styles.rowContainer}>
           {(infoData.GeneralInfo || []).map((item, index) => (
-            <View style={styles.subBox} key={`${item.strPropertyName}-${index}`}>
-              <Text style={styles.headerText}>{item.strDisplayName}</Text>
+            <View style={styles.subBox} key={`${item.PropertyName}-${index}`}>
+              <Text style={styles.headerText}>{item.DisplayName}</Text>
               <DynamicFormField
                 title="Supplier Name"
-                fieldType={item.strDataType}
-                value={item.strValue}
-                isEditable={item.intEditable == 1}
+                fieldType={item.DataType}
+                value={item.Value}
+                // isEditable={item.intEditable == 1}
                 handleChange={val => handleInputChange(val, item)}
               />
             </View>

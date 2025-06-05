@@ -38,5 +38,6 @@ module.exports = {
     IC_SUPERVISOR_LIST:'SupervisorApprovalList',
     IC_GET_ATTACHEMENTS:'GetAttachment',
     IC_COMPLETED_LIST:'GetCompletedInspection',
-    IC_OPERATOR_LIST:'GetOperatorWorksheet'
+    IC_OPERATOR_LIST:'GetOperatorWorksheet',
+    IC_SINGLE_SYNC:'InsertSamples'
 };

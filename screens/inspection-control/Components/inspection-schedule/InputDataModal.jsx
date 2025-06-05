@@ -72,14 +72,14 @@ const InputDataModal = ({
             } else {
                 setFrqList([]);
             }
-        } else if(isArray(response) && response?.length ) {
+        } else if (isArray(response) && response?.length) {
             let temp = [];
-            response.forEach((item,index) => {
+            response.forEach((item, index) => {
                 temp.push({
                     label: item?.SampleFrequency['@Name'],
-                    value: index+1,
+                    value: index + 1,
                 });
-            })
+            });
             setFrqList([...temp]);
         } else {
             setFrqList([]);
@@ -159,68 +159,68 @@ const InputDataModal = ({
             const formData = new FormData();
             formData.append('OrderDetailsId', selectedValue?.OrderDetailsId);
             formData.append('OrderNumber', selectedValue?.OrderNumber);
-            formData.append('ProductionItemId', selectedValue?.ProductionItemId);
-            formData.append('ProductionItemName', selectedValue?.ProductionItem);
-            formData.append('Description', selectedValue?.Description);
-            formData.append('PIDHierarchy', selectedValue?.PIHierarchy);
-            formData.append('OperationIds', selectedValue?.OperationID);
-            formData.append('OperationName', selectedValue?.OperationName);
-            formData.append('OperationHierarchy', selectedValue?.OperationHierarchy);
-            formData.append('SupplierId', selectedValue.SupplierId);
-            formData.append('SupplierName', selectedValue.SupplierName);
-            formData.append('CustomerId', selectedValue?.CustomerId);
-            formData.append('CustomerName', selectedValue?.CustomerName);
-            formData.append('InspectionLevelId', selectedValue?.InspectionLevelId);
-            formData.append('InspectionLevel', selectedValue?.InspectionLevel);
-            formData.append('SamplingPlanId', selectedValue?.SamplingPlanId);
-            formData.append('SamplingPlan', selectedValue?.SamplingPlan);
-            formData.append('DefectTypeId', selectedValue?.DefectTypeId);
-            formData.append('DefectTypeNumber', selectedValue?.DefectTypeNumber);
-            formData.append('InspectionId', selectedValue?.InspectionId);
-            formData.append('Inspection', selectedValue?.Inspection);
-            formData.append('InspectionType', selectedValue?.InspectionType);
-            formData.append('ProductionStartDate', selectedValue?.ProductionStartDate);
-            formData.append('ProductionStartTime', selectedValue?.ProductionStartTime);
-            formData.append('ProductionEndTime', selectedValue?.ProductionEndTime);
-            formData.append('StartDate', selectedValue?.StartDate);
-            formData.append('EndDate', selectedValue?.EndDate);
-            formData.append('AreaID', '');
-            formData.append('DeptID', '');
-            formData.append('CDepartmentName', '');
-            formData.append('Area', '');
-            formData.append('syncMode', 0);
-            formData.append('supervisorApproved', 0);
-            formData.append('ProcessId', selectedValue?.TypeOfInspection == '2' ? 1 : 0);
-
             // other
             if (selectedValue.TypeOfInspection == '2') {
                 formData.append('OperationWSIDs', selectedValue?.OperationWSID);
             } else {
                 formData.append('OperationWSID', selectedValue?.OperationWSID);
             }
-
-            formData.append('deviceid', deviceId);
-            formData.append('UserId', userData?.UserId);
-            formData.append('UserName', userData?.FullName);
-            formData.append('SiteId', userData?.Siteid);
+            formData.append('ProductionItemId', selectedValue?.ProductionItemId || '');
+            formData.append('ProductionItemName', selectedValue?.ProductionItem || '');
+            formData.append('Description', selectedValue?.Description || '');
+            formData.append('PIDHierarchy', selectedValue?.PIHierarchy || '');
+            formData.append('OperationIds', selectedValue?.OperationID || '');
+            formData.append('OperationName', selectedValue?.OperationName || '');
+            formData.append('OperationHierarchy', selectedValue?.OperationHierarchy || '');
+            formData.append('SupplierId', selectedValue.SupplierId || '');
+            formData.append('SupplierName', selectedValue.SupplierName || '');
+            formData.append('CustomerId', selectedValue?.CustomerId || '');
+            formData.append('CustomerName', selectedValue?.CustomerName || '');
+            formData.append('InspectionLevelId', selectedValue?.InspectionLevelId || '');
+            formData.append('InspectionLevel', selectedValue?.InspectionLevel || '');
+            formData.append('SamplingPlanId', selectedValue?.SamplingPlanId || '');
+            formData.append('SamplingPlan', selectedValue?.SamplingPlan || '');
+            formData.append('DefectTypeId', selectedValue?.DefectTypeId || '');
+            formData.append('DefectTypeNumber', selectedValue?.DefectTypeNumber || '');
+            formData.append('InspectionId', selectedValue?.InspectionId || '');
+            formData.append('Inspection', selectedValue?.Inspection || '');
+            formData.append('InspectionType', selectedValue?.InspectionType || '');
+            formData.append('ReceiptNo', formFields?.receiptNumber || '');
+            formData.append('ProductionStartDate', selectedValue?.ProductionStartDate || '');
+            formData.append('ProductionStartTime', selectedValue?.ProductionStartTime || '');
+            formData.append('ProductionEndTime', selectedValue?.ProductionEndTime || '');
+            formData.append('StartDate', selectedValue?.StartDate || '');
+            formData.append('EndDate', selectedValue?.EndDate || '');
+            formData.append('AreaID', '');
+            formData.append('DeptID', '');
+            formData.append('CDepartmentName', '');
+            formData.append('Area', '');
+            formData.append('syncMode', 0);
+            formData.append('supervisorApproved', 0);
+            formData.append('deviceid', 'a464cf18e5fd3f23');
+            formData.append('UserId', userData?.UserId || '');
+            formData.append('UserName', userData?.FullName || '');
+            if (selectedValue?.TypeOfInspection == '2') {
+                formData.append('ProcessId', 1 );
+            }
+            formData.append('SiteId', userData?.Siteid || '');
             formData.append('LanguageId', 1);
-            formData.append('LotNo', formFields?.lotNumber);
-            formData.append('ShiftId', formFields?.shift?.ShiftID);
-            formData.append('Shift', formFields?.shift?.ShiftName);
+            formData.append('LotNo', formFields?.lotNumber || '');
+            formData.append('ShiftId', formFields?.shift?.ShiftID || '');
+            formData.append('Shift', formFields?.shift?.ShiftName || '');
             formData.append('FrequencyID', formFields?.frequency?.FrequencyId || '');
             formData.append('SampleFrequency', formFields?.frequency?.SampleFrequency || '');
-            formData.append('ProductionQty', formFields?.lotQty);
-            formData.append('ReceiptNo', formFields?.receiptNumber || '');
+            formData.append('ProductionQty', selectedValue?.ProductionQty || '');
+
             formData.append('Executor', formFields.responsible.length > 0 ? JSON.stringify(formFields.responsible) : ''); // responsible party
             // need to update asper API change
             formData.append('EnteredDate', moment(new Date()).format('MM/DD/YYYY h:mm:ss A '));
             // formData.append('SamplingHierarchy', ', , AQL=');
             formData.append('CreatedByID', userData?.UserId);
-
+            formData.append('LotSize',formFields?.lotQty)
             // as of now we added once check with backend dev
-            formData.append('FormId', 199);
+            formData.append('FormId', selectedValue?.FormId || '');
             formData.append('PropertyName', 'ActualValue');
-
 
             const response = await postAPI(ApiUrl.IC_FORM_SUBMIT, formData);
             if (response.Success) {
@@ -230,6 +230,7 @@ const InputDataModal = ({
                     inspectList: [
                         {
                             uniqueId: uuid.v4(),
+                            FormId:selectedValue?.FormId,
                             OperationID: selectedValue?.OperationID,
                             intProductionItemID: selectedValue?.ProductionItemId,
                             strProductionItemName: selectedValue?.ProductionItem,

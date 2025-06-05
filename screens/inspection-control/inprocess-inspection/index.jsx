@@ -18,6 +18,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { ROUTES } from 'constants/app-constant';
 import { Modal } from 'react-native-paper';
 import NoDataFound from '../Components/NoDataFound';
+import ConfirmationModal from '../Components/inprocess-inspection/ConfirmationModal';
 const moreList = [
     {
         id: 1,
@@ -54,7 +55,16 @@ const InprocessInspection = ({ route }) => {
     const [nextSave, setNextSave] = useState(true);
     const [showCamer, setShowCamer] = useState(false);
     const [mixedList, setMixedList] = useState('');
-    const [showCharInfo, setShowCharInfo] = useState(false);
+    const [showCharInfo, setShowCharInfo] = useState(true);
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [timer, setTimer] = useState(null);
+    const [userUpdateValue, setUserUpdateValue] = useState({
+        CHighValue: '',
+        CLowValue: '',
+        CSampleSize: '',
+        CTolerance: '',
+    });
+
     const navigation = useNavigation();
     const dispatch = useDispatch();
     useLayoutEffect(() => {
@@ -106,15 +116,15 @@ const InprocessInspection = ({ route }) => {
                     <IconM name="information-variant" size={25} color={COLORS.moreIcon} />
                 </View>
                 <View style={{ flex: 1, paddingHorizontal: 10 }}>
-                    <Text style={[styles.headerTitle]}>{item.strCharacteristicName}</Text>
-                    <Text style={[styles.headerName]}>{item.strOperationName}</Text>
+                    <Text style={[styles.headerTitle]}>{item.CCharacteristics}</Text>
+                    <Text style={[styles.headerName]}>{item.OperationName}</Text>
                 </View>
                 <View style={[styles.lastBox, { flexDirection: 'row' }]}>
                     {Boolean(iconFlag) && <IconF name="alert-triangle" size={22} color={COLORS.ipBgColor} style={{ marginRight: 5 }} />}
                     <TouchableOpacity
                         style={[styles.inspectBox, { backgroundColor: colorCode }]}
                         onPress={() => {
-                            setShowCharInfo(false);
+                            // setShowCharInfo(false);
                             handleCharOpen();
                             setSelectedData(item);
                             setFormType(type);
@@ -143,29 +153,37 @@ const InprocessInspection = ({ route }) => {
         Boolean(flag) && navigation.goBack();
     };
     const handleBackPress = () => {
-        if (!showCamer) {
-            if (!showFilePage) {
-                if (!showGeneral) {
-                    if (!showChar) {
-                        if (navigation.canGoBack()) {
-                            navigation.goBack();
+        if (!showConfirmModal) {
+            if (!showCamer) {
+                if (!showFilePage) {
+                    if (!showGeneral) {
+                        if (!showChar) {
+                            if (navigation.canGoBack()) {
+                                navigation.goBack();
+                            } else {
+                                navigation.reset({
+                                    index: 0,
+                                    routes: [{ name: ROUTES.HOME_FAB_VIEW }],
+                                });
+                            }
                         } else {
-                            navigation.reset({
-                                index: 0,
-                                routes: [{ name: ROUTES.HOME_FAB_VIEW }],
-                            });
+                            console.log('showChar', showChar);
+                            setShowChar(false);
+                            setSelectedData({});
+                            setMasterData([]);
+                            setValueUpadted([]);
                         }
                     } else {
-                        setShowChar(false);
+                        setShowGeneral(false);
                     }
                 } else {
-                    setShowGeneral(false);
+                    setShowFilePage(false);
                 }
             } else {
-                setShowFilePage(false);
+                setShowCamer(false);
             }
         } else {
-            setShowCamer(false);
+            setShowConfirmModal(false);
         }
         setShowAlart(false);
     };
@@ -194,7 +212,10 @@ const InprocessInspection = ({ route }) => {
                     if (selectedData?.Samples?.length !== undefined && selectedData?.Samples?.length !== masterData?.length) {
                         isChanged = true;
                     }
-                    if (isChanged) {
+                    let arrayList = [...finalData.VariableCharacteristics, ...finalData.AttributeCharacteristics];
+                    let selectedFinal = arrayList.filter(item => item?.CCharacteristicsId == selectedData?.CCharacteristicsId);
+                    const hasChanges = selectedFinal.length ? JSON.stringify(selectedFinal[0]) !== JSON.stringify(selectedData) : false;
+                    if (isChanged || hasChanges) {
                         setShowAlart(true);
                     } else {
                         if (movenext == 'nextSample') {
@@ -239,7 +260,7 @@ const InprocessInspection = ({ route }) => {
             };
             const { VariableCharacteristics, AttributeCharacteristics } = infoData;
             const characteristicsList = formType === 'number' ? VariableCharacteristics : AttributeCharacteristics;
-            const index = characteristicsList.findIndex(obj => obj?.intCCharacteristicId === selectedData?.intCCharacteristicId);
+            const index = characteristicsList.findIndex(obj => obj?.CCharacteristicsId === selectedData?.CCharacteristicsId);
             const newCharacteristicsList = [...characteristicsList];
             if (index !== -1) {
                 newCharacteristicsList[index] = updatedObj;
@@ -249,6 +270,8 @@ const InprocessInspection = ({ route }) => {
                 ...pre,
                 [formType === 'number' ? 'VariableCharacteristics' : 'AttributeCharacteristics']: newCharacteristicsList,
             }));
+            setMasterData([]);
+            setValueUpadted([]);
         } else {
             handleFinalSavePress();
         }
@@ -267,7 +290,7 @@ const InprocessInspection = ({ route }) => {
                 setNextSave(false);
                 handleSaveAlert('nextSample');
                 Keyboard.dismiss();
-                setShowCharInfo(false);
+                // setShowCharInfo(false);
             } else {
                 Alert.alert('End of Sample List', 'You have reached the last sample.');
             }
@@ -277,13 +300,13 @@ const InprocessInspection = ({ route }) => {
                 setNextSave(false);
                 handleSaveAlert('nextSample');
                 Keyboard.dismiss();
-                setShowCharInfo(false);
+                // setShowCharInfo(false);
             } else if (currentIndex.index == tempData?.length - 1 && formType == 'number') {
                 setMixedList('2');
                 setNextSave(false);
                 handleSaveAlert('nextSample', infoData.intInspectionTypeID);
                 Keyboard.dismiss();
-                setShowCharInfo(false);
+                // setShowCharInfo(false);
             } else {
                 Alert.alert('End of Sample List', 'You have reached the last sample.');
             }
@@ -295,6 +318,8 @@ const InprocessInspection = ({ route }) => {
             let tempData = formType == 'number' ? infoData?.VariableCharacteristics : infoData.AttributeCharacteristics;
             const nextIndex = currentIndex.index + 1;
             setCurrentIndex({ index: nextIndex, type: formType });
+            setMasterData([]);
+            setValueUpadted([]);
             setSelectedData(tempData[nextIndex]);
         } else {
             let tempData = infoData.AttributeCharacteristics;
@@ -310,6 +335,26 @@ const InprocessInspection = ({ route }) => {
         setShowCharInfo(!showCharInfo);
     };
 
+    const handleConfirmYesPress = () => {
+        let sampleEnterdSize = masterData.filter(x => x?.value != '')?.length;
+        if (userUpdateValue.CSampleSize < sampleEnterdSize) {
+            setShowConfirmModal(false);
+            showMessage({
+                message: 'Something went wrong',
+                backgroundColor: COLORS.ERROR,
+                color: COLORS.white,
+                duration: 1500,
+                statusBarHeight: 40,
+                icon: 'warning',
+                position: 'right',
+                style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+            });
+            setUserUpdateValue(pre => ({ ...pre, CSampleSize: selectedData.CSampleSize.toString() }));
+        } else {
+            setSelectedData(pre => ({ ...pre, CSampleSize: userUpdateValue.CSampleSize }));
+            setShowConfirmModal(false);
+        }
+    };
     return (
         <CustomHeader
             title={renderHeader(inspectData.intInspectionTypeID)}
@@ -427,6 +472,13 @@ const InprocessInspection = ({ route }) => {
                                 showCharInfo={showCharInfo}
                                 setInfoData={setInfoData}
                                 infoData={infoData}
+                                setSelectedData={setSelectedData}
+                                showConfirmModal={showConfirmModal}
+                                setShowConfirmModal={setShowConfirmModal}
+                                setTimer={setTimer}
+                                timer={timer}
+                                userUpdateValue={userUpdateValue}
+                                setUserUpdateValue={setUserUpdateValue}
                             />
                         </View>
                     </View>
@@ -494,6 +546,18 @@ const InprocessInspection = ({ route }) => {
                         </View>
                     </View>
                 </Modal>
+            )}
+            {Boolean(showConfirmModal) && (
+                <ConfirmationModal
+                    visible={showConfirmModal}
+                    handleClose={() => {
+                        setUserUpdateValue(pre => ({ ...pre, CSampleSize: selectedData.CSampleSize }));
+                        setShowConfirmModal(false);
+                    }}
+                    handleYesPress={() => {
+                        handleConfirmYesPress();
+                    }}
+                />
             )}
         </CustomHeader>
     );

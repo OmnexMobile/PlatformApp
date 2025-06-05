@@ -16,6 +16,9 @@ import DeleteModal from '../Components/DeleteModal';
 import IcSkeleton from '../Components/IcSkeleton';
 import NoDataFound from '../Components/NoDataFound';
 import { useDispatch, useSelector } from 'react-redux';
+import moment from 'moment';
+import ApiUrl from 'global/ApiUrl';
+import { postAPI } from 'global/api-helpers';
 
 const optionsList = [
     {
@@ -87,8 +90,9 @@ const CompletedInspection = () => {
     const handleISbtnpress = () => {
         navigation.navigate(ROUTES.INSPECTION_SCHEDULE);
     };
-    const handleSyncPress = () => {
+    const handleSyncPress = item => {
         setSyncModal(true);
+        setSelectedValue(item);
     };
     const hideModal = () => {
         setSyncModal(false);
@@ -133,7 +137,8 @@ const CompletedInspection = () => {
                         <TouchableOpacity
                             style={{ marginRight: 10 }}
                             onPress={() => {
-                                handleSyncPress();
+                                setSelectedValue(item);
+                                handleSyncPress(item);
                             }}>
                             <IconO name="sync" size={20} color={COLORS.grey} />
                         </TouchableOpacity>
@@ -144,6 +149,70 @@ const CompletedInspection = () => {
                 </View>
             </View>
         );
+    };
+    const convertSampleList = (templist, type = 'number') => {
+        const characteristicDetails = templist.map(item => {
+            const samples = item.Samples || [];
+            // Find the lowest numeric FunctionValue
+            let actualValue = null;
+            type == 'number'
+                ? (actualValue = samples.reduce((min, sample) => {
+                      const value = parseFloat(sample.FunctionValue);
+                      return !isNaN(value) && value < min ? value : min;
+                  }, Infinity))
+                : (actualValue = 'ok');
+            for (const sample of samples) {
+                const val = sample.FunctionValue?.toLowerCase();
+                if (val && val !== 'ok') {
+                    actualValue = sample.FunctionValue;
+                    break;
+                }
+            }
+            return {
+                ...item,
+                Samples: undefined,
+                ActualValue: actualValue !== Infinity ? String(actualValue) : '',
+                ID: String(item.ID || ''),
+                samples: samples.map(sample => ({
+                    sampleName: String(sample.sampleName || ''),
+                    data: {
+                        FuncDetailsId: sample.FuncDetailsId || '',
+                        SerialNo: String(sample.SerialNo || ''),
+                        FunctionValue: sample.FunctionValue || '',
+                        status: sample.status,
+                        backColor: sample.backColor,
+                        fontColor: sample.fontColor,
+                        EnteredDate: sample.EnteredDate,
+                        IsApproved: sample.IsApproved,
+                        IsNumericSample: sample.IsNumericSample,
+                        IsRejected: sample.IsRejected,
+                        Comments: sample.Comments,
+                    },
+                })),
+            };
+        });
+        return characteristicDetails;
+    };
+    const handleSingleFormSync = async () => {
+        const templist = [
+            ...convertSampleList(selectedValue.VariableCharacteristics, 'number'),
+            ...convertSampleList(selectedValue.AttributeCharacteristics, 'char'),
+        ];
+        const payLoad = {
+            EnteredBy: icUserData?.userData?.UserId,
+            InspectedDate: moment(new Date()).format('DD/MM/YYYY hh:mm:ss A'),
+            characteristicDetails: templist,
+            GeneralInfo: selectedValue.GeneralInfo,
+        };
+        const response = await postAPI(ApiUrl.IC_SINGLE_SYNC, payLoad);
+        if (response?.insertedCount) {
+            setSyncModal(false);
+            // dispatch({
+            //     type: 'REMOVE_INSPECT_LIST',
+            //     inspectionToRemove: selectedValue,
+            // });
+            getAllCompletedData(true);
+        }
     };
     return (
         <CustomHeader title="Completed Inspection" activeTabId={3} handleSyncPress={handleSyncPress}>
@@ -209,7 +278,11 @@ const CompletedInspection = () => {
                                 <TouchableOpacity style={styles.cancelConatiner} onPress={hideModal}>
                                     <Text style={styles.btnStyle}>CANCEL</Text>
                                 </TouchableOpacity>
-                                <TouchableOpacity style={styles.cancelConatiner} onPress={() => {}}>
+                                <TouchableOpacity
+                                    style={styles.cancelConatiner}
+                                    onPress={() => {
+                                        handleSingleFormSync();
+                                    }}>
                                     <Text style={styles.btnStyle}>SUBMIT</Text>
                                 </TouchableOpacity>
                             </View>

@@ -5,7 +5,7 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Divider, Modal } from 'react-native-paper';
 
-const DeleteModal = ({ visible = false,handleClose=()=>{} ,handleYesPress=()=>{}}) => {
+const ConfirmationModal = ({ visible = false, handleClose = () => {}, handleYesPress = () => {} }) => {
     return (
         <Modal
             visible={visible}
@@ -13,19 +13,26 @@ const DeleteModal = ({ visible = false,handleClose=()=>{} ,handleYesPress=()=>{}
                 handleClose();
             }}
             contentContainerStyle={[styles.modalConatiner]}
-            style={{ backgroundColor: 'transparent' }}
-            >
+            style={{ backgroundColor: 'transparent' }}>
             <View style={[styles.modalcontainer]}>
-                <Text style={[styles.deleteHeader]}>Delete</Text>
+                <Text style={[styles.deleteHeader]}>Confirm</Text>
                 <View style={[styles.contentContainer]}>
                     <Divider />
-                    <Text style={[styles.contentText]}>Do you want to delete this form ?</Text>
+                    <Text style={[styles.contentText]}>Do you want to Update the Sample Size ?</Text>
                 </View>
                 <View style={[styles.btnStyle]}>
-                    <ButtonComponent style={{ height: 30, width: RFPercentage(10), marginRight: 10 }} onPress={() => {handleClose()}}>
+                    <ButtonComponent
+                        style={{ height: 30, width: RFPercentage(10), marginRight: 10 }}
+                        onPress={() => {
+                            handleClose();
+                        }}>
                         No
                     </ButtonComponent>
-                    <ButtonComponent style={{ height: 30, width: RFPercentage(10) }} onPress={() => {handleYesPress()}}>
+                    <ButtonComponent
+                        style={{ height: 30, width: RFPercentage(10) }}
+                        onPress={() => {
+                            handleYesPress();
+                        }}>
                         Yes
                     </ButtonComponent>
                 </View>
@@ -33,6 +40,7 @@ const DeleteModal = ({ visible = false,handleClose=()=>{} ,handleYesPress=()=>{}
         </Modal>
     );
 };
+
 const styles = StyleSheet.create({
     modalcontainer: {
         width: '90%',
@@ -64,4 +72,5 @@ const styles = StyleSheet.create({
         padding: 10,
     },
 });
-export default DeleteModal;
+
+export default ConfirmationModal;
