@@ -67,15 +67,11 @@ const CompletedInspection = () => {
     // Keep it updated
     useEffect(() => {
         inspectionRef.current = inspectList;
-    }, [inspectList]);
+    }, [inspectList, isFocused]);
     const getAllCompletedData = async (showSkt = true) => {
         showSkt && setShowSkeleton(true);
-        const completedList = inspectionRef?.current?.filter(item => item?.status == 'Completed');
-        if (completedList?.length) {
-            setMasterData(completedList);
-        } else {
-            setMasterData([]);
-        }
+        const completedList = inspectionRef?.current?.filter(item => item?.status === 'Completed');
+        setMasterData(completedList?.length ? completedList : []);
         setShowSkeleton(false);
         setRefreshing(false);
     };
@@ -85,7 +81,7 @@ const CompletedInspection = () => {
     };
     useEffect(() => {
         getAllCompletedData();
-    }, []);
+    }, [inspectList]);
 
     const handleISbtnpress = () => {
         navigation.navigate(ROUTES.INSPECTION_SCHEDULE);
@@ -151,21 +147,25 @@ const CompletedInspection = () => {
         );
     };
     const convertSampleList = (templist, type = 'number') => {
-        const characteristicDetails = templist.map(item => {
+        let characteristicDetails = templist.map(item => {
             const samples = item.Samples || [];
-            // Find the lowest numeric FunctionValue
             let actualValue = null;
-            type == 'number'
-                ? (actualValue = samples.reduce((min, sample) => {
-                      const value = parseFloat(sample.FunctionValue);
-                      return !isNaN(value) && value < min ? value : min;
-                  }, Infinity))
-                : (actualValue = 'ok');
-            for (const sample of samples) {
-                const val = sample.FunctionValue?.toLowerCase();
-                if (val && val !== 'ok') {
-                    actualValue = sample.FunctionValue;
-                    break;
+
+            if (type === 'number') {
+                // Filter only valid numeric values
+                const numericValues = samples.map(s => parseFloat(s.FunctionValue)).filter(val => !isNaN(val));
+
+                // Use Math.min only if numericValues has at least one number
+                actualValue = numericValues.length > 0 ? Math.min(...numericValues) : null;
+            } else {
+                // For string values: return first non-"ok" FunctionValue
+                actualValue = 'ok';
+                for (const sample of samples) {
+                    const val = sample.FunctionValue?.toLowerCase();
+                    if (val && val !== 'ok') {
+                        actualValue = sample.FunctionValue;
+                        break;
+                    }
                 }
             }
             return {
@@ -207,10 +207,10 @@ const CompletedInspection = () => {
         const response = await postAPI(ApiUrl.IC_SINGLE_SYNC, payLoad);
         if (response?.insertedCount) {
             setSyncModal(false);
-            // dispatch({
-            //     type: 'REMOVE_INSPECT_LIST',
-            //     inspectionToRemove: selectedValue,
-            // });
+            dispatch({
+                type: 'REMOVE_INSPECT_LIST',
+                inspectionToRemove: selectedValue,
+            });
             getAllCompletedData(true);
         }
     };
