@@ -125,7 +125,6 @@ const InprocessInspection = ({ route }) => {
                     <TouchableOpacity
                         style={[styles.inspectBox, { backgroundColor: colorCode }]}
                         onPress={() => {
-                            // setShowCharInfo(false);
                             handleCharOpen();
                             setSelectedData(item);
                             setFormType(type);
@@ -332,9 +331,9 @@ const InprocessInspection = ({ route }) => {
             setMasterData([]);
             setValueUpadted([]);
             let tempData = infoData.AttributeCharacteristics;
+            setSelectedData(tempData[0]);
             setCurrentIndex({ index: 0, type: 'char' });
             setFormType('char');
-            setSelectedData(tempData[0]);
             console.log('inside6')
         }
         setShowAlart(false);
