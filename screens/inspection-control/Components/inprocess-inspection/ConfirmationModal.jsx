@@ -5,7 +5,21 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Divider, Modal } from 'react-native-paper';
 
-const ConfirmationModal = ({ visible = false, handleClose = () => {}, handleYesPress = () => {} }) => {
+const ConfirmationModal = ({ visible = false, handleClose = () => {}, handleYesPress = () => {}, typeOfModal = '' }) => {
+    const retunText = text => {
+        switch (typeOfModal) {
+            case 'samplesize':
+                return 'Sample Size';
+            case 'highvalue':
+                return 'High Value';
+            case 'lowvalue':
+                return 'Low Value';
+            case 'spec':
+                return 'Spec';
+            default:
+                return '';
+        }
+    };
     return (
         <Modal
             visible={visible}
@@ -18,7 +32,7 @@ const ConfirmationModal = ({ visible = false, handleClose = () => {}, handleYesP
                 <Text style={[styles.deleteHeader]}>Confirm</Text>
                 <View style={[styles.contentContainer]}>
                     <Divider />
-                    <Text style={[styles.contentText]}>Do you want to Update the Sample Size ?</Text>
+                    <Text style={[styles.contentText]}>Do you want to Update the {retunText(typeOfModal)} ?</Text>
                 </View>
                 <View style={[styles.btnStyle]}>
                     <ButtonComponent

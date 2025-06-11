@@ -39,5 +39,6 @@ module.exports = {
     IC_GET_ATTACHEMENTS:'GetAttachment',
     IC_COMPLETED_LIST:'GetCompletedInspection',
     IC_OPERATOR_LIST:'GetOperatorWorksheet',
-    IC_SINGLE_SYNC:'InsertSamples'
+    IC_SINGLE_SYNC:'InsertSamples',
+    IC_INPROCESS_SINGLE_SYNC:'InsertSamplesInpro',
 };

@@ -118,6 +118,7 @@ const InspectionSchedule = () => {
         // formData.append('InspectionType', inspect !== null ? inspect : type);
         const response = await postAPI(`${ApiUrl.IC_GET_IS}`, formData);
         await getOverAllSettings();
+        let retunListData = [];
         if (response.Success) {
             let temp = response?.Data?.InspectionSchedules || [];
             const updatedArray = temp.map(item => {
@@ -138,22 +139,25 @@ const InspectionSchedule = () => {
             } else {
                 setMasterData(updatedArray || []);
             }
+            retunListData = updatedArray;
             setOverAllData(updatedArray || []);
             let tempShift = response?.Data?.InspectionShifts.map(item => ({ ...item, label: item.ShiftName, value: item.ShiftID }));
             setFormList(pre => ({ ...pre, shiftList: tempShift || [] }));
         } else {
             setMasterData([]);
             setOverAllData([]);
+            retunListData = [];
         }
         setRefreshing(false);
         showSktn && setShowSkeleton(false);
+        return retunListData;
     };
     const handleInputChange = (key, value, filter) => {
         setFilterData(pre => ({ ...pre, [key]: value }));
         handleFilterInspection(value, filter);
     };
     const handleFilterInspection = (value, filtertype) => {
-        console.log('value', value,filtertype);
+        console.log('value', value, filtertype);
         let temp = JSON.parse(JSON.stringify(overAllData));
         let tempSearch = [];
         if (value !== '' && filtertype == 'typeFilter') {
@@ -193,7 +197,7 @@ const InspectionSchedule = () => {
             const tempStart = moment(startDate);
             const tempEnd = moment(endDate);
             if (tempStart.isBefore(tempEnd)) {
-                handleListFetch(null,true, filterData.type);
+                handleListFetch(null, true, filterData.type);
             } else {
                 showMessage({
                     message: 'Start Date must be less than End Date',
@@ -276,9 +280,10 @@ const InspectionSchedule = () => {
             clearTimeout(handler);
         };
     }, [search, isFocused]);
-    const handleSubmitBtnPress = () => {
+    const handleSubmitBtnPress = async(val) => {
         const latestInspection = inspectionRef.current;
-        let temp = [...overAllData] || [];
+        const apiData=await handleListFetch(null, true, filterData.type);
+        let temp = [...apiData] || [];
         const updatedArray = temp.map(item => {
             const match = latestInspection.some(
                 compareItem =>
@@ -388,8 +393,8 @@ const InspectionSchedule = () => {
                     hideModal={() => {
                         setShowModal(false);
                     }}
-                    handleSubmitPress={() => {
-                        handleSubmitBtnPress();
+                    handleSubmitPress={(val) => {
+                        handleSubmitBtnPress(val);
                     }}
                     shiftData={formList.shiftList}
                     userData={icUserData?.userData}

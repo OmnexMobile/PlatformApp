@@ -70,6 +70,7 @@ const CharacteristicsInfo = ({
     timer = null,
     userUpdateValue,
     setUserUpdateValue = () => {},
+    setTypeOfModal = () => {},
 }) => {
     useEffect(() => {
         const backAction = () => {
@@ -82,7 +83,10 @@ const CharacteristicsInfo = ({
     const inputsRef = useRef([]);
     const navigation = useNavigation();
     useEffect(() => {
-        if (type == 'number') {
+      getOverAllData()
+    }, [selectedData, type]);
+    const getOverAllData=()=>{
+          if (type == 'number') {
             let valueSampleSize = selectedData?.Samples?.length && selectedData?.Samples.filter(x => x?.value != '')?.length;
             let sampleEnterdSize = masterData.filter(x => x?.value != '')?.length;
             if (Object.keys(selectedData).length && !selectedData?.Samples?.length && sampleEnterdSize == 0) {
@@ -113,8 +117,14 @@ const CharacteristicsInfo = ({
                 setValueUpadted([...temp]);
             } else if (selectedData?.Samples?.length > 0 && selectedData?.Samples?.length === selectedData?.CSampleSize) {
                 console.log('********************step2');
-                setMasterData([...selectedData?.Samples]);
-                setValueUpadted([...selectedData?.Samples]);
+                let updatedSample = selectedData?.Samples.map((item) => ({
+                    ...item,
+                    lowValue: selectedData.CLowValue,
+                    highValue: selectedData.CHighValue,
+                    tolerance: inspectionType == 2 ? selectedData?.CTolerance || 0 : 0,
+                }));
+                setMasterData([...updatedSample]);
+                setValueUpadted([...updatedSample]);
             } else if (valueSampleSize == 0 && selectedData?.CSampleSize > 0 && sampleEnterdSize == 0) {
                 console.log(valueSampleSize, masterData.filter(x => x?.value != '').length, '********************step3');
                 let sampleSize = selectedData.CSampleSize;
@@ -151,6 +161,9 @@ const CharacteristicsInfo = ({
                         count: index + 1,
                         sampleName: index + 1,
                         SerialNo: index + 1,
+                        lowValue: selectedData.CLowValue,
+                        highValue: selectedData.CHighValue,
+                        tolerance: inspectionType == 2 ? selectedData?.CTolerance || 0 : 0,
                     }));
                 let finalSampleSize = Number(selectedData?.CSampleSize) - Number(filterMasterData.length);
                 const temp = Array.from({ length: finalSampleSize }, (_, index) => ({
@@ -188,6 +201,7 @@ const CharacteristicsInfo = ({
                     position: 'right',
                     style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
                 });
+                
             } else {
                 console.log('********************step6');
                 setMasterData([...selectedData?.Samples]);
@@ -229,6 +243,8 @@ const CharacteristicsInfo = ({
                 } else {
                     setValueUpadted([...temp]);
                 }
+                return null;
+
             } else if (selectedData?.Samples?.length > 0 && selectedData?.Samples?.length === selectedData?.CSampleSize) {
                 console.log('********************step2');
                 setMasterData([...selectedData?.Samples]);
@@ -267,7 +283,7 @@ const CharacteristicsInfo = ({
                     setValueUpadted([...temp]);
                 }
             } else if (sampleEnterdSize != 0 && selectedData?.CSampleSize >= sampleEnterdSize) {
-                console.log(sampleEnterdSize, selectedData?.CSampleSize, '********************step4');
+                console.log(sampleEnterdSize, selectedData?.CSampleSize, '1111********************step4');
                 let filterMasterData = masterData
                     .filter(x => x?.value != '')
                     .map((item, index) => ({
@@ -310,9 +326,9 @@ const CharacteristicsInfo = ({
                     setValueUpadted([...filterMasterData, ...temp]);
                 }
             } else if (selectedData.CSampleSize <= sampleEnterdSize) {
-                console.log('********************step5');
+                console.log('********************step5 ');
                 showMessage({
-                    message: 'Something went wrong',
+                    message: 'Something went wrong inpor',
                     backgroundColor: COLORS.ERROR,
                     color: COLORS.white,
                     duration: 1500,
@@ -322,12 +338,13 @@ const CharacteristicsInfo = ({
                     style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
                 });
             } else {
-                console.log('********************step6');
+                console.log('1111********************step6');
                 setMasterData([...selectedData?.Samples]);
                 setValueUpadted([...selectedData?.Samples]);
+                return null
             }
         }
-    }, [selectedData, type]);
+    }
     const getBackColor = (value, type, item) => {
         if (value === '') {
             return COLORS.white;
@@ -558,6 +575,7 @@ const CharacteristicsInfo = ({
                                             timer={timer}
                                             userUpdateValue={userUpdateValue}
                                             setUserUpdateValue={setUserUpdateValue}
+                                            setTypeOfModal={setTypeOfModal}
                                         />
                                     )}
                                     <View style={[styles.headerBox]}>

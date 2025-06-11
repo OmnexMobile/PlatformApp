@@ -201,7 +201,7 @@ const InputDataModal = ({
             formData.append('UserId', userData?.UserId || '');
             formData.append('UserName', userData?.FullName || '');
             if (selectedValue?.TypeOfInspection == '2') {
-                formData.append('ProcessId', 1 );
+                formData.append('ProcessId', 1);
             }
             formData.append('SiteId', userData?.Siteid || '');
             formData.append('LanguageId', 1);
@@ -217,7 +217,7 @@ const InputDataModal = ({
             formData.append('EnteredDate', moment(new Date()).format('MM/DD/YYYY h:mm:ss A '));
             // formData.append('SamplingHierarchy', ', , AQL=');
             formData.append('CreatedByID', userData?.UserId);
-            formData.append('LotSize',formFields?.lotQty)
+            formData.append('LotSize', formFields?.lotQty);
             // as of now we added once check with backend dev
             formData.append('FormId', selectedValue?.FormId || '');
             formData.append('PropertyName', 'ActualValue');
@@ -225,12 +225,19 @@ const InputDataModal = ({
             const response = await postAPI(ApiUrl.IC_FORM_SUBMIT, formData);
             if (response.Success) {
                 const { shift, lotNumber, lotQty, frequency, receiptNumber } = formFields;
+                let InspectionID = '';
+                if (response.VariableCharacteristics.length > 0) {
+                    InspectionID = response.VariableCharacteristics[0].InspectionID;
+                } else if (response.AttributeCharacteristics.length > 0) {
+                    InspectionID = response.AttributeCharacteristics[0].InspectionID;
+                }
+
                 dispatch({
                     type: 'INSPECT_LIST',
                     inspectList: [
                         {
                             uniqueId: uuid.v4(),
-                            FormId:selectedValue?.FormId,
+                            FormId: selectedValue?.FormId,
                             OperationID: selectedValue?.OperationID,
                             intProductionItemID: selectedValue?.ProductionItemId,
                             strProductionItemName: selectedValue?.ProductionItem,
@@ -247,6 +254,8 @@ const InputDataModal = ({
                             VariableCharacteristics: response.VariableCharacteristics,
                             AttributeCharacteristics: response.AttributeCharacteristics,
                             OrderDetailsId: selectedValue?.OrderDetailsId,
+                            InspectionEntryDetailsID: response?.Data || '',
+                            InspectionID: InspectionID,
                         },
                     ],
                 });
@@ -260,7 +269,7 @@ const InputDataModal = ({
                     position: 'right',
                     style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
                 });
-                handleSubmitPress();
+                handleSubmitPress(selectedValue);
                 hideModal();
             } else {
                 showMessage({

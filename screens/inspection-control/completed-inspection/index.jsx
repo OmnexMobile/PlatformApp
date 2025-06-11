@@ -19,32 +19,43 @@ import { useDispatch, useSelector } from 'react-redux';
 import moment from 'moment';
 import ApiUrl from 'global/ApiUrl';
 import { postAPI } from 'global/api-helpers';
+import { Bubbles } from 'react-native-loader';
 
 const optionsList = [
     {
         id: 1,
         value: 'Sync',
         label: 'Sync',
+        payloadValue: '',
+        EditStatus: '1',
     },
     {
         id: 2,
         value: 'Accept Lot',
         label: 'Accept Lot',
+        payloadValue: '1',
+        EditStatus: '1',
     },
     {
         id: 3,
         value: 'Reject Lot',
         label: 'Reject Lot',
+        payloadValue: '2',
+        EditStatus: '1',
     },
     {
         id: 4,
         value: 'Accept Lot / Submit Inspection',
         label: 'Accept Lot / Submit Inspection',
+        payloadValue: '1',
+        EditStatus: '2',
     },
     {
         id: 5,
         value: 'Reject Lot / Submit Inspection',
         label: 'Reject Lot / Submit Inspection',
+        payloadValue: '2',
+        EditStatus: '2',
     },
 ];
 
@@ -52,7 +63,13 @@ const CompletedInspection = () => {
     const { icUserData, inspectList } = useSelector(state => state.inspection);
     const inspectionRef = useRef(inspectList);
     const [syncModal, setSyncModal] = useState(false);
-    const [selectedRadio, setSelectedRadio] = useState('Sync');
+    const [selectedRadio, setSelectedRadio] = useState({
+        id: 1,
+        value: 'Sync',
+        label: 'Sync',
+        payloadValue: '',
+        EditStatus: '1',
+    });
     const [checkBox, setCheckBox] = useState(false);
     const navigation = useNavigation();
     const [showDelete, setShowDelete] = useState(false);
@@ -60,6 +77,7 @@ const CompletedInspection = () => {
     const [showSkeleton, setShowSkeleton] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
     const [selectedValue, setSelectedValue] = useState({});
+    const [disableBtn, setDisableBtn] = useState(false);
 
     const isFocused = useIsFocused();
     const dispatch = useDispatch();
@@ -179,7 +197,7 @@ const CompletedInspection = () => {
                         FuncDetailsId: sample.FuncDetailsId || '',
                         SerialNo: String(sample.SerialNo || ''),
                         FunctionValue: sample.FunctionValue || '',
-                        status: sample.status,
+                        status: sample.backColor === '#00FF00' ? 0 : 1,
                         backColor: sample.backColor,
                         fontColor: sample.fontColor,
                         EnteredDate: sample.EnteredDate,
@@ -194,6 +212,7 @@ const CompletedInspection = () => {
         return characteristicDetails;
     };
     const handleSingleFormSync = async () => {
+        setDisableBtn(true);
         const templist = [
             ...convertSampleList(selectedValue.VariableCharacteristics, 'number'),
             ...convertSampleList(selectedValue.AttributeCharacteristics, 'char'),
@@ -203,8 +222,17 @@ const CompletedInspection = () => {
             InspectedDate: moment(new Date()).format('DD/MM/YYYY hh:mm:ss A'),
             characteristicDetails: templist,
             GeneralInfo: selectedValue.GeneralInfo,
+            Status: [
+                {
+                    InspectionID: selectedValue?.InspectionID.toString(),
+                    SupervisorID: checkBox ? icUserData?.userData?.UserId : '',
+                    InspectionEntryDetailsID: selectedValue.InspectionEntryDetailsID.toString(),
+                    InspectionStatus: selectedRadio.payloadValue,
+                    EditStatus: selectedRadio.EditStatus,
+                },
+            ],
         };
-        const response = await postAPI(ApiUrl.IC_SINGLE_SYNC, payLoad);
+        const response = await postAPI(selectedValue.intInspectionTypeID == '2' ? ApiUrl.IC_INPROCESS_SINGLE_SYNC : ApiUrl.IC_SINGLE_SYNC, payLoad);
         if (response?.insertedCount) {
             setSyncModal(false);
             dispatch({
@@ -213,6 +241,7 @@ const CompletedInspection = () => {
             });
             getAllCompletedData(true);
         }
+        setDisableBtn(false);
     };
     return (
         <CustomHeader title="Completed Inspection" activeTabId={3} handleSyncPress={handleSyncPress}>
@@ -243,46 +272,53 @@ const CompletedInspection = () => {
             {Boolean(syncModal) && (
                 <Modal visible={syncModal} onDismiss={hideModal} contentContainerStyle={{ flexDirection: 'row', justifyContent: 'center' }}>
                     <View style={[styles.modalContainer]}>
-                        <View style={[styles.containerOne]}>
-                            <Text style={styles.headertext}>Choose Sync Options</Text>
-                            <Divider />
-                            <View style={[styles.contentBox]}>
-                                {optionsList.map(item => {
-                                    return (
-                                        <View style={{ marginVertical: 10 }} key={item.id}>
-                                            <RadioButtonComponent
-                                                lable={item.label}
-                                                value={selectedRadio}
-                                                onChange={val => {
-                                                    setSelectedRadio(val.value);
-                                                }}
-                                                obj={item}
-                                            />
-                                        </View>
-                                    );
-                                })}
+                        {disableBtn ? (
+                            <View style={[styles.bubbleBox]}>
+                                <Bubbles size={10} color="#12C0CF" />
                             </View>
-                            <View>
-                                <ICCheckBox
-                                    isChecked={checkBox}
-                                    label="Supervisor Approved"
-                                    onChange={() => {
-                                        setCheckBox(!checkBox);
-                                    }}
-                                />
+                        ) : (
+                            <View style={[styles.containerOne]}>
+                                <Text style={styles.headertext}>Choose Sync Options</Text>
+                                <Divider />
+                                <View style={[styles.contentBox]}>
+                                    {optionsList.map(item => {
+                                        return (
+                                            <View style={{ marginVertical: 10 }} key={item.id}>
+                                                <RadioButtonComponent
+                                                    lable={item.label}
+                                                    value={selectedRadio.value}
+                                                    onChange={val => {
+                                                        setSelectedRadio(val);
+                                                    }}
+                                                    obj={item}
+                                                />
+                                            </View>
+                                        );
+                                    })}
+                                </View>
+                                <View>
+                                    <ICCheckBox
+                                        isChecked={checkBox}
+                                        label="Supervisor Approved"
+                                        onChange={() => {
+                                            setCheckBox(!checkBox);
+                                        }}
+                                    />
+                                </View>
                             </View>
-                        </View>
+                        )}
                         <View>
                             <Divider />
                             <View style={styles.btnConatiner}>
-                                <TouchableOpacity style={styles.cancelConatiner} onPress={hideModal}>
+                                <TouchableOpacity style={styles.cancelConatiner} onPress={hideModal} disabled={disableBtn}>
                                     <Text style={styles.btnStyle}>CANCEL</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity
                                     style={styles.cancelConatiner}
                                     onPress={() => {
                                         handleSingleFormSync();
-                                    }}>
+                                    }}
+                                    disabled={disableBtn}>
                                     <Text style={styles.btnStyle}>SUBMIT</Text>
                                 </TouchableOpacity>
                             </View>
@@ -389,6 +425,11 @@ const styles = StyleSheet.create({
         color: COLORS.apptheme,
         fontFamily: 'OpenSans-SemiBold',
         fontSize: RFPercentage(1.8),
+    },
+    bubbleBox: {
+        minHeight: 300,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
 });
 

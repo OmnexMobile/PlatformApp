@@ -57,6 +57,7 @@ const InprocessInspection = ({ route }) => {
     const [mixedList, setMixedList] = useState('');
     const [showCharInfo, setShowCharInfo] = useState(true);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [typeOfModal, setTypeOfModal] = useState('');
     const [timer, setTimer] = useState(null);
     const [userUpdateValue, setUserUpdateValue] = useState({
         CHighValue: '',
@@ -184,6 +185,7 @@ const InprocessInspection = ({ route }) => {
             }
         } else {
             setShowConfirmModal(false);
+            setTypeOfModal('');
         }
         setShowAlart(false);
     };
@@ -247,7 +249,7 @@ const InprocessInspection = ({ route }) => {
 
         return () => backHandler.remove(); // cleanup on unmount
     }, [handleSaveAlert]);
-    const handleSavePress = (close = true, btnText = 'noBtn') => {
+    const handleSavePress = async(close = true, btnText = 'noBtn') => {
         if (showChar) {
             const list = masterData || [];
             const allValues = list.length > 0 && list.every(({ value }) => value.trim() !== '');
@@ -265,19 +267,23 @@ const InprocessInspection = ({ route }) => {
             if (index !== -1) {
                 newCharacteristicsList[index] = updatedObj;
             }
-            setSelectedData(updatedObj);
+            // setSelectedData(updatedObj);
             setInfoData(pre => ({
                 ...pre,
                 [formType === 'number' ? 'VariableCharacteristics' : 'AttributeCharacteristics']: newCharacteristicsList,
             }));
             setMasterData([]);
             setValueUpadted([]);
+            console.log('inside1')
         } else {
             handleFinalSavePress();
+            console.log('inside2')
         }
         if (close) {
             setShowChar(false);
             handleBackPress();
+            console.log('inside3')
+
         }
         if (!close && btnText == 'noBtn') {
             handleNextItem();
@@ -321,11 +327,15 @@ const InprocessInspection = ({ route }) => {
             setMasterData([]);
             setValueUpadted([]);
             setSelectedData(tempData[nextIndex]);
+            console.log('inside5')
         } else {
+            setMasterData([]);
+            setValueUpadted([]);
             let tempData = infoData.AttributeCharacteristics;
             setCurrentIndex({ index: 0, type: 'char' });
             setFormType('char');
             setSelectedData(tempData[0]);
+            console.log('inside6')
         }
         setShowAlart(false);
         setNextSave(true);
@@ -336,23 +346,72 @@ const InprocessInspection = ({ route }) => {
     };
 
     const handleConfirmYesPress = () => {
-        let sampleEnterdSize = masterData.filter(x => x?.value != '')?.length;
-        if (userUpdateValue.CSampleSize < sampleEnterdSize) {
+        if (typeOfModal == 'samplesize') {
+            let sampleEnterdSize = masterData.filter(x => x?.value != '')?.length;
+            if (userUpdateValue.CSampleSize < sampleEnterdSize) {
+                setShowConfirmModal(false);
+                setTypeOfModal('');
+                showMessage({
+                    message: 'Something went wrong',
+                    backgroundColor: COLORS.ERROR,
+                    color: COLORS.white,
+                    duration: 1500,
+                    statusBarHeight: 40,
+                    icon: 'warning',
+                    position: 'right',
+                    style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+                });
+                setUserUpdateValue(pre => ({ ...pre, CSampleSize: selectedData.CSampleSize.toString() }));
+            } else {
+                setSelectedData(pre => ({ ...pre, CSampleSize: userUpdateValue.CSampleSize }));
+                setShowConfirmModal(false);
+                setTypeOfModal('');
+            }
+        } else if (typeOfModal == 'highvalue') {
+            if (Number(userUpdateValue.CHighValue) <= Number(selectedData.CLowValue)) {
+                setShowConfirmModal(false);
+                setTypeOfModal('');
+                showMessage({
+                    message: 'High Value must be greater than Low Value',
+                    backgroundColor: COLORS.ERROR,
+                    color: COLORS.white,
+                    duration: 1500,
+                    statusBarHeight: 40,
+                    icon: 'warning',
+                    position: 'right',
+                    style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+                });
+                setUserUpdateValue(pre => ({ ...pre, CHighValue: selectedData.CHighValue.toString() }));
+            } else {
+                setSelectedData(pre => ({ ...pre, CHighValue: userUpdateValue.CHighValue }));
+                setShowConfirmModal(false);
+                setTypeOfModal('');
+            }
+        } else if (typeOfModal == 'lowvalue') {
+            if (Number(selectedData.CHighValue) >= Number(userUpdateValue.CLowValue)) {
+                console.log(selectedData.CHighValue, userUpdateValue.CLowValue);
+                setSelectedData(pre => ({ ...pre, CLowValue: userUpdateValue.CLowValue }));
+                setShowConfirmModal(false);
+                setTypeOfModal('');
+            } else {
+                setShowConfirmModal(false);
+                setTypeOfModal('');
+                showMessage({
+                    message: 'Low Value must be less than High Value',
+                    backgroundColor: COLORS.ERROR,
+                    color: COLORS.white,
+                    duration: 1500,
+                    statusBarHeight: 40,
+                    icon: 'warning',
+                    position: 'right',
+                    style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+                });
+                setUserUpdateValue(pre => ({ ...pre, CLowValue: selectedData.CLowValue.toString() }));
+            }
+        } else if (typeOfModal == 'spec') {
+            setSelectedData(pre => ({ ...pre, CTolerance: userUpdateValue.CTolerance }));
             setShowConfirmModal(false);
-            showMessage({
-                message: 'Something went wrong',
-                backgroundColor: COLORS.ERROR,
-                color: COLORS.white,
-                duration: 1500,
-                statusBarHeight: 40,
-                icon: 'warning',
-                position: 'right',
-                style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
-            });
-            setUserUpdateValue(pre => ({ ...pre, CSampleSize: selectedData.CSampleSize.toString() }));
-        } else {
-            setSelectedData(pre => ({ ...pre, CSampleSize: userUpdateValue.CSampleSize }));
-            setShowConfirmModal(false);
+            setTypeOfModal('');
         }
     };
     return (
@@ -479,6 +538,7 @@ const InprocessInspection = ({ route }) => {
                                 timer={timer}
                                 userUpdateValue={userUpdateValue}
                                 setUserUpdateValue={setUserUpdateValue}
+                                setTypeOfModal={setTypeOfModal}
                             />
                         </View>
                     </View>
@@ -522,9 +582,7 @@ const InprocessInspection = ({ route }) => {
                     <View style={[styles.modalBox]}>
                         <Text style={[styles.modalHeader]}>Confirm</Text>
                         <View>
-                            <Text style={[styles.modalText]} t>
-                                There are unsaved changes. Do you want to save them?
-                            </Text>
+                            <Text style={[styles.modalText]}>There are unsaved changes. Do you want to save them?</Text>
                         </View>
                         <View style={[styles.modalBtnContainer]}>
                             <View style={[styles.modalBtn]}>
@@ -537,8 +595,8 @@ const InprocessInspection = ({ route }) => {
                                 </ButtonComponent>
                                 <ButtonComponent
                                     style={{ height: 40, width: '45%' }}
-                                    onPress={() => {
-                                        handleSavePress(nextSave);
+                                    onPress={async() => {
+                                       await handleSavePress(nextSave);
                                     }}>
                                     yes
                                 </ButtonComponent>
@@ -551,12 +609,20 @@ const InprocessInspection = ({ route }) => {
                 <ConfirmationModal
                     visible={showConfirmModal}
                     handleClose={() => {
-                        setUserUpdateValue(pre => ({ ...pre, CSampleSize: selectedData.CSampleSize }));
+                        setUserUpdateValue(pre => ({
+                            ...pre,
+                            CSampleSize: selectedData.CSampleSize,
+                            CHighValue: selectedData.CHighValue,
+                            CLowValue: selectedData.CLowValue,
+                            CTolerance: selectedData.CTolerance,
+                        }));
                         setShowConfirmModal(false);
+                        setTypeOfModal('');
                     }}
                     handleYesPress={() => {
                         handleConfirmYesPress();
                     }}
+                    typeOfModal={typeOfModal}
                 />
             )}
         </CustomHeader>
