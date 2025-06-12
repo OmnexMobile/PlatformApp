@@ -15,6 +15,7 @@ const SampleCharInfo = ({
     userUpdateValue,
     setUserUpdateValue = () => {},
     setTypeOfModal = () => {},
+    charType = 'number',
 }) => {
     useEffect(() => {
         setUserUpdateValue(prev => ({
@@ -79,39 +80,45 @@ const SampleCharInfo = ({
                     placeholder={''}
                 />
             </View>
-            <View style={styles.subBox}>
-                <Text style={styles.headerText}>Spec</Text>
-                <TextInput
-                    value={userUpdateValue?.CTolerance || ''}
-                    style={[styles.inputBox, { backgroundColor: COLORS.inputBG }]}
-                    onChangeText={val => {
-                        handleUserInputChange('CTolerance', val, 'spec');
-                    }}
-                    placeholder={''}
-                />
-            </View>
-            <View style={styles.subBox}>
-                <Text style={styles.headerText}>High value</Text>
-                <TextInput
-                    value={userUpdateValue?.CHighValue || ''}
-                    style={[styles.inputBox, { backgroundColor: COLORS.inputBG }]}
-                    onChangeText={val => {
-                        handleUserInputChange('CHighValue', val, 'highvalue');
-                    }}
-                    placeholder={''}
-                />
-            </View>
-            <View style={styles.subBox}>
-                <Text style={styles.headerText}>Low value</Text>
-                <TextInput
-                    value={userUpdateValue?.CLowValue || ''}
-                    style={[styles.inputBox, { backgroundColor: COLORS.inputBG }]}
-                    onChangeText={val => {
-                        handleUserInputChange('CLowValue', val, 'lowvalue');
-                    }}
-                    placeholder={''}
-                />
-            </View>
+            {charType === 'number' && (
+                <View style={styles.subBox}>
+                    <Text style={styles.headerText}>Spec</Text>
+                    <TextInput
+                        value={userUpdateValue?.CTolerance || ''}
+                        style={[styles.inputBox, { backgroundColor: COLORS.inputBG }]}
+                        onChangeText={val => {
+                            handleUserInputChange('CTolerance', val, 'spec');
+                        }}
+                        placeholder={''}
+                    />
+                </View>
+            )}
+            {charType === 'number' && (
+                <View style={styles.subBox}>
+                    <Text style={styles.headerText}>High value</Text>
+                    <TextInput
+                        value={userUpdateValue?.CHighValue || ''}
+                        style={[styles.inputBox, { backgroundColor: COLORS.inputBG }]}
+                        onChangeText={val => {
+                            handleUserInputChange('CHighValue', val, 'highvalue');
+                        }}
+                        placeholder={''}
+                    />
+                </View>
+            )}
+            {charType === 'number' && (
+                <View style={styles.subBox}>
+                    <Text style={styles.headerText}>Low value</Text>
+                    <TextInput
+                        value={userUpdateValue?.CLowValue || ''}
+                        style={[styles.inputBox, { backgroundColor: COLORS.inputBG }]}
+                        onChangeText={val => {
+                            handleUserInputChange('CLowValue', val, 'lowvalue');
+                        }}
+                        placeholder={''}
+                    />
+                </View>
+            )}
             <View style={styles.subBox}>
                 <Text style={styles.headerText}>UOM</Text>
                 <TextInput
@@ -215,6 +222,28 @@ const SampleCharInfo = ({
                    
                 </View>
             ))} */}
+            <View style={styles.subBox}>
+                <Text style={styles.headerText}>Evidence 1</Text>
+                <TextInput
+                    value={selectedData?.Remarks || ''}
+                    style={[styles.inputBox, { backgroundColor: COLORS.inputBG }]}
+                    onChangeText={val => {
+                        handleInputChange('Remarks', val);
+                    }}
+                    placeholder={''}
+                />
+            </View>
+            <View style={styles.subBox}>
+                <Text style={styles.headerText}>Evidence 1</Text>
+                <TextInput
+                    value={selectedData?.Remarks || ''}
+                    style={[styles.inputBox, { backgroundColor: COLORS.inputBG }]}
+                    onChangeText={val => {
+                        handleInputChange('Remarks', val);
+                    }}
+                    placeholder={''}
+                />
+            </View>
         </View>
     );
 };

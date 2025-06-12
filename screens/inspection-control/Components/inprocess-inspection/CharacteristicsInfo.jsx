@@ -83,10 +83,10 @@ const CharacteristicsInfo = ({
     const inputsRef = useRef([]);
     const navigation = useNavigation();
     useEffect(() => {
-      getOverAllData()
+        getOverAllData();
     }, [selectedData, type]);
-    const getOverAllData=()=>{
-          if (type == 'number') {
+    const getOverAllData = () => {
+        if (type == 'number') {
             let valueSampleSize = selectedData?.Samples?.length && selectedData?.Samples.filter(x => x?.value != '')?.length;
             let sampleEnterdSize = masterData.filter(x => x?.value != '')?.length;
             if (Object.keys(selectedData).length && !selectedData?.Samples?.length && sampleEnterdSize == 0) {
@@ -117,7 +117,7 @@ const CharacteristicsInfo = ({
                 setValueUpadted([...temp]);
             } else if (selectedData?.Samples?.length > 0 && selectedData?.Samples?.length === selectedData?.CSampleSize) {
                 console.log('********************step2');
-                let updatedSample = selectedData?.Samples.map((item) => ({
+                let updatedSample = selectedData?.Samples.map(item => ({
                     ...item,
                     lowValue: selectedData.CLowValue,
                     highValue: selectedData.CHighValue,
@@ -201,7 +201,6 @@ const CharacteristicsInfo = ({
                     position: 'right',
                     style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
                 });
-                
             } else {
                 console.log('********************step6');
                 setMasterData([...selectedData?.Samples]);
@@ -244,7 +243,6 @@ const CharacteristicsInfo = ({
                     setValueUpadted([...temp]);
                 }
                 return null;
-
             } else if (selectedData?.Samples?.length > 0 && selectedData?.Samples?.length === selectedData?.CSampleSize) {
                 console.log('********************step2');
                 setMasterData([...selectedData?.Samples]);
@@ -341,10 +339,10 @@ const CharacteristicsInfo = ({
                 console.log('1111********************step6');
                 setMasterData([...selectedData?.Samples]);
                 setValueUpadted([...selectedData?.Samples]);
-                return null
+                return null;
             }
         }
-    }
+    };
     const getBackColor = (value, type, item) => {
         if (value === '') {
             return COLORS.white;
@@ -442,11 +440,26 @@ const CharacteristicsInfo = ({
                         style={[styles.inputBox, { backgroundColor: renderBackGroundColor(item.value, type) }]}
                         value={item.value}
                         onChangeText={val => {
-                            // 1. Trim start/end spaces
-                            let cleaned = val.trim();
+                            let cleaned = val;
+                            if (type === 'number') {
+                                // 1. Remove invalid characters (allow digits and one dot)
+                                cleaned = val.replace(/[^0-9.]/g, '');
+                                // 2. Allow only one dot
+                                const parts = cleaned.split('.');
+                                if (parts.length > 2) {
+                                    cleaned = parts[0] + '.' + parts[1]; // keep only first two parts
+                                }
+                                // Optional: prevent starting with a dot (e.g., ".5" => "0.5")
+                                if (cleaned.startsWith('.')) {
+                                    cleaned = '0' + cleaned;
+                                }
+                            } else {
+                                // 1. Remove leading spaces
+                                cleaned = val.replace(/^\s+/, '');
 
-                            // 2. Remove special characters (keep letters, digits, and space)
-                            cleaned = cleaned.replace(/[^a-zA-Z0-9 ]/g, '');
+                                // 2. Remove all characters except letters and spaces
+                                cleaned = cleaned.replace(/[^a-zA-Z\s]/g, '');
+                            }
                             handleInputChange(cleaned, item.id, type, item);
                         }}
                         keyboardType={type == 'number' ? 'number-pad' : 'default'}
@@ -576,6 +589,7 @@ const CharacteristicsInfo = ({
                                             userUpdateValue={userUpdateValue}
                                             setUserUpdateValue={setUserUpdateValue}
                                             setTypeOfModal={setTypeOfModal}
+                                            charType={type}
                                         />
                                     )}
                                     <View style={[styles.headerBox]}>

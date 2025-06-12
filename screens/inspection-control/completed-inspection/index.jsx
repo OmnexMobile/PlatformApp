@@ -224,11 +224,12 @@ const CompletedInspection = () => {
             GeneralInfo: selectedValue.GeneralInfo,
             Status: [
                 {
+                    UserId: icUserData?.userData?.UserId,
                     InspectionID: selectedValue?.InspectionID.toString(),
                     SupervisorID: checkBox ? icUserData?.userData?.UserId : '',
                     InspectionEntryDetailsID: selectedValue.InspectionEntryDetailsID.toString(),
                     InspectionStatus: selectedRadio.payloadValue,
-                    EditStatus: selectedRadio.EditStatus,
+                    EditStatus: checkBox ? 0 : selectedRadio.EditStatus,
                 },
             ],
         };
