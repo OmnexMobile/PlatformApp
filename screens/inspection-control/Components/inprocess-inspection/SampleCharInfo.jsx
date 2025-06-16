@@ -176,18 +176,6 @@ const SampleCharInfo = ({
                     placeholder={''}
                 />
             </View>
-            {/* <View style={styles.subBox}>
-                <Text style={styles.headerText}>Inspectec result</Text>
-                <TextInput
-                    value={''}
-                    style={[styles.inputBox, { backgroundColor: COLORS.inputBG }]}
-                    onChangeText={val => {
-                        handleInputChange('', val);
-                    }}
-                    placeholder={''}
-                />
-            </View> */}
-            {/* defect list need to add */}
             <View style={styles.subBox}>
                 <Text style={styles.headerText}>Defect</Text>
                 <TextInput
@@ -210,39 +198,24 @@ const SampleCharInfo = ({
                     placeholder={''}
                 />
             </View>
-            {/* {(infoData.GeneralInfo || []).map((item, index) => (
-                <View style={styles.subBox} key={`${item.strPropertyName}-${index}`}>
-                    <Text style={styles.headerText}>{item.strDisplayName}</Text>
-                    <DynamicFormField
-                        title="Supplier Name"
-                        fieldType={item.strDataType}
-                        value={item.strValue}
-                        isEditable={item.intEditable == 1}
-                        handleChange={val => handleInputChange(val, item)}
-                    />
-                   
-                </View>
-            ))} */}
             <View style={styles.subBox}>
                 <Text style={styles.headerText}>Evidence 1</Text>
-                <InputFilePicker
-                    ListData={selectedData?.Evidence1 || []}
+                <DynamicFormField
+                    title="Evidence1"
+                    fieldType={'filepicker'}
+                    value={selectedData?.Evidence1 || []}
                     isEditable={true}
-                    title={'Evidence 1'}
-                    handleInputChange={val => {
-                        handleInputChange('Evidence1', val);
-                    }}
+                    handleChange={val => handleInputChange('Evidence1', val)}
                 />
             </View>
             <View style={styles.subBox}>
                 <Text style={styles.headerText}>Evidence 1</Text>
-                <InputFilePicker
-                    ListData={selectedData?.Evidence2 || []}
+                <DynamicFormField
+                    title="Evidence2"
+                    fieldType={'filepicker'}
+                    value={selectedData?.Evidence1 || []}
                     isEditable={true}
-                    title={'Evidence 2'}
-                    handleInputChange={val => {
-                        handleInputChange('Evidence2', val);
-                    }}
+                    handleChange={val => handleInputChange('Evidence2', val)}
                 />
             </View>
         </View>

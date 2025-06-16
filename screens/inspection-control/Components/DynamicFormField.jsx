@@ -5,8 +5,9 @@ import SingleDropDown from './SingleDropDown';
 import DataPickerWithIcon from './DataPickerWithIcon';
 import moment from 'moment';
 import { TouchableOpacity } from 'react-native';
+import InputFilePicker from './inprocess-inspection/InputFilePicker';
 
-const DynamicFormField = ({ fieldType = '', handleChange = () => {}, dropDownData = [], value = '', placeHolder = '', isEditable = true }) => {
+const DynamicFormField = ({ fieldType = '', handleChange = () => {}, dropDownData = [], value = '', placeHolder = '', isEditable = true ,title=''}) => {
     switch (fieldType) {
         case 'textinput':
         case 'text':
@@ -80,13 +81,14 @@ const DynamicFormField = ({ fieldType = '', handleChange = () => {}, dropDownDat
         case 'filepicker':
             return (
                 <View style={{ marginTop: 8 }}>
-                    <TouchableOpacity
-                        style={[styles.fileBox, { backgroundColor: isEditable ? COLORS.inputBG : COLORS.whiteGrey, justifyContent: 'center' }]}
-                        activeOpacity={0.5}>
-                        <View>
-                            <Text style={[styles.fileText]}>Upload File</Text>
-                        </View>
-                    </TouchableOpacity>
+                    <InputFilePicker
+                        ListData={value || []}
+                        isEditable={isEditable}
+                        title={title}
+                        handleInputChange={val => {
+                            handleChange(val);
+                        }}
+                    />
                 </View>
             );
         default:
