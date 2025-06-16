@@ -15,7 +15,7 @@ import NoDataFound from '../NoDataFound';
 import { showMessage } from 'react-native-flash-message';
 import CameraScreen from './CameraScreen';
 
-const InputFilePicker = ({ ListData = [], isEditable = false, title = '' ,handleInputChange=()=>{}}) => {
+const InputFilePicker = ({ ListData = [], isEditable = false, title = '', handleInputChange = () => {} }) => {
     const [fileList, setFileList] = useState([]);
     const [visible, setVisible] = useState(false);
     const [showCamer, setShowCamer] = useState(false);
@@ -87,28 +87,10 @@ const InputFilePicker = ({ ListData = [], isEditable = false, title = '' ,handle
         let temp = JSON.parse(JSON.stringify(fileList));
         temp.splice(index, 1);
         setFileList(temp);
-        // setSelectedData({ ...selectedData, fileList: temp });
     };
     const handleSaveFile = () => {
         handleInputChange(fileList);
         setVisible(false);
-        // const updatedObj = {
-        //     ...selectedData,
-        //     fileList: fileList,
-        // };
-        // const { VariableCharacteristics, AttributeCharacteristics } = infoData;
-        // const characteristicsList = formType === 'number' ? VariableCharacteristics : AttributeCharacteristics;
-        // const index = characteristicsList.findIndex(obj => obj?.intCCharacteristicId === selectedData?.intCCharacteristicId);
-        // const newCharacteristicsList = [...characteristicsList];
-        // if (index !== -1) {
-        //     newCharacteristicsList[index] = updatedObj;
-        // }
-        // setSelectedData(updatedObj);
-        // setInfoData(pre => ({
-        //     ...pre,
-        //     [formType === 'number' ? 'VariableCharacteristics' : 'AttributeCharacteristics']: newCharacteristicsList,
-        // }));
-        // onDismiss();
     };
     const renderFileList = ({ item, index }) => {
         return (
@@ -143,6 +125,28 @@ const InputFilePicker = ({ ListData = [], isEditable = false, title = '' ,handle
     const handleFilePress = () => {
         setVisible(true);
     };
+    const handleNoSave = () => {
+        setFileList(ListData);
+        handleInputChange(ListData);
+        setVisible(false);
+    };
+    const handleClose = () => {
+        const hasChanges = JSON.stringify(ListData) !== JSON.stringify(fileList);
+        if (!hasChanges) {
+            setVisible(false);
+        } else {
+            Alert.alert('Confirm', 'There are unsaved changes. Do you want to save them?', [
+                {
+                    text: 'No',
+                    onPress: () => {
+                        handleNoSave();
+                    },
+                    style: 'cancel',
+                },
+                { text: 'Yes', onPress: () => handleSaveFile() },
+            ]);
+        }
+    };
     return (
         <View>
             <TouchableOpacity
@@ -152,16 +156,16 @@ const InputFilePicker = ({ ListData = [], isEditable = false, title = '' ,handle
                     handleFilePress();
                 }}>
                 <View>
-                    <Text style={[styles.fileText]}>{fileList.length?`${fileList.length} Files Uploaded`:'Upload File'}</Text>
+                    <Text style={[styles.fileText]}>{fileList.length ? `${fileList.length} Files Uploaded` : 'Upload File'}</Text>
                 </View>
             </TouchableOpacity>
             <Modal
                 visible={visible}
                 onDismiss={() => {
-                    setVisible(false);
+                    handleClose();
                 }}
                 onRequestClose={() => {
-                    setVisible(false);
+                    handleClose();
                 }}
                 contentContainerStyle={[styles.modalContainer]}>
                 {Boolean(showCamer) ? (
@@ -169,8 +173,10 @@ const InputFilePicker = ({ ListData = [], isEditable = false, title = '' ,handle
                 ) : (
                     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={[styles.container]}>
                         <View style={[styles.iconBox]}>
-                            <Text style={[styles.titleText]} numberOfLines={1}>Upload File's For {title} </Text>
-                            <TouchableOpacity style={[styles.closeIcon]} onPress={() => setVisible(false)}>
+                            <Text style={[styles.titleText]} numberOfLines={1}>
+                                Upload File's For {title}{' '}
+                            </Text>
+                            <TouchableOpacity style={[styles.closeIcon]} onPress={() => handleClose()}>
                                 <Icon name="close" size={20} color={COLORS.white} />
                             </TouchableOpacity>
                         </View>
@@ -197,7 +203,6 @@ const InputFilePicker = ({ ListData = [], isEditable = false, title = '' ,handle
                                     Upload
                                 </ButtonComponent>
                             </View>
-
                             <ButtonComponent style={{ height: 40 }} onPress={handleSaveFile}>
                                 Save
                             </ButtonComponent>
