@@ -26,36 +26,31 @@ const optionsList = [
         id: 1,
         value: 'Sync',
         label: 'Sync',
-        payloadValue: '',
-        EditStatus: '1',
+        Mode: null,
     },
     {
         id: 2,
         value: 'Accept Lot',
         label: 'Accept Lot',
-        payloadValue: '1',
-        EditStatus: '1',
+        Mode: 2,
     },
     {
         id: 3,
         value: 'Reject Lot',
         label: 'Reject Lot',
-        payloadValue: '2',
-        EditStatus: '1',
+        Mode: 3,
     },
     {
         id: 4,
         value: 'Accept Lot / Submit Inspection',
         label: 'Accept Lot / Submit Inspection',
-        payloadValue: '1',
-        EditStatus: '2',
+        Mode: 4,
     },
     {
         id: 5,
         value: 'Reject Lot / Submit Inspection',
         label: 'Reject Lot / Submit Inspection',
-        payloadValue: '2',
-        EditStatus: '2',
+        Mode: 5,
     },
 ];
 
@@ -67,8 +62,7 @@ const CompletedInspection = () => {
         id: 1,
         value: 'Sync',
         label: 'Sync',
-        payloadValue: '',
-        EditStatus: '1',
+        Mode: null,
     });
     const [checkBox, setCheckBox] = useState(false);
     const navigation = useNavigation();
@@ -228,18 +222,19 @@ const CompletedInspection = () => {
                     InspectionID: selectedValue?.InspectionID.toString(),
                     SupervisorID: checkBox ? icUserData?.userData?.UserId : '',
                     InspectionEntryDetailsID: selectedValue.InspectionEntryDetailsID.toString(),
-                    InspectionStatus: selectedRadio.payloadValue,
-                    EditStatus: checkBox ? 0 : selectedRadio.EditStatus,
+                    Mode: selectedRadio.Mode,
+                    SupervisorApproved: checkBox ? 1 : 0,
+                    IsProcess: selectedValue.intInspectionTypeID == '2' ? 1: 0,
                 },
             ],
         };
         const response = await postAPI(selectedValue.intInspectionTypeID == '2' ? ApiUrl.IC_INPROCESS_SINGLE_SYNC : ApiUrl.IC_SINGLE_SYNC, payLoad);
         if (response?.insertedCount) {
             setSyncModal(false);
-            dispatch({
-                type: 'REMOVE_INSPECT_LIST',
-                inspectionToRemove: selectedValue,
-            });
+            // dispatch({
+            //     type: 'REMOVE_INSPECT_LIST',
+            //     inspectionToRemove: selectedValue,
+            // });
             getAllCompletedData(true);
         }
         setDisableBtn(false);

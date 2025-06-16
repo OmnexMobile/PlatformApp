@@ -1,9 +1,10 @@
 import { COLORS } from 'constants/theme-constants';
 import React from 'react';
-import { StyleSheet, TextInput, View } from 'react-native';
+import { StyleSheet, Text, TextInput, View } from 'react-native';
 import SingleDropDown from './SingleDropDown';
 import DataPickerWithIcon from './DataPickerWithIcon';
 import moment from 'moment';
+import { TouchableOpacity } from 'react-native';
 
 const DynamicFormField = ({ fieldType = '', handleChange = () => {}, dropDownData = [], value = '', placeHolder = '', isEditable = true }) => {
     switch (fieldType) {
@@ -76,6 +77,18 @@ const DynamicFormField = ({ fieldType = '', handleChange = () => {}, dropDownDat
                     />
                 </View>
             );
+        case 'filepicker':
+            return (
+                <View style={{ marginTop: 8 }}>
+                    <TouchableOpacity
+                        style={[styles.fileBox, { backgroundColor: isEditable ? COLORS.inputBG : COLORS.whiteGrey, justifyContent: 'center' }]}
+                        activeOpacity={0.5}>
+                        <View>
+                            <Text style={[styles.fileText]}>Upload File</Text>
+                        </View>
+                    </TouchableOpacity>
+                </View>
+            );
         default:
             return (
                 <TextInput
@@ -99,6 +112,19 @@ const styles = StyleSheet.create({
         marginTop: 8,
         color: COLORS.ictextBlack,
         paddingHorizontal: 10,
+    },
+    fileBox: {
+        borderWidth: 1,
+        height: 40,
+        borderRadius: 4,
+        borderColor: COLORS.icBottomBox,
+        color: COLORS.ictextBlack,
+        paddingHorizontal: 10,
+    },
+    fileText: {
+        fontFamily: 'OpenSans-Regular',
+        fontSize: 13,
+        color: COLORS.headerText,
     },
 });
 

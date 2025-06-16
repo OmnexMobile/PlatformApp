@@ -4,6 +4,7 @@ import { COLORS } from 'constants/theme-constants';
 import DynamicFormField from '../DynamicFormField';
 import { useState } from 'react';
 import { showMessage } from 'react-native-flash-message';
+import InputFilePicker from './InputFilePicker';
 
 const SampleCharInfo = ({
     selectedData = {},
@@ -224,24 +225,24 @@ const SampleCharInfo = ({
             ))} */}
             <View style={styles.subBox}>
                 <Text style={styles.headerText}>Evidence 1</Text>
-                <TextInput
-                    value={selectedData?.Remarks || ''}
-                    style={[styles.inputBox, { backgroundColor: COLORS.inputBG }]}
-                    onChangeText={val => {
-                        handleInputChange('Remarks', val);
+                <InputFilePicker
+                    ListData={selectedData?.Evidence1 || []}
+                    isEditable={true}
+                    title={'Evidence 1'}
+                    handleInputChange={val => {
+                        handleInputChange('Evidence1', val);
                     }}
-                    placeholder={''}
                 />
             </View>
             <View style={styles.subBox}>
                 <Text style={styles.headerText}>Evidence 1</Text>
-                <TextInput
-                    value={selectedData?.Remarks || ''}
-                    style={[styles.inputBox, { backgroundColor: COLORS.inputBG }]}
-                    onChangeText={val => {
-                        handleInputChange('Remarks', val);
+                <InputFilePicker
+                    ListData={selectedData?.Evidence2 || []}
+                    isEditable={true}
+                    title={'Evidence 2'}
+                    handleInputChange={val => {
+                        handleInputChange('Evidence2', val);
                     }}
-                    placeholder={''}
                 />
             </View>
         </View>

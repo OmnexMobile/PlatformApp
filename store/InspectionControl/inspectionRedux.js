@@ -64,7 +64,6 @@ const getStatus = updatedData => {
 };
 const updateInspectList = (state, { updatedData }) => {
     const { status } = getStatus(updatedData);
-    console.log(status, 'status');
     const updatedArray = state.inspectList.map(item => {
         if (item?.uniqueId === updatedData?.uniqueId) {
             return { ...item, ...updatedData, status: status }; // merge changes

@@ -167,7 +167,6 @@ const InprocessInspection = ({ route }) => {
                                 });
                             }
                         } else {
-                            console.log('showChar', showChar);
                             setShowChar(false);
                             setSelectedData({});
                             setMasterData([]);
@@ -248,7 +247,7 @@ const InprocessInspection = ({ route }) => {
 
         return () => backHandler.remove(); // cleanup on unmount
     }, [handleSaveAlert]);
-    const handleSavePress = async(close = true, btnText = 'noBtn') => {
+    const handleSavePress = async (close = true, btnText = 'noBtn') => {
         if (showChar) {
             const list = masterData || [];
             const allValues = list.length > 0 && list.every(({ value }) => value.trim() !== '');
@@ -261,7 +260,8 @@ const InprocessInspection = ({ route }) => {
             };
             const { VariableCharacteristics, AttributeCharacteristics } = infoData;
             const characteristicsList = formType === 'number' ? VariableCharacteristics : AttributeCharacteristics;
-            const index = characteristicsList.findIndex(obj => obj?.CCharacteristicsId === selectedData?.CCharacteristicsId);
+            const index = characteristicsList.findIndex(obj => obj?.CCharacteristicsId === selectedData?.CCharacteristicsId && obj.FuncDetailsId == selectedData?.FuncDetailsId);
+            console.log(characteristicsList.filter(obj => obj?.CCharacteristicsId === selectedData?.CCharacteristicsId).length, 'lrnh');
             const newCharacteristicsList = [...characteristicsList];
             if (index !== -1) {
                 newCharacteristicsList[index] = updatedObj;
@@ -273,16 +273,15 @@ const InprocessInspection = ({ route }) => {
             }));
             setMasterData([]);
             setValueUpadted([]);
-            console.log('inside1')
+            console.log('inside1');
         } else {
             handleFinalSavePress();
-            console.log('inside2')
+            console.log('inside2');
         }
         if (close) {
             setShowChar(false);
             handleBackPress();
-            console.log('inside3')
-
+            console.log('inside3');
         }
         if (!close && btnText == 'noBtn') {
             handleNextItem();
@@ -297,23 +296,27 @@ const InprocessInspection = ({ route }) => {
                 Keyboard.dismiss();
                 // setShowCharInfo(false);
             } else {
-                Alert.alert('End of Sample List', 'You have reached the last sample.');
+                console.log(formType == 'number', 'formType');
+                Alert.alert(`End of ${formType == 'number' ? 'variable' : 'attribute'} sample list`, 'You have reached the last sample.');
             }
         } else {
             let tempData = formType == 'number' ? infoData?.VariableCharacteristics : infoData.AttributeCharacteristics;
+            console.log(currentIndex, tempData?.length - 1, 'tempData?.length - 1');
             if (currentIndex.index < tempData?.length - 1) {
+                console.log('error1');
                 setNextSave(false);
                 handleSaveAlert('nextSample');
                 Keyboard.dismiss();
                 // setShowCharInfo(false);
-            } else if (currentIndex.index == tempData?.length - 1 && formType == 'number') {
+            } else if (currentIndex.index == tempData?.length - 1 && formType == 'number' && infoData.AttributeCharacteristics?.length !== 0) {
                 setMixedList('2');
                 setNextSave(false);
                 handleSaveAlert('nextSample', infoData.intInspectionTypeID);
                 Keyboard.dismiss();
+                console.log('error2');
                 // setShowCharInfo(false);
             } else {
-                Alert.alert('End of Sample List', 'You have reached the last sample.');
+                Alert.alert(`End of ${formType == 'number' ? 'variable' : 'attribute'} Sample List`, 'You have reached the last sample.');
             }
         }
     };
@@ -326,7 +329,7 @@ const InprocessInspection = ({ route }) => {
             setMasterData([]);
             setValueUpadted([]);
             setSelectedData(tempData[nextIndex]);
-            console.log('inside5')
+            console.log('inside5');
         } else {
             setMasterData([]);
             setValueUpadted([]);
@@ -334,7 +337,7 @@ const InprocessInspection = ({ route }) => {
             setSelectedData(tempData[0]);
             setCurrentIndex({ index: 0, type: 'char' });
             setFormType('char');
-            console.log('inside6')
+            console.log('inside6');
         }
         setShowAlart(false);
         setNextSave(true);
@@ -388,7 +391,6 @@ const InprocessInspection = ({ route }) => {
             }
         } else if (typeOfModal == 'lowvalue') {
             if (Number(selectedData.CHighValue) >= Number(userUpdateValue.CLowValue)) {
-                console.log(selectedData.CHighValue, userUpdateValue.CLowValue);
                 setSelectedData(pre => ({ ...pre, CLowValue: userUpdateValue.CLowValue }));
                 setShowConfirmModal(false);
                 setTypeOfModal('');
@@ -594,8 +596,8 @@ const InprocessInspection = ({ route }) => {
                                 </ButtonComponent>
                                 <ButtonComponent
                                     style={{ height: 40, width: '45%' }}
-                                    onPress={async() => {
-                                       await handleSavePress(nextSave);
+                                    onPress={async () => {
+                                        await handleSavePress(nextSave);
                                     }}>
                                     yes
                                 </ButtonComponent>
