@@ -213,7 +213,7 @@ const CompletedInspection = () => {
         ];
         const payLoad = {
             EnteredBy: icUserData?.userData?.UserId,
-            InspectedDate: moment(new Date()).format('DD/MM/YYYY hh:mm:ss A'),
+            InspectedDate: moment(new Date()).format('MM/DD/YYYY hh:mm:ss A'),
             characteristicDetails: templist,
             GeneralInfo: selectedValue.GeneralInfo,
             Status: [
@@ -231,10 +231,10 @@ const CompletedInspection = () => {
         const response = await postAPI(selectedValue.intInspectionTypeID == '2' ? ApiUrl.IC_INPROCESS_SINGLE_SYNC : ApiUrl.IC_SINGLE_SYNC, payLoad);
         if (response?.insertedCount) {
             setSyncModal(false);
-            // dispatch({
-            //     type: 'REMOVE_INSPECT_LIST',
-            //     inspectionToRemove: selectedValue,
-            // });
+            dispatch({
+                type: 'REMOVE_INSPECT_LIST',
+                inspectionToRemove: selectedValue,
+            });
             getAllCompletedData(true);
         }
         setDisableBtn(false);

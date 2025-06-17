@@ -198,7 +198,7 @@ const SampleCharInfo = ({
                     placeholder={''}
                 />
             </View>
-            <View style={styles.subBox}>
+            {/* <View style={styles.subBox}>
                 <Text style={styles.headerText}>Evidence 1</Text>
                 <DynamicFormField
                     title="Evidence1"
@@ -217,7 +217,7 @@ const SampleCharInfo = ({
                     isEditable={true}
                     handleChange={val => handleInputChange('Evidence2', val)}
                 />
-            </View>
+            </View> */}
         </View>
     );
 };
