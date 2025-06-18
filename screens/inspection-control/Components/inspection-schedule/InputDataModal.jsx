@@ -173,8 +173,17 @@ const InputDataModal = ({
             formData.append('OperationName', selectedValue?.OperationName || '');
             formData.append('OperationHierarchy', selectedValue?.OperationHierarchy || '');
             formData.append('SupplierId', selectedValue.SupplierId || '');
-            formData.append('SupplierName', selectedValue.SupplierName || '');
+            if (selectedValue.TypeOfInspection == '1') {
+                formData.append('Supplier', selectedValue.SupplierName || '');
+            } else {
+                formData.append('SupplierName', selectedValue.SupplierName || '');
+            }
             formData.append('CustomerId', selectedValue?.CustomerId || '');
+            if (selectedValue.TypeOfInspection == '3') {
+                formData.append('Customer', selectedValue?.CustomerName || '');
+            } else {
+                formData.append('CustomerName', selectedValue?.CustomerName || '');
+            }
             formData.append('CustomerName', selectedValue?.CustomerName || '');
             formData.append('InspectionLevelId', selectedValue?.InspectionLevelId || '');
             formData.append('InspectionLevel', selectedValue?.InspectionLevel || '');

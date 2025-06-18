@@ -11,8 +11,8 @@ const middleware = [createLogger({ collapsed: false }), sagaMiddleware];
 const persistConfig = {
     key: 'root',
     storage: AsyncStorage,
-    whitelist: [],
-    blacklist: ['user'],
+    // whitelist: [],
+    // blacklist: ['user'],
 };
 const persistedReducer = persistReducer(persistConfig, rootReducers);
 
