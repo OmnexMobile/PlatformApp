@@ -157,7 +157,6 @@ const InspectionSchedule = () => {
         handleFilterInspection(value, filter);
     };
     const handleFilterInspection = (value, filtertype) => {
-        console.log('value', value, filtertype);
         let temp = JSON.parse(JSON.stringify(overAllData));
         let tempSearch = [];
         if (value !== '' && filtertype == 'typeFilter') {
@@ -243,7 +242,23 @@ const InspectionSchedule = () => {
                         <TouchableOpacity
                             style={{ marginLeft: 15 }}
                             onPress={() => {
-                                handleDownloadPress(item);
+                                if (item?.IsMapped && item?.IsOperationMapped) {
+                                    handleDownloadPress(item);
+                                } else {
+                                    showMessage({
+                                        message: !item?.IsMapped
+                                            ? 'No template mapping done for this Production item, please do the mapping'
+                                            : !item?.IsOperationMapped
+                                            ? 'No operation mapping done for this Production item, please do the mapping'
+                                            : 'Something went wrong',
+                                        backgroundColor: COLORS.WARNING,
+                                        color: COLORS.white,
+                                        duration: 2000,
+                                        statusBarHeight: 40,
+                                        position: 'right',
+                                        style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+                                    });
+                                }
                             }}>
                             <IconF name="download" size={25} color={item.isDownloaded ? '#66BB6B' : '#666666'} />
                         </TouchableOpacity>
@@ -280,9 +295,9 @@ const InspectionSchedule = () => {
             clearTimeout(handler);
         };
     }, [search, isFocused]);
-    const handleSubmitBtnPress = async(val) => {
+    const handleSubmitBtnPress = async val => {
         const latestInspection = inspectionRef.current;
-        const apiData=await handleListFetch(null, true, filterData.type);
+        const apiData = await handleListFetch(null, true, filterData.type);
         let temp = [...apiData] || [];
         const updatedArray = temp.map(item => {
             const match = latestInspection.some(
@@ -393,7 +408,7 @@ const InspectionSchedule = () => {
                     hideModal={() => {
                         setShowModal(false);
                     }}
-                    handleSubmitPress={(val) => {
+                    handleSubmitPress={val => {
                         handleSubmitBtnPress(val);
                     }}
                     shiftData={formList.shiftList}
