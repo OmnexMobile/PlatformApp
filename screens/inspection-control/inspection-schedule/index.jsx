@@ -55,7 +55,7 @@ const moreList = [
     },
 ];
 const InspectionSchedule = () => {
-    const { inspectList, icUserData, icSettings } = useSelector(state => state.inspection);
+    const { inspectList, icUserData } = useSelector(state => state.inspection);
     const inspectionRef = useRef(inspectList);
     const dispatch = useDispatch();
     const isFocused = useIsFocused();
@@ -133,14 +133,17 @@ const InspectionSchedule = () => {
                     isDownloaded: match,
                 };
             });
+            const sortedSchedules = updatedArray.sort((a, b) => {
+                return new Date(b.ProductionStartDate) - new Date(a.ProductionStartDate);
+            });
             if (filterType !== '') {
-                let filterTemp = updatedArray.filter(item => item.TypeOfInspection == filterType);
+                let filterTemp = sortedSchedules.filter(item => item.TypeOfInspection == filterType);
                 setMasterData(filterTemp || []);
             } else {
-                setMasterData(updatedArray || []);
+                setMasterData(sortedSchedules || []);
             }
-            retunListData = updatedArray;
-            setOverAllData(updatedArray || []);
+            retunListData = sortedSchedules;
+            setOverAllData(sortedSchedules || []);
             let tempShift = response?.Data?.InspectionShifts.map(item => ({ ...item, label: item.ShiftName, value: item.ShiftID }));
             setFormList(pre => ({ ...pre, shiftList: tempShift || [] }));
         } else {
@@ -177,6 +180,9 @@ const InspectionSchedule = () => {
         if (icUserData && isFocused) {
             handleListFetch(null, true);
         }
+        return () => {
+            setSearch('');
+        };
     }, [icUserData, isFocused]);
     const handleCIbtnpress = () => {
         navigation.navigate(ROUTES.COMPLETED_INSPECTION);
@@ -274,7 +280,7 @@ const InspectionSchedule = () => {
     };
     const handleSearch = value => {
         let temp = JSON.parse(JSON.stringify(overAllData));
-        if (value.length) {
+        if (value?.length) {
             const tempSearch = temp.filter(
                 item =>
                     item.ProductionItem.toLowerCase().includes(value.toLowerCase()) || item.OperationName.toLowerCase().includes(value.toLowerCase()),
@@ -329,7 +335,8 @@ const InspectionSchedule = () => {
             }}
             searchValue={search}
             handleClosePress={() => {
-                console.log('close prsss');
+                setSearch('');
+                handleSearch('');
             }}>
             <View style={[styles.mainContainer]}>
                 <View style={[styles.overAllBox]}>

@@ -373,7 +373,7 @@ const InputDataModal = ({
                             </View>
                             <View style={[styles.inputContainer]}>
                                 <Text style={styles.inputText}>
-                                    Lot Quantity <Text style={[styles.rquired]}>*</Text>
+                                    Lot Size <Text style={[styles.rquired]}>*</Text>
                                 </Text>
                                 <TextInput
                                     style={styles.inputBox}
