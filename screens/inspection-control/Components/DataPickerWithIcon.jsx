@@ -123,7 +123,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 5,
     },
     textStyle: {
-        fontSize: RFPercentage(1.6),
+        fontSize: 15,
         fontFamily: 'OpenSans-Regular',
         flex: 1,
         color: '#000',

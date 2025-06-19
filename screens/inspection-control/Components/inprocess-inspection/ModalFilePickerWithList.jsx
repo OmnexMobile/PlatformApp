@@ -206,7 +206,7 @@ const styles = StyleSheet.create({
         width: '95%',
         backgroundColor: '#fff',
         borderRadius: 3,
-        height: RFPercentage(80),
+        // height: RFPercentage(80),
     },
     btnContainer: {
         padding: 10,

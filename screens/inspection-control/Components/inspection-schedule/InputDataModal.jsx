@@ -78,6 +78,8 @@ const InputDataModal = ({
                 temp.push({
                     label: item?.SampleFrequency['@Name'],
                     value: index + 1,
+                    SampleFrequency: item?.SampleFrequency['@Name'],
+                    FrequencyId:index,
                 });
             });
             setFrqList([...temp]);

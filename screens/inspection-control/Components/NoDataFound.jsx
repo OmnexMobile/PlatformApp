@@ -20,12 +20,12 @@ const styles=StyleSheet.create({
         alignItems:'center'
     },
     imageStyle:{
-        height:RFPercentage(15),
+        height:100,
         aspectRatio:1/1
     },
     textStyle:{
         fontFamily:'OpenSans-SemiBold',
-        fontSize:RFPercentage(2),
+        fontSize:18,
         color:COLORS.black
     }
 })

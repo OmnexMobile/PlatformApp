@@ -249,7 +249,7 @@ const styles = StyleSheet.create({
     },
     headerText: {
         color: COLORS.white,
-        fontSize: FONT_SIZE.LARGE,
+        fontSize:20,
     },
     footerBox: {
         backgroundColor: COLORS.white,

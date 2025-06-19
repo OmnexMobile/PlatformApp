@@ -71,7 +71,7 @@ const SampleCharInfo = ({
                 />
             </View>
             <View style={styles.subBox}>
-                <Text style={styles.headerText}>Characteristic Description</Text>
+                <Text style={styles.headerText} numberOfLines={1}>Characteristic Description</Text>
                 <TextInput
                     value={selectedData?.CCharacteristicsDescription || ''}
                     style={[styles.inputBox, { backgroundColor: COLORS.inputBG }]}
