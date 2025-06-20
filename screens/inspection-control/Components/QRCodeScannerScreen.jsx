@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, Text, Alert, Dimensions, TouchableOpacity, Modal, SafeAreaView, StatusBar } from 'react-native';
+import { StyleSheet, View, Text, Alert, Dimensions, TouchableOpacity, Modal, SafeAreaView, StatusBar, Platform } from 'react-native';
 import QRCodeScanner from 'react-native-qrcode-scanner';
 import { RNCamera } from 'react-native-camera';
 import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
@@ -53,9 +53,9 @@ const QRCodeScannerScreen = ({ modalVisible, hideModal = () => {}, handleScanDat
     };
 
     return (
-        <Modal visible={modalVisible} onDismiss={hideModal} style={{ flex: 1, backgroundColor: '#000' }} onRequestClose={hideModal}>
-            <SafeAreaView style={{ flex: 1, backgroundColor: '#000' }}>
-                <View style={{ position: 'absolute', width: '100%', padding: 30, zIndex: 10000 }}>
+        <Modal visible={modalVisible} onDismiss={hideModal} style={{ flex: 1,  }} onRequestClose={hideModal}>
+            <SafeAreaView style={{ flex: 1, }}>
+                <View style={{ position: 'absolute', width: '100%', padding: 30, zIndex: 10000,marginTop:Platform.OS=='ios'?30:0 }}>
                     <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
                         <TouchableOpacity style={[styles.iconBox]} onPress={hideModal}>
                             <Icon name="close" size={20} color={COLORS.moreIcon} />
@@ -67,7 +67,7 @@ const QRCodeScannerScreen = ({ modalVisible, hideModal = () => {}, handleScanDat
                         <View style={styles.container}>
                             <QRCodeScanner
                                 onRead={handleQRCodeRead}
-                                flashMode={RNCamera.Constants.FlashMode.auto}
+                                flashMode={RNCamera?.Constants?.FlashMode?.auto}
                                 bottomContent={<Text style={styles.footer}>Position the QR code within the frame</Text>}
                                 cameraStyle={styles.cameraStyle}
                                 reactivate={reScan}
@@ -88,7 +88,6 @@ const QRCodeScannerScreen = ({ modalVisible, hideModal = () => {}, handleScanDat
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#000',
     },
     footer: {
         fontSize: 16,
@@ -100,6 +99,8 @@ const styles = StyleSheet.create({
         height: height * 0.5, // 50% of screen height
         alignSelf: 'center', // Center align the camera view
         backgroundColor: '#fff',
+        borderWidth:StyleSheet.hairlineWidth,
+        borderColor:'#000'
     },
     iconBox: {
         flexDirection: 'row',

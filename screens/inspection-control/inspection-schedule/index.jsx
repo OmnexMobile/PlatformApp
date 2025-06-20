@@ -259,10 +259,11 @@ const InspectionSchedule = () => {
                                             : 'Something went wrong',
                                         backgroundColor: COLORS.WARNING,
                                         color: COLORS.white,
-                                        duration: 2000,
-                                        statusBarHeight: 40,
+                                        duration: 1500,
+                                        statusBarHeight: 45,
+                                        icon: 'danger',
                                         position: 'right',
-                                        style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+                                        style: Platform.OS === 'ios' ? { height: 100, alignItems: 'flex-end' } : {},
                                     });
                                 }
                             }}>

@@ -2,8 +2,7 @@ import { ButtonComponent } from 'components';
 import { COLORS } from 'constants/theme-constants';
 import { RFPercentage } from 'helpers/utils';
 import React, { useEffect, useState } from 'react';
-import { Alert, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Modal } from 'react-native-paper';
+import { Alert, Modal, FlatList, StyleSheet, Text, TouchableOpacity, View, SafeAreaView } from 'react-native';
 import Icon from 'react-native-vector-icons/AntDesign';
 import IconI from 'react-native-vector-icons/Ionicons';
 import IconM from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -148,65 +147,62 @@ const ModalFilePickerWithList = ({
     };
     return (
         <Modal visible={visible} onDismiss={onDismiss} onRequestClose={onDismiss} contentContainerStyle={[styles.modalContainer]}>
-            {Boolean(showCamer) ? (
-                <CameraScreen 
-                setShowCamer={setShowCamer}
-                setFileList={setFileList}
-                />
-            ) : (
-                <View style={[styles.container]}>
-                    <View style={[styles.iconBox]}>
-                        <TouchableOpacity style={[styles.closeIcon]} onPress={onDismiss}>
-                            <Icon name="close" size={20} color={COLORS.white} />
-                        </TouchableOpacity>
-                    </View>
-                    {Boolean(fileList.length) ? (
-                        <FlatList
-                            data={fileList}
-                            renderItem={renderFileList}
-                            contentContainerStyle={{ marginHorizontal: 10 }}
-                            showsVerticalScrollIndicator={false}
-                        />
-                    ) : (
-                        <NoDataFound />
-                    )}
-                    <View style={[styles.btnContainer]}>
-                        <View style={[styles.btnBox]}>
-                            <ButtonComponent
-                                style={{ height: 40, width: '48%' }}
-                                onPress={() => {
-                                    handleCameraPress();
-                                }}>
-                                Camera
-                            </ButtonComponent>
-                            <ButtonComponent style={{ height: 40, width: '48%' }} onPress={handlePickFile}>
-                                Upload
+            <SafeAreaView style={{ flex: 1 }}>
+                {Boolean(showCamer) ? (
+                    <CameraScreen setShowCamer={setShowCamer} setFileList={setFileList} />
+                ) : (
+                    <View style={[styles.container]}>
+                        <View style={[styles.iconBox]}>
+                            <TouchableOpacity style={[styles.closeIcon]} onPress={onDismiss}>
+                                <Icon name="close" size={20} color={COLORS.white} />
+                            </TouchableOpacity>
+                        </View>
+                        {Boolean(fileList.length) ? (
+                            <FlatList
+                                data={fileList}
+                                renderItem={renderFileList}
+                                contentContainerStyle={{ marginHorizontal: 10 }}
+                                showsVerticalScrollIndicator={false}
+                            />
+                        ) : (
+                            <NoDataFound />
+                        )}
+                        <View style={[styles.btnContainer]}>
+                            <View style={[styles.btnBox]}>
+                                <ButtonComponent
+                                    style={{ height: 40, width: '48%' }}
+                                    onPress={() => {
+                                        handleCameraPress();
+                                    }}>
+                                    Camera
+                                </ButtonComponent>
+                                <ButtonComponent style={{ height: 40, width: '48%' }} onPress={handlePickFile}>
+                                    Upload
+                                </ButtonComponent>
+                            </View>
+
+                            <ButtonComponent style={{ height: 40 }} onPress={handleSaveFile}>
+                                Save
                             </ButtonComponent>
                         </View>
-
-                        <ButtonComponent style={{ height: 40 }} onPress={handleSaveFile}>
-                            Save
-                        </ButtonComponent>
                     </View>
-                </View>
-            )}
+                )}
+            </SafeAreaView>
         </Modal>
     );
 };
 
 const styles = StyleSheet.create({
     modalContainer: {
+        flex: 1,
         flexDirection: 'row',
         justifyContent: 'center',
-        width: '100%',
         backgroundColor: '#fff',
-        height: '100%',
     },
     container: {
-        width: '95%',
+        flex: 1,
         backgroundColor: '#fff',
         borderRadius: 3,
-        // height: RFPercentage(80),
     },
     btnContainer: {
         padding: 10,

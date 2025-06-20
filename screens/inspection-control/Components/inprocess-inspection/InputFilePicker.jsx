@@ -2,7 +2,7 @@ import { ButtonComponent } from 'components';
 import { COLORS } from 'constants/theme-constants';
 import { RFPercentage } from 'helpers/utils';
 import React, { useEffect, useState } from 'react';
-import { Alert, FlatList, KeyboardAvoidingView, Modal, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, FlatList, KeyboardAvoidingView, Modal, Platform, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 // import { Modal } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/AntDesign';
 import IconI from 'react-native-vector-icons/Ionicons';
@@ -168,47 +168,49 @@ const InputFilePicker = ({ ListData = [], isEditable = false, title = '', handle
                     handleClose();
                 }}
                 contentContainerStyle={[styles.modalContainer]}>
-                {Boolean(showCamer) ? (
-                    <CameraScreen setShowCamer={setShowCamer} setFileList={setFileList} />
-                ) : (
-                    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={[styles.container]}>
-                        <View style={[styles.iconBox]}>
-                            <Text style={[styles.titleText]} numberOfLines={1}>
-                                Upload File's For {title}{' '}
-                            </Text>
-                            <TouchableOpacity style={[styles.closeIcon]} onPress={() => handleClose()}>
-                                <Icon name="close" size={20} color={COLORS.white} />
-                            </TouchableOpacity>
-                        </View>
-                        {Boolean(fileList.length) ? (
-                            <FlatList
-                                data={fileList}
-                                renderItem={renderFileList}
-                                contentContainerStyle={{ marginHorizontal: 10 }}
-                                showsVerticalScrollIndicator={false}
-                            />
-                        ) : (
-                            <NoDataFound />
-                        )}
-                        <View style={[styles.btnContainer]}>
-                            <View style={[styles.btnBox]}>
-                                <ButtonComponent
-                                    style={{ height: 40, width: '48%' }}
-                                    onPress={() => {
-                                        handleCameraPress();
-                                    }}>
-                                    Camera
-                                </ButtonComponent>
-                                <ButtonComponent style={{ height: 40, width: '48%' }} onPress={handlePickFile}>
-                                    Upload
+                <SafeAreaView style={{flex:1}}>
+                    {Boolean(showCamer) ? (
+                        <CameraScreen setShowCamer={setShowCamer} setFileList={setFileList} />
+                    ) : (
+                        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={[styles.container]}>
+                            <View style={[styles.iconBox]}>
+                                <Text style={[styles.titleText]} numberOfLines={1}>
+                                    Upload File's For {title}{' '}
+                                </Text>
+                                <TouchableOpacity style={[styles.closeIcon]} onPress={() => handleClose()}>
+                                    <Icon name="close" size={20} color={COLORS.white} />
+                                </TouchableOpacity>
+                            </View>
+                            {Boolean(fileList.length) ? (
+                                <FlatList
+                                    data={fileList}
+                                    renderItem={renderFileList}
+                                    contentContainerStyle={{ marginHorizontal: 10 }}
+                                    showsVerticalScrollIndicator={false}
+                                />
+                            ) : (
+                                <NoDataFound />
+                            )}
+                            <View style={[styles.btnContainer]}>
+                                <View style={[styles.btnBox]}>
+                                    <ButtonComponent
+                                        style={{ height: 40, width: '48%' }}
+                                        onPress={() => {
+                                            handleCameraPress();
+                                        }}>
+                                        Camera
+                                    </ButtonComponent>
+                                    <ButtonComponent style={{ height: 40, width: '48%' }} onPress={handlePickFile}>
+                                        Upload
+                                    </ButtonComponent>
+                                </View>
+                                <ButtonComponent style={{ height: 40 }} onPress={handleSaveFile}>
+                                    Save
                                 </ButtonComponent>
                             </View>
-                            <ButtonComponent style={{ height: 40 }} onPress={handleSaveFile}>
-                                Save
-                            </ButtonComponent>
-                        </View>
-                    </KeyboardAvoidingView>
-                )}
+                        </KeyboardAvoidingView>
+                    )}
+                </SafeAreaView>
             </Modal>
         </View>
     );

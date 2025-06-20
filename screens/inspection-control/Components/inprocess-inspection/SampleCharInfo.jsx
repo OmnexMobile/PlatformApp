@@ -28,31 +28,31 @@ const SampleCharInfo = ({
         }));
     }, [selectedData]);
 
-    const handleUserInputChange = (key, val, type) => {
+    const handleUserInputChange = (key, val, type,oldValue) => {
         setUserUpdateValue(pre => ({ ...pre, [key]: val }));
         setTypeOfModal(type);
-        // if (type === 'samplesize') {
-        if (val.length && Number(val) > 0) {
-            if (timer) clearTimeout(timer); // clear previous timeout
-            const newTimer = setTimeout(() => {
-                setShowConfirmModal(true);
-            }, 1000); // 1 second delay
-            setTimer(newTimer);
-        } else {
-            if (timer) clearTimeout(timer);
-            type === 'samplesize' &&
-                showMessage({
-                    message: 'Sample size must be a positive integer. Zero or negative values are not acceptable.',
-                    backgroundColor: COLORS.ERROR,
-                    color: COLORS.white,
-                    duration: 1500,
-                    statusBarHeight: 40,
-                    icon: 'warning',
-                    position: 'right',
-                    style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
-                });
+        if (val !== oldValue) {
+            if (val.length && Number(val) > 0) {
+                if (timer) clearTimeout(timer); // clear previous timeout
+                const newTimer = setTimeout(() => {
+                    setShowConfirmModal(true);
+                }, 1000); // 1 second delay
+                setTimer(newTimer);
+            } else {
+                if (timer) clearTimeout(timer);
+                type === 'samplesize' &&
+                    showMessage({
+                        message: 'Sample size must be a positive integer. Zero or negative values are not acceptable.',
+                        backgroundColor: COLORS.ERROR,
+                        color: COLORS.white,
+                        duration: 1500,
+                        statusBarHeight: 40,
+                        icon: 'warning',
+                        position: 'right',
+                        style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+                    });
+            }
         }
-        // }
     };
     const handleInputChange = (key, val) => {
         setSelectedData(pre => ({ ...pre, [key]: val }));
@@ -71,7 +71,9 @@ const SampleCharInfo = ({
                 />
             </View>
             <View style={styles.subBox}>
-                <Text style={styles.headerText} numberOfLines={1}>Characteristic Description</Text>
+                <Text style={styles.headerText} numberOfLines={1}>
+                    Characteristic Description
+                </Text>
                 <TextInput
                     value={selectedData?.CCharacteristicsDescription || ''}
                     style={[styles.inputBox, { backgroundColor: COLORS.inputBG }]}
@@ -88,7 +90,7 @@ const SampleCharInfo = ({
                         value={userUpdateValue?.CTolerance || ''}
                         style={[styles.inputBox, { backgroundColor: COLORS.inputBG }]}
                         onChangeText={val => {
-                            handleUserInputChange('CTolerance', val, 'spec');
+                            handleUserInputChange('CTolerance', val, 'spec',selectedData.CTolerance);
                         }}
                         placeholder={''}
                     />
@@ -101,7 +103,7 @@ const SampleCharInfo = ({
                         value={userUpdateValue?.CHighValue || ''}
                         style={[styles.inputBox, { backgroundColor: COLORS.inputBG }]}
                         onChangeText={val => {
-                            handleUserInputChange('CHighValue', val, 'highvalue');
+                            handleUserInputChange('CHighValue', val, 'highvalue',selectedData.CHighValue);
                         }}
                         placeholder={''}
                     />
@@ -114,7 +116,7 @@ const SampleCharInfo = ({
                         value={userUpdateValue?.CLowValue || ''}
                         style={[styles.inputBox, { backgroundColor: COLORS.inputBG }]}
                         onChangeText={val => {
-                            handleUserInputChange('CLowValue', val, 'lowvalue');
+                            handleUserInputChange('CLowValue', val, 'lowvalue',selectedData.CLowValue);
                         }}
                         placeholder={''}
                     />
@@ -198,7 +200,7 @@ const SampleCharInfo = ({
                     placeholder={''}
                 />
             </View>
-            {/* <View style={styles.subBox}>
+            <View style={styles.subBox}>
                 <Text style={styles.headerText}>Evidence 1</Text>
                 <DynamicFormField
                     title="Evidence1"
@@ -217,7 +219,7 @@ const SampleCharInfo = ({
                     isEditable={true}
                     handleChange={val => handleInputChange('Evidence2', val)}
                 />
-            </View> */}
+            </View>
         </View>
     );
 };

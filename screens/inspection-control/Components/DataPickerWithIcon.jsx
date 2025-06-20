@@ -83,7 +83,7 @@ const DataPickerWithIcon = ({
                         }}>
                         <View
                             style={{
-                                backgroundColor: 'white',
+                                backgroundColor:'#fff',
                                 padding: 20,
                                 borderTopLeftRadius: 10,
                                 borderTopRightRadius: 10,
