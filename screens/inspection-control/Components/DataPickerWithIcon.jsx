@@ -3,7 +3,9 @@ import React, { useEffect, useState } from 'react';
 import { Button, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Icon from 'react-native-vector-icons/Entypo';
 import IconE from 'react-native-vector-icons/Fontisto';
-import DateTimePicker from '@react-native-community/datetimepicker';
+// import DateTimePicker from '@react-native-community/datetimepicker';
+import DateTimePicker from 'react-native-modal-datetime-picker';
+
 import moment from 'moment';
 import { RFPercentage } from 'react-native-responsive-fontsize';
 
@@ -73,7 +75,7 @@ const DataPickerWithIcon = ({
                     <IconE name="clock" size={19} color={COLORS.moreIcon} />
                 )}
             </TouchableOpacity>
-            {editable && showPicker && Platform.OS === 'ios' && (
+            {/* {editable && showPicker && Platform.OS === 'ios' && (
                 <Modal transparent={true} animationType="slide" onRequestClose={handleCancel}>
                     <View
                         style={{
@@ -83,7 +85,7 @@ const DataPickerWithIcon = ({
                         }}>
                         <View
                             style={{
-                                backgroundColor:'#fff',
+                                backgroundColor: '#fff',
                                 padding: 20,
                                 borderTopLeftRadius: 10,
                                 borderTopRightRadius: 10,
@@ -98,20 +100,32 @@ const DataPickerWithIcon = ({
                 </Modal>
             )}
 
-            {editable && showPicker && Platform.OS === 'android' && (
+            {editable && showPicker && Platform.OS === 'android' && ( */}
                 <DateTimePicker
-                    value={tempDate}
-                    mode={type}
-                    display="default"
-                    onChange={(event, selectedDate) => {
+                    isVisible={showPicker}
+                    mode="date"
+                    onCancel={() => setShowPicker(false)}
+                    onConfirm={selectedDate => {
                         setShowPicker(false);
-                        if (selectedDate && event?.type == 'set') {
+                        if (selectedDate) {
                             onSelectedDate(selectedDate);
                             setDate(selectedDate);
                         }
                     }}
+
+                    // old lib
+                    // value={tempDate}
+                    // mode={type}
+                    // display="default"
+                    // onChange={(event, selectedDate) => {
+                    //     setShowPicker(false);
+                    //     if (selectedDate && event?.type == 'set') {
+                    //         onSelectedDate(selectedDate);
+                    //         setDate(selectedDate);
+                    //     }
+                    // }}
                 />
-            )}
+            {/* )} */}
         </>
     );
 };

@@ -10,7 +10,6 @@ const { width, height } = Dimensions.get('screen');
 const QRCodeScannerScreen = ({ modalVisible, hideModal = () => {}, handleScanData = () => {} }) => {
     const [hasCameraPermission, setHasCameraPermission] = useState(true);
     const [reScan, setReSacn] = useState(true);
-
     // Function to request camera permission
     const requestCameraPermission = async () => {
         try {
@@ -88,6 +87,7 @@ const QRCodeScannerScreen = ({ modalVisible, hideModal = () => {}, handleScanDat
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        zIndex:1000
     },
     footer: {
         fontSize: 16,
