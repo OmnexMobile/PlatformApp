@@ -145,12 +145,30 @@ const InprocessInspection = ({ route }) => {
             <Text style={[styles.flatHeader]}>Sample Information - {title}</Text>
         </View>
     );
+    const handleValidation = data => {
+        let list = [...data.GeneralInfo].filter(x => x.DisplayName == 'Approver');
+        return list.length && list[0].Value !== '';
+    };
     const handleFinalSavePress = (flag = false) => {
-        dispatch({
-            type: 'UPDATE_INSPECT_LIST',
-            updatedData: infoData,
-        });
-        Boolean(flag) && navigation.goBack();
+        // const result = handleValidation(infoData);
+        // if (result) {
+            dispatch({
+                type: 'UPDATE_INSPECT_LIST',
+                updatedData: infoData,
+            });
+            Boolean(flag) && navigation.goBack();
+        // }else{
+        //     showMessage({
+        //             message: 'Please select approver',
+        //             backgroundColor: COLORS.ERROR,
+        //             color: COLORS.white,
+        //             duration: 1500,
+        //             statusBarHeight: 40,
+        //             icon: 'warning',
+        //             position: 'right',
+        //             style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+        //         });
+        // }
     };
     const handleBackPress = () => {
         if (!showConfirmModal) {
@@ -260,7 +278,9 @@ const InprocessInspection = ({ route }) => {
             };
             const { VariableCharacteristics, AttributeCharacteristics } = infoData;
             const characteristicsList = formType === 'number' ? VariableCharacteristics : AttributeCharacteristics;
-            const index = characteristicsList.findIndex(obj => obj?.CCharacteristicsId === selectedData?.CCharacteristicsId && obj.FuncDetailsId == selectedData?.FuncDetailsId);
+            const index = characteristicsList.findIndex(
+                obj => obj?.CCharacteristicsId === selectedData?.CCharacteristicsId && obj.FuncDetailsId == selectedData?.FuncDetailsId,
+            );
             console.log(characteristicsList.filter(obj => obj?.CCharacteristicsId === selectedData?.CCharacteristicsId).length, 'lrnh');
             const newCharacteristicsList = [...characteristicsList];
             if (index !== -1) {

@@ -26,7 +26,7 @@ const optionsList = [
         id: 1,
         value: 'Sync',
         label: 'Sync',
-        Mode: null,
+        Mode: 1,
     },
     {
         id: 2,
@@ -62,7 +62,7 @@ const CompletedInspection = () => {
         id: 1,
         value: 'Sync',
         label: 'Sync',
-        Mode: null,
+        Mode: 1,
     });
     const [checkBox, setCheckBox] = useState(false);
     const navigation = useNavigation();
@@ -165,10 +165,13 @@ const CompletedInspection = () => {
 
             if (type === 'number') {
                 // Filter only valid numeric values
-                const numericValues = samples.map(s => parseFloat(s.FunctionValue)).filter(val => !isNaN(val));
-
+                // const numericValues = samples.map(s => parseFloat(s.FunctionValue)).filter(val => !isNaN(val));
+                const notOkSample = samples.filter(x => x?.backColor == '#FF0100');
+                const finalNotOkaySample = notOkSample?.length
+                    ? notOkSample[notOkSample.length - 1].FunctionValue
+                    : samples[samples.length - 1].FunctionValue;
                 // Use Math.min only if numericValues has at least one number
-                actualValue = numericValues.length > 0 ? Math.min(...numericValues) : null;
+                actualValue = finalNotOkaySample;
             } else {
                 // For string values: return first non-"ok" FunctionValue
                 actualValue = 'ok';
@@ -224,11 +227,12 @@ const CompletedInspection = () => {
                     InspectionEntryDetailsID: selectedValue.InspectionEntryDetailsID.toString(),
                     Mode: selectedRadio.Mode,
                     SupervisorApproved: checkBox ? 1 : 0,
-                    IsProcess: selectedValue.intInspectionTypeID == '2' ? 1: 0,
+                    IsProcess: selectedValue.intInspectionTypeID == '2' ? 1 : 0,
                 },
             ],
         };
         const response = await postAPI(selectedValue.intInspectionTypeID == '2' ? ApiUrl.IC_INPROCESS_SINGLE_SYNC : ApiUrl.IC_SINGLE_SYNC, payLoad);
+        console.log('response', selectedRadio.Mode,response);
         if (response?.insertedCount) {
             setSyncModal(false);
             dispatch({
