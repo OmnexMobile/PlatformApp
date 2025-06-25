@@ -72,17 +72,6 @@ const InputDataModal = ({
             } else {
                 setFrqList([]);
             }
-        } else if (isArray(response) && response?.length) {
-            let temp = [];
-            response.forEach((item, index) => {
-                temp.push({
-                    label: item?.SampleFrequency['@Name'],
-                    value: index + 1,
-                    SampleFrequency: item?.SampleFrequency['@Name'],
-                    FrequencyId:index,
-                });
-            });
-            setFrqList([...temp]);
         } else {
             setFrqList([]);
         }
@@ -208,7 +197,7 @@ const InputDataModal = ({
             formData.append('Area', '');
             formData.append('syncMode', 0);
             formData.append('supervisorApproved', 0);
-            formData.append('deviceid', 'a464cf18e5fd3f23');
+            formData.append('deviceid', deviceId);
             formData.append('UserId', userData?.UserId || '');
             formData.append('UserName', userData?.FullName || '');
             if (selectedValue?.TypeOfInspection == '2') {
