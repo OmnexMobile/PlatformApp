@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useLayoutEffect, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import CustomHeader from '../Components/CustomHeader';
 import { Alert, BackHandler, FlatList, Keyboard, ScrollView, StyleSheet, Text, Touchable, TouchableOpacity, View } from 'react-native';
 import Icon from 'react-native-vector-icons/AntDesign';
@@ -65,7 +65,7 @@ const InprocessInspection = ({ route }) => {
         CSampleSize: '',
         CTolerance: '',
     });
-
+    const flatListRef = useRef(null);
     const navigation = useNavigation();
     const dispatch = useDispatch();
     useLayoutEffect(() => {
@@ -362,6 +362,8 @@ const InprocessInspection = ({ route }) => {
         setShowAlart(false);
         setNextSave(true);
         setMixedList('');
+        flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
+
     };
     const handleShowCharInfo = () => {
         setShowCharInfo(!showCharInfo);
@@ -560,6 +562,7 @@ const InprocessInspection = ({ route }) => {
                                 userUpdateValue={userUpdateValue}
                                 setUserUpdateValue={setUserUpdateValue}
                                 setTypeOfModal={setTypeOfModal}
+                                flatListRef={flatListRef}
                             />
                         </View>
                     </View>

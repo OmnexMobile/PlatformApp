@@ -71,6 +71,7 @@ const CharacteristicsInfo = ({
     userUpdateValue,
     setUserUpdateValue = () => {},
     setTypeOfModal = () => {},
+    flatListRef = null,
 }) => {
     useEffect(() => {
         const backAction = () => {
@@ -390,6 +391,15 @@ const CharacteristicsInfo = ({
             Keyboard.dismiss(); // Last input: dismiss keyboard
         }
     };
+    const handleScrollAndFocus = index => {
+        // Step 1: Scroll to index
+        flatListRef.current?.scrollToIndex({ index, animated: true });
+
+        // Step 2: After scroll animation is done, focus the input
+        setTimeout(() => {
+            inputsRef.current[index]?.focus(); // trigger keyboard
+        }, 400); // Adjust this based on animation speed
+    };
     const renderItem = (item, index) => {
         const renderBackGroundColor = (value, type) => {
             if (value === '') {
@@ -467,6 +477,10 @@ const CharacteristicsInfo = ({
                         onSubmitEditing={() => handleSubmit(index)}
                         ref={ref => (inputsRef.current[index] = ref)}
                         blurOnSubmit={false}
+                        onPressIn={() => {
+                            // Prevent auto keyboard — handle it yourself
+                            handleScrollAndFocus(index);
+                        }}
                     />
                     <TouchableOpacity
                         style={[styles.deleteIcon]}
@@ -559,7 +573,7 @@ const CharacteristicsInfo = ({
     };
     return (
         <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
             style={{ flex: 1 }}
             keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 0}>
             <View style={[styles.container]}>
@@ -567,6 +581,8 @@ const CharacteristicsInfo = ({
                     {/* need to chage the infodata as selectedData and setSelectedData */}
                     <View style={{}}>
                         <FlatList
+                            keyboardShouldPersistTaps="handled"
+                            ref={flatListRef}
                             data={masterData}
                             renderItem={({ item, index }) => {
                                 return <View style={[styles.tableBox]}>{renderItem(item, index)}</View>;
