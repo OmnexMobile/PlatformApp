@@ -496,13 +496,13 @@ const InprocessInspection = ({ route }) => {
                             </ScrollView>
                             <View style={[styles.btnContainer]}>
                                 <ButtonComponent
-                                    style={{ height: 40, width: '87%' }}
+                                    style={{ height: 40, width: '100%' }}
                                     onPress={() => {
                                         handleFinalSavePress(true);
                                     }}>
                                     Save
                                 </ButtonComponent>
-                                <View style={[styles.iconFilter]}>
+                                {/* <View style={[styles.iconFilter]}>
                                     <FilterWithMenu
                                         dataList={moreList}
                                         type="IconFilter"
@@ -511,7 +511,7 @@ const InprocessInspection = ({ route }) => {
                                         }}
                                         anchorPosition="top"
                                     />
-                                </View>
+                                </View> */}
                             </View>
                         </View>
                     ))}

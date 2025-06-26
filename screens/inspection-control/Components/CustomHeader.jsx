@@ -160,14 +160,14 @@ const CustomHeader = ({
                                     <Icon name={!isExpanded ? 'search1' : 'close'} size={25} style={styles.iconButton} color={COLORS.white} />
                                 </TouchableOpacity>
                             )}
-                            {activeTabId == 1 && (
+                            {/* {activeTabId == 1 && (
                                 <TouchableOpacity
                                     onPress={() => {
                                         handleQRPress();
                                     }}>
                                     <IconF name="qrcode" size={25} style={styles.iconButton} color={COLORS.white} />
                                 </TouchableOpacity>
-                            )}
+                            )} */}
                             {/* {activeTabId == 2 && (
                                 <TouchableOpacity>
                                     <IconI name="settings-outline" size={25} style={styles.iconButton} color={COLORS.white} />
