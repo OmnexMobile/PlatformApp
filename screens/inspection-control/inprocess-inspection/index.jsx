@@ -150,25 +150,36 @@ const InprocessInspection = ({ route }) => {
         return list.length && list[0].Value !== '';
     };
     const handleFinalSavePress = (flag = false) => {
-        // const result = handleValidation(infoData);
-        // if (result) {
+        const result = handleValidation(infoData);
+        if (result) {
             dispatch({
                 type: 'UPDATE_INSPECT_LIST',
                 updatedData: infoData,
             });
+            if (!showChar && !flag) {
+                if (navigation.canGoBack()) {
+                    navigation.goBack();
+                } else {
+                    navigation.reset({
+                        index: 0,
+                        routes: [{ name: ROUTES.HOME_FAB_VIEW }],
+                    });
+                }
+            }
             Boolean(flag) && navigation.goBack();
-        // }else{
-        //     showMessage({
-        //             message: 'Please select approver',
-        //             backgroundColor: COLORS.ERROR,
-        //             color: COLORS.white,
-        //             duration: 1500,
-        //             statusBarHeight: 40,
-        //             icon: 'warning',
-        //             position: 'right',
-        //             style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
-        //         });
-        // }
+        } else {
+            setShowAlart(false);
+            showMessage({
+                message: 'Please choose the approver from the general info.',
+                backgroundColor: COLORS.ERROR,
+                color: COLORS.white,
+                duration: 1500,
+                statusBarHeight: 40,
+                icon: 'warning',
+                position: 'right',
+                style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+            });
+        }
     };
     const handleBackPress = () => {
         if (!showConfirmModal) {
@@ -296,12 +307,13 @@ const InprocessInspection = ({ route }) => {
             console.log('inside1');
         } else {
             handleFinalSavePress();
-            console.log('inside2');
+
+            console.log('inside2', showChar);
         }
-        if (close) {
+        if (close && showChar) {
             setShowChar(false);
             handleBackPress();
-            console.log('inside3');
+            console.log('inside3', showChar);
         }
         if (!close && btnText == 'noBtn') {
             handleNextItem();
@@ -363,7 +375,6 @@ const InprocessInspection = ({ route }) => {
         setNextSave(true);
         setMixedList('');
         flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
-
     };
     const handleShowCharInfo = () => {
         setShowCharInfo(!showCharInfo);
@@ -442,7 +453,7 @@ const InprocessInspection = ({ route }) => {
             title={renderHeader(inspectData.intInspectionTypeID)}
             activeTabId={2}
             showIcons={false}
-            showFileIcon={showChar}
+            showFileIcon={false}
             handleFileIconPress={() => {
                 setShowFilePage(true);
             }}
