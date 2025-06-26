@@ -215,11 +215,20 @@ const CompletedInspection = () => {
             ...convertSampleList(selectedValue.VariableCharacteristics, 'number'),
             ...convertSampleList(selectedValue.AttributeCharacteristics, 'char'),
         ];
+        const updatedGeneralInfo = selectedValue.GeneralInfo.map(item => {
+            if (item.DisplayName === 'Approver' && typeof item.Value === 'object' && item.Value !== null) {
+                return {
+                    ...item,
+                    Value: item.Value.value, // or item.Value.label, both are the same in your case
+                };
+            }
+            return item;
+        });
         const payLoad = {
             EnteredBy: icUserData?.userData?.UserId,
             InspectedDate: moment(new Date()).format('MM/DD/YYYY hh:mm:ss A'),
             characteristicDetails: templist,
-            GeneralInfo: selectedValue.GeneralInfo,
+            GeneralInfo: updatedGeneralInfo,
             Status: [
                 {
                     UserId: icUserData?.userData?.UserId,
