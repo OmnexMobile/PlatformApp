@@ -147,7 +147,8 @@ const InprocessInspection = ({ route }) => {
     );
     const handleValidation = data => {
         let list = [...data.GeneralInfo].filter(x => x.DisplayName == 'Approver');
-        return list.length && list[0].Value !== '';
+        return inspectData.intInspectionTypeID !== 2 ? (list?.length ? list[0].Value !== '' : true) : true;
+        // return list.length ? list[0].Value !== '':true;
     };
     const handleFinalSavePress = (flag = false) => {
         const result = handleValidation(infoData);

@@ -1,7 +1,7 @@
 import { ButtonComponent, CheckBox, RadioButton, TextComponent } from 'components';
 import React, { useEffect, useRef, useState } from 'react';
 import CustomHeader from '../Components/CustomHeader';
-import { FlatList, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { FlatList, Platform, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { COLORS } from 'constants/theme-constants';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import IconA from 'react-native-vector-icons/AntDesign';
@@ -20,6 +20,7 @@ import moment from 'moment';
 import ApiUrl from 'global/ApiUrl';
 import { postAPI } from 'global/api-helpers';
 import { Bubbles } from 'react-native-loader';
+import { showMessage } from 'react-native-flash-message';
 
 const optionsList = [
     {
@@ -232,7 +233,6 @@ const CompletedInspection = () => {
             ],
         };
         const response = await postAPI(selectedValue.intInspectionTypeID == '2' ? ApiUrl.IC_INPROCESS_SINGLE_SYNC : ApiUrl.IC_SINGLE_SYNC, payLoad);
-        console.log('response', selectedRadio.Mode,response);
         if (response?.insertedCount) {
             setSyncModal(false);
             dispatch({
@@ -240,6 +240,17 @@ const CompletedInspection = () => {
                 inspectionToRemove: selectedValue,
             });
             getAllCompletedData(true);
+        } else {
+            showMessage({
+                message: 'Something went wrong',
+                backgroundColor: COLORS.ERROR,
+                color: COLORS.white,
+                duration: 1500,
+                statusBarHeight: 40,
+                icon: 'warning',
+                position: 'right',
+                style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+            });
         }
         setDisableBtn(false);
     };
