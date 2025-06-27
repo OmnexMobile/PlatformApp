@@ -5,7 +5,7 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Divider, Modal } from 'react-native-paper';
 
-const DeleteModal = ({ visible = false,handleClose=()=>{} ,handleYesPress=()=>{}}) => {
+const DeleteModal = ({ visible = false, handleClose = () => {}, handleYesPress = () => {} }) => {
     return (
         <Modal
             visible={visible}
@@ -13,8 +13,7 @@ const DeleteModal = ({ visible = false,handleClose=()=>{} ,handleYesPress=()=>{}
                 handleClose();
             }}
             contentContainerStyle={[styles.modalConatiner]}
-            style={{ backgroundColor: 'transparent' }}
-            >
+            style={{ backgroundColor: 'transparent' }}>
             <View style={[styles.modalcontainer]}>
                 <Text style={[styles.deleteHeader]}>Delete</Text>
                 <View style={[styles.contentContainer]}>
@@ -22,10 +21,20 @@ const DeleteModal = ({ visible = false,handleClose=()=>{} ,handleYesPress=()=>{}
                     <Text style={[styles.contentText]}>Do you want to delete this form ?</Text>
                 </View>
                 <View style={[styles.btnStyle]}>
-                    <ButtonComponent style={{ height: 30, width: RFPercentage(10), marginRight: 10 }} onPress={() => {handleClose()}}>
+                    <ButtonComponent
+                        style={{ height: 30, width: RFPercentage(10), marginRight: 10 }}
+                        onPress={() => {
+                            handleClose();
+                        }}
+                        textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}>
                         No
                     </ButtonComponent>
-                    <ButtonComponent style={{ height: 30, width: RFPercentage(10) }} onPress={() => {handleYesPress()}}>
+                    <ButtonComponent
+                        style={{ height: 30, width: RFPercentage(10) }}
+                        onPress={() => {
+                            handleYesPress();
+                        }}
+                        textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}>
                         Yes
                     </ButtonComponent>
                 </View>

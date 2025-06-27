@@ -52,7 +52,7 @@ const ContainmentActionsForm = ({ type = '', masterData, handleSubmit = () => {}
             //     return Number(value) >= Number(item.lowValue) && Number(value) <= Number(item.highValue) ? COLORS.SUCCESS : COLORS.ERROR;
             // }
             // return value?.toLowerCase() === 'ok' ? COLORS.SUCCESS : COLORS.ERROR;
-          
+
             if (type === 'number') {
                 let lowValue = inspectionType == 2 ? Number(item?.tolerance) - Number(item?.lowValue) : item?.lowValue;
                 let highValue = inspectionType == 2 ? Number(item?.tolerance) + Number(item?.highValue) : item?.highValue;
@@ -113,6 +113,7 @@ const ContainmentActionsForm = ({ type = '', masterData, handleSubmit = () => {}
                 </View>
                 {Boolean(item?.showBtn) && (
                     <ButtonComponent
+                        textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}
                         style={{ height: 40, marginBottom: 10 }}
                         onPress={() => {
                             handleSubmitPress(item);

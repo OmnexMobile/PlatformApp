@@ -508,6 +508,7 @@ const InprocessInspection = ({ route }) => {
                             </ScrollView>
                             <View style={[styles.btnContainer]}>
                                 <ButtonComponent
+                                    textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}
                                     style={{ height: 40, width: '100%' }}
                                     onPress={() => {
                                         handleFinalSavePress(true);
@@ -623,6 +624,7 @@ const InprocessInspection = ({ route }) => {
                         <View style={[styles.modalBtnContainer]}>
                             <View style={[styles.modalBtn]}>
                                 <ButtonComponent
+                                textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}
                                     style={{ height: 40, width: '45%' }}
                                     onPress={() => {
                                         nextSave ? handleBackPress() : handleNextItem();
@@ -630,6 +632,7 @@ const InprocessInspection = ({ route }) => {
                                     No
                                 </ButtonComponent>
                                 <ButtonComponent
+                                textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}
                                     style={{ height: 40, width: '45%' }}
                                     onPress={async () => {
                                         await handleSavePress(nextSave);

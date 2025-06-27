@@ -168,7 +168,7 @@ const InputFilePicker = ({ ListData = [], isEditable = false, title = '', handle
                     handleClose();
                 }}
                 contentContainerStyle={[styles.modalContainer]}>
-                <SafeAreaView style={{flex:1}}>
+                <SafeAreaView style={{ flex: 1 }}>
                     {Boolean(showCamer) ? (
                         <CameraScreen setShowCamer={setShowCamer} setFileList={setFileList} />
                     ) : (
@@ -194,17 +194,24 @@ const InputFilePicker = ({ ListData = [], isEditable = false, title = '', handle
                             <View style={[styles.btnContainer]}>
                                 <View style={[styles.btnBox]}>
                                     <ButtonComponent
+                                        textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}
                                         style={{ height: 40, width: '48%' }}
                                         onPress={() => {
                                             handleCameraPress();
                                         }}>
                                         Camera
                                     </ButtonComponent>
-                                    <ButtonComponent style={{ height: 40, width: '48%' }} onPress={handlePickFile}>
+                                    <ButtonComponent
+                                        textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}
+                                        style={{ height: 40, width: '48%' }}
+                                        onPress={handlePickFile}>
                                         Upload
                                     </ButtonComponent>
                                 </View>
-                                <ButtonComponent style={{ height: 40 }} onPress={handleSaveFile}>
+                                <ButtonComponent
+                                    textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}
+                                    style={{ height: 40 }}
+                                    onPress={handleSaveFile}>
                                     Save
                                 </ButtonComponent>
                             </View>

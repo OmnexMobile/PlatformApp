@@ -634,6 +634,7 @@ const CharacteristicsInfo = ({
                 </View>
                 <View style={[styles.btnContainer]}>
                     <ButtonComponent
+                        textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}
                         style={{ height: 40, width: '89%' }}
                         onPress={() => {
                             handleSavePress(true, 'saveBtn');

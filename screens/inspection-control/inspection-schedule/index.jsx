@@ -178,7 +178,7 @@ const InspectionSchedule = () => {
     };
     useEffect(() => {
         if (icUserData && isFocused) {
-            handleListFetch(null, true,filterData.type);
+            handleListFetch(null, true, filterData.type);
         }
         return () => {
             setSearch('');
@@ -305,7 +305,7 @@ const InspectionSchedule = () => {
     const handleSubmitBtnPress = async val => {
         const latestInspection = inspectionRef.current;
         const apiData = await handleListFetch(null, true, filterData.type);
-         let filterTemp = filterData.type!==''? apiData.filter(item => item.TypeOfInspection == filterData.type):apiData;
+        let filterTemp = filterData.type !== '' ? apiData.filter(item => item.TypeOfInspection == filterData.type) : apiData;
         let temp = [...filterTemp] || [];
         const updatedArray = temp.map(item => {
             const match = latestInspection.some(
@@ -403,6 +403,7 @@ const InspectionSchedule = () => {
             </View>
             <View style={[styles.btnContainer]}>
                 <ButtonComponent
+                    textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}
                     style={{ height: 40 }}
                     onPress={() => {
                         handleCIbtnpress();

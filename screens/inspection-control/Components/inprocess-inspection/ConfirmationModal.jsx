@@ -36,6 +36,7 @@ const ConfirmationModal = ({ visible = false, handleClose = () => {}, handleYesP
                 </View>
                 <View style={[styles.btnStyle]}>
                     <ButtonComponent
+                        textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}
                         style={{ height: 30, width: RFPercentage(10), marginRight: 10 }}
                         onPress={() => {
                             handleClose();
@@ -43,6 +44,7 @@ const ConfirmationModal = ({ visible = false, handleClose = () => {}, handleYesP
                         No
                     </ButtonComponent>
                     <ButtonComponent
+                        textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}
                         style={{ height: 30, width: RFPercentage(10) }}
                         onPress={() => {
                             handleYesPress();

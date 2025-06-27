@@ -219,7 +219,7 @@ const CompletedInspection = () => {
             if (item.DisplayName === 'Approver' && typeof item.Value === 'object' && item.Value !== null) {
                 return {
                     ...item,
-                    Value: item.Value.value, // or item.Value.label, both are the same in your case
+                    Value: item.Value.value,
                 };
             }
             return item;
@@ -285,7 +285,9 @@ const CompletedInspection = () => {
                     style={{ height: 40 }}
                     onPress={() => {
                         handleISbtnpress();
-                    }}>
+                    }}
+                    textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}
+                    >
                     Inspection Schedule
                 </ButtonComponent>
             </View>

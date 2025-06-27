@@ -60,7 +60,7 @@ const OperatorWorksheet = () => {
     };
     useEffect(() => {
         getOverAllSettings();
-    },[])
+    }, []);
     const getOverAllSettings = async () => {
         const settingsRes = await postAPI(`${ApiUrl.IC_SETTINGS}`);
         if (settingsRes?.Success) {
@@ -162,6 +162,7 @@ const OperatorWorksheet = () => {
             </View>
             <View style={[styles.btnContainer]}>
                 <ButtonComponent
+                    textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}
                     style={{ height: 40 }}
                     onPress={() => {
                         handleCIbtnpress();

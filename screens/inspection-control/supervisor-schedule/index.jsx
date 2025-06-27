@@ -218,6 +218,7 @@ const SupervisorSchedule = () => {
             </View>
             <View style={[styles.btnContainer]}>
                 <ButtonComponent
+                    textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}
                     style={{ height: 40 }}
                     onPress={() => {
                         navigation.navigate(ROUTES.COMPLETED_INSPECTION);
