@@ -22,8 +22,8 @@ const ContainmentActions = ({ route }) => {
         return () => backHandler.remove();
     }, []);
     useLayoutEffect(() => {
-        if (route?.params?.selectedData?.containmentList) {
-            let temp = route?.params?.selectedData?.containmentList.map((item, index) => {
+        if (route?.params?.selectedData?.ContainmentActions) {
+            let temp = route?.params?.selectedData?.ContainmentActions.map((item, index) => {
                 return {
                     ...item,
                     isEditable: index + 1 == 1 ? true : false,
@@ -40,13 +40,18 @@ const ContainmentActions = ({ route }) => {
                 highValue: highValue,
                 id: index + 1,
                 lowValue: lowValue,
-                value: '',
+                ContainmentValue: '',
                 actualValue: value,
                 tolerance: tolerance,
-                comments: '',
+                ContainmentComment: '',
                 isEditable: index + 1 == 1 ? true : false,
                 isCommentsEditable: index + 1 == 1 ? true : false,
                 showBtn: index + 1 == 1 ? true : false,
+                ContainmentID: index + 1,
+                ContainmentNumber: index + 1,
+                Type: 'Value',
+                BackColorForContainment: '',
+                FontColorForContainment: '#FFFFFF',
             }));
             setMasterData(temp);
         }
@@ -64,7 +69,7 @@ const ContainmentActions = ({ route }) => {
     const handleSubmit = (value, changedValue, id) => {
         setMasterData(value);
         if (route.params?.onSave) {
-            let finalValue = { ...route?.params?.selectedData, value: changedValue, containmentList: value };
+            let finalValue = { ...route?.params?.selectedData, value: changedValue, ContainmentActions: value };
             route.params.onSave(finalValue); // send data back
         }
         if (id == 2) {
@@ -77,7 +82,7 @@ const ContainmentActions = ({ route }) => {
     return (
         <CustomHeader title={renderHeader(route?.params?.inspectionType)} activeTabId={2} showIcons={false}>
             <View style={[styles.conatiner]}>
-                <View style={{ flex: showGeneral ? 1 : 0 }}>
+                {/* <View style={{ flex: showGeneral ? 1 : 0 }}>
                     <TouchableOpacity
                         style={[styles.tabStyle, { borderBottomLeftRadius: showGeneral ? 0 : 10, borderBottomRightRadius: showGeneral ? 0 : 10 }]}
                         onPress={() => {
@@ -91,18 +96,25 @@ const ContainmentActions = ({ route }) => {
                             <CharGenInfo />
                         </View>
                     )}
-                </View>
+                </View> */}
                 <View style={{ flex: showAction ? 1 : 0, marginTop: 10 }}>
                     <TouchableOpacity
+                        activeOpacity={1}
                         style={[styles.tabStyle, { borderBottomLeftRadius: showAction ? 0 : 10, borderBottomRightRadius: showAction ? 0 : 10 }]}
                         onPress={() => {
-                            handleActionOpen();
+                            // handleActionOpen();
                         }}>
                         <Text style={[styles.headerText]}>Containment Actions</Text>
-                        <Icon name={showAction ? 'down' : 'right'} size={20} />
+                        {/* <Icon name={showAction ? 'down' : 'right'} size={20} /> */}
                     </TouchableOpacity>
                     <View style={[styles.tabBox]}>
-                        <ContainmentActionsForm type={genType} masterData={masterData} setMasterData={setMasterData} handleSubmit={handleSubmit} inspectionType={route?.params?.inspectionType} />
+                        <ContainmentActionsForm
+                            type={genType}
+                            masterData={masterData}
+                            setMasterData={setMasterData}
+                            handleSubmit={handleSubmit}
+                            inspectionType={route?.params?.inspectionType}
+                        />
                     </View>
                 </View>
             </View>

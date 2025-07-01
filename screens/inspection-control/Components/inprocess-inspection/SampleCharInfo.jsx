@@ -20,6 +20,8 @@ const SampleCharInfo = ({
     charType = 'number',
     inspectionType = '',
 }) => {
+    const [defectList, setDefectList] = useState([]);
+
     useEffect(() => {
         setUserUpdateValue(prev => ({
             ...prev,
@@ -28,6 +30,19 @@ const SampleCharInfo = ({
             CSampleSize: selectedData?.CSampleSize.toString() || '',
             CTolerance: selectedData?.CTolerance || '',
         }));
+        if (selectedData?.DefectPhenomenonList?.length) {
+            let temp = [];
+            selectedData?.DefectPhenomenonList?.map(item => {
+                temp.push({
+                    ...item,
+                    label: item?.DefectPhenomenon,
+                    value: item?.DefectPhenomenon,
+                });
+            });
+            setDefectList([...temp]);
+        } else {
+            setDefectList([]);
+        }
     }, [selectedData]);
 
     const handleUserInputChange = (key, val, type, oldValue) => {
@@ -216,11 +231,7 @@ const SampleCharInfo = ({
                 <View style={styles.subBox}>
                     <Text style={styles.headerText}>Defect</Text>
                     <SingleDropDown
-                        data={[{
-                            id:1,
-                            label:'Defect1',
-                            value:'Defect1'
-                        }]}
+                        data={defectList || []}
                         // backgroundColor={isEditable ? COLORS.inputBG : COLORS.whiteGrey}
                         borderWidth={1}
                         marginTop={8}
@@ -229,9 +240,9 @@ const SampleCharInfo = ({
                         borderColor={COLORS.icBottomBox}
                         showSearch={false}
                         maxHeight={200}
-                        value={selectedData.Defect || {}}
+                        value={selectedData.Defects || {}}
                         onChange={val => {
-                         handleInputChange('Defect', val);
+                            handleInputChange('Defects', val);
                         }}
                         // editable={isEditable}
                     />

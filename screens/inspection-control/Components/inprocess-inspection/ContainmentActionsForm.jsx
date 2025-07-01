@@ -3,6 +3,7 @@ import { FlatList, StyleSheet, View } from 'react-native';
 import InputBoxWithHeader from '../InputBoxWithHeader';
 import { ButtonComponent } from 'components';
 import { COLORS } from 'constants/theme-constants';
+import { showMessage } from 'react-native-flash-message';
 
 const ContainmentActionsForm = ({ type = '', masterData, handleSubmit = () => {}, inspectionType = '' }) => {
     const [pageData, setPageData] = useState({});
@@ -13,30 +14,54 @@ const ContainmentActionsForm = ({ type = '', masterData, handleSubmit = () => {}
         const updatedData = pageData?.map(item => (item?.id === id ? { ...item, [key]: val } : item));
         setPageData(updatedData);
     };
+    const getBackColor = (value, type, item) => {
+        if (value === '') {
+            return COLORS.white;
+        }
+        if (type === 'number') {
+            let lowValue = inspectionType == 2 ? Number(item?.tolerance) - Number(item?.lowValue) : item?.lowValue;
+            let highValue = inspectionType == 2 ? Number(item?.tolerance) + Number(item?.highValue) : item?.highValue;
+            return Number(value) >= Number(lowValue) && Number(value) <= Number(highValue) ? '#00FF00' : '#FF0100';
+        }
+        return value.toLowerCase() === 'ok' ? '#00FF00' : '#FF0100';
+    };
 
     const handleSubmitPress = value => {
-        const temp = JSON.parse(JSON.stringify(pageData));
+        if (value.ContainmentValue !== '') {
+            const temp = JSON.parse(JSON.stringify(pageData));
+            if (value.id === 1 || value.id === 2) {
+                temp[0] = {
+                    ...temp[0],
+                    showBtn: false,
+                    isEditable: false,
+                    actualValue: value?.ContainmentValue,
+                    isCommentsEditable: false,
+                    BackColorForContainment: value.id == 1 ? getBackColor(value?.ContainmentValue, type, value) : temp[0].BackColorForContainment,
+                };
 
-        if (value.id === 1 || value.id === 2) {
-            temp[0] = {
-                ...temp[0],
-                showBtn: false,
-                isEditable: false,
-                actualValue: value?.value,
-                isCommentsEditable: false,
-            };
-
-            temp[1] = {
-                ...temp[1],
-                showBtn: true,
-                isEditable: true,
-                actualValue: value?.value,
-                isCommentsEditable: true,
-            };
+                temp[1] = {
+                    ...temp[1],
+                    showBtn: true,
+                    isEditable: true,
+                    actualValue: value?.ContainmentValue,
+                    isCommentsEditable: true,
+                    BackColorForContainment: value.id == 2 ? getBackColor(value?.ContainmentValue, type, value) : temp[1].BackColorForContainment,
+                };
+            }
+            setPageData([...temp]);
+            handleSubmit(temp, value?.ContainmentValue, value.id);
+        } else {
+            showMessage({
+                message: 'Please Enter Containment Value',
+                backgroundColor: COLORS.ERROR,
+                color: COLORS.white,
+                duration: 1500,
+                statusBarHeight: 40,
+                icon: 'warning',
+                position: 'right',
+                style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+            });
         }
-
-        setPageData([...temp]);
-        handleSubmit(temp, value?.value, value.id);
     };
     const handleInputBlur = id => {
         const updatedData = pageData.map(item => (item?.id === id ? { ...item, showBtn: true } : { ...item, showBtn: false }));
@@ -82,11 +107,11 @@ const ContainmentActionsForm = ({ type = '', masterData, handleSubmit = () => {}
                     </View>
                     <View style={[styles.subBox]}>
                         <InputBoxWithHeader
-                            backgroundColor={renderBackGroundColor(item.value, type)}
-                            value={item.value}
+                            backgroundColor={renderBackGroundColor(item.ContainmentValue, type)}
+                            value={item.ContainmentValue}
                             title="Value"
                             onChangeText={val => {
-                                handleInputChage(val, item?.id, 'value');
+                                handleInputChage(val, item?.id, 'ContainmentValue');
                             }}
                             color="#fff"
                             onFocus={() => handleInputBlur(item?.id)}
@@ -101,11 +126,11 @@ const ContainmentActionsForm = ({ type = '', masterData, handleSubmit = () => {}
                             multiline={true}
                             title="Comments"
                             height={80}
-                            value={item.comments}
+                            value={item.ContainmentComment}
                             numberOfLines={4}
                             textAlignVertical="top"
                             onChangeText={val => {
-                                handleInputChage(val, item.id, 'comments');
+                                handleInputChage(val, item.id, 'ContainmentComment');
                             }}
                             editable={item?.isCommentsEditable}
                         />

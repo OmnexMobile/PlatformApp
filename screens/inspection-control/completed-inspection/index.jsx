@@ -104,6 +104,12 @@ const CompletedInspection = () => {
         setSelectedValue(item);
     };
     const hideModal = () => {
+        setSelectedRadio({
+            id: 1,
+            value: 'Sync',
+            label: 'Sync',
+            Mode: 1,
+        });
         setSyncModal(false);
     };
     const handleDeletePress = item => {
@@ -159,6 +165,23 @@ const CompletedInspection = () => {
             </View>
         );
     };
+    const createConatinmentList = templist => {
+        let temp = [];
+        if (templist?.length) {
+            temp = templist?.map((item, index) => {
+                return {
+                    ContainmentID: item?.ContainmentID,
+                    ContainmentNumber: item?.ContainmentNumber,
+                    ContainmentValue: item?.ContainmentValue,
+                    ContainmentComment: item?.ContainmentComment,
+                    Type: 'Value',
+                    BackColorForContainment: item?.BackColorForContainment,
+                    FontColorForContainment: '#FFFFFF',
+                };
+            });
+        }
+        return temp;
+    };
     const convertSampleList = (templist, type = 'number') => {
         let characteristicDetails = templist.map(item => {
             const samples = item.Samples || [];
@@ -203,6 +226,8 @@ const CompletedInspection = () => {
                         IsNumericSample: sample.IsNumericSample,
                         IsRejected: sample.IsRejected,
                         Comments: sample.Comments,
+                        ...(sample?.ContainmentActions &&
+                            sample?.ContainmentActions?.length > 0 && { ContainmentActions: createConatinmentList(sample?.ContainmentActions) }),
                     },
                 })),
             };
@@ -286,8 +311,7 @@ const CompletedInspection = () => {
                     onPress={() => {
                         handleISbtnpress();
                     }}
-                    textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}
-                    >
+                    textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}>
                     Inspection Schedule
                 </ButtonComponent>
             </View>

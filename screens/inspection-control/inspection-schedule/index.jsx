@@ -248,15 +248,11 @@ const InspectionSchedule = () => {
                         <TouchableOpacity
                             style={{ marginLeft: 15 }}
                             onPress={() => {
-                                if (item?.IsMapped && item?.IsOperationMapped) {
+                                if (item?.canDownload) {
                                     handleDownloadPress(item);
                                 } else {
                                     showMessage({
-                                        message: !item?.IsMapped
-                                            ? 'No template mapping done for this Production item, please do the mapping'
-                                            : !item?.IsOperationMapped
-                                            ? 'No operation mapping done for this Production item, please do the mapping'
-                                            : 'Something went wrong',
+                                        message: 'Template or operation mapping not done for this Production item, please do the mapping',
                                         backgroundColor: COLORS.WARNING,
                                         color: COLORS.white,
                                         duration: 1500,
