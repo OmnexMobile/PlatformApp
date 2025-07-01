@@ -433,7 +433,7 @@ const InputDataModal = ({
                                     </HelperText>
                                 )}
                             </View>
-                            {Boolean(!icSettings.IsRespPartyBasedOnTeam) && Boolean(selectedValue.TypeOfInspection == 2) && (
+                            {Boolean(icSettings.IsRespPartyBasedOnTeam) && Boolean(selectedValue.TypeOfInspection == 2) && (
                                 <View style={[styles.inputContainer]}>
                                     <Text style={styles.inputText}>Responsible Person</Text>
                                     <DynamicDropDown

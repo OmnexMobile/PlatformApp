@@ -475,7 +475,7 @@ const InprocessInspection = ({ route }) => {
                         </TouchableOpacity>
                         {showGeneral && (
                             <View style={[styles.tabBox]}>
-                                <GeneralInfo infoData={infoData} setInfoData={setInfoData} />
+                                <GeneralInfo infoData={infoData} setInfoData={setInfoData} intInspectionTypeID={inspectData.intInspectionTypeID} />
                             </View>
                         )}
                     </View>

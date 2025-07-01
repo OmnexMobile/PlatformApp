@@ -5,6 +5,7 @@ import DynamicFormField from '../DynamicFormField';
 import { useState } from 'react';
 import { showMessage } from 'react-native-flash-message';
 import InputFilePicker from './InputFilePicker';
+import SingleDropDown from '../SingleDropDown';
 
 const SampleCharInfo = ({
     selectedData = {},
@@ -17,6 +18,7 @@ const SampleCharInfo = ({
     setUserUpdateValue = () => {},
     setTypeOfModal = () => {},
     charType = 'number',
+    inspectionType = '',
 }) => {
     useEffect(() => {
         setUserUpdateValue(prev => ({
@@ -28,7 +30,7 @@ const SampleCharInfo = ({
         }));
     }, [selectedData]);
 
-    const handleUserInputChange = (key, val, type,oldValue) => {
+    const handleUserInputChange = (key, val, type, oldValue) => {
         setUserUpdateValue(pre => ({ ...pre, [key]: val }));
         setTypeOfModal(type);
         if (val !== oldValue) {
@@ -83,14 +85,40 @@ const SampleCharInfo = ({
                     placeholder={''}
                 />
             </View>
+            <View style={styles.subBox}>
+                <Text style={styles.headerText} numberOfLines={1}>
+                    Characteristic Class
+                </Text>
+                <TextInput
+                    value={selectedData?.CCharacteristicsClass || ''}
+                    style={[styles.inputBox, { backgroundColor: COLORS.inputBG }]}
+                    onChangeText={val => {
+                        handleInputChange('CCharacteristicsClass', val);
+                    }}
+                    placeholder={''}
+                />
+            </View>
+            {Boolean(inspectionType == 1) && (
+                <View style={styles.subBox}>
+                    <Text style={styles.headerText}>UOM</Text>
+                    <TextInput
+                        value={selectedData?.UOM || ''}
+                        style={[styles.inputBox, { backgroundColor: COLORS.inputBG }]}
+                        onChangeText={val => {
+                            handleInputChange('UOM', val);
+                        }}
+                        placeholder={''}
+                    />
+                </View>
+            )}
             {charType === 'number' && (
                 <View style={styles.subBox}>
-                    <Text style={styles.headerText}>Spec</Text>
+                    <Text style={styles.headerText}>Specification</Text>
                     <TextInput
                         value={userUpdateValue?.CTolerance || ''}
                         style={[styles.inputBox, { backgroundColor: COLORS.inputBG }]}
                         onChangeText={val => {
-                            handleUserInputChange('CTolerance', val, 'spec',selectedData.CTolerance);
+                            handleUserInputChange('CTolerance', val, 'spec', selectedData.CTolerance);
                         }}
                         placeholder={''}
                     />
@@ -103,7 +131,7 @@ const SampleCharInfo = ({
                         value={userUpdateValue?.CHighValue || ''}
                         style={[styles.inputBox, { backgroundColor: COLORS.inputBG }]}
                         onChangeText={val => {
-                            handleUserInputChange('CHighValue', val, 'highvalue',selectedData.CHighValue);
+                            handleUserInputChange('CHighValue', val, 'highvalue', selectedData.CHighValue);
                         }}
                         placeholder={''}
                     />
@@ -116,46 +144,52 @@ const SampleCharInfo = ({
                         value={userUpdateValue?.CLowValue || ''}
                         style={[styles.inputBox, { backgroundColor: COLORS.inputBG }]}
                         onChangeText={val => {
-                            handleUserInputChange('CLowValue', val, 'lowvalue',selectedData.CLowValue);
+                            handleUserInputChange('CLowValue', val, 'lowvalue', selectedData.CLowValue);
                         }}
                         placeholder={''}
                     />
                 </View>
             )}
-            <View style={styles.subBox}>
-                <Text style={styles.headerText}>UOM</Text>
-                <TextInput
-                    value={selectedData?.UOM || ''}
-                    style={[styles.inputBox, { backgroundColor: COLORS.inputBG }]}
-                    onChangeText={val => {
-                        handleInputChange('UOM', val);
-                    }}
-                    placeholder={''}
-                />
-            </View>
+            {Boolean(inspectionType == 2) && (
+                <View style={styles.subBox}>
+                    <Text style={styles.headerText}>Eval Tech</Text>
+                    <TextInput
+                        value={selectedData?.GageNo || ''}
+                        style={[styles.inputBox, { backgroundColor: COLORS.inputBG }]}
+                        onChangeText={val => {
+                            handleInputChange('GageNo', val);
+                        }}
+                        placeholder={''}
+                    />
+                </View>
+            )}
             {/* need to ask about this */}
-            <View style={styles.subBox}>
-                <Text style={styles.headerText}>Inspection method</Text>
-                <TextInput
-                    value={''}
-                    style={[styles.inputBox, { backgroundColor: COLORS.inputBG }]}
-                    onChangeText={val => {
-                        handleInputChange('', val);
-                    }}
-                    placeholder={''}
-                />
-            </View>
-            <View style={styles.subBox}>
-                <Text style={styles.headerText}>Gage or Instrument</Text>
-                <TextInput
-                    value={selectedData?.GageName || ''}
-                    style={[styles.inputBox, { backgroundColor: COLORS.inputBG }]}
-                    onChangeText={val => {
-                        handleInputChange('GageName', val);
-                    }}
-                    placeholder={''}
-                />
-            </View>
+            {Boolean(inspectionType != 2) && (
+                <View style={styles.subBox}>
+                    <Text style={styles.headerText}>Inspection method</Text>
+                    <TextInput
+                        value={''}
+                        style={[styles.inputBox, { backgroundColor: COLORS.inputBG }]}
+                        onChangeText={val => {
+                            handleInputChange('', val);
+                        }}
+                        placeholder={''}
+                    />
+                </View>
+            )}
+            {Boolean(inspectionType != 2) && (
+                <View style={styles.subBox}>
+                    <Text style={styles.headerText}>Gage or Instrument</Text>
+                    <TextInput
+                        value={selectedData?.GageName || ''}
+                        style={[styles.inputBox, { backgroundColor: COLORS.inputBG }]}
+                        onChangeText={val => {
+                            handleInputChange('GageName', val);
+                        }}
+                        placeholder={''}
+                    />
+                </View>
+            )}
             <View style={styles.subBox}>
                 <Text style={styles.headerText}>Sample frequency</Text>
                 <TextInput
@@ -178,17 +212,31 @@ const SampleCharInfo = ({
                     placeholder={''}
                 />
             </View>
-            <View style={styles.subBox}>
-                <Text style={styles.headerText}>Defect</Text>
-                <TextInput
-                    value={''}
-                    style={[styles.inputBox, { backgroundColor: COLORS.inputBG }]}
-                    onChangeText={val => {
-                        handleInputChange('', val);
-                    }}
-                    placeholder={''}
-                />
-            </View>
+            {Boolean(inspectionType != 2) && (
+                <View style={styles.subBox}>
+                    <Text style={styles.headerText}>Defect</Text>
+                    <SingleDropDown
+                        data={[{
+                            id:1,
+                            label:'Defect1',
+                            value:'Defect1'
+                        }]}
+                        // backgroundColor={isEditable ? COLORS.inputBG : COLORS.whiteGrey}
+                        borderWidth={1}
+                        marginTop={8}
+                        title=""
+                        borderRadius={4}
+                        borderColor={COLORS.icBottomBox}
+                        showSearch={false}
+                        maxHeight={200}
+                        value={selectedData.Defect || {}}
+                        onChange={val => {
+                         handleInputChange('Defect', val);
+                        }}
+                        // editable={isEditable}
+                    />
+                </View>
+            )}
             <View style={styles.subBox}>
                 <Text style={styles.headerText}>Remarks</Text>
                 <TextInput
@@ -215,7 +263,7 @@ const SampleCharInfo = ({
                 <DynamicFormField
                     title="Evidence2"
                     fieldType={'filepicker'}
-                    value={selectedData?.Evidence1 || []}
+                    value={selectedData?.Evidence2 || []}
                     isEditable={true}
                     handleChange={val => handleInputChange('Evidence2', val)}
                 />

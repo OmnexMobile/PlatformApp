@@ -606,6 +606,7 @@ const CharacteristicsInfo = ({
                                             setUserUpdateValue={setUserUpdateValue}
                                             setTypeOfModal={setTypeOfModal}
                                             charType={type}
+                                            inspectionType={inspectionType}
                                         />
                                     )}
                                     <View style={[styles.headerBox]}>
