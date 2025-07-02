@@ -372,7 +372,18 @@ const CharacteristicsInfo = ({
         setMasterData(updatedData);
     };
     const handleContainmentSave = value => {
-        const updatedData = masterData.map(item => (item.id === value.id ? { ...value } : item));
+        const getBackColorValue = getBackColor(value.value, type, value);
+        const updatedData = masterData.map(item =>
+            item.id === value.id
+                ? {
+                      ...value,
+                      FunctionValue: value.value,
+                      EnteredDate: moment(new Date()).format('MM/DD/YYYY h:mm:ss A '),
+                      backColor: getBackColorValue,
+                      IsRejected: getBackColorValue == '#00FF00' ? 0 : 1,
+                  }
+                : item,
+        );
         setMasterData(updatedData);
     };
     const handleSendPress = (type, item, index) => {

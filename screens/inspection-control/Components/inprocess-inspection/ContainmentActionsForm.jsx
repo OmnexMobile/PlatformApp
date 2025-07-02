@@ -111,7 +111,27 @@ const ContainmentActionsForm = ({ type = '', masterData, handleSubmit = () => {}
                             value={item.ContainmentValue}
                             title="Value"
                             onChangeText={val => {
-                                handleInputChage(val, item?.id, 'ContainmentValue');
+                                let cleaned = val;
+                                if (type === 'number') {
+                                    // 1. Remove invalid characters (allow digits and one dot)
+                                    cleaned = val.replace(/[^0-9.]/g, '');
+                                    // 2. Allow only one dot
+                                    const parts = cleaned.split('.');
+                                    if (parts.length > 2) {
+                                        cleaned = parts[0] + '.' + parts[1]; // keep only first two parts
+                                    }
+                                    // Optional: prevent starting with a dot (e.g., ".5" => "0.5")
+                                    if (cleaned.startsWith('.')) {
+                                        cleaned = '0' + cleaned;
+                                    }
+                                } else {
+                                    // 1. Remove leading spaces
+                                    cleaned = val.replace(/^\s+/, '');
+
+                                    // 2. Remove all characters except letters and spaces
+                                    cleaned = cleaned.replace(/[^a-zA-Z\s]/g, '');
+                                }
+                                handleInputChage(cleaned, item?.id, 'ContainmentValue');
                             }}
                             color="#fff"
                             onFocus={() => handleInputBlur(item?.id)}

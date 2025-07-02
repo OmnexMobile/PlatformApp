@@ -32,7 +32,9 @@ const InputDataModal = ({
     userData = {},
     handleSubmitPress = () => {},
 }) => {
+    console.log(shiftData, 'shiftData');
     const dispatch = useDispatch();
+
     const { icSettings } = useSelector(state => state.inspection);
     const [formFields, setFormFields] = useState({
         shift: null,
@@ -49,6 +51,27 @@ const InputDataModal = ({
     const [isEditableField, setIsEditableField] = useState({
         lotNo: true,
     });
+    useEffect(() => {
+      const currentShift =  getCurrentShift(shiftData)
+      if(currentShift){
+        setFormFields({...formFields, shift: currentShift})
+      } 
+    }, [shiftData]);
+    const getCurrentShift = (shifts) => {
+        const now = moment(); // current time
+
+        return shifts.find(shift => {
+            const from = moment(shift.Fromtime, 'hh:mm A');
+            const to = moment(shift.Totime, 'hh:mm A');
+
+            // If shift wraps past midnight
+            if (to.isBefore(from)) {
+                return now.isAfter(from) || now.isBefore(to);
+            } else {
+                return now.isBetween(from, to, undefined, '[)');
+            }
+        });
+    };
 
     const getFrequencyList = async () => {
         // let strType = selectedValue?.TypeOfInspection == '2' ? 'Aqua' : 'Custom';
@@ -212,7 +235,7 @@ const InputDataModal = ({
             formData.append('SampleFrequency', formFields?.frequency?.SampleFrequency || '');
             formData.append('ProductionQty', selectedValue?.ProductionQty || '');
 
-            formData.append('Executor', formFields.responsible.length > 0 ? JSON.stringify(formFields.responsible) : ''); // responsible party
+            formData.append('Executor', formFields.responsible.length > 0 ? formFields.responsible.map(item => item.Name).join(';') : ''); // responsible party
             // need to update asper API change
             formData.append('EnteredDate', moment(new Date()).format('MM/DD/YYYY h:mm:ss A '));
             // formData.append('SamplingHierarchy', ', , AQL=');

@@ -168,16 +168,18 @@ const CompletedInspection = () => {
     const createConatinmentList = templist => {
         let temp = [];
         if (templist?.length) {
-            temp = templist?.map((item, index) => {
-                return {
-                    ContainmentID: item?.ContainmentID,
-                    ContainmentNumber: item?.ContainmentNumber,
-                    ContainmentValue: item?.ContainmentValue,
-                    ContainmentComment: item?.ContainmentComment,
-                    Type: 'Value',
-                    BackColorForContainment: item?.BackColorForContainment,
-                    FontColorForContainment: '#FFFFFF',
-                };
+            templist.forEach((item, index) => {
+                if (item.ContainmentValue !== '') {
+                    temp.push({
+                        ContainmentID: item?.ContainmentID,
+                        ContainmentNumber: item?.ContainmentNumber,
+                        ContainmentValue: item?.ContainmentValue,
+                        ContainmentComment: item?.ContainmentComment,
+                        Type: 'Value',
+                        BackColorForContainment: item?.BackColorForContainment,
+                        FontColorForContainment: '#FFFFFF',
+                    });
+                }
             });
         }
         return temp;
@@ -186,7 +188,6 @@ const CompletedInspection = () => {
         let characteristicDetails = templist.map(item => {
             const samples = item.Samples || [];
             let actualValue = null;
-
             if (type === 'number') {
                 // Filter only valid numeric values
                 // const numericValues = samples.map(s => parseFloat(s.FunctionValue)).filter(val => !isNaN(val));
@@ -212,6 +213,13 @@ const CompletedInspection = () => {
                 Samples: undefined,
                 ActualValue: actualValue !== Infinity ? String(actualValue) : '',
                 ID: String(item.ID || ''),
+                ...(item?.DefectsValue &&
+                    Object.keys(item?.DefectsValue)?.length && {
+                        Case: 'DEFECTPHENOMENON',
+                        StrID: item?.DefectsValue.ID,
+                        Name: 'CustomInspectionCharacteristicsV',
+                        Topic: 'DefectPhenomenon',
+                    }),
                 samples: samples.map(sample => ({
                     sampleName: String(sample.sampleName || ''),
                     data: {
@@ -245,6 +253,10 @@ const CompletedInspection = () => {
                 return {
                     ...item,
                     Value: item.Value.value,
+                    Case: 'SUPERVISOR',
+                    StrID: item.Value.ID,
+                    Name: 'CustomInspection',
+                    Topic: 'Supervisor',
                 };
             }
             return item;

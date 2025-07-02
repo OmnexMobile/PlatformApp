@@ -240,9 +240,9 @@ const SampleCharInfo = ({
                         borderColor={COLORS.icBottomBox}
                         showSearch={false}
                         maxHeight={200}
-                        value={selectedData.Defects || {}}
+                        value={selectedData?.DefectsValue || {}}
                         onChange={val => {
-                            handleInputChange('Defects', val);
+                            handleInputChange('DefectsValue', val);
                         }}
                         // editable={isEditable}
                     />
