@@ -424,7 +424,6 @@ const CharacteristicsInfo = ({
             return value.toLowerCase() === 'ok' ? COLORS.SUCCESS : COLORS.ERROR;
         };
         const renderIcon = (value, type, list) => {
-            console.log(value, list, 'dwefrv');
             if (value === '') {
                 return false;
             }
