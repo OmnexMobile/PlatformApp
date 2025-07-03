@@ -423,14 +423,16 @@ const CharacteristicsInfo = ({
             }
             return value.toLowerCase() === 'ok' ? COLORS.SUCCESS : COLORS.ERROR;
         };
-        const renderIcon = (value, type) => {
+        const renderIcon = (value, type, list) => {
+            console.log(value, list, 'dwefrv');
             if (value === '') {
                 return false;
             }
             if (type === 'number') {
                 let lowValue = inspectionType == 2 ? Number(item?.tolerance) - Number(item?.lowValue) : item?.lowValue;
                 let highValue = inspectionType == 2 ? Number(item?.tolerance) + Number(item?.highValue) : item?.highValue;
-                return Number(value) >= Number(lowValue) && Number(value) <= Number(highValue) ? false : true;
+                let flag = Number(value) >= Number(lowValue) && Number(value) <= Number(highValue);
+                return flag ? (list > 0 ? true : false) : true;
             }
             return value.toLowerCase() === 'ok' ? false : true;
         };
@@ -446,7 +448,7 @@ const CharacteristicsInfo = ({
                         marginRight: 5,
                     }}>
                     <Text style={[styles.headerText]}>{item.count}</Text>
-                    {renderIcon(item.value, type) && Boolean(icSettings?.ISContainmentAction) && (
+                    {renderIcon(item.value, type, item?.ContainmentActions?.length) && Boolean(icSettings?.ISContainmentAction) && (
                         <TouchableOpacity
                             style={[styles.iconContainer]}
                             onPress={() => {

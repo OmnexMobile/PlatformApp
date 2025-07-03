@@ -139,6 +139,19 @@ const SampleCharInfo = ({
                     />
                 </View>
             )}
+            {charType != 'number' && (
+                <View style={styles.subBox}>
+                    <Text style={styles.headerText}>Specification</Text>
+                    <TextInput
+                        value={userUpdateValue?.CTolerance || ''}
+                        style={[styles.inputBox, { backgroundColor: COLORS.inputBG }]}
+                        onChangeText={val => {
+                            handleInputChange('CTolerance', val);
+                        }}
+                        placeholder={''}
+                    />
+                </View>
+            )}
             {charType === 'number' && (
                 <View style={styles.subBox}>
                     <Text style={styles.headerText}>High value</Text>

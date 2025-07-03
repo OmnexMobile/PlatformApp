@@ -23,15 +23,22 @@ const ContainmentActions = ({ route }) => {
     }, []);
     useLayoutEffect(() => {
         if (route?.params?.selectedData?.ContainmentActions) {
-            let temp = route?.params?.selectedData?.ContainmentActions.map((item, index) => {
+            let temp = route?.params?.selectedData?.ContainmentActions.map((item, index, array) => {
+                let isFirst = index === 0;
+                let isSecond = index === 1;
+
+                // Check if first item has a valid `ContainmentValue`
+                let firstHasValue = array[0]?.ContainmentValue?.trim() !== '';
+
                 return {
                     ...item,
-                    isEditable: index + 1 == 1 ? true : false,
-                    isCommentsEditable: index + 1 == 1 ? true : false,
-                    showBtn: index + 1 == 1 ? true : false,
+                    isEditable: isFirst ? !firstHasValue : isSecond && firstHasValue ? true : false,
+                    isCommentsEditable: isFirst ? !firstHasValue : isSecond && firstHasValue ? true : false,
+                    showBtn: isFirst ? !firstHasValue : isSecond && firstHasValue ? true : false,
                     actualValue: route?.params?.selectedData?.value,
                 };
             });
+
             setMasterData(temp);
         } else {
             const { lowValue, highValue, value, count, tolerance } = route?.params?.selectedData;

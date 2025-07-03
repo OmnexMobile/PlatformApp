@@ -25,12 +25,14 @@ const GeneralInfo = ({ infoData = {}, setInfoData = () => {}, intInspectionTypeI
                                 item.DisplayName != 'Customer' &&
                                 item.DisplayName != 'Customer Code' && (
                                     <View style={styles.subBox} key={`${item.PropertyName}-${index}`}>
-                                        <Text style={styles.headerText}>{item.DisplayName}</Text>
+                                        <Text style={styles.headerText}>
+                                            {item.DisplayName == 'ReceiptNo' && intInspectionTypeID == 1 ? 'GRN No' : item.DisplayName}
+                                        </Text>
                                         <DynamicFormField
                                             title="Supplier Name"
                                             fieldType={item.DisplayName == 'Approver' ? 'singleDropDown' : item.DataType}
                                             value={item.Value}
-                                            // isEditable={item.intEditable == 1}
+                                            isEditable={item.IsEditable}
                                             dropDownData={dropList || []}
                                             handleChange={val => handleInputChange(val, item)}
                                         />
@@ -43,14 +45,15 @@ const GeneralInfo = ({ infoData = {}, setInfoData = () => {}, intInspectionTypeI
                                 item.DisplayName != 'ReceiptNo' &&
                                 item.DisplayName != 'GRN Date' &&
                                 item.DisplayName != 'Supplier Code' &&
-                                item.DisplayName != 'InvoiceDate' && (
+                                item.DisplayName != 'Invoice Number' &&
+                                item.DisplayName != 'Invoice Date' && (
                                     <View style={styles.subBox} key={`${item.PropertyName}-${index}`}>
                                         <Text style={styles.headerText}>{item.DisplayName}</Text>
                                         <DynamicFormField
                                             title="Supplier Name"
                                             fieldType={item.DisplayName == 'Approver' ? 'singleDropDown' : item.DataType}
                                             value={item.Value}
-                                            // isEditable={item.intEditable == 1}
+                                            isEditable={item.IsEditable}
                                             dropDownData={dropList || []}
                                             handleChange={val => handleInputChange(val, item)}
                                         />
@@ -67,7 +70,7 @@ const GeneralInfo = ({ infoData = {}, setInfoData = () => {}, intInspectionTypeI
                                         title="Supplier Name"
                                         fieldType={item.DisplayName == 'Approver' ? 'singleDropDown' : item.DataType}
                                         value={item.Value}
-                                        // isEditable={item.intEditable == 1}
+                                        isEditable={item.IsEditable}
                                         dropDownData={dropList || []}
                                         handleChange={val => handleInputChange(val, item)}
                                     />
