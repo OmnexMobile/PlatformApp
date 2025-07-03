@@ -349,7 +349,7 @@ const InprocessInspection = ({ route }) => {
                 console.log('error2');
                 // setShowCharInfo(false);
             } else {
-                Alert.alert(`End of ${formType == 'number' ? 'variable' : 'attribute'} Sample List`, 'You have reached the last sample.');
+                Alert.alert(`End of Sample List`, 'You have reached the last sample.');
             }
         }
     };
