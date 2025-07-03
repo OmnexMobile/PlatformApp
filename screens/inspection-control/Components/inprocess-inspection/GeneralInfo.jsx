@@ -32,7 +32,7 @@ const GeneralInfo = ({ infoData = {}, setInfoData = () => {}, intInspectionTypeI
                                             title="Supplier Name"
                                             fieldType={item.DisplayName == 'Approver' ? 'singleDropDown' : item.DataType}
                                             value={item.Value}
-                                            isEditable={item.IsEditable}
+                                            isEditable={Boolean(item?.IsEditable)}
                                             dropDownData={dropList || []}
                                             handleChange={val => handleInputChange(val, item)}
                                         />
@@ -53,7 +53,7 @@ const GeneralInfo = ({ infoData = {}, setInfoData = () => {}, intInspectionTypeI
                                             title="Supplier Name"
                                             fieldType={item.DisplayName == 'Approver' ? 'singleDropDown' : item.DataType}
                                             value={item.Value}
-                                            isEditable={item.IsEditable}
+                                            isEditable={Boolean(item?.IsEditable)}
                                             dropDownData={dropList || []}
                                             handleChange={val => handleInputChange(val, item)}
                                         />
@@ -70,7 +70,7 @@ const GeneralInfo = ({ infoData = {}, setInfoData = () => {}, intInspectionTypeI
                                         title="Supplier Name"
                                         fieldType={item.DisplayName == 'Approver' ? 'singleDropDown' : item.DataType}
                                         value={item.Value}
-                                        isEditable={item.IsEditable}
+                                        isEditable={Boolean(item?.IsEditable)}
                                         dropDownData={dropList || []}
                                         handleChange={val => handleInputChange(val, item)}
                                     />
