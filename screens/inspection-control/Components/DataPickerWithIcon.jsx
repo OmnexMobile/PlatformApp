@@ -63,7 +63,9 @@ const DataPickerWithIcon = ({
                     { borderRadius: borderRadius, backgroundColor: backgroundColor, borderWidth, paddingVertical, borderColor: borderColor },
                 ]}
                 onPress={() => {
-                    showDatePicker();
+                    if (editable) {
+                        showDatePicker();
+                    }
                 }}
                 activeOpacity={editable ? 0.5 : 1}>
                 <Text numberOfLines={1} style={[styles.textStyle]}>
@@ -101,6 +103,7 @@ const DataPickerWithIcon = ({
             )}
 
             {editable && showPicker && Platform.OS === 'android' && ( */}
+            {editable && (
                 <DateTimePicker
                     isVisible={showPicker}
                     mode="date"
@@ -112,20 +115,8 @@ const DataPickerWithIcon = ({
                             setDate(selectedDate);
                         }
                     }}
-
-                    // old lib
-                    // value={tempDate}
-                    // mode={type}
-                    // display="default"
-                    // onChange={(event, selectedDate) => {
-                    //     setShowPicker(false);
-                    //     if (selectedDate && event?.type == 'set') {
-                    //         onSelectedDate(selectedDate);
-                    //         setDate(selectedDate);
-                    //     }
-                    // }}
                 />
-            {/* )} */}
+            )}
         </>
     );
 };

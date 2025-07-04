@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import {
     BackHandler,
     FlatList,
+    InteractionManager,
     Keyboard,
     KeyboardAvoidingView,
     Platform,
@@ -396,20 +397,30 @@ const CharacteristicsInfo = ({
         });
     };
     const handleSubmit = index => {
-        if (index < masterData?.length - 1) {
-            inputsRef.current[index + 1].focus(); // Focus next input
+        // if (index < masterData?.length - 1) {
+        //     inputsRef.current[index + 1].focus(); // Focus next input
+        // } else {
+        //     Keyboard.dismiss(); // Last input: dismiss keyboard
+        // }
+        const nextIndex = index + 1;
+        if (inputsRef.current[nextIndex]) {
+            flatListRef.current?.scrollToIndex({ index: nextIndex, animated: true });
+            setTimeout(() => {
+                inputsRef.current[nextIndex]?.focus();
+            }, 200);
         } else {
-            Keyboard.dismiss(); // Last input: dismiss keyboard
+            console.log('last input');
+            Keyboard.dismiss(); // last input
         }
     };
     const handleScrollAndFocus = index => {
-        // Step 1: Scroll to index
-        flatListRef.current?.scrollToIndex({ index, animated: true });
+      flatListRef.current?.scrollToIndex({ index, animated: true });
 
-        // Step 2: After scroll animation is done, focus the input
-        setTimeout(() => {
-            inputsRef.current[index]?.focus(); // trigger keyboard
-        }, 400); // Adjust this based on animation speed
+  InteractionManager.runAfterInteractions(() => {
+    setTimeout(() => {
+      inputsRef.current[index]?.focus(); // This works even for last input
+    }, 100); // slight delay
+  });
     };
     const renderItem = (item, index) => {
         const renderBackGroundColor = (value, type) => {
@@ -436,7 +447,7 @@ const CharacteristicsInfo = ({
             return value.toLowerCase() === 'ok' ? false : true;
         };
         return (
-            <View style={[styles.contentBox]} key={item?.id}>
+            <View style={[styles.contentBox]}>
                 <View
                     style={{
                         flex: 1,
@@ -596,10 +607,12 @@ const CharacteristicsInfo = ({
                             keyboardShouldPersistTaps="handled"
                             ref={flatListRef}
                             data={masterData}
+                            keyExtractor={(item, index) => index.toString()}
                             renderItem={({ item, index }) => {
                                 return <View style={[styles.tableBox]}>{renderItem(item, index)}</View>;
                             }}
                             showsVerticalScrollIndicator={false}
+                            contentContainerStyle={{ paddingBottom: 100 }}
                             // contentContainerStyle={[styles.tableBox]}
                             ListHeaderComponent={
                                 <View>

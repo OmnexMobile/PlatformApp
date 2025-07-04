@@ -7,7 +7,15 @@ import moment from 'moment';
 import { TouchableOpacity } from 'react-native';
 import InputFilePicker from './inprocess-inspection/InputFilePicker';
 
-const DynamicFormField = ({ fieldType = '', handleChange = () => {}, dropDownData = [], value = '', placeHolder = '', isEditable = true ,title=''}) => {
+const DynamicFormField = ({
+    fieldType = '',
+    handleChange = () => {},
+    dropDownData = [],
+    value = '',
+    placeHolder = '',
+    isEditable = true,
+    title = '',
+}) => {
     switch (fieldType) {
         case 'textinput':
         case 'text':
@@ -15,12 +23,16 @@ const DynamicFormField = ({ fieldType = '', handleChange = () => {}, dropDownDat
             return (
                 <TextInput
                     value={value || ''}
-                    style={[styles.inputBox, { backgroundColor: isEditable ? COLORS.inputBG : COLORS.whiteGrey }]}
+                    style={[styles.inputBox, { backgroundColor: isEditable ? COLORS.inputBG : COLORS.whiteGrey ,textAlign:'left'}]}
                     onChangeText={val => {
-                        handleChange(val);
+                        if(isEditable){
+                            handleChange(val);
+                        }
                     }}
                     placeholder={placeHolder}
-                    editable={isEditable}
+                    // editable={isEditable}
+                    scrollEnabled={true}
+                    textAlign='left'
                 />
             );
         case 'singleDropDown':
@@ -94,13 +106,17 @@ const DynamicFormField = ({ fieldType = '', handleChange = () => {}, dropDownDat
         default:
             return (
                 <TextInput
-                    value={value || ''}
-                    style={[styles.inputBox, { backgroundColor: isEditable ? COLORS.inputBG : COLORS.whiteGrey }]}
+                   value={value || ''}
+                    style={[styles.inputBox, { backgroundColor: isEditable ? COLORS.inputBG : COLORS.whiteGrey ,textAlign:'left'}]}
                     onChangeText={val => {
-                        handleChange(val);
+                        if(isEditable){
+                            handleChange(val);
+                        }
                     }}
                     placeholder={placeHolder}
-                    editable={isEditable}
+                    // editable={isEditable}
+                    scrollEnabled={true}
+                    textAlign='left'
                 />
             );
     }
