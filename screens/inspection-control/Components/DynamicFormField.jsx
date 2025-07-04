@@ -31,8 +31,6 @@ const DynamicFormField = ({
                     }}
                     placeholder={placeHolder}
                     // editable={isEditable}
-                    scrollEnabled={true}
-                    textAlign='left'
                 />
             );
         case 'singleDropDown':
@@ -115,8 +113,6 @@ const DynamicFormField = ({
                     }}
                     placeholder={placeHolder}
                     // editable={isEditable}
-                    scrollEnabled={true}
-                    textAlign='left'
                 />
             );
     }
