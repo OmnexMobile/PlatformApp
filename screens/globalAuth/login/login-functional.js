@@ -120,7 +120,7 @@ const LoginFunctional = ({}) => {
         formData.append('Password', encryptedPassword.toString());
         formData.append('LoginFlag', 1);
         const response = await postAPI(`${globalDeviceDetails.deviceDetails.ICApiURL}${ApiUrl.IC_LOGIN}`, formData);
-		console.log(response,'response')
+		
         if (response?.Success) {
             response?.Token && setProfileCall(response?.data); // navigate to home
             let icUserData = {

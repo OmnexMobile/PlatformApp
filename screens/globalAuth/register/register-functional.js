@@ -191,7 +191,8 @@ const RegisterFunctional = ({}) => {
             )
                 .then(async data => {
                     setLoading(false);
-                    if (data?.Success) {
+                    console.log(data,'******************response')
+                    if (data?.Success && data?.Data!=='Invalid Url') {
                         localStorage.storeData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL, state?.globalServerURL);
                         localStorage.storeData(LOCAL_STORAGE_VARIABLES.globalRegister, state?.globalServerURL);
                         globalAuth.setServerUrl(state?.globalServerURL);
@@ -200,7 +201,7 @@ const RegisterFunctional = ({}) => {
                         getDeviceStatus();
                         successMessage({ message: 'Success', description: 'Successfully Registered this Device' });
                     } else {
-                        // showErrorMessage(data?.Data || 'Something went wrong while Registering the Device');
+                        showErrorMessage(data?.Data || 'Something went wrong while Registering the Device');
                     }
                 })
                 .catch(data => {
