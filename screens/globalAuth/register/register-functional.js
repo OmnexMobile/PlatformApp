@@ -39,44 +39,30 @@ export const registerDevice = async (requestURL, request, type) => {
         UnRegisteredDate: today,
     });
 
-    console.log('🚀 ~ file: register-functional.js:40 ~ registerDevice ~ requestURL:', requestURL + 'RegisterDevice');
-    const res = await fetch(requestURL + 'RegisterDevice', {
+    const res = await fetch(requestURL + '/RegisterDevice', {
         method: 'POST',
         headers: {
             'Content-Type': 'multipart/form-data',
         },
         body: req,
     });
-    console.log('res.json--->', res.json)
+    console.log('res.json--->', res.json);
     return res.json();
 };
 
-const DEFAULT_URL = 'https://saasmobile.ewqims.net/EwQIMSAPI/api/';
+// const DEFAULT_URL = 'https://saasmobile.ewqims.net/EwQIMSAPI/api/';
 
 const RegisterFunctional = ({}) => {
     const [loading, setLoading] = useState(false);
     const [state, setState] = useState({
         // serverUrl: DEFAULT_URL,
-        globalServerURL: DEFAULT_URL,
+        globalServerURL: '',
         deviceId: getUniqueId(),
     });
     const [currentURL, setCurrentURL] = useState('');
     // const [state, setState] = useState({ serverUrl: appSettings?.serverUrl || 'http://1.22.172.236/ProblemSolverAPI/', deviceId: getUniqueId() });
     const navigation = useNavigation();
     const { appSettings, handleAppSetting, globalURL, handleGlobalURL, globalDeviceDetails, handleDeviceDetails } = useAppContext();
-
-    console.log('🚀 ~ file: register-functional.js:64 ~ RegisterFunctional ~ globalURL?.serverUrl:',globalURL, globalURL?.serverUrl);
-    console.log('globalDeviceDetails---->', globalDeviceDetails)
-
-    // React.useEffect(() => {
-    //     if (globalURL?.serverUrl) {
-    //         setState({
-    //             ...state,
-    //             // serverUrl: appSettings?.serverUrl,
-    //             globalServerURL: globalURL?.serverUrl,
-    //         });
-    //     }
-    // }, [globalURL?.serverUrl]);
 
     React.useEffect(() => {
         if (currentURL) {
@@ -88,21 +74,23 @@ const RegisterFunctional = ({}) => {
     }, [currentURL]);
 
     React.useEffect(() => {
-		async function fetchData() {
-			const currentUrl = await localStorage.getData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL);
-			console.log('currentURL--->login', currentUrl)
-			setCurrentURL(currentUrl)
-		}
-		fetchData();
-
-	}, [currentURL])
+        async function fetchData() {
+            const currentUrl = await localStorage.getData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL);
+            console.log('currentURL--->login', currentUrl);
+            setCurrentURL(currentUrl);
+        }
+        fetchData();
+    }, [currentURL]);
 
     const handleChange = (label, value) => {
+        console.log('label, value', label, value);
         setState({
             ...state,
             [label]: value,
         });
     };
+
+    console.log('state--->', state);
 
     const isValidUrl = urlString => {
         var urlPattern = new RegExp(
@@ -123,13 +111,12 @@ const RegisterFunctional = ({}) => {
     const getDeviceStatus = async () => {
         const deviceId = await getUniqueId();
         await AsyncStorage.setItem('deviceid', deviceId);
-        console.log('set deviceId', deviceId)
+        console.log('set deviceId', deviceId);
         const req = formReq({
             RegisteredDeviceId: deviceId,
         });
-        console.log('DEFAULT_URL + `${API_URL.DEVICE_STATUS}`', DEFAULT_URL + `${API_URL.DEVICE_STATUS}`, 'deviceId', deviceId, 'req', req )
         try {
-            const res = await fetch(DEFAULT_URL + `${API_URL.DEVICE_STATUS}`, {
+            const res = await fetch(state?.globalServerURL + `/${API_URL.DEVICE_STATUS}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'multipart/form-data',
@@ -143,12 +130,12 @@ const RegisterFunctional = ({}) => {
             //     deviceStatusSettings: data?.Data || {},
             // });
             // localStorage.storeData(LOCAL_STORAGE_VARIABLES.DEVICE_STATUS_SETTINGS, data?.Data);
-            console.log('state?.globalServerURL-->', state?.globalServerURL)
-            handleGlobalURL('serverUrl', state?.globalServerURL)
-            localStorage.storeData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL, state?.globalServerURL)
+            handleGlobalURL('serverUrl', state?.globalServerURL);
+            localStorage.storeData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL, state?.globalServerURL);
+            localStorage.storeData(LOCAL_STORAGE_VARIABLES.globalRegister, state?.globalServerURL);
             // handleDeviceDetails(data?.Data)
-            handleDeviceDetails({...data?.Data,ICURL:'https://mobility-dev.ewqims.com/InspectionControlAPI/api/'})
-            console.log('🚀 ~ file: DEVICE_STATUS ~ res', data, '---', data?.Data);
+            console.log('data?.Data--->', data?.Data);
+            handleDeviceDetails({ ...data?.Data });
         } catch (err) {
             console.log('🚀 ~ file: DEVICE_STATUS ~ err', err);
         }
@@ -167,16 +154,16 @@ const RegisterFunctional = ({}) => {
         )
             .then(data => {
                 setLoading(false);
-                console.log('🚀 ~ file: register-functional.js:92 ~ handleUnRegister ~ data:', data?.Success);
                 if (data?.Success) {
                     localStorage.removeItem(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL);
+                    localStorage.removeItem(LOCAL_STORAGE_VARIABLES.globalRegister);
                     handleAppSetting('serverUrl', '');
-                    handleGlobalURL('serverUrl', '')
+                    handleGlobalURL('serverUrl', '');
                     setState({
                         ...state,
                         globalServerURL: '',
                     });
-
+                    setCurrentURL('');
                     globalAuth.setServerUrl('');
                     successMessage({ message: 'Success', description: 'Successfully Unregistered this Device' });
                 } else {
@@ -186,13 +173,11 @@ const RegisterFunctional = ({}) => {
             .catch(data => {
                 setLoading(false);
                 showErrorMessage(data?.Error || 'Something went wrong while Unregistering the Device');
-                console.log('🚀 ~ file: register-functional.js:102 ~ handleUnRegister ~ data:', data);
             });
     };
 
     const handleRegister = async () => {
-        console.log('🚀 ~ file: register-functional.js:157 ~ handleRegister ~ state?.serverUrl:', state?.serverUrl, isValidUrl(state?.serverUrl));
-        if (isValidUrl(DEFAULT_URL)) {
+        if (isValidUrl(state?.globalServerURL)) {
             setLoading(true);
             const deviceId = await getUniqueId();
             registerDevice(
@@ -207,8 +192,8 @@ const RegisterFunctional = ({}) => {
                 .then(async data => {
                     setLoading(false);
                     if (data?.Success) {
-                        console.log('🚀 ~ file: register-functional.js:133 ~ handleRegister ~ data:', data);
                         localStorage.storeData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL, state?.globalServerURL);
+                        localStorage.storeData(LOCAL_STORAGE_VARIABLES.globalRegister, state?.globalServerURL);
                         globalAuth.setServerUrl(state?.globalServerURL);
                         await AsyncStorage.setItem('storedserverrul', state?.globalServerURL);
                         navigation.goBack();
@@ -217,12 +202,10 @@ const RegisterFunctional = ({}) => {
                     } else {
                         // showErrorMessage(data?.Data || 'Something went wrong while Registering the Device');
                     }
-                    console.log('🚀 ~ file: register-functional.js:78 ~ .then ~ data:', data);
                 })
                 .catch(data => {
                     setLoading(false);
-                    showErrorMessage(data?.Error || 'Something went wrong while Registering the Device');                  
-                    console.log('🚀 ~ file: register-functional.js:43 ~ handleRegister ~ isValidUrl(state?.serverUrl):', data);
+                    showErrorMessage(data?.Error || 'Something went wrong while Registering the Device');
                 });
         } else {
             showErrorMessage('Invalid Url');
@@ -230,7 +213,7 @@ const RegisterFunctional = ({}) => {
     };
 
     return (
-        <RegisterPresentational  //!!globalURL?.serverUrl
+        <RegisterPresentational //!!globalURL?.serverUrl
             {...{ navigation, handleChange, handleRegister, state, isRegistered: !!currentURL, handleUnRegister, loading, getDeviceStatus }}
         />
     );

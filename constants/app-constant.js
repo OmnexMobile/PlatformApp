@@ -160,6 +160,7 @@ export const LOCAL_STORAGE_VARIABLES = {
     deviceId: 'deviceId',
     currentApp: 'currentApp',
     globalLogin: 'globalLogin',
+    globalRegister: 'globalRegister',
 };
 
 export const POST = 'POST';

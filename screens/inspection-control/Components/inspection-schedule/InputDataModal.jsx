@@ -52,12 +52,12 @@ const InputDataModal = ({
         lotNo: true,
     });
     useEffect(() => {
-      const currentShift =  getCurrentShift(shiftData)
-      if(currentShift){
-        setFormFields({...formFields, shift: currentShift})
-      } 
+        const currentShift = getCurrentShift(shiftData);
+        if (currentShift) {
+            setFormFields({ ...formFields, shift: currentShift });
+        }
     }, [shiftData]);
-    const getCurrentShift = (shifts) => {
+    const getCurrentShift = shifts => {
         const now = moment(); // current time
 
         return shifts.find(shift => {
@@ -129,7 +129,11 @@ const InputDataModal = ({
     };
     useEffect(() => {
         if (Object.keys(selectedValue).length && Object.keys(userData).length) {
-            setFormFields(pre => ({ ...pre, lotNumber: selectedValue?.LotNo, lotQty: selectedValue?.ProductionQty?.toString() }));
+            setFormFields(pre => ({
+                ...pre,
+                lotNumber: selectedValue?.LotNo,
+                lotQty: selectedValue?.LotSize == 0 ? '1' : selectedValue?.LotSize?.toString(),
+            }));
             if (selectedValue?.LotNo) {
                 setIsEditableField(pre => ({ ...pre, lotNo: false }));
             }
@@ -233,7 +237,7 @@ const InputDataModal = ({
             formData.append('Shift', formFields?.shift?.ShiftName || '');
             formData.append('FrequencyID', formFields?.frequency?.FrequencyId || '');
             formData.append('SampleFrequency', formFields?.frequency?.SampleFrequency || '');
-            formData.append('ProductionQty', selectedValue?.ProductionQty || '');
+            formData.append('ProductionQty', selectedValue?.LotSize || '');
 
             formData.append('Executor', formFields.responsible.length > 0 ? formFields.responsible.map(item => item.Name).join(';') : ''); // responsible party
             // need to update asper API change

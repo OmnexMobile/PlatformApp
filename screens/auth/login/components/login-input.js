@@ -23,6 +23,7 @@ const LoginInput = ({ placeholder = '', name = '', onChangeText, editable = true
             ]}>
             <TextInput
                 {...{
+                    placeholderTextColor: COLORS.grey,
                     editable,
                     placeholder,
                     onChangeText,
@@ -60,7 +61,7 @@ const styles = StyleSheet.create({
     },
     input: {
         fontFamily: 'ProximaNova-Regular',
-        fontSize: FONT_SIZE.LARGE,
+        fontSize: 20,
         flex: 1,
         color: COLORS.themeBlack,
     },

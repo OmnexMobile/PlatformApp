@@ -13,6 +13,7 @@ const { Types, Creators } = createActions({
     icSettings: ['icSettings'],
     removeInspectList: ['removeInspectList'],
     updateInspectList: ['updateInspectList'],
+    deleteAllInspectList: ['deleteAllInspectList'],
 });
 
 export const InspectTypes = Types;
@@ -32,6 +33,9 @@ export const INITIAL_STATE = {
 const storeInspectList = (state, { inspectList }) => {
     return { ...state, inspectList: [...state.inspectList, ...inspectList] };
 };
+const deleteAllInspectList = (state, { inspectList }) => {
+    return { ...state, inspectList: [] };
+}
 const removeInspectList = (state, { inspectionToRemove }) => {
     //  inspection.intProductionItemID == inspectionToRemove.intProductionItemID &&
     //         inspection.OperationID == inspectionToRemove.OperationID &&
@@ -79,6 +83,7 @@ const rawReducer = createReducer(INITIAL_STATE, {
     [Types.IC_SETTINGS]: storeIcSettings,
     [Types.REMOVE_INSPECT_LIST]: removeInspectList,
     [Types.UPDATE_INSPECT_LIST]: updateInspectList,
+    [Types.DELETE_ALL_INSPECT_LIST]: deleteAllInspectList
 });
 const persistConfig = {
     key: 'inspect', // Unique key for the reducer's data

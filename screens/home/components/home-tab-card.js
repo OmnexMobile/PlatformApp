@@ -38,53 +38,53 @@ const TabsCard = ({ countDetails, tabIndex, noTab, navigation }) => {
     const dispatch = useDispatch();
 
     const data = [
-        {
-            id: 1,
-            title: tabIndex === 0 ? strings.ppapProjects : strings.apqp_ppapManager,
-            detail: [
-                { images: IMAGES.actions, category: strings.Actions, status: 0 },
-                { images: IMAGES.projects, category: strings.projects, status: 0 },
-                { images: tabIndex === 0 ? null : IMAGES.risk, category: tabIndex === 0 ? null : strings.risk, status: 0 },
-                { images: tabIndex === 0 ? null : IMAGES.meeting, category: tabIndex === 0 ? null : strings.meeting, status: 0 },
-                { images: IMAGES.todayTask, category: strings.todayTask, status: 0 },
-                { images: IMAGES.dailyTask, category: strings.dailyTask, status: 0 },
-            ],
-        },
-        {
-            id: 2,
-            title: strings.auditPro,
-            detail: [
-                { images: IMAGES.scheduledAudit, category: strings.scheduledAudit, status: 2, auditTitle: strings.scheduled },
-                { images: IMAGES.completedAudit, category: strings.completedAudit, status: 3, auditTitle: strings.completed },
-                { images: IMAGES.deadlineViolated, category: strings.deadlineViolated, status: 4, auditTitle: strings.deadlineviolated },
-                { images: IMAGES.closedOut, category: strings.closedOut, status: 5, auditTitle: strings.abb_deadlineviolatedandcompleted },
-            ],
-        },
-        {
-            id: 3,
-            title: strings.problemSolver,
-            detail: [
-                {
-                    images: tabIndex === 0 ? IMAGES.supplierConcerns : IMAGES.concerns,
-                    category: tabIndex === 0 ? strings.supplierConcerns : strings.concerns,
-                    status: 0,
-                },
-                { images: IMAGES.openConcerns, category: strings.openConcerns, status: 0 },
-                { images: IMAGES.inProgressConcerns, category: strings.inProgressConcerns, status: 0 },
-            ],
-        },
-        {
-            id: 4,
-            title: tabIndex === 0 ? strings.documentPro : null,
-            detail:
-                tabIndex === 0
-                    ? [
-                          { images: IMAGES.docproIcon, category: strings.documentLevels, status: 0 },
-                          { images: IMAGES.docAction, category: strings.actionList, status: 0 },
-                          //   { images: IMAGES.inProgressConcerns, category: strings.adminActions, status: 0 },
-                      ]
-                    : [],
-        },
+        // {
+        //     id: 1,
+        //     title: tabIndex === 0 ? strings.ppapProjects : strings.apqp_ppapManager,
+        //     detail: [
+        //         { images: IMAGES.actions, category: strings.Actions, status: 0 },
+        //         { images: IMAGES.projects, category: strings.projects, status: 0 },
+        //         { images: tabIndex === 0 ? null : IMAGES.risk, category: tabIndex === 0 ? null : strings.risk, status: 0 },
+        //         { images: tabIndex === 0 ? null : IMAGES.meeting, category: tabIndex === 0 ? null : strings.meeting, status: 0 },
+        //         { images: IMAGES.todayTask, category: strings.todayTask, status: 0 },
+        //         { images: IMAGES.dailyTask, category: strings.dailyTask, status: 0 },
+        //     ],
+        // },
+        // {
+        //     id: 2,
+        //     title: strings.auditPro,
+        //     detail: [
+        //         { images: IMAGES.scheduledAudit, category: strings.scheduledAudit, status: 2, auditTitle: strings.scheduled },
+        //         { images: IMAGES.completedAudit, category: strings.completedAudit, status: 3, auditTitle: strings.completed },
+        //         { images: IMAGES.deadlineViolated, category: strings.deadlineViolated, status: 4, auditTitle: strings.deadlineviolated },
+        //         { images: IMAGES.closedOut, category: strings.closedOut, status: 5, auditTitle: strings.abb_deadlineviolatedandcompleted },
+        //     ],
+        // },
+        // {
+        //     id: 3,
+        //     title: strings.problemSolver,
+        //     detail: [
+        //         {
+        //             images: tabIndex === 0 ? IMAGES.supplierConcerns : IMAGES.concerns,
+        //             category: tabIndex === 0 ? strings.supplierConcerns : strings.concerns,
+        //             status: 0,
+        //         },
+        //         { images: IMAGES.openConcerns, category: strings.openConcerns, status: 0 },
+        //         { images: IMAGES.inProgressConcerns, category: strings.inProgressConcerns, status: 0 },
+        //     ],
+        // },
+        // {
+        //     id: 4,
+        //     title: tabIndex === 0 ? strings.documentPro : null,
+        //     detail:
+        //         tabIndex === 0
+        //             ? [
+        //                   { images: IMAGES.docproIcon, category: strings.documentLevels, status: 0 },
+        //                   { images: IMAGES.docAction, category: strings.actionList, status: 0 },
+        //                   //   { images: IMAGES.inProgressConcerns, category: strings.adminActions, status: 0 },
+        //               ]
+        //             : [],
+        // },
         {
             id: 5,
             title: tabIndex === 0 ? strings.inspectionControl : null,
@@ -94,7 +94,7 @@ const TabsCard = ({ countDetails, tabIndex, noTab, navigation }) => {
                           { images: IMAGES.ICIS, category: strings.inspectionSchedule, status: 1, routeName: ROUTES.INSPECTION_SCHEDULE },
                           { images: IMAGES.ICOS, category: strings.operatorWorksheet, status: 2, routeName: ROUTES.OPERATOR_WORKSHEET },
                           { images: IMAGES.ICCI, category: strings.completedInspection, status: 3, routeName: ROUTES.COMPLETED_INSPECTION },
-                        //   { images: IMAGES.ICSS, category: strings.supervisorSchedule, status: 4, routeName: ROUTES.SUPERVISOR_SCHEDULE },
+                          //   { images: IMAGES.ICSS, category: strings.supervisorSchedule, status: 4, routeName: ROUTES.SUPERVISOR_SCHEDULE },
                       ]
                     : [],
         },
@@ -257,69 +257,33 @@ const TabsCard = ({ countDetails, tabIndex, noTab, navigation }) => {
                     navigations.navigate(ROUTES.GLOBAL_REGISTER);
                 }
             }
-        }  else if (title === strings.documentPro) {
+        } else if (title === strings.documentPro) {
             if (category == 'Document\nLevels') {
                 navigations.navigate(ROUTES.DOCPRO_DOCUMENTFOLDER);
             } else if (category == 'Actions\nList') {
                 navigations.navigate(ROUTES.DOCPRO_ACTION);
             }
             console.log('current click--->', strings.documentPro);
-        }else if (title === strings.inspectionControl) {
-            localStorage.storeData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL, globalDeviceDetails?.deviceDetails?.ICURL);
+        } else if (title === strings.inspectionControl) {
+            console.log(globalDeviceDetails,'globalDeviceDetails?.deviceDetails?.ICURL')
+            localStorage.storeData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL, globalDeviceDetails?.deviceDetails?.ICApiURL);
             setLoading(true);
-            loginCallIC(routeName);
-            console.log('*************current click', globalDeviceDetails, category, strings.inspectionControl, routeName);
+            // const settingsRes = await postAPI(`${ApiUrl.IC_SETTINGS}`);
+            // if (settingsRes.Success) {
+            //     dispatch({ type: 'IC_SETTINGS', icSettings: settingsRes?.Data[0] || {} });
+                navigations.navigate(routeName);
+            // }
+            setLoading(false);
+           
         } else {
             // console.log('current click--->')
         }
     };
-    const loginCallIC = async routeName => {
-        let Password = 'a1';
-        var key = CryptoJS.enc.Utf8.parse('8080808080808080');
-        var iv = CryptoJS.enc.Utf8.parse('8080808080808080');
-        var encryptedpassword = CryptoJS.AES.encrypt(CryptoJS.enc.Utf8.parse(Password), key, {
-            keySize: 128 / 8,
-            iv: iv,
-            mode: CryptoJS.mode.CBC,
-            padding: CryptoJS.pad.Pkcs7,
-        });
-        const formData = new FormData();
-        formData.append('UserName', 'swetha');
-        formData.append('RegisteredDeviceId', 'testdevice');
-        formData.append('Password', encryptedpassword.toString());
-        formData.append('LoginFlag', 1);
-        const response = await postAPI(`${ApiUrl.IC_LOGIN}`, formData);
-        if (response?.Success) {
-            let icUserData = {
-                userData: response?.Data[0] || {},
-                token: response?.Token || '',
-            };
-            dispatch({ type: 'IC_USER_DATA', icUserData: icUserData });
-            const settingsRes=await postAPI(`${ApiUrl.IC_SETTINGS}`)
-            if(settingsRes.Success){
-                dispatch({ type: 'IC_SETTINGS', icSettings: settingsRes?.Data[0] || {} });
-                navigations.navigate(routeName);
-            }
-        } else {
-            showMessage({
-                message: `${response.Message}`,
-                backgroundColor: COLORS.ERROR,
-                color: COLORS.white,
-                duration: 1500,
-                style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
-            });
-        }
-        setLoading(false);
-    };
 
     const Item = ({ title, detail, images }) => (
-        <>
+        <View style={styles.eachItemStyle}>
             <View style={styles.titleHeader}>
                 <Text style={styles.headerTitle}>{title}</Text>
-                {/* {console.log('titile--->', title, strings.auditPro, currentUserData?.siteId?.length, (title === strings.auditPro) && (currentUserData?.siteId?.length > 0))} */}
-                {/* <Pressable style={{ width: '15%', marginTop: '2%' }} onPress={() =>  (currentUserData?.siteId?.length > 0) && (title === strings.auditPro) ? navigateToSettings() : (title !== strings.auditPro) ? null : showWarningMessage('No Settings Data...Please Login')}>
-          <IconComponent name="setting" type={ICON_TYPE.AntDesign} size={FONT_SIZE.LARGE} color={COLORS.black} />
-        </Pressable> */}
             </View>
             <View style={styles.item}>
                 {detail.map(
@@ -328,33 +292,18 @@ const TabsCard = ({ countDetails, tabIndex, noTab, navigation }) => {
                             <TouchableOpacity
                                 activeOpacity={0.9}
                                 key={index}
-                                onPress={
-                                    () =>
-                                        // console.log('currentUserData---->', currentUserData)
-                                        handleNavigation(title, items?.status, items?.category, items?.auditTitle, items?.routeName)
-                                    // sendToOtherApps()
-                                    // linkApps()
-                                }>
-                                {/* {detail.map((items, index) => (
-            items.category?.length &&  */}
+                                onPress={() => handleNavigation(title, items?.status, items?.category, items?.auditTitle, items?.routeName)}>
                                 <Card key={index} style={styles.card}>
                                     <View style={styles.cardContent}>
-                                        {/* <TouchableOpacity key={index} onPress={() =>
-                handleNavigation(title, items?.status, items?.category)
-                // sendToOtherApps()
-                // linkApps()
-              }> */}
                                         <ImageComponent style={styles.imageView} source={items.images} resizeMode={FastImage.resizeMode.contain} />
-                                        {/* </TouchableOpacity> */}
                                     </View>
                                     <Text style={styles.cardTitle}>{items.category}</Text>
                                 </Card>
-                                {/* ))} */}
                             </TouchableOpacity>
                         ),
                 )}
             </View>
-        </>
+        </View>
     );
 
     return (
@@ -400,6 +349,8 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         marginTop: 0,
+        // backgroundColor: '#F1F9FE',
+        // padding: 10
     },
     item: {
         backgroundColor: '#F1F9FE',
@@ -413,10 +364,10 @@ const styles = StyleSheet.create({
         flexWrap: 'wrap',
         justifyContent: 'flex-start',
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.5,
-        shadowRadius: 2,
-        elevation: 2,
+        // shadowOffset: { width: 0, height: 2 },
+        // shadowOpacity: 0.5,
+        // shadowRadius: 2,
+        // elevation: 2,
         // paddingLeft: 5,
     },
     headerTitle: {
@@ -457,6 +408,8 @@ const styles = StyleSheet.create({
         borderTopRightRadius: 10,
         paddingTop: 15,
         flexDirection: 'row',
+        borderBottomWidth:StyleSheet.hairlineWidth,
+        borderBottomColor:'lightgrey'
     },
     imageView: {
         height: 40,
@@ -471,6 +424,14 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(0,0,0,0.7)',
         height: '50%',
     },
+    eachItemStyle:{
+        paddingTop:10,
+        paddingHorizontal:7,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.5,
+        shadowRadius: 2,
+        elevation: 2,
+    }
 });
 
 export default TabsCard;

@@ -189,7 +189,7 @@ const CustomHeader = ({
                                     <IconO name="sync" size={25} style={styles.iconButton} color={COLORS.white} />
                                 </TouchableOpacity>
                             )} */}
-                            <TouchableOpacity
+                            {/* <TouchableOpacity
                                 onPress={() => {
                                     // navigation.goBack();
                                     navigation.reset({
@@ -198,7 +198,7 @@ const CustomHeader = ({
                                     });
                                 }}>
                                 <IconI name="exit-outline" size={31} style={styles.iconButton} color={COLORS.white} />
-                            </TouchableOpacity>
+                            </TouchableOpacity> */}
                         </>
                     )}
                     {showFileIcon && (
