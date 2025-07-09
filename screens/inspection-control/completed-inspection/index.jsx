@@ -317,7 +317,7 @@ const CompletedInspection = () => {
                     <NoDataFound />
                 )}
             </View>
-            <View style={[styles.btnContainer]}>
+            {/* <View style={[styles.btnContainer]}>
                 <ButtonComponent
                     style={{ height: 40 }}
                     onPress={() => {
@@ -326,7 +326,7 @@ const CompletedInspection = () => {
                     textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}>
                     Inspection Schedule
                 </ButtonComponent>
-            </View>
+            </View> */}
             {Boolean(syncModal) && (
                 <Modal visible={syncModal} onDismiss={hideModal} contentContainerStyle={{ flexDirection: 'row', justifyContent: 'center' }}>
                     <View style={[styles.modalContainer]}>

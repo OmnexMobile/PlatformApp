@@ -6,6 +6,7 @@ import { COLORS } from 'constants/theme-constants';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { PLACEHOLDERS, ROUTES } from 'constants/app-constant';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import IconI from 'react-native-vector-icons/Ionicons';
 import IconF from 'react-native-vector-icons/Feather';
 import DataPickerWithIcon from '../Components/DataPickerWithIcon';
 import FilterWithMenu from '../Components/FilterWithMenu';
@@ -192,29 +193,48 @@ const InspectionSchedule = () => {
         await getOverAllSettings();
         setShowModal(true);
     };
-    const handleMenuPress = value => {
-        if (value.id == 2) {
-            navigation.navigate(ROUTES.OPERATOR_WORKSHEET);
-            return null;
-        }
-        if (value.id == 1) {
-            const { startDate, endDate } = filterData;
-            const tempStart = moment(startDate);
-            const tempEnd = moment(endDate);
-            if (tempStart.isBefore(tempEnd)) {
-                handleListFetch(null, true, filterData.type);
-            } else {
-                showMessage({
-                    message: 'Start Date must be less than End Date',
-                    backgroundColor: COLORS.ERROR,
-                    color: COLORS.white,
-                    duration: 1500,
-                    statusBarHeight: 40,
-                    icon: 'danger',
-                    position: 'right',
-                    style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
-                });
-            }
+    // const handleMenuPress = value => {
+    //     if (value.id == 2) {
+    //         navigation.navigate(ROUTES.OPERATOR_WORKSHEET);
+    //         return null;
+    //     }
+    //     if (value.id == 1) {
+    //         const { startDate, endDate } = filterData;
+    //         const tempStart = moment(startDate);
+    //         const tempEnd = moment(endDate);
+    //         if (tempStart.isBefore(tempEnd)) {
+    //             handleListFetch(null, true, filterData.type);
+    //         } else {
+    //             showMessage({
+    //                 message: 'Start Date must be less than End Date',
+    //                 backgroundColor: COLORS.ERROR,
+    //                 color: COLORS.white,
+    //                 duration: 1500,
+    //                 statusBarHeight: 40,
+    //                 icon: 'danger',
+    //                 position: 'right',
+    //                 style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+    //             });
+    //         }
+    //     }
+    // };
+    const handleMenuPress = () => {
+        const { startDate, endDate } = filterData;
+        const tempStart = moment(startDate);
+        const tempEnd = moment(endDate);
+        if (tempStart.isBefore(tempEnd)) {
+            handleListFetch(null, true, filterData.type);
+        } else {
+            showMessage({
+                message: 'Start Date must be less than End Date',
+                backgroundColor: COLORS.ERROR,
+                color: COLORS.white,
+                duration: 1500,
+                statusBarHeight: 40,
+                icon: 'danger',
+                position: 'right',
+                style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+            });
         }
     };
     const renderIconBgColor = value => {
@@ -368,13 +388,16 @@ const InspectionSchedule = () => {
                         />
                     </View>
                     <View style={[styles.iconFilter]}>
-                        <FilterWithMenu
+                        <TouchableOpacity style={styles.getDataBox} onPress={() => {handleMenuPress()}}>
+                            <IconI name="sync-sharp" size={25} color={COLORS.black} />
+                        </TouchableOpacity>
+                        {/* <FilterWithMenu
                             dataList={moreList}
                             type="IconFilter"
                             onSelectedPress={value => {
                                 handleMenuPress(value);
                             }}
-                        />
+                        /> */}
                     </View>
                 </View>
                 {showSkeleton ? (
@@ -397,7 +420,7 @@ const InspectionSchedule = () => {
                     </View>
                 </View>
             </View>
-            <View style={[styles.btnContainer]}>
+            {/* <View style={[styles.btnContainer]}>
                 <ButtonComponent
                     textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}
                     style={{ height: 40 }}
@@ -406,7 +429,7 @@ const InspectionSchedule = () => {
                     }}>
                     Completed Inspections
                 </ButtonComponent>
-            </View>
+            </View> */}
             {Boolean(showModal) && (
                 <InputDataModal
                     selectedValue={selectedData}
@@ -520,12 +543,21 @@ const styles = StyleSheet.create({
     },
     iconFilter: {
         width: '10%',
+        alignItems: 'center',
     },
     overAllBox: {
         padding: 10,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
+    },
+    getDataBox: {
+        height: 40,
+        width: 40,
+        backgroundColor: COLORS.lightGrey,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 40,
     },
 });
 

@@ -9,7 +9,7 @@ import { COLORS, FONT_SIZE, SPACING } from 'constants/theme-constants';
 
 import { useAppContext } from 'contexts/app-context';
 import { REGISTER_TYPES, registerDevice } from 'screens/globalAuth/register/register-functional';
-import { successMessage } from 'helpers/utils';
+import { showErrorMessage, successMessage } from 'helpers/utils';
 import { getUniqueId } from 'react-native-device-info';
 import { useNavigation } from '@react-navigation/native';
 import { Divider, Modal } from 'react-native-paper';

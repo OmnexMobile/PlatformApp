@@ -160,7 +160,7 @@ const OperatorWorksheet = () => {
                     <NoDataFound />
                 )}
             </View>
-            <View style={[styles.btnContainer]}>
+            {/* <View style={[styles.btnContainer]}>
                 <ButtonComponent
                     textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}
                     style={{ height: 40 }}
@@ -169,7 +169,7 @@ const OperatorWorksheet = () => {
                     }}>
                     Completed Inspections
                 </ButtonComponent>
-            </View>
+            </View> */}
             <DeleteModal
                 visible={showDelete}
                 handleClose={() => {
