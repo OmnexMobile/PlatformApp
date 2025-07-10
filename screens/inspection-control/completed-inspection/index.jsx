@@ -232,7 +232,7 @@ const CompletedInspection = () => {
                         EnteredDate: sample.EnteredDate,
                         IsApproved: sample.IsApproved,
                         IsNumericSample: sample.IsNumericSample,
-                        IsRejected: sample.IsRejected,
+                        IsRejected: sample.backColor === '#00FF00' ? 0 : 1,
                         Comments: sample.Comments,
                         ...(sample?.ContainmentActions &&
                             sample?.ContainmentActions?.length > 0 && { ContainmentActions: createConatinmentList(sample?.ContainmentActions) }),
