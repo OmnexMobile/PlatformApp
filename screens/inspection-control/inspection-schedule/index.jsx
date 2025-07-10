@@ -389,7 +389,7 @@ const InspectionSchedule = () => {
                     </View>
                     <View style={[styles.iconFilter]}>
                         <TouchableOpacity style={styles.getDataBox} onPress={() => {handleMenuPress()}}>
-                            <IconI name="sync-sharp" size={25} color={COLORS.black} />
+                            <IconI name="sync-sharp" size={22} color={COLORS.black} />
                         </TouchableOpacity>
                         {/* <FilterWithMenu
                             dataList={moreList}
@@ -552,9 +552,9 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
     },
     getDataBox: {
-        height: 40,
-        width: 40,
-        backgroundColor: COLORS.lightGrey,
+        height: 35,
+        width: 35,
+        backgroundColor: COLORS.frost,
         alignItems: 'center',
         justifyContent: 'center',
         borderRadius: 40,
