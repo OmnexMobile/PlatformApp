@@ -133,6 +133,7 @@ const RegisterFunctional = ({}) => {
             handleGlobalURL('serverUrl', state?.globalServerURL);
             localStorage.storeData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL, state?.globalServerURL);
             localStorage.storeData(LOCAL_STORAGE_VARIABLES.globalRegister, state?.globalServerURL);
+            localStorage.storeData(LOCAL_STORAGE_VARIABLES.IC_API_URL, data?.Data.ICApiURL);
             // handleDeviceDetails(data?.Data)
             console.log('data?.Data--->', data?.Data);
             handleDeviceDetails({ ...data?.Data });

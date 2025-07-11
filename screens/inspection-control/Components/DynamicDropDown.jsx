@@ -24,10 +24,12 @@ const DynamicDropDown = ({
     useEffect(() => {
         if (list?.length) {
             let temp = JSON.parse(JSON.stringify(list));
-            let updatedtemp = temp.map(item => ({ ...item, isChecked: false }));
-            setListData([...updatedtemp]);
+            setListData([...temp]);
+            let updatedtemp = temp.filter(item => item.isChecked == true);
+            setMultiValue(updatedtemp);
         } else {
             setListData([]);
+            setMultiValue([]);
         }
     }, [list]);
     const openMenu = () => setVisible(true);
@@ -41,7 +43,8 @@ const DynamicDropDown = ({
                         if (!isDisable) {
                             isMultiSelect ? handleCheckPress(item) : handleRemove(item);
                         }
-                    }} activeOpacity={!isDisable ? 0.5 : 1}>
+                    }}
+                    activeOpacity={!isDisable ? 0.5 : 1}>
                     <IconA name="close" size={15} color={COLORS.white} style={{ paddingHorizontal: 5 }} />
                 </TouchableOpacity>
             </TouchableOpacity>
@@ -113,7 +116,7 @@ const DynamicDropDown = ({
                 borderRadius: 10,
                 paddingHorizontal: 10,
                 width: width / 1.2,
-                maxHeight:200,
+                maxHeight: 200,
                 marginTop: height + 10,
             }}
             anchorPosition={anchorPosition}>

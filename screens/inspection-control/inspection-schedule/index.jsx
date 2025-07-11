@@ -337,6 +337,7 @@ const InspectionSchedule = () => {
         });
         setMasterData(updatedArray);
     };
+    console.log(masterData.length,'masterData')
     return (
         <CustomHeader
             title="Inspection Schedule"
@@ -554,7 +555,7 @@ const styles = StyleSheet.create({
     getDataBox: {
         height: 35,
         width: 35,
-        backgroundColor: COLORS.frost,
+        backgroundColor: COLORS.inputBorder,
         alignItems: 'center',
         justifyContent: 'center',
         borderRadius: 40,

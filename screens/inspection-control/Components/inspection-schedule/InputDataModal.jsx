@@ -100,12 +100,12 @@ const InputDataModal = ({
         }
         return true;
     };
-    const getResponsibleList = async () => {
+    const getResponsibleList = async freq => {
         const formData = new FormData();
         formData.append('strUserID', userData?.UserId);
         formData.append('strOperationID', selectedValue?.OperationID);
         formData.append('strProductionitemID', selectedValue?.ProductionItemId);
-        formData.append('strFrequencyID', '');
+        formData.append('strFrequencyID', freq.FrequencyId);
         const response = await postAPI(`${ApiUrl.IC_RESPONSIBLE_PERSON}`, formData);
         if (response.length) {
             let temp = [];
@@ -113,10 +113,25 @@ const InputDataModal = ({
                 temp.push({
                     label: item?.Name,
                     value: item?.Code,
+                    isChecked: false,
                     ...item,
                 });
             });
             setResList(temp);
+            if (icSettings?.IsRespPartyBasedOnTeam && temp?.length) {
+                if (icSettings?.IsRespPartyMultiSelect) {
+                    let updateisChecked = temp.map(item => ({ ...item, isChecked: true }));
+                    setFormFields({ ...formFields,frequency: freq, responsible: [...updateisChecked] });
+                    setResList(updateisChecked);
+                } else {
+                    let updateisChecked = temp.map((item, index) => ({
+                        ...item,
+                        isChecked: index == 0 ? true : false,
+                    }));
+                    setFormFields({ ...formFields,frequency: freq, responsible: [updateisChecked[0]] });
+                    setResList(updateisChecked);
+                }
+            }
         } else {
             setResList([]);
         }
@@ -124,7 +139,7 @@ const InputDataModal = ({
     };
     const getPageApi = async () => {
         await getFrequencyList();
-        await getResponsibleList();
+        // await getResponsibleList();
         setShowLoader(false);
     };
     useEffect(() => {
@@ -141,10 +156,12 @@ const InputDataModal = ({
         }
     }, [selectedValue, userData]);
     const handleInputChange = (key, value) => {
+        console.log('called')
         setFormFields(pre => ({ ...pre, [key]: value }));
     };
     const handleValidation = () => {
         const { shift, lotNumber, lotQty, frequency, receiptNumber } = formFields;
+        console.log(formFields,'frequency')
         const errorobj = {
             shift: false,
             lotNumber: false,
@@ -450,8 +467,11 @@ const InputDataModal = ({
                                     borderColor={COLORS.icBottomBox}
                                     showSearch={false}
                                     maxHeight={200}
-                                    onChange={val => {
+                                    onChange={async (val) => {
                                         handleInputChange('frequency', val);
+                                        if (Boolean(selectedValue.TypeOfInspection == 2)) {
+                                            await getResponsibleList(val);
+                                        }
                                     }}
                                 />
                                 {Boolean(errorList.frequency) && (

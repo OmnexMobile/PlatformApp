@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigation } from '@react-navigation/native';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
+import { useIsFocused, useNavigation } from '@react-navigation/native';
 import CryptoJS from 'react-native-crypto-js';
 import { LOCAL_STORAGE_VARIABLES, ROUTES } from 'constants/app-constant';
 import localStorage from 'global/localStorage';
@@ -14,7 +14,7 @@ import ApiUrl from 'global/ApiUrl';
 import { useDispatch } from 'react-redux';
 
 const LoginFunctional = ({}) => {
-	const dispatch=useDispatch();
+    const dispatch = useDispatch();
     const [selectLanguageModal, setSelectLanguageModal] = useState(false);
     const [loginDetails, setLoginDetails] = useState({
         // username: 'Champion1@michelin',
@@ -24,6 +24,8 @@ const LoginFunctional = ({}) => {
         loggingIn: false,
     });
     const [currentToken, setCurrentToken] = useState('');
+    const [isRegistered,setIsRegistered] = useState(false)
+    const isFocused=useIsFocused();
     // const [currentURL, setCurrentURL] = useState('');
     const {
         profile,
@@ -38,29 +40,20 @@ const LoginFunctional = ({}) => {
         globalDeviceDetails,
     } = useAppContext();
     const navigation = useNavigation();
-    // const isRegistered = !!appSettings?.serverUrl;
-    const isRegistered = !!globalURL?.serverUrl;
-    // console.log('currentURL--->login1', currentURL)
-    // const isRegistered = currentURL;
 
     useEffect(() => {
-        console.log('currentToken--->', currentToken);
         currentToken && navigation.navigate(ROUTES.SPLASH_SCREEN);
     }, [currentToken]);
 
-    // useEffect(() => {
-    // 	async function fetchData() {
-    // 		const currentUrl = await localStorage.getData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL);
-    // 		console.log('currentURL--->login', currentUrl)
-    // 		setCurrentURL(currentUrl)
-    // 	}
-    // 	fetchData();
-
-    // }, [currentURL])
-
-    useEffect(() => {
-        !isRegistered && navigation.navigate(ROUTES.GLOBAL_REGISTER);
-    }, []);
+    useLayoutEffect(() => {
+        async function fetchData() {
+            const currentUrl = await localStorage.getData(LOCAL_STORAGE_VARIABLES.globalRegister);
+            let flag=currentUrl != null ? true : false
+            setIsRegistered(flag)
+            !flag && navigation.navigate(ROUTES.GLOBAL_REGISTER);
+        }
+        fetchData();
+    }, [isFocused]);
 
     const handleInputChange = (label, value) => {
         setLoginDetails({
@@ -69,8 +62,6 @@ const LoginFunctional = ({}) => {
         });
     };
 
-    console.log('!!globalURL?.serverUrl--->', globalDeviceDetails.deviceDetails.ICApiURL);
-    console.log('sites---->get', sites);
 
     const handleSubmit = async () => {
         const loginflag = 1;
@@ -107,20 +98,21 @@ const LoginFunctional = ({}) => {
         AsyncStorage.setItem('userDetails', stringifiedUserDetails);
         console.log('Set Async userDetails ', stringifiedUserDetails);
 
-        // 	localStorage.storeData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL, globalDeviceDetails?.deviceDetails?.PSApiURL);
-        // 	handleGlobalURL('serverUrl', globalDeviceDetails?.deviceDetails?.PSApiURL)
+        // localStorage.storeData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL, globalDeviceDetails?.deviceDetails?.PSApiURL);
+        // handleGlobalURL('serverUrl', globalDeviceDetails.deviceDetails.ICApiURL);
         localStorage.storeData('appLogged', true);
     };
 
     const handleLoginCall = async (encryptedPassword, loginflag, isSso) => {
         const deviceId = await AsyncStorage.getItem('deviceid');
+        const APIURL = await localStorage.getData(LOCAL_STORAGE_VARIABLES.IC_API_URL);
         const formData = new FormData();
         formData.append('UserName', loginDetails?.username);
         formData.append('RegisteredDeviceId', deviceId);
         formData.append('Password', encryptedPassword.toString());
         formData.append('LoginFlag', 1);
-        const response = await postAPI(`${globalDeviceDetails.deviceDetails.ICApiURL}${ApiUrl.IC_LOGIN}`, formData);
-		
+        const response = await postAPI(`${APIURL}${ApiUrl.IC_LOGIN}`, formData);
+
         if (response?.Success) {
             response?.Token && setProfileCall(response?.data); // navigate to home
             let icUserData = {
@@ -128,20 +120,21 @@ const LoginFunctional = ({}) => {
                 token: response?.Token || '',
             };
             dispatch({ type: 'IC_USER_DATA', icUserData: icUserData });
-            const settingsRes = await postAPI(`${globalDeviceDetails.deviceDetails.ICApiURL}${ApiUrl.IC_SETTINGS}`);
+            const settingsRes = await postAPI(`${APIURL}${ApiUrl.IC_SETTINGS}`);
             if (settingsRes.Success) {
                 dispatch({ type: 'IC_SETTINGS', icSettings: settingsRes?.Data[0] || {} });
             }
-			response?.Token && setProfileCall(response);
-			handleGlobalLogin(response);
+            response?.Token && setProfileCall(response);
+            localStorage.storeData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL, APIURL);
+            handleGlobalLogin(response);
             handleServerURL(response);
-        } else if(response?.Message!=='') {
+        } else if (response?.Message !== '') {
             handleInputChange('loggingIn', false);
-        	showErrorMessage('User data not found!' || response?.Message || strings?.InvalidCred);
-        }else{
-			 handleInputChange('loggingIn', false);
+            showErrorMessage('User data not found!' || response?.Message || strings?.InvalidCred);
+        } else {
+            handleInputChange('loggingIn', false);
             showErrorMessage('Something went wrong!!');
-		}
+        }
     };
 
     const setProfileCall = data => {
@@ -160,7 +153,6 @@ const LoginFunctional = ({}) => {
         handleSiteList(data?.Data);
         setCurrentToken(data?.Token);
     };
-
     return (
         <LoginPresentational
             {...{ selectLanguageModal, setSelectLanguageModal, handleInputChange, handleSubmit, loginDetails, navigation, isRegistered }}

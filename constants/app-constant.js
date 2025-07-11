@@ -161,6 +161,7 @@ export const LOCAL_STORAGE_VARIABLES = {
     currentApp: 'currentApp',
     globalLogin: 'globalLogin',
     globalRegister: 'globalRegister',
+    IC_API_URL: 'IC_API_URL',
 };
 
 export const POST = 'POST';
