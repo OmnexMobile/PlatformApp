@@ -113,8 +113,11 @@ const ContainmentActionsForm = ({ type = '', masterData, handleSubmit = () => {}
                             onChangeText={val => {
                                 let cleaned = val;
                                 if (type === 'number') {
-                                    // 1. Remove invalid characters (allow digits and one dot)
-                                    cleaned = val.replace(/[^0-9.]/g, '');
+                                    cleaned = val
+                                        .replace(/[^0-9.-]/g, '') // Remove invalid characters
+                                        .replace(/(?!^)-/g, '') // Remove all '-' except at the start
+                                        .replace(/(\..*)\./g, '$1'); // Allow only the first dot
+
                                     // 2. Allow only one dot
                                     const parts = cleaned.split('.');
                                     if (parts.length > 2) {
