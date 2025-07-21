@@ -177,7 +177,7 @@ const CompletedInspection = () => {
                         ContainmentComment: item?.ContainmentComment,
                         Type: 'Value',
                         BackColorForContainment: item?.BackColorForContainment,
-                        FontColorForContainment: '#FFFFFF',
+                        FontColorForContainment: '#000000',
                     });
                 }
             });

@@ -45,7 +45,7 @@ export const objToQs = params =>
         .map(key => key + '=' + params[key])
         .join('&');
 
-export const successMessage = ({ message = 'Success', description = 'Successfully Saved', type = 'success' }) =>
+export const successMessage = ({ message = 'Success', description = 'Successfully Saved', type = 'success', position = 'top' }) =>
     showMessage({
         message,
         description,
@@ -54,7 +54,7 @@ export const successMessage = ({ message = 'Success', description = 'Successfull
         color: COLORS.white,
         duration: 1500,
         // problem Solver
-        // position: 'bottom',
+        position: position,
         // style: {
         //     borderRadius: SPACING.NORMAL,
         //     margin: SPACING.SMALL,
@@ -147,10 +147,9 @@ export const getElevation = () => {
     };
 };
 
-export const formReq = (request) => {
+export const formReq = request => {
     var formData = new FormData();
-    const transformedData = Object.entries(request)
-    .map(([key, value]) => ({ key, value }))
-    transformedData.map(({key, value}) => formData.append(key, value));
+    const transformedData = Object.entries(request).map(([key, value]) => ({ key, value }));
+    transformedData.map(({ key, value }) => formData.append(key, value));
     return formData;
 };
