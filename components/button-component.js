@@ -50,7 +50,7 @@ const ButtonComponent = props => {
                     ...style,
                     ...(outline && { backgroundColor: COLORS.white, borderColor: theme.colors.primaryThemeColor, ...style }),
                     ...(danger && { backgroundColor: COLORS.red, borderColor: COLORS.red }),
-                    ...(success && { backgroundColor: COLORS.success, borderColor: COLORS.success }),
+                    ...(success && { backgroundColor: COLORS.SUCCESS, borderColor: COLORS.SUCCESS }),
                 },
             ]}>
             <View

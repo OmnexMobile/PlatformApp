@@ -621,7 +621,26 @@ const InprocessInspection = ({ route }) => {
                         <View>
                             <Text style={[styles.modalText]}>There are unsaved changes. Do you want to save them?</Text>
                         </View>
-                        <View style={[styles.modalBtnContainer]}>
+                        <View style={[styles.btnStyle]}>
+                            <ButtonComponent
+                                danger={true}
+                                style={{ height: 30, width: 100, marginRight: 20 }}
+                                onPress={() => {
+                                    nextSave ? handleBackPress() : handleNextItem();
+                                }}
+                                textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}>
+                                No
+                            </ButtonComponent>
+                            <ButtonComponent
+                                success={true}
+                                style={{ height: 30, width: 100 }}
+                                onPress={async () => {
+                                    await handleSavePress(nextSave);
+                                }}
+                                textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}> Yes
+                            </ButtonComponent>
+                        </View>
+                        {/* <View style={[styles.modalBtnContainer]}>
                             <View style={[styles.modalBtn]}>
                                 <ButtonComponent
                                 textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}
@@ -640,7 +659,7 @@ const InprocessInspection = ({ route }) => {
                                     yes
                                 </ButtonComponent>
                             </View>
-                        </View>
+                        </View> */}
                     </View>
                 </Modal>
             )}
@@ -790,6 +809,11 @@ const styles = StyleSheet.create({
         flex: 1,
         flexDirection: 'column',
         justifyContent: 'flex-end',
+    },
+    btnStyle: {
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
+        padding: 10,
     },
 });
 

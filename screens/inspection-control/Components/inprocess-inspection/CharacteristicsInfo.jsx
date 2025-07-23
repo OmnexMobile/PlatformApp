@@ -444,7 +444,8 @@ const CharacteristicsInfo = ({
                 let flag = Number(value) >= Number(lowValue) && Number(value) <= Number(highValue);
                 return flag ? (list > 0 ? true : false) : true;
             }
-            return value.toLowerCase() === 'ok' ? false : true;
+            let flagOk = value.toLowerCase() === 'ok';
+            return flagOk ? (list > 0 ? true : false) : true;
         };
         return (
             <View style={[styles.contentBox]}>

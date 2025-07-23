@@ -104,13 +104,15 @@ const CompletedInspection = () => {
         setSelectedValue(item);
     };
     const hideModal = () => {
-        setSelectedRadio({
-            id: 1,
-            value: 'Sync',
-            label: 'Sync',
-            Mode: 1,
-        });
-        setSyncModal(false);
+        if (!disableBtn) {
+            setSelectedRadio({
+                id: 1,
+                value: 'Sync',
+                label: 'Sync',
+                Mode: 1,
+            });
+            setSyncModal(false);
+        }
     };
     const handleDeletePress = item => {
         setSelectedValue(item);

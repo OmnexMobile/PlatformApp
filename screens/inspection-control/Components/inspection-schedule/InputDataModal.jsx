@@ -118,7 +118,7 @@ const InputDataModal = ({
                 });
             });
             setResList(temp);
-            if (icSettings?.IsRespPartyBasedOnTeam && temp?.length) {
+            if ( temp?.length) {
                 if (icSettings?.IsRespPartyMultiSelect) {
                     let updateisChecked = temp.map(item => ({ ...item, isChecked: true }));
                     setFormFields({ ...formFields,frequency: freq, responsible: [...updateisChecked] });
@@ -480,7 +480,7 @@ const InputDataModal = ({
                                     </HelperText>
                                 )}
                             </View>
-                            {Boolean(icSettings.IsRespPartyBasedOnTeam) && Boolean(selectedValue.TypeOfInspection == 2) && (
+                            {Boolean(selectedValue.TypeOfInspection == 2) && (
                                 <View style={[styles.inputContainer]}>
                                     <Text style={styles.inputText}>Responsible Person</Text>
                                     <DynamicDropDown
