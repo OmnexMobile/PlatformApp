@@ -110,7 +110,7 @@ const AppProvider = ({ children }) => {
         });
     };
 
-    const handleGlobalLogin = async (data) => {
+    const handleGlobalLogin = async data => {
         await localStorage.storeData(LOCAL_STORAGE_VARIABLES.globalLogin, data);
         setGlobalLoginData({
             ...globalLoginData,
@@ -127,7 +127,7 @@ const AppProvider = ({ children }) => {
         };
         const stringifiedUserDetails = JSON.stringify(userDetailsPS);
         AsyncStorage.setItem('userDetailsPS', stringifiedUserDetails);
-        console.log('Set Async userDetailsPS ', stringifiedUserDetails)
+        console.log('Set Async userDetailsPS ', stringifiedUserDetails);
     };
 
     const handleDeviceDetails = async deviceDetails => {
@@ -135,8 +135,8 @@ const AppProvider = ({ children }) => {
         setGlobalDeviceDetails({
             ...globalDeviceDetails,
             deviceDetails,
-        })
-    }
+        });
+    };
 
     const resetContextData = () => {
         setOrganization({
@@ -153,14 +153,16 @@ const AppProvider = ({ children }) => {
         });
     };
 
-    const handleSiteList = async siteList => {
-        console.log('handleSiteList---->siteList', siteList)
-        console.log('handleSiteList---->sites?.selectedSite', sites?.selectedSite, '---', siteList?.[0])
+    const handleSiteList = async (siteList, selectedSite) => {
         await localStorage.storeData(LOCAL_STORAGE_VARIABLES.SITES, siteList);
-        !sites?.selectedSite && (await localStorage.storeData(LOCAL_STORAGE_VARIABLES.SiteId, siteList?.[0]));
+        if (selectedSite) {
+            await localStorage.storeData(LOCAL_STORAGE_VARIABLES.SiteId, selectedSite);
+        } else {
+            !sites?.selectedSite && (await localStorage.storeData(LOCAL_STORAGE_VARIABLES.SiteId, siteList?.[0]));
+        }
         setSites({
             ...sites,
-            selectedSite: siteList?.[0] || null,
+            selectedSite: selectedSite ? selectedSite : siteList?.[0],
             siteList,
         });
     };
@@ -170,7 +172,7 @@ const AppProvider = ({ children }) => {
             ...organization,
             selectedOrganization,
         });
-    
+
     //problem solver
     // const handleAddRecentActivities = recentActivities => {
     //     setRecentActivities([...recentActivities]);
@@ -206,8 +208,9 @@ const AppProvider = ({ children }) => {
         const SiteId = await localStorage.getData(LOCAL_STORAGE_VARIABLES.SiteId);
         const UserFullName = await localStorage.getData(LOCAL_STORAGE_VARIABLES.UserFullName);
         const UserEmail = await localStorage.getData(LOCAL_STORAGE_VARIABLES.UserEmail);
-        const CurrentApp = await localStorage.getData('CurrentApp')
-        let serverUrl = await localStorage.getData(LOCAL_STORAGE_VARIABLES.SERVER_URL) || "";
+        const CurrentApp = await localStorage.getData('CurrentApp');
+        let serverUrl = (await localStorage.getData(LOCAL_STORAGE_VARIABLES.SERVER_URL)) || '';
+        // const selectedSite = await localStorage.getData(LOCAL_STORAGE_VARIABLES.SiteId);
         // if(!serverUrl) {
         //     await localStorage.storeData(LOCAL_STORAGE_VARIABLES.SERVER_URL, API_URL);
         //     serverUrl = API_URL
@@ -232,7 +235,10 @@ const AppProvider = ({ children }) => {
             //problem solver
             // deviceStatusSettings
         });
-        handleSiteList(SiteList);
+        let getSites = SiteId ? SiteId : SiteList?.[0];
+
+        console.log('***********selectedSite', getSites);
+        handleSiteList(SiteList, getSites);
         SiteId && handleSite(SiteId);
     };
 
@@ -283,3 +289,4 @@ const useAppContext = () => {
 };
 
 export { AppProvider, useAppContext };
+
