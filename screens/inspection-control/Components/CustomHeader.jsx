@@ -13,6 +13,8 @@ import CompletedInspectionnSvg from '../../../assets/images/svg/completed-inspec
 import SupervisorScheduleSvg from '../../../assets/images/svg/supervisor-schedule.svg';
 import { ROUTES } from 'constants/app-constant';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { IconButton, Menu, Tooltip } from 'react-native-paper';
+import { useAppContext } from 'contexts/app-context';
 
 const footerList = [
     {
@@ -53,14 +55,18 @@ const CustomHeader = ({
     handleFileIconPress = () => {},
     handleSearch = () => {},
     searchValue = '',
-    handleClosePress=()=>{},
-    customBackHandler=false,
-    customHandleGoBack=()=>{},
+    handleClosePress = () => {},
+    customBackHandler = false,
+    customHandleGoBack = () => {},
 }) => {
-    const insets= useSafeAreaInsets()
+    const insets = useSafeAreaInsets();
     const { width } = useWindowDimensions();
     const navigation = useNavigation();
     const [isExpanded, setIsExpanded] = useState(false);
+    const [visible, setVisible] = useState(false);
+    const openMenu = () => setVisible(true);
+    const closeMenu = () => setVisible(false);
+    const {  sites } = useAppContext();
     const widthAnim = useRef(new Animated.Value(0)).current;
     useEffect(() => {
         if (searchValue?.length) {
@@ -121,7 +127,7 @@ const CustomHeader = ({
         }
     };
     return (
-        <SafeAreaView style={[styles.container,{paddingTop:insets.top}]}>
+        <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
             <View style={[styles.headerBox]}>
                 <TouchableOpacity
                     onPress={() => {
@@ -131,7 +137,7 @@ const CustomHeader = ({
                 </TouchableOpacity>
                 <View style={{ flex: 1, marginLeft: 10 }}>
                     {!isExpanded ? (
-                        <Text style={[styles.headerText]}>{title}</Text>
+                        <Text style={[styles.headerText]} numberOfLines={1}>{title} <Text style={{fontSize:15}}>{`(${sites?.selectedSite.SiteName})`}</Text></Text>
                     ) : (
                         <Animated.View style={[{ width: widthAnim }]}>
                             <InputWithSearch
@@ -153,8 +159,8 @@ const CustomHeader = ({
                                 <TouchableOpacity
                                     onPress={() => {
                                         toggleSearchBar();
-                                        if(isExpanded){
-                                            handleClosePress()
+                                        if (isExpanded) {
+                                            handleClosePress();
                                         }
                                     }}>
                                     <Icon name={!isExpanded ? 'search1' : 'close'} size={25} style={styles.iconButton} color={COLORS.white} />
@@ -199,6 +205,25 @@ const CustomHeader = ({
                                 }}>
                                 <IconI name="exit-outline" size={31} style={styles.iconButton} color={COLORS.white} />
                             </TouchableOpacity> */}
+                            {/* <Tooltip title="Selected Camera" enterTouchDelay={0} leaveTouchDelay={2000}>
+                                <IconI name="information-circle-outline" size={28} style={styles.iconButton} color={COLORS.white} />
+                            </Tooltip> */}
+                            {/* <Menu
+                                visible={visible}
+                                onDismiss={closeMenu}
+                                anchor={
+                                    <TouchableOpacity onPress={openMenu}>
+                                        <IconI name="information-circle-outline" size={28} style={styles.iconButton} color={COLORS.white} />
+                                    </TouchableOpacity>
+                                }
+                                contentStyle={{
+                                    backgroundColor: '#000',
+                                    borderRadius: 5,
+                                    paddingHorizontal: 10,
+                                }}
+                                anchorPosition="bottom">
+                                <Text style={{ color: COLORS.white }}>Site : {sites?.selectedSite?.SiteName}</Text>
+                            </Menu> */}
                         </>
                     )}
                     {showFileIcon && (
@@ -249,7 +274,7 @@ const styles = StyleSheet.create({
     },
     headerText: {
         color: COLORS.white,
-        fontSize:20,
+        fontSize: 20,
     },
     footerBox: {
         backgroundColor: COLORS.white,
@@ -270,10 +295,10 @@ const styles = StyleSheet.create({
     animatedContainer: {
         flex: 1,
     },
-    inputBox:{
-        color:COLORS.white,
-        fontFamily:'OpenSans-SemiBold',
-        fontSize:16,
-    }
+    inputBox: {
+        color: COLORS.white,
+        fontFamily: 'OpenSans-SemiBold',
+        fontSize: 16,
+    },
 });
 export default CustomHeader;
