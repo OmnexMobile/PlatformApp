@@ -219,7 +219,7 @@ const CompletedInspection = () => {
                     Object.keys(item?.DefectsValue)?.length && {
                         Case: 'DEFECTPHENOMENON',
                         StrID: item?.DefectsValue.ID,
-                        Name: 'CustomInspectionCharacteristicsV',
+                        Name: type === 'number'?'CustomInspectionCharacteristicsV':'CustomInspectionCharacteristics',
                         Topic: 'DefectPhenomenon',
                     }),
                 samples: samples.map(sample => ({
