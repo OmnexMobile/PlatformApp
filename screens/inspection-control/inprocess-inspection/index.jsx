@@ -800,6 +800,30 @@ const InprocessInspection = ({ route }) => {
                     }}
                 />
             )}
+            {Boolean(finalConfirmation) && (
+                <ConfirmationModal
+                    visible={finalConfirmation}
+                    handleClose={() => {
+                        setUserUpdateValue(pre => ({
+                            ...pre,
+                            CSampleSize: selectedData.CSampleSize,
+                            CHighValue: selectedData.CHighValue,
+                            CLowValue: selectedData.CLowValue,
+                            CTolerance: selectedData.CTolerance,
+                        }));
+                        setFinalConfirmation(false);
+                        setTypeOfModal('');
+                    }}
+                    content={`You've already entered ${
+                        masterData.filter(x => x?.value != '')?.length || ''
+                    } samples value. Do you want to continue and change it`}
+                    handleYesPress={() => {
+                        handleFinalConfirmYesPress();
+                    }}
+                    typeOfModal={typeOfModal}
+                    showType={false}
+                />
+            )}
         </CustomHeader>
     );
 };
