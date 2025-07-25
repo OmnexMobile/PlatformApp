@@ -34,6 +34,8 @@ const OperatorWorksheet = () => {
         const list = await getInspectionDataByUserAndSite(icUserData?.userData?.UserId, icUserData?.userData?.Siteid);
         setInspectionList(list);
         setShowSkeleton(false);
+    const handleCIbtnpress = () => {
+        navigation.navigate(ROUTES.COMPLETED_INSPECTION);
     };
     useEffect(() => {
         if (isFocused) {
