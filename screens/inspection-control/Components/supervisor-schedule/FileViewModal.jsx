@@ -12,7 +12,7 @@ import ApiUrl from 'global/ApiUrl';
 import { Bubbles } from 'react-native-loader';
 import NoDataFound from '../NoDataFound';
 
-const FileViewModal = ({ visible = false, onDismiss = () => {}, selectedValue = {} }) => {
+const FileViewModal = ({ visible = false, onDismiss = () => {}, selectedValue = {},userData={} }) => {
     const [fileList, setFileList] = useState([]);
     const [showLoader, setShowLoader] = useState(false);
 
@@ -62,6 +62,7 @@ const FileViewModal = ({ visible = false, onDismiss = () => {}, selectedValue = 
         const formData = new FormData();
         formData.append('operationId', selectedValue?.OperationID);
         formData.append('productionItemH', selectedValue?.ProductionItemId);
+        formData.append('SiteId', userData?.Siteid || '');
         const response = await postAPI(ApiUrl.IC_GET_ATTACHEMENTS, formData);
         if (response.Success) {
             setFileList(response.Data || []);

@@ -80,6 +80,7 @@ const InputDataModal = ({
         formData.append('strId', selectedValue?.ProductionItemId);
         formData.append('strOperationId', selectedValue?.OperationID);
         formData.append('intUserID', userData?.UserId);
+        formData.append('SiteId', userData?.Siteid);
         const response = await postAPI(`${ApiUrl.IC_FRQ_FORM}`, formData);
         if (response.Success) {
             if (response?.Data?.length) {
@@ -106,6 +107,7 @@ const InputDataModal = ({
         formData.append('strOperationID', selectedValue?.OperationID);
         formData.append('strProductionitemID', selectedValue?.ProductionItemId);
         formData.append('strFrequencyID', freq.FrequencyId);
+        formData.append('SiteId', userData?.Siteid);
         const response = await postAPI(`${ApiUrl.IC_RESPONSIBLE_PERSON}`, formData);
         if (response.length) {
             let temp = [];

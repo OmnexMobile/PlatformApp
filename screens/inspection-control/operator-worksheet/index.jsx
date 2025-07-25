@@ -26,32 +26,6 @@ const OperatorWorksheet = () => {
     const isFocused = useIsFocused();
     const dispatch = useDispatch();
 
-    // const getOperatorListData = async (showSkt = true) => {
-    //     showSkt && setShowSkeleton(true);
-    //     const formData = new FormData();
-    //     formData.append('UserID', icUserData?.userData?.UserId);
-    //     formData.append('StartDate', '2025-3-20');
-    //     formData.append('EndDate', '2025-3-27');
-    //     formData.append('SiteID', '1');
-    //     formData.append('LanguageID', '1');
-    //     const response = await postAPI(`${ApiUrl.IC_OPERATOR_LIST}`, formData);
-    //     if (response.Success) {
-    //         setMasterData(response?.Data || []);
-    //     } else {
-    //         setMasterData([]);
-    //     }
-    //     setShowSkeleton(false);
-    //     setRefreshing(false);
-    // };
-    // const onRefresh = () => {
-    //     setRefreshing(true);
-    //     getOperatorListData(false);
-    // };
-    // useEffect(() => {
-    //     if (icUserData && isFocused) {
-    //         // getOperatorListData();
-    //     }
-    // }, [icUserData, isFocused]);
     const handleCIbtnpress = () => {
         navigation.navigate(ROUTES.COMPLETED_INSPECTION);
     };
