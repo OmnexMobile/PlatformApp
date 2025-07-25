@@ -14,9 +14,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import ApiUrl from 'global/ApiUrl';
 import { postAPI } from 'global/api-helpers';
 import IcSkeleton from '../Components/IcSkeleton';
+import { getInspectionDataByUserAndSite } from 'store/database/inspectStorage';
 
 const OperatorWorksheet = () => {
-    const { inspectList, icUserData, icSettings } = useSelector(state => state.inspection);
+    const {  icUserData } = useSelector(state => state.inspection);
+    const [inspectList,setInspectionList]=useState([])
     const [showDelete, setShowDelete] = useState(false);
     const navigation = useNavigation();
     const [masterData, setMasterData] = useState([]);
@@ -26,35 +28,16 @@ const OperatorWorksheet = () => {
     const isFocused = useIsFocused();
     const dispatch = useDispatch();
 
-    // const getOperatorListData = async (showSkt = true) => {
-    //     showSkt && setShowSkeleton(true);
-    //     const formData = new FormData();
-    //     formData.append('UserID', icUserData?.userData?.UserId);
-    //     formData.append('StartDate', '2025-3-20');
-    //     formData.append('EndDate', '2025-3-27');
-    //     formData.append('SiteID', '1');
-    //     formData.append('LanguageID', '1');
-    //     const response = await postAPI(`${ApiUrl.IC_OPERATOR_LIST}`, formData);
-    //     if (response.Success) {
-    //         setMasterData(response?.Data || []);
-    //     } else {
-    //         setMasterData([]);
-    //     }
-    //     setShowSkeleton(false);
-    //     setRefreshing(false);
-    // };
-    // const onRefresh = () => {
-    //     setRefreshing(true);
-    //     getOperatorListData(false);
-    // };
-    // useEffect(() => {
-    //     if (icUserData && isFocused) {
-    //         // getOperatorListData();
-    //     }
-    // }, [icUserData, isFocused]);
-    const handleCIbtnpress = () => {
-        navigation.navigate(ROUTES.COMPLETED_INSPECTION);
+    // getting a data from SQLite
+    const handleGetSQliteList = async () => {
+        const list=await getInspectionDataByUserAndSite(icUserData?.userData?.UserId,icUserData?.userData?.Siteid)
+        setInspectionList(list)
+        console.log(list, '***********list');
     };
+    useEffect(() => {
+        handleGetSQliteList()
+    }, [icUserData, isFocused]);
+
     const handleLaunchPress = item => {
         navigation.navigate(ROUTES.INPROCESS_INSPECTION, { inspectData: item });
     };
