@@ -32,6 +32,9 @@ const OperatorWorksheet = () => {
     const handleGetSQliteList = async () => {
         const list = await getInspectionDataByUserAndSite(icUserData?.userData?.UserId, icUserData?.userData?.Siteid);
         setInspectionList(list);
+    }
+    const handleCIbtnpress = () => {
+        navigation.navigate(ROUTES.COMPLETED_INSPECTION);
     };
     useEffect(() => {
         handleGetSQliteList();
