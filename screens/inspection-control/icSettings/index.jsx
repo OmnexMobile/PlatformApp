@@ -261,7 +261,6 @@ const IcSettings = () => {
     const handleClose = () => {
         setShowLogoutModal(false);
     };
-    console.log(sitesData.siteList.length,'sitesData.siteList')
     return (
         <KeyboardAvoidingView style={styles.container} >
             <View style={styles.headerBox}>
@@ -276,8 +275,6 @@ const IcSettings = () => {
             </View>
             <TouchableOpacity
                 style={{
-                    borderBottomWidth: 1,
-                    borderBottomColor: COLORS.lightGrey,
                     paddingVertical: 10,
                     paddingHorizontal: 5,
                 }}
@@ -315,6 +312,8 @@ const IcSettings = () => {
                 )}
             <TouchableOpacity
                 style={{
+                    borderTopWidth: 1,
+                    borderTopColor: COLORS.lightGrey,
                     paddingVertical: 10,
                     paddingHorizontal: 5,
                 }}

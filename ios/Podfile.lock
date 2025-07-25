@@ -348,6 +348,8 @@ PODS:
     - Toast (~> 4)
   - react-native-slider (4.5.0):
     - React-Core
+  - react-native-sqlite-storage (6.0.1):
+    - React-Core
   - react-native-version-check (3.4.7):
     - React-Core
   - react-native-version-number (0.3.6):
@@ -580,6 +582,7 @@ DEPENDENCIES:
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - react-native-simple-toast (from `../node_modules/react-native-simple-toast`)
   - "react-native-slider (from `../node_modules/@react-native-community/slider`)"
+  - react-native-sqlite-storage (from `../node_modules/react-native-sqlite-storage`)
   - react-native-version-check (from `../node_modules/react-native-version-check`)
   - react-native-version-number (from `../node_modules/react-native-version-number`)
   - react-native-video (from `../node_modules/react-native-video`)
@@ -717,6 +720,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-simple-toast"
   react-native-slider:
     :path: "../node_modules/@react-native-community/slider"
+  react-native-sqlite-storage:
+    :path: "../node_modules/react-native-sqlite-storage"
   react-native-version-check:
     :path: "../node_modules/react-native-version-check"
   react-native-version-number:
@@ -848,6 +853,7 @@ SPEC CHECKSUMS:
   react-native-safe-area-context: eed99249c59246985c0ece2494dc3f1a3bfa0dfb
   react-native-simple-toast: d86d91bf6fbaa12f5f5cc2a36b288e96a3dbd3c5
   react-native-slider: 83b271f491a51ddadded9f2e0381b543685ae8e2
+  react-native-sqlite-storage: 0c84826214baaa498796c7e46a5ccc9a82e114ed
   react-native-version-check: c7b4269cd18781b51009fa4b5a8ad9ab5131ce6f
   react-native-version-number: 3d74b5224ca4e1032b1593937d86d3f3c94bf95c
   react-native-video: 2aad0d963bf3952bd9ebb2f53fab799338e8e202
