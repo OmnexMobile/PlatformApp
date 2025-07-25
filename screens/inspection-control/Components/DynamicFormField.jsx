@@ -50,6 +50,10 @@ const DynamicFormField = ({
                         handleChange(val);
                     }}
                     editable={isEditable}
+                    containerStyle={{
+                        elevation: 10,
+                        width:220
+                    }}
                 />
             );
         case 'datePicker':

@@ -280,6 +280,7 @@ const SupervisorSchedule = () => {
                 onDismiss={() => {
                     setShowFileModal(false);
                 }}
+                userData={icUserData?.userData}
             />
         </CustomHeader>
     );

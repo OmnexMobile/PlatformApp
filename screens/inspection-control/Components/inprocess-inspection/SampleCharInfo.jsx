@@ -257,6 +257,10 @@ const SampleCharInfo = ({
                         onChange={val => {
                             handleInputChange('DefectsValue', val);
                         }}
+                        containerStyle={{
+                            elevation: 10,
+                            maxWidth: 220,
+                        }}
                         // editable={isEditable}
                     />
                 </View>

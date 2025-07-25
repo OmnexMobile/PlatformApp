@@ -270,6 +270,7 @@ const CompletedInspection = () => {
             InspectedDate: moment(new Date()).format('MM/DD/YYYY hh:mm:ss A'),
             characteristicDetails: templist,
             GeneralInfo: updatedGeneralInfo,
+            SiteId:icUserData?.userData?.Siteid,
             Status: [
                 {
                     UserId: icUserData?.userData?.UserId,

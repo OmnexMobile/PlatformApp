@@ -193,16 +193,21 @@ const CharacteristicsInfo = ({
                 setValueUpadted([...filterMasterData, ...temp]);
             } else if (selectedData.CSampleSize <= sampleEnterdSize) {
                 console.log('********************step5');
-                showMessage({
-                    message: 'Something went wrong',
-                    backgroundColor: COLORS.ERROR,
-                    color: COLORS.white,
-                    duration: 1500,
-                    statusBarHeight: 40,
-                    icon: 'warning',
-                    position: 'right',
-                    style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
-                });
+                let temp = JSON.parse(JSON.stringify(masterData)); // Deep copy
+                let slicedList = temp.slice(0, Number(selectedData.CSampleSize ));
+                console.log(slicedList.length,'slicedList')
+                setMasterData([...slicedList]);
+                setValueUpadted([...slicedList]);
+                // showMessage({
+                //     message: 'Something went wrong',
+                //     backgroundColor: COLORS.ERROR,
+                //     color: COLORS.white,
+                //     duration: 1500,
+                //     statusBarHeight: 40,
+                //     icon: 'warning',
+                //     position: 'right',
+                //     style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+                // });
             } else {
                 console.log('********************step6');
                 setMasterData([...selectedData?.Samples]);
@@ -327,16 +332,20 @@ const CharacteristicsInfo = ({
                 }
             } else if (selectedData.CSampleSize <= sampleEnterdSize) {
                 console.log('********************step5 ');
-                showMessage({
-                    message: 'Something went wrong inpor',
-                    backgroundColor: COLORS.ERROR,
-                    color: COLORS.white,
-                    duration: 1500,
-                    statusBarHeight: 40,
-                    icon: 'warning',
-                    position: 'right',
-                    style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
-                });
+                let temp = JSON.parse(JSON.stringify(masterData)); // Deep copy
+                let slicedList = temp.slice(0, Number(selectedData.CSampleSize ));
+                setMasterData([...slicedList]);
+                setValueUpadted([...slicedList]);
+                // showMessage({
+                //     message: 'Something went wrong',
+                //     backgroundColor: COLORS.ERROR,
+                //     color: COLORS.white,
+                //     duration: 1500,
+                //     statusBarHeight: 40,
+                //     icon: 'warning',
+                //     position: 'right',
+                //     style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+                // });
             } else {
                 console.log('1111********************step6');
                 setMasterData([...selectedData?.Samples]);

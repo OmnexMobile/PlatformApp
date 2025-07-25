@@ -69,7 +69,7 @@ const InprocessInspection = ({ route }) => {
         CTolerance: '',
     });
     const [showFileModal, setShowFileModal] = useState(false);
-
+    const [finalConfirmation, setFinalConfirmation] = useState(false);
     const flatListRef = useRef(null);
     const navigation = useNavigation();
     const dispatch = useDispatch();
@@ -445,24 +445,30 @@ const InprocessInspection = ({ route }) => {
     const handleShowCharInfo = () => {
         setShowCharInfo(!showCharInfo);
     };
+    const handleFinalConfirmYesPress = () => {
+        setSelectedData(pre => ({ ...pre, CSampleSize: userUpdateValue.CSampleSize }));
+        setFinalConfirmation(false);
+        setTypeOfModal('');
+    };
 
     const handleConfirmYesPress = () => {
         if (typeOfModal == 'samplesize') {
             let sampleEnterdSize = masterData.filter(x => x?.value != '')?.length;
             if (userUpdateValue.CSampleSize < sampleEnterdSize) {
                 setShowConfirmModal(false);
-                setTypeOfModal('');
-                showMessage({
-                    message: 'Something went wrong',
-                    backgroundColor: COLORS.ERROR,
-                    color: COLORS.white,
-                    duration: 1500,
-                    statusBarHeight: 40,
-                    icon: 'warning',
-                    position: 'right',
-                    style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
-                });
-                setUserUpdateValue(pre => ({ ...pre, CSampleSize: selectedData.CSampleSize.toString() }));
+                setFinalConfirmation(true);
+                // setTypeOfModal('');
+                // showMessage({
+                //     message: 'Something went wrong',
+                //     backgroundColor: COLORS.ERROR,
+                //     color: COLORS.white,
+                //     duration: 1500,
+                //     statusBarHeight: 40,
+                //     icon: 'warning',
+                //     position: 'right',
+                //     style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+                // });
+                // setUserUpdateValue(pre => ({ ...pre, CSampleSize: selectedData.CSampleSize.toString() }));
             } else {
                 setSelectedData(pre => ({ ...pre, CSampleSize: userUpdateValue.CSampleSize }));
                 setShowConfirmModal(false);
@@ -514,6 +520,7 @@ const InprocessInspection = ({ route }) => {
             setTypeOfModal('');
         }
     };
+    console.log(masterData.filter(x => x?.value != '')?.length, 'masterData');
     return (
         <CustomHeader
             title={renderHeader(inspectData.intInspectionTypeID)}
@@ -758,6 +765,30 @@ const InprocessInspection = ({ route }) => {
                     onDismiss={() => {
                         setShowFileModal(false);
                     }}
+                />
+            )}
+            {Boolean(finalConfirmation) && (
+                <ConfirmationModal
+                    visible={finalConfirmation}
+                    handleClose={() => {
+                        setUserUpdateValue(pre => ({
+                            ...pre,
+                            CSampleSize: selectedData.CSampleSize,
+                            CHighValue: selectedData.CHighValue,
+                            CLowValue: selectedData.CLowValue,
+                            CTolerance: selectedData.CTolerance,
+                        }));
+                        setFinalConfirmation(false);
+                        setTypeOfModal('');
+                    }}
+                    content={`You've already entered ${
+                        masterData.filter(x => x?.value != '')?.length || ''
+                    } samples value. Do you want to continue and change it`}
+                    handleYesPress={() => {
+                        handleFinalConfirmYesPress();
+                    }}
+                    typeOfModal={typeOfModal}
+                    showType={false}
                 />
             )}
         </CustomHeader>

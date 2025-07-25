@@ -451,6 +451,7 @@ const InspectionSchedule = () => {
                     onDismiss={() => {
                         setShowFileModal(false);
                     }}
+                    userData={icUserData?.userData}
                 />
             )}
             {Boolean(showQR) && (
