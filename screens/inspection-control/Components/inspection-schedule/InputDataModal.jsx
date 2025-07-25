@@ -6,7 +6,7 @@ import { Divider, HelperText, Modal } from 'react-native-paper';
 import { RFPercentage } from 'react-native-responsive-fontsize';
 import SingleDropDown from '../SingleDropDown';
 import DynamicDropDown from '../DynamicDropDown';
-import { useDispatch, useSelector } from 'react-redux';
+import {  useSelector } from 'react-redux';
 import { Bubbles } from 'react-native-loader';
 import { showMessage } from 'react-native-flash-message';
 import { postAPI } from 'global/api-helpers';
@@ -15,6 +15,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 import moment from 'moment';
 import uuid from 'react-native-uuid';
 import { isArray } from 'underscore';
+import { addInspectionData } from 'store/database/inspectStorage';
 
 const errorObj = {
     shift: false,
@@ -31,10 +32,8 @@ const InputDataModal = ({
     shiftData = [],
     userData = {},
     handleSubmitPress = () => {},
+    selectedSite={}
 }) => {
-    console.log(shiftData, 'shiftData');
-    const dispatch = useDispatch();
-
     const { icSettings } = useSelector(state => state.inspection);
     const [formFields, setFormFields] = useState({
         shift: null,
@@ -120,17 +119,17 @@ const InputDataModal = ({
                 });
             });
             setResList(temp);
-            if ( temp?.length) {
+            if (temp?.length) {
                 if (icSettings?.IsRespPartyMultiSelect) {
                     let updateisChecked = temp.map(item => ({ ...item, isChecked: true }));
-                    setFormFields({ ...formFields,frequency: freq, responsible: [...updateisChecked] });
+                    setFormFields({ ...formFields, frequency: freq, responsible: [...updateisChecked] });
                     setResList(updateisChecked);
                 } else {
                     let updateisChecked = temp.map((item, index) => ({
                         ...item,
                         isChecked: index == 0 ? true : false,
                     }));
-                    setFormFields({ ...formFields,frequency: freq, responsible: [updateisChecked[0]] });
+                    setFormFields({ ...formFields, frequency: freq, responsible: [updateisChecked[0]] });
                     setResList(updateisChecked);
                 }
             }
@@ -158,12 +157,12 @@ const InputDataModal = ({
         }
     }, [selectedValue, userData]);
     const handleInputChange = (key, value) => {
-        console.log('called')
+        console.log('called');
         setFormFields(pre => ({ ...pre, [key]: value }));
     };
     const handleValidation = () => {
         const { shift, lotNumber, lotQty, frequency, receiptNumber } = formFields;
-        console.log(formFields,'frequency')
+        console.log(formFields, 'frequency');
         const errorobj = {
             shift: false,
             lotNumber: false,
@@ -277,34 +276,33 @@ const InputDataModal = ({
                 } else if (response.AttributeCharacteristics.length > 0) {
                     InspectionID = response.AttributeCharacteristics[0].InspectionID;
                 }
-
-                dispatch({
-                    type: 'INSPECT_LIST',
-                    inspectList: [
-                        {
-                            uniqueId: uuid.v4(),
-                            FormId: selectedValue?.FormId,
-                            OperationID: selectedValue?.OperationID,
-                            intProductionItemID: selectedValue?.ProductionItemId,
-                            strProductionItemName: selectedValue?.ProductionItem,
-                            intShiftID: shift?.ShiftID,
-                            strShiftName: shift?.ShiftName,
-                            strOperationName: selectedValue.OperationName,
-                            strFrequencyName: frequency?.SampleFrequency,
-                            intInspectionTypeID: selectedValue?.TypeOfInspection,
-                            strInspectionType: selectedValue.InspectionType,
-                            strLotNo: lotNumber,
-                            intInspectionID: selectedValue?.ProductionItemId,
-                            receiptNumber: receiptNumber,
-                            GeneralInfo: response.GeneralInfo,
-                            VariableCharacteristics: response.VariableCharacteristics,
-                            AttributeCharacteristics: response.AttributeCharacteristics,
-                            OrderDetailsId: selectedValue?.OrderDetailsId,
-                            InspectionEntryDetailsID: response?.Data || '',
-                            InspectionID: InspectionID,
-                        },
-                    ],
-                });
+                let inspectObj = {
+                    uniqueId: uuid.v4(),
+                    FormId: selectedValue?.FormId,
+                    OperationID: selectedValue?.OperationID,
+                    intProductionItemID: selectedValue?.ProductionItemId,
+                    strProductionItemName: selectedValue?.ProductionItem,
+                    intShiftID: shift?.ShiftID,
+                    strShiftName: shift?.ShiftName,
+                    strOperationName: selectedValue.OperationName,
+                    strFrequencyName: frequency?.SampleFrequency,
+                    intInspectionTypeID: selectedValue?.TypeOfInspection,
+                    strInspectionType: selectedValue.InspectionType,
+                    strLotNo: lotNumber,
+                    intInspectionID: selectedValue?.ProductionItemId,
+                    receiptNumber: receiptNumber,
+                    GeneralInfo: response.GeneralInfo,
+                    VariableCharacteristics: response.VariableCharacteristics,
+                    AttributeCharacteristics: response.AttributeCharacteristics,
+                    OrderDetailsId: selectedValue?.OrderDetailsId,
+                    InspectionEntryDetailsID: response?.Data || '',
+                    InspectionID: InspectionID,
+                };
+                await addInspectionData(selectedSite?.UserId,selectedSite?.Siteid, inspectObj);
+                // dispatch({
+                //     type: 'INSPECT_LIST',
+                //     inspectList: [inspectObj],
+                // });
                 showMessage({
                     message: 'Form Downloaded Successfully',
                     backgroundColor: COLORS.SUCCESS,
@@ -469,7 +467,7 @@ const InputDataModal = ({
                                     borderColor={COLORS.icBottomBox}
                                     showSearch={false}
                                     maxHeight={200}
-                                    onChange={async (val) => {
+                                    onChange={async val => {
                                         handleInputChange('frequency', val);
                                         if (Boolean(selectedValue.TypeOfInspection == 2)) {
                                             await getResponsibleList(val);

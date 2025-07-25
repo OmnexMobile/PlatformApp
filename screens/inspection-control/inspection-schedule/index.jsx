@@ -22,6 +22,7 @@ import QRCodeScannerScreen from '../Components/QRCodeScannerScreen';
 import NoDataFound from '../Components/NoDataFound';
 import { postAPI } from 'global/api-helpers';
 import ApiUrl from 'global/ApiUrl';
+import { getInspectionDataByUserAndSite } from 'store/database/inspectStorage';
 
 const filterList = [
     {
@@ -56,8 +57,7 @@ const moreList = [
     },
 ];
 const InspectionSchedule = () => {
-    const { inspectList, icUserData } = useSelector(state => state.inspection);
-    const inspectionRef = useRef(inspectList);
+    const {  icUserData } = useSelector(state => state.inspection);
     const dispatch = useDispatch();
     const isFocused = useIsFocused();
     const {
@@ -84,12 +84,6 @@ const InspectionSchedule = () => {
         frequencyList: [],
         personList: [],
     });
-
-    // Keep it updated
-    useEffect(() => {
-        inspectionRef.current = inspectList;
-    }, [inspectList]);
-
     const handleFilePress = item => {
         let temp = {
             ProductionItem: item.ProductionItem,
@@ -106,6 +100,8 @@ const InspectionSchedule = () => {
         }
     };
     const handleListFetch = async (inspect = null, showSktn = true, filterType = '') => {
+        const inspectList=await getInspectionDataByUserAndSite(icUserData?.userData?.UserId,icUserData?.userData?.Siteid)
+        console.log(inspectList.length,'*********************************************inspectList.length')
         showSktn && setShowSkeleton(true);
         const { startDate, endDate, type } = filterData;
         let dateFlag = startDate !== '' && endDate !== '';
@@ -177,8 +173,15 @@ const InspectionSchedule = () => {
         }
         setMasterData(tempSearch);
     };
+     const hnadleGetSQliteList=async(userId,siteId)=>{
+        // const list=await getInspectionDataByUserAndSite(userId,siteId)
+        console.log(list,'***********list')
+    }
+  
     useEffect(() => {
         if (icUserData && isFocused) {
+            console.log('icUserData',icUserData)
+            // hnadleGetSQliteList(icUserData?.userData?.UserId,icUserData?.userData?.Siteid)
             handleListFetch(null, true, filterData.type);
         }
         return () => {
@@ -325,7 +328,7 @@ const InspectionSchedule = () => {
         };
     }, [search, isFocused]);
     const handleSubmitBtnPress = async val => {
-        const latestInspection = inspectionRef.current;
+        const latestInspection = await getInspectionDataByUserAndSite(icUserData?.userData?.UserId,icUserData?.userData?.Siteid)
         const apiData = await handleListFetch(null, true, filterData.type);
         let filterTemp = filterData.type !== '' ? apiData.filter(item => item.TypeOfInspection == filterData.type) : apiData;
         let temp = [...filterTemp] || [];
@@ -449,6 +452,7 @@ const InspectionSchedule = () => {
                     }}
                     shiftData={formList.shiftList}
                     userData={icUserData?.userData}
+                    selectedSite={selectedSite}
                 />
             )}
             {Boolean(showFileModal) && (
