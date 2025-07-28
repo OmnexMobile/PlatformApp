@@ -3,7 +3,7 @@ import { LOCAL_STORAGE_VARIABLES, ROUTES } from 'constants/app-constant';
 import { COLORS } from 'constants/theme-constants';
 import { useAppContext } from 'contexts/app-context';
 import { getAvatarInitials, showErrorMessage, successMessage } from 'helpers/utils';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FlatList, KeyboardAvoidingView, Text, TouchableOpacity } from 'react-native';
 import { StyleSheet, View } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -15,6 +15,7 @@ import { Avatar, Divider, Modal } from 'react-native-paper';
 import { ButtonComponent } from 'components';
 import { Bubbles } from 'react-native-loader';
 import InputWithSearch from '../Components/InputWithSearch';
+import NoDataFound from '../Components/NoDataFound';
 let sitesData = {
     selectedSite: {
         EntityNode: 'Corporate',
@@ -29,6 +30,16 @@ let sitesData = {
     siteList: [
         {
             EntityNode: 'Corporate 1',
+            FullName: 'Dhanapal Swetha   ',
+            InspectionControlAccess: 'true',
+            IsSupervisor: false,
+            LoginAccess: '1',
+            SiteName: 'Corporate',
+            Siteid: '1',
+            UserId: 6,
+        },
+        {
+            EntityNode: 'Corporate 1',
             FullName: 'Dhanapal Awetha   ',
             InspectionControlAccess: 'true',
             IsSupervisor: false,
@@ -37,7 +48,7 @@ let sitesData = {
             Siteid: '2',
             UserId: 6,
         },
-         {
+        {
             EntityNode: 'Corporate 2',
             FullName: 'Dhanapal Bwetha   ',
             InspectionControlAccess: 'true',
@@ -47,7 +58,7 @@ let sitesData = {
             Siteid: '3',
             UserId: 6,
         },
-         {
+        {
             EntityNode: 'Corporate 3',
             FullName: 'Dhanapal Cwetha   ',
             InspectionControlAccess: 'true',
@@ -57,7 +68,7 @@ let sitesData = {
             Siteid: '4',
             UserId: 6,
         },
-         {
+        {
             EntityNode: 'Corporate 4',
             FullName: 'Dhanapal Dwetha   ',
             InspectionControlAccess: 'true',
@@ -87,7 +98,7 @@ let sitesData = {
             Siteid: '7',
             UserId: 6,
         },
-         {
+        {
             EntityNode: 'Corporate 7',
             FullName: 'Dhanapal Fwetha   ',
             InspectionControlAccess: 'true',
@@ -97,7 +108,7 @@ let sitesData = {
             Siteid: '8',
             UserId: 6,
         },
-         {
+        {
             EntityNode: 'Corporate 8',
             FullName: 'Dhanapal Fwetha   ',
             InspectionControlAccess: 'true',
@@ -107,7 +118,7 @@ let sitesData = {
             Siteid: '9',
             UserId: 6,
         },
-         {
+        {
             EntityNode: 'Corporate',
             FullName: 'Dhanapal Fwetha   ',
             InspectionControlAccess: 'true',
@@ -117,7 +128,7 @@ let sitesData = {
             Siteid: '10',
             UserId: 6,
         },
-         {
+        {
             EntityNode: 'Corporate',
             FullName: 'Dhanapal Fwetha   ',
             InspectionControlAccess: 'true',
@@ -127,7 +138,7 @@ let sitesData = {
             Siteid: '11',
             UserId: 6,
         },
-         {
+        {
             EntityNode: 'Corporate',
             FullName: 'Dhanapal Fwetha   ',
             InspectionControlAccess: 'true',
@@ -137,7 +148,7 @@ let sitesData = {
             Siteid: '12',
             UserId: 6,
         },
-         {
+        {
             EntityNode: 'Corporate',
             FullName: 'Dhanapal Fwetha   ',
             InspectionControlAccess: 'true',
@@ -147,7 +158,7 @@ let sitesData = {
             Siteid: '13',
             UserId: 6,
         },
-         {
+        {
             EntityNode: 'Corporate',
             FullName: 'Dhanapal Fwetha   ',
             InspectionControlAccess: 'true',
@@ -157,7 +168,6 @@ let sitesData = {
             Siteid: '14',
             UserId: 6,
         },
-        
     ],
 };
 const IcSettings = () => {
@@ -167,8 +177,20 @@ const IcSettings = () => {
     const [showSiteList, setShowSiteList] = useState(false);
     const { sites, handleLogout, handleLogin, handleSite } = useAppContext();
     const { inspectList, icUserData } = useSelector(state => state.inspection);
-    console.log(sites.siteList,'sites.siteList')
+
+    const [siteList, setSiteList] = useState([]);
+    const [filteredSite, setFilteredSite] = useState([]);
+    const [searchText, setSearchText] = useState('');
+    console.log(sites.siteList, 'sites.siteList');
     const dispatch = useDispatch();
+    useEffect(() => {
+        if (sites?.siteList?.length > 0) {
+            setSiteList(sitesData.siteList);
+            setFilteredSite(sitesData.siteList);
+        } else {
+            setSiteList([]);
+        }
+    }, [sites.siteList]);
     const handleLogoutCall = async () => {
         setShowLogoutModal(false);
         setShowLoader(true);
@@ -196,7 +218,7 @@ const IcSettings = () => {
                         routes: [{ name: ROUTES.GLOBAL_LOGIN }],
                     });
                     localStorage.removeItem(LOCAL_STORAGE_VARIABLES.SiteId);
-                    handleSite(null)
+                    handleSite(null);
                 } else {
                     showErrorMessage(data?.Error || 'Something went wrong while Logout');
                     setShowLoader(false);
@@ -219,6 +241,8 @@ const IcSettings = () => {
         };
         dispatch({ type: 'IC_USER_DATA', icUserData: newIcUserData });
         successMessage({ message: 'Success', description: `You have successfully selected the site: ${item.SiteName}`, position: 'bottom' });
+        setSearchText('');
+        handleSearch('');
     };
     const setProfileCall = async item => {
         await localStorage.storeData(LOCAL_STORAGE_VARIABLES.UserId, item?.UserId);
@@ -261,8 +285,29 @@ const IcSettings = () => {
     const handleClose = () => {
         setShowLogoutModal(false);
     };
+
+    const handleSearch = value => {
+        let temp = JSON.parse(JSON.stringify(siteList));
+        if (value?.length) {
+            const tempSearch = temp.filter(item => item?.SiteName.toLowerCase().includes(value.toLowerCase()));
+            setFilteredSite(tempSearch);
+        } else {
+            setFilteredSite(siteList);
+        }
+    };
+    useEffect(() => {
+        var handler;
+        if (searchText?.length) {
+            handler = setTimeout(() => {
+                handleSearch(searchText);
+            }, 500);
+        }
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [searchText]);
     return (
-        <KeyboardAvoidingView style={styles.container} >
+        <KeyboardAvoidingView style={styles.container}>
             <View style={styles.headerBox}>
                 <View style={styles.iconBox}>
                     <TouchableOpacity onPress={() => navigation.goBack()}>
@@ -285,31 +330,46 @@ const IcSettings = () => {
                     <Text style={[styles.optiontext, { color: COLORS.black }]}>Choose Site</Text>
                     <Icon name="arrow-drop-down" size={25} color={COLORS.black} />
                 </View>
-                
             </TouchableOpacity>
             {Boolean(showSiteList) && (
-                    <View style={styles.siteListContainer}>
-                        <TouchableOpacity style={styles.siteBox} activeOpacity={1}>
-                            <Avatar.Text
-                                size={40}
-                                label={getAvatarInitials(`${sites?.selectedSite?.FullName || ''}`)}
-                                maxFontSizeMultiplier={1}
-                                style={{ backgroundColor: COLORS.apptheme }}
-                                color={COLORS.white}
-                                labelStyle={{ fontFamily: 'OpenSans-Bold', fontSize: 15 }}
-                            />
-                            <Text style={[styles.siteText, { color: COLORS.apptheme }]}>{sites?.selectedSite?.SiteName}</Text>
-                        </TouchableOpacity>
-                        {sitesData?.siteList?.length > 5  && <InputWithSearch onSearch={val => {}} searchValue={''} />}
+                <View style={styles.siteListContainer}>
+                    <TouchableOpacity style={styles.siteBox} activeOpacity={1}>
+                        <Avatar.Text
+                            size={40}
+                            label={getAvatarInitials(`${sites?.selectedSite?.FullName || ''}`)}
+                            maxFontSizeMultiplier={1}
+                            style={{ backgroundColor: COLORS.apptheme }}
+                            color={COLORS.white}
+                            labelStyle={{ fontFamily: 'OpenSans-Bold', fontSize: 15 }}
+                        />
+                        <Text style={[styles.siteText, { color: COLORS.apptheme }]}>{sites?.selectedSite?.SiteName}</Text>
+                    </TouchableOpacity>
+                    {siteList.length > 5 && (
+                        <InputWithSearch
+                            onSearch={val => {
+                                setSearchText(val);
+                                if (!val?.length) {
+                                    handleSearch('');
+                                }
+                            }}
+                            searchValue={searchText}
+                        />
+                    )}
+                    {Boolean(filteredSite?.length) ? (
                         <FlatList
-                            data={sitesData.siteList}
+                            data={filteredSite}
                             renderItem={renderSites}
                             keyExtractor={(item, index) => index.toString()}
                             nestedScrollEnabled
                             showsVerticalScrollIndicator={false}
                         />
-                    </View>
-                )}
+                    ) : (
+                        <View style={{ justifyContent: 'center', alignItems: 'center', height: 200 }}>
+                            <NoDataFound />
+                        </View>
+                    )}
+                </View>
+            )}
             <TouchableOpacity
                 style={{
                     borderTopWidth: 1,
@@ -454,7 +514,7 @@ const styles = StyleSheet.create({
         marginLeft: 10,
     },
     siteListContainer: {
-        height: '75%',
+        maxHeight: '75%',
     },
 });
 export default IcSettings;
