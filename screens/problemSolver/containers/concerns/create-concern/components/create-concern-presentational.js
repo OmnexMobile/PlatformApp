@@ -22,6 +22,11 @@ const CreateConcernPresentational = ({
     selectedTeam,
     setSelectedTeam,
     ConcernID,
+    handleNestedInputChange,
+    handleProblemImages,
+    handleAttachments,
+    handleOKPicker,
+    handleNotOKPicker,
 }) => {
     return (
         <Content noPadding>
@@ -29,8 +34,23 @@ const CreateConcernPresentational = ({
             <EightDModal {...{ modalVisible: formModalVisible, onRequestClose: () => setFormModalVisible(false), url: concernDetails?.FormUrl }} />
             <Header title={ConcernID ? `Concern #${ConcernID}` : 'New Concern'} />
             <KeyboardAwareScrollViewComponent contentContainerStyle={{ paddingVertical: 0, flexGrow: 1 }}>
-                <RenderInputs {...{ inputs: defaultInputs, handleInputChange }} />
-                <RenderInputs {...{ inputs: dynamicInputs, handleInputChange: handleDynamicInputChange }} />
+                <RenderInputs
+                    {...{
+                        inputs: defaultInputs,
+                        handleInputChange,
+                    }}
+                />
+                <RenderInputs
+                    {...{
+                        inputs: dynamicInputs,
+                        handleInputChange: handleDynamicInputChange,
+                        handleNestedInputChange,
+                        handleProblemImages,
+                        handleAttachments,
+                        handleOKPicker,
+                        handleNotOKPicker,
+                    }}
+                />
                 {ConcernID ? (
                     <RenderInputs
                         {...{

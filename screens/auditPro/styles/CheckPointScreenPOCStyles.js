@@ -1,37 +1,30 @@
-import { StyleSheet, Dimensions } from 'react-native'
-import { width, height } from 'react-native-dimension'
-import Fonts from '../Themes/Fonts'
+import {StyleSheet, Dimensions} from 'react-native';
+import {width, height} from 'react-native-dimension';
+import Fonts from '../Themes/Fonts';
 
-let Window = Dimensions.get('window')
-const Width = Dimensions.get('window').width
-const Height = Dimensions.get('window').height
+let Window = Dimensions.get('window');
+const Width = Dimensions.get('window').width;
+const Height = Dimensions.get('window').height;
 
 export default StyleSheet.create({
   mainContainer: {
-    width: "100%",
-    height:"100%"
+    width: '100%',
+    height: '100%',
   },
-  // header: {
-  //   width: "100%",
-  //   flexDirection: 'row',
-  //   backgroundColor: '#03B0D2',
-  //   padding: 5,
-  //   height: 65,
-  // },
   backlogo: {
     flexDirection: 'row',
     backgroundColor: 'transparent',
-    width: width(10),
+    marginLeft: 10,
     height: 65,
     justifyContent: 'center',
     alignItems: 'center',
   },
   headerDiv: {
-    width: width(15),
+    width: '15%',
     height: 65,
     flexDirection: 'row',
     justifyContent: 'flex-end',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   slide: {
     width: '100%',
@@ -39,20 +32,20 @@ export default StyleSheet.create({
     backgroundColor: 'red',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 20
+    marginTop: 20,
   },
   header: {
     width: '100%',
-   // zIndex: 3000,
+    // zIndex: 3000,
     flexDirection: 'row',
     //backgroundColor: 'white',
     padding: 5,
-    alignContent:'center',
-    justifyContent: 'flex-start',
+    alignContent: 'center',
+    justifyContent: 'space-between',
     height: 65,
     elevation: 4,
-    shadowOffset: { width: 2, height: 10 },
-    shadowColor: "lightgrey",
+    shadowOffset: {width: 2, height: 10},
+    shadowColor: 'lightgrey',
     shadowOpacity: 0.5,
     shadowRadius: 4,
   },
@@ -61,20 +54,20 @@ export default StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     width: '75%',
-    height: 65
+    height: 65,
   },
   headingText: {
-    fontSize: 16,
+    fontSize: Fonts.size.mediump,
     color: '#fff',
     textAlign: 'center',
-    fontFamily:'OpenSans-Bold'
+    fontFamily: 'OpenSans-Bold',
   },
   headerDiv: {
     width: width(15),
     height: 65,
     flexDirection: 'row',
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   statistics: {
     width: '100%',
@@ -82,7 +75,7 @@ export default StyleSheet.create({
     backgroundColor: 'white',
     flexDirection: 'row',
     borderBottomWidth: 0.8,
-    borderBottomColor: 'lightgrey'
+    borderBottomColor: 'lightgrey',
   },
   statCard1: {
     width: '33.3%',
@@ -91,7 +84,7 @@ export default StyleSheet.create({
     backgroundColor: 'white',
     flexDirection: 'column',
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   statCard2: {
     width: '33.3%',
@@ -102,7 +95,7 @@ export default StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderLeftWidth: 0.8,
-    borderLeftColor: 'lightgray'
+    borderLeftColor: 'lightgray',
   },
   statCard3: {
     width: '33.3%',
@@ -113,7 +106,7 @@ export default StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderLeftWidth: 0.8,
-    borderLeftColor: 'lightgray'
+    borderLeftColor: 'lightgray',
   },
   cart: {
     width: '78%',
@@ -122,7 +115,7 @@ export default StyleSheet.create({
     // height: '90%',
     backgroundColor: 'white',
     shadowColor: 'grey',
-    shadowOffset: { height: 0, width: 0 },
+    shadowOffset: {height: 0, width: 0},
     shadowOpacity: 0.4,
     shadowRadius: 5,
     elevation: 2,
@@ -132,14 +125,13 @@ export default StyleSheet.create({
     marginLeft: 1,
     marginRight: 20,
     // flexDirection:'row'
-
   },
   body: {
     // height:'85%',
-    flex:1,
-    width:'100%',
+    flex: 1,
+    width: '100%',
     flexDirection: 'row',
-    marginTop:5
+    marginTop: 5,
     // bottom:30
     // height: Height/2+80,
   },
@@ -157,33 +149,33 @@ export default StyleSheet.create({
     width: '100%',
     marginVertical: 10,
     flexDirection: 'row',
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
   },
   backBtn: {
     width: '40%',
     height: 50,
-    borderRadius: 10,
+    borderRadius: 5,
     backgroundColor: '#00BAC8',
     marginLeft: 20,
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   nextBtn: {
     width: '40%',
     height: 50,
-    borderRadius: 10,
+    borderRadius: 5,
     backgroundColor: '#00BAC8',
     marginRight: 20,
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   quesText: {
     fontSize: Fonts.size.mediump,
     width: '100%',
     color: 'black',
-    fontFamily:'OpenSans-Regular',
+    fontFamily: 'OpenSans-Regular',
     padding: 5,
-    marginTop: 5
+    marginTop: 5,
     // backgroundColor:'yellow',
   },
   boxsecRadio: {
@@ -196,7 +188,7 @@ export default StyleSheet.create({
     paddingLeft: 5,
     justifyContent: 'space-between',
     paddingTop: 10,
-    alignItems:'center',
+    alignItems: 'center',
   },
   ncofi: {
     position: 'absolute',
@@ -206,7 +198,7 @@ export default StyleSheet.create({
     padding: 8,
     backgroundColor: '#00BFFF',
     borderRadius: 20,
-    bottom: 0
+    bottom: 0,
   },
   boxsecImageDisplay: {
     width: '50%',
@@ -217,7 +209,7 @@ export default StyleSheet.create({
     flexDirection: 'column',
     paddingLeft: 10,
     paddingTop: 10,
-    paddingRight: 10
+    paddingRight: 10,
   },
   boxsecVideoDisplay: {
     //width: '50%',
@@ -228,7 +220,7 @@ export default StyleSheet.create({
     flexDirection: 'column',
     paddingLeft: 10,
     paddingTop: 10,
-    paddingRight: 10
+    paddingRight: 10,
   },
   rightHeader: {
     flexDirection: 'row',
@@ -236,7 +228,7 @@ export default StyleSheet.create({
     alignItems: 'center',
     //right: 10,
     //height: 80,
-    paddingRight: 10
+    paddingRight: 10,
   },
   boxsec1: {
     width: '98%',
@@ -245,7 +237,7 @@ export default StyleSheet.create({
     borderBottomColor: 'lightgrey',
     borderBottomWidth: 0.5,
     flexDirection: 'column',
-    paddingLeft: 10
+    paddingLeft: 10,
   },
   boxsecNone: {
     // width:'98%',
@@ -255,20 +247,19 @@ export default StyleSheet.create({
     // borderBottomWidth: 0.5,
     // flexDirection: 'column',
     // paddingLeft: 10
-    display: 'none'
+    display: 'none',
   },
   checkPointsTextInputLabel: {
     fontSize: Fonts.size.mediump,
     paddingTop: 0,
     marginTop: 0,
-    fontFamily:'OpenSans-Regular'
-
+    fontFamily: 'OpenSans-Regular',
   },
   checkPointsTextInput: {
     fontSize: Fonts.size.mediump,
     paddingTop: 2,
     height: 50,
-    fontFamily:'OpenSans-Regular'
+    fontFamily: 'OpenSans-Regular',
     // borderBottomColor: 'lightgrey',
     // borderTopWidth: 0.5,
   },
@@ -276,12 +267,12 @@ export default StyleSheet.create({
     top: 3,
     position: 'absolute',
     right: 5,
-    height: 40
+    height: 40,
   },
   scoreBox: {
     position: 'absolute',
-     //top: height(2), -- changes done 16/12/2022
-    left: 50
+    //top: height(2), -- changes done 16/12/2022
+    left: 50,
   },
   scoreText: {
     top: height(0),
@@ -304,7 +295,7 @@ export default StyleSheet.create({
     // borderBottomColor: 'lightgrey',
     // borderTopWidth: 0.5,
     paddingTop: 0,
-    marginTop: 0
+    marginTop: 0,
   },
   LPAsec2: {
     //width:'100%',
@@ -312,7 +303,7 @@ export default StyleSheet.create({
     // backgroundColor:'grey'
     backgroundColor: 'white',
     borderBottomColor: 'lightgrey',
-    borderTopWidth: 0.5
+    borderTopWidth: 0.5,
   },
   boxsecRemark: {
     width: '98%',
@@ -323,7 +314,7 @@ export default StyleSheet.create({
     flexDirection: 'row',
     paddingLeft: 5,
     // marginLeft: 5,
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
   },
   modalOuterBox: {
     backgroundColor: 'rgba(0,0,0,0.8)',
@@ -333,7 +324,7 @@ export default StyleSheet.create({
     alignItems: 'center',
     margin: 0,
     top: 0,
-    left: 0
+    left: 0,
   },
   ncModal: {
     //flex: 1,
@@ -347,7 +338,7 @@ export default StyleSheet.create({
     padding: 10,
     elevation: 8,
     borderColor: 'lightgrey',
-    borderWidth: 0.5
+    borderWidth: 0.5,
   },
   ModalBox: {
     width: width(90),
@@ -355,7 +346,7 @@ export default StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: 10,
     flexDirection: 'column',
-    top: height(40)
+    top: height(40),
   },
   modalheader: {
     width: width(90),
@@ -365,13 +356,13 @@ export default StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderBottomWidth: 1,
-    borderBottomColor: 'white'
+    borderBottomColor: 'white',
   },
   modalbody: {
     width: width(90),
     height: height(42),
     backgroundColor: 'white',
-    padding: 20
+    padding: 20,
   },
   sectionTop: {
     backgroundColor: 'white',
@@ -380,7 +371,7 @@ export default StyleSheet.create({
     alignItems: 'flex-start',
     borderBottomWidth: 0.5,
     borderBottomColor: '#C4C4C4',
-    padding: 10
+    padding: 10,
   },
   modalheading: {
     flexDirection: 'row',
@@ -390,33 +381,33 @@ export default StyleSheet.create({
     borderBottomWidth: 0.8,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20
+    padding: 20,
   },
   sectionContent: {
     flexDirection: 'row',
     justifyContent: 'flex-start',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   boxContent: {
     width: '100%',
     color: 'black',
     fontSize: Fonts.size.mediump,
     textAlign: 'center',
-    fontFamily:'OpenSans-Regular'
+    fontFamily: 'OpenSans-Regular',
   },
   sectionTopCancel: {
     backgroundColor: 'white',
     flexDirection: 'column',
     justifyContent: 'flex-start',
     alignItems: 'flex-start',
-    padding: 10
+    padding: 10,
   },
   boxContentClose: {
     width: '100%',
     color: '#000',
     textAlign: 'center',
     fontSize: Fonts.size.mediump,
-    fontFamily:'OpenSans-Regular'
+    fontFamily: 'OpenSans-Regular',
   },
   sectionBtn: {
     backgroundColor: 'white',
@@ -425,7 +416,7 @@ export default StyleSheet.create({
     alignItems: 'center',
     borderBottomWidth: 0.5,
     borderBottomColor: '#C4C4C4',
-    padding: 10
+    padding: 10,
   },
   boxContentCam: {
     //width: '100%',
@@ -433,7 +424,7 @@ export default StyleSheet.create({
     fontSize: Fonts.size.mediump,
     // textAlign: 'center',
     // paddingLeft: 20,
-    fontFamily:'OpenSans-Regular'
+    fontFamily: 'OpenSans-Regular',
   },
   modalavatar: {
     flex: 1,
@@ -441,14 +432,14 @@ export default StyleSheet.create({
     justifyContent: 'center',
     alignContent: 'center',
     paddingTop: 20,
-    margin: 20
+    margin: 20,
   },
   modelImage: {
     width: '100%',
     height: '80%',
     resizeMode: 'contain',
     justifyContent: 'center',
-    alignContent: 'center'
+    alignContent: 'center',
   },
   footer: {
     //flex:1,
@@ -456,7 +447,7 @@ export default StyleSheet.create({
     // bottom: 0,
     flexDirection: 'row',
     justifyContent: 'flex-start',
-    alignContent:'center',
+    alignContent: 'center',
     width: '100%',
     backgroundColor: 'transparent',
     height: 65,
@@ -466,7 +457,7 @@ export default StyleSheet.create({
     //flex:1,
     flexDirection: 'row',
     justifyContent: 'flex-start',
-    alignContent:'center',
+    alignContent: 'center',
     width: '100%',
     height: 65,
     //top:height(1),
@@ -480,6 +471,6 @@ export default StyleSheet.create({
     fontSize: Fonts.size.h5,
     paddingTop: 40,
     color: 'grey',
-    fontFamily:'OpenSans-Regular'
-  }
-})
+    fontFamily: 'OpenSans-Regular',
+  },
+});

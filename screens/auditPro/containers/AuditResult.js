@@ -295,7 +295,7 @@ class AuditResult extends Component{
     console.log('CURRENT_PAGE--->', 'AuditResult')
     return(
       <View style={styles.wrapper}>
-        {Platform.OS === 'ios' ? <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> : null }
+        {Platform.OS === 'ios' ? <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
         <OfflineNotice />
         <ImageBackground 
           source={Images.DashboardBG}
@@ -316,7 +316,7 @@ class AuditResult extends Component{
               <Text numberOfLines={1} style={{fontSize:15,color:'white',fontFamily:'OpenSans-Regular'}}>{this.state.breadCrumbText}</Text>
             </View>
             <View style={[styles.headerDiv, {width: width(12)}]}>
-                <TouchableOpacity style={{paddingRight:10}} onPress={()=>this.props.navigation.navigate(ROUTES.AUDITPRODASHBOARD)}>
+                <TouchableOpacity style={{paddingRight:10}} onPress={()=>this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)}>
                     <Icon name="home" size={30} color="white" />
                 </TouchableOpacity> 
             </View>

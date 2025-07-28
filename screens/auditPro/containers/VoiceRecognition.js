@@ -421,7 +421,7 @@ class VoiceRecognition extends Component {
   render() {
     return (
       <View style={styles.wrapper}>
-        {Platform.OS === 'ios' ? <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> : null }
+        {Platform.OS === 'ios' ? <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
         <OfflineNotice />
 
         <ImageBackground

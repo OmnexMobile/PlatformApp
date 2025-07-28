@@ -51,6 +51,7 @@ const TeamCard = ({ onPress, isSelected, text }) => {
 
 const TeamList = () => {
     const { selectedTeam, setSelectedTeam } = useTeamContext();
+    const { theme } = useTheme();
     const [list, setList] = useState({
         data: [],
         loading: true,
@@ -85,14 +86,18 @@ const TeamList = () => {
     }, [sites?.selectedSite]);
 
     return (
-        <Content noPadding>
+        <View
+            style={{
+                flex: 1,
+                backgroundColor: theme.mode.backgroundColor,
+            }}>
             {list.loading ? (
                 <PlaceHolders type={PLACEHOLDERS.TEAM_CARD} />
             ) : (
                 <FlatList
                     ListEmptyComponent={<NoRecordFound />}
                     style={{ flex: 1 }}
-                    contentContainerStyle={{ flexGrow: 1, paddingBottom: SPACING.NORMAL }}
+                    contentContainerStyle={{ paddingBottom: SPACING.NORMAL }}
                     data={list?.data}
                     renderItem={({ item }) => (
                         <TeamCard
@@ -110,7 +115,7 @@ const TeamList = () => {
                     keyExtractor={(item, index) => index.toString()}
                 />
             )}
-        </Content>
+        </View>
     );
 };
 
@@ -134,7 +139,6 @@ const TeamUsers = () => {
                 data: Data,
                 loading: false,
             });
-            console.log('🚀 ~ file: team-picker.js:96 ~ getListData ~ Data', Data);
         } catch (err) {
             setList({
                 data: [],
@@ -212,10 +216,11 @@ const ModalTabs = ({ modalVisible, setModalVisible, ConcernID, handleInputChange
         }
     };
     return (
-        <ModalComponent modalVisible={modalVisible} onRequestClose={() => setModalVisible(false)}>
+        <ModalComponent noStatusBarHeight modalVisible={modalVisible} onRequestClose={() => setModalVisible(false)}>
             <View style={{ flex: 1 }}>
                 <Header title="Select Team" handleBackClick={() => setModalVisible(false)} />
-                <TabViewComponent
+                <TeamList />
+                {/* <TabViewComponent
                     tabs={[
                         {
                             title: 'Team List',
@@ -226,7 +231,7 @@ const ModalTabs = ({ modalVisible, setModalVisible, ConcernID, handleInputChange
                         //     component: TeamUsers,
                         // },
                     ]}
-                />
+                /> */}
             </View>
             {selectedTeam ? (
                 <View style={{ padding: SPACING.NORMAL }}>
@@ -267,7 +272,7 @@ const InputContent = ({ name, label, required, value, setModalVisible, editable,
                     style={{
                         fontSize: FONT_SIZE.LARGE,
                         paddingVertical: SPACING.X_SMALL,
-                        color: !value && !selectedTeam?.name ? COLORS.lightGrey : theme?.mode.textColor,
+                        color: !value && !selectedTeam?.name ? COLORS.searchText : theme?.mode.textColor,
                     }}>
                     {value || selectedTeam?.name || 'Select Team'}
                 </TextComponent>
@@ -278,6 +283,7 @@ const InputContent = ({ name, label, required, value, setModalVisible, editable,
 
 const TeamPickerComponent = ({ name, label, required, value, editable = true, ConcernID, handleInputChange }) => {
     const [modalVisible, setModalVisible] = useState(false);
+    const { theme } = useTheme();
     return (
         <TeamProvider>
             <View
@@ -285,7 +291,7 @@ const TeamPickerComponent = ({ name, label, required, value, editable = true, Co
                     padding: SPACING.NORMAL,
                     flex: 1,
                     paddingBottom: SPACING.SMALL,
-                    marginBottom: SPACING.XX_SMALL,
+                    marginBottom: SPACING.X_SMALL,
                     ...(!editable && { backgroundColor: theme.mode.disabledBackgroundColor }),
                 }}>
                 <ModalTabs {...{ modalVisible, setModalVisible, ConcernID, handleInputChange }} />

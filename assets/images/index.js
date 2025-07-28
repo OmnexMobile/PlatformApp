@@ -12,6 +12,8 @@ export const IMAGES = {
     riskModuleIcon: require('./risk-icon.png'),
     meetingModuleIcon: require('./meeting-icon.png'),
     emptyIcon: require('./empty-box.png'),
+    ps_logo: require('./ps_logo.png'),
+    ps_logo_round: require('./ps_logo_round.png'),
 
     // flags
     china: require('./flags/china.png'),

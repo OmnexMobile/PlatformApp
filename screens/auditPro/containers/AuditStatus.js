@@ -118,6 +118,7 @@ class AuditStatus extends React.Component {
         console.log('Chinese script off', this.state.ChineseScript);
       });
     }
+    this.checkUser();
     //console.log('audit id & generate report dat:'+this.props.navigation.state.params.AuditID+''+this.props.navigation.state.params.generatereport)
     this.setState(
       {
@@ -130,7 +131,7 @@ class AuditStatus extends React.Component {
         NetInfo: false,
       },
       () => {
-        this.checkUser();
+        // this.checkUser();
       },
     );
 
@@ -197,13 +198,31 @@ class AuditStatus extends React.Component {
     // var ID = this.props.data.audits.userId;
     var ID = this.state.currentUserData?.userId;
     var path = '';
-    console.log(userid, token);
+    const deviceId = await AsyncStorage.getItem('loginDeviceId');
 
-    auth.getCheckUser(userid, token, (res, data) => {
+    var RegisterDevice = this.props.data.audits.deviceid;
+    console.log(userid, token, deviceId, RegisterDevice);
+  
+    // auth.getCheckUser(userid,RegisterDevice,token, (res, data) => {
+    auth.getCheckUser(userid, deviceId, token, (res, data) => {
       console.log('User information', data);
       if (data.data.Message == 'Success') {
         console.log('Checking User status', data.data.Data.ActiveStatus);
         UserStatus = data.data.Data.ActiveStatus;
+        if (this.props.data.audits.isOfflineMode) {
+          this.toast.show(strings.Offline_Notice, DURATION.LENGTH_LONG);
+        } else {
+          NetInfo.fetch().then(netState => {
+            if (netState.isConnected) {
+              // this.props.navigation.navigate('AuditPage', {
+              //   datapass: iAuditDetails,
+              //   auditStatusPass: this.props.item.cStatus,
+              // });
+            } else {
+              this.toast.show(strings.No_Internet, DURATION.LENGTH_LONG);
+            }
+          });
+        }
         if (UserStatus == 2) {
           console.log('User active');
           this.getStatus();
@@ -244,6 +263,7 @@ class AuditStatus extends React.Component {
           );
           this.props.navigation.navigate(ROUTES.AUDIT_DASHBOARD_LISTING);
         } else if (UserStatus == 0) {
+          Alert.alert("Your session has expired,Please login again.")
           this.toast.show(
             strings.user_inactive_text,
             DURATION.LENGTH_SHORT,
@@ -627,6 +647,7 @@ class AuditStatus extends React.Component {
                       this.props.navigation.navigate(ROUTES.LPA_PUBLISH, {
                         Auditid: this.state.AuditID,
                         Auditorder: 1,
+                        siteid:this.props.data.audits.siteId,
                       });
                     }
                   });
@@ -662,7 +683,7 @@ class AuditStatus extends React.Component {
 
   handleEnd() {
     console.log('this.state.routesList', this.state.routesList);
-    // this.getStatus()
+    this.getStatus()
   }
 
   render() {
@@ -673,7 +694,7 @@ class AuditStatus extends React.Component {
     const {StatusHistory} = this.state;
     return (
       <KeyboardAvoidingView behavior="padding" style={styles.wrapper}>
-        {Platform.OS === 'ios' ? <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> : null }
+        {Platform.OS === 'ios' ? <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
         <OfflineNotice />
         <DateTimePicker
           mode="datetime"
@@ -728,7 +749,7 @@ class AuditStatus extends React.Component {
               <TouchableOpacity
                 style={{paddingRight: 10}}
                 onPress={() =>
-                  this.props.navigation.navigate(ROUTES.AUDITPRODASHBOARD)
+                  this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)
                   // this.props.navigation.navigate(ROUTES.HOME_FAB_VIEW)
                 }>
                 <Icon name="home" size={30} color="white" />
@@ -807,6 +828,19 @@ class AuditStatus extends React.Component {
                     <View style={styles.boxCard2}>
                       <Text style={styles.detailContent}>
                         {this.state.AuditProgram}
+                      </Text>
+                    </View>
+                  </View>
+
+                  <View style={styles.card}>
+                    <View style={styles.boxCard1}>
+                      <Text style={styles.detailTitle}>
+                        {strings.Lead_Auditor}
+                      </Text>
+                    </View>
+                    <View style={styles.boxCard2}>
+                      <Text style={styles.detailContent}>
+                        {this.state.LeadAuditor}
                       </Text>
                     </View>
                   </View>
@@ -1450,6 +1484,7 @@ class AuditStatus extends React.Component {
           messageStyle={{fontFamily: 'OpenSans-Regular'}}
           visible={this.state.dialogVisible}
           onTouchOutside={() => this.setState({dialogVisible: false})}
+          supportedOrientations={['portrait', 'portrait-upside-down', 'landscape', 'landscape-left', 'landscape-right']}
           positiveButton={{
             title: strings.yes,
             onPress: this.onSave.bind(this),

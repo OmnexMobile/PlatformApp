@@ -1,20 +1,9 @@
+import { COLORS } from 'constants/theme-constants';
 import React from 'react';
-import { StatusBar, Platform, View } from 'react-native';
-import { getStatusBarHeight } from 'react-native-status-bar-height';
-import useTheme from '../theme/useTheme';
-import { Modes, Themes } from '../constants/app-constant';
+import { StatusBar } from 'react-native';
 
-const StatusBarAndroidIOS = ({ backgroundColor = null, animated = true }) => {
-    const { theme } = useTheme();
-    return (
-        <View style={[Platform.OS === 'ios' && { height: getStatusBarHeight() }]}>
-            <StatusBar
-                backgroundColor={backgroundColor || theme.mode.backgroundColor}
-                barStyle={theme.selectedMode === Modes.light ? 'dark-content' : 'light-content'}
-                animated={animated}
-            />
-        </View>
-    );
+const StatusBarAndroidIOS = ({ backgroundColor = COLORS.transparent, animated = true }) => {
+    return <StatusBar backgroundColor={backgroundColor} barStyle="dark-content" animated={animated} translucent />;
 };
 
 export default StatusBarAndroidIOS;

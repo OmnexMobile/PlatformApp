@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import moment from 'moment';
-import { useNavigation, useRoute } from '@react-navigation/native';
-import { APP_VARIABLES, INPUTS_CONSTANTS, LOCAL_STORAGE_VARIABLES, STATUS_CODES, DATE_FORMAT } from 'constants/app-constant';
+import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
+import { APP_VARIABLES, DATE_FORMAT, INPUTS_CONSTANTS, LOCAL_STORAGE_VARIABLES, STATUS_CODES } from 'constants/app-constant';
 import API_URL from 'global/ApiUrl';
 import { postAPI, getAPI } from 'global/api-helpers';
 import { useAppContext } from 'contexts/app-context';
@@ -15,6 +15,14 @@ const CHANGE_TO = {
     [STATUS_CODES.OpenConcern]: STATUS_CODES.InprogressConcern,
     [STATUS_CODES.InprogressConcern]: STATUS_CODES.CloseConcern,
 };
+
+function isDateFormat(inputString) {
+    // Regular expression to match the format "M/D/YYYY h:mm:ss A"
+    const regex = /^(0?[1-9]|1[0-2])\/(0?[1-9]|[12][0-9]|3[01])\/\d{4} (0?[1-9]|1[0-2]):([0-5][0-9]):([0-5][0-9]) (AM|PM)$/;
+
+    // Test the input string against the regular expression
+    return regex.test(inputString);
+}
 
 const ConcernInitialEvaluationFunctional = ({}) => {
     const [concernDetails, setConcernDetails] = useState({
@@ -57,6 +65,7 @@ const ConcernInitialEvaluationFunctional = ({}) => {
                     [APP_VARIABLES.SOURCE_ID]: categoryId,
                     [APP_VARIABLES.FORM_TYPE]: 'cat',
                     [LOCAL_STORAGE_VARIABLES.UserId]: res.UserId,
+                    // [APP_VARIABLES.FORM_TYPE_ID]: 3,
                     [APP_VARIABLES.FORM_TYPE_ID]: 2,
                     [APP_VARIABLES.SITE_ID]: res.SiteId,
                     [APP_VARIABLES.CONCERN_FORM_ID]: concernDetails?.ConcernFormID,
@@ -66,32 +75,52 @@ const ConcernInitialEvaluationFunctional = ({}) => {
                 }),
             );
 
-            const tempDynamicInputs = dynamicInputs?.filter(input => input?.value && input?.name !== 'StatusID');
-            // console.log('🚀 ~ file: concern-initial-evaluation-functional.js:63 ~ getDynamicInputList ~ tempDynamicInputs:', tempDynamicInputs);
+            const tempDynamicInputs = dynamicInputs?.filter(input => !['TeamID', 'ProjectStartDate', 'StatusID'].includes(input?.name));
+
             setDynamicInputs([
-                ...tempDynamicInputs?.map(input => ({
-                    ...input,
-                    editable: !!!ConcernID,
-                    type: INPUTS_CONSTANTS.INPUT,
-                    ...(input?.name === 'CustomerID' && { value: concernDetails['CustomerName'] }),
-                    ...(input?.name === 'ApproachID' && { value: concernDetails['ApproachName'] }),
-                    ...(input?.name === 'QAlert' && { value: concernDetails['QAlertType'] }),
-                    ...(input?.name === 'Disposition' && { value: concernDetails['DispositionName'] }),
-                    ...(input?.name === 'SupplierID' && {
-                        value: concernDetails['SupplierName'],
-                        ...(!!!concernDetails['SupplierName'] && {
-                            type: INPUTS_CONSTANTS.DROPDOWN,
-                            editable: true,
+                ...tempDynamicInputs?.map(input => {
+                    const originalResponse = input?.value || concernDetails?.[input?.name];
+                    return {
+                        ...input,
+                        ...(input?.name === 'EstimatedTotalCost' && {
+                            label: `${input?.label} ${concernDetails?.['ShortName'] ? `(${concernDetails?.['ShortName']})` : ''}`,
                         }),
-                    }),
-                    ...(input?.name === 'ReportedDate' && { value: moment(concernDetails['ReportedDate']).format(DATE_FORMAT.DD_MM_YYYY) }),
-                    ...(input?.name === 'ProbDesc' && {
-                        type: INPUTS_CONSTANTS.RICH_EDITOR,
-                        value: concernDetails['ProbDesc']?.replace(/<[^>]+>|&[^;]+;/gi, ''),
-                    }),
-                    // value: input?.value,
-                    // ...(!!ConcernID && { editable: false }),
-                })),
+                        value: isDateFormat(originalResponse)
+                            ? moment(originalResponse, 'M/D/YYYY h:mm:ss A').format()
+                            : input?.value || concernDetails?.[input?.name],
+                        ...(input?.name === 'PriorityID' && { value: concernDetails['PriorityID']?.toString() }),
+                        ...(input?.name === 'CategoryofComplaint' && {
+                            value: concernDetails['CategoryofComplaint']?.toString(),
+                        }),
+                        ...(input?.name === 'SerialNumber' && { value: concernDetails['SerialNumber']?.toString() }),
+                        ...(input?.name === 'Source' && { value: concernDetails['Source']?.toString() }),
+                        ...(input?.name === 'NotifySupplier' && { value: concernDetails['NotifySupplier']?.toString() }),
+                        ...(input?.name === 'Repeat' && { value: concernDetails['Repeat']?.toString() }),
+
+                        ...(input?.name === 'ProbDesc' && {
+                            type: INPUTS_CONSTANTS.RICH_EDITOR,
+                            value: concernDetails['ProbDesc']?.replace(/<[^>]+>|&[^;]+;/gi, ''),
+                        }),
+
+                        // ...(input?.name === 'CustomerID' && { value: concernDetails['CustomerName'] }),
+                        // ...(input?.name === 'ApproachID' && { value: concernDetails['ApproachName'] }),
+                        // ...(input?.name === 'QAlert' && { value: concernDetails['QAlertType'] }),
+                        // ...(input?.name === 'Disposition' && { value: concernDetails['DispositionName'] }),
+                        // ...(input?.name === 'SupplierID' && {
+                        //     value: concernDetails['SupplierName'],
+                        //     ...(!!!concernDetails['SupplierName'] && {
+                        //         type: INPUTS_CONSTANTS.DROPDOWN,
+                        //         editable: true,
+                        //     }),
+                        // }),
+                        // ...(input?.name === 'ReportedDate' && { value: moment(concernDetails['ReportedDate']).format(DATE_FORMAT.DD_MM_YYYY) }),
+
+                        ...(input?.name === 'ProbDesc' && {
+                            type: INPUTS_CONSTANTS.RICH_EDITOR,
+                            value: concernDetails['ProbDesc']?.replace(/<[^>]+>|&[^;]+;/gi, ''),
+                        }),
+                    };
+                }),
             ]);
             setDynamicInputsLoading(false);
         } catch (error) {
@@ -100,7 +129,6 @@ const ConcernInitialEvaluationFunctional = ({}) => {
     };
 
     const getDropdownList = async SiteId => {
-        console.log('🚀 ~ file: concern-initial-evaluation-functional.js:90 ~ getDropdownList ~ res:', SiteId);
         try {
             const dropDownRes = await postAPI(
                 `${API_URL.DROPDOWN_LIST}`,
@@ -108,7 +136,6 @@ const ConcernInitialEvaluationFunctional = ({}) => {
                     [APP_VARIABLES.SITE_ID]: SiteId,
                 }),
             );
-            // console.log('🚀 ~ file: concern-initial-evaluation-functional.js:68 ~ getDynamicInputList ~ res:', dropDownRes?.Data);
             setDropdownList({
                 ...dropdownList,
                 data: dropDownRes?.Data,
@@ -120,21 +147,19 @@ const ConcernInitialEvaluationFunctional = ({}) => {
                 loading: false,
             });
             showErrorMessage('Sorry, Error while loading the Dropdown List!!');
-            console.log('🚀 ~ file: concern-initial-evaluation-functional.js:71 ~ getConcern ~ err', err);
         }
     };
 
     const getConcern = async ConcernID => {
         const formData = new FormData();
         formData.append(APP_VARIABLES.CONCERN_ID, ConcernID);
+        formData.append('UserId', sites?.selectedSite?.UserId);
         try {
             const res = await postAPI(`${API_URL.GET_CONCERN}`, formData);
-            console.log('🚀 ~ file: concern-initial-evaluation-functional.js:70 ~ getConcern ~ res:', res);
             setConcernDetails({
                 ...concernDetails,
                 ...res?.Data?.[0],
                 Loading: false,
-                // ProbDesc: (res?.Data?.[0]?.ProbDesc || '')?.replace(/(<([^>]+)>)/gi, ''),
             });
             setSelectedTeam(res?.Data?.[0]?.TeamName);
         } catch (err) {
@@ -143,7 +168,6 @@ const ConcernInitialEvaluationFunctional = ({}) => {
                 Loading: false,
             });
             showErrorMessage('Sorry, Error while loading the concern!!');
-            console.log('🚀 ~ file: concern-initial-evaluation-functional.js:71 ~ getConcern ~ err', err);
         }
     };
 
@@ -190,6 +214,7 @@ const ConcernInitialEvaluationFunctional = ({}) => {
             priority => priority?.ParentCategoryId === concernDetails?.CategoryID && priority.ParentSubCategoryId === concernDetails?.SubCategoryID,
         );
     }, [dropdownList?.data?.Priorities, concernDetails?.SubCategoryID, concernDetails?.CategoryID]);
+    // console.log('🚀 ~ filteredPriorities ~ filteredPriorities:', filteredPriorities);
 
     const handleDynamicInputs = concernDetails => {
         const dyInputs = dynamicInputs.map(input => {
@@ -216,13 +241,23 @@ const ConcernInitialEvaluationFunctional = ({}) => {
 
     useEffect(() => handleDynamicInputs(concernDetails), [concernDetails]);
 
-    useEffect(() => {
-        ConcernID && getConcern(ConcernID);
-    }, [ConcernID]);
+    // useEffect(() => {
+    //     ConcernID && getConcern(ConcernID);
+    // }, [ConcernID]);
+
+    useFocusEffect(
+        React.useCallback(() => {
+            ConcernID && getConcern(ConcernID);
+        }, [ConcernID]),
+    );
+
+    const refreshElementData = () => {
+        handleCategoryValueChange();
+    };
 
     useEffect(() => {
-        // sites?.selectedSite?.SiteId && getDropdownList(sites?.selectedSite?.SiteId);
-        sites?.selectedSite?.Siteid && getDropdownList(sites?.selectedSite?.Siteid);
+        // sites?.selectedSite?.Siteid && getDropdownList(sites?.selectedSite?.Siteid);
+        sites?.selectedSite?.SiteId && getDropdownList(sites?.selectedSite?.SiteId);
     }, [sites?.selectedSite]);
 
     useEffect(() => {
@@ -288,18 +323,9 @@ const ConcernInitialEvaluationFunctional = ({}) => {
             setIsProjectCreating(true);
             try {
                 const url = `${CREATE_PROJECT_URL}common/ProblemSolver/concerns/CreateProject?concernid=${ConcernID}&checksession=0`;
-                // console.log("🚀 ~ file: concern-initial-evaluation-functional.js:292 ~ createProject ~ url:", url)
-                // const res = await getAPI(
-                //     `${CREATE_PROJECT_URL}EwQIMS/common/ProblemSolver/concerns/CreateProject?concernid=${ConcernID}&checksession=0`,
-                // );
                 const res = await getAPI(url);
-                // const res = await getAPI(
-                //     `http://saas.omnex.in:2010/EwQIMS/common/ProblemSolver/concerns/CreateProject?concernid=${ConcernID}&checksession=0`,
-                // );
                 console.log(
                     '🚀 ~ file: concern-initial-evaluation-functional.js:280 ~ createProject ~ res:',
-                    url,
-                    res,
                     res?.data,
                     typeof res?.data,
                     typeof res?.data === 'number',
@@ -330,7 +356,6 @@ const ConcernInitialEvaluationFunctional = ({}) => {
     };
 
     const handleSubmitConcern = async req => {
-        console.log('Concern details', concernDetails?.SupplierID);
         setIsSubmitting(true);
         try {
             const requestForForm = req || {
@@ -340,29 +365,27 @@ const ConcernInitialEvaluationFunctional = ({}) => {
                 [APP_VARIABLES.PRIORITY_ID]: concernDetails?.PriorityID,
             };
             const res = await postAPI(`${API_URL.UPDATE_CONCERN}`, formReq(requestForForm));
-            console.log('🚀 ~ file: concern-initial-evaluation-functional.js:324 ~ handleSubmitConcern ~ res:', !req);
+            console.log('🚀 ~ handleSubmitConcern ~ res:', res);
             if (res?.Success) {
                 // getConcern(ConcernID);
                 if (!req) {
                     createProject();
                 } else {
-                    setIsSubmitting(false);
                     successMessage({ message: 'Success', description: 'Concern has been submitted successfully' });
                     navigation.goBack();
                     getListData(sites?.selectedSite);
+                    setIsSubmitting(false);
                     setIsProjectCreating(false);
                 }
             } else {
-                console.log('🚀 ~ handleSubmitConcern ~ res?.Error:', res?.Error);
-                showErrorMessage(res?.Error);
                 setIsSubmitting(false);
+                showErrorMessage(res?.Error);
                 setIsProjectCreating(false);
             }
         } catch (err) {
             setIsSubmitting(false);
-            setIsProjectCreating(false);
             showErrorMessage("Sorry can't able to submit right now!!");
-            console.log('🚀 ~ file: concern-initial-evaluation-functional.js:71 ~ getConcern ~ err', err);
+            setIsProjectCreating(false);
         }
     };
 
@@ -388,6 +411,8 @@ const ConcernInitialEvaluationFunctional = ({}) => {
                 dropdownList,
                 isProjectCreating,
                 filteredPriorities,
+                sites,
+                refreshElementData,
             }}
         />
     );

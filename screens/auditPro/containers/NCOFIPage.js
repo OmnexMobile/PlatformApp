@@ -655,9 +655,11 @@ class NCOFIPage extends Component {
     console.log(extn, ':Extension');
 
     switch (extn) {
-      case 'png':
+      case 'image':
       case 'jpg':
+      case 'png':
       case 'jpeg':
+      case 'heic':
       case 'gif':
         return 'image/' + extn;
       case 'pdf':
@@ -666,11 +668,13 @@ class NCOFIPage extends Component {
       case 'docx':
         return 'application/msword';
       case 'xls':
-        return 'application/vnd.ms-excel';
       case 'xlsx':
+      case 'numbers':
+      case 'xlsm':
         return 'application/vnd.ms-excel';
       case 'mp4':
       case 'mpeg':
+      case 'mpg':
         return 'video/' + extn;
       default:
         return 'application/octet-stream';
@@ -685,6 +689,7 @@ class NCOFIPage extends Component {
       auditDetailsList: this.props?.route?.params?.auditDetailsList,
       CheckpointRoute: 'NC',
       AuditID: this?.props?.route?.params?.CreateNCdataBundle?.AuditID,
+      // AuditID: this.state.AUDIT_ID,
       NCOFIDetails: this.state.CreateNCpass,
       templateId: 0,
       type: 'ADD',
@@ -757,7 +762,7 @@ class NCOFIPage extends Component {
     );
   }
 
-  checkUser() {
+  checkUser = async () => {
     console.log('user id', this.props.data.audits.userId);
     var userid = this.state.currentUserData?.userId;
     // var token = this.props.data.audits.token;
@@ -767,9 +772,13 @@ class NCOFIPage extends Component {
     var ID = this.state.currentUserData?.userId;
     var type = 3;
     var path = '';
-    console.log(userid, token);
+    const deviceId = await AsyncStorage.getItem('loginDeviceId');
 
-    auth.getCheckUser(userid, token, (res, data) => {
+    var RegisterDevice = this.props.data.audits.deviceid;
+    console.log(userid, token, deviceId, RegisterDevice);
+  
+    // auth.getCheckUser(userid,RegisterDevice,token, (res, data) => {
+    auth.getCheckUser(userid, deviceId, token, (res, data) => {
       console.log('User information', data);
       if (data.data.Message == 'Success') {
         UserStatus = data.data.Data.ActiveStatus;
@@ -803,17 +812,23 @@ class NCOFIPage extends Component {
           }
           console.log('*** path', path);
           // this.deleteUserFile(path)
-          this.toast.show(
+          this.refs.toast.show(
             strings.user_disabled_text,
             DURATION.LENGTH_SHORT,
           );
-          this.props.navigation.navigate(ROUTES.AUDIT_PAGE);
+          // this.props.navigation.navigate('LoginUIScreen');
+          // this.props.navigation.navigate(ROUTES.AUDIT_PAGE);
+          this.props.navigation.navigate(ROUTES.GLOBAL_LOGIN);
         } else if (UserStatus == 0) {
-          this.toast.show(
+          Alert.alert("Your session has expired,Please login again.")
+
+          this.refs.toast.show(
             strings.user_inactive_text,
             DURATION.LENGTH_SHORT,
           );
-          this.props.navigation.navigate(ROUTES.AUDIT_PAGE);
+          // this.props.navigation.navigate(ROUTES.AUDIT_PAGE);
+          // this.props.navigation.navigate('LoginUIScreen');
+          this.props.navigation.navigate(ROUTES.GLOBAL_LOGIN);
         }
       }
     });
@@ -949,11 +964,11 @@ class NCOFIPage extends Component {
                       setTimeout(() => {
                         this.props.storeServerUrl(serURL);
                         console.log('FILE DELETED!');
-                        this.toast.show(
+                        this.refs.toast.show(
                           strings.user_disabled_text,
                           DURATION.LENGTH_SHORT,
                         );
-                        this.props.navigation.navigate('LoginUIScreen');
+                        this.props.navigation.navigate(ROUTES.GLOBAL_LOGIN);
                         console.log('Check server url', this.props.data);
                       }, 600);
                     },
@@ -978,8 +993,12 @@ class NCOFIPage extends Component {
     if (this.state.isLowConnection === false) {
       console.log('one:helloenter');
       if (this.props.data.audits.isOfflineMode) {
-        this.setState({isLoaderVisible: false, dialogVisible: false, syncMode : 0});
-        this.toast.show(strings.Offline_Notice, DURATION.LENGTH_LONG);
+        this.setState({
+          isLoaderVisible: false,
+          dialogVisible: false,
+          syncMode: 0,
+        });
+        this.refs.toast.show(strings.Offline_Notice, DURATION.LENGTH_LONG);
       } else {
         NetInfo.fetch().then(isConnected => {
           if (isConnected.isConnected) {
@@ -1181,12 +1200,9 @@ class NCOFIPage extends Component {
               this.formRequestArr(formRequest, token);
             } else {
               this.setState(
-                {isLoaderVisible: false, 
-                  dialogVisible: false,
-                  syncMode : 0
-                },
+                {isLoaderVisible: false, dialogVisible: false, syncMode: 0},
                 () => {
-                  this.toast.show(
+                  this.refs.toast.show(
                     strings.noncofitosync,
                     DURATION.LENGTH_LONG,
                   );
@@ -1195,7 +1211,7 @@ class NCOFIPage extends Component {
             }
           } else {
             this.setState({isLoaderVisible: false, dialogVisible: false});
-            this.toast.show(strings.No_sync, DURATION.LENGTH_LONG);
+            this.refs.toast.show(strings.No_sync, DURATION.LENGTH_LONG);
           }
         });
       }
@@ -1218,21 +1234,27 @@ class NCOFIPage extends Component {
       if (data.data) {
         if (data.data.Message === 'Success') {
           // this.setState({ isLoaderVisible: false }, function () {
-          //this.toast.show(strings.NCSuccess, DURATION.LENGTH_LONG);
+          //this.refs.toast.show(strings.NCSuccess, DURATION.LENGTH_LONG);
           var responseData = data.data.Data;
           this.checkFindingAttachment(responseData);
           //this.AfterSyncdone();
           // this.upLoadList()
           // })
         } else {
-          this.setState({isLoaderVisible: false, syncMode:0, syncStatusLabel:''}, function () {
-            this.toast.show(strings.NCFAiled, DURATION.LENGTH_LONG); 
-          });
+          this.setState(
+            {isLoaderVisible: false, syncMode: 0, syncStatusLabel: ''},
+            function () {
+              this.refs.toast.show(strings.NCFAiled, DURATION.LENGTH_LONG);
+            },
+          );
         }
       } else {
-        this.setState({isLoaderVisible: false, syncMode:0, syncStatusLabel:''}, function () {
-          this.toast.show(strings.NCFAiled, DURATION.LENGTH_LONG);
-        });
+        this.setState(
+          {isLoaderVisible: false, syncMode: 0, syncStatusLabel: ''},
+          function () {
+            this.refs.toast.show(strings.NCFAiled, DURATION.LENGTH_LONG);
+          },
+        );
       }
     });
   }
@@ -1250,8 +1272,14 @@ class NCOFIPage extends Component {
             for (var j = 0; j < ncofiRecords[i].Pending.length; j++) {
               if (ncofiRecords[i].Pending[j].filedata.length > 0) {
                 this.attatchedFindings.push(ncofiRecords[i].Pending[j]);
-                let respdata = responseData.filter(m => m.UniqueNCkey == ncofiRecords[i].Pending[j].uniqueNCkey)
-                console.log("one:docparam:docpro Parameter",respdata , respdata[0].DocProParameter);
+                let respdata = responseData.filter(
+                  m => m.UniqueNCkey == ncofiRecords[i].Pending[j].uniqueNCkey,
+                );
+                console.log(
+                  'one:docparam:docpro Parameter',
+                  respdata,
+                  respdata[0].DocProParameter,
+                );
               }
             }
           }
@@ -1262,13 +1290,16 @@ class NCOFIPage extends Component {
         this.attatchedFindings,
       );
       if (this.attatchedFindings.length > 0) {
-        this.setState({
-          syncStatusLabel : 'Syncing Attachments',
-          syncMode : 1
-        },()=> {
-          console.log('two: Sync Initiated', this.state.syncMode);
-          this.formDocProObject(this.attatchedFindings, responseData);
-        })       
+        this.setState(
+          {
+            syncStatusLabel: 'Syncing Attachments',
+            syncMode: 1,
+          },
+          () => {
+            console.log('two: Sync Initiated', this.state.syncMode);
+            this.formDocProObject(this.attatchedFindings, responseData);
+          },
+        );
       } else {
         this.setState(
           {
@@ -1277,7 +1308,7 @@ class NCOFIPage extends Component {
           () => {
             this.attatchedFindings = [];
             this.formRequestObj = [];
-            this.toast.show(strings.NCSuccess, DURATION.LENGTH_LONG);
+            this.refs.toast.show(strings.NCSuccess, DURATION.LENGTH_LONG);
             this.CompleteSync();
           },
         );
@@ -1411,11 +1442,10 @@ class NCOFIPage extends Component {
 
                 // Split the string based on the delimiter (',')
 
-                if (dataString === "")
-                    continue;
+                if (dataString === '') continue;
                 const splitItems = dataString.split(',');
 
-                // Push the split items into the array 
+                // Push the split items into the array
                 var objArray = splitItems;
                 const objfinalArray = objArray[k].split('|')[0];
                 console.log('SPLITOBJARRAY', objfinalArray);
@@ -1426,13 +1456,13 @@ class NCOFIPage extends Component {
                   resData[j].DocProParameter,
                 );
 
-                let getobj = resData[j].DocProParameter; 
+                let getobj = resData[j].DocProParameter;
                 let getSitId = resData[j].SiteLevelId;
                 //var filecontent = base64Array[k] ? base64Array[k] : '';
                 var formobj = '';
                 var dname = attatchedFindings[i].filename[k];
                 var filename = attatchedFindings[i].filename[k];
-                var filepath =  attatchedFindings[i]?.filedata[k].fileData;
+                var filepath = attatchedFindings[i]?.filedata[k].fileData;
                 var obj = objfinalArray;
                 var sitelevelid = getSitId;
                 formobj = {
@@ -1473,7 +1503,13 @@ class NCOFIPage extends Component {
                 console.log('one:formobj===>', formobj);
 
                 this.formRequestObj.push(formobj);
-                allattachments.push({filename: filename, obj:obj, status: null,path:filepath,exist:true })
+                allattachments.push({
+                  filename: filename,
+                  obj: obj,
+                  status: null,
+                  path: filepath,
+                  exist: true,
+                });
                 var arr = this.formRequestObj;
                 resolve(arr);
 
@@ -1513,17 +1549,20 @@ class NCOFIPage extends Component {
           this.state.allParamsArr,
         );
 
-        this.setState({
-          syncStatusLabel : 'Syncing Attachments',
-            syncMode : 1,
-          AuditAttachments: allattachments,
-          uploadIndex: 0,
-          totalFiles : this.formRequestObj.length,
-          FailedAttachments : []
-        }, () => {
-          console.log("two: AudtAttachments", this.state.AuditAttachments);
-          this.callDocProAPI(this.state.allParamsArr, token);
-        });
+        this.setState(
+          {
+            syncStatusLabel: 'Syncing Attachments',
+            syncMode: 1,
+            AuditAttachments: allattachments,
+            uploadIndex: 0,
+            totalFiles: this.formRequestObj.length,
+            FailedAttachments: [],
+          },
+          () => {
+            console.log('two: AudtAttachments', this.state.AuditAttachments);
+            this.callDocProAPI(this.state.allParamsArr, token);
+          },
+        );
 
         console.log(
           '!!!!!!!!!!!!!!!!!!!AllArray-------222222222',
@@ -1533,38 +1572,42 @@ class NCOFIPage extends Component {
     });
   }
 
-  setSyncCompleted(){
+  setSyncCompleted() {
     this.syncStatus = parseInt(this.syncStatus) + 1;
-    this.setState({      
-      syncStatusLabel: this.state.FailedAttachments.length === 0 ? "Sync to Server Completed." : 'Sync to Server Completed with failed Attachment(s)',
-      syncMode : this.state.FailedAttachments.length === 0 ? 4 : 2,
-      //isLoaderVisible: false,
-      lengthCheck: [],
-    }, () => {                         
-      console.log("Document Successfully Sequence Completed");       
-      //this.AfterSyncdone();
-      //this.refreshList();            
-  })
-  
+    this.setState(
+      {
+        syncStatusLabel:
+          this.state.FailedAttachments.length === 0
+            ? 'Sync to Server Completed.'
+            : 'Sync to Server Completed with failed Attachment(s)',
+        syncMode: this.state.FailedAttachments.length === 0 ? 4 : 2,
+        //isLoaderVisible: false,
+        lengthCheck: [],
+      },
+      () => {
+        console.log('Document Successfully Sequence Completed');
+        //this.AfterSyncdone();
+        //this.refreshList();
+      },
+    );
   }
 
   async callDocProAPI(formRequestArrPush, token) {
-    console.log('formRequestObjy-------222222222',formRequestArrPush);
+    console.log('formRequestObjy-------222222222', formRequestArrPush);
 
     let index = this.state.uploadIndex;
     const formRequestObj = formRequestArrPush[index];
-    const attachmentsArr = []; 
+    const attachmentsArr = [];
     let failedAttachments = this.state.FailedAttachments;
     attachmentsArr.push(formRequestObj);
- 
 
-    // if (index <= formRequestArrPush.length -1){ 
-    //   this.checkFileExist(formRequestObj.filepath).then((exist) => { 
+    // if (index <= formRequestArrPush.length -1){
+    //   this.checkFileExist(formRequestObj.filepath).then((exist) => {
     //     if (exist){
-    //       this.updateAttachmentStatus(true,index); 
-    //       if (this.state.uploadIndex > formRequestArrPush.length -1) {  
-    //         this.setSyncCompleted();         
-    //       } else {                    
+    //       this.updateAttachmentStatus(true,index);
+    //       if (this.state.uploadIndex > formRequestArrPush.length -1) {
+    //         this.setSyncCompleted();
+    //       } else {
     //         //failedAttachments.push(formRequestObj);
     //         this.setState({
     //           //FailedAttachments: failedAttachments,
@@ -1572,19 +1615,19 @@ class NCOFIPage extends Component {
     //           syncStatusLabel : "Syncing Attachment "  + (this.state.uploadIndex+1) + ' of ' + this.state.totalFiles,
     //           //saveLoader: false
     //         }, () => {
-    //           this.callDocProAPI(formRequestArrPush,token)      
-    //         });                
-    //       } 
+    //           this.callDocProAPI(formRequestArrPush,token)
+    //         });
+    //       }
     //     } else {
     //       console.log('syncFilesToDocPro File Not Exist!');
-    //       this.updateAttachmentStatus(false,index,false); 
+    //       this.updateAttachmentStatus(false,index,false);
     //       failedAttachments.push(formRequestObj);
     //       this.setState({
     //         FailedAttachments: failedAttachments,
     //         uploadIndex : parseInt(this.state.uploadIndex)+1
     //       }, () => {
-    //         this.callDocProAPI(formRequestArrPush,token)      
-    //       }); 
+    //         this.callDocProAPI(formRequestArrPush,token)
+    //       });
     //     }
     //   });
     // }
@@ -1593,30 +1636,35 @@ class NCOFIPage extends Component {
     // }
     //   return;
 
-    if (index <= formRequestArrPush.length -1){ 
-      this.checkFileExist(formRequestObj.filepath).then((exist) => { 
-        if (exist){
-          auth.getdocProAttachment(attachmentsArr, token, (res, data) => {            
+    if (index <= formRequestArrPush.length - 1) {
+      this.checkFileExist(formRequestObj.filepath).then(exist => {
+        if (exist) {
+          auth.getdocProAttachment(attachmentsArr, token, (res, data) => {
             console.log('one:uploading data', data, formRequestObj);
             if (data.data != null && data.data.Success == true) {
-              this.updateAttachmentStatus(true,index); 
-              if (this.state.uploadIndex >= formRequestArrPush.length -1){        
+              this.updateAttachmentStatus(true, index);
+              if (this.state.uploadIndex >= formRequestArrPush.length - 1) {
                 this.setSyncCompleted();
-              }else{                    
-                this.setState({
-                uploadIndex : parseInt(this.state.uploadIndex)+1,       
-                }, () => {                         
-                  this.callDocProAPI(formRequestArrPush,token)
-                })      
-              }            
-            } else {//Api Returns false
-              this.AddFaileAttachments(formRequestObj,index);      
-              this.callDocProAPI(formRequestArrPush,token);        
+              } else {
+                this.setState(
+                  {
+                    uploadIndex: parseInt(this.state.uploadIndex) + 1,
+                  },
+                  () => {
+                    this.callDocProAPI(formRequestArrPush, token);
+                  },
+                );
+              }
+            } else {
+              //Api Returns false
+              this.AddFaileAttachments(formRequestObj, index);
+              this.callDocProAPI(formRequestArrPush, token);
             }
           });
-        }else { //File Not Exist
-          this.AddFaileAttachments(formRequestObj,index,false)
-          this.callDocProAPI(formRequestArrPush,token)  
+        } else {
+          //File Not Exist
+          this.AddFaileAttachments(formRequestObj, index, false);
+          this.callDocProAPI(formRequestArrPush, token);
         }
       });
     } else {
@@ -1624,41 +1672,55 @@ class NCOFIPage extends Component {
     }
   }
 
-  async AddFaileAttachments(formRequestObj,index,exist = true){
+  async AddFaileAttachments(formRequestObj, index, exist = true) {
     let failedAttachments = this.state.FailedAttachments;
     failedAttachments.push(formRequestObj);
-    this.updateAttachmentStatus(false,index,exist);
-    this.setState({
-      FailedAttachments: failedAttachments,
-        uploadIndex : parseInt(this.state.uploadIndex)+1
-    }, () => {});
+    this.updateAttachmentStatus(false, index, exist);
+    this.setState(
+      {
+        FailedAttachments: failedAttachments,
+        uploadIndex: parseInt(this.state.uploadIndex) + 1,
+      },
+      () => {},
+    );
   }
 
-  checkFileExist(path){
-    console.log("Attachment:>path", path)
-    return new Promise((resolve,reject) => {
-      RNFetchBlob.fs.exists(path)
-      .then(exist => { resolve(exist);})
-      .catch(() => { resolve(false)})
+  checkFileExist(path) {
+    console.log('Attachment:>path', path);
+    return new Promise((resolve, reject) => {
+      RNFetchBlob.fs
+        .exists(path)
+        .then(exist => {
+          resolve(exist);
+        })
+        .catch(() => {
+          resolve(false);
+        });
     });
   }
 
-  updateAttachmentStatus = (status,index,exist=true) =>{
+  updateAttachmentStatus = (status, index, exist = true) => {
     let updateAttach = [];
-    for (var z=0; z<this.state.AuditAttachments.length; z++){ 
-      let file = this.state.AuditAttachments[z]
+    for (var z = 0; z < this.state.AuditAttachments.length; z++) {
+      let file = this.state.AuditAttachments[z];
       if (index === z)
-        updateAttach.push({...file,status:status,exist:exist})  
-        else{
-          updateAttach.push(file);
-        }
+        updateAttach.push({...file, status: status, exist: exist});
+      else {
+        updateAttach.push(file);
+      }
     }
-    this.setState({
-      AuditAttachments: updateAttach
-    },() => {
-      console.log("update this.state.AuditAttachment", this.state.AuditAttachments)
-    })
-  }
+    this.setState(
+      {
+        AuditAttachments: updateAttach,
+      },
+      () => {
+        console.log(
+          'update this.state.AuditAttachment',
+          this.state.AuditAttachments,
+        );
+      },
+    );
+  };
 
   convertFile = path => {
     console.log('!!!!!!!!!!!!!!!!!!!!!!', path);
@@ -1746,7 +1808,7 @@ class NCOFIPage extends Component {
             if (data.data) {
               this.upLoadList(data.data.Data);
             } else {
-              //this.toast.show(strings.NCFAiled,DURATION.LENGTH_LONG)
+              //this.refs.toast.show(strings.NCFAiled,DURATION.LENGTH_LONG)
             }
           },
         );
@@ -1876,13 +1938,12 @@ class NCOFIPage extends Component {
       DocumentReference: '',
       filepath: '',
       FileName: '',
-      CorrectiveId: ''
     });
   }
 
   checkOffline() {
     if (this.props.data.audits.isOfflineMode) {
-      this.toast.show(strings.Offline_Notice, DURATION.LENGTH_LONG);
+      this.refs.toast.show(strings.Offline_Notice, DURATION.LENGTH_LONG);
     } else {
       // this.setState({dialogVisible: true});
       // confirmpwd;
@@ -1897,7 +1958,7 @@ class NCOFIPage extends Component {
           isEmptyPwd: strings.enter_password,
         },
         () => {
-          // this.toast.show('Empty password attempt', DURATION.LENGTH_SHORT)
+          // this.refs.toast.show('Empty password attempt', DURATION.LENGTH_SHORT)
         },
       );
     } else {
@@ -1949,10 +2010,10 @@ class NCOFIPage extends Component {
                     {
                       confirmpwd: false,
                       pwdentry: undefined,
-                      syncMode : 0
+                      syncMode: 0,
                     },
                     () => {
-                      this.toast.show(
+                      this.refs.toast.show(
                         strings.noncofitosync,
                         DURATION.LENGTH_SHORT,
                       );
@@ -1981,7 +2042,7 @@ class NCOFIPage extends Component {
             },
           );
         } else {
-          this.toast.show(strings.No_sync, DURATION.LENGTH_LONG);
+          this.refs.toast.show(strings.No_sync, DURATION.LENGTH_LONG);
         }
       });
     }
@@ -2054,7 +2115,7 @@ class NCOFIPage extends Component {
           name={icon}
           style={{
             paddingTop: 70,
-            height: 200,        
+            height: 200,
             flex: 1,
             justifyContent: 'center',
             alignSelf: 'center',
@@ -2094,67 +2155,65 @@ class NCOFIPage extends Component {
       let filepath = path + 'file_' + docId + '.' + extn;
       let docAttach = AttachmentList.filter(item => item.docid === docId);
       docAttach.length == 0 &&
-      await  RNFetchBlob.fs.exists(filepath).then(exist => {
-        if (!exist || exist == '') {
-          (RNFetchBlob.fs
-            .writeFile(filepath, filecontent, 'base64')
-            .then(res => {
-              console.log('Attachment:File Written' + i);
-              AttachmentList.push({
-                docid: docId,
-                filepath: filepath,
-                filename: filename,
+        (await RNFetchBlob.fs.exists(filepath).then(exist => {
+          if (!exist || exist == '') {
+            RNFetchBlob.fs
+              .writeFile(filepath, filecontent, 'base64')
+              .then(res => {
+                console.log('Attachment:File Written' + i);
+                AttachmentList.push({
+                  docid: docId,
+                  filepath: filepath,
+                  filename: filename,
+                });
+
+                if (i == count - 1) {
+                  this.setState(
+                    {
+                      AttachmentList: AttachmentList,
+                      isAttachmentLoaded: true,
+                    },
+                    () => {
+                      console.log(
+                        'Attachment Fully Loaded',
+                        this.state.AttachmentList,
+                      );
+                    },
+                  );
+                }
+              })
+              .catch(err => {
+                console.log('Attachment:Err:' + i + ':Error:' + err);
+                AttachmentList.push({
+                  docid: docId,
+                  filepath: 'error',
+                  filename: filename,
+                });
               });
-  
-              if (i == count - 1) {
-                this.setState(
-                  {
-                    AttachmentList: AttachmentList,
-                    isAttachmentLoaded: true,
-                  },
-                  () => {
-                    console.log(
-                      'Attachment Fully Loaded',
-                      this.state.AttachmentList,
-                    );
-                  },
-                );
-              }
-            })
-            .catch(err => {
-              console.log('Attachment:Err:' + i + ':Error:' + err);
-              AttachmentList.push({
-                docid: docId,
-                filepath: 'error',
-                filename: filename,
-              });
-            }));
-        }
-        else {
-          console.log('Attachment:File Written' + i);
-              AttachmentList.push({
-                docid: docId,
-                filepath: filepath,
-                filename: filename,
-              });
-  
-              if (i == count - 1) {
-                this.setState(
-                  {
-                    AttachmentList: AttachmentList,
-                    isAttachmentLoaded: true,
-                  },
-                  () => {
-                    console.log(
-                      'Attachment Fully Loaded',
-                      this.state.AttachmentList,
-                    );
-                  },
-                );
-              }
-        }
-      });
-       
+          } else {
+            console.log('Attachment:File Written' + i);
+            AttachmentList.push({
+              docid: docId,
+              filepath: filepath,
+              filename: filename,
+            });
+
+            if (i == count - 1) {
+              this.setState(
+                {
+                  AttachmentList: AttachmentList,
+                  isAttachmentLoaded: true,
+                },
+                () => {
+                  console.log(
+                    'Attachment Fully Loaded',
+                    this.state.AttachmentList,
+                  );
+                },
+              );
+            }
+          }
+        }));
     }
   }
 
@@ -2263,7 +2322,7 @@ class NCOFIPage extends Component {
     );
     this.refreshList();
   };
-  
+
   renderItem = ({item}) => {
     console.log('Attachment:Render Item', item);
     const filename = item.filename;
@@ -2277,7 +2336,7 @@ class NCOFIPage extends Component {
           margin: 2,
           borderColor: '#2a4944',
           borderWidth: 1,
-          height: '90%',          
+          height: '90%',
         }}>
         <View style={{flexDirection: 'column'}}>
           <View>
@@ -2307,13 +2366,13 @@ class NCOFIPage extends Component {
 
   OpenFile = path => {
     const fpath = FileViewer.open('file:/' + path) // absolute-path-to-my-local-file.
-    .then(() => {
-      console.log('Attachmentfile opened');
-    })
-    .catch(err => {
-      console.log('Attachmentfile opened error', err);
-    });
-  }
+      .then(() => {
+        console.log('Attachmentfile opened');
+      })
+      .catch(err => {
+        console.log('Attachmentfile opened error', err);
+      });
+  };
 
   getSyncFileIcon(attach) { 
     let icon = 'file';
@@ -2365,117 +2424,176 @@ class NCOFIPage extends Component {
     }
 
     return (
-      <View>            
-      <Icon
-        name={icon}
-        size={15}
-        color="black"
-        style={{ padding:6,
-          justifyContent: 'center',
-          alignSelf: 'center',
-        }}
-      />     
+      <View>
+        <Icon
+          name={icon}
+          size={15}
+          color="black"
+          style={{padding: 6, justifyContent: 'center', alignSelf: 'center'}}
+        />
       </View>
     );
   }
 
-  retryFailedAttachments = (attach) => {
+  retryFailedAttachments = attach => {
     const failedAttachments = this.state.FailedAttachments;
     const index = failedAttachments.findIndex(item => item.obj === attach.obj);
-    
-    if (index != -1){
+
+    if (index != -1) {
       const attachment = failedAttachments[index];
       const filename = attachment.filename;
-      this.updateAttachmentStatus(null,index); 
-      this.setState({
-        syncStatusLabel : 'Resyncing Attachments ' + filename,
-        syncMode : 1
-      },() => {
-        this.uploadFailedFileSync(attachment)
-      });
+      this.updateAttachmentStatus(null, index);
+      this.setState(
+        {
+          syncStatusLabel: 'Resyncing Attachments ' + filename,
+          syncMode: 1,
+        },
+        () => {
+          this.uploadFailedFileSync(attachment);
+        },
+      );
+    } else {
+      this.refs.toast.show(
+        'Attachment retry attempt failed!.',
+        DURATION.LENGTH_LONG,
+      );
     }
-      else{
-        this.toast.show("Attachment retry attempt failed!.", DURATION.LENGTH_LONG);
-      }
-  } 
+  };
 
-  uploadFailedFileSync = (formRequestObj) => {
-    // const token = this.props.data.audits.token;
-    const token = this.state.currentUserData?.accessToken 
-    const attachmentsArr = [];   
-    attachmentsArr.push(formRequestObj);                 
+  uploadFailedFileSync = formRequestObj => {
+    const token = this.props.data.audits.token;
+    console.log(this.props.data.audits.token,"TOKEN===>")
+    
+    const attachmentsArr = [];
+    attachmentsArr.push(formRequestObj);
     auth.getdocProAttachment(attachmentsArr, token, (res, data) => {
       console.log('120 formRequestArr response', data);
       let updateAttachment = this.state.AuditAttachments;
       let failedAttachments = this.state.FailedAttachments;
-      let index = updateAttachment.findIndex(item => item.obj === formRequestObj.obj); 
-      let rindex = failedAttachments.findIndex(item => item.obj === formRequestObj.obj); 
-     
-      if (data.data != null && data.data.Message === 'Success') { 
-          this.updateAttachmentStatus(true,index);    
-          this.removeFromFailedAttachment(rindex)                      
-        }
-        else {                             
-          this.updateAttachmentStatus(false,index);
-          this.setState({
-              syncMode : 2,
-              syncStatusLabel : 'Sync to Server Completed with failed Attachment(s)', 
-          }, () => {
-            this.toast.show(strings.AuditFail, DURATION.LENGTH_LONG);
-          });
-      }      
+      let index = updateAttachment.findIndex(
+        item => item.obj === formRequestObj.obj,
+      );
+      let rindex = failedAttachments.findIndex(
+        item => item.obj === formRequestObj.obj,
+      );
+
+      if (data.data != null && data.data.Message === 'Success') {
+        this.updateAttachmentStatus(true, index);
+        this.removeFromFailedAttachment(rindex);
+      } else {
+        this.updateAttachmentStatus(false, index);
+        this.setState(
+          {
+            syncMode: 2,
+            syncStatusLabel:
+              'Sync to Server Completed with failed Attachment(s)',
+          },
+          () => {
+            this.refs.toast.show(strings.AuditFail, DURATION.LENGTH_LONG);
+          },
+        );
+      }
     });
-  }
+  };
 
   renderFileUploadStatus = () => {
-    console.log("this.state.AuditAttachments", this.state.AuditAttachments);
-    return(
-      <FlatList     
-      data={this.state.AuditAttachments} 
-      ListHeaderComponent={()=><Text style={{paddingBottom:10, fontWeight:'bold',alignItems:'center', alignSelf:'center' }}>Attachment Status</Text>}
-      extraData={this.state}  
-      renderItem={({item, index}) => (//times-circle //check-circle
-        <TouchableOpacity style={{flex:1, flexDirection: 'row', 
-          borderBottomWidth :1, minHeight:40, maxHeight:60,
-          borderBottomColor: 'lightgrey'}} onPress={() => this.OpenFile(item.path)}>   
-          <View style={{justifyContent: 'center',width:'7%'}}>{this.getSyncFileIcon(item)}</View>
-          <View style={{ width:'80%',justifyContent: 'center'}}>
-            <Text multiline={true} style={{ justifyContent: 'center',flexShrink: 1, color: item.exist === false ? 'red' : "black"}}>{item.filename}</Text>
-          </View>
-          <View style={{
-            width: '13%',
-            height: 30,             
-            justifyContent: 'center',
-            alignItems: 'center',
-            alignSelf:'center'
+    console.log('this.state.AuditAttachments', this.state.AuditAttachments);
+
+    return (
+      <FlatList
+        data={this.state.AuditAttachments}
+        ListHeaderComponent={() => (
+          <Text
+            style={{
+              paddingBottom: 10,
+              fontWeight: 'bold',
+              alignItems: 'center',
+              alignSelf: 'center',
             }}>
-            {item.status === null ? <Bars size={5} color="#1CB8CA" /> :
-            item.status === true ? <View><Icon name="check-circle"  size={20} color="green"/></View> :
-            item.status === false ? item.exist === false ? <Icon name="times-circle" color='red' size={15}/> : 
-            <TouchableOpacity onPress={() => {this.retryFailedAttachments(item)}}>
-              <View style={{justifyContent: 'center',alignItems: 'center',}}>
-                <Icon name="refresh" title="Retry" size={15}/>
-                <Text style={{fontSize:10, color:"red"}}>{'Retry'}</Text>
-              </View>
-            </TouchableOpacity>  : <View></View>} 
-          </View>          
-        </TouchableOpacity>      
-      )}
-     />     
-    )
-  }
+            Attachment Status
+          </Text>
+        )}
+        extraData={this.state}
+        renderItem={(
+          {item, index}, //times-circle //check-circle
+        ) => (
+          <TouchableOpacity
+            style={{
+              flex: 1,
+              flexDirection: 'row',
+              borderBottomWidth: 1,
+              minHeight: 40,
+              maxHeight: 60,
+              borderBottomColor: 'lightgrey',
+            }}
+            onPress={() => this.OpenFile(item.path)}>
+            <View style={{justifyContent: 'center', width: '5%'}}>
+              {this.getSyncFileIcon(item)}
+            </View>
+            <View style={{width: '85%', justifyContent: 'center'}}>
+              <Text
+                multiline={true}
+                style={{
+                  justifyContent: 'center',
+                  flexShrink: 1,
+                  paddingLeft: 2,
+                  color: item.exist === false ? 'red' : 'black',
+                }}>
+                {item.filename}
+              </Text>
+            </View>
+            <View
+              style={{
+                width: '10%',
+                height: 30,
+                justifyContent: 'center',
+                alignItems: 'center',
+                alignSelf: 'center',
+              }}>
+              {item.status === null ? (
+                <Bars size={5} color="#1CB8CA" />
+              ) : item.status === true ? (
+                <View>
+                  <Icon name="check-circle" size={20} color="green" />
+                </View>
+              ) : item.status === false ? (
+                item.exist === false ? (
+                  <Icon name="times-circle" color="red" size={15} />
+                ) : (
+                  <TouchableOpacity
+                    onPress={() => {
+                      this.retryFailedAttachments(item);
+                    }}>
+                    <View
+                      style={{justifyContent: 'center', alignItems: 'center'}}>
+                      <Icon name="refresh" title="Retry" size={15} />
+                      <Text style={{fontSize: 10, color: 'red'}}>
+                        {'Retry'}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                )
+              ) : (
+                <View></View>
+              )}
+            </View>
+          </TouchableOpacity>
+        )}
+      />
+    );
+  };
 
   // renderFileUploadStatus = () => {
-  //   console.log("this.state.AuditAttachments", this.state.AuditAttachments);   
+  //   console.log("this.state.AuditAttachments", this.state.AuditAttachments);
   //   return(
-  //     <FlatList     
-  //     data={this.state.AuditAttachments} 
+  //     <FlatList
+  //     data={this.state.AuditAttachments}
   //     ListHeaderComponent={()=><Text style={{paddingBottom:10, fontWeight:'bold',alignItems:'center', alignSelf:'center' }}>Attachment Status</Text>}
-  //     extraData={this.state}  
+  //     extraData={this.state}
   //     renderItem={({item, index}) => (//times-circle //check-circle
   //     <View style={{flex:1, width:'95%', alignItems:'center', alignSelf:'center'}}>
   //     <TouchableOpacity onPress={() => this.OpenFile(item.path)}>
-  //     <View style={{ flexDirection: 'row', padding:5, borderBottomWidth :1, borderBottomColor: 'lightgrey'}}>        
+  //     <View style={{ flexDirection: 'row', padding:5, borderBottomWidth :1, borderBottomColor: 'lightgrey'}}>
   //       {this.getSyncFileIcon(item)}
   //       <Text multiline={true} style={{width:'80%', paddingTop:5,}}>{item.filename}</Text>
   //         <View
@@ -2488,21 +2606,21 @@ class NCOFIPage extends Component {
   //         <View
   //           style={{
   //             width: 40,
-  //             height: 30, 
+  //             height: 30,
   //             justifyContent: 'center',
   //             alignItems: 'center',
   //           }}>{item.status === null ? <Bars size={5} color="#1CB8CA" /> :
   //               item.status === true ? <View><Icon name="check-circle"  size={20} color="green"/></View> :
   //               item.status === false ? <TouchableOpacity onPress={() => {this.retryFailedAttachments(item)}}>
   //                 <View style={{justifyContent: 'center',
-  //             alignItems: 'center',}}><Icon name="refresh" title="Retry" size={15}/><Text style={{fontSize:10, color:"red"}}>{'Retry'}</Text></View></TouchableOpacity>  : <View></View>} 
+  //             alignItems: 'center',}}><Icon name="refresh" title="Retry" size={15}/><Text style={{fontSize:10, color:"red"}}>{'Retry'}</Text></View></TouchableOpacity>  : <View></View>}
   //               </View></View>
   //     </View>
   //     </TouchableOpacity>
   //     </View>
   //     )}
   //     />
-     
+
   //   )
   // }
 
@@ -2510,71 +2628,85 @@ class NCOFIPage extends Component {
     Alert.alert(
       'Warning!',
       'There are some failed attachments, do you want to skip',
-      [ 
+      [
         {
           text: 'Skip',
-          onPress: () => {            
-            this.CompleteSync()
-          }
+          onPress: () => {
+            this.CompleteSync();
+          },
         },
         {
           text: 'Close',
-          style:'cancel',
-          onPress: () => {            
-            console.log("cancel clicked") }         
+          style: 'cancel',
+          onPress: () => {
+            console.log('cancel clicked');
+          },
         },
-        ], 
-        { cancelable: false }
-      );
-    
-  }
+      ],
+      {cancelable: false},
+    );
+  };
 
   CheckSync = () => {
-    this.setState({ 
-      syncStatusLabel : ""
-    },() => {
-      this.state.syncMode === 2 && this.FailedAttachmentAlert();
-      this.state.syncMode === 4 && this.CompleteSync();
-    })    
-  }
+    this.setState(
+      {
+        syncStatusLabel: '',
+      },
+      () => {
+        this.state.syncMode === 2 && this.FailedAttachmentAlert();
+        this.state.syncMode === 4 && this.CompleteSync();
+      },
+    );
+  };
 
-  CompleteSync = () => {    
-    this.setState({
-      syncMode : 0,
-      AuditAttachments : []
-    }, () => {      
-      this.AfterSyncdone();
-      this.refreshList();
-   })
-  }
+  CompleteSync = () => {
+    this.setState(
+      {
+        syncMode: 0,
+        AuditAttachments: [],
+      },
+      () => {
+        this.AfterSyncdone();
+        this.refreshList();
+      },
+    );
+  };
 
-  removeFromFailedAttachment = (index) => {
+  removeFromFailedAttachment = index => {
     let FailedAttachments = this.state.FailedAttachments;
     let newFailedAttachment = [];
-    for (let i=0;i < FailedAttachments.length; i++){
-        if (i !== index){
-          newFailedAttachment.push(FailedAttachments[i]);  
-        }
-    } 
-    this.setState({
-      FailedAttachments : newFailedAttachment,
-      syncMode : newFailedAttachment.length === 0 ? 4 : 2,
-      syncStatusLabel : newFailedAttachment.length === 0 ?  "Sync to Server Completed" : "Sync to Server Completed with failed Attachment(s)",
-    },() => {
-      console.log("Retry Attachment Removed", this.state.FailedAttachments);
-      //this.state.syncMode === 4 && this.reDirect() 
-    });
-  } 
+    for (let i = 0; i < FailedAttachments.length; i++) {
+      if (i !== index) {
+        newFailedAttachment.push(FailedAttachments[i]);
+      }
+    }
+    this.setState(
+      {
+        FailedAttachments: newFailedAttachment,
+        syncMode: newFailedAttachment.length === 0 ? 4 : 2,
+        syncStatusLabel:
+          newFailedAttachment.length === 0
+            ? 'Sync to Server Completed'
+            : 'Sync to Server Completed with failed Attachment(s)',
+      },
+      () => {
+        console.log('Retry Attachment Removed', this.state.FailedAttachments);
+        //this.state.syncMode === 4 && this.reDirect()
+      },
+    );
+  };
 
+  
   render() {
-    const { height } = Dimensions.get("window"); 
-    const middle = (height/2)-200;
-    const attachmentHeight = (middle+100);
+    console.log("offf",this.props.data.audits.isOfflineMode)
+    const {height} = Dimensions.get('window');
+    const middle = height / 2 - 200;
+    const attachmentHeight = middle + 100;
     console.log(
       // this.getFileIcon(this.props.navigation.params),
       'fileextension-------',
     );
-    //console.log(filesArray2, 'fileextensionthis.state.FILEPATH------');
+    //console.log(filesArray2, 'fileextensionthis.state.FILEPATH----');
     // console.log('router', this.props.navigation.state.params);
     console.log('this.state.NCdisplay1', this.state.NCUpload);
     console.log('ncdetailsconsole', this.state.NCdetails);
@@ -2595,7 +2727,7 @@ class NCOFIPage extends Component {
     const encodedBase64 = this.state.fileData;
     return (
       <View style={styles.wrapper}>
-        {Platform.OS === 'ios' ? <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> : null }
+        {Platform.OS === 'ios' ? <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
         <OfflineNotice />
         <ImageBackground
           source={Images.DashboardBG}
@@ -2604,13 +2736,16 @@ class NCOFIPage extends Component {
             width: '100%',
             height: 60,
           }}>
+          {/* <View style={{flex:1,flexDirection:'row',justifyContent:'space-between',alignContent:'center',margin:5}}><Text>1</Text>
+            <Text>2</Text>
+            <Text>3</Text></View> */}
           <View style={styles.header}>
-            <TouchableOpacity onPress={() => {
-               this.state.syncMode === 0 && this.props.navigation.goBack()}
-              }>
+            <TouchableOpacity
+              onPress={() => {
+                this.state.syncMode === 0 && this.props.navigation.goBack();
+              }}>
               <View style={styles.backlogo}>
-                {/* <ResponsiveImage source={Images.BackIconWhite} initWidth="13" initHeight="22" /> */}
-                <Icon name="angle-left" size={30} color="white" />
+                <Icon name="angle-left" size={30} color="#fff" />
               </View>
             </TouchableOpacity>
             <View style={styles.heading}>
@@ -2629,15 +2764,11 @@ class NCOFIPage extends Component {
             </View>
 
             <View style={styles.headerDiv}>
-              {/* <ImageBackground source={Images.headerBG} style={styles.backgroundImage}></ImageBackground> */}
-              {/* <TouchableOpacity onPress={debounce(this.RefreshUpload.bind(this), 1000)} >
-                <Icon name="refresh" size={25} color="white" />
-              </TouchableOpacity> */}
               <TouchableOpacity
-                style={{paddingHorizontal: 10}}
-                onPress={() => {this.CheckSync();
-                  // this.props.navigation.navigate('Home')}
-                  this.props.navigation.navigate(ROUTES.AUDITPRODASHBOARD)}
+                style={{}}
+                onPress={() => {
+                  this.CheckSync();
+                  this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)}
                 }>
                 <Icon name="home" size={30} color="white" />
               </TouchableOpacity>
@@ -2674,7 +2805,7 @@ class NCOFIPage extends Component {
                 {this.state.NCdisplay.length > 0 ? (
                   <View style={{marginTop: 55}}>
                     {this.state.NCdisplay.map((item, key) => (
-                      <View key={key} style={{flexDirection: 'row'}}>
+                      <View style={{flexDirection: 'row'}}>
                         <TouchableOpacity
                           onPress={this.openEditBox.bind(this, item)}
                           key={key}
@@ -2687,7 +2818,6 @@ class NCOFIPage extends Component {
                                 alignSelf: 'flex-end',
                               }}>
                               <TouchableOpacity
-                               
                                 onPress={() => {
                                   this.setState(
                                     {
@@ -2735,10 +2865,22 @@ class NCOFIPage extends Component {
                     ))}
                   </View>
                 ) : (
-                  <View style={{marginTop: 55}}>
-                    <Text style={styles.norecordefound}>
-                      {strings.No_records_found}
-                    </Text>
+                  <View style={{marginTop: '20%'}}>
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        justifyContent: 'center',
+                      }}>
+                      <Image
+                        source={Images.emptybox}
+                        style={{height: 50, resizeMode: 'contain'}}
+                      />
+                    </View>
+                    <View style={{}}>
+                      <Text style={styles.norecordefound}>
+                        {strings.No_records_found}
+                      </Text>
+                    </View>
                   </View>
                 )}
               </ScrollView>
@@ -2789,19 +2931,39 @@ class NCOFIPage extends Component {
                   </View>
                 )}
               </ScrollView>
-            </ScrollableTabView> 
+            </ScrollableTabView>
           ) : (
             <View>
-              <View style={{ alignItems: 'center', marginTop:middle}}>
-              {this.state.syncMode === 2 ? <Icon name="times-circle" color="red" size={50} /> :
-              (this.state.syncMode === 1 || this.state.syncMode === 3 ||this.state.syncMode === 0 ) ? <Bars size={20} color="#1CB8CA" /> : 
-              this.state.syncMode === 4 ? <Icon name="check-circle" color="green" size={60} /> : null }
-              <Text style={{textAlign: 'center', fontFamily: 'OpenSans-Regular'}}>{ this.state.syncStatusLabel === '' ?
-              this.state.syncMode === 0 ? "Loading data...." : strings.Syncing_Audits : this.state.syncStatusLabel}</Text>              
+              <View style={{alignItems: 'center', marginTop: middle}}>
+                {this.state.syncMode === 2 ? (
+                  <Icon name="times-circle" color="red" size={50} />
+                ) : this.state.syncMode === 1 ||
+                  this.state.syncMode === 3 ||
+                  this.state.syncMode === 0 ? (
+                  <Bars size={20} color="#1CB8CA" />
+                ) : this.state.syncMode === 4 ? (
+                  <Icon name="check-circle" color="green" size={60} />
+                ) : null}
+                <Text
+                  style={{textAlign: 'center', fontFamily: 'OpenSans-Regular'}}>
+                  {this.state.syncStatusLabel === ''
+                    ? this.state.syncMode === 0
+                      ? 'Loading data....'
+                      : strings.Syncing_Audits
+                    : this.state.syncStatusLabel}
+                </Text>
               </View>
-              <View  style={{alignItems: 'center', paddingTop:20,  height:attachmentHeight }}>
-              {(this.state.AuditAttachments.length > 0 && this.state.syncMode > 0) && this.renderFileUploadStatus()}</View>
-            </View>            
+              <View
+                style={{
+                  alignItems: 'center',
+                  paddingTop: 20,
+                  height: attachmentHeight,
+                }}>
+                {this.state.AuditAttachments.length > 0 &&
+                  this.state.syncMode > 0 &&
+                  this.renderFileUploadStatus()}
+              </View>
+            </View>
           )}
         </View>
 
@@ -2821,119 +2983,147 @@ class NCOFIPage extends Component {
                   justifyContent: 'center',
                   alignItems: 'center',
                 }}>
-                <View style={{width: width(34), justifyContent: 'center'}}>
-                  {this.state.syncMode === 0 &&
-                  <TouchableOpacity
-                    onPress={once(this.onNavigaTo.bind(this, 1))}
-                    style={{alignItems: 'center'}}>
-                    <ResponsiveImage
-                      source={Images.uploadToServerIcon}
-                      initWidth="50"
-                      initHeight="40"
-                    />
-                    <Text
-                      style={{
-                        color: 'white',
-                        fontSize: Fonts.size.medium,
-                        fontFamily: 'OpenSans-Regular',
-                      }}>
-                      {strings.Create_NC}
-                    </Text>
-                  </TouchableOpacity>}
+                <View style={{width: '33%', justifyContent: 'center'}}>
+                  {this.state.syncMode === 0 && (
+                    <TouchableOpacity
+                      onPress={once(this.onNavigaTo.bind(this, 1))}
+                      style={{alignItems: 'center'}}>
+                      <ResponsiveImage
+                        source={Images.uploadToServerIcon}
+                        initWidth="50"
+                        initHeight="40"
+                      />
+                      <Text
+                        style={{
+                          color: 'white',
+                          fontSize: Fonts.size.medium,
+                          fontFamily: 'OpenSans-Regular',
+                        }}>
+                        {strings.Create_NC}
+                      </Text>
+                    </TouchableOpacity>
+                  )}
                 </View>
                 {/* Sync */}
-                {this.state.syncMode === 0   ? 
-                <View style={{width: width(34)}}>
-                  <TouchableOpacity
-                    onPress={() => {
-                      this.setState({                        
-                        dialogVisible: true
-                      }
-                    ,() => { 
-                      console.log("Sync Dialog")
-                    });}}
-                    style={{alignItems: 'center'}}>
-                    <ResponsiveImage
-                      source={Images.syncImg}
-                      initWidth="40"
-                      initHeight="40"
-                    />
-                    <Text
+                {this.state.syncMode === 0 ? (
+                  <View style={{width: '34%'}}>
+                    <TouchableOpacity
+                      onPress={() => {
+                        this.setState(
+                          {
+                            dialogVisible: true,
+                          },
+                          () => {
+                            console.log('Sync Dialog');
+                          },
+                        );
+                      }}
+                      style={{alignItems: 'center'}}>
+                      <ResponsiveImage
+                        source={Images.syncImg}
+                        initWidth="40"
+                        initHeight="40"
+                      />
+                      <Text
+                        style={{
+                          color: 'white',
+                          fontSize: Fonts.size.medium,
+                          fontFamily: 'OpenSans-Regular',
+                        }}>
+                        {strings.Upload_to_server}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                ) : this.state.syncMode === 2 || this.state.syncMode === 4 ? (
+                  <View style={{width: '33%'}}>
+                    <View
                       style={{
-                        color: 'white',
-                        fontSize: Fonts.size.medium,
-                        fontFamily: 'OpenSans-Regular',
+                        borderColor: '#CED0CE',
+                        justifyContent: 'center',
+                        alignItems: 'center',
                       }}>
-                      {strings.Upload_to_server}
-                    </Text>
-                  </TouchableOpacity>
-                </View> :  (this.state.syncMode === 2 || this.state.syncMode === 4) ? <View style={{width: width(34)}}> 
-                <View style={{                    
-                    borderColor: '#CED0CE',
-                    justifyContent: 'center',
-                      alignItems: 'center',
-                  }}><TouchableOpacity style={{alignItems: 'center'}} onPress={this.CheckSync.bind(this)}>
-                    <Icon name="check-square-o" size={35} color="white"/>                  
-                    <Text style={{ 
-                         color: 'white', 
-                         fontSize: Fonts.size.medium, 
-                         marginTop: 2,
-                         fontFamily: 'OpenSans-Regular',
-                      }}>{'Proceed'}</Text></TouchableOpacity></View></View> :  <View style={{width: width(34)}}><View
+                      <TouchableOpacity
+                        style={{alignItems: 'center'}}
+                        onPress={this.CheckSync.bind(this)}>
+                        <Icon name="check-square-o" size={35} color="white" />
+                        <Text
+                          style={{
+                            color: 'white',
+                            fontSize: Fonts.size.medium,
+                            marginTop: 2,
+                            fontFamily: 'OpenSans-Regular',
+                          }}>
+                          {'Proceed'}
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                ) : (
+                  <View style={{width: '33%'}}>
+                    <View
                       style={{
                         paddingVertical: 20,
                         borderTopWidth: 1,
                         borderColor: '#CED0CE',
                         justifyContent: 'center',
-                          alignItems: 'center',
+                        alignItems: 'center',
                       }}>
-                      <ActivityIndicator size={20} color="#1CAFF6" /></View></View>   }
+                      <ActivityIndicator size={20} color="#1CAFF6" />
+                    </View>
+                  </View>
+                )}
                 {/* End Sync */}
                 <View style={{width: width(34)}}>
-                {this.state.syncMode === 0 &&
-                  <TouchableOpacity
-                    onPress={once(this.onNavigaTo.bind(this, 2))}
-                    style={{alignItems: 'center'}}>
-                    <ResponsiveImage
-                      source={Images.uploadToServerIcon}
-                      initWidth="50"
-                      initHeight="40"
-                    />
-                    <Text
-                      style={{
-                        color: 'white',
-                        fontSize: Fonts.size.medium,
-                        fontFamily: 'OpenSans-Regular',
-                      }}>
-                      {strings.Create_OFI}
-                    </Text>
-                  </TouchableOpacity>}
+                  {this.state.syncMode === 0 && (
+                    <TouchableOpacity
+                      onPress={once(this.onNavigaTo.bind(this, 2))}
+                      style={{alignItems: 'center'}}>
+                      <ResponsiveImage
+                        source={Images.uploadToServerIcon}
+                        initWidth="50"
+                        initHeight="40"
+                      />
+                      <Text
+                        style={{
+                          color: 'white',
+                          fontSize: Fonts.size.medium,
+                          fontFamily: 'OpenSans-Regular',
+                        }}>
+                        {strings.Create_OFI}
+                      </Text>
+                    </TouchableOpacity>
+                  )}
                 </View>
               </View>
             </View>
           </ImageBackground>
         </View>
-        <Toast ref={(toast) => this.toast = toast} position="top" opacity={0.8} />
+
+        <Toast ref="toast" position="top" opacity={0.8} />
+
         <ConfirmDialog
           title={strings.NC_title}
           message={strings.NC_title_message}
           titleStyle={{fontFamily: 'OpenSans-SemiBold'}}
           messageStyle={{fontFamily: 'OpenSans-Regular'}}
           visible={this.state.dialogVisible}
-          onTouchOutside={() => this.setState({dialogVisible: false, syncMode : 0})}
+          supportedOrientations={['portrait', 'portrait-upside-down', 'landscape', 'landscape-left', 'landscape-right']}
+          onTouchOutside={() =>
+            this.setState({dialogVisible: false, syncMode: 0})
+          }
           positiveButton={{
             title: strings.yes,
-            onPress: () => { 
-              this.setState({ syncMode : 1},() => { 
-                this.CheckInternetConnectivityNCOFI()
+            onPress: () => {
+              this.setState({syncMode: 1}, () => {
+                this.CheckInternetConnectivityNCOFI();
               });
-              },
+            },
             // onPress: () =>
             //   this.setState({confirmpwd: true, dialogVisible: false}),
           }}
           negativeButton={{
             title: strings.no,
-            onPress: () => this.setState({dialogVisible: false, syncMode : 0,}),
+            onPress: () => this.setState({dialogVisible: false, syncMode: 0}),
           }}
         />
 
@@ -2944,6 +3134,7 @@ class NCOFIPage extends Component {
           titleStyle={{fontFamily: 'OpenSans-SemiBold'}}
           messageStyle={{fontFamily: 'OpenSans-Regular'}}
           onTouchOutside={() => this.setState({deleteDialogVisible: false})}
+          supportedOrientations={['portrait', 'portrait-upside-down', 'landscape', 'landscape-left', 'landscape-right']}
           positiveButton={{
             title: strings.yes,
             onPress: this.removeNC.bind(this),
@@ -3112,11 +3303,14 @@ class NCOFIPage extends Component {
                         <View style={styles.commoncard}>
                           <Text style={[styles.boxHeader, {marginTop: 5}]}>
                             {/* {strings.Non_confirmityL} */}
-                            {this.state.CheckNC === 0 ? 'Non conformity' : 'OFI'}
+                            {this.state.CheckNC === 0
+                              ? 'Non conformity'
+                              : 'OFI'}
                           </Text>
-                          <Text style={styles.boxContent}>{this.state.NCtext}</Text>
+                          <Text style={styles.boxContent}>
+                            {this.state.NCtext}
+                          </Text>
                         </View>
-                        
                         <View style={styles.commoncard}>
                           <Text style={[styles.boxHeader, {marginTop: 5}]}>
                             {strings.Objective_Evidence}

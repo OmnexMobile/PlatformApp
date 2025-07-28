@@ -20,11 +20,8 @@ const SplashScreenFunctional = ({}) => {
         !loading &&
             navigation.reset({
                 index: 0,
-                // routes: [{ name: profile?.Token ? ROUTES.HOME_FAB_VIEW : ROUTES.LOGIN }],
-                // routes: [{ name: profile?.Token ? ROUTES.LAUNCH_SCREEN : ROUTES.REGISTER }],
-                // routes: [{ name: profile?.Token ? ROUTES.HOME_FAB_VIEW : ROUTES.GLOBAL_LOGIN }],
-                
-                routes: [{ name: token?.length > 0 ? ROUTES.HOME_FAB_VIEW : ROUTES.GLOBAL_LOGIN }],
+                // routes: [{ name: token?.length > 0 ? ROUTES.HOME_FAB_VIEW : ROUTES.GLOBAL_LOGIN }],
+                routes: [{ name: token?.length > 0 ? ROUTES.GLOBAL_DASHBOARD : ROUTES.GLOBAL_LOGIN }],
             });
     }, [loading]);
 

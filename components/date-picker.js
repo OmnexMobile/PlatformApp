@@ -5,13 +5,14 @@ import moment from 'moment';
 import { COLORS, FONT_SIZE, SPACING } from 'constants/theme-constants';
 import { DATE_FORMAT, FONT_TYPE } from 'constants/app-constant';
 import useTheme from 'theme/useTheme';
+import { useAppContext } from 'contexts/app-context';
 import TextComponent from './text';
 
-const DatePickerComponent = ({ name, label, required, value, onChange, editable = true }) => {
+const DatePickerComponent = ({ name, label, required, value, onChange, editable = true, containerStyle = {} }) => {
     const [activePicker, setActivePicker] = useState(null);
     const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
     const { theme } = useTheme();
-
+    const { timeSettings } = useAppContext();
     const showDatePicker = name => {
         setActivePicker(name);
         setDatePickerVisibility(true);
@@ -28,12 +29,15 @@ const DatePickerComponent = ({ name, label, required, value, onChange, editable 
     };
     return (
         <View
-            style={{
-                padding: SPACING.NORMAL,
-                ...(!editable && { backgroundColor: theme.mode.disabledBackgroundColor }),
-                paddingBottom: SPACING.SMALL,
-                marginBottom: SPACING.XX_SMALL,
-            }}>
+            style={[
+                {
+                    padding: SPACING.NORMAL,
+                    ...(!editable && { backgroundColor: theme.mode.disabledBackgroundColor }),
+                    paddingBottom: SPACING.SMALL,
+                    marginBottom: SPACING.X_SMALL,
+                },
+                containerStyle,
+            ]}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <TextComponent style={{ fontSize: FONT_SIZE.SMALL }} type={FONT_TYPE.BOLD}>
                     {label}
@@ -59,7 +63,7 @@ const DatePickerComponent = ({ name, label, required, value, onChange, editable 
                         paddingVertical: SPACING.SMALL,
                         color: !value ? COLORS.searchText : theme?.mode.textColor,
                     }}>
-                    {value ? moment(value).format(DATE_FORMAT.DD_MM_YYYY) : 'Select Date'}
+                    {value ? moment(value).format(DATE_FORMAT[timeSettings || "DD_MM_YYYY"]) : 'Select Date'}
                 </TextComponent>
             </TouchableOpacity>
             <DateTimePickerModal

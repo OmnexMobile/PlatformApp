@@ -344,7 +344,7 @@ class FilterScreen extends Component {
         const endDate = selectedEndDate ? selectedEndDate.toString() : '';
         return (
             <View style={styles.mainContainer}>
-                {Platform.OS === 'ios' ? <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> : null }
+                {Platform.OS === 'ios' ? <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
                 <ImageBackground source={Images.DashboardBG} style={styles.headerBgImage}>
                     <View style={styles.header}>
                         <TouchableOpacity onPress={() => this.onBackHandle()}>
@@ -355,7 +355,7 @@ class FilterScreen extends Component {
                         <View style={styles.heading}>
                             <Text style={styles.headingText}>{strings.filter}</Text>
                         </View>
-                        <TouchableOpacity style={{paddingRight:10}} onPress={()=>this.props.navigation.navigate(ROUTES.AUDITPRODASHBOARD)}>
+                        <TouchableOpacity style={{paddingRight:10}} onPress={()=>this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)}>
                                 <Icon name="home" size={30} color="white" />
                         </TouchableOpacity>
                     </View>

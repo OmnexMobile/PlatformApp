@@ -58,6 +58,7 @@ class CameraCapture extends Component {
   componentDidMount = async () => {
     console.log('camera:capture mounted');
     LogBox.ignoreLogs(['Animated: `useNativeDriver`'])
+    LogBox.ignoreLogs(['Frame Processors are disabled'])
     let Files = '/' + RNFetchBlob.fs.dirs.DocumentDir + '/' + (Platform.OS == 'ios' ? 'IosFiles' : 'AuditFiles');
     console.log('camera:Ios-Android-Path', Files);
     RNFetchBlob.fs.exists(Files).then(exist => {
@@ -301,35 +302,36 @@ class CameraCapture extends Component {
               capturedImagePath: newImgPath,
               imageName: 'photo',
             });
-            if (Platform.OS == 'ios') {
-              this.storePhotoEdited();
-            } else {
+            {
+            // if (Platform.OS == 'ios') {
+            //   this.storePhotoEdited();
+            // } else {
               console.log('Reach RNPhotoEditor-->')
-              this.storePhotoEdited();
+              // this.storePhotoEdited();
               // RNPhotoEditor.open()
-              // RNPhotoEditor.Edit({
-              //   path: this.state.capturedImagePath,
-              //   onDone: this.storePhotoEdited,
-              //   onCancel: this.retakePhoto,
+              RNPhotoEditor.Edit({
+                path: this.state.capturedImagePath,
+                onDone: this.storePhotoEdited,
+                onCancel: this.retakePhoto,
     
-              //   //onClear: this.retakePhoto,
-              //   hiddenControls: ['save'],
-              //   colors: [
-              //     '#ff0000',
-              //     '#000000',
-              //     '#808080',
-              //     '#a9a9a9',
-              //     '#FFFFFF',
-              //     '#0000ff',
-              //     '#00ff00',
-              //     '#ffff00',
-              //     '#ffa500',
-              //     '#800080',
-              //     '#00ffff',
-              //     '#a52a2a',
-              //     '#ff00ff',
-              //   ],
-              // });
+                //onClear: this.retakePhoto,
+                hiddenControls: ['save'],
+                colors: [
+                  '#ff0000',
+                  '#000000',
+                  '#808080',
+                  '#a9a9a9',
+                  '#FFFFFF',
+                  '#0000ff',
+                  '#00ff00',
+                  '#ffff00',
+                  '#ffa500',
+                  '#800080',
+                  '#00ffff',
+                  '#a52a2a',
+                  '#ff00ff',
+                ],
+              });
             }
           }).catch (err => console.log("camera:Error in Capture Image1:", err))
         }) .catch(err => console.log("camera:Error in Capture Image2:",err));
@@ -403,7 +405,7 @@ class CameraCapture extends Component {
     console.log(this.state.capturedImagePath, 'capturedimagepath');
     return (
       <View style={styles.wrapper}>
-        {Platform.OS === 'ios' ? <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> : null }
+        {Platform.OS === 'ios' ? <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
         <OfflineNotice />
  
         <ImageBackground

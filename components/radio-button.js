@@ -1,32 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
-import { APP_VARIABLES, FONT_TYPE } from 'constants/app-constant';
+import { FONT_TYPE } from 'constants/app-constant';
 import { COLORS, FONT_SIZE, SPACING } from 'constants/theme-constants';
 import useTheme from 'theme/useTheme';
 import { RFPercentage } from 'helpers/utils';
-import { useAppContext } from 'contexts/app-context';
 import TextComponent from './text';
 
-const RadioButton = ({ name, label, required, value, options, onChange, editable = true }) => {
-    const [data, setData] = useState([]);
-    const { sites } = useAppContext();
-
-    const getData = async SiteID => {
-        const formData = new FormData();
-        formData.append(APP_VARIABLES.SITE_ID, SiteID);
-        formData.append(APP_VARIABLES.RadioButtonType, '');
-        try {
-            const res = await postAPI(`${API_URL.GET_CUSTOM_DROPDOWN}`, formData);
-            console.log('🚀 ~ file: concern-screen-functional.js:199 ~ getConcern ~ res', res);
-        } catch (err) {
-            console.log('🚀 ~ file: radio-button.js:22 ~ getData ~ err', err);
-        }
-    };
-
-    // useEffect(() => {
-    //     getData(sites?.selectedSite);
-    // }, [sites?.selectedSite]);
-
+const RadioButton = ({ name, label, required, value, options, onChange, editable = true, noPadding = false }) => {
+    
     const { theme } = useTheme();
 
     if ((options?.length || 0) < 1) return null;
@@ -35,10 +16,11 @@ const RadioButton = ({ name, label, required, value, options, onChange, editable
         <View
             style={{
                 padding: SPACING.NORMAL,
-                flex: 1,
+                // flex: 1,
                 paddingBottom: SPACING.SMALL,
-                marginBottom: SPACING.XX_SMALL,
+                marginBottom: SPACING.X_SMALL,
                 ...(!editable && { backgroundColor: theme.mode.disabledBackgroundColor }),
+                ...(noPadding && { padding: 0 }),
             }}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <TextComponent style={{ fontSize: FONT_SIZE.SMALL }} type={FONT_TYPE.BOLD}>
@@ -54,15 +36,19 @@ const RadioButton = ({ name, label, required, value, options, onChange, editable
                 {options?.map(option => (
                     <TouchableOpacity
                         disabled={!editable}
-                        onPress={() => onChange(name, option?.value)}
+                        onPress={() => onChange(name, option?.Value ?? option?.value)}
                         activeOpacity={0.8}
-                        key={option?.value}
+                        key={option?.Value ?? option?.value}
                         style={styles.container}>
                         <View style={[styles.radioCircle, { borderColor: theme.colors.primaryThemeColor }]}>
-                            {value === option?.value && <View style={[styles.selectedRb, { backgroundColor: theme.colors.primaryThemeColor }]} />}
+                            {value == (option?.Value ?? option?.value) && (
+                                <View style={[styles.selectedRb, { backgroundColor: theme.colors.primaryThemeColor }]} />
+                            )}
                         </View>
-                        <TextComponent type={value === option?.value ? FONT_TYPE.BOLD : FONT_TYPE.REGULAR} fontSize={FONT_SIZE.NORMAL}>
-                            {option?.label}
+                        <TextComponent
+                            type={value == (option?.Value ?? option?.value) ? FONT_TYPE.BOLD : FONT_TYPE.REGULAR}
+                            fontSize={FONT_SIZE.NORMAL}>
+                            {option?.Label || option?.label}
                         </TextComponent>
                     </TouchableOpacity>
                 ))}

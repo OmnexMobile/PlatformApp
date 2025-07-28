@@ -41,6 +41,8 @@ export default function LPAPublish(props) {
   console.log('get props--->', props)
 //   const auditdetails = props.navigation.state.params;
   const auditdetails = props.route.params;
+  // const siteid = props.route.params;
+  console.log(props.route.params,'siteidlog');
   const toastConfig = {
     error: props => (
       <SuccessToast
@@ -77,6 +79,7 @@ export default function LPAPublish(props) {
     var serverUrl = await AsyncStorage.getItem('storedserverrul');
     var auditId = auditdetails.Auditid;
     var auditorderId = auditdetails.Auditorder;
+    var siteid = auditdetails.siteid;
     console.log('serverUrl-->', serverUrl)
     console.log('auditId, auditorderId-->', auditId, auditorderId)
     try {
@@ -109,6 +112,8 @@ export default function LPAPublish(props) {
     var userId = currentUserData?.userId
     // var siteIdUser = await AsyncStorage.getItem('siteId');
     var siteIdUser = currentUserData?.siteId
+
+    // var siteIdUser = auditdetails.siteid;
     var siteId = 'sit' + siteIdUser;
     var langid = 1;
     var userdtfmt = 'MM/DD/YYYY';
@@ -244,7 +249,7 @@ export default function LPAPublish(props) {
   return (
     <>
       <View style={styles.wrapper}>
-      {Platform.OS === 'ios' ? <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> : null }
+      {Platform.OS === 'ios' ? <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
         <OfflineNotice />
         <ImageBackground
           source={Images.DashboardBG}

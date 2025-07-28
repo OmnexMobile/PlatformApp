@@ -11,13 +11,13 @@ export default StyleSheet.create({
     // justifyContent: 'flex-start',
   },
   header: {
-    width: width(100),
-    zIndex: 3000,
+    width: '100%',
+   // zIndex: 3000,
     flexDirection: 'row',
     //backgroundColor: 'white',
     padding: 5,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: 'flex-start',
+    justifyContent:'space-evenly',
     height: 65,
     elevation: 4,
     shadowOffset: {width: 2, height: 10},
@@ -29,7 +29,7 @@ export default StyleSheet.create({
   backlogo: {
     flexDirection: 'row',
     backgroundColor: 'transparent',
-    width: width(15),
+   // width:width(15),
     height: 65,
     justifyContent: 'center',
     alignItems: 'center',
@@ -46,7 +46,7 @@ export default StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
-    width: width(70),
+    width: '70%',
     height: 65,
   },
   headingConformance: {
@@ -57,7 +57,7 @@ export default StyleSheet.create({
     height: 65,
   },
   headingText: {
-    fontSize: Fonts.size.h6,
+    fontSize: Fonts.size.mediump,
     color: '#fff',
     textAlign: 'center',
     fontFamily: 'OpenSans-Bold',
@@ -70,18 +70,19 @@ export default StyleSheet.create({
     alignItems: 'center',
   },
   headerDivConformance: {
-    width: width(25),
+    width:'25%',
     height: 65,
     flexDirection: 'row',
-    justifyContent: 'center',
+    justifyContent:'space-evenly',
     alignItems: 'center',
+    marginRight:20
   },
   footer: {
     bottom: 0,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    width: width(100),
+    width:'100%',
     backgroundColor: 'transparent',
     height: 65,
     zIndex: 3000,
@@ -103,11 +104,9 @@ export default StyleSheet.create({
     marginLeft: 0,
     marginRight: 0,
     padding: 5,
-    backgroundColor: 'white',
-    //   justifyContent: 'center',
+    backgroundColor: '#fff',
     paddingBottom: 0,
     marginBottom: 0,
-    //   alignSelf:'stretch'
     marginTop: 10,
   },
   scrollViewBody: {
@@ -162,7 +161,7 @@ export default StyleSheet.create({
     //marginTop: 11
   },
   detailTitle: {
-    marginLeft: 5,
+    marginLeft: 35,
     fontSize: Fonts.size.medium,
     color: '#A6A6A6',
     fontFamily: 'OpenSans-Regular',
@@ -290,11 +289,9 @@ export default StyleSheet.create({
     backgroundColor: 'transparent',
     right: 0,
     flexDirection: 'row',
-    // backgroundColor:'red'
   },
   div01: {
-    width: Window.width,
-    //height:height(10),
+    width:'100%',
     backgroundColor: 'transparent',
     marginTop: 10,
     alignItems: 'center',

@@ -1,10 +1,14 @@
 import { isIphoneX } from 'react-native-iphone-x-helper';
-import { Platform, StatusBar, Dimensions } from 'react-native';
+import { Platform, StatusBar, Dimensions, Alert, Linking, LogBox } from 'react-native';
 import FlashMessage, { showMessage } from 'react-native-flash-message';
 import JailMonkey from 'jail-monkey';
+import moment from 'moment';
 import { COLORS, SPACING } from 'constants/theme-constants';
 import useTheme from 'theme/useTheme';
-import { LOCAL_STORAGE_VARIABLES, TOAST_STATUS } from 'constants/app-constant';
+import { DATE_FORMAT, IMAGE_UPLOAD_STATUS, INPUTS_CONSTANTS, TOAST_STATUS } from 'constants/app-constant';
+import InAppBrowser from 'react-native-inappbrowser-reborn';
+
+LogBox.ignoreLogs(['Require cycle:']);
 
 export const getAvatarInitials = textString => {
     if (!textString) return '';
@@ -53,18 +57,17 @@ export const successMessage = ({ message = 'Success', description = 'Successfull
         backgroundColor: COLORS.success,
         color: COLORS.white,
         duration: 1500,
-        // problem Solver
-        // position: 'bottom',
-        // style: {
-        //     borderRadius: SPACING.NORMAL,
-        //     margin: SPACING.SMALL,
-        // },
+        position: 'bottom',
+        style: {
+            borderRadius: SPACING.NORMAL,
+            margin: SPACING.SMALL,
+        },
     });
 
 export const showErrorMessage = message =>
     showMessage({
         message: 'Error',
-        description: message,
+        description: message?.toString(),
         type: 'danger',
         backgroundColor: FlashMessage.ColorTheme.danger,
         color: COLORS.white,
@@ -76,22 +79,21 @@ export const showErrorMessage = message =>
         },
     });
 
-export const showWarningMessage = message =>
-    showMessage({
-        message: 'Warning',
-        description: message,
-        type: 'Warning',
-        backgroundColor: FlashMessage.ColorTheme.danger,
-        color: COLORS.white,
-        duration: 1500,
-        position: 'bottom',
-        style: {
-            borderRadius: SPACING.NORMAL,
-            margin: SPACING.SMALL,
-        },
-    });
+    // export const showWarningMessage = message =>
+    //     showMessage({
+    //         message: 'Warning',
+    //         description: message,
+    //         type: 'Warning',
+    //         backgroundColor: FlashMessage.ColorTheme.danger,
+    //         color: COLORS.white,
+    //         duration: 1500,
+    //         position: 'bottom',
+    //         style: {
+    //             borderRadius: SPACING.NORMAL,
+    //             margin: SPACING.SMALL,
+    //         },
+    //     });
 
-// problem solver
 export const toast = (title = 'Success', desc = 'Successfully Saved', type = TOAST_STATUS.SUCCESS, duration = 1500) => {
     const message = title ? title : type === TOAST_STATUS.SUCCESS ? 'Success' : 'Error';
     return showMessage({
@@ -115,7 +117,6 @@ export function RFPercentage(percent) {
     const standardLength = width > height ? width : height;
     const offset = width > height ? 0 : Platform.OS === 'ios' ? 78 : StatusBar.currentHeight; // iPhone X style SafeAreaView size in portrait
     const deviceHeight = isIphoneX() || Platform.OS === 'android' ? standardLength - offset : standardLength;
-
     const heightPercent = (percent * deviceHeight) / 100;
     return Math.round(heightPercent);
 }
@@ -137,7 +138,7 @@ export const getElevation = () => {
     return {
         shadowColor: '#000',
         shadowOffset: {
-            width: 5,
+            width: 0,
             height: 2,
         },
         shadowOpacity: 0.25,
@@ -147,10 +148,108 @@ export const getElevation = () => {
     };
 };
 
-export const formReq = (request) => {
+export const formReq = request => {
     var formData = new FormData();
-    const transformedData = Object.entries(request)
-    .map(([key, value]) => ({ key, value }))
-    transformedData.map(({key, value}) => formData.append(key, value));
+    const transformedData = Object.entries(request).map(([key, value]) => ({ key, value }));
+    transformedData.map(({ key, value }) => formData.append(key, value));
     return formData;
+};
+
+export function convertStringToHTML(htmlString) {
+    // Create a map of HTML entities and their corresponding characters
+    const entitiesMap = {
+        '&lt;': '<',
+        '&gt;': '>',
+        '&quot;': '"',
+        '&amp;': '&',
+        '&apos;': "'",
+        '&cent;': '¢',
+        '&pound;': '£',
+        '&yen;': '¥',
+        '&euro;': '€',
+        '&copy;': '©',
+        '&reg;': '®',
+        '&nbsp;': ' ',
+        '&iexcl;': '¡',
+        '&laquo;': '«',
+        '&raquo;': '»',
+        '&middot;': '·',
+        '&para;': '¶',
+        '&sect;': '§',
+        '&trade;': '™',
+    };
+
+    // Use a regular expression to replace all entities in the map
+    const decodedString = htmlString.replace(/&[a-zA-Z]+;/g, match => entitiesMap[match] || match);
+
+    return decodedString;
+}
+
+export const isHTML = str => {
+    // Regular expression to match HTML tags
+    const htmlRegex = /<\/?[a-z][\s\S]*>/i;
+    return htmlRegex.test(str);
+};
+
+export const openLink = async (link = '', color = '#fff') => {
+    try {
+        const url = link;
+        if (await InAppBrowser.isAvailable()) {
+            const result = await InAppBrowser.open(url, {
+                // iOS Properties
+                dismissButtonStyle: 'cancel',
+                preferredBarTintColor: color,
+                preferredControlTintColor: 'white',
+                readerMode: false,
+                animated: true,
+                modalPresentationStyle: 'fullScreen',
+                modalTransitionStyle: 'coverVertical',
+                modalEnabled: true,
+                enableBarCollapsing: false,
+                // Android Properties
+                showTitle: true,
+                toolbarColor: color,
+                secondaryToolbarColor: 'black',
+                navigationBarColor: 'black',
+                navigationBarDividerColor: 'white',
+                enableUrlBarHiding: true,
+                enableDefaultShare: true,
+                forceCloseOnRedirection: false,
+                // Specify full animation resource identifier(package:anim/name)
+                // or only resource name(in case of animation bundled with app).
+                animations: {
+                    startEnter: 'slide_in_right',
+                    startExit: 'slide_out_left',
+                    endEnter: 'slide_in_left',
+                    endExit: 'slide_out_right',
+                },
+                headers: {
+                    'my-custom-header': 'my custom header value',
+                },
+            });
+            // await this.sleep(800);
+            // Alert.alert(JSON.stringify(result));
+        } else Linking.openURL(url);
+    } catch (error) {
+        // Alert.alert(error.message);
+    }
+};
+
+export const getDisplayValue = (columnValue, columnData, rowData, timeSettings) => {
+    columnData?.Type === INPUTS_CONSTANTS.DATE_PICKER && console.log('columnData?.Type', columnData?.Type, columnValue, columnData);
+    switch (columnData?.Type) {
+        case INPUTS_CONSTANTS.FILE_UPLOAD:
+            return rowData?.Attachment || columnValue || '---';
+
+        case INPUTS_CONSTANTS.DATE_PICKER:
+            return columnValue
+                ? moment(columnValue, DATE_FORMAT.MM_DD_YYYY).format(DATE_FORMAT[timeSettings || 'DD/MM/YYYY'])
+                : '---';
+
+        default:
+            if (rowData?.UploadStatus === IMAGE_UPLOAD_STATUS.InProgress) {
+                return 'Upload in progress';
+            }
+            return columnValue ?? '---';
+    }
 };

@@ -97,6 +97,9 @@ const images = {
   ManIcon2:require('../Images/mon2.png'),
   ManIcon3:require('../Images/man_filled.png'),
   omnex_resizeLog:require("../Images/omnex_logos.jpg"),
+  norecords: require('../Images/documents.png'),
+  nodata: require('../Images/ban.png'),
+  emptybox: require('../Images/emptybox.png')
 
 }
 

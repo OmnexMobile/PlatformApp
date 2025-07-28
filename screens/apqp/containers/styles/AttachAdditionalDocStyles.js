@@ -1,0 +1,281 @@
+import { StyleSheet, Dimensions } from "react-native";
+import { Metrics, ApplicationStyles } from "../../themes";
+import Fonts from "../../themes/Fonts";
+import { width, height } from "react-native-dimension";
+
+let Window = Dimensions.get("window");
+
+export default StyleSheet.create({
+  ...ApplicationStyles.screen,
+  fillcontainer: {
+    flex: 1,
+  },
+  mainContainer: {
+    flex: 1,
+    width: Window.width,
+    height: Window.height,
+  },
+  bgImage: {
+    width: "100%",
+    height: 65,
+    resizeMode: "stretch",
+  },
+  bgImageFooter: {
+    width: "100%",
+    height: 65,
+    resizeMode: "stretch",
+    justifyContent: "flex-end",
+    alignItems: "flex-end",
+  },
+  check: {
+    position: "absolute",
+    height: "85%",
+    width: "10%",
+    backgroundColor: "transparent",
+    right: 0,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  progressTextView: {
+    flex: 1,
+    width: Window.width,
+    flexDirection: "row",
+    position: "absolute",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  deliveryTextView: {
+    flex: 1,
+    width: Window.width,
+    flexDirection: "row",
+    // color: 'black',
+    position: "absolute",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  deliveryTextStyle: {
+    color: "#FFFFFF",
+    fontSize: Fonts.size.h4,
+  },
+  progressTextStyle: {
+    fontSize: Fonts.size.h4,
+  },
+
+  flatListWholeView: {
+    width: "100%",
+    height: "100%",
+    position: "absolute",
+    marginTop: 70,
+    padding: 8,
+    flexDirection: "column",
+  },
+
+  loaderView: {
+    width: "100%",
+    height: "100%",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  apqpTextStyle: {
+    fontSize: 24,
+    color: "white",
+  },
+  footerDiv: {
+    width: "100%",
+    height: 60,
+    backgroundColor: "transparent",
+    position: "absolute",
+    bottom: 0,
+  },
+  footerContainer: {
+    width: "100%",
+    height: 70,
+    backgroundColor: "transparent",
+    flexDirection: "row",
+  },
+  footerButton: {
+    width: "50%",
+    height: "100%",
+    backgroundColor: "transparent",
+    justifyContent: "center",
+    alignItems: "center",
+    flexDirection: "column",
+  },
+  footerContainer: {
+    width: "100%",
+    height: 70,
+    backgroundColor: "transparent",
+    flexDirection: "row",
+  },
+  footerButton1: {
+    width: "100%",
+    height: 70,
+    justifyContent: "center",
+    alignItems: "center",
+    flexDirection: "column",
+  },
+  footerButton2: {
+    width: "50%",
+    height: 70,
+    justifyContent: "center",
+    alignItems: "center",
+    flexDirection: "column",
+    borderLeftColor: "white",
+    borderLeftWidth: 0.5,
+  },
+
+  apqpTextView: {
+    flex: 1,
+    width: Window.width,
+    flexDirection: "row",
+    //color:'black',
+    position: "absolute",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  backLogo: {
+    width: "10%",
+    height: 70,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  headerTextDiv: {
+    width: "80%",
+    height: 70,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  circleView: {
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+    width: 100,
+    padding: 10,
+    position: "absolute",
+    right: 0,
+    paddingLeft: 2,
+  },
+  progressVal: {
+    fontSize: Fonts.size.medium,
+    color: "#1d1d1d",
+  },
+  completedTextStyle: {
+    fontSize: Fonts.size.medium,
+    padding: 2,
+  },
+  startDateTextStyle: {
+    fontSize: Fonts.size.medium,
+    padding: 2,
+  },
+  endDateTextStyle: {
+    fontSize: Fonts.size.medium,
+    padding: 2,
+  },
+  actualHoursTextStyle: {
+    fontSize: Fonts.size.medium,
+    padding: 2,
+  },
+  remarksTextStyle: {
+    fontSize: Fonts.size.medium,
+    padding: 6,
+  },
+  textInputStyle: {
+    borderBottomWidth: 0.5,
+    fontSize: Fonts.size.input,
+  },
+
+  sectionTop: {
+    backgroundColor: "white",
+    flexDirection: "column",
+    justifyContent: "flex-start",
+    alignItems: "flex-start",
+    borderBottomWidth: 0.5,
+    borderBottomColor: "lightgrey",
+    padding: 10,
+  },
+  sectionContent: {
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    alignItems: "center",
+  },
+  boxHeader: {
+    width: "100%",
+    color: "#A6A6A6",
+    fontSize: Fonts.size.medium,
+  },
+  boxContent: {
+    width: "100%",
+    color: "#485B9E",
+    fontSize: Fonts.size.regular,
+  },
+  div1: {
+    width: Window.width,
+    //height:height(10),
+    backgroundColor: "transparent",
+    marginTop: 10,
+    alignItems: "center",
+    justifyContent: "center",
+    flexDirection: "row",
+  },
+  input02: {
+    backgroundColor: "transparent",
+    width: "90%",
+    height: "90%",
+  },
+  placeholderT1: {
+    fontSize: Fonts.size.regular,
+    borderBottomColor: "lightgrey",
+    borderBottomWidth: 0.5,
+  },
+  placeholderT1Label: {
+    fontSize: Fonts.size.regular,
+    paddingTop: 5,
+    borderBottomColor: "lightgrey",
+    borderBottomWidth: 0.5,
+  },
+  placeholderTextStyle: {
+    padding: 0,
+    margin: 0,
+    fontSize: Fonts.size.small,
+    color: "#A6A6A6",
+  },
+  remarkBoxStyle: {
+    borderBottomWidth: 0.8,
+    width: "99%",
+    height: "40%",
+    borderWidth: 0.6,
+    borderRadius: 10,
+  },
+  sec1: {
+    width: "100%",
+    height: 75,
+  },
+  calendarDiv: {
+    width: "100%",
+    height: 500,
+    backgroundColor: "white",
+    borderRadius: 10,
+    padding: 10,
+  },
+  header: {
+    width: "100%",
+    height: 70,
+    backgroundColor: "white",
+    justifyContent: "center",
+    alignItems: "center",
+    borderBottomColor: "lightgrey",
+    borderBottomWidth: 0.5,
+  },
+  footer: {
+    width: "100%",
+    height: 48,
+    backgroundColor: "white",
+    justifyContent: "center",
+    alignItems: "center",
+    borderTopColor: "lightgrey",
+    borderTopWidth: 0.5,
+  },
+});

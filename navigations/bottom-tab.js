@@ -6,20 +6,19 @@ import { RFPercentage } from 'react-native-responsive-fontsize';
 import { COLORS, FONT_SIZE, SPACING } from '../constants/theme-constants';
 import { ICON_TYPE, ROUTES } from '../constants/app-constant';
 import Home from '../screens/home';
-import Calender from '../screens/calender';
+import Calender from '../screens/problemSolver/containers/calender';
 import ProfileHome from '../screens/profile/profile-home';
 import useTheme from '../theme/useTheme';
-import TaskStatus from '../screens/task-status';
+// import TaskStatus from '../screens/problemSolver/containers/task-status';
 import  Icon  from 'react-native-vector-icons/FontAwesome';
 import Icons from 'react-native-vector-icons/Ionicons'
 import { useAppContext } from 'contexts/app-context';
-import HomeProblemSolver from '../screens/problemSolver/containers/home';
-import CalenderProblemSolver from '../screens/problemSolver/containers/calender';
-import ProfileProblemSolver from '../screens/problemSolver/containers/profile/profile-home'
+// import HomeProblemSolver from '../screens/problemSolver/containers/home';
+// import CalenderProblemSolver from '../screens/problemSolver/containers/calender';
+// import ProfileProblemSolver from '../screens/problemSolver/containers/profile/profile-home'
 
 const Tab = createBottomTabNavigator();
 
-// const ICON_SIZE = 25;
 const ICON_SIZE = 25;
 
 const TabBarIcon = ({ color, focused, IconType = ICON_TYPE.MaterialCommunityIcons, iconName = '', name = '' }) => {

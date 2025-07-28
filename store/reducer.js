@@ -10,6 +10,7 @@ const rootReducer = combineReducers({
     audits: require('./AuditPro/auditRedux').reducer,
     notifications: require('./AuditPro/notificationsRedux').reducer, // audits: auditReducer,
     search: require('./AuditPro/searchRedux').reducer,
+    github: require('./APQP/githubRedux').reducer,
     projects: require('./APQP/apqpRedux').reducer,
     inspection: require('./InspectionControl/inspectionRedux').reducer,
 });

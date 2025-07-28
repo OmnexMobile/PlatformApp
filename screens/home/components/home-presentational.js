@@ -13,7 +13,7 @@ import HomeStatusbar from './HomeStatusBar';
 import ProjectCount from './ProjectCount';
 import { useState } from 'react';
 import { useEffect } from 'react';
-// import Pending from 'screens/task-status/pending';
+// import Pending from 'screens/problemSolver/containers/task-status/pending';
 // import InProgress from '../in-progress';
 import localStorage from 'global/localStorage';
 import VoiceAssist from 'screens/auditPro/components/VoiceAssist';
@@ -75,7 +75,7 @@ const HomePresentational = ({
     const navigation = useNavigation();
     const { recentActivities } = useAppContext();
     const [name, setName] = useState("")
-    console.log('countDetails', countDetails)
+    console.log('countDetails', countDetails, '---', sites, '----', sites?.selectedSite)
     useEffect(() => {
       async function fetchData() {
         const UserFullName = await localStorage.getData(LOCAL_STORAGE_VARIABLES.UserFullName);
@@ -96,10 +96,15 @@ const HomePresentational = ({
         navigation.navigate(ROUTES.GLOBAL_LOGIN);
     }
 
-    const navigateToVoice = () => {
-        console.log('click Voice')
-        navigation.navigate(ROUTES.VOICE_ASSIST);
-    }
+    // const navigateToVoice = () => {
+    //     console.log('click Voice')
+    //     navigation.navigate(ROUTES.VOICE_ASSIST);
+    // }
+
+    // const navigateToDashboard = () => {
+    //     console.log('click dashboard')
+    //     navigation.navigate(ROUTES.GLOBAL_DASHBOARD);
+    // }
 
     return (
         <Content noPadding>
@@ -147,6 +152,11 @@ const HomePresentational = ({
                 <IconComponent name="setting" type={ICON_TYPE.AntDesign} size={FONT_SIZE.XXLARGE} color={COLORS.gold} />
             </Pressable>
              {/* <Pressable style={{ width: '10%' }} 
+                onPress={() => navigateToDashboard()}
+            >
+                <IconComponent name="setting" type={ICON_TYPE.AntDesign} size={FONT_SIZE.XXLARGE} color={COLORS.gold} />
+            </Pressable> */}
+            {/* <Pressable style={{ width: '10%' }} 
                 onPress={() => navigateToVoice()}
             >
                 <IconComponent name="setting" type={ICON_TYPE.AntDesign} size={FONT_SIZE.XXLARGE} color={COLORS.gold} />

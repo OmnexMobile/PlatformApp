@@ -12,6 +12,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 
 const HomeFunctional = ({}) => {
     const { sites } = useAppContext();
+    console.log('default sites--->', sites)
     const [searchKey, setSearchKey] = useState('');
     const [currentConcerns, setCurrentConcerns] = useState('')
     const modalizeRef = React.useRef(null);
@@ -183,6 +184,14 @@ const HomeFunctional = ({}) => {
                 title,
             })
         }
+        else {
+            const field = 'TotalConcern'
+            const title = 'All'
+            navigation.navigate(ROUTES.LIST_SCREEN_PS, {
+                [APP_VARIABLES.CONCERN_STATUS_ID]: STATUS_CODES[field],
+                title,
+            })
+        } 
 
     }
 

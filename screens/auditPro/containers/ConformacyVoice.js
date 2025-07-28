@@ -7,7 +7,8 @@ import {
   ImageBackground,
   TextInput,
   ScrollView,
-  Dimensions
+  Dimensions,
+  ActivityIndicator,
 } from 'react-native';
 import {Images} from '../Themes/index';
 import styles from '../styles/CheckListMenuStyle'
@@ -47,12 +48,10 @@ class ConformacyVoice extends Component {
       partialResults: [],
       txt: '',
       nextAudit: '',
-      recognized: '',
-      pitch: '',
-      error: '',
-      started: '',
-      partialResults: [],
-      end: '',
+      // pitch: '',
+      // error: '',
+      // started: '',
+      // end: '',
       PageLoader: true,
       AttachModal: false,
       modalDisplay: [],
@@ -63,7 +62,9 @@ class ConformacyVoice extends Component {
       txtConformance: '',
       auditDetailList: {},
       ProcessId: '',
-    }
+      loadingPoint: false,
+      isRecognizing:false
+    };
     Voice.onSpeechStart = this.onSpeechStart;
     Voice.onSpeechRecognized = this.onSpeechRecognized;
     Voice.onSpeechEnd = this.onSpeechEnd;
@@ -74,6 +75,7 @@ class ConformacyVoice extends Component {
   }
 
   componentDidMount() {
+    this.timer = setInterval(this.toggleButton, 8000); // 8 seconds
     const regex = /(<([^>]+)>)/gi;
     // const result = this.props.navigation.state.params?.txtConformance
     const result = this.props?.route?.params?.txtConformance
@@ -111,9 +113,9 @@ class ConformacyVoice extends Component {
         console.log('Chinese script off', this.state.ChineseScript);
       });
     }
-    const SiteId = this.props.data.audits.siteId;
-    const UserId = this.props.data.audits.userId;
-    const token = this.props.data.audits.token;
+    const SiteId = this.props?.data?.audits?.siteId;
+    const UserId = this.props?.data?.audits?.userId;
+    const token = this.props?.data?.audits?.token;
     console.log('getMynextAudit API', SiteId, UserId, token);
     auth.getMynextAudit(SiteId, UserId, token, (res, data) => {
       console.log('getMynextAudit', data);
@@ -135,19 +137,24 @@ class ConformacyVoice extends Component {
     var CurrentPage = this.props?.route?.name;
     console.log('--CurrentPage--->', CurrentPage);
 
-    if (CurrentPage == 'VoiceRecognition') {
+    if (CurrentPage == ROUTES.VOICE_RECOGNITION) {
       console.log('Voice form mounted');
       this.InitVoice();
       // this.onEventStop()
     }
   }
 
+  toggleButton = () => {
+    this.setState(prevState => ({
+      startvoice: !prevState.startvoice,
+    }));
+  };
   StartVoicePress() {
     console.log('voice:StartVoicePressdebouncer activate');
-    if (Platform.OS == 'ios') {
-      Voice.removeAllListeners();
-      this.InitVoice();
-    }
+    // if (Platform.OS == 'ios') {
+    //   Voice.removeAllListeners();
+    //   this.InitVoice();
+    // }
     this._startRecognizing();
   }
 
@@ -189,7 +196,7 @@ class ConformacyVoice extends Component {
   }
 
   componentWillUnmount() {
-    if (Voice.isAvailable) Voice.destroy().then(Voice.removeAllListeners);
+    Voice.destroy().then(Voice.removeAllListeners);
   }
   onSpeechError = e => {
     // eslint-disable-next-line
@@ -199,11 +206,23 @@ class ConformacyVoice extends Component {
       startVoice: false,
       // isVisible:false
     });
-    if (Platform.OS == 'ios') {
-      this._startRecognizing();
-    }
+    // if (Platform.OS == 'ios') {
+    //   this._startRecognizing();
+    // }
     // Voice.removeAllListeners()
     // this.InitVoice()
+  };
+  onPressHandler = () => {
+    // Set loading state to true when TouchableOpacity is pressed
+    this.setState({loadingPoint: true});
+
+    // Simulate an asynchronous operation (e.g., fetching data)
+    setTimeout(() => {
+      // After some time, reset loading state to false
+      this.setState({loadingPoint: false});
+      <ActivityIndicator />;
+      // Perform any other actions you need here
+    }, 8000); // Adjust the timeout as needed
   };
 
   onSpeechResults = e => {
@@ -214,20 +233,20 @@ class ConformacyVoice extends Component {
         previousState => ({
           results: previousState?.txtConformance + ' ' + e.value[0],
         }),
-        () => {
-          this.VoiceLogic();
-        },
+        // () => {
+        //   this.VoiceLogic();
+        // },
       );
     } else {
       this.setState(previousState => ({
         results: previousState?.txtConformance + ' ' + e.value,
       }));
-      if (timer !== null) {
-        clearTimeout(timer);
-      }
-      timer = setTimeout(() => {
-        this.stopRecording();
-      }, 8000);
+      // if (timer !== null) {
+      //   clearTimeout(timer);
+      // }
+      // timer = setTimeout(() => {
+      //   this.stopRecording();
+      // }, 8000);
     }
   };
 
@@ -273,11 +292,12 @@ class ConformacyVoice extends Component {
     } catch (e) {
       console.error(e);
     }
+    setTimeout(() => {}, 8000);
   }
 
   onSpeechVolumeChanged = e => {
     // eslint-disable-next-line
-    console.log('voice:onSpeechVolumeChanged: ', e);
+  //  console.log('voice:onSpeechVolumeChanged: ', e);
     this.setState({
       pitch: e.value,
     });
@@ -285,34 +305,69 @@ class ConformacyVoice extends Component {
 
   _startRecognizing = async () => {
     console.log('voice:_startRecognizing');
-    this.setState(
-      {
+    console.log('voice:startvoice', this.state.startVoice,this.state.recognized,this.state.pitch,this.state.partialResults);
+    console.log("voice:pitch",this.state.pitch)
+    console.log("voice:pitch",this.state.pitch)
+
+    // this.setState(
+    //   {
+    //     recognized: '',
+    //     pitch: '',
+    //     error: '',
+    //     started: '',
+    //     partialResults: [],
+    //     end: '',
+    //     startVoice: true,
+    //     flag1: false,
+    //   },
+    //   () => {
+    //     console.log('flag reset');
+    //   },
+
+    // );
+    // try {
+    //   if (this.props.data.audits.language === 'Chinese') {
+    //     await Voice.start('zh');
+    //   } else if (
+    //     this.props.data.audits.language === null ||
+    //     this.props.data.audits.language === 'English'
+    //   ) {
+    //     await Voice.start('en-US');
+    //   }
+    // } catch (e) {
+    //   //eslint-disable-next-line
+    //   console.error(e);
+    // }
+    try {
+      await Voice.start('en-US');
+      this.setState({
+        startVoice: true,
         recognized: '',
         pitch: '',
         error: '',
         started: '',
         partialResults: [],
         end: '',
-        startVoice: true,
-        flag1: false,
-        // isVisible:true
-      },
-      () => {
-        console.log('flag reset');
-      },
-    );
-    try {
-      if (this.props.data.audits.language === 'Chinese') {
-        await Voice.start('zh');
-      } else if (
-        this.props.data.audits.language === null ||
-        this.props.data.audits.language === 'English'
-      ) {
-        await Voice.start('en-US');
-      }
-    } catch (e) {
-      //eslint-disable-next-line
-      console.error(e);
+        flag: false,
+        isRecognizing:true
+      });
+      // if(this.state.partialResults.length === 0)
+      // {
+      //   setTimeout(() => {
+      //     this._stopRecognizing();
+      //   }, 5000);
+      //           console.log("voice:partial12",this.state.partialResults.length)
+
+
+      // }
+      // else{
+      //   console.log("voice:partial123")
+      //   this._startRecognizing
+      // }
+      
+       // setTimeout(this._stopRecognizing, 24000); // Stop recording after 8 seconds
+    } catch (error) {
+      console.error(error);
     }
   };
 
@@ -320,8 +375,10 @@ class ConformacyVoice extends Component {
     try {
       console.log('voice:_stopRecognizing');
       await Voice.stop();
+      this.setState({startVoice: false,
+        isRecognizing:false
+      });
     } catch (e) {
-      //eslint-disable-next-line
       console.error(e);
     }
   };
@@ -356,7 +413,6 @@ class ConformacyVoice extends Component {
 
   VoiceLogic() {
     console.log('voice:VoiceLogic');
-
     if (Platform.OS == 'ios') {
       var txt = this.state.results[0];
     } else {
@@ -372,7 +428,7 @@ class ConformacyVoice extends Component {
       () => {
         Tts.setDucking(true).then(() => {
           Tts.speak(strings.cn_reply_03);
-        });
+        }, 8000);
 
         this._stopRecognizing();
         Voice.removeAllListeners();
@@ -411,6 +467,8 @@ class ConformacyVoice extends Component {
       'processid====>',
       this.props,
     );
+    const {loadingPoint} = this.state;
+
     return (
       <View style={styles.wrapper}>
         <OfflineNotice />
@@ -452,7 +510,7 @@ class ConformacyVoice extends Component {
                 style={{paddingHorizontal: 10}}
                 onPress={() =>
                   // this.props.navigation.navigate('Home')}>
-                this.props.navigation.navigate(ROUTES.AUDITPRODASHBOARD)}>
+                this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)}>
                 <Icon name="home" size={30} color="white" />
               </TouchableOpacity>
             </View>
@@ -483,9 +541,10 @@ class ConformacyVoice extends Component {
                     </Text>
                   ) : (
                     <TextInput
-                      style={[styles.questionHead,{width: window_width-60,
-                        height:window_height -400           
-                      }]}
+                      style={[
+                        styles.questionHead,
+                        {width: '90%', height: window_height - 400},
+                      ]}
                       value={this.state.results}
                       multiline={true}
                       editable={false}
@@ -498,60 +557,18 @@ class ConformacyVoice extends Component {
                   )}
                 </View>
                 <Text style={styles.instructions}>{strings.Voice_press}</Text>
-                {/* <View style={{flex: 0.2, marginBottom: '20%'}}>
-                  <TouchableOpacity
-                    onPress={() => {
-                      this.state.startVoice === false
-                        ? debounce(this.StartVoicePress(), 1000)
-                        : debounce(this.StopVoicePress(), 1000);
-                      console.log('voicecheckkkk');
-                    }}
-                    style={
-                      this.state.startVoice === true
-                        ? [styles.floatinBtn]
-                        : [styles.floatinBtn]
-                    }>
-                    {this.state.startVoice === true ? (
-                      <View style={{alignSelf: 'center', borderRadius: 100}}>
-                        <View
-                          style={{
-                            borderWidth: 1,
-                            borderColor: 'rgba(0,0,0,0.2)',
-                            width: 80,
-                            height: 80,
-                            backgroundColor: 'white',
-                            borderRadius: 100,
-                            zIndex: 1000,
-                            elevation: 15,
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                          }}>
-                          <Icon
-                            name="assistive-listening-systems"
-                            size={25}
-                            color="green"
-                          />
-                        </View>
-                      </View>
-                    ) : (
-                      <View style={{alignSelf: 'center'}}>
-                        <Icon name="microphone" size={35} color="#2EA4E2" />
-                      </View>
-                    )}
-                  </TouchableOpacity>
-                </View> */}
               </View>
             </ScrollView>
             <View
               style={{
+                flexDirection: 'row',
                 position: 'absolute',
                 // left:70,
-                 bottom: 50,
+                bottom: 50,
                 zIndex: 1000,
-                // justifyContent: 'center',
-                // alignItems: 'center',
-                alignSelf:'center'
+                alignSelf: 'center',
               }}>
+                
               <TouchableOpacity
                 style={{
                   borderWidth: 1,
@@ -569,19 +586,15 @@ class ConformacyVoice extends Component {
                 }}
                 onPress={() => {
                   this.state.startVoice === false
-                    ? debounce(this.StartVoicePress(), 800)
-                    : debounce(this.StopVoicePress(), 800);
+                    ? debounce(this.StartVoicePress(),8000)
+                    : debounce(this.StopVoicePress());
                   console.log('voicecheckkkk');
-                }}
-                >
-                  {this.state.startVoice === true ?( <Icon
-                            name="assistive-listening-systems"
-                            size={25}
-                            color="green"
-                          />):(
-                            <Icon name="microphone" size={25} color="#00b3d6" />
-
-                          )}
+                }}>
+                {this.state.startVoice === true ? (
+                  <Icon name="stop" size={25} color="red" />
+                ) : (
+                  <Icon name="microphone" size={25} color="#00b3d6" />
+                )}
               </TouchableOpacity>
             </View>
           </ImageBackground>

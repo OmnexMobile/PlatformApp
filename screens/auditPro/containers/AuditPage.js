@@ -9,6 +9,8 @@ import {
   ScrollView,
   ImageBackground,
   ActivityIndicator,
+  Button,
+  Alert,
 } from 'react-native';
 import {Images} from '../Themes/index';
 import styles from '../styles/AuditPageStyle';
@@ -37,10 +39,32 @@ import AsyncStorage from '@react-native-community/async-storage';
 import RNFetchBlob from 'react-native-fetch-blob';
 import { ROUTES } from 'constants/app-constant';
 import { SPACING } from 'constants/theme-constants';
+import ToastNew, {ErrorToast} from 'react-native-toast-message';
+import { LogBox } from 'react-native';
 
 let Window = Dimensions.get('window');
 const window_width = Dimensions.get('window').width;
 let timer = null;
+
+
+const toastConfig = {
+  error: props => (
+    <ErrorToast
+      {...props}
+      text1Style={{
+        fontSize: 12,
+        // color: 'white',
+        // textAlign: 'center',
+      }}
+      // style={{
+      //   backgroundColor: '#313131',
+      //   borderLeftWidth: 0,
+      //   height: 40,
+      //   borderRadius: 10,
+      // }}
+    />
+  ),
+};
 
 class AuditPage extends Component {
   ACTUALAUDITID = '';
@@ -109,6 +133,7 @@ class AuditPage extends Component {
       clauseMandatoryState: 0,
       ncofisetting: '',
       currentUserData: "",
+      screenWidth: Dimensions.get('window').width,
     };
 
     Voice.onSpeechStart = this.onSpeechStart;
@@ -131,7 +156,8 @@ class AuditPage extends Component {
   }
 
   componentDidMount() {
-    console.log('auditprops', this.props.data);
+    LogBox.ignoreLogs(['new NativeEventEmitter']);
+    Dimensions.addEventListener('change', this.handleDimensionChange);
     console.log(
       'navigationparamsauditpage',
       this.props?.route?.params,
@@ -200,7 +226,8 @@ class AuditPage extends Component {
     this.setState(
       {
         EnableDownload:
-          this.props?.route?.params?.datapass?.AuditStatus.toString() === '3'
+        this.props?.route?.params?.datapass?.AuditStatus && this.props?.route?.params?.datapass?.AuditStatus.toString() ===
+          '3'
             ? false
             : true,
       },
@@ -247,6 +274,7 @@ class AuditPage extends Component {
         }
       },
     );
+    this.checkUser();
   }
 
   async getAccessToken(){
@@ -364,6 +392,15 @@ class AuditPage extends Component {
     }
   }
 
+  componentWillUnmount() {
+    Dimensions.removeEventListener('change', this.handleDimensionChange);
+  }
+
+  storeReportIDdetails = async (  ) => {
+   const ReportID =   this.props?.route?.params?.datapass?.ReportId
+   await AsyncStorage.setItem('ReportID', ReportID)
+  }
+
   updateRecentAuditList(AuditId, status) {
     if (status === null || typeof status === 'undefined') {
       status = this.state.AuditProp.cStatus;
@@ -435,6 +472,7 @@ class AuditPage extends Component {
       'navigationparamsauditpagewill',
       this.props?.route?.params,
     );
+    this.storeReportIDdetails()
     console.log('componentWillReceiveProps', props);
 
     const isSubmitted = this.props?.route?.params?.isSubmitted;
@@ -590,7 +628,7 @@ class AuditPage extends Component {
           this._stopRecognizing();
           Voice.removeAllListeners();
           this.InitVoice();
-          this.props.navigation.navigate('AuditDashboard');
+          this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD);
         } else {
           Tts.setDucking(true).then(() => {
             Tts.setDucking(true).then(() => {
@@ -600,7 +638,7 @@ class AuditPage extends Component {
           this._stopRecognizing();
           Voice.removeAllListeners();
           this.InitVoice();
-          this.props.navigation.navigate('AuditDashboard');
+          this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD);
         }
       } else if (
         txt.includes('ofi') ||
@@ -1243,8 +1281,8 @@ class AuditPage extends Component {
 
   getSessionValues = isDownloaded => {
     try {
-       //   const TOKEN = this.props.data.audits.token;
-       var TOKEN = this.state.currentUserData?.accessToken
+      //   const TOKEN = this.props.data.audits.token;
+      var TOKEN = this.state.currentUserData?.accessToken
       const USER_ID = this.props.data.audits.userId;
 
       this.setState({token: TOKEN, userId: USER_ID}, () => {
@@ -1470,7 +1508,89 @@ class AuditPage extends Component {
     }
   }
 
+  checkUser  = async() =>{
+    console.log('user id', this.props.data.audits.userId);
+    var userid = this.props.data.audits.userId;
+    var token = this.props.data.audits.token;
+    var UserStatus = '';
+    var serverUrl = this.props.data.audits.serverUrl;
+    var ID = this.props.data.audits.userId;
+    var type = 3;
+    var path = '';
+    // var RegisterDevice = this.props.data.audits.deviceid;
+    const deviceId = await AsyncStorage.getItem('loginDeviceId');
+
+    console.log(userid, token);
+
+    auth.getCheckUser(userid,deviceId, token, (res, data) => {
+      console.log('User information', data);
+
+      if (data.data.Message == 'Success') {
+        console.log('Checking User status', data.data.Data.ActiveStatus);
+        UserStatus = data.data.Data.ActiveStatus;
+        if (this.props.data.audits.isOfflineMode) {
+          this.refs.toast.show(strings.Offline_Notice, DURATION.LENGTH_LONG);
+        } else {
+          NetInfo.fetch().then(netState => {
+            if (netState.isConnected) {
+              // this.props.navigation.navigate('AuditPage', {
+              //   datapass: iAuditDetails,
+              //   auditStatusPass: this.props.item.cStatus,
+              // });
+            } else {
+              this.refs.toast.show(strings.No_Internet, DURATION.LENGTH_LONG);
+            }
+          });
+        }
+
+        if (UserStatus == 2) {
+          console.log('User active /// bhuvi');
+          // this.syncAuditsToServerMethod()
+          this.checkFilePath();
+        } else if (UserStatus == 1) {
+
+          console.log('deleting user details');
+
+          var cleanURL = serverUrl.replace(/^https?:\/\//, '');
+          var formatURL = cleanURL.replace(/[&\/\\#,+()$~%.'":*?<>{}]/g, '');
+          this.propsServerUrl = formatURL;
+
+          console.log('cleanURL', this.propsServerUrl);
+          // var ID = this.props.data.audits.userId
+          console.log('path', this.propsServerUrl + ID);
+
+          if (Platform.OS == 'android') {
+            path =
+              '/data/user/0/com.omnex.auditpro/cache/AuditUser' +
+              '/' +
+              this.propsServerUrl +
+              ID;
+            console.log('path storing-->', path);
+          } else {
+            var iOSpath = RNFS.DocumentDirectoryPath;
+            path = iOSpath + '/' + this.propsServerUrl + ID;
+          }
+          console.log('*** path', path);
+          // this.deleteUserFile(path)
+          this.refs.toast.show(
+            strings.user_disabled_text,
+            DURATION.LENGTH_SHORT,
+          );
+          this.props.navigation.navigate(ROUTES.GLOBAL_LOGIN);
+        } else if (UserStatus == 0) {
+          Alert.alert("Your session has expired,Please login again.")
+
+          this.refs.toast.show(
+            strings.user_inactive_text,
+            DURATION.LENGTH_SHORT,
+          );
+          this.props.navigation.navigate(ROUTES.GLOBAL_LOGIN);
+        }
+      }
+    });
+  }
   downloadAuditForm = () => {
+    this.checkUser();
     if (this.props.data.audits.isOfflineMode) {
       this.toast.show(strings.Offline_Notice, DURATION.LENGTH_LONG);
     } else {
@@ -1544,7 +1664,7 @@ class AuditPage extends Component {
 
   auditProcessList(iAuditId, iAudProgId) {
     // const TOKEN = this.state.token;
-    const TOKEN = this.state.currentUserData?.accessToken
+    var TOKEN = this.state.currentUserData?.accessToken
     const SiteID = this.state.SITEID;
     const UserId = this.state.userId;
     const SearchCondition =
@@ -1579,7 +1699,7 @@ class AuditPage extends Component {
 
   auditFormCall() {
     // const TOKEN = this.state.token;
-    const TOKEN = this.state.currentUserData?.accessToken
+    var TOKEN = this.state.currentUserData?.accessToken
     const SiteID = this.state.SITEID;
     var strSortBy = 'order by FormName asc';
     if (this.state.AUDITPROG_ID == -1) {
@@ -1646,6 +1766,7 @@ class AuditPage extends Component {
               }
               this.setState({IFormID: FormId, Formdata: Formdata}, () => {
                 console.log('download:this.state.IFORMID', this.state.IFormID);
+                this.checkUser();
                 this.checkListCall();
               });
             }
@@ -1669,7 +1790,7 @@ class AuditPage extends Component {
     const IAuditTypeID = this.state.AUDITYPE_ID;
     const IAuditOrderID = this.state.AUDITPROGORDER;
     // const TOKEN = this.state.token;
-    const TOKEN = this.state.currentUserData?.accessToken
+    var TOKEN = this.state.currentUserData?.accessToken
 
     auth.getChecklist(
       ISiteID,
@@ -1778,7 +1899,7 @@ class AuditPage extends Component {
     const iParentId = parentID;
     const ISiteID = this.state.SITEID;
     // const TOKEN = this.state.token;
-    const TOKEN = this.state.currentUserData?.accessToken
+    var TOKEN = this.state.currentUserData?.accessToken
     const SM = this.props.data.audits.smdata;
     console.log('download:sm==>', this.props.data.audits.smdata);
     auth.getCheckRadio(
@@ -1866,7 +1987,7 @@ class AuditPage extends Component {
     const ActualAuditId = this.ActualAudit === true ? 1 : 0;
     //const ActualAuditId = ""
     // const token = this.state.token;
-    const token = this.state.currentUserData?.accessToken
+    var token = this.state.currentUserData?.accessToken
 
     auth.getncofiDropdown(
       AuditId,
@@ -1905,6 +2026,7 @@ class AuditPage extends Component {
     const strFunction = 'AuditNCOFI';
     // const TOKEN = this.state.token;
     const TOKEN = this.state.currentUserData?.accessToken
+    console.log(this.state.AUDITYPE_ORDER,"venkat/nc")
 
     auth.getNCdetails(
       SiteID,
@@ -1924,6 +2046,7 @@ class AuditPage extends Component {
             () => {
               console.log('download:Download Complete');
               console.log('download:NC details', this.state.NCdetailsprops);
+              this.checkUser();
               this.auditResultCall();
             },
           );
@@ -1996,6 +2119,7 @@ class AuditPage extends Component {
       console.log('this.state.auditstatus', this.state.auditstatus);
       console.log(this.props?.route?.params, 'stateparams');
       this.props.navigation.navigate(ROUTES.CONFORMACY, {
+        // AuditID: this.props.route.params.datapass.ActualAuditId,
         AuditID: this.state.AUDIT_ID,
         ChecklistBtn: this.state.ChecklistBtn,
         CreateNCdataBundle: {
@@ -2162,6 +2286,8 @@ class AuditPage extends Component {
           scoreInvalidMsg: '',
           RemarkforOfi: CheckpointsDetails[i].RemarkforOfi,
           AttachforOfi: CheckpointsDetails[i].AttachforOfi,
+          FailureCategoryId: CheckpointsDetails[i].FailureCategoryId,
+          FailureReasonId: CheckpointsDetails[i].FailureReasonId,
           FormId: CheckpointsDetails[i].FormId,
           immediateAction: CheckpointsDetails[i].immediateAction,
         });
@@ -3036,10 +3162,15 @@ class AuditPage extends Component {
     });
   }
 
+  handleDimensionChange = ({window}) => {
+    this.setState({screenWidth: window.width});
+  };
+
   render() {
+    const {screenWidth} = this.state;
     console.log(this.state.auditDetailList, 'AuditDetailsList');
     console.log(this.props?.route?.params, 'venkat12345');
-
+    console.log(this.props?.route?.params?.datapass?.AuditProgramName,"venkat/ncp");
     const suggestions = [
       {id: strings.sugesstion1},
       {id: strings.sugesstion2},
@@ -3056,7 +3187,7 @@ class AuditPage extends Component {
 
     return (
       <View style={styles.wrapper}>
-        {Platform.OS === 'ios' ? <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> : null }
+        {Platform.OS === 'ios' ? <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
         <OfflineNotice />
         {!this.state.isLoading ? (
           <ImageBackground
@@ -3071,8 +3202,8 @@ class AuditPage extends Component {
                 onPress={
                   !this.state.isLoading && !this.state.isDownloading
                     ? () =>
-                        this.state.PreviousPage == 'AllTabAuditList'
-                          ? this.props.navigation.navigate('AllTabAuditList')
+                        this.state.PreviousPage == ROUTES.ALLTABAUDITLIST
+                          ? this.props.navigation.navigate(ROUTES.ALLTABAUDITLIST)
                           : this.props.navigation.goBack()
                     : () => console.log('Component is not ready to goBack..')
                 }>
@@ -3103,7 +3234,7 @@ class AuditPage extends Component {
                   <TouchableOpacity
                     style={{paddingRight: 10}}
                     onPress={() =>
-                      this.props.navigation.navigate(ROUTES.AUDITPRODASHBOARD)}>
+                      this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)}>
                       {/* // this.props.navigation.navigate('Home')}> */}
                     <Icon name="home" size={30} color="white" />
                   </TouchableOpacity>
@@ -3531,7 +3662,7 @@ class AuditPage extends Component {
               <View style={styles.footerDiv}>
                 {!this.state.isDownloaded && !this.state.isDownloading ? (
                   <TouchableOpacity onPress={this.downloadAuditForm.bind(this)}>
-                    <View style={styles.footerDivContent}>
+                    <View style={styles.footerDivContent1}>
                       <ResponsiveImage
                         source={Images.downloadCloud}
                         initWidth="40"
@@ -3549,108 +3680,118 @@ class AuditPage extends Component {
                     </View>
                   </TouchableOpacity>
                 ) : !this.state.isDownloading ? (
-                  <View style={styles.footerDivContent}>
-                    {this.state.checkSync === true ||
-                    this.state.AuditProp.cStatus == constant.StatusSynced ||
-                    this.state.AuditProp.cStatus == constant.StatusCompleted ? (
-                      <View style={{width: '25%'}}>
-                        <TouchableOpacity
-                          onPress={once(this.onNavigateTo.bind(this, 4))}
-                          style={{
-                            alignItems: 'center',
-                          }}>
-                          {/* <ResponsiveImage source={Images.BTN5} initWidth="26" initHeight="25"/> */}
-                          <Icon name="paperclip" size={20} color="white" />
-                          <Text style={styles.footerTextContent}>
-                            {strings.Attach}
-                          </Text>
-                        </TouchableOpacity>
-                      </View>
-                    ) : (
-                      <View style={{width: '25%'}}>
-                        {this.state.auditDetailList.AuditProgramName !==
-                        'LPA' ? (
-                          <View style={{width: '100%'}}>
-                            <TouchableOpacity
-                              onPress={once(this.onNavigateTo.bind(this, 4))}
-                              style={{alignItems: 'center'}}>
-                              {/* <ResponsiveImage source={Images.BTN5} initWidth="26" initHeight="25"/> */}
-                              <Icon name="paperclip" size={20} color="white" />
-                              <Text style={styles.footerTextContent}>
-                                {strings.Attach}
-                              </Text>
-                            </TouchableOpacity>
-                          </View>
-                        ) : null}
-                      </View>
-                    )}
+                  <View style={[styles.footerDivContent, { flexDirection: 'row', justifyContent: 'center' }]}>
+                  
+                  {this.state.auditDetailList.AuditProgramName !== 'LPA' ? (
+                    <View style={{ flex: 1, alignItems: 'center' }}>
+                      <TouchableOpacity onPress={once(this.onNavigateTo.bind(this, 4))}>
+                        <Icon name="paperclip" size={20} color="white" style={{ marginLeft: 15 }} />
+                        <Text style={styles.footerTextContent}>{strings.Attach}</Text>
+                      </TouchableOpacity>
+                    </View>
+                  ) : (
+                    <View style={{ flex: 1 }} /> // Placeholder
+                  )}
 
-                    <View
-                      style={
-                        this.state.checkSync === true ||
-                        this.state.AuditProp.cStatus == constant.StatusSynced ||
-                        this.state.AuditProp.cStatus == constant.StatusCompleted
-                          ? {width: '28%'}
-                          : {
-                              width:
-                                this.state.auditDetailList.AuditProgramName !==
-                                'LPA'
-                                  ? '28%'
-                                  : '30%',
-                            }
-                      }>
+                  {/* {(
+                    <View style={{width: '25%'}}>
+                      {this.state.auditDetailList.AuditProgramName !==
+                      'LPA' ? (
+                        <View style={{width: '100%'}}>
+                          <TouchableOpacity
+                            onPress={once(this.onNavigateTo.bind(this, 4))}
+                            style={{alignItems: 'center',}}>
+                            <Icon name="paperclip" size={20} color="white" />
+                            <Text style={styles.footerTextContent}>
+                              {strings.Attach}
+                            </Text>
+                          </TouchableOpacity>
+                        </View>
+                      ) : null}
+                    </View>
+                  )} */}
+                  
+                  <View style={{ flex: 1, alignItems: 'center' }}>
+                    <TouchableOpacity onPress={once(this.onNavigateTo.bind(this, 2))}>
+                      <Icon name="list" size={20} color="white" style={{ marginLeft: 15 }} />
+                      <Text style={styles.footerTextContent}>{strings.AuditRecords}</Text>
+                    </TouchableOpacity>
+                  </View>
+
+                  {/* <View
+                    style={
+                      this.state.checkSync === true ||
+                      this.state.AuditProp.cStatus == constant.StatusSynced ||
+                      this.state.AuditProp.cStatus == constant.StatusCompleted
+                        ? {width: '25%'}
+                        : {
+                            width:
+                              this.state.auditDetailList.AuditProgramName !==
+                              'LPA'
+                                ? '28%'
+                                : '30%',
+                          }
+                    }>
+                    <TouchableOpacity
+                      onPress={once(this.onNavigateTo.bind(this, 2))}
+                      style={{alignItems: 'center'}}>
+                      <Icon name="list" size={20} color="white" />
+                      <Text style={styles.footerTextContent}>
+                        {strings.AuditRecords}
+                      </Text>
+                    </TouchableOpacity>
+                  </View> */}
+
+                  
+                  
+                  {(this.state.auditDetailList.AuditProgramName !== 'LPA' || this.state.AuditProp.ReportId == 1 || this.state.AuditProp.ReportId == 2 || this.state.AuditProp.ReportId == 3 || this.state.AuditProp.ReportId == 6 || this.state.AuditProp.ReportId == 7 || this.state.AuditProp.ReportId == 13)  ? (
+                    <View style={{ flex: 1, alignItems: 'center' }}>
+                      <TouchableOpacity onPress={once(this.onNavigateTo.bind(this, 3))}>
+                        <Icon name="file" size={20} color="white" style={{ marginLeft: 15 }} />
+                        <Text style={styles.footerTextContent}>{strings.NC_OFI}</Text>
+                      </TouchableOpacity>
+                    </View>
+                  ) : (
+                    <View style={{ flex: 1 }} /> // Placeholder
+                  )}
+
+                  {/* <View style={{width: '22%'}}>
+                    <TouchableOpacity
+                      onPress={once(this.onNavigateTo.bind(this, 3))}
+                      style={{alignItems: 'center'}}>
+                      <Icon name="file" size={20} color="white" />
+                      <Text style={styles.footerTextContent}>
+                        {strings.NC_OFI}
+                      </Text>
+                    </TouchableOpacity>
+                  </View> */}
+
+                  {/* {(this.state.auditDetailList.AuditProgramName !== 'LPA' &&
+                    this.state.AuditProp.ReportId == 3) || this.state.AuditProp.ReportId !== '5' || this.state.AuditProp.ReportId == 7 ? (
+                    <View style={{width: '22%'}}>
                       <TouchableOpacity
-                        onPress={once(this.onNavigateTo.bind(this, 2))}
+                        onPress={once(this.onNavigateTo.bind(this, 3))}
                         style={{alignItems: 'center'}}>
-                        {/* <ResponsiveImage source={Images.BTN2} initWidth="26" initHeight="25"/> */}
-                        <Icon name="list" size={20} color="white" />
+                        <Icon name="file" size={20} color="white" />
                         <Text style={styles.footerTextContent}>
-                          {strings.AuditRecords}
+                          {strings.NC_OFI}
                         </Text>
                       </TouchableOpacity>
                     </View>
-                    {/*(this.state.checkSync === true || this.state.AuditProp.cStatus == constant.StatusSynced || this.state.AuditProp.cStatus == constant.StatusCompleted || this.state.auditDetailList.VDA != true) ?
-              //changes here!
-              */}
-                    {(this.state.auditDetailList.AuditProgramName !== 'LPA' &&
-                      this.state.AuditProp.ReportId == 3) ||
-                    this.state.AuditProp.ReportId == 7 ? (
-                      <View style={{width: '22%'}}>
-                        <TouchableOpacity
-                          onPress={once(this.onNavigateTo.bind(this, 3))}
-                          style={{alignItems: 'center'}}>
-                          {/* <ResponsiveImage source={Images.BTN5} initWidth="26" initHeight="25"/> */}
-                          <Icon name="file" size={20} color="white" />
-                          <Text style={styles.footerTextContent}>
-                            {strings.NC_OFI}
-                          </Text>
-                        </TouchableOpacity>
-                      </View>
-                    ) : null}
-                    {this.state.AuditProp.ReportId == 3 ||
-                    this.state.AuditProp.ReportId == 7 ? (
-                      <View style={{width: '25%'}}>
-                        <TouchableOpacity
-                          onPress={once(this.onNavigateTo.bind(this, 6))}
-                          style={{alignItems: 'center'}}>
-                          {/* <ResponsiveImage source={Images.BTN5} initWidth="26" initHeight="25"/> */}
-                          <Icon name="file" size={20} color="white" />
-                          <Text style={styles.footerTextContent}>
-                            Conformance
-                          </Text>
-                        </TouchableOpacity>
-                      </View>
-                    ) : null}
-                    {/*
-                :  <View style={{width: '30%'}}>
-                  <TouchableOpacity onPress={once(this.onNavigateTo.bind(this,3))} style={{alignItems: 'center'}}>
-                    {/* <ResponsiveImage source={Images.BTN5} initWidth="26" initHeight="25"/> *}
-                    <Icon  name="file" size={20} color="white"/>
-                    <Text style={styles.footerTextContent}>{strings.NC_OFI}</Text>
-                  </TouchableOpacity>
+                  ) : null} */}
+                  
+                  {this.state.AuditProp.ReportId == 3 || this.state.AuditProp.ReportId == 7 ? (
+                    <View style={{ flex: 1, alignItems: 'center' }}>
+                      <TouchableOpacity onPress={once(this.onNavigateTo.bind(this, 6))}>
+                        <Icon name="file" size={20} color="white" style={{ marginLeft: 30 }} />
+                        <Text style={styles.footerTextContent}>Conformance</Text>
+                      </TouchableOpacity>
+                    </View>
+                  ) : (
+                    <View style={{ flex: 1 }} /> // Placeholder
+                  )}
                 </View>
-             */}
-                  </View>
+                
                 ) : (
                   <View style={styles.footerLoader}>
                     <ActivityIndicator size={20} color="white" />
@@ -3694,6 +3835,7 @@ class AuditPage extends Component {
           titleStyle={{fontFamily: 'OpenSans-SemiBold'}}
           messageStyle={{fontFamily: 'OpenSans-Regular'}}
           onTouchOutside={() => this.setState({dialogVisible: false})}
+          supportedOrientations={['portrait', 'portrait-upside-down', 'landscape', 'landscape-left', 'landscape-right']}
           positiveButton={{
             title: strings.yes,
             onPress: this.deleteAuditRecord.bind(this),
@@ -3704,6 +3846,22 @@ class AuditPage extends Component {
             onPress: () => this.setState({dialogVisible: false}),
           }}
         />
+       {/* <Modal
+      visible={this.state.dialogVisible}
+    //  animationType="slide"
+      transparent={true}
+      onRequestClose={this.setState({dialogVisible: false})}
+    >
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+        <View style={{ backgroundColor: 'white', padding: 20, borderRadius: 10 }}>
+          <Text>{strings.Confirm_delete}</Text>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 20 }}>
+            <Button title="Yes" onPress={this.deleteAuditRecord.bind(this)} />
+            <Button title="No" onPress={this.setState({dialogVisible: false})} />
+          </View>
+        </View>
+      </View>
+    </Modal> */}
         {/** yyy voice modal */}
         <Modal
           isVisible={this.state.isVisible}

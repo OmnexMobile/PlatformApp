@@ -133,8 +133,8 @@ class UnRegister extends Component {
                   if (!this.isRedirectFromLogin) {
                     this.props.registrationState(true);
                     // Forward to landing page
-                    console.log('navigation---1');
-                    this.props.navigation.navigate(ROUTES.LOGINUISCREEN);
+                    // this.props.navigation.navigate('LaunchScreen');
+                    this.props.navigation.navigate(ROUTES.LAUNCH_SCREEN);
                   } else {
                     this.setState(
                       {
@@ -174,7 +174,7 @@ class UnRegister extends Component {
             if (!this.isRedirectFromLogin) {
               // Forward to landing page
               console.log('navigation---2');
-              this.props.navigation.navigate(ROUTES.LOGINUISCREEN);
+              this.props.navigation.navigate(ROUTES.LAUNCH_SCREEN);
             } else {
               this.setState(
                 {
@@ -291,7 +291,7 @@ class UnRegister extends Component {
                                 );
                                 // Forward to landing page
                                 console.log('navigation---3');
-                                this.props.navigation.navigate(ROUTES.LOGINUISCREEN);
+                                this.props.navigation.navigate(ROUTES.LAUNCH_SCREEN);
                               },
                             );
                           } else {
@@ -318,7 +318,7 @@ class UnRegister extends Component {
                                 console.log('navigation---4');
                                 // this.props.navigation.navigate(ROUTES.REGISTRATION);
                                 //test case
-                                this.props.navigation.navigate(ROUTES.HOME_FAB_VIEW);
+                                this.props.navigation.navigate(ROUTES.LOGINUISCREEN);
                                 // this.refs.toast.show(strings.Unreg, 2000);
                               },
                             );
@@ -429,7 +429,7 @@ class UnRegister extends Component {
     <ImageBackground
       source={Images.LoginBack2}
       style={styles.backgroundImage}>
-      <View style={{
+      {/* <View style={{
         width:width(15),
         // height: 65,
         flexDirection:'row',
@@ -446,7 +446,7 @@ class UnRegister extends Component {
           }>
           <Icon name="home" size={30} color="#2EA4E2" />
         </TouchableOpacity>
-      </View>
+      </View> */}
       <View style={{flex: 0.15, margin: 20}}>
         {this.state.isDeviceRegistered == 'yes' ? (
           <TouchableOpacity

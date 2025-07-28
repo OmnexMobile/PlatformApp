@@ -260,7 +260,7 @@ class Downloads extends Component {
   render() {
     return (
       <View style={AuditPageStyle.container}>
-        {Platform.OS === 'ios' ? <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> : null }
+        {Platform.OS === 'ios' ? <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
         <OfflineNotice />
         <View style={AuditPageStyle.headerCont}>
           <ImageBackground
@@ -396,7 +396,7 @@ class Downloads extends Component {
         <View style={AuditPageStyle.headerDiv}>
           <TouchableOpacity
             style={{paddingRight: 10}}
-            onPress={() => this.props.navigation.navigate(ROUTES.AUDITPRODASHBOARD)}>
+            onPress={() => this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)}>
             <Icon name="home" size={35} color="white" />
           </TouchableOpacity>
         </View>

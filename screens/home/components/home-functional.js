@@ -42,22 +42,22 @@ const HomeFunctional = ({}) => {
 
     useEffect(() => {
         if (sites?.selectedSite) {
-            console.log("🚀 ~ file: home-functional.js:45 ~ useEffect ~ sites?.selectedSite", sites?.selectedSite)
+            console.log("🚀 ~ file: home-functional.js:45 ~ useEffect ~ sites?.selectedSite", sites, '----', sites?.selectedSite)
             getListData(sites?.selectedSite);
         }
-    }, [sites?.selectedSite?.SiteId]);
+    }, [sites?.selectedSite?.Siteid]);
 
     const getListData = async res => {
         const defaultObj = {
             [LOCAL_STORAGE_VARIABLES.UserId]: res.UserId,
-            [LOCAL_STORAGE_VARIABLES.SiteId]: res.SiteId,
+            [LOCAL_STORAGE_VARIABLES.SiteId]: res.Siteid,
             [LOCAL_STORAGE_VARIABLES.MaxRow]: 3,
         };
         dispatch(
             getDashboardConcernCounts(
                 formReq( {
                     [LOCAL_STORAGE_VARIABLES.UserId]: res.UserId,
-                    [LOCAL_STORAGE_VARIABLES.SiteId]: res.SiteId,
+                    [LOCAL_STORAGE_VARIABLES.SiteId]: res.Siteid,
                 }),
             ),
         );

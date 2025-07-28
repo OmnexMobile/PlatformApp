@@ -1,8 +1,8 @@
 import React from 'react';
 import LinearGradient from 'react-native-linear-gradient';
-import { ActivityIndicator, StyleSheet, TouchableOpacity, View, Platform } from 'react-native';
+import { ActivityIndicator, Keyboard, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { BUTTON_ICONS, FONT_TYPE, ICON_TYPE } from 'constants/app-constant';
-import { COLORS, SPACING } from 'constants/theme-constants';
+import { COLORS, FONT_SIZE, SPACING } from 'constants/theme-constants';
 import useTheme from 'theme/useTheme';
 import IconComponent from './icon-component';
 import TextComponent from './text';
@@ -17,15 +17,23 @@ const GradientButton = ({
     icon = BUTTON_ICONS.right,
     danger = false,
     colors = null,
+    hideIcon = false,
     ...rest
 }) => {
     const { theme } = useTheme();
+
+    const handlePress = () => {
+        if (!loading) {
+            Keyboard.dismiss();
+            onPress();
+        }
+    };
     return (
-        <TouchableOpacity keyboardShouldPersistTaps={'always'}
+        <TouchableOpacity
             {...{
                 disabled: disabled || loading,
                 activeOpacity: 1,
-                onPress,
+                onPress: handlePress,
                 ...rest,
                 style,
             }}>
@@ -43,6 +51,7 @@ const GradientButton = ({
                 <View style={{ flex: 1 }}></View>
                 <View style={{ flex: 8, alignItems: 'center' }}>
                     <TextComponent
+                        fontSize={FONT_SIZE.LARGE}
                         type={FONT_TYPE.BOLD}
                         style={[
                             {
@@ -53,9 +62,9 @@ const GradientButton = ({
                         {children}
                     </TextComponent>
                 </View>
-                <View style={ Platform.OS === 'ios' ? { flex: 1, alignItems: 'flex-end' } : null }>
-                    {!loading && icon && (
-                        <IconComponent color={COLORS.white} type={ICON_TYPE.AntDesign} style={[{ fontSize: 25 }, fontStyle]} name={icon} />
+                <View style={{ flex: 1, alignItems: 'flex-end' }}>
+                    {!loading && icon && !hideIcon && (
+                        <IconComponent color={COLORS.white} type={ICON_TYPE.AntDesign} size={FONT_SIZE.LARGE} name={icon} />
                     )}
                     {loading && <ActivityIndicator style={{ paddingLeft: 10 }} color={COLORS.white} size="small"></ActivityIndicator>}
                 </View>

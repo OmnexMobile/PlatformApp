@@ -47,11 +47,11 @@ import { LOCAL_STORAGE_VARIABLES, ROUTES } from 'constants/app-constant';
 //import RNRestart from 'react-native-restart';
 import globalAuth from '../../../services/Auditpro-Auth';
 import localStorage from 'global/localStorage';
+import { GLOBALSERVER_URL } from 'screens/globalConstant/globalURL';
 // import appContext from '../../../contexts/app-context';
 
 
 class AuditDashboardFooter extends Component {
-  // static contextType = appContext;
   propsServerUrl = '';
   isDocsAvail = false;
   auditAttachments = [];
@@ -59,7 +59,8 @@ class AuditDashboardFooter extends Component {
   formObjects = [];
   ncOfiObjects = [];
   syncResults = [];
-  globalServerURL = 'https://saasmobile.ewqims.net/EwQIMSAPI/api/';
+  // globalServerURL = 'https://saasmobile.ewqims.net/EwQIMSAPI/api/';
+  globalServerURL = GLOBALSERVER_URL
   constructor(props) {
     super(props);
 
@@ -129,7 +130,6 @@ class AuditDashboardFooter extends Component {
       const email = await AsyncStorage.getItem('loginEmail');
       const storedserverrul = await AsyncStorage.getItem('storedserverrul');
       const ssologinstatusbool = await AsyncStorage.getItem('ssologinstatusbool');
-
       console.log('devicecheckingid', deviceId);
       console.log('checkinghsdfsjdhf',fcmToken)
       console.log('mdfshfkhsdkjfhskd', email)
@@ -197,7 +197,7 @@ class AuditDashboardFooter extends Component {
     );
   }
 
-  checkUser() {
+  checkUser = async () => {
     console.log('user id', this.props.data.audits.userId);
     var userid = this.props.data.audits.userId;
     var token = this.props.data.audits.token;
@@ -206,9 +206,14 @@ class AuditDashboardFooter extends Component {
     var ID = this.props.data.audits.userId;
     var type = 3;
     var path = '';
-    console.log(userid, token);
+   
+    const deviceId = await AsyncStorage.getItem('loginDeviceId');
 
-    auth.getCheckUser(userid, token, (res, data) => {
+    var RegisterDevice = this.props.data.audits.deviceid;
+    console.log(userid, token, deviceId, RegisterDevice);
+  
+    // auth.getCheckUser(userid,RegisterDevice,token, (res, data) => {
+    auth.getCheckUser(userid, deviceId, token, (res, data) => {
       console.log('User information', data);
 
       if (data.data.Message == 'Success') {
@@ -249,6 +254,8 @@ class AuditDashboardFooter extends Component {
           );
           this.props.navigation.navigate(ROUTES.GLOBAL_LOGIN);
         } else if (UserStatus == 0) {
+         // Alert.alert("Your session has expired,Please login again.")
+          // Alert.alert("User Inactive")
           this.refs.toast.show(
             strings.user_inactive_text,
             DURATION.LENGTH_SHORT,
@@ -1681,7 +1688,7 @@ class AuditDashboardFooter extends Component {
       
        var serverUrl = this.state.store_server_url;// this.props.data.audits.serverUrl;
      // var currentsiteid = this.props.data.audits.currentsiteid;
-      var ID = this.props.data.audits.userId;
+      // var ID = this.props.data.audits.userId;
       var type = 3;
       var path = '';
       var cleanURL = serverUrl?.replace(/^https?:\/\//, '');
@@ -1774,8 +1781,8 @@ class AuditDashboardFooter extends Component {
                         console.log('this.state.sso_enabled_Flag2', this.state.sso_enabled_Flag)
                         this.logoutCall(this.state.loginEmail,this.state.loginFcmToken,this.state.loginDeviceId,this.state.logoutFlag)
                       }
-                       //  await this.removeItemValue('userDetails')
                       //  this.props.navigation.navigate(ROUTES.LOGINUISCREEN);
+                      this.props.navigation.navigate(ROUTES.LAUNCH_SCREEN);
                       // RNRestart.Restart();
                     
                     }

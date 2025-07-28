@@ -17,9 +17,7 @@ const ConcernListScreenFunctional = ({}) => {
     const [refreshing, setRefreshing] = useState(false);
 
     useFocusEffect(
-        
         React.useCallback(() => {
-            // console.log('sites--->1', sites,'--', sites?.selectedSite)
             sites?.selectedSite && getConcernList(sites?.selectedSite);
         }, [sites?.selectedSite]),
     );
@@ -32,14 +30,13 @@ const ConcernListScreenFunctional = ({}) => {
 
     const handleRefresh = () => {
         setRefreshing(true);
-        // console.log('sites--->2', sites,'--',  sites?.selectedSite)
         if (sites?.selectedSite) {
             getConcernList(sites?.selectedSite);
         }
     };
 
     const getConcernList = async res => {
-        console.log('get res--->', res)
+        console.log('getConcernList--->', res,'--', res.SiteId,'res.Siteid--->', res.Siteid)
         var formData = new FormData();
         formData.append(LOCAL_STORAGE_VARIABLES.UserId, res.UserId);
         // formData.append(LOCAL_STORAGE_VARIABLES.SiteId, res.SiteId);
@@ -55,7 +52,6 @@ const ConcernListScreenFunctional = ({}) => {
             ...list,
             loading: true,
         });
-        console.log('formData--->2', formData)
         Promise.all([postAPI(`${DashboardConcern ? API_URL.DASHBOARD_CONCERN_LIST : API_URL.GET_LIST}`, formData)])
             .then(([res1]) => {
                 setList({
@@ -72,13 +68,16 @@ const ConcernListScreenFunctional = ({}) => {
     };
 
     const filteredData = React.useMemo(
-        () => list?.data?.filter(concern => concern?.ConcernNo?.toLowerCase()?.includes(searchKey?.toLowerCase())),
+        () =>
+            list?.data?.filter(
+                concern =>
+                    concern?.ConcernNo?.toLowerCase()?.includes(searchKey?.toLowerCase()) ||
+                    concern?.Title?.toLowerCase()?.includes(searchKey?.toLowerCase()),
+            ),
         [searchKey, list?.data],
     );
 
-    console.log('list?.data', list, list?.data);
-    console.log('filteredData', filteredData);
-    console.log('sites', sites, sites?.selectedSite);
+    console.log('list?.data', list?.data);
 
     return (
         <ConcernListScreenPresentational

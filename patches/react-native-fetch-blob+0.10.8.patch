@@ -1,0 +1,29 @@
+diff --git a/node_modules/react-native-fetch-blob/android/build.gradle b/node_modules/react-native-fetch-blob/android/build.gradle
+index 919e64a..f6ac6c2 100644
+--- a/node_modules/react-native-fetch-blob/android/build.gradle
++++ b/node_modules/react-native-fetch-blob/android/build.gradle
+@@ -6,10 +6,14 @@ repositories {
+ 
+ buildscript {
+     repositories {
+-        jcenter()
++        // jcenter()
++        google()
++        mavenCentral()
+     }
+     dependencies {
+-        classpath 'com.android.tools.build:gradle:2.2.3'
++        // classpath 'com.android.tools.build:gradle:2.2.3'
++        classpath 'com.android.tools.build:gradle:7.4.2'
++
+     }
+ }
+ 
+@@ -33,6 +37,6 @@ android {
+ }
+ 
+ dependencies {
+-    compile 'com.facebook.react:react-native:+'
++    implementation 'com.facebook.react:react-native:+'
+     //{RNFetchBlob_PRE_0.28_DEPDENDENCY}
+ }

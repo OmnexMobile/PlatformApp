@@ -12,10 +12,12 @@ import {
   Button,
   Platform,
   KeyboardAvoidingView,
-  ActivityIndicator
+  ActivityIndicator,
+  Alert,
 } from 'react-native';
 import {Images} from "../Themes/index";
 import styles from '../styles/CreateAttachStyle';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {width} from 'react-native-dimension';
 import Modal from 'react-native-modal';
 import Moment from 'moment';
@@ -38,6 +40,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 import { ROUTES } from 'constants/app-constant';
 import { SPACING } from 'constants/theme-constants';
 import FileViewer from 'react-native-file-viewer';
+import NetInfo from '@react-native-community/netinfo';
 
 let Window = Dimensions.get('window');
 
@@ -494,7 +497,7 @@ class CreateAttach extends React.Component {
       },
     );
   }
-  checkUser() {
+  async checkUser() {
     // console.log('user id', this.props.data.audits.userId);
     console.log('user id', this.state.currentUserData?.userId);
     // var userid = this.props.data.audits.userId;
@@ -507,13 +510,36 @@ class CreateAttach extends React.Component {
     var ID = this.state.currentUserData?.userId;
     var type = 3;
     var path = '';
-    console.log('checkUser params--->', userid, token);
+    console.log('checkUser params--->', userid, token); 
+    
+    const deviceId = await AsyncStorage.getItem('loginDeviceId');
 
-    auth.getCheckUser(userid, token, (res, data) => {
+    var RegisterDevice = this.props?.data?.audits?.deviceid;
+    console.log(userid, token, deviceId, RegisterDevice);
+  
+    // auth.getCheckUser(userid,RegisterDevice,token, (res, data) => {
+    auth.getCheckUser(userid, deviceId, token, (res, data) => {
+
+    // auth.getCheckUser(userid, token, (res, data) => {
       console.log('User information', data);
       if (data.data.Message == 'Success') {
         console.log('Checking User status', data.data.Data.ActiveStatus);
         UserStatus = data.data.Data.ActiveStatus;
+
+        if (this.props.data.audits.isOfflineMode) {
+          this.toast.show(strings.Offline_Notice, DURATION.LENGTH_LONG);
+        } else {
+          NetInfo.fetch().then(netState => {
+            if (netState.isConnected) {
+              // this.props.navigation.navigate('AuditPage', {
+              //   datapass: iAuditDetails,
+              //   auditStatusPass: this.props.item.cStatus,
+              // });
+            } else {
+              this.toast.show(strings.No_Internet, DURATION.LENGTH_LONG);
+            }
+          });
+        }
         if (UserStatus == 2) {
           console.log('User active');
           this.onSave();
@@ -548,14 +574,15 @@ class CreateAttach extends React.Component {
             strings.user_disabled_text,
             DURATION.LENGTH_SHORT,
           );
-          this.props.navigation.navigate('LoginUIScreen');
+          this.props.navigation.navigate(ROUTES.GLOBAL_LOGIN);
         } else if (UserStatus == 0) {
+          Alert.alert("Your session has expired,Please login again.")
           this.toast.show(
             strings.user_inactive_text,
             DURATION.LENGTH_SHORT,
           );
           // this.props.navigation.navigate('LoginUIScreen');
-          this.props.navigation.navigate(ROUTES.AUDIT_PAGE)
+          this.props.navigation.navigate(ROUTES.GLOBAL_LOGIN)
         }
       }
     });
@@ -611,7 +638,7 @@ class CreateAttach extends React.Component {
                       setTimeout(() => {
                         this.props.storeServerUrl(serURL);
                         console.log('FILE DELETED!');
-                        this.props.navigation.navigate('LoginUIScreen');
+                        this.props.navigation.navigate(ROUTES.LAUNCH_SCREEN);
                         console.log('Check server url', this.props.data);
                       }, 600);
                     },
@@ -1224,7 +1251,7 @@ class CreateAttach extends React.Component {
 
     return (
       <KeyboardAvoidingView style={styles.wrapper} behavior={'height'}>
-        {Platform.OS === 'ios' ? <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> : null }
+        {Platform.OS === 'ios' ? <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
         <ImageBackground
           source={Images.DashboardBG}
           style={{
@@ -1339,7 +1366,7 @@ class CreateAttach extends React.Component {
                 style={{paddingHorizontal: 10}}
                 onPress={() =>
                   // this.props.navigation.navigate('Home')
-                  this.props.navigation.navigate(ROUTES.AUDITPRODASHBOARD)
+                  this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)
                 }>
                 <Icon name="home" size={30} color="white" />
               </TouchableOpacity>
@@ -1354,7 +1381,7 @@ class CreateAttach extends React.Component {
               <View
                 style={{
                   backgroundColor: 'transparent',
-                  width: '90%',
+                  width: '100%',
                   height: 60,
                 }}>
                 <Dropdown
@@ -1401,7 +1428,7 @@ class CreateAttach extends React.Component {
               <View
                 style={{
                   backgroundColor: 'transparent',
-                  width: '96%',
+                  width: '90%',
                   height: 60,
                 }}>
                 <Dropdown
@@ -1486,7 +1513,7 @@ class CreateAttach extends React.Component {
                     <View
                       style={{
                         backgroundColor: 'transparent',
-                        width: '90%',
+                        width: '80%',
                         height: null,
                       }}>
                       <Text
@@ -1524,13 +1551,14 @@ class CreateAttach extends React.Component {
                       style={{
                         backgroundColor: 'transparent',
                         width: '95%',
-                        height: this.state.attachment === '' ? 60 : 270,
+                        height: this.state.attachment === '' ? "50%" : 270,
                       }}>
                       <Text
                         style={{
                           fontSize: Fonts.size.regular,
                           color: '#A6A6A6',
                           fontFamily: 'OpenSans-Regular',
+                          marginLeft:20
                         }}>
                         {strings.Attach_EvidenceL}
                       </Text>
@@ -1663,7 +1691,7 @@ class CreateAttach extends React.Component {
               <View
                 style={{
                   backgroundColor: 'transparent',
-                  width: '100%',
+                  width: '90%',
                   height: null,
                 }}>
                 {this.state.comments != '' || this.state.comments == '' ? (
@@ -1674,7 +1702,7 @@ class CreateAttach extends React.Component {
                     </Text>
                     <View style={styles.check1}>
                       <Icon
-                        style={{top: 5, right: 15, bottom: 7}}
+                        style={{top: 5, right: 30, bottom: 7}}
                         name="edit"
                         size={20}
                         color="lightgrey"
@@ -1787,7 +1815,7 @@ class CreateAttach extends React.Component {
                       fontSize: Fonts.size.small,
                       fontFamily: 'OpenSans-Regular',
                     }}>
-                    {strings.commentMessage}
+                    {/* {strings.commentMessage} */}
                   </Text>
                 ) : null}
               </View>
@@ -1853,7 +1881,8 @@ class CreateAttach extends React.Component {
                 <TouchableOpacity
                   style={{
                     flexDirection: 'column',
-                    width: width(45),
+                    // width: width(45),
+                    width:'40%',
                     justifyContent: 'center',
                     alignItems: 'center',
                   }}
@@ -1877,7 +1906,8 @@ class CreateAttach extends React.Component {
                   }}>
                   <View
                     style={{
-                      width: width(10),
+                      // width: width(10),
+                      width:'10%',
                       justifyContent: 'center',
                       alignItems: 'center',
                     }}>
@@ -1888,13 +1918,14 @@ class CreateAttach extends React.Component {
                 <TouchableOpacity
                   style={{
                     flexDirection: 'column',
-                    width: width(45),
+                    // width: width(45),
+                    width:'45%',
                     justifyContent: 'center',
                     alignItems: 'center',
                   }}
                   disabled={
                     // this.props.navigation.state.params.Type === 'Add'
-                    this.props?.route?.params?.Type == 'Edit'
+                    this.props?.route?.params?.Type == 'Add'
                       ? false
                       : true
                   }
@@ -1965,6 +1996,7 @@ class CreateAttach extends React.Component {
           messageStyle={{fontFamily: 'OpenSans-Regular'}}
           visible={this.state.dialogVisible}
           onTouchOutside={() => this.setState({dialogVisible: false})}
+          supportedOrientations={['portrait', 'portrait-upside-down', 'landscape', 'landscape-left', 'landscape-right']}
           positiveButton={{
             title: strings.yes,
             onPress: this.resetForm.bind(this),

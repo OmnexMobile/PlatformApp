@@ -182,7 +182,7 @@ const TreeViewPickerComponent = ({ name, label, required, value, editable = true
                     padding: SPACING.NORMAL,
                     flex: 1,
                     paddingBottom: SPACING.SMALL,
-                    marginBottom: SPACING.XX_SMALL,
+                    marginBottom: SPACING.X_SMALL,
                     ...(!editable && { backgroundColor: theme.mode.disabledBackgroundColor }),
                 }}>
                 <ModalComponent modalVisible={modalVisible} onRequestClose={() => setModalVisible(false)}>

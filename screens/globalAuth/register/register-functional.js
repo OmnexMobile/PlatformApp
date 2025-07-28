@@ -10,7 +10,8 @@ import { formReq, showErrorMessage, successMessage } from 'helpers/utils';
 import RegisterPresentational from './register-presentational';
 import AsyncStorage from '@react-native-community/async-storage';
 import globalAuth from '../../../services/Auditpro-Auth';
-import { ROUTES } from 'constants/app-constant';
+import { Keyboard } from 'react-native';
+import { GLOBALSERVER_URL } from 'screens/globalConstant/globalURL';
 
 export const REGISTER_TYPES = {
     REGISTER: 1,
@@ -19,6 +20,7 @@ export const REGISTER_TYPES = {
 };
 
 export const registerDevice = async (requestURL, request, type) => {
+    console.log('getting requestURL, request, type', requestURL, '--', request, '--', type)
     let today = new Date();
     let dd = today.getDate();
     let mm = today.getMonth() + 1;
@@ -39,24 +41,64 @@ export const registerDevice = async (requestURL, request, type) => {
         UnRegisteredDate: today,
     });
 
-    console.log('🚀 ~ file: register-functional.js:40 ~ registerDevice ~ requestURL:', requestURL + 'RegisterDevice');
-    const res = await fetch(requestURL + 'RegisterDevice', {
-        method: 'POST',
-        headers: {
+    console.log('🚀 ~ file: register-functional.js:43 ~ registerDevice ~ requestURL:', requestURL + 'RegisterDevice', req);
+    // try {
+    //     const res = await fetch(requestURL + 'RegisterDevice', {
+    //       method: 'POST',
+    //       headers: {
+    //         'Content-Type': 'multipart/form-data',
+    //       },
+    //       body: req,
+    //     });
+      
+    //     const data = await res.json(); // Wait for the response to be parsed
+    //     console.log('✅ API response:', data); // Now logs actual response
+    //     return data;
+    //   } catch (error) {
+    //     console.log('❌ API call failed:', error.message);
+    //     showErrorMessage(error.message);
+    //   }
+
+    try {
+        const res = await fetch(requestURL + 'RegisterDevice', {
+          method: 'POST',
+          headers: {
             'Content-Type': 'multipart/form-data',
-        },
-        body: req,
-    });
-    console.log('res.json--->', res.json)
-    return res.json();
+          },
+          body: req,
+        });
+      
+        const text = await res.text(); // safer than res.json()
+      
+        try {
+          const data = JSON.parse(text); // try parsing as JSON
+          console.log('✅ API response:', data);
+          return data;
+        } catch (jsonError) {
+          console.log('📦 Response status:', res.status);
+          console.log('❌ Not JSON:', text); // probably HTML or error page
+          showErrorMessage('Server did not return valid JSON');
+        }
+      } catch (error) {
+        console.log('❌ API call failed:', error.message);
+        showErrorMessage(error.message);
+      }
 };
 
-const DEFAULT_URL = 'https://saasmobile.ewqims.net/EwQIMSAPI/api/';
+// const DEFAULT_URL = 'https://saasmobile.ewqims.net/EwQIMSAPI/api/';
+const DEFAULT_URL = GLOBALSERVER_URL;
+const BASE_URL = DEFAULT_URL.replace(/\/$/, '');
 
 const RegisterFunctional = ({}) => {
     const [loading, setLoading] = useState(false);
+    // const [state, setState] = useState({
+    //     // serverUrl: DEFAULT_URL,
+    //     globalServerURL: DEFAULT_URL,
+    //     deviceId: getUniqueId(),
+    // });
     const [state, setState] = useState({
-        // serverUrl: DEFAULT_URL,
+        serverUrl: appSettings?.serverUrl || DEFAULT_URL,
+        // serverUrl: appSettings?.serverUrl || 'https://cloudqa1.ewqims.com/problemsolverapi/',
         globalServerURL: DEFAULT_URL,
         deviceId: getUniqueId(),
     });
@@ -66,8 +108,8 @@ const RegisterFunctional = ({}) => {
     const { appSettings, handleAppSetting, globalURL, handleGlobalURL, globalDeviceDetails, handleDeviceDetails } = useAppContext();
 
     console.log('🚀 ~ file: register-functional.js:64 ~ RegisterFunctional ~ globalURL?.serverUrl:',globalURL, globalURL?.serverUrl);
-    console.log('globalDeviceDetails---->', globalDeviceDetails)
-
+    console.log('globalDeviceDetails---->', globalDeviceDetails, 'appSettings?.serverUrl', appSettings, appSettings?.serverUrl, currentURL)
+    console.log('checking reg status-->', !!appSettings?.serverUrl, !!currentURL)
     // React.useEffect(() => {
     //     if (globalURL?.serverUrl) {
     //         setState({
@@ -78,14 +120,26 @@ const RegisterFunctional = ({}) => {
     //     }
     // }, [globalURL?.serverUrl]);
 
+    console.log('editable currentURL-->', currentURL,'isregistered-->', !!currentURL)
+
     React.useEffect(() => {
         if (currentURL) {
             setState({
                 ...state,
                 globalServerURL: currentURL,
+                serverUrl: currentURL,
             });
         }
     }, [currentURL]);
+
+    // React.useEffect(() => {
+    //     if (appSettings?.serverUrl) {
+    //         setState({
+    //             ...state,
+    //             serverUrl: appSettings?.serverUrl,
+    //         });
+    //     }
+    // }, [appSettings?.serverUrl]);
 
     React.useEffect(() => {
 		async function fetchData() {
@@ -143,11 +197,13 @@ const RegisterFunctional = ({}) => {
             //     deviceStatusSettings: data?.Data || {},
             // });
             // localStorage.storeData(LOCAL_STORAGE_VARIABLES.DEVICE_STATUS_SETTINGS, data?.Data);
-            console.log('state?.globalServerURL-->', state?.globalServerURL)
-            handleGlobalURL('serverUrl', state?.globalServerURL)
-            localStorage.storeData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL, state?.globalServerURL)
-            // handleDeviceDetails(data?.Data)
-            handleDeviceDetails({...data?.Data,ICURL:'https://mobility-dev.ewqims.com/InspectionControlAPI/api/'})
+            console.log('state?.globalServerURL-->', state?.globalServerURL, '--', DEFAULT_URL)
+            handleGlobalURL('serverUrl', DEFAULT_URL)
+            localStorage.storeData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL, DEFAULT_URL)
+            handleDeviceDetails(data?.Data)
+            console.log('handleDeviceDetails-->', data, '--', data?.Data)
+            setCurrentURL(true)
+            await AsyncStorage.setItem('isdeviceregistered', 'yes');
             console.log('🚀 ~ file: DEVICE_STATUS ~ res', data, '---', data?.Data);
         } catch (err) {
             console.log('🚀 ~ file: DEVICE_STATUS ~ err', err);
@@ -155,13 +211,15 @@ const RegisterFunctional = ({}) => {
     };
 
     const handleUnRegister = async () => {
+        console.log('reach here handleUnRegister', BASE_URL);
         setLoading(true);
         const deviceId = await getUniqueId();
         registerDevice(
             state?.globalServerURL,
             {
                 RegisteredDeviceId: deviceId,
-                ServerUrl: state?.globalServerURL,
+                // ServerUrl: state?.globalServerURL,
+                ServerUrl: BASE_URL,
             },
             REGISTER_TYPES.UN_REGISTER,
         )
@@ -178,6 +236,8 @@ const RegisterFunctional = ({}) => {
                     });
 
                     globalAuth.setServerUrl('');
+                    setCurrentURL(false)
+                    console.log('currentURL--->unregister', currentURL, !!currentURL)
                     successMessage({ message: 'Success', description: 'Successfully Unregistered this Device' });
                 } else {
                     showErrorMessage(data?.Error || 'Something went wrong while Unregistering the Device');
@@ -191,23 +251,27 @@ const RegisterFunctional = ({}) => {
     };
 
     const handleRegister = async () => {
-        console.log('🚀 ~ file: register-functional.js:157 ~ handleRegister ~ state?.serverUrl:', state?.serverUrl, isValidUrl(state?.serverUrl));
+        const SERVER_URL = 'https://mobility-dev.ewqims.com/EwQIMSAPI/api';
+        console.log('reach here handleregister', BASE_URL);
+        Keyboard.dismiss();
+        console.log('🚀 ~ file: register-functional.js:219 ~ handleRegister ~ state?.serverUrl:', state?.serverUrl, isValidUrl(state?.serverUrl), '-', state?.globalServerURL,);
         if (isValidUrl(DEFAULT_URL)) {
             setLoading(true);
             const deviceId = await getUniqueId();
             registerDevice(
-                state?.globalServerURL,
+                // state?.globalServerURL,
+                DEFAULT_URL,
                 {
                     RegisteredDeviceId: deviceId,
                     // ServerUrl: state?.serverUrl,
-                    ServerUrl: state?.globalServerURL,
+                    ServerUrl: BASE_URL,
                 },
                 REGISTER_TYPES.REGISTER,
             )
                 .then(async data => {
                     setLoading(false);
                     if (data?.Success) {
-                        console.log('🚀 ~ file: register-functional.js:133 ~ handleRegister ~ data:', data);
+                        console.log('🚀 ~ file: register-functional.js:236 ~ handleRegister ~ data:', data);
                         localStorage.storeData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL, state?.globalServerURL);
                         globalAuth.setServerUrl(state?.globalServerURL);
                         await AsyncStorage.setItem('storedserverrul', state?.globalServerURL);
@@ -217,12 +281,12 @@ const RegisterFunctional = ({}) => {
                     } else {
                         // showErrorMessage(data?.Data || 'Something went wrong while Registering the Device');
                     }
-                    console.log('🚀 ~ file: register-functional.js:78 ~ .then ~ data:', data);
+                    console.log('🚀 ~ file: register-functional.js:246 ~ .then ~ data:', data);
                 })
                 .catch(data => {
                     setLoading(false);
-                    showErrorMessage(data?.Error || 'Something went wrong while Registering the Device');                  
-                    console.log('🚀 ~ file: register-functional.js:43 ~ handleRegister ~ isValidUrl(state?.serverUrl):', data);
+                    showErrorMessage(data?.Error || 'Something went wrong while Registering the Device');
+                    console.log('🚀 ~ file: register-functional.js:257 ~ handleRegister', data);
                 });
         } else {
             showErrorMessage('Invalid Url');

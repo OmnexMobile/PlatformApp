@@ -1,6 +1,10 @@
 import { createReducer, createActions } from "reduxsauce";
 import Immutable from "seamless-immutable";
 
+function ensureImmutable(state) {
+  return Immutable.isImmutable(state) ? state : Immutable(state);
+}
+
 /* ------------- Types and Action Creators ------------- */
 
 const { Types, Creators } = createActions({
@@ -58,13 +62,16 @@ export const INITIAL_STATE = Immutable({
 
 export const updateRecentActivityList = (state, { recentActivity }) => {
   console.log("reducer updateRecentAuditList", recentActivity);
+  state = ensureImmutable(state);
   return state.merge({ recentActivity: recentActivity });
 };
 export const SetRecentActivityList = (state, { recentActivity }) => {
   console.log("reducer updateRecentAuditList", recentActivity);
+  state = ensureImmutable(state);
   return state.merge({ recentActivity: recentActivity });
 };
 export const storeMeetings = (state, { meetings }) => {
+  state = ensureImmutable(state);
   return state.merge({ meetings: meetings });
 };
 
@@ -72,21 +79,25 @@ export const clearMeetings = (state) => INITIAL_STATE;
 
 export const storeActions = (state, { actions }) => {
   //console.log("storeActions", actions);
+  state = ensureImmutable(state);
   return state.merge({ actions: actions });
 };
 
 export const storeCounts = (state, { counts }) => {
   //console.log("storeActions", actions);
+  state = ensureImmutable(state);
   return state.merge({ counts: counts });
 };
 
 export const clearActions = (state) => INITIAL_STATE;
 
 export const storeProjects = (state, { projects }) => {
+  state = ensureImmutable(state);
   return state.merge({ projects: projects });
 };
 
 export const storeLoginSession = (state, { isActive }) => {
+  state = ensureImmutable(state);
   return state.merge({ isActive: isActive });
 };
 
@@ -104,6 +115,7 @@ export const storeUserSession = (
     phone,
   }
 ) => {
+  state = ensureImmutable(state);
   return state.merge({
     userName: userName,
     userId: userId,
@@ -118,29 +130,35 @@ export const storeUserSession = (
 };
 
 export const storeLanguage = (state, { language }) => {
+  state = ensureImmutable(state);
   return state.merge({ language: language });
 };
 
 export const storeServerUrl = (state, { serverUrl }) => {
+  state = ensureImmutable(state);
   return state.merge({ serverUrl: serverUrl });
 };
 
 export const storeDeviceRegStatus = (state, { isDeviceRegistered }) => {
+  state = ensureImmutable(state);
   return state.merge({ isDeviceRegistered: isDeviceRegistered });
 };
 
 export const changeConnectionState = (state, { isConnected }) => {
   // console.log('reducer changeConnectionState', isConnected)
+  state = ensureImmutable(state);
   return state.merge({ isConnected: isConnected });
 };
 
 export const changeOfflineModeState = (state, { isOfflineMode }) => {
   // console.log('reducer changeOfflineModeState', isOfflineMode)
+  state = ensureImmutable(state);
   return state.merge({ isOfflineMode: isOfflineMode });
 };
 
 export const storeUserName = (state, { loginuser }) => {
   console.log("reducer changeOfflineModeState", loginuser);
+  state = ensureImmutable(state);
   return state.merge({ loginuser: loginuser });
 };
 

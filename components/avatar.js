@@ -17,6 +17,7 @@ class Avatar extends Component {
         roundedPlaceholder: PropTypes.bool,
         small: PropTypes.bool,
         selected: PropTypes.bool,
+        theme: PropTypes.object, // Add theme as a required prop
     };
 
     static defaultProps = {
@@ -26,20 +27,13 @@ class Avatar extends Component {
     };
 
     renderImage = () => {
-        const { img, width, height, roundedImage, small, selected, noPlaceholder } = this.props;
+        const { img, width, height, roundedImage, small, selected, noPlaceholder, theme } = this.props;
         const { imageContainer, image } = styles;
 
         const viewStyle = [imageContainer];
         if (roundedImage) viewStyle.push({ borderRadius: Math.round(width + height) / 2 });
         return (
-            <View style={[viewStyle, { backgroundColor: selected ? COLORS.green : COLORS.lightGrey }]}>
-                {/* {selected ? (
-                    <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-                        <IconComponent name="check" type={ICON_TYPE.AntDesign} color={COLORS.white} size={FONT_SIZE.LARGE} />
-                    </View>
-                ) : (
-                    <ImageComponent noPlaceholder={noPlaceholder} style={image} source={img} />
-                )} */}
+            <View style={[viewStyle, { backgroundColor: selected ? theme.colors.primaryThemeColor : theme.colors.lightGrey }]}>
                 <ImageComponent noPlaceholder={noPlaceholder} style={image} source={img} />
                 {selected ? (
                     <View
@@ -49,7 +43,7 @@ class Avatar extends Component {
                             position: 'absolute',
                             width: '100%',
                             height: '100%',
-                            backgroundColor: COLORS.primaryLightTransparentThemeColor,
+                            backgroundColor: theme.colors.primaryThemeColor,
                         }}>
                         <IconComponent name="check" type={ICON_TYPE.AntDesign} color={COLORS.white} size={FONT_SIZE.LARGE} />
                     </View>
@@ -59,27 +53,25 @@ class Avatar extends Component {
     };
 
     renderPlaceholder = () => {
-        const { placeholder, width, height, roundedPlaceholder, small, selected, style } = this.props;
+        const { placeholder, width, height, roundedPlaceholder, small, selected, style, theme } = this.props;
         const { placeholderContainer, placeholderText } = styles;
 
         const viewStyle = [placeholderContainer];
         if (roundedPlaceholder) viewStyle.push({ borderRadius: Math.round(width + height) / 2 });
 
         return (
-            <View style={{}}>
-                <View style={[viewStyle, { backgroundColor: selected ? COLORS.green : COLORS.lightGrey }, style]}>
-                    {selected ? (
-                        <IconComponent name="check" type={ICON_TYPE.AntDesign} color={COLORS.white} size={FONT_SIZE.LARGE} />
-                    ) : (
-                        <TextComponent
-                            adjustsFontSizeToFit
-                            numberOfLines={1}
-                            minimumFontScale={0.01}
-                            style={[{ fontSize: small ? FONT_SIZE.XX_SMALL : FONT_SIZE.REGULAR }, placeholderText]}>
-                            {placeholder}
-                        </TextComponent>
-                    )}
-                </View>
+            <View style={[viewStyle, { backgroundColor: selected ? theme.colors.primaryThemeColor : COLORS.lightGrey }, style]}>
+                {selected ? (
+                    <IconComponent name="check" type={ICON_TYPE.AntDesign} color={COLORS.white} size={FONT_SIZE.LARGE} />
+                ) : (
+                    <TextComponent
+                        adjustsFontSizeToFit
+                        numberOfLines={1}
+                        minimumFontScale={0.01}
+                        style={[{ fontSize: small ? FONT_SIZE.X_SMALL : FONT_SIZE.REGULAR }, placeholderText]}>
+                        {placeholder}
+                    </TextComponent>
+                )}
             </View>
         );
     };

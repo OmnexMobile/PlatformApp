@@ -34,11 +34,32 @@ import AsyncStorage from '@react-native-community/async-storage';
 import { SPACING } from 'constants/theme-constants';
 import DeviceInfo from 'react-native-device-info';
 import { ROUTES } from 'constants/app-constant';
+import  ToastNew, { ErrorToast } from 'react-native-toast-message';
+import { AUDITPRO_URL } from 'screens/globalConstant/globalURL';
 // import firebase from 'react-native-firebase';
 var RNFS = require('react-native-fs');
 
 const {whitneyBook_18} = Fonts.style;
 const {blackGrey} = Fonts.colors;
+
+const toastConfig = {
+  error: props => (
+    <ErrorToast
+      {...props}
+      text1Style={{
+        fontSize: 12,
+        // color: 'white',
+        // textAlign: 'center',
+      }}
+      // style={{
+      //   backgroundColor: '#313131',
+      //   borderLeftWidth: 0,
+      //   height: 40,
+      //   borderRadius: 10,
+      // }}
+    />
+  ),
+};
 
 class AuditDashboardListing extends Component {
   constructor(props) {
@@ -87,6 +108,7 @@ class AuditDashboardListing extends Component {
     }
     this.focusListener = this.props.navigation.addListener('focus', () => {
       console.log('AuditDashboardListing focused');
+      // this.checkUser();
       this.loginCall()
       this.getAudits();
     });
@@ -95,6 +117,96 @@ class AuditDashboardListing extends Component {
 
   componentWillUnmount() {
     this.focusListener();
+  }
+
+
+  checkUser = async () => {
+    await this.getUserDetails()
+    const {userId, token} = this.props?.data?.audits;
+    console.log('user audits', this.props?.data?.audits);
+    console.log('user id', this.props?.data?.audits?.userId);
+    var currentToken = this.state.currentUserData?.accessToken || token 
+    var userid = this.state.currentUserData?.userId || userId
+    
+    var UserStatus = '';
+    var serverUrl = this.props.data.audits.serverUrl;
+    var ID = this.state.currentUserData?.userId || userId;
+    var type = 3;
+    var path = '';
+  //  var RegisterDevice = this.props.data.audits.deviceid;
+    const RegisterDevice = await AsyncStorage.getItem('loginDeviceId');
+    console.log('data auth.getCheckUser',userid, currentToken, RegisterDevice);
+
+    auth.getCheckUser(userid, RegisterDevice, currentToken, (res, data) => {
+      console.log('User information', data);
+
+      if (data.data.Message == 'Success') {
+        console.log('Checking User status', data.data.Data.ActiveStatus);
+        UserStatus = data.data.Data.ActiveStatus;
+        if (this.props.data.audits.isOfflineMode) {
+          this.refs.toast.show(strings.Offline_Notice, DURATION.LENGTH_LONG);
+        } else {
+          NetInfo.fetch().then(netState => {
+            if (netState.isConnected) {
+              // this.props.navigation.navigate('AuditPage', {
+              //   datapass: iAuditDetails,
+              //   auditStatusPass: this.props.item.cStatus,
+              // });
+            } else {
+              this.refs.toast.show(strings.No_Internet, DURATION.LENGTH_LONG);
+            }
+          });
+        }
+
+        if (UserStatus == 2) {
+          ToastNew.show({
+            type: 'error',
+            text1: 'testing',
+          });
+
+          console.log('User active');
+          // this.syncAuditsToServerMethod()
+          this.checkFilePath();
+        } else if (UserStatus == 1) {
+          console.log('deleting user details');
+
+          var cleanURL = serverUrl.replace(/^https?:\/\//, '');
+          var formatURL = cleanURL.replace(/[&\/\\#,+()$~%.'":*?<>{}]/g, '');
+          this.propsServerUrl = formatURL;
+
+          console.log('cleanURL', this.propsServerUrl);
+          // var ID = this.props.data.audits.userId
+          console.log('path', this.propsServerUrl + ID);
+
+          if (Platform.OS == 'android') {
+            path =
+              '/data/user/0/com.omnex.auditpro/cache/AuditUser' +
+              '/' +
+              this.propsServerUrl +
+              ID;
+            console.log('path storing-->', path);
+          } else {
+            var iOSpath = RNFS.DocumentDirectoryPath;
+            path = iOSpath + '/' + this.propsServerUrl + ID;
+          }
+          console.log('*** path', path);
+          // this.deleteUserFile(path)
+          this.refs.toast.show(
+            strings.user_disabled_text,
+            DURATION.LENGTH_SHORT,
+          );
+          this.props.navigation.navigate(ROUTES.GLOBAL_LOGIN);
+        } else if (UserStatus == 0) {
+          Alert.alert("Your session has expired,Please login again.")
+
+          this.refs.toast.show(
+            strings.user_inactive_text,
+            DURATION.LENGTH_SHORT,
+          );
+          this.props.navigation.navigate(ROUTES.GLOBAL_LOGIN);
+        }
+      }
+    });
   }
 
   // async getToken() {
@@ -256,7 +368,8 @@ class AuditDashboardListing extends Component {
         },
         () => {
           this.getProfileCall(this.state.accessToken);
-          this.checkUsers(this.state.userId, this.state.accessToken);
+          this.checkUser();
+          // this.checkUsers(this.state.userId, this.state.accessToken);
           this.getAudits();
           console.log('tret1 reached login data stored');
         },
@@ -458,7 +571,7 @@ class AuditDashboardListing extends Component {
               this.props?.data?.audits?.suppliermanagementstatus,
           );
           if (this.props?.data?.audits?.suppliermanagementstatus == 'true') {
-            this.props.navigation.navigate(ROUTES?.SUPPLY_MANAGE);
+            this.props.navigation.navigate(ROUTES.SUPPLY_MANAGE);
           } else {
             // this.props.navigation.navigate('AllTabAuditList');
           }
@@ -470,65 +583,66 @@ class AuditDashboardListing extends Component {
     }
   };
 
-  checkUsers(ID, token) {
-    console.log('tret3 reached checkUser', ID, token);
-    var UserStatus = '';
-    console.log('Getting last user session',this.props?.data)
-    console.log('User trying to log in',ID)
-    var currentID = this.props?.data?.audits?.userId;
-    auth.getCheckUser(ID, token, (res, data) => {
-      console.log('tret3 LoginUI:User information', data);
+//  checkUsers (ID, token) {
+//     console.log('tret3 reached checkUser', ID, token);
+//     var UserStatus = '';
+//     console.log('Getting last user session',this.props?.data)
+//     console.log('User trying to log in',ID)
+//     var currentID = this.props?.data?.audits?.userId;
+//     auth.getCheckUser(ID, token, (res, data) => {
+//       console.log('tret3 LoginUI:User information', data);
 
-      if (data?.data?.Message == 'Success') {
-        if (data?.data?.Data?.ActiveStatus)
-          UserStatus = data?.data?.Data?.ActiveStatus;
-        else {
-          //alert('Active Status not getting..:'+data.data.Data.ActiveStatus)
-        }
-        console.log(" tret3LoginUI:Currnt:",currentID, "--", "id:",ID);
-        if (UserStatus == 2) {
-          // if (currentID != ID) {
-          //   console.log('LoginUI:multipleAuditUser');
-          //   this.multipleAuditUser(ID);
-          //   // this.refillStoreValues(ID);
-          // } else {
-            console.log('tret3 LoginUI:Same user detected');
-            this.refillStoreValues(ID);
-          // }
-        } else {
-          console.log('tret3 checkuser API userStatus is not 2')
-          // this.setState(
-          //   {
-          //     progressVisible: false,
-          //   },
-          //   () => {
-          //     this.toast.show(
-          //       strings.not_permitted,
-          //       DURATION.LENGTH_SHORT,
-          //     );
-          //   },
-          // );
-        }
-      } else {
-        console.log('tret3 CheckUser API Error')
-        // this.setState(
-        //   {
-        //     progressVisible: false,
-        //   },
-        //   () => {
-        //     this.toast.show(
-        //       strings.error_connecting,
-        //       DURATION.LENGTH_SHORT,
-        //     );
-        //   },
-        // );
-      }
-    });
-  }
+//       if (data?.data?.Message == 'Success') {
+//         if (data?.data?.Data?.ActiveStatus)
+//           UserStatus = data?.data?.Data?.ActiveStatus;
+//         else {
+//           //alert('Active Status not getting..:'+data.data.Data.ActiveStatus)
+//         }
+//         console.log(" tret3LoginUI:Currnt:",currentID, "--", "id:",ID);
+//         if (UserStatus == 2) {
+//           // if (currentID != ID) {
+//           //   console.log('LoginUI:multipleAuditUser');
+//           //   this.multipleAuditUser(ID);
+//           //   // this.refillStoreValues(ID);
+//           // } else {
+//             console.log('tret3 LoginUI:Same user detected');
+//             this.refillStoreValues(ID);
+//           // }
+//         } else {
+//           console.log('tret3 checkuser API userStatus is not 2')
+//           // this.setState(
+//           //   {
+//           //     progressVisible: false,
+//           //   },
+//           //   () => {
+//           //     this.toast.show(
+//           //       strings.not_permitted,
+//           //       DURATION.LENGTH_SHORT,
+//           //     );
+//           //   },
+//           // );
+//         }
+//       } else {
+//         console.log('tret3 CheckUser API Error')
+//         // this.setState(
+//         //   {
+//         //     progressVisible: false,
+//         //   },
+//         //   () => {
+//         //     this.toast.show(
+//         //       strings.error_connecting,
+//         //       DURATION.LENGTH_SHORT,
+//         //     );
+//         //   },
+//         // );
+//       }
+//     });
+//   }
 
   refillStoreValues(UserId){
     // var propsServerUrl = 'https://omn-qa-forvia.ewqims.com/auditproapi/api/';
-    var propsServerUrl = 'https://saasmobile.ewqims.net/AuditproApi/api/';
+    var propsServerUrl = AUDITPRO_URL; // Global Server AP/SM
+    // var propsServerUrl = 'https://saasmobile.ewqims.net/AuditproApi/api/'; 
     var cleanURL = propsServerUrl?.replace(/^https?:\/\//, '');
 
     var formatURL = cleanURL?.replace(/[&\/\\#,+()$~%.'":*?<>{}]/g, '');
@@ -568,7 +682,7 @@ class AuditDashboardListing extends Component {
     // console.log('tret1 login data render', this.state.userFullName, this.state.userId, this.state.siteId, this.state.accessToken)
     return (
       <View style={styles.wrapper}>
-        {Platform.OS === 'ios' ? <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> : null }
+        {Platform.OS === 'ios' ? <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
         {/* // Trigger getAudits method when initial render */}
         {/* <NavigationEvents onDidFocus={() => this.getAudits()} /> */}
         {/* Offline notification */}
@@ -582,8 +696,8 @@ class AuditDashboardListing extends Component {
           }}>
           <View style={styles.header}>
             <TouchableOpacity
-              // onPress={() => this.props.navigation.navigate(ROUTES.HOME_FAB_VIEW)}
-              onPress={() => this.props.navigation.navigate(ROUTES.AUDITPRODASHBOARD) }
+              // onPress={() => this.props.navigation.navigate(ROUTES.AUDITPRODASHBOARD)}
+              onPress={() => this.props.navigation.goBack() }
               style={styles.backlogo}>
               <Icon name="angle-left" size={30} color="white" />
             </TouchableOpacity>
@@ -596,7 +710,7 @@ class AuditDashboardListing extends Component {
               </Text>
             </View>
             <View style={styles.headerDiv}>
-              <TouchableOpacity
+              {/* <TouchableOpacity
                 style={{paddingRight: 10}}
                 onPress={() =>
                   // this.props.navigation.navigate('Home')
@@ -604,7 +718,7 @@ class AuditDashboardListing extends Component {
                 }
                 >
                 <Icon name="home" size={30} color="white" />
-              </TouchableOpacity>
+              </TouchableOpacity> */}
             </View>
           </View>
         </ImageBackground>
@@ -640,10 +754,9 @@ class AuditDashboardListing extends Component {
   }
 
   renderFlatList() {
-    console.log('final this.state.auditList', this.state.auditList)
-    console.log('this.props---renderFlatlist', this.props)
+
     return (
-      this.state.auditList?.length ? 
+      <>
       <FlatList
         contentContainerStyle={styles.listPadding}
         data={this.state.auditList}
@@ -656,8 +769,8 @@ class AuditDashboardListing extends Component {
             item={item}
             index={index}
             length={this.state.auditList.length + 1}
-            naviData={this.props.navigation}
           />
+        
         )}
         onEndReached={({distanceFromEnd}) => {
           /** we use this condition because will receive too many events after scroll end */
@@ -673,18 +786,60 @@ class AuditDashboardListing extends Component {
           this.onEndReachedCalledDuringMomentum = false;
         }}
         ListFooterComponent={this.listFooter.bind(this)}
-        // ListFooterComponent={this.listFooter.bind(this)}
-        // ListEmptyComponent={ <ActivityIndicator /> }
-      /> 
-      : 
-      // this.state.subLoader ? <ActivityIndicator /> : 
-      <View style={{marginTop: 60, justifyContent:'center', alignItems:'center'}}>
-        <Text style={{ fontSize: Fonts.size.h5, color: 'grey', fontFamily:'OpenSans-Regular'}}>
-          {strings.No_records_found}
-        </Text>
-      </View>
-    )
+      />
+       <ToastNew config={toastConfig} />
+       </>
+    );
+   
+
   }
+
+  // renderFlatList() {
+  //   console.log('final this.state.auditList', this.state.auditList)
+  //   console.log('this.props---renderFlatlist', this.props)
+  //   return (
+  //     this.state.auditList?.length ? 
+  //     <FlatList
+  //       contentContainerStyle={styles.listPadding}
+  //       data={this.state.auditList}
+  //       showsVerticalScrollIndicator={false}
+  //       showsHorizontalScrollIndicator={false}
+  //       keyExtractor={(item, index) => index.toString()}
+  //       renderItem={({item, index}) => (
+  //         <AuditCard
+  //           dateFormat={this.props.data.audits.userDateFormat}
+  //           item={item}
+  //           index={index}
+  //           length={this.state.auditList.length + 1}
+  //           naviData={this.props.navigation}
+  //         />
+  //       )}
+  //       onEndReached={({distanceFromEnd}) => {
+  //         /** we use this condition because will receive too many events after scroll end */
+  //         if (!this.onEndReachedCalledDuringMomentum) {
+  //           /** settng true user keep on dragging will elimintae unnecessary call */
+  //           this.onEndReachedCalledDuringMomentum = true;
+  //           this.setState({subLoader: true});
+  //           this.getAudits();
+  //         }
+  //       }}
+  //       onEndReachedThreshold={Platform.OS === 'ios' ? 0 : 0.5}
+  //       onMomentumScrollBegin={() => {
+  //         this.onEndReachedCalledDuringMomentum = false;
+  //       }}
+  //       ListFooterComponent={this.listFooter.bind(this)}
+  //       // ListFooterComponent={this.listFooter.bind(this)}
+  //       // ListEmptyComponent={ <ActivityIndicator /> }
+  //     /> 
+  //     : 
+  //     // this.state.subLoader ? <ActivityIndicator /> : 
+  //     <View style={{marginTop: 60, justifyContent:'center', alignItems:'center'}}>
+  //       <Text style={{ fontSize: Fonts.size.h5, color: 'grey', fontFamily:'OpenSans-Regular'}}>
+  //         {strings.No_records_found}
+  //       </Text>
+  //     </View>
+  //   )
+  // }
 
   listFooter() {
     if (this.state.subLoader) {

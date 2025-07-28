@@ -17,7 +17,7 @@ const UpdatePercentageModel = ({
     onCancel,
     updatingPercentage,
     errorText,
-    isValid
+    isValid,
 }) => {
     console.log('🚀 ~ file: update-progress-modal.js:11 ~ UpdatePercentageModel ~ value:', value);
     const { theme } = useTheme();
@@ -31,7 +31,7 @@ const UpdatePercentageModel = ({
                 <View
                     style={{
                         backgroundColor: theme.mode.backgroundColor,
-                        width: '80%',
+                        width: '90%',
                         borderRadius: SPACING.NORMAL,
                         shadowColor: '#000',
                         shadowOffset: {
@@ -41,11 +41,10 @@ const UpdatePercentageModel = ({
                         shadowOpacity: 0.25,
                         shadowRadius: 3.84,
                         elevation: 5,
-                        minHeight: RFPercentage(35),
                         padding: SPACING.NORMAL,
                     }}>
                     <View style={{ flexDirection: 'row', marginBottom: SPACING.NORMAL, alignItems: 'center', justifyContent: 'space-between' }}>
-                        <TextComponent type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.X_LARGE}>
+                        <TextComponent type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.NORMAL}>
                             {title}
                         </TextComponent>
                         <TouchableOpacity
@@ -66,8 +65,8 @@ const UpdatePercentageModel = ({
                         </TouchableOpacity>
                     </View>
 
-                    <View style={{ justifyContent: 'space-between', flex: 1 }}>
-                        <View style={{ justifyContent: 'center', flex: 1 }}>
+                    <View style={{ justifyContent: 'space-between' }}>
+                        <View style={{ justifyContent: 'center' }}>
                             {/* <TextComponent type={FONT_TYPE.BOLD}>Enter the Cumulative progress percentage</TextComponent> */}
                             <InputWithLabel
                                 keyboardType="numeric"
@@ -75,10 +74,10 @@ const UpdatePercentageModel = ({
                                 noPadding
                                 autoFocus
                                 label="Enter the Cumulative progress percentage"
-                                placeholder="enter"
+                                placeholder="Enter percentage"
                                 onChange={(label, value) => onChangeText(value)}
                                 returnKeyType="done"
-                                onSubmitEditing={()=> isValid && onOk()}
+                                onSubmitEditing={() => isValid && onOk()}
                             />
                         </View>
                         {errorText ? (
@@ -90,8 +89,21 @@ const UpdatePercentageModel = ({
                                 {errorText}
                             </TextComponent>
                         ) : null}
+                        {parseInt(value) > 100 && (
+                            <TextComponent
+                                style={{ paddingBottom: SPACING.SMALL }}
+                                color={COLORS.red}
+                                fontSize={FONT_SIZE.SMALL}
+                                type={FONT_TYPE.BOLD}>
+                                Value should be less than 100
+                            </TextComponent>
+                        )}
                         <View style={{ width: '100%', flexDirection: 'row', paddingVertical: SPACING.SMALL }}>
-                            <GradientButton loading={updatingPercentage} disabled={!isValid} style={{ width: '100%' }} onPress={() => onOk()}>
+                            <GradientButton
+                                loading={updatingPercentage}
+                                disabled={!isValid || parseInt(value) > 100}
+                                style={{ width: '100%' }}
+                                onPress={() => onOk()}>
                                 Update
                             </GradientButton>
                         </View>

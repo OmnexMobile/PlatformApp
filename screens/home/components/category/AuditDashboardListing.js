@@ -8,7 +8,7 @@ import {
   Platform,
 } from 'react-native';
 //styles
-import styles from '../../../styles/AuditDashboardListingStyle';
+import styles from './AuditDashboardListingStyle';
 //components
 import OfflineNotice from '../../../auditPro/components/OfflineNotice';
 import AuditCard from '../../../auditPro/components/AuditCard';

@@ -27,10 +27,9 @@ const FilePicker = ({ name, label, required, value, onChange }) => {
                 ...response[0],
                 id: uuid.v4(),
             };
-            console.log('🚀 ~ file: file-picker.js:28 ~ handleDocumentSelection ~ file', files);
             setFiles([...files, file]);
         } catch (err) {
-            console.warn(err);
+            console.log(err);
         }
     }, []);
 

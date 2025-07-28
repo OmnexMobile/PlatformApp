@@ -10,6 +10,7 @@ import {
   Alert, 
   Dimensions,
   StyleSheet,
+  Linking,
 } from 'react-native';
 import {Images} from '../Themes';
 import styles from '../styles/UserPreferenceStyle';
@@ -132,7 +133,7 @@ class UserPreference extends React.Component {
   updateFormat() {
     var selectedFormat = this.state.selectedFormat;
     this.props.storeDateFormat(selectedFormat);
-    this.toast.show(strings.SaveToast, DURATION.LENGTH_SHORT);
+    this.refs.toast.show(strings.SaveToast, DURATION.LENGTH_SHORT);
     setTimeout(() => {
       console.log('props updated', this.props);
     }, 1000);
@@ -156,7 +157,7 @@ class UserPreference extends React.Component {
                 'Offline mode disabled.',
                 this.props.data.audits.isOfflineMode,
               );
-              this.toast.show(
+              this.refs.toast.show(
                 strings.SaveOfflineDisabledToast,
                 DURATION.LENGTH_SHORT,
               );
@@ -165,7 +166,7 @@ class UserPreference extends React.Component {
                 'Offline mode enabled.',
                 this.props.data.audits.isOfflineMode,
               );
-              this.toast.show(
+              this.refs.toast.show(
                 strings.SaveOfflineEnabledToast,
                 DURATION.LENGTH_SHORT,
               );
@@ -274,6 +275,7 @@ class UserPreference extends React.Component {
               { cancelable: false }
             );
           } else {
+            Alert.alert("Update not required","This is the latest version")
             // App is up-to-date; proceed with the app
           }
         } catch (error) {
@@ -340,10 +342,9 @@ class UserPreference extends React.Component {
       'csi',
     );
     console.log('SSiteid', this.state.siteID);
-    
     return (
       <View style={styles.wrapper}>
-        {Platform.OS === 'ios' ? <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> : null }
+        {Platform.OS === 'ios' ? <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
         <OfflineNotice />
         <ImageBackground
           source={Images.DashboardBG}
@@ -353,9 +354,10 @@ class UserPreference extends React.Component {
             height: 60,
           }}>
           <View style={styles.header}>
-            <TouchableOpacity onPress={() => 
-              this.props.navigation.navigate(ROUTES.AUDITPRODASHBOARD)
-              }>
+          {/* <TouchableOpacity onPress={() => 
+              this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)
+              }> */}
+            <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
               <View style={styles.backlogo}>
                 <Icon name="angle-left" size={30} color="white" />
               </View>
@@ -368,7 +370,7 @@ class UserPreference extends React.Component {
                 style={{paddingRight: 10}}
                 onPress={() =>
                   // this.props.navigation.navigate('Home')
-                  this.props.navigation.navigate(ROUTES.AUDITPRODASHBOARD)
+                  this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)
                 }>
                 <Icon name="home" size={30} color="white" />
               </TouchableOpacity>
@@ -437,48 +439,6 @@ class UserPreference extends React.Component {
               />
             </View>
 
-            {/* <View
-              style={{
-                margin: 10,
-                justifyContent: "center",
-              }}
-            > */}
-            {/* <Dropdown
-                //value={this.state.Siteid}
-                value={this.state.SiteName}
-                baseColor={"#A6A6A6"}
-                selectedItemColor="#000"
-                textColor="#000"
-                itemColor="#000"
-                data={data}
-                label={strings.siteID}
-                fontSize={Fonts.size.regular}
-                labelFontSize={Fonts.size.small}
-                itemPadding={5}
-                dropdownOffset={{ top: 10, left: 0 }}
-                itemTextStyle={{ fontFamily: "OpenSans-Regular" }}
-                onChangeText={(value) => {
-                  console.log("Text", value);
-                  for (let i = 0; i < data.length; i++)
-                    if (data[i].value == value) {
-                      this.setState({
-                        SupplierManagementAccess:
-                          data[i].SupplierManagementAccess,
-                        //siteID: data[i].value,
-                        siteID: data[i].SiteID,
-                      });
-                      this.props.storeSupplierManagement(
-                        data[i].SupplierManagementAccess
-                      );
-                    }
-                  console.log("data", data);
-                  this.props.storeSiteId(this.state.siteID);
-                  //this.props.storeSiteId(259);
-                }}
-              /> */}
-            {/* </View> */}
-            {/* <View style={{marginLeft:5}}><Text style={{fontSize:18}}>{"Choose Site here"}</Text></View> */}
-
             <SectionedMultiSelect
               items={section_list}
               IconRenderer={this.icon}
@@ -490,9 +450,9 @@ class UserPreference extends React.Component {
               hideConfirm
               modalWithTouchable
               styles={{
-                modalWrapper: {
-                   paddingVertical: SPACING.NORMAL
-                },
+                // modalWrapper: {
+                //   paddingVertical: SPACING.NORMAL
+                // },
                 chipText: {
                   maxWidth: Dimensions.get('screen').width - 90,
                 },
@@ -519,26 +479,6 @@ class UserPreference extends React.Component {
               }}
               selectedItems={[this.state.siteID]}
             />
-
-            {/* <View
-              style={{
-                flex: 1,
-                padding: 25,
-                width: "98%",
-                alignSelf: "center",
-                justifyContent: "center",
-              }}
-            >
-              <FlatList
-                data={this.state.data}
-                renderItem={({ item }) => (
-                  <Text style={{ padding: 10 }}>{item.name} </Text>
-                )}
-                keyExtractor={(item) => item.SiteName}
-                ItemSeparatorComponent={this.renderSeparator}
-                ListHeaderComponent={this.renderHeader}
-              />
-            </View> */}
             <View
               style={{
                 margin: 10,
@@ -638,6 +578,7 @@ class UserPreference extends React.Component {
           </ImageBackground>
         </TouchableOpacity>
         <Toast
+          // ref="toast"
           ref={(toast) => this.toast = toast}
           style={{backgroundColor: 'black', margin: 20}}
           position="top"

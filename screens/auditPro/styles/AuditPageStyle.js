@@ -1,6 +1,6 @@
 import {StyleSheet, Dimensions} from 'react-native';
 import {width, height} from 'react-native-dimension';
-import Fonts from '../Themes/Fonts'
+import Fonts from '../Themes/Fonts';
 
 let Window = Dimensions.get('window');
 
@@ -40,7 +40,7 @@ export default StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    width: width(70),
+    width:'70%',
     height: 65,
   },
   headingText: {
@@ -53,13 +53,13 @@ export default StyleSheet.create({
   backlogo: {
     flexDirection: 'row',
     backgroundColor: 'transparent',
-    width: width(10),
+    width: '25%',
     height: 65,
     justifyContent: 'center',
     alignItems: 'center',
   },
   headerDiv: {
-    width: width(15),
+    width: '15%',
     height: 65,
     flexDirection: 'row',
     justifyContent: 'center',
@@ -86,7 +86,7 @@ export default StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     width: '100%',
-    backgroundColor: 'transparent',
+    backgroundColor: 'red',
     height: 65,
    // zIndex: 3000,
   },
@@ -96,7 +96,8 @@ export default StyleSheet.create({
     alignItems: 'center',
     width: '100%',
     height: 70,
-    position: 'absolute',
+   // backgroundColor:'red',
+   // position: 'absolute',
   },
   footerLoader: {
     flexDirection: 'row',
@@ -108,13 +109,32 @@ export default StyleSheet.create({
     color: 'white',
     fontSize: Fonts.size.medium,
     fontFamily: 'OpenSans-Regular',
+    textAlign:'center'
+  },
+  footerDivContent1: {
+    flex:1,
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    alignItems:'center' 
   },
   footerDivContent: {
     flexDirection: 'row',
-    justifyContent: 'space-evenly',
-    textAlign: 'center',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    width: '100%',
+   // padding: 0.02, // Add padding relative to screen size
+   // backgroundColor: '#333', // Example background color
   },
-
+  iconSpacing: {
+    marginBottom: 5,
+  },
+  iconContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginHorizontal:10,
+    maxWidth: '25%', // Adjust maximum width for each container
+  },
   // Body styles
   detailsCard: {
     flexDirection: 'column',
@@ -260,7 +280,7 @@ export default StyleSheet.create({
   },
   card: {
     backgroundColor: 'white',
-    width: width(100),
+    width: '100%',
     flexDirection: 'column',
     borderBottomWidth: 0.5,
     borderBottomColor: 'lightgrey',
@@ -272,7 +292,7 @@ export default StyleSheet.create({
   },
   lastCard: {
     backgroundColor: 'white',
-    width: width(100),
+    width: '100%',
     flexDirection: 'column',
     borderTopWidth: 0.5,
     borderTopColor: 'lightgrey',
@@ -283,7 +303,7 @@ export default StyleSheet.create({
   },
   card1: {
     backgroundColor: 'white',
-    width: width(100),
+    width:'100%',
     flexDirection: 'column',
     borderBottomWidth: 0.5,
     borderBottomColor: 'lightgrey',

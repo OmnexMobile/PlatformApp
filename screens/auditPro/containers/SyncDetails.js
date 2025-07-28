@@ -296,7 +296,7 @@ class SyncStatus extends Component {
     render() {
         return (
             <View style={AuditPageStyle.container}>
-                {Platform.OS === 'ios' ? <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> : null }
+                {Platform.OS === 'ios' ? <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
                 <OfflineNotice />
                 <View style={AuditPageStyle.headerCont}>
                     <ImageBackground
@@ -503,7 +503,7 @@ class SyncStatus extends Component {
                     <Text style={AuditPageStyle.headingText}>{strings.syncstatus}</Text>
                 </View>
                 <View style={AuditPageStyle.headerDiv}>
-                    <TouchableOpacity style={{ paddingRight: 10 }} onPress={() => this.props.navigation.navigate(ROUTES.AUDITPRODASHBOARD)}>
+                    <TouchableOpacity style={{ paddingRight: 10 }} onPress={() => this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)}>
                         <Icon name="home" size={30} color="white" />
                     </TouchableOpacity>
                 </View>

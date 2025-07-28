@@ -30,7 +30,7 @@ export default StyleSheet.create({
     height: 65
   },
   headingText:{
-    fontSize: Fonts.size.h6,
+    fontSize: Fonts.size.medium,
     fontFamily : Fonts.type.base,
     color: '#fff',
     textAlign: 'center',
@@ -165,7 +165,7 @@ export default StyleSheet.create({
   boxContent: {
     width: '100%',
     color:'#485B9E', 
-    fontSize: Fonts.size.regular,
+    fontSize: Fonts.size.small,
     fontFamily:'OpenSans-Regular'
   }
 })

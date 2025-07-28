@@ -101,7 +101,7 @@ class AuditForm extends Component {
     var PreviousPage = getCurrentPage[getCurrentPage.length - 2].routeName;
     console.log("Previous---->", PreviousPage);
 
-    if (PreviousPage == "LoginUIScreen") {
+    if (PreviousPage == ROUTES.GLOBAL_LOGIN) {
       /*
       Alert.alert("Hold on!", "You must to select any one option", [
         {
@@ -240,7 +240,7 @@ class AuditForm extends Component {
                   style={styles.LoginBtn01}
                 >
                   <Text style={styles.buttonText}>
-                    Supplier Assesment Audits
+                  Supplier Assessment Audits
                   </Text>
                 </LinearGradient>
               </TouchableOpacity>

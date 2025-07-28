@@ -1,7 +1,6 @@
 import { StyleSheet, Dimensions} from 'react-native'
 import Fonts from '../Themes/Fonts'
 import { width, height } from 'react-native-dimension'
-import { RFPercentage } from 'helpers/utils'
 
 let Window = Dimensions.get('window')
 
@@ -9,19 +8,15 @@ export default StyleSheet.create({
   // Header styles
   header: {
     width:'100%',
-    zIndex: 3000,
     flexDirection: 'row',
-    //backgroundColor: 'white',
-    padding: 5,
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: 60,
+    justifyContent:'space-between',
+    //alignContent:'center',
+    height: 65,
     elevation: 4,
     shadowOffset: { width: 2, height: 10 },
     shadowColor: "lightgrey",
     shadowOpacity: 0.5,
     shadowRadius: 4,
-    flex:1
   },
   header1:{
     flexDirection:'row',
@@ -30,28 +25,27 @@ export default StyleSheet.create({
   },
   heading:{
     flexDirection: 'column',
-    justifyContent: 'center',
+    justifyContent: 'center', 
     alignItems:'center', 
-    width: width(70),
-    height: 65,
-    // backgroundColor: 'red'
+    width: '60%',
+    height: 65
   },
   headingText:{
-    fontSize: Fonts.size.h6,
-    color: '#fff',
+    fontSize: Fonts.size.mediump,
+        color: '#fff',
     textAlign: 'center',
     fontFamily:'OpenSans-Bold'
   },
   backlogo:{
     flexDirection: 'row',
     backgroundColor:'transparent',
-    width: width(10),
+    width: '35%',
     height: 65,
     justifyContent: 'center', 
     alignItems:'center'
   },
   headerDiv:{
-    width:width(15),
+    width:'15%',
     height: 65,
     flexDirection:'row',
     justifyContent: 'center',
@@ -77,16 +71,16 @@ export default StyleSheet.create({
     flexDirection:'row',
     justifyContent: 'center',
     alignItems: 'center',
-    width: '100%',
+    width:'100%',
     backgroundColor:'transparent',
     height: 65,
-    zIndex: 3000
+   // zIndex: 3000
   },  
   footerDiv:{
     flexDirection:'row',
     justifyContent: 'space-between',
     alignContent:'center',
-    width: '100%',
+    width:'100%',
     height:65,
     position:'absolute'
   },
@@ -393,7 +387,7 @@ export default StyleSheet.create({
   ncModal: {
     justifyContent: 'center',
     alignItems: 'center', 
-    width: width(90),
+  //  width: width(90),
     height:500,
     backgroundColor: 'white',
     borderRadius: 10,    
@@ -475,11 +469,11 @@ export default StyleSheet.create({
     borderTopWidth: 0.5
   },
   norecordefound:{
-    width: width(100),
+  //  width: width(100),
     textAlign: 'center',
-    marginTop: 45,
+   marginTop: '5%',
     fontSize: Fonts.size.h5,
-    paddingTop: 40,
+   // paddingTop: 40,
     color: 'grey',
     fontFamily:'OpenSans-Regular'
   },

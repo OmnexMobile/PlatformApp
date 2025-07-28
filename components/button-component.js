@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, ActivityIndicator, Platform } from 'react-native';
+import { View, ActivityIndicator, Platform, Keyboard } from 'react-native';
 import Ripple from 'react-native-material-ripple';
 import Feather from 'react-native-vector-icons/Feather';
 import { COLORS, SPACING } from 'constants/theme-constants';
@@ -25,13 +25,20 @@ const ButtonComponent = props => {
         textStyle = {},
     } = props;
     const { theme } = useTheme();
+
+    const handlePress = () => {
+        if (!loading) {
+            Keyboard.dismiss();
+            onPress?.();
+        }
+    };
     return (
         <Ripple
             {...{ disabled }}
             rippleContainerBorderRadius={borderRadius}
             rippleColor={loading ? COLORS.transparent : COLORS.white}
             rippleSize={180}
-            onPress={!loading && onPress}
+            onPress={handlePress}
             style={[
                 {
                     backgroundColor:
@@ -41,7 +48,7 @@ const ButtonComponent = props => {
                     borderRadius: borderRadius,
                     paddingHorizontal: RFPercentage(2),
                     borderColor: loading || disabled ? COLORS.accordionBorderColor : theme.colors.primaryThemeColor,
-                    borderWidth: 2,
+                    // borderWidth: 2,
                     // alignSelf: 'center',
                     // height: (style && style.height) || RFPercentage(Platform.OS === 'android' ? 6 : 6),
                     height: 50,

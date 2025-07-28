@@ -1,9 +1,12 @@
 import React from 'react';
 import { ScrollView, View } from 'react-native';
-import { ConfirmModal, RenderInputs, Content, GradientButton, Header, Loader } from 'components';
-import { SPACING } from 'constants/theme-constants';
-import { BUTTON_ICONS, INPUTS_CONSTANTS, STATUS_CODES } from 'constants/app-constant';
-import EightDModal from 'screens/problemSolver/containers/concerns/create-concern/components/8DModal';
+import { useNavigation } from '@react-navigation/native';
+import { ConfirmModal, RenderInputs, Content, GradientButton, Header, Loader, FAB } from 'components';
+import { FONT_SIZE, SPACING } from 'constants/theme-constants';
+import { BUTTON_ICONS, INPUTS_CONSTANTS, ROUTES, STATUS_CODES, USER_TYPE } from 'constants/app-constant';
+// import EightDModal from 'screens/concerns/create-concern/components/8DModal';
+import EightDDynamicForm from 'components/eightd-dynamic-form';
+import { RFPercentage } from 'helpers/utils';
 
 const ConcernInitialEvaluationPresentational = ({
     handleInputChange,
@@ -26,8 +29,16 @@ const ConcernInitialEvaluationPresentational = ({
     handleUpdateStatus,
     statusValue,
     setStatusValue,
+    handleNestedInputChange,
+    sites,
+    isDynamicInputsValid,
+    handleProblemImages,
+    handleAttachments,
+    handleOKPicker,
+    handleNotOKPicker,
 }) => {
     const loading = dynamicInputsLoading || concernDetails?.Loading || isDeleting;
+    const navigation = useNavigation();
     return (
         <Content noPadding>
             <ConfirmModal
@@ -38,13 +49,23 @@ const ConcernInitialEvaluationPresentational = ({
                     onRequestClose: () => setConfirmModal(false),
                 }}
             />
-            <EightDModal {...{ modalVisible: formModalVisible, onRequestClose: () => setFormModalVisible(false), url: concernDetails?.FormUrl }} />
+            {/* <EightDModal {...{ modalVisible: formModalVisible, onRequestClose: () => setFormModalVisible(false), url: concernDetails?.FormUrl }} /> */}
+            <EightDDynamicForm
+                {...{
+                    modalVisible: formModalVisible,
+                    onRequestClose: () => setFormModalVisible(false),
+                    url: concernDetails?.FormUrl,
+                    formName: concernDetails?.ApproachName,
+                    ConcernID,
+                }}
+            />
             <Header
                 {...{
                     ...(concernDetails?.StatusID !== STATUS_CODES.CloseConcern &&
                         concernDetails?.StatusID !== STATUS_CODES.RejectConcern &&
                         concernDetails?.StatusID !== STATUS_CODES.InprogressConcern &&
                         concernDetails?.StatusID !== STATUS_CODES.CancelledConcern &&
+                        sites?.selectedSite?.UserType !== USER_TYPE.SUPPLIER &&
                         !loading && {
                             rightIconClick: () => setConfirmModal(true),
                             rightIcon: 'trash',
@@ -59,7 +80,19 @@ const ConcernInitialEvaluationPresentational = ({
                 <>
                     <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingVertical: 0, flexGrow: 1 }}>
                         <RenderInputs {...{ inputs: defaultInputs, handleInputChange }} />
-                        <RenderInputs {...{ inputs: dynamicInputs, handleInputChange: handleDynamicInputChange }} />
+                        <RenderInputs
+                            {...{
+                                inputs: dynamicInputs,
+                                handleInputChange: handleDynamicInputChange,
+                                concernDetails,
+                                handleNestedInputChange,
+                                ConcernID,
+                                handleProblemImages,
+                                handleAttachments,
+                                handleOKPicker,
+                                handleNotOKPicker,
+                            }}
+                        />
                         {concernDetails?.StatusID === STATUS_CODES.CancelledConcern ||
                         concernDetails?.StatusID === STATUS_CODES.RejectConcern ||
                         concernDetails?.StatusID === STATUS_CODES.CloseConcern ||
@@ -76,6 +109,7 @@ const ConcernInitialEvaluationPresentational = ({
                                                 value: data?.StatusID,
                                             })),
                                             type: INPUTS_CONSTANTS.DROPDOWN,
+                                            editable: sites?.selectedSite?.UserType !== USER_TYPE.SUPPLIER,
                                         },
                                     ],
                                     handleInputChange: (name, value) => {
@@ -100,24 +134,50 @@ const ConcernInitialEvaluationPresentational = ({
                             />
                         )}
                     </ScrollView>
-                    {concernDetails?.StatusID === STATUS_CODES.DraftConcern || concernDetails?.StatusID === STATUS_CODES.ReworkConcern ? (
+                    {(concernDetails?.StatusID === STATUS_CODES.DraftConcern ||
+                        (concernDetails?.StatusID === STATUS_CODES.ReworkConcern && concernDetails?.IsUserSuperChampion)) &&
+                    sites?.selectedSite?.UserType !== USER_TYPE.SUPPLIER ? (
                         <View
                             style={{
                                 padding: SPACING.NORMAL,
                                 paddingBottom:
                                     concernDetails?.FormUrl && concernDetails?.StatusID === STATUS_CODES.InprogressConcern ? 0 : SPACING.NORMAL,
                             }}>
-                            <GradientButton
-                                // disabled={!(selectedTeam && concernDetails?.ProjectStartDate && concernDetails?.PriorityID)}
-                                loading={isSubmitting}
-                                onPress={concernDetails?.StatusID === STATUS_CODES.ReworkConcern ? handleUpdateStatus : handleSubmitConcern}>
-                                Submit
-                            </GradientButton>
+                            {isDynamicInputsValid ? (
+                                <GradientButton
+                                    loading={isSubmitting}
+                                    onPress={concernDetails?.StatusID === STATUS_CODES.ReworkConcern ? handleUpdateStatus : handleSubmitConcern}>
+                                    Submit
+                                </GradientButton>
+                            ) : (
+                                <GradientButton
+                                    loading={isSubmitting}
+                                    fontStyle={{
+                                        fontSize: FONT_SIZE.SMALL,
+                                    }}
+                                    danger
+                                    onPress={() =>
+                                        navigation.navigate(ROUTES.EDIT_CONCERN, {
+                                            ConcernID,
+                                            FormTypeID: 3
+                                        })
+                                    }>
+                                    Fill mandatory fields to Submit
+                                </GradientButton>
+                            )}
                         </View>
                     ) : null}
-                    {concernDetails?.FormUrl && concernDetails?.StatusID === STATUS_CODES.InprogressConcern ? (
+                    {concernDetails?.FormUrl ? (
                         <View style={{ padding: SPACING.NORMAL }}>
-                            <GradientButton icon={BUTTON_ICONS.eye} onPress={() => setFormModalVisible(true)}>
+                            <GradientButton
+                                icon={BUTTON_ICONS.eye}
+                                //  onPress={() => setFormModalVisible(true)}
+                                onPress={() =>
+                                    navigation.navigate(ROUTES.EIGHTD_DYNAMIC_PAGE, {
+                                        ConcernID,
+                                        formName: concernDetails?.ApproachName,
+                                    })
+                                }>
                                 {concernDetails?.ApproachName || ''} Form
                             </GradientButton>
                         </View>
@@ -131,6 +191,18 @@ const ConcernInitialEvaluationPresentational = ({
                     </GradientButton>
                 </View>
             ) : null} */}
+            {sites?.selectedSite?.UserType === USER_TYPE.SUPPLIER || !isDynamicInputsValid ? null : (
+                <FAB
+                    onPress={() =>
+                        navigation.navigate(ROUTES.EDIT_CONCERN, {
+                            ConcernID,
+                            FormTypeID: 3,
+                        })
+                    }
+                    iconName="edit"
+                    bottom={RFPercentage(15)}
+                />
+            )}
         </Content>
     );
 };

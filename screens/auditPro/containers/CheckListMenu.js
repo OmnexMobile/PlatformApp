@@ -23,6 +23,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import { stat } from 'react-native-fs';
 import { ROUTES } from 'constants/app-constant';
 import { SPACING } from 'constants/theme-constants';
+import localStorage from 'global/localStorage';
 
 let Window = Dimensions.get('window');
 
@@ -168,22 +169,44 @@ class CheckListMenu extends Component {
     );
   }
 
-  onCheckListPress(ChecklistTemplateId, CheckPointname) {
-    this.props.navigation.navigate(ROUTES.CHECKPOINT_DEMO, {
-      AuditID: this.state.AuditID,
-      ChecklistTemplateId: ChecklistTemplateId,
-      Check: this.state.CheckpointP,
-      FormId : this.state.FormId,
-      CheckPointname: CheckPointname,
-      breadCrumbText: this.state.breadCrumbText,
-      AuditOrder: this.state.AuditOrder,
-      AuditProgramId: this.state.AuditProgramId,
-      TemplateID: this.state.displayData[0].TemplateID,
-      FormIdNavigate:
-        this.props?.route?.params?.ChecklistHeading?.FormId,
-      notifyRed: this.props?.route?.params?.notifyRed,
-    });
+  async onCheckListPress(ChecklistTemplateId, CheckPointname) {
+    const CurrentApp = await localStorage.getData('CurrentApp');
+    console.log('current app--->', CurrentApp)
+    if(CurrentApp == 'Supplier Management') {
+      console.log('Reach if case--->')
+      this.props.navigation.navigate(ROUTES.CHECKPOINT_DEMO_SM, {
+        AuditID: this.state.AuditID,
+        ChecklistTemplateId: ChecklistTemplateId,
+        Check: this.state.CheckpointP,
+        FormId : this.state.FormId,
+        CheckPointname: CheckPointname,
+        breadCrumbText: this.state.breadCrumbText,
+        AuditOrder: this.state.AuditOrder,
+        AuditProgramId: this.state.AuditProgramId,
+        TemplateID: this.state.displayData[0].TemplateID,
+        FormIdNavigate:
+          this.props?.route?.params?.ChecklistHeading?.FormId,
+        notifyRed: this.props?.route?.params?.notifyRed,
+      });
+    } else {
+      console.log('Reach else case--->')
+      this.props.navigation.navigate(ROUTES.CHECKPOINT_DEMO, {
+        AuditID: this.state.AuditID,
+        ChecklistTemplateId: ChecklistTemplateId,
+        Check: this.state.CheckpointP,
+        FormId : this.state.FormId,
+        CheckPointname: CheckPointname,
+        breadCrumbText: this.state.breadCrumbText,
+        AuditOrder: this.state.AuditOrder,
+        AuditProgramId: this.state.AuditProgramId,
+        TemplateID: this.state.displayData[0].TemplateID,
+        FormIdNavigate:
+          this.props?.route?.params?.ChecklistHeading?.FormId,
+        notifyRed: this.props?.route?.params?.notifyRed,
+      });
+    }
   }
+
   countStatistics = checkPointsDetails => {
     console.log('---', checkPointsDetails);
     var data = checkPointsDetails;
@@ -344,7 +367,7 @@ return(
 
     return (
       <View style={styles.wrapper}>
-        {Platform.OS === 'ios' ? <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> : null }
+        {Platform.OS === 'ios' ? <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
         <OfflineNotice />
         <ImageBackground
           source={Images.DashboardBG}
@@ -380,7 +403,7 @@ return(
                 style={{paddingHorizontal: 10}}
                 onPress={() =>
                   // this.props.navigation.navigate('Home')
-                  this.props.navigation.navigate(ROUTES.AUDITPRODASHBOARD)
+                  this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)
                 }>
                 <Icon name="home" size={30} color="white" />
               </TouchableOpacity>
@@ -442,7 +465,7 @@ return(
                                     style={{
                                       color: 'white',
                                       fontFamily: 'OpenSans-Bold',
-                                      fontSize: Fonts.size.regular,
+                                      fontSize: Fonts.size.mediump,
                                     }}>
                                     {items.ChecklistName}
                                   </Text>
@@ -488,7 +511,7 @@ return(
                                     style={{
                                       color: 'white',
                                       fontFamily: 'OpenSans-Bold',
-                                      fontSize: Fonts.size.regular,
+                                      fontSize: Fonts.size.mediump,
                                     }}>
                                     {items.ChecklistName}
                                   </Text>

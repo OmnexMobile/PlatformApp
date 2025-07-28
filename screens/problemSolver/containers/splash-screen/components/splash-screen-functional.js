@@ -31,7 +31,7 @@ const SplashScreenFunctional = ({}) => {
     useEffect(() => {
         setTimeout(() => {
             getLocalStorageData();
-        }, 1000);
+        }, 1500);
         // handleLanguage();
     }, []);
 

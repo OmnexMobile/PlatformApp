@@ -8,7 +8,10 @@ import {
   ImageBackground,
   Linking,
   Platform,
+  ActivityIndicator,
+  Modal,
 } from 'react-native';
+// import { Dialog, ProgressDialog } from 'react-native-simple-dialogs';
 import {Images} from '../Themes';
 import styles from '../styles/AuditAttachStyle';
 import {width} from 'react-native-dimension';
@@ -16,7 +19,7 @@ import Moment from 'moment';
 import {connect} from 'react-redux';
 import Toast, {DURATION} from 'react-native-easy-toast';
 import {Pulse} from 'react-native-loader';
-import auth from '../../../services/Auditpro-Auth'
+import auth from '../../../services/Auditpro-Auth';
 import OfflineNotice from '../../auditPro/components/OfflineNotice';
 import ScrollableTabView, {
   DefaultTabBar,
@@ -353,7 +356,7 @@ class AuditAttach extends React.Component {
     console.log('Hist', History);
     return (
       <View style={styles.wrapper}>
-        {Platform.OS === 'ios' ? <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> : null }
+        {Platform.OS === 'ios' ? <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
         <OfflineNotice />
         <ImageBackground
           source={Images.DashboardBG}
@@ -395,7 +398,7 @@ class AuditAttach extends React.Component {
                 style={{paddingHorizontal: 10}}
                 onPress={() =>
                   // this.props.navigation.navigate('Home')
-                  this.props.navigation.navigate(ROUTES.AUDITPRODASHBOARD)
+                  this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)
                 }>
                 <Icon name="home" size={30} color="white" />
               </TouchableOpacity>

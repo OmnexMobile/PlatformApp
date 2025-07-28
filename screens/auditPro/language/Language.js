@@ -104,6 +104,9 @@ export let strings = new LocalizedStrings({
     Confirm_delete: "Confirm Delete Audit Records",
     ConfirmDelete: "Would you like to delete?",
     Confirm_delete_message: "Would you like to save your data?",
+    Supplier_initial_assessment : "Supplier Initial Assessment",
+    Supplier_routine_audit : "Supplier Routine Audit",
+    SUPPLIER_MANGEMENT: "SUPPLIER MANAGEMENT",
     /** Audit result **/
     Templates: "Templates",
     Form_Name: "Form Name",
@@ -184,7 +187,7 @@ export let strings = new LocalizedStrings({
     Conformance_success : "Conformance comments synced to server",
     Conformance_failed : "Failed to sync conformance comments",
     No_Internet: "No Internet Connection found to fetch the Audit list!",
-    Offline_Notice: "Please Switch OFF the Offline mode to proceed!",
+    Offline_Notice: "Please Switch OFF the Offline mode to proceed!!!",
     No_refresh: "No Internet Connection found to refresh the Audit list!",
     No_Download_Forms:
       "No Internet Connection found to download the Audit forms!",
@@ -247,7 +250,7 @@ export let strings = new LocalizedStrings({
     NCfill: "Please fill Non Conformity!",
     OFIfill: "Please fill Opportunity Approach!",
     TypeMissing: "Please select type!",
-    AttachMissing: "Please upload an attachment!",
+    AttachMissing: "Please Fill the Mandatory Fields",
     UrlMissing: "Please provide a valid Url!",
     /* Register */
     Server_Url: "Server Url",
@@ -347,7 +350,7 @@ export let strings = new LocalizedStrings({
     Need: "Need to be filled",
     Mandatory: "Mandatory",
     Optional: "Optional",
-    alert: "You cant upload files more than 50 Mb!",
+    alert: "You cant upload files more than 5 Mb!",
     mandate_message: "Please fill all mandatory fields.",
     /** Audit status */
     AuditStatus: "Audit status",
@@ -380,16 +383,16 @@ export let strings = new LocalizedStrings({
     ResetText: "You want to reset all the field?",
     DeleteAtt: "Are you sure do you want to delete this attachment?",
     // Audit attachments & Create attachments
-    HeadingTitle: "Create attachments",
-    DropType: "Type",
+    HeadingTitle: "Create Attachments",
+    DropType: " Attachment Type",
     UncontrolledLink: "Uncontrolled link",
     AttachComments: "Comments",
-    AuditAttach: "Audit attachments",
+    AuditAttach: "Audit Attachments",
     History: "Attachment history",
     AddIcon: "Add",
     Attach: "Attach",
     // ---
-    EditAttach: "Edit attachments",
+    EditAttach: "Edit Attachments",
     UploadedOn: "Uploaded on",
     AttachType: "Type",
     AttachName: "Attachments",
@@ -455,7 +458,7 @@ export let strings = new LocalizedStrings({
     va_cmd46: "choose clause",
     va_cmd47: "close",
     va_cmd48: "class",
-    va_rep01: "Opening clause section! You can select multiple clauses.",
+    va_rep01: "Opening clause section",
     //
     va_cmd51: "process",
     va_cmd52: "processes",
@@ -463,7 +466,7 @@ export let strings = new LocalizedStrings({
     va_cmd54: "show me the process",
     va_cmd55: "show me  process",
     va_cmd56: "choose process",
-    va_rep02: "Opening Process section! You can select one or more process",
+    va_rep02: "Opening Process section",
     //
     va_cmd61: "non",
     va_cmd63: "NC",
@@ -482,11 +485,27 @@ export let strings = new LocalizedStrings({
     va_cmd84: "select requested by",
     va_rep05: "Please select the person requested",
     //
-    va_cmd91: "category",
+    va_cmd91: "nc category",
+    va_cmd92: "go to nc category",
+    va_cmd93: "choose nc category",
+    va_cmd94: "nc",
+    va_cmd95: "The category contains the following.Please choose one!",
+    //
+    va_cmd96: 'document reference',
+    va_cmd97: 'document',
+    va_cmd98: 'reference',
+    va_cmd99: 'go to document reference',
     va_cmd92: "categories",
     va_cmd93: "choose category",
-    va_cmd94: "category",
     va_rep06: "The category contains the following.Please choose one!",
+    //
+    va_cmd901: 'failure category',
+    va_cmd902: 'failure',
+    va_cmd903: 'choose failure category',
+    va_cmd904: 'go to failure category',
+    va_cmd905: 'go to failure',
+
+
     //
     va_cmd101: "department",
     // va_cmd102:'department',
@@ -513,7 +532,7 @@ export let strings = new LocalizedStrings({
     va_cmd306: "description",
     va_cmd307: "ofi description",
     //
-    va_cmd401: "objective",
+    va_cmd401: "objective evidence",
     va_cmd402: "evidence",
     va_cmd403: "choose objective evidence",
     va_cmd404: "select objective evidence",
@@ -533,10 +552,16 @@ export let strings = new LocalizedStrings({
     va_cmd604: "select Wi-fi",
     //
     va_cmd701: "attach",
-    // va_cmd702:'evidence',
     va_cmd703: "choose attach evidence",
     va_cmd704: "select attach evidence",
     va_cmd705: "evidence",
+    va_cmd706: "attachment",
+    va_cmd707: "attach evidence",
+    va_cmd708: "go to attach evidence",
+    va_cmd709: "attachments",
+    va_cmd710: "go to attachments",
+    va_cmd711: "go to attach",
+
     va_rep09:
       "I am opening your system file.You can select what you wish to attach!",
     //
@@ -651,8 +676,7 @@ export let strings = new LocalizedStrings({
     ncnumber: "NC/OFI Number",
     nonconfirmity: "NonConformity",
     templaterefernceform: "Template/Refernce Form",
-    enterthepasswordtocontinuesyncprocess:
-      "Enter the password..To continue Sync Process",
+    enterthepasswordtocontinuesyncprocess: "Enter the password..To continue Sync Process",
     continue: "Continue",
     invalidpassword: "Invalid Password",
     enter_password: "Enter Password",
@@ -662,8 +686,17 @@ export let strings = new LocalizedStrings({
     previous: "Previous",
     server_reach_error: "Could not reach server at the moment!",
     pass:"Pass",
-  fail:"Fail"
-
+    fail:"Fail",
+    apqp_ppapManager: 'APQP/PPAP Manager',
+    ppapProjects: 'PPAP Projects',
+    auditPro: 'Audit Pro',
+    problemSolver: 'Problem Solver',
+    documentPro: 'Document Pro',
+    supplierMgnt: 'Supplier Management',
+    APQPManager: "APQP/PPAP",
+    projects: "Projects",
+    risks: "Risks",
+    meetings: "Meetings",
   },
 
   zh: {
@@ -1136,7 +1169,7 @@ export let strings = new LocalizedStrings({
     va_cmd92: "开放类别",
     va_cmd93: "选择类别",
     va_cmd94: "类别",
-    va_rep06: "该类别包含以下内容。请选择一个！",
+    va_cmd95: "该类别包含以下内容。请选择一个！",
     //
     va_cmd101: "开放部门",
     va_cmd102: "部门",

@@ -17,7 +17,7 @@ class Help extends Component {
     render() {
         return (
             <View style={styles.container}>
-                {Platform.OS === 'ios' ? <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> : null }
+                {Platform.OS === 'ios' ? <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
                 <OfflineNotice />
                 <View style={styles.headerCont}>
                     <ImageBackground
@@ -50,7 +50,7 @@ class Help extends Component {
                     <Text style={styles.headingText}>{strings.help}</Text>
                 </View>
                 <View style={styles.headerDiv}>
-                    <TouchableOpacity style={{ paddingRight: 10 }} onPress={() => this.props.navigation.navigate(ROUTES.AUDITPRODASHBOARD)}>
+                    <TouchableOpacity style={{ paddingRight: 10 }} onPress={() => this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)}>
                         <Icon name="home" size={30} color="white" />
                     </TouchableOpacity>
                 </View>

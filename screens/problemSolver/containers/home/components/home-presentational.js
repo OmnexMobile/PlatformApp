@@ -45,10 +45,6 @@ const HomePresentational = ({
     }, []);
 
     const handleFabView = () => {
-        // localStorage.storeData('appLogged', false);
-        // console.log('globalDeviceDetails--->2', globalDeviceDetails?.deviceDetails?.ServerUrl)
-        // localStorage.storeData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL, globalDeviceDetails?.deviceDetails?.ServerUrl)
-        // handleGlobalURL('serverUrl', globalDeviceDetails?.deviceDetails?.ServerUrl)
         navigation.navigate(ROUTES.HOME_FAB_VIEW)
     }
 
@@ -145,7 +141,7 @@ const HomePresentational = ({
             </ScrollView>
             <ChooseSite {...{ modalizeRef, sites, handleSite, filteredSites, searchKey, setSearchKey }} />
             <ExitModal {...{ exitModalVisible, setExitModalVisible }} />
-            {sites?.selectedSite?.UserType !== '3' ? <FAB onPress={() => navigation.navigate(ROUTES.CREATE_CONCERN)} /> : null}
+            {sites?.selectedSite?.UserType !== '3' ? <FAB onPress={() => navigation.navigate(ROUTES.CONCERN_SCREEN)} /> : null}
         </Content>
     );
 };

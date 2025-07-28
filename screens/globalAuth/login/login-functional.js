@@ -23,7 +23,7 @@ const LoginFunctional = ({}) => {
 	});
 	const [currentToken, setCurrentToken] = useState('');
 	// const [currentURL, setCurrentURL] = useState('');
-	const { profile, handleLogin, sites, handleSiteList, appSettings, globalURL, globalLoginData, handleGlobalLogin, handleGlobalURL, globalDeviceDetails } = useAppContext();
+	const { profile, handleLogin, sites, handleSiteList, appSettings, globalURL, globalLoginData, handleGlobalLogin, handleGlobalURL, globalDeviceDetails, handleSite } = useAppContext();
 	const navigation = useNavigation();
 	// const isRegistered = !!appSettings?.serverUrl;
 	const isRegistered = !!globalURL?.serverUrl;
@@ -61,6 +61,7 @@ const LoginFunctional = ({}) => {
 
 	const handleSubmit = async () => {
 		const loginflag = 1;
+		console.log('isRegistered-----', isRegistered)
 		if (isRegistered) {
 			console.log('loginDetails', loginDetails, 'loginURL--->', globalURL?.serverUrl + `${API_URL.GLOBAL_LOGIN}`);
 			handleInputChange('loggingIn', true);
@@ -76,6 +77,7 @@ const LoginFunctional = ({}) => {
 			handleLoginCall(encryptedPassword, loginflag)
 		} else {
 			navigation.navigate(ROUTES.GLOBAL_REGISTER);
+			// navigation.navigate(ROUTES.HOME_FAB_VIEW);
 		}
 	};
 
@@ -83,7 +85,9 @@ const LoginFunctional = ({}) => {
 		console.log('loginDetails?.username---->', loginDetails?.username, currentData?.Data[0], typeof currentData?.Data[0].FullName)
 		var currentUser = ''
 		if(currentData?.Data[0].FullName == "Chandran Bragi  "){
-			currentUser = 'Chandran Bragi'
+			currentUser = 'Chandran Bragi';
+		} else {
+			currentUser = currentData?.Data[0].FullName;
 		}
 		console.log('username--->', currentUser)
 		const userDetails = {
@@ -141,19 +145,20 @@ const LoginFunctional = ({}) => {
 	}
 
 	const setProfileCall = data => {
-		console.log('🚀 ~ file: login-functional.js:69 ~ setProfileCall ~ data', data);
+		console.log('🚀 ~ file: login-functional.js:148,  ~ setProfileCall ~ data', data, '--', data?.Data);
 		localStorage.storeData(LOCAL_STORAGE_VARIABLES.Token, data?.Token);
 		localStorage.storeData(LOCAL_STORAGE_VARIABLES.UserId, data?.Data[0]?.UserId);
 		localStorage.storeData(LOCAL_STORAGE_VARIABLES.UserFullName, data?.Data[0]?.FullName);
-		localStorage.storeData('CurrentApp', 'problemSolver');
+		// localStorage.storeData('CurrentApp', 'problemSolver');
 		handleLogin({
 			Token: data?.Token,
 			UserId: data?.Data?.[0]?.UserId?.toString(),
 			SiteId: data?.Data?.[0]?.SiteId?.toString(),
 			UserFullName: data?.Data?.[0]?.FullName,
-			CurrentApp: 'problemSolver',
+			// CurrentApp: 'problemSolver',
 		});
 		handleSiteList(data?.Data);
+        handleSite(data?.Data)
 		setCurrentToken(data?.Token);
 	};
 

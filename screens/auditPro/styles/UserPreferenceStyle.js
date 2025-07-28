@@ -11,13 +11,13 @@ export default StyleSheet.create({
     justifyContent: 'flex-start'
   },
   header: {
-    width:width(100),
+    width:'100%',
     zIndex: 3000,
     flexDirection: 'row',
     //backgroundColor: 'white',
     padding: 5,
-    alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent:'space-around',
+    alignContent:'center',
     height: 65,
     elevation: 4,
     shadowOffset: { width: 2, height: 10 },
@@ -36,9 +36,9 @@ export default StyleSheet.create({
   },
   heading:{
     flexDirection: 'column',
-    justifyContent: 'center', 
-    alignItems:'center', 
-    width: width(70),
+    justifyContent: "center", 
+    alignContent:'center',
+    width:'70%',
     height: 65
   },  
   headingText:{
@@ -48,7 +48,7 @@ export default StyleSheet.create({
     fontFamily:'OpenSans-Bold'
   },
   headerDiv:{
-    width:width(15),
+    width:'15%',
     height: 65,
     flexDirection:'row',
     justifyContent: 'center',
@@ -59,7 +59,7 @@ export default StyleSheet.create({
     flexDirection:'row',
     justifyContent: 'center',
     alignItems: 'center',
-    width:width(100),
+    width:'100%',
     backgroundColor:'transparent',
     height: 65,
     zIndex: 3000
@@ -68,7 +68,7 @@ export default StyleSheet.create({
     flexDirection:'row',
     justifyContent: 'center',
     alignItems: 'center',
-    width:width(100),
+    width:'100%',
     height:65,
     position:'absolute'
   },
@@ -267,6 +267,4 @@ subText:{
   color:'#00BAC8',
   fontFamily:'OpenSans-Regular'
 }
-
-
 })

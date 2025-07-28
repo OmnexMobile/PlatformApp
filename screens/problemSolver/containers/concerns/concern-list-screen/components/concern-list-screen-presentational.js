@@ -4,11 +4,8 @@ import { Content, Header, ListCard, NoRecordFound, PlaceHolders, ListSearch } fr
 import { PLACEHOLDERS } from 'constants/app-constant';
 import { SPACING } from 'constants/theme-constants';
 
-const ConcernListScreenPresentational = ({ list, title, handleRefresh, refreshing, searchKey, setSearchKey }) => {
-  console.log('reach here ConcernListScreenPresentational--->', list, title)
-  return (
-    <>
-      <Content noPadding>
+const ConcernListScreenPresentational = ({ list, title, handleRefresh, refreshing, searchKey, setSearchKey }) => (
+    <Content noPadding>
         {/* <Header title={`${title} Concerns`} /> */}
         {/* <Header title={`${title} Concerns (${list?.data?.length})`} /> */}
         <Header title={`${title} ${list?.loading ? '' : `- (${list?.data?.length})`}`} />
@@ -20,7 +17,7 @@ const ConcernListScreenPresentational = ({ list, title, handleRefresh, refreshin
                 refreshing={refreshing}
                 onRefresh={handleRefresh}
                 ListEmptyComponent={<NoRecordFound />}
-                style={{ paddingVertical: SPACING.NORMAL, flex: 1 }}
+                style={{ paddingVertical: SPACING.NORMAL, flex: 1, paddingTop: 0 }}
                 contentContainerStyle={{ flexGrow: 1, paddingBottom: SPACING.NORMAL }}
                 data={list?.data}
                 renderItem={({ item }) => <ListCard item={item} />}
@@ -28,13 +25,7 @@ const ConcernListScreenPresentational = ({ list, title, handleRefresh, refreshin
             />
         )}
         {/* <FAB onPress={() => navigation.navigate(ROUTES.CONCERN_SCREEN)} /> */}
-      </Content>
-    </>
-  )
-}
+    </Content>
+);
 
 export default ConcernListScreenPresentational;
-
-
-
-

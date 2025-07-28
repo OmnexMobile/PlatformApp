@@ -20,7 +20,7 @@ const PlaceHolders = ({ type, noPadding = false }) => {
                             flex: 1,
                             paddingTop: SPACING.NORMAL,
                         }}>
-                        {Array(10)
+                        {Array(3)
                             .fill('')
                             .map((data, index) => (
                                 <View key={index} style={{ padding: SPACING.NORMAL, paddingTop: 0 }}>
@@ -35,13 +35,13 @@ const PlaceHolders = ({ type, noPadding = false }) => {
                                             },
                                             elevation,
                                         ]}>
-                                        <SkeletonPlaceholder>
+                                        <SkeletonPlaceholder highlightColor={theme.mode.backgroundColor} backgroundColor={theme.mode.borderColor}>
                                             <View style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
                                                 {/* <View
                                                         style={{
                                                             width: RFPercentage(3),
                                                             height: RFPercentage(3),
-                                                            borderRadius: SPACING.XX_SMALL,
+                                                            borderRadius: SPACING.X_SMALL,
                                                         }}
                                                     /> */}
                                                 <View style={{ width: 200, height: 8, borderRadius: 4 }} />
@@ -93,7 +93,7 @@ const PlaceHolders = ({ type, noPadding = false }) => {
                             .fill('')
                             .map((data, index) => (
                                 <View key={index}>
-                                    <SkeletonPlaceholder>
+                                    <SkeletonPlaceholder highlightColor={theme.mode.backgroundColor} backgroundColor={theme.mode.borderColor}>
                                         <View style={{ flexDirection: 'row', alignItems: 'center', padding: SPACING.NORMAL }}>
                                             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                                 <View

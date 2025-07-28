@@ -33,17 +33,14 @@ import {
     VoiceofNextAudit,
     GetConformnaceDetails,
   } from '../constants/AuditPro-Constants';
-  
+  import { AUDITPRO_URL, GLOBALSERVER_URL, PROBLEMSOLVING_URL } from 'screens/globalConstant/globalURL';
   // export var sURL = API_URL;
   // export var dpURL = DP_API_URL;
   // export var sURL = 'https://omn-qa-forvia.ewqims.com/auditproapi/api/';
-  export var sURL= 'https://saasmobile.ewqims.net/AuditproApi/api/';
+  export var sURL= AUDITPRO_URL; //Global Server AP/SM
   export var dpURL = DP_API_URL;
-  // export const globalURL = 'https://saasmobile.ewqims.net/EwQIMSAPI/api/';
-  // export const globalURL = 'https://saasmobile.ewqims.net/AuditproApi/api/'
-  export const sURLPS = 'https://saasmobile.ewqims.net/ProblemSolverAPI/';
-  // export const globalURL = 'https://saasmobile.ewqims.net/problemsolverapi/';
-   export const globalURL = 'https://saasmobile.ewqims.net/EwQIMSAPI/api/'
+  export const sURLPS = PROBLEMSOLVING_URL; //Problem Solving URL
+   export const globalURL = GLOBALSERVER_URL;
 
    
 // export const BaseURL = () => localStorage.getStringItem(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL);
@@ -1267,9 +1264,13 @@ import {
           });
         });
     },
-    getCheckUserapi(UserId, token, cb) {
+
+    getCheckUserapi(UserId, RegisterDevice, token, cb) {
       var formData = new FormData();
       formData.append('UserId', UserId);
+      formData.append('RegisterdDevice',RegisterDevice)
+      console.log(UserId,RegisterDevice,"op/api.js")
+      console.log(formData,"formdatareg")
   
       fetch(sURL + 'CredentialCheck', {
         method: 'POST',

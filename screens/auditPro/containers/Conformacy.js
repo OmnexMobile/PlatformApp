@@ -14,6 +14,7 @@ import {
   KeyboardAvoidingView,
   ActivityIndicator,
   LogBox,
+  Alert
 } from 'react-native';
 import Voice from '@react-native-community/voice';
 import {Images} from '../Themes';
@@ -40,6 +41,9 @@ import { ROUTES } from 'constants/app-constant';
 import { SPACING } from 'constants/theme-constants';
 import { F } from 'ramda';
 import {NavigationEvents, withNavigation, withNavigationFocus} from 'react-navigation';
+import OfflineNotice from '../components/OfflineNotice';
+import NetInfo from '@react-native-community/netinfo';
+
 
 let Window = Dimensions.get('window');
 const window_width = Dimensions.get('window').width;
@@ -143,7 +147,8 @@ class Conformacy extends React.Component {
       'this.props.audits',
       this.props.audits,
     );
-    // console.log('Create attach mounted', this.props.navigation.state.params);
+    console.log('Create attach mounted', tthis?.props?.route?.params);
+    this.checkUser();
     this.getAuditDetails();
     console.log('trigger focus22')
     // this.refreshConformance();
@@ -300,7 +305,7 @@ class Conformacy extends React.Component {
   }
 
   onsyncToServer() {
-    
+    this.checkUser();
     this.setState({
       loadingSync: true,
     });
@@ -335,28 +340,32 @@ class Conformacy extends React.Component {
     }
 
     console.log(newauditConformance, 'auditdetailconformance');
-    auth.syncNCOFIToServer(newauditConformance, Token, (res, data) => {
-      console.log('auditdetailconformance', data);
-      if (data.data.Message == 'Success') {
-        console.log(data, 'responsedata');
-        this.setState({
-          loadingSync: false,
-        });
-
-        this.toast.show(
-          strings.Conformance_success,
-          DURATION.LENGTH_LONG,
-        );
-      } else {
-        this.setState({
-          loadingSync: false,
-        });
-        this.toast.show(
-          strings.Conformance_failed,
-          DURATION.LENGTH_LONG,
-        );
-      }
-    });
+    if(this.props.data.audits.isOfflineMode === false){
+      auth.syncNCOFIToServer(newauditConformance, Token, (res, data) => {
+        console.log('auditdetailconformance', data);
+        if (data.data.Message == 'Success') {
+          console.log(data, 'responsedata');
+          this.setState({
+            loadingSync: false,
+          });
+          this.refs.toast.show(
+            strings.Conformance_success,
+            DURATION.LENGTH_LONG,
+          );
+        } else {
+          this.setState({
+            loadingSync: false,
+          });
+          this.refs.toast.show(
+            strings.Conformance_failed,
+            DURATION.LENGTH_LONG,
+          );
+        }
+      });
+    }
+    else{
+      Alert.alert("you are offline")
+    }
   }
 
   onSave_old() {
@@ -861,8 +870,10 @@ class Conformacy extends React.Component {
   };
 
   updateVoiceList () {
-    const voiceText = this.props?.route?.params?.voiceText
-    const voiceProcessID = this.props?.route?.params?.voiceProcessID
+    // const voiceText = this.props?.route?.params?.voiceText
+    // const voiceProcessID = this.props?.route?.params?.voiceProcessID
+    const voiceText = this.props?.route?.params?.conformacy?.txtConformance
+    const voiceProcessID = this.props?.route?.params?.conformacy?.processId
     console.log('voiceText,voiceProcessID-->', voiceText,voiceProcessID)
     console.log('this.state.auditDetailList===>', this.state.auditDetailList)
     const filterList = this.state.auditDetailList.map(audit => {
@@ -880,12 +891,150 @@ class Conformacy extends React.Component {
     this.setState({filterVoiceList: filterList});
   };
 
+  async checkUser() {
+    console.log('user id', this.props.data.audits.userId);
+    console.log(this.props.data.audits.isOfflineMode,"offliene")
+    var userid = this.props.data.audits.userId;
+    var token = this.props.data.audits.token;
+    var UserStatus = '';
+    var serverUrl = this.props.data.audits.serverUrl;
+    var ID = this.props.data.audits.userId;
+    var type = 3;
+    var path = '';
+    const deviceId = await AsyncStorage.getItem('loginDeviceId');
+
+    var RegisterDevice = this.props.data.audits.deviceid;
+    console.log(userid, token, deviceId, RegisterDevice);
+  
+    // auth.getCheckUser(userid,RegisterDevice,token, (res, data) => {
+    auth.getCheckUser(userid, deviceId, token, (res, data) => {
+      console.log('User information', data);
+      if (data.data.Message == 'Success') {
+        console.log('Checking User status', data.data.Data.ActiveStatus);
+        UserStatus = data.data.Data.ActiveStatus;
+        console.log(this.props.data.audits.isOfflineMode,"off///")
+        if(this.props.data.audits.isOfflineMode === false){
+          if (UserStatus == 2) {
+            console.log('User active');
+            // this.syncAuditsToServerMethod()
+            this.checkFilePath();
+          } else if (UserStatus == 1) {
+            console.log('deleting user details');
+            var cleanURL = serverUrl.replace(/^https?:\/\//, '');
+            var formatURL = cleanURL.replace(/[&\/\\#,+()$~%.'":*?<>{}]/g, '');
+            this.propsServerUrl = formatURL;
+            console.log('cleanURL', this.propsServerUrl);
+            // var ID = this.props.data.audits.userId
+            console.log('path', this.propsServerUrl + ID);
+            if (Platform.OS == 'android') {
+              path =
+                '/data/user/0/com.omnex.auditpro/cache/AuditUser' +
+                '/' +
+                this.propsServerUrl +
+                ID;
+              console.log('path storing-->', path);
+            } else {
+              var iOSpath = RNFS.DocumentDirectoryPath;
+              path = iOSpath + '/' + this.propsServerUrl + ID;
+            }
+            console.log('*** path', path);
+            // this.deleteUserFile(path)
+            this.refs.toast.show(
+              strings.user_disabled_text,
+              DURATION.LENGTH_SHORT,
+            );
+            this.props.navigation.navigate(ROUTES.LAUNCH_SCREEN);
+          } else if (UserStatus == 0) {
+            Alert.alert("Your session has expired,Please login again.")
+            this.refs.toast.show(
+              strings.user_inactive_text,
+              DURATION.LENGTH_SHORT,
+            );
+            this.props.navigation.navigate(ROUTES.LAUNCH_SCREEN);
+          }
+        }
+        else{
+          Alert.alert("You are in offline mode")
+          console.log("inside else")
+        }
+      }
+    });
+  }
+
+  // checkUser = async ()=> {
+  //   console.log(this.props.data.audits.isOfflineMode, "offliene")
+  //   var userid = this.state.currentUserData?.userId;
+  //   var token = this.state.currentUserData?.accessToken;
+  //   var UserStatus = '';
+  //   var serverUrl = this.props.data.audits.serverUrl;
+  //   var ID = this.state.currentUserData?.userId;
+  //   var type = 3;
+  //   var path = '';
+  //   // var RegisterDevice = this.props.data.audits.deviceid;
+  //   const deviceId = await AsyncStorage.getItem('loginDeviceId');
+  //   console.log(userid, token);
+
+  //   auth.getCheckUser(userid, deviceId, token, (res, data) => {
+  //     console.log('User information', data);
+  //     if (data.data.Message == 'Success') {
+  //       console.log('Checking User status', data.data.Data.ActiveStatus);
+  //       UserStatus = data.data.Data.ActiveStatus;
+  //       console.log(this.props.data.audits.isOfflineMode,"off///")
+  //       if(this.props.data.audits.isOfflineMode === false){
+  //       if (UserStatus == 2) {
+  //         console.log('User active');
+  //         // this.syncAuditsToServerMethod()
+  //         this.checkFilePath();
+  //       } else if (UserStatus == 1) {
+  //         console.log('deleting user details');
+
+  //         var cleanURL = serverUrl.replace(/^https?:\/\//, '');
+  //         var formatURL = cleanURL.replace(/[&\/\\#,+()$~%.'":*?<>{}]/g, '');
+  //         this.propsServerUrl = formatURL;
+
+  //         console.log('cleanURL', this.propsServerUrl);
+  //         console.log('path', this.propsServerUrl + ID);
+
+  //         if (Platform.OS == 'android') {
+  //           path =
+  //             '/data/user/0/com.omnex.auditpro/cache/AuditUser' +
+  //             '/' +
+  //             this.propsServerUrl +
+  //             ID;
+  //           console.log('path storing-->', path);
+  //         } else {
+  //           var iOSpath = RNFS.DocumentDirectoryPath;
+  //           path = iOSpath + '/' + this.propsServerUrl + ID;
+  //         }
+  //         console.log('*** path', path);
+  //         this.refs.toast.show(
+  //           strings.user_disabled_text,
+  //           DURATION.LENGTH_SHORT,
+  //         );
+  //         this.props.navigation.navigate(ROUTES.LAUNCH_SCREEN);
+  //       } else if (UserStatus == 0) {
+  //         Alert.alert("Your session has expired,Please login again.")
+  //         this.toast.show(
+  //           strings.user_inactive_text,
+  //           DURATION.LENGTH_SHORT,
+  //         );
+  //         this.props.navigation.navigate(ROUTES.LAUNCH_SCREEN);
+  //       }
+  //     }
+  //     else{
+  //       Alert.alert("You are in offline mode")
+  //       console.log("inside else")
+  //     }
+  //   }
+  //   });
+  // }
+
   render() {
     var conformacyVoiceVal = ''
-    if(this.props?.route?.params?.voiceText == undefined){
+    if(this.props?.route?.params?.conformancyVoice == undefined){
       console.log('checkingValue123',conformacyVoiceVal);
     }else{
-       conformacyVoiceVal = this.props?.route?.params?.voiceText
+      conformacyVoiceVal = this.props?.route?.params?.voiceText
       console.log('checkingValue000000000',conformacyVoiceVal);
     }
 
@@ -902,9 +1051,10 @@ class Conformacy extends React.Component {
     return (
       <>
         <KeyboardAvoidingView style={styles.wrapper}>
-          {Platform.OS === 'ios' ? <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> : null }
-          {/* <NavigationEvents onDidFocus={ () => this.getAuditDetails() } /> */}
+          {Platform.OS === 'ios' ? <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
+          <NavigationEvents onDidFocus={ () => this.getAuditDetails() } />
           {/* {isFocused ? console.log('trigger isFocused return', isFocused) : console.log('trigger not isFocused', isFocused) }  */}
+          <OfflineNotice/>
           <ImageBackground
             source={Images.DashboardBG}
             style={{
@@ -962,7 +1112,7 @@ class Conformacy extends React.Component {
                   style={{paddingHorizontal: 5}}
                   onPress={() =>
                     // this.props.navigation.navigate('Home')
-                    this.props.navigation.navigate(ROUTES.AUDITPRODASHBOARD)
+                    this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)
                   }>
                   <Icon name="home" size={25} color="white" />
                 </TouchableOpacity>

@@ -63,7 +63,7 @@ class AuditNotifications extends Component {
     console.log('notificationsList', this.state.notificationsList);
     return (
       <View style={styles.wrapper}>
-        {Platform.OS === 'ios' ? <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> : null }
+        {Platform.OS === 'ios' ? <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
         {/* Offline notification */}
         <OfflineNotice />
         <ImageBackground
@@ -88,7 +88,7 @@ class AuditNotifications extends Component {
           <TouchableOpacity
                 style={{paddingHorizontal: 1}}
                 onPress={() =>
-                  this.props.navigation.navigate(ROUTES.AUDITPRODASHBOARD)
+                  this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)
                 }>
                 <Icon name="home" size={30} color="white" />
               </TouchableOpacity>

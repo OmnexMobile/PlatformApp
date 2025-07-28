@@ -18,6 +18,7 @@ export default StyleSheet.create({
     // width: Window.width,
     // height: Window.height,
   },
+  
   headingText: {
     paddingTop: 20,
     fontSize: Fonts.size.h4,
@@ -34,16 +35,22 @@ export default StyleSheet.create({
   },
   backlogo: {
     position: 'absolute',
-    left: 15,
-    top: height(3),
+    left: 20,
+    top: height(5),
     backgroundColor: 'transparent',
     width: width(15),
     height: height(6),
   },
   backgroundImage: {
-    resizeMode: 'stretch',
-    width: Window.width,
-    height: Window.height,
+    resizeMode:'contain',
+    width: '100%',
+    height:'100%',
+  },
+  headers: {
+    width: '100%',
+    height: 50,
+    alignItems: 'center',
+    flexDirection: 'row',
   },
   FieldContainer: {
     position: 'absolute',
@@ -87,7 +94,7 @@ export default StyleSheet.create({
     right: 0,
   },
   loginOmnexlogoDiv: {
-    position: 'absolute',
+    // position: 'absolute',
     width: Window.width,
     height: height(22),
     alignItems: 'center',
@@ -174,12 +181,21 @@ export default StyleSheet.create({
   },
   LoginBtn01: {
     width: width(90),
-    height: 50,
+    height: 45,
     backgroundColor: 'transparent',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 25,
+    alignContent: 'center',
+    justifyContent: 'space-evenly',
+    borderRadius: 10,
   },
+  LoginBtn02: {
+    width: width(100),
+    height: 45,
+    backgroundColor: 'transparent',
+    alignContent: 'center',
+    justifyContent: 'center',
+    borderRadius: 10,
+  },
+
   SettingsBtn01: {
     width: width(90),
     height: 50,
@@ -198,7 +214,7 @@ export default StyleSheet.create({
     width: null,
   },
   settingsIconIOS: {
-    bottom: height(4),
+    bottom: 100,
     right: 20,
     backgroundColor: 'transparent',
     position: 'absolute',
@@ -207,14 +223,12 @@ export default StyleSheet.create({
     width: null,
   },
   LangIcon01: {
-    bottom: Platform.OS === 'ios' ? height(18) : 40,
+    bottom: 40,
     left: 20,
     backgroundColor: 'transparent',
     position: 'absolute',
     justifyContent: 'flex-end',
     alignSelf: 'flex-end',
-    // justifyContent: 'center',
-    // alignSelf: 'center',
     width: null,
     flexDirection: 'column',
   },
@@ -251,19 +265,19 @@ export default StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
   },
-  translateIcon: {
-    position: 'absolute',
-    top: SPACING.NORMAL,
-    left: SPACING.NORMAL,
-    backgroundColor: COLORS.primaryThemeColor,
-    width: RFPercentage(4),
-    height: RFPercentage(4),
-    borderRadius: SPACING.SMALL,
-    zIndex: 1,
-  },
-  icon: {
-    flex: 1, 
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
+  // translateIcon: {
+  //   position: 'absolute',
+  //   top: SPACING.NORMAL,
+  //   left: SPACING.NORMAL,
+  //   backgroundColor: COLORS.primaryThemeColor,
+  //   width: RFPercentage(4),
+  //   height: RFPercentage(4),
+  //   borderRadius: SPACING.SMALL,
+  //   zIndex: 1,
+  // },
+  // icon: {
+  //   flex: 1, 
+  //   alignItems: 'center',
+  //   justifyContent: 'center'
+  // },
 });

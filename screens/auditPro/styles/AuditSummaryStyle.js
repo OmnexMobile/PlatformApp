@@ -11,7 +11,7 @@ export default StyleSheet.create({
     justifyContent: 'flex-start',
   },
   header: {
-    width:width(100),
+    width:'100%',
     zIndex: 3000,
     flexDirection: 'row',
     //backgroundColor: 'white',
@@ -38,11 +38,11 @@ export default StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'center', 
     alignItems:'center', 
-    width: width(70),
+    width:'80%',
     height: 65
   },  
   headingText:{
-    fontSize: Fonts.size.h6,
+    fontSize: Fonts.size.mediump,
     color: '#fff',
     textAlign: 'center',
     fontFamily:'OpenSans-Bold'

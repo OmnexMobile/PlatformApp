@@ -1,8 +1,17 @@
+import AsyncStorage from '@react-native-community/async-storage';
 import api from './AuditPro-Api';
 
 export default {
-  setServerUrl(serverUrl) {
+  // setServerUrl(serverUrl) {
+  //   api.setServerUrl(serverUrl);
+  // },
+
+  async setServerUrl(serverUrl) {
     api.setServerUrl(serverUrl);
+     AsyncStorage.setItem(
+      'storedserverrul',
+      serverUrl,
+    );
   },
 
   loginUser(email, password, fcmToken, deviceId,loginFlag, isSSo, cb,) {
@@ -31,12 +40,25 @@ export default {
       cb(true, res);
     });
   },
+  // checkRegistrationStatus(deviceId, cb) {
+  //   api.checkRegistrationStatus(deviceId, res => {
+  //     console.log('checkRegistrationStatus res', res);
+  //     cb(true, res);
+  //   });
+  // },
+
   checkRegistrationStatus(deviceId, cb) {
     api.checkRegistrationStatus(deviceId, res => {
-      console.log('checkRegistrationStatus res', res);
+      console.log('checkRegistrationStatus response++++', res);
+      console.log("ncofi/button",res.data.Data.NCOFISetting)
+      AsyncStorage.setItem(
+        'NCSettingValue',
+        JSON.stringify(res.data.Data.NCOFISetting)
+      );
       cb(true, res);
     });
   },
+
 
   registerDevice(deviceId, url, type, cb) {
     api.registerDevice(deviceId, url, type, res => {
@@ -381,8 +403,17 @@ export default {
       },
     );
   },
-  getCheckUser(UserId, token, cb) {
-    api.getCheckUserapi(UserId, token, res => {
+
+  // getCheckUser(UserId, token, cb) {
+  //   api.getCheckUserapi(UserId, token, res => {
+  //     cb(true, res);
+  //   });
+  // },
+
+  getCheckUser(UserId, RegisterDevice, token, cb) {
+    api.getCheckUserapi(UserId, RegisterDevice, token, res => {
+      console.log(UserId, token, RegisterDevice,"op/////")
+      console.log(RegisterDevice,"op/r")
       cb(true, res);
     });
   },

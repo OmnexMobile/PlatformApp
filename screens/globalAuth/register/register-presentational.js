@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, Platform, Keyboard, KeyboardAvoidingView, TouchableWithoutFeedback } from 'react-native';
 import { RFPercentage } from 'react-native-responsive-fontsize';
 import { AnimatableView, GradientButton, IconComponent, ImageComponent, KeyboardAwareScrollViewComponent } from 'components';
 import { IMAGES } from 'assets/images';
@@ -11,8 +11,12 @@ import LoginInput from 'screens/auth/login/components/login-input';
 
 const RegisterPresentational = ({ navigation, handleChange, state, handleRegister, isRegistered, handleUnRegister, loading, getDeviceStatus }) => {
     const { theme } = useTheme();
+		console.log('editable check-->',isRegistered, '--',  !isRegistered, state?.globalServerURL,'---', state?.serverUrl)
+		const currentURL = state?.serverUrl ? state?.serverUrl : state?.globalServerURL ;
+		console.log('currentURL--->', currentURL)
     return (
         <View style={{ flex: 1, backgroundColor: COLORS.white }}>
+             {Platform.OS === 'ios' ? <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }        
             {/* need image with transparent background */}
             <ImageComponent style={{ width: '100%', height: '100%', position: 'absolute', zIndex: 0 }} source={IMAGES.loginBack} />
             <KeyboardAwareScrollViewComponent style={{ flex: 1, backgroundColor: COLORS.transparent }}>
@@ -29,14 +33,19 @@ const RegisterPresentational = ({ navigation, handleChange, state, handleRegiste
                     <ImageComponent source={IMAGES.omnexLogo} resizeMode="contain" style={{ height: RFPercentage(10), width: '100%' }} />
                 </AnimatableView>
                 <AnimatableView animationConfig={OPACITY_TRANSLATE_Y_ANIMATION} delay={500} style={{ flex: 6 }}>
-                    <LoginInput {...{ value: state?.globalServerURL, label: strings.Server_Url, name: 'serverUrl', onChangeText: handleChange, placeholder:'Enter API URL', editable: !isRegistered }} />
-                    <GradientButton
-                        loading={loading}
-                        disabled={!(state?.globalServerURL?.length > 1)}
-                        onPress={isRegistered ? handleUnRegister : handleRegister}>
-                        {/* onPress={handleRegister}> */}
-                        {isRegistered ? strings.Unregister : strings.Register}
-                    </GradientButton>
+                    <LoginInput {...{ 
+                        value: currentURL, 
+                        label: strings.Server_Url, 
+                        name: 'serverUrl', 
+                        onChangeText: handleChange, 
+                        placeholder:'Enter API URL', 
+                        editable: !isRegistered }} />
+                        <GradientButton
+                            loading={loading}
+                            disabled={!(currentURL?.length > 1)}
+                            onPress={isRegistered ? handleUnRegister : handleRegister}>
+                            {isRegistered ? strings.Unregister : strings.Register}
+                        </GradientButton>
                 </AnimatableView>
             </KeyboardAwareScrollViewComponent>
         </View>

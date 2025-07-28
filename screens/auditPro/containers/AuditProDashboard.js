@@ -29,6 +29,7 @@ import VersionCheck from 'react-native-version-check';
 import { ROUTES } from 'constants/app-constant';
 import AsyncStorage from '@react-native-community/async-storage';
 import { SPACING } from 'constants/theme-constants';
+import ToastNew, {ErrorToast} from 'react-native-toast-message';
 class AuditProDashboard extends Component {
   constructor(props) {
     super(props);
@@ -305,6 +306,82 @@ class AuditProDashboard extends Component {
     );
   }
 
+  async checkUser() {
+    console.log('user id', this.props.data.audits.userId);
+    var userid = this.props.data.audits.userId;
+    var token = this.props.data.audits.token;
+    var UserStatus = '';
+    var serverUrl = this.props.data.audits.serverUrl;
+    var ID = this.props.data.audits.userId;
+    var type = 3;
+    var path = '';
+    const deviceId = await AsyncStorage.getItem('loginDeviceId');
+
+    var RegisterDevice = this.props.data.audits.deviceid;
+    console.log(userid, token, deviceId, RegisterDevice, 'checkUser---auditprodashboard');
+  
+    // auth.getCheckUser(userid,RegisterDevice,token, (res, data) => {
+    auth.getCheckUser(userid, deviceId, token, (res, data) => {
+      console.log('User information', data);
+      if (data.data.Message == 'Success') {
+        console.log('Checking User status', data.data.Data.ActiveStatus);
+        UserStatus = data.data.Data.ActiveStatus;
+        if (this.props.data.audits.isOfflineMode) {
+          this.refs.toast.show(strings.Offline_Notice, DURATION.LENGTH_LONG);
+        } else {
+          NetInfo.fetch().then(netState => {
+            if (netState.isConnected) {
+              // this.props.navigation.navigate('AuditPage', {
+              //   datapass: iAuditDetails,
+              //   auditStatusPass: this.props.item.cStatus,
+              // });
+            } else {
+              this.refs.toast.show(strings.No_Internet, DURATION.LENGTH_LONG);
+            }
+          });
+        }
+        if (UserStatus == 2) {
+          console.log('User active');
+          // this.syncAuditsToServerMethod()
+          this.checkFilePath();
+        } else if (UserStatus == 1) {
+          console.log('deleting user details');
+          var cleanURL = serverUrl.replace(/^https?:\/\//, '');
+          var formatURL = cleanURL.replace(/[&\/\\#,+()$~%.'":*?<>{}]/g, '');
+          this.propsServerUrl = formatURL;
+          console.log('cleanURL', this.propsServerUrl);
+          // var ID = this.props.data.audits.userId
+          console.log('path', this.propsServerUrl + ID);
+          if (Platform.OS == 'android') {
+            path =
+              '/data/user/0/com.omnex.auditpro/cache/AuditUser' +
+              '/' +
+              this.propsServerUrl +
+              ID;
+            console.log('path storing-->', path);
+          } else {
+            var iOSpath = RNFS.DocumentDirectoryPath;
+            path = iOSpath + '/' + this.propsServerUrl + ID;
+          }
+          console.log('*** path', path);
+          // this.deleteUserFile(path)
+          this.refs.toast.show(
+            strings.user_disabled_text,
+            DURATION.LENGTH_SHORT,
+          );
+          this.props.navigation.navigate('LoginUIScreen');
+        } else if (UserStatus == 0) {
+          Alert.alert("Your session has expired,Please login again.")
+          this.refs.toast.show(
+            strings.user_inactive_text,
+            DURATION.LENGTH_SHORT,
+          );
+          this.props.navigation.navigate('LoginUIScreen');
+        }
+      }
+    });
+  }
+
   componentDidMount() {
     console.log('reach component did mount------');
     console.log('recent_audit------', this.state.recent_audits);
@@ -358,7 +435,7 @@ class AuditProDashboard extends Component {
             isPageEmpty: false,
           },
           () => {
-            // console.warn('auditList',this.state.auditList);
+            // console.log('auditList',this.state.auditList);
           },
         );
       }
@@ -373,6 +450,12 @@ class AuditProDashboard extends Component {
         this.getSessionValues();
       }
     );
+    if(this.props.data.audits.isOfflineMode,"offlinecheck"){
+      this.checkUser();
+    }
+    else {
+      Alert.alert("You are in offline mode disable offline mode to proceed ")
+    }
     // this.checkAppVersion();
     this.getSessionValues();
   }
@@ -436,7 +519,7 @@ class AuditProDashboard extends Component {
 
     if (
       CurrentPage == 'AUDITPRODASHBOARD' ||
-      CurrentPage == 'ALLTABAUDITLIST' ||
+      CurrentPage == 'ALLTABAUDITLIST_SM' ||
       CurrentPage == 'AUDIT_PAGE'
     ) {
       if (this.state.recent_audits) {
@@ -482,7 +565,7 @@ class AuditProDashboard extends Component {
                 deadlineviolated: this.props?.data?.audits?.DeadlineViolatedAudits,
                 deadlineviolatedandcompleted:
                   this.props?.data?.audits?.CompletedDeadlineViolatedAudits,
-                noaudits: this.props?.data?.audits?.audits[0].AuditCount,
+                // noaudits: this.props?.data?.audits?.audits[0].AuditCount,
                 loading: false,
                 isRefreshing: false,
                 isPageEmpty: false,
@@ -940,7 +1023,7 @@ class AuditProDashboard extends Component {
   // }
 
   // getAuditStatus = (status) => {
-  //   // console.warn('======',status)
+  //   // console.log('======',status)
   //   var percent = 0
   //   // Set Audit Card color by checking its Status
   //   switch (status) {
@@ -1008,7 +1091,7 @@ class AuditProDashboard extends Component {
     console.log('reach render-->', this.state.loading, '---', this.state.noaudits, '---', this.state.ShowNotifyBadge)
     return (
       <View style={styles.mainContainer}>
-        {Platform.OS === 'ios' ? <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> : null }
+        {Platform.OS === 'ios' ? <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
         {/* <OfflineNotice /> */}
         {this.render_header()}
         {/* { this.render_statusBar()} */}
@@ -1166,12 +1249,12 @@ class AuditProDashboard extends Component {
     return (
       <ImageBackground source={Images.DashboardBG} style={styles.header}>
         <TouchableOpacity
-              // onPress={() => this.props.navigation.navigate(ROUTES.HOME_FAB_VIEW)}
-              onPress={() => this.props.navigation.navigate(ROUTES.HOME_FAB_VIEW) }
-              style={{left: 4}}
-              >
-              <Icon name="angle-left" size={30} color="white" />
-            </TouchableOpacity>
+          onPress={() => this.props.navigation.navigate(ROUTES.HOME_FAB_VIEW) }
+          style={{left: 10}}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          >
+          <Icon name="angle-left" size={30} color="white" />
+        </TouchableOpacity>
         <View style={styles.welcomeTxtView}>
           <Text style={styles.welcomeTxt}>
             {strings.welcome + ' '}

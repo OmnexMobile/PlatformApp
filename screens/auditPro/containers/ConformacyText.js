@@ -10,7 +10,9 @@ import {
   SafeAreaView,
   ScrollView,
   Keyboard,
-  TouchableWithoutFeedback
+  TouchableWithoutFeedback,
+  Alert,
+  RecyclerViewBackedScrollViewComponent,
 } from 'react-native';
 import {actions, RichEditor, RichToolbar} from 'react-native-pell-rich-editor';
 // import Voice from '@react-native-community/voice';
@@ -58,7 +60,6 @@ const ConformacyText = ({
       (nextValue, processId) => updateConformacyText(nextValue, processId),
       1000,
     ),
-
     [],
   );
   const changeVoiceDebouncer = useCallback(
@@ -67,7 +68,6 @@ const ConformacyText = ({
         updateConformacyText(voiceText, voiceProcessID, auditDetailList),
       1000,
     ),
-
     [],
   );
 
@@ -152,6 +152,7 @@ const ConformacyText = ({
                 onChange={text => {
                   let modifiedArr = state.auditDetailList;
                   modifiedArr[index].Conformance = text;
+                  setContent(text)
                   updateConformacyDetails('auditDetailList', [...modifiedArr]);
                   changeTextDebouncer(text, item?.ProcessID);
                 }}
@@ -223,7 +224,7 @@ const ConformacyText = ({
               marginLeft: 20,
               marginTop: 5,
             }}>
-            <TouchableOpacity
+            {/* <TouchableOpacity
               onPress={() => {
                 navigation.navigate(ROUTES.CONFORMACY_VOICE, {
                   txtConformance: item?.Conformance,
@@ -255,6 +256,89 @@ const ConformacyText = ({
                 />
               ) : (
                 <Icon name="microphone" size={25} color="grey" style={{bottom:5}} />
+              )}
+            </TouchableOpacity> */}
+
+            <TouchableOpacity
+              onPress={() => {
+                if ((item?.Conformance || '').length > 1) {
+                  Alert.alert(
+                    'Alert',
+                    'The available formatted data will be removed if you continue to use the voice assistant. Do you want to continue?',
+                    [
+                      {
+                        text: 'No',
+                        onPress: () => {
+                          console.log('Navigation cancelled');
+                        },
+                        style: 'cancel',
+                      },
+                      {
+                        text: 'Yes',
+                        onPress: () => {
+                          navigation.navigate(ROUTES.CONFORMACY_VOICE, {
+                            txtConformance: item?.Conformance,
+                            auditDetailsList: state.auditDetailList,
+                            CreateNCdataBundle: {
+                              AuditID: auditId,
+                              AuditOrder: state.AUDITYPE_ORDER,
+                              title: state.AUDIT_NO,
+                              auditstatus: '2',
+                              SiteID: state.SITEID,
+                              Formid: '0',
+                              ChecklistID: '0',
+                              AUDIT_NO: state.AUDIT_NO,
+                              breadCrumb: state.breadCrumb,
+                              Conformance: item.Conformance,
+                              ProcessID: item.ProcessID,
+                              ProcessName: item.ProcessName,
+                              clauseMandatory: clauseMandatory,
+                              userID: userID,
+                              multiprocess: multiprocess,
+                            },
+                          });
+                        },
+                      },
+                    ],
+                    { cancelable: false }
+                  );
+                } else {
+                  navigation.navigate(ROUTES.CONFORMACY_VOICE, {
+                    txtConformance: item?.Conformance,
+                    auditDetailsList: state.auditDetailList,
+                    CreateNCdataBundle: {
+                      AuditID: auditId,
+                      AuditOrder: state.AUDITYPE_ORDER,
+                      title: state.AUDIT_NO,
+                      auditstatus: '2',
+                      SiteID: state.SITEID,
+                      Formid: '0',
+                      ChecklistID: '0',
+                      AUDIT_NO: state.AUDIT_NO,
+                      breadCrumb: state.breadCrumb,
+                      Conformance: item.Conformance,
+                      ProcessID: item.ProcessID,
+                      ProcessName: item.ProcessName,
+                      clauseMandatory: clauseMandatory,
+                      userID: userID,
+                      multiprocess: multiprocess,
+                    },
+                  });
+                }
+              }}>
+              {started ? (
+                <Icon
+                  name="assistive-listening-systems"
+                  size={25}
+                  color="white"
+                />
+              ) : (
+                <Icon
+                  name="microphone"
+                  size={25}
+                  color="grey"
+                  style={{ bottom: 5 }}
+                />
               )}
             </TouchableOpacity>
           </View>

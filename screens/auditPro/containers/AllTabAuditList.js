@@ -40,15 +40,36 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import CalendarAgenda from './../components/CalenderAgenda';
 import {Dropdown} from 'react-native-element-dropdown';
 import * as _ from 'lodash';
-// import {NavigationEvents} from 'react-navigation';
+import {NavigationEvents} from 'react-navigation';
+import ToastNew, {ErrorToast} from 'react-native-toast-message';
 import { ROUTES } from 'constants/app-constant';
 import { SPACING } from 'constants/theme-constants';
-// import GlobalHeader from '../Components/Shared/GlobalHeader';
+import GlobalHeader from '../components/shared/GlobalHeader';
+import AsyncStorage from '@react-native-community/async-storage';
 
 const moment = extendMoment(Moment);
 const window_width = Dimensions.get('window').width;
 
 const Reset = 'Reset';
+
+const toastConfig = {
+  error: props => (
+    <ErrorToast
+      {...props}
+      text1Style={{
+        fontSize: 12,
+        // color: 'white',
+        // textAlign: 'center',
+      }}
+      // style={{
+      //   backgroundColor: '#313131',
+      //   borderLeftWidth: 0,
+      //   height: 40,
+      //   borderRadius: 10,
+      // }}
+    />
+  ),
+};
 
 class AllTabAuditList extends Component {
   keyVal = 0;
@@ -215,14 +236,14 @@ class AllTabAuditList extends Component {
     );
     // if (this.props.navigation.state.params == undefined) {
     if(this.props?.route?.params == undefined) {
-      this.props.navigation.navigate(ROUTES.AUDITPRODASHBOARD);
+      this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD);
     } else if (
       // this.props.navigation.state.params.navagationPage == 'CalandarList'
       this.props?.route?.params?.navagationPage == ROUTES.CALENDER_LIST
     ) {
       this.props.navigation.goBack();
     } else {
-      this.props.navigation.navigate(ROUTES.AUDITPRODASHBOARD);
+      this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD);
       // !this.state.isLoading && !this.state.isDownloading
       // ? () => this.props.navigation.navigate('AuditDashboard')
       // : () => console.log('Component is not ready to goBack..')
@@ -655,7 +676,7 @@ class AllTabAuditList extends Component {
         <View style={styles.headerDiv}>
           <TouchableOpacity
             style={{paddingRight: 10}}
-            onPress={() => this.props.navigation.navigate(ROUTES.AUDITPRODASHBOARD)}>
+            onPress={() => this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)}>
             <Icon name="home" size={30} color="white" />
           </TouchableOpacity>
         </View>
@@ -671,7 +692,7 @@ class AllTabAuditList extends Component {
     console.log('--PreviousPage--->', PreviousPage)
     // var PreviousPage = getCurrentPage[getCurrentPage.length - 2].routeName;
     if (PreviousPage == ROUTES.LOGINUISCREEN || PreviousPage == ROUTES.SUPPLY_MANAGE) {
-      this.props.navigation.navigate(ROUTES.AUDITPRODASHBOARD);
+      this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD);
     } else {
       if (this.backHandler) {
         this.backHandler.remove();
@@ -768,7 +789,88 @@ class AllTabAuditList extends Component {
 
       // this.componentWhenReceiveProps()
     });
+    this.checkUser();
     this.getYearAudits();
+  }
+
+  checkUser = async () => {
+    const deviceId = await AsyncStorage.getItem('loginDeviceId');
+    console.log('user id', this.props.data.audits.userId);
+    var userid = this.props.data.audits.userId;
+    var token = this.props.data.audits.token;
+    var UserStatus = '';
+    var serverUrl = this.props.data.audits.serverUrl;
+    var ID = this.props.data.audits.userId;
+    var type = 3;
+    var path = '';
+
+    var RegisterDevice = this.props.data.audits.deviceid;
+    console.log(userid, token, deviceId, RegisterDevice);
+  
+    // auth.getCheckUser(userid,RegisterDevice,token, (res, data) => {
+    auth.getCheckUser(userid, deviceId, token, (res, data) => {
+      console.log('User information', data);
+      if (data.data.Message == 'Success') {
+        console.log('Checking User status', data.data.Data.ActiveStatus);
+        UserStatus = data.data.Data.ActiveStatus;
+        if (this.props.data.audits.isOfflineMode) {
+          this.toast.show(strings.Offline_Notice, DURATION.LENGTH_LONG);
+        } else {
+          NetInfo.fetch().then(netState => {
+            if (netState.isConnected) {
+              // this.props.navigation.navigate('AuditPage', {
+              //   datapass: iAuditDetails,
+              //   auditStatusPass: this.props.item.cStatus,
+              // });
+            } else {
+              this.toast.show(strings.No_Internet, DURATION.LENGTH_LONG);
+            }
+          });
+        }
+        if (UserStatus == 2) {
+          console.log('User active');
+        
+          // this.syncAuditsToServerMethod()
+          this.checkFilePath();
+        } else if (UserStatus == 1) {
+          console.log('deleting user details');
+          var cleanURL = serverUrl.replace(/^https?:\/\//, '');
+          var formatURL = cleanURL.replace(/[&\/\\#,+()$~%.'":*?<>{}]/g, '');
+          this.propsServerUrl = formatURL;
+          console.log('cleanURL', this.propsServerUrl);
+          // var ID = this.props.data.audits.userId
+          console.log('path', this.propsServerUrl + ID);
+          if (Platform.OS == 'android') {
+            path =
+              '/data/user/0/com.omnex.auditpro/cache/AuditUser' +
+              '/' +
+              this.propsServerUrl +
+              ID;
+            console.log('path storing-->', path);
+          } else {
+            var iOSpath = RNFS.DocumentDirectoryPath;
+            path = iOSpath + '/' + this.propsServerUrl + ID;
+          }
+          console.log('*** path', path);
+          // this.deleteUserFile(path)
+          this.refs.toast.show(
+            strings.user_disabled_text,
+            DURATION.LENGTH_SHORT,
+          );
+          // this.props.navigation.navigate('LoginUIScreen');
+          this.props.navigation.navigate(ROUTES.GLOBAL_LOGIN);
+
+        } else if (UserStatus == 0) {
+          Alert.alert("Your session has expired,Please login again.");
+          this.refs.toast.show(
+            strings.user_inactive_text,
+            DURATION.LENGTH_SHORT,
+          );
+          // this.props.navigation.navigate('LoginUIScreen');
+          this.props.navigation.navigate(ROUTES.GLOBAL_LOGIN);
+        }
+      }
+    });
   }
 
   getYearAudits() {
@@ -1348,6 +1450,7 @@ class AllTabAuditList extends Component {
     try {
       const USERID = this.props.data.audits.userId;
       const TOKEN = this.props.data.audits.token;
+      console.log(this.props.data.audits.token,"TOKEN====>")
       const SITEID = this.props.data.audits.siteId;
       if (TOKEN !== null) {
         this.setState(
@@ -2228,7 +2331,7 @@ class AllTabAuditList extends Component {
     );
     return (
       <View style={styles.container}>
-        {Platform.OS === 'ios' ? <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> : null }
+        {Platform.OS === 'ios' ? <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
          {/* <NavigationEvents onDidFocus={() => {} } /> */} 
          {/* this.handleRefresh() */}
         <OfflineNotice />
@@ -2277,6 +2380,7 @@ class AllTabAuditList extends Component {
           opacity={0.8}
           textStyle={{color: 'white'}}
         />
+        <ToastNew config={toastConfig} />
       </View>
     );
   }

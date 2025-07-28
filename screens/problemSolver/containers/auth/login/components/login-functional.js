@@ -12,7 +12,7 @@ import { postAPI } from 'global/api-helpers';
 
 const LoginFunctional = ({}) => {
     const [selectLanguageModal, setSelectLanguageModal] = useState(false);
-    const { profile, handleLogin, handleSiteList, appSettings } = useAppContext();
+    const { profile, handleLogin, handleSiteList, appSettings, handleSite } = useAppContext();
     const [loginDetails, setLoginDetails] = useState({
         // username: 'Champion1@michelin',
         // password: 'a1',
@@ -77,42 +77,6 @@ const LoginFunctional = ({}) => {
                         [LOCAL_STORAGE_VARIABLES.Password]: encryptedPassword?.toString(),
                     }),
                 ) 
-                // fetch('https://saasmobile.ewqims.net/problemsolverapi/Login/List', {
-                //     method: 'POST',
-                //     headers: {
-                //       'Content-Type': 'application/json',
-                //     },
-                //     body: JSON.stringify({
-                //       username: loginDetails?.username,
-                //       password: encryptedPassword?.toString(),
-                //     }),
-                //   })
-                //     .then(response => response.json())
-                //     .then(data => {
-                //         console.log('data', data);
-                     
-                //     })
-                //     .catch(err => {
-                //       console.error('Error:', err);
-                      
-                //     });
-
-                
-                // .then(response => console.log('response--->', response.json()))
-                // .then(data => {
-                //   // Assuming data.someProperty is the string you're working with
-                //   let myString = data.someProperty;
-                  
-                //   if (myString) {
-                //     let substringValue = myString.substring(0, 10);
-                //     console.log('substringValue', substringValue);
-                //   } else {
-                //     console.error('myString is null or undefined');
-                //   }
-                // })
-                // .catch(error => {
-                //   console.error('Error fetching data:', error);
-                // });
                 console.log('login data API--->', data,'----', data?.Data)
                 console.log('data?.Data?.Message && data?.Data?.length', data?.Message, '---', data?.Data?.length)
                 if (data?.Message == 'Success' && data?.Data?.length) {
@@ -156,6 +120,7 @@ const LoginFunctional = ({}) => {
             CurrentApp: 'problemSolver',
         });
         handleSiteList(data?.Data);
+        handleSite(data?.Data)
         // dispatch(
         //     getProfileSuccess({
         //         Token: data?.Token,

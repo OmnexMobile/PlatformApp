@@ -9,6 +9,7 @@ import { useAppContext } from 'contexts/app-context';
 import { formReq, showErrorMessage, successMessage } from 'helpers/utils';
 import RegisterPresentational from './register-presentational';
 import AsyncStorage from '@react-native-community/async-storage';
+import { PROBLEMSOLVING_URL } from 'screens/globalConstant/globalURL';
 
 export const REGISTER_TYPES = {
     REGISTER: 1,
@@ -68,7 +69,7 @@ export const registerDevice = async (requestURL, request, type) => {
 // const DEFAULT_URL = 'https://training-westernextrusions.ewqims.com/PSAPI/';
 // const DEFAULT_URL = 'https://training-michelin.ewqims.com/psapi/';
 // const DEFAULT_URL = 'https://saasmobile.ewqims.net/problemsolverapi/';
-const DEFAULT_URL = 'https://saasmobile.ewqims.net/problemsolverapi/';
+const DEFAULT_URL = PROBLEMSOLVING_URL;
 // const currentUrl = 'https://omn-qa-forvia.ewqims.com/auditproapi/api/'
 
 const RegisterFunctional = ({}) => {

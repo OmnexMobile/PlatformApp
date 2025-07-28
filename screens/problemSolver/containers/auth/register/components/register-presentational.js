@@ -29,7 +29,8 @@ const RegisterPresentational = ({ navigation, handleChange, state, handleRegiste
                     style={[styles.translateIcon1, { backgroundColor: theme.colors.primaryThemeColor }]}
                     delay={1000}
                     animationConfig={OPACITY_ANIMATION}>
-                    <TouchableOpacity activeOpacity={0.8} style={styles.icon} onPress={() => navigation.navigate(ROUTES.HOME_FAB_VIEW)}>
+                    <TouchableOpacity activeOpacity={0.8} style={styles.icon} onPress={() => navigation.navigate(ROUTES.GLOBAL_DASHBOARD)}>
+                    {/* onPress={() => navigation.navigate(ROUTES.HOME_FAB_VIEW)}> */}
                         <IconComponent name={'home'} type={ICON_TYPE.AntDesign} color={COLORS.white} size={FONT_SIZE.LARGE} />
                     </TouchableOpacity>
                 </AnimatableView>

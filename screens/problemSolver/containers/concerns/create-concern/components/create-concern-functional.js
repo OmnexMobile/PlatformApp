@@ -9,6 +9,23 @@ import { formReq, showErrorMessage, successMessage } from 'helpers/utils';
 import { getDashboardConcernCounts, getTodayConcernList } from 'screens/home/home.action';
 import CreateConcernPresentational from './create-concern-presentational';
 
+function convertObjectToArray(obj) {
+    const array = [];
+
+    for (const key in obj) {
+        if (obj.hasOwnProperty(key)) {
+            const element = obj[key];
+            array.push({
+                Key: element.Key,
+                Value: element.Value,
+                Name: key,
+            });
+        }
+    }
+
+    return array;
+}
+
 const CreateConcernFunctional = ({}) => {
     const [concernDetails, setConcernDetails] = useState({
         CategoryID: '',
@@ -18,9 +35,15 @@ const CreateConcernFunctional = ({}) => {
         ConcernTitle: '',
         ProductId: '0',
     });
+    const [nestedConcernDetails, setNestedConcernDetails] = useState({});
     const [dynamicConcernDetails, setDynamicConcernDetails] = useState({});
+    const [problemImages, setProblemImages] = useState([]);
+    const [attachments, setAttachments] = useState([]);
+    const [okPicker, setOkPicker] = useState(null);
+    const [notOkPicker, setNotOkPicker] = useState(null);
     const [selectedTeam, setSelectedTeam] = useState(null);
     const [dynamicInputs, setDynamicInputs] = useState([]);
+    console.log('🚀 ~ CreateConcernFunctional ~ dynamicInputs:', dynamicInputs?.[0]?.concernFormID);
     const [dynamicInputsLoading, setDynamicInputsLoading] = useState(false);
     const [formModalVisible, setFormModalVisible] = useState(false);
     const [savingConcern, setSavingConcern] = useState(false);
@@ -51,8 +74,8 @@ const CreateConcernFunctional = ({}) => {
 
     const getCategoryList = async res => {
         const formData = new FormData();
+         formData.append(LOCAL_STORAGE_VARIABLES.SiteId, res.Siteid);
         // formData.append(LOCAL_STORAGE_VARIABLES.SiteId, res.SiteId);
-        formData.append(LOCAL_STORAGE_VARIABLES.SiteId, res.Siteid);
         const categoryList = await postAPI(`${API_URL.CATEGORY_LIST}`, formData);
         setListDetails({
             ...listDetails,
@@ -101,10 +124,8 @@ const CreateConcernFunctional = ({}) => {
             });
 
             showErrorMessage('Sorry, Error while loading the Dropdown List!!');
-            console.log('🚀 ~ file: concern-initial-evaluation-functional.js:71 ~ getConcern ~ err', err);
         }
     };
-    // console.log('🚀 ~ file: concern-initial-evaluation-functional.js:68 ~ getDynamicInputList ~ res:', listDetails);
 
     const getSubCategoryList = async (res, categoryId) => {
         const formData = new FormData();
@@ -146,19 +167,33 @@ const CreateConcernFunctional = ({}) => {
         // })
     };
 
+    useEffect(() => {
+        handleDynamicInputChange('ProblemImages', problemImages);
+    }, [problemImages]);
+
+    useEffect(() => {
+        handleDynamicInputChange('Attachments', attachments);
+    }, [attachments]);
+
+    useEffect(() => {
+        okPicker?.FileName && handleDynamicInputChange('OkPicker', okPicker);
+    }, [okPicker]);
+
+    useEffect(() => {
+        notOkPicker?.FileName && handleDynamicInputChange('NotOkPicker', notOkPicker);
+    }, [notOkPicker]);
+
     const getListData = res => {
         const defaultObj = {
             [LOCAL_STORAGE_VARIABLES.UserId]: res.UserId,
-            [LOCAL_STORAGE_VARIABLES.SiteId]: res.Siteid,
-            // [LOCAL_STORAGE_VARIABLES.SiteId]: res.SiteId,
+            [LOCAL_STORAGE_VARIABLES.SiteId]: res.SiteId,
             [LOCAL_STORAGE_VARIABLES.MaxRow]: 3,
         };
         dispatch(
             getDashboardConcernCounts(
                 formReq({
                     [LOCAL_STORAGE_VARIABLES.UserId]: res.UserId,
-                    // [LOCAL_STORAGE_VARIABLES.SiteId]: res.SiteId,
-                    [LOCAL_STORAGE_VARIABLES.SiteId]: res.Siteid,
+                    [LOCAL_STORAGE_VARIABLES.SiteId]: res.SiteId,
                 }),
             ),
         );
@@ -181,8 +216,7 @@ const CreateConcernFunctional = ({}) => {
                     [APP_VARIABLES.SOURCE_ID]: categoryId,
                     [APP_VARIABLES.FORM_TYPE]: 'cat',
                     [APP_VARIABLES.FORM_TYPE_ID]: 1,
-                    // [APP_VARIABLES.SITE_ID]: res.SiteId,
-                    [APP_VARIABLES.SITE_ID]: res.Siteid,
+                    [APP_VARIABLES.SITE_ID]: res.SiteId,
                     [APP_VARIABLES.CONCERN_FORM_ID]: 0,
                     ...(ConcernID && {
                         ConcernId: ConcernID,
@@ -220,9 +254,7 @@ const CreateConcernFunctional = ({}) => {
                 ...res?.Data?.[0],
             });
             setSelectedTeam(res?.Data?.[0]?.TeamName);
-        } catch (err) {
-            console.log('🚀 ~ file: concern-screen-functional.js:170 ~ getConcern ~ err', err);
-        }
+        } catch (err) {}
     };
 
     const defaultInputs = useMemo(
@@ -262,6 +294,13 @@ const CreateConcernFunctional = ({}) => {
                 type: INPUTS_CONSTANTS.INPUT,
                 editable: !!!ConcernID,
             },
+            // {
+            //     label: 'Ok',
+            //     name: 'OkPicker',
+            //     required: !!!ConcernID,
+            //     value: concernDetails?.OkPicker,
+            //     type: INPUTS_CONSTANTS.OK_PICKER,
+            // },
             // {
             //     label: 'Supplier',
             //     name: 'SupplierID',
@@ -341,6 +380,15 @@ const CreateConcernFunctional = ({}) => {
         ],
     );
 
+    useEffect(() => {
+        if (concernDetails?.ConcernTitle?.trim() === '') {
+            setConcernDetails(concernDetails => ({
+                ...concernDetails,
+                ConcernTitle: '',
+            }));
+        }
+    }, [concernDetails?.ConcernTitle]);
+
     const handleDynamicInputs = dynamicConcernDetails => {
         const dyInputs = dynamicInputs.map(input => {
             return {
@@ -353,6 +401,21 @@ const CreateConcernFunctional = ({}) => {
         setDynamicInputs([...dyInputs]);
     };
 
+    const handleNestedInputChange = (name, Value, Key, isBulk) => {
+        if (isBulk) {
+            setNestedConcernDetails({
+                ...nestedConcernDetails,
+                ...Value,
+            });
+        } else {
+            setNestedConcernDetails({
+                ...nestedConcernDetails,
+                [name]: Value,
+                // [name]: { Value, Key },
+            });
+        }
+    };
+
     const handleInputChange = (label, value) => {
         setConcernDetails({
             ...concernDetails,
@@ -360,11 +423,23 @@ const CreateConcernFunctional = ({}) => {
         });
     };
 
-    const handleDynamicInputChange = (label, value) => {
-        setDynamicConcernDetails({
-            ...dynamicConcernDetails,
-            [label]: value,
-        });
+    // const nestedDynamicInputs = useMemo(() => {
+    //     return convertObjectToArray(nestedConcernDetails);
+    // }, [nestedConcernDetails]);
+
+    const handleDynamicInputChange = (label, value, isBulk = false) => {
+        if (isBulk) {
+            setDynamicConcernDetails({
+                ...dynamicConcernDetails,
+                ...value,
+            });
+        } else {
+            const fieldName = label === 'CustomerId' ? 'CustomerID' : label === 'SupplierId' ? 'SupplierID' : label;
+            setDynamicConcernDetails({
+                ...dynamicConcernDetails,
+                [fieldName]: value,
+            });
+        }
     };
 
     const proceedToSaveOrSubmit = async Mode => {
@@ -390,21 +465,47 @@ const CreateConcernFunctional = ({}) => {
             }
         });
 
+        delete formattedConcernDetails?.OkPicker;
+        delete formattedConcernDetails?.NotOkPicker;
+        console.log('🚀 ~ proceedToSaveOrSubmit ~ formattedConcernDetails:', dynamicInputs?.[0]?.concernFormID);
+
         const request = {
             StaticConcernInput: [
                 {
                     ...formattedConcernDetails,
+                    ...nestedConcernDetails,
+                    // NotifySupplier: nestedConcernDetails?.NotifySupplier === 'Yes',
                     // CustomerID: formattedConcernDetails?.CustomerID || 0,
                     ButtonSave: Mode,
                     Mode: 'Add',
                     CreatedBy: sites?.selectedSite?.UserId,
-                    [LOCAL_STORAGE_VARIABLES.SiteId]: sites?.selectedSite?.Siteid,
+                    ...(dynamicInputs?.[0]?.concernFormID && {
+                        ConcernFormId: dynamicInputs?.[0]?.concernFormID,
+                    }),
+                    [LOCAL_STORAGE_VARIABLES.SiteId]: sites?.selectedSite?.SiteId,
                 },
             ],
-            // ...(!!formattedDynamicConcernDetails?.length && { DynamicConcernInput: formattedDynamicConcernDetails }),
             DynamicConcernInput: formattedDynamicConcernDetails,
+            ...(problemImages?.length > 0 && {
+                ProblemImages: problemImages,
+            }),
+            ...(attachments?.length > 0 && {
+                Attachments: attachments,
+            }),
+            ...(okPicker?.FileName && {
+                OkPicker: [okPicker],
+            }),
+            ...(notOkPicker?.FileName && {
+                NotOkPicker: [notOkPicker],
+            }),
         };
-        console.log('🚀 ~ file: create-concern-functional.js:399 ~ handleSaveConcern ~ request:', request);
+
+        delete request?.StaticConcernInput?.[0]?.ProblemImages;
+        delete request?.StaticConcernInput?.[0]?.Attachments;
+        delete request?.StaticConcernInput?.[0]?.NotOkPicker;
+        delete request?.StaticConcernInput?.[0]?.OkPicker;
+
+        console.log('🚀 ~ proceedToSaveOrSubmit ~ request:', request);
         setSavingConcern(true);
         try {
             const res = await postAPI(`${API_URL.SAVE_CONCERN}`, request);
@@ -418,7 +519,6 @@ const CreateConcernFunctional = ({}) => {
                 setSavingConcern(false);
             }
         } catch (err) {
-            console.log('🚀 ~ file: create-concern-functional.js:350 ~ handleSaveConcern ~ err:', err);
             showErrorMessage("Sorry can't able to save right now!!");
             setSavingConcern(false);
         }
@@ -435,10 +535,8 @@ const CreateConcernFunctional = ({}) => {
             proceedToSaveOrSubmit(Mode);
         }
     };
-    console.log('🚀 ~ file: create-concern-functional.js:500 ~ CreateConcernFunctional ~ concernDetails:', concernDetails, dynamicInputs);
 
     const handleCategoryValueChange = () => {
-        console.log('🚀 ~ file: create-concern-functional.js:354 ~ handleCategoryValueChange ~ selectedSite:');
         getDynamicInputList(sites?.selectedSite, concernDetails?.CategoryID);
         getSubCategoryList(sites?.selectedSite, concernDetails?.CategoryID);
     };
@@ -446,7 +544,7 @@ const CreateConcernFunctional = ({}) => {
     useEffect(() => {
         if (sites?.selectedSite) {
             getCategoryList(sites?.selectedSite);
-            getDropdownList(sites?.selectedSite?.Siteid);
+            getDropdownList(sites?.selectedSite?.SiteId);
         }
     }, [sites?.selectedSite]);
 
@@ -488,6 +586,31 @@ const CreateConcernFunctional = ({}) => {
         [dynamicInputs, dynamicConcernDetails],
     );
 
+    console.log(
+        '🚀 ~ CreateConcernFunctional ~ isDynamicInputsValid:',
+        // dynamicConcernDetails,
+        isDynamicInputsValid,
+        dynamicInputs.find(detail => detail?.required && !dynamicConcernDetails[detail?.name]),
+        dynamicInputs.filter(detail => detail?.required && dynamicConcernDetails[detail?.name])?.length,
+        dynamicInputs.filter(detail => detail.required),
+    );
+
+    const handleProblemImages = images => {
+        setProblemImages(images);
+    };
+
+    const handleAttachments = attachments => {
+        setAttachments(attachments);
+    };
+
+    const handleOKPicker = okPicker => {
+        setOkPicker(okPicker);
+    };
+
+    const handleNotOKPicker = notOkPicker => {
+        setNotOkPicker(notOkPicker);
+    };
+
     return (
         <CreateConcernPresentational
             {...{
@@ -506,6 +629,11 @@ const CreateConcernFunctional = ({}) => {
                 concernDetails,
                 selectedTeam,
                 setSelectedTeam,
+                handleNestedInputChange,
+                handleProblemImages,
+                handleAttachments,
+                handleOKPicker,
+                handleNotOKPicker,
             }}
         />
     );

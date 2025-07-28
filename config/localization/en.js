@@ -75,6 +75,7 @@ export default {
     meeting: 'Meeting',
     todayTask: 'Today Task',
     dailyTask: 'Daily Task',
+    apap_ppap: 'APQP/PPAP',
 
     //PPAP Projects
     ppapProjects: 'PPAP Projects',
@@ -102,8 +103,13 @@ export default {
     //Document Pro
     documentPro: 'Document Pro',
     documentLevels: 'Document\nLevels',
-    actionList: 'Actions\nList',
+    actionList: 'Action\nList',
     adminActions: 'Admin\nActions',
+
+    //Supplier Management
+    supplierMgnt: 'Supplier Management',
+    supplierInitialAssessment: 'Supplier\nInitial\nAssessment',
+    supplierRoutineAudit: 'Supplier\nRoutine\nAudit',
 
     // Inspection Control
     inspectionControl:'Inspection Control',

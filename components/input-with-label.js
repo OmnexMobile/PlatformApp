@@ -16,16 +16,30 @@ const InputWithLabel = ({
     multiline = false,
     numberOfLines = 1,
     editable = true,
+    noPadding = false,
+    keyboardType = '',
+    handleBlur = true,
+    ...rest
 }) => {
     const { theme } = useTheme();
+
+    const handleInputChange = (name, text) => {
+        onChange(name, text);
+    };
+
+    const handleInputBlur = () => {
+        onChange(name, value?.trim());
+    };
+
     return (
         <View
             style={{
                 padding: SPACING.NORMAL,
                 backgroundColor: theme.mode.backgroundColor,
                 paddingBottom: SPACING.SMALL,
-                marginBottom: SPACING.XX_SMALL,
+                marginBottom: SPACING.X_SMALL,
                 ...(!editable && { backgroundColor: theme.mode.disabledBackgroundColor }),
+                ...(noPadding && { padding: 0 }),
             }}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <TextComponent style={{ fontSize: FONT_SIZE.SMALL }} type={FONT_TYPE.BOLD}>
@@ -55,14 +69,21 @@ const InputWithLabel = ({
                         multiline,
                         numberOfLines,
                         editable,
+                        ...(keyboardType && { keyboardType }),
                         value,
-                        onChangeText: value => onChange(name, value),
+                        onChangeText: text => handleInputChange(name, text),
+                        ...(handleBlur &&  {
+                            onBlur: handleInputBlur, // Handle trim on blur
+                        }),
                         placeholderTextColor: COLORS.searchText,
                         placeholder: placeholder || `Enter ${label}`,
+                        returnKeyType: 'done',
+                        ...rest,
                     }}
                 />
             </View>
         </View>
     );
 };
+
 export default InputWithLabel;

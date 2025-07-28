@@ -118,7 +118,7 @@ class NCOFIPage extends Component {
       })
     }
     console.log('Redux store...', this.props.data.audits)
-    console.log('NCOFI mounted', this.props?.navigation?.state?.params)
+    console.log('NCOFI mounted', this.props?.route?.params)
     console.log('NCOFI mounted new', this.props?.route?.params)
     this.setState({
       // Update this.props?.navigation?.state?.params? -----> this.props?.route?.params?
@@ -1294,7 +1294,7 @@ class NCOFIPage extends Component {
     console.log('this.state.currentUserData?.accessToken--->', this.state.currentUserData?.accessToken)
     return (
       <View style={styles.wrapper}>
-        {Platform.OS === 'ios' ? <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> : null }
+        {Platform.OS === 'ios' ? <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
         {/* <OfflineNotice /> */}
 
         <ImageBackground

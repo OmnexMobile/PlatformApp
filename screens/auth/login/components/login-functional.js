@@ -21,7 +21,7 @@ const LoginFunctional = ({}) => {
         password: '',
         loggingIn: false,
     });
-    const { profile, handleLogin, handleSiteList, appSettings } = useAppContext();
+    const { profile, handleLogin, handleSiteList, appSettings, handleSite } = useAppContext();
     const navigation = useNavigation();
     const isRegistered = !!appSettings?.serverUrl;
 
@@ -104,6 +104,7 @@ const LoginFunctional = ({}) => {
             UserFullName: data?.Data?.[0]?.FullName,
         });
         handleSiteList(data?.Data);
+        handleSite(data?.Data)
         // dispatch(
         //     getProfileSuccess({
         //         Token: data?.Token,

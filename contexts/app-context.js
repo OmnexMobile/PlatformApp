@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 import moment from 'moment';
 import localStorage from '../global/localStorage';
-import { API_URL, COMPANY_DETAILS, Languages, LOCAL_STORAGE_VARIABLES } from '../constants/app-constant';
+import { API_URL, COMPANY_DETAILS, DATE_FORMAT, Languages, LOCAL_STORAGE_VARIABLES } from '../constants/app-constant';
 import strings from '../config/localization';
 import AsyncStorage from '@react-native-community/async-storage';
 
@@ -11,7 +11,8 @@ const AppContext = React.createContext({});
 const DEFAULT_VALUE = {
     Token: '',
     UserId: '',
-    SiteId: '',
+    // SiteId: '',
+    SiteDetails: '',
     UserFullName: '',
     UserEmail: '',
     Address: COMPANY_DETAILS.Address,
@@ -38,8 +39,9 @@ const AppProvider = ({ children }) => {
         language: 'en',
         serverUrl: '',
         //Problem solver
-        // deviceStatusSettings: null,
+        deviceStatusSettings: null,
     });
+    const [timeSettings, setTimeSettings] = useState(DATE_FORMAT.DD_MM_YYYY)
     const [globalURL, setGlobalURL] = useState({
         serverUrl: '',
     });
@@ -83,23 +85,22 @@ const AppProvider = ({ children }) => {
     };
 
     const handleAppSetting = (key, value) => {
-        console.log('🚀 ~ file: app-context.js:62 ~ handleAppSetting ~ handleAppSetting', key, value);
-        setAppSettings({
-            ...appSettings,
-            [key]: value,
-        });
-        // problem solver
-        // if (typeof value === 'string') {
-        //     setAppSettings({
-        //         ...appSettings,
-        //         [key]: value,
-        //     });
-        // } else {
-        //     setAppSettings({
-        //         ...appSettings,
-        //         ...value
-        //     });
-        // }
+        if (key === 'timeSettings') {
+            setTimeSettings(value);
+            localStorage.storeData(LOCAL_STORAGE_VARIABLES.TIME_SETTINGS, value);
+            return;
+        }
+        if (typeof value === 'string') {
+            setAppSettings({
+                ...appSettings,
+                [key]: value,
+            });
+        } else {
+            setAppSettings({
+                ...appSettings,
+                ...value,
+            });
+        }
     };
 
     const handleGlobalURL = (key, value) => {
@@ -131,6 +132,7 @@ const AppProvider = ({ children }) => {
     };
 
     const handleDeviceDetails = async deviceDetails => {
+        console.log('🚀 ~ file: app-context.js ~ handleDeviceDetails ~ deviceDetails:', deviceDetails);
         localStorage.storeData(LOCAL_STORAGE_VARIABLES.GLOBAL_DEVICE_STATUS, deviceDetails);
         setGlobalDeviceDetails({
             ...globalDeviceDetails,
@@ -145,19 +147,54 @@ const AppProvider = ({ children }) => {
         });
     };
 
+    // const handleSite = async selectedSite => {
+    //     console.log('🚀 ~ file: app-context.js:151 ~ handleSite ~ selectedSite:', selectedSite, selectedSite?.[0]);
+    //     // await localStorage.storeData(LOCAL_STORAGE_VARIABLES.SiteId, selectedSite);
+    //     await localStorage.storeData(LOCAL_STORAGE_VARIABLES.SiteDetails, selectedSite);
+    //     console.log('🚀 ~ sites?.selectedSite ~ handleSite ~ selectedSite:',sites?.selectedSite, sites);
+    //     !sites?.selectedSite && (await localStorage.storeData(LOCAL_STORAGE_VARIABLES.SiteDetails, selectedSite?.[0]));
+    //     setSites({
+    //         ...sites,
+    //         selectedSite: siteList?.[0] || null,
+    //     });
+    // };
+
+    // const handleSiteList = async siteList => {
+    //     console.log('🚀 ~ file: app-context.js:162 ~ handleSite ~ siteList:', siteList);
+    //     await localStorage.storeData(LOCAL_STORAGE_VARIABLES.SITES, siteList);
+    //     !sites?.selectedSite && (await localStorage.storeData(LOCAL_STORAGE_VARIABLES.SiteDetails, siteList?.[0]));
+    //     // !sites?.selectedSite && (await localStorage.storeData(LOCAL_STORAGE_VARIABLES.SiteId, siteList?.[0]));
+    //     setSites({
+    //         ...sites,
+    //         selectedSite: siteList?.[0] || null,
+    //         siteList,
+    //     });
+    // };
+
     const handleSite = async selectedSite => {
-        await localStorage.storeData(LOCAL_STORAGE_VARIABLES.SiteId, selectedSite);
+        // console.log('🚀 ~ file: app-context.js:--79 ~ handleSite ~ selectedSite:', selectedSite, selectedSite?.length);
+        console.log('🚀 ~ file: app-context.js:--80 ~ handleSite1111 ~ selectedSite:', selectedSite,'--', selectedSite?.[0], '--', selectedSite?.length);
+        await localStorage.storeData(LOCAL_STORAGE_VARIABLES.SiteDetails, selectedSite);
         setSites({
             ...sites,
-            selectedSite,
+            selectedSite: selectedSite?.length ? selectedSite?.[0] : selectedSite,
+            // typeof selectedSite?.length === 'undefined'
+        });
+    };
+
+    const clearSite = async () => {
+        console.log('🧹 Clearing selected site');
+        await localStorage.removeItem(LOCAL_STORAGE_VARIABLES.SiteDetails); // or storeData(null)
+        setSites({
+            ...sites,
+            selectedSite: null, // or {} or ''
         });
     };
 
     const handleSiteList = async siteList => {
-        console.log('handleSiteList---->siteList', siteList)
-        console.log('handleSiteList---->sites?.selectedSite', sites?.selectedSite, '---', siteList?.[0])
+        console.log('🚀 ~ file: app-context.js:193 ~ handleSiteList ~ siteList:', siteList);
         await localStorage.storeData(LOCAL_STORAGE_VARIABLES.SITES, siteList);
-        !sites?.selectedSite && (await localStorage.storeData(LOCAL_STORAGE_VARIABLES.SiteId, siteList?.[0]));
+        !sites?.selectedSite && (await localStorage.storeData(LOCAL_STORAGE_VARIABLES.SiteDetails, siteList?.[0]));
         setSites({
             ...sites,
             selectedSite: siteList?.[0] || null,
@@ -171,31 +208,31 @@ const AppProvider = ({ children }) => {
             selectedOrganization,
         });
     
-    //problem solver
-    // const handleAddRecentActivities = recentActivities => {
-    //     setRecentActivities([...recentActivities]);
-    //     localStorage.storeData(LOCAL_STORAGE_VARIABLES.RECENT_ACTIVITIES, [...recentActivities]);
-    // };
+    const handleAddRecentActivities = recentActivities => {
+        console.log('🚀 ~ file: app-context.js:213 ~ handleAddRecentActivities ~ recentActivities:', recentActivities);
+        setRecentActivities([...recentActivities]);
+        localStorage.storeData(LOCAL_STORAGE_VARIABLES.RECENT_ACTIVITIES, [...recentActivities]);
+    };
 
-    // const handleRecentActivity = (concern, deleteConcern = false) => {
-    //     if (deleteConcern) {
-    //         const filteredRecentActivities = recentActivities?.filter(x => x.ConcernID !== concern?.ConcernID);
-    //         handleAddRecentActivities(filteredRecentActivities);
-    //     } else {
-    //         const index = recentActivities.findIndex(x => x.ConcernID === concern?.ConcernID);
-    //         if (index === -1) {
-    //             recentActivities.push({ ...concern, lastOpened: moment() });
-    //             handleAddRecentActivities(recentActivities);
-    //         }
-    //     }
-    // };
+    const handleRemoveActivity = () => {
+        setRecentActivities([]);
+        localStorage.storeData(LOCAL_STORAGE_VARIABLES.RECENT_ACTIVITIES, []);
+    };
 
-    const handleRecentActivity = concern => {
-        const index = recentActivities.findIndex(x => x.ConcernID === concern?.ConcernID);
-        if (index === -1) {
-            recentActivities.push({ ...concern, lastOpened: moment() });
-            setRecentActivities([...recentActivities]);
-            localStorage.storeData(LOCAL_STORAGE_VARIABLES.RECENT_ACTIVITIES, [...recentActivities]);
+    const handleRecentActivity = (concern, deleteConcern = false) => {
+        if (deleteConcern) {
+            const filteredRecentActivities = recentActivities?.filter(x => x.ConcernID !== concern?.ConcernID);
+            handleAddRecentActivities(filteredRecentActivities);
+        } else {
+            const index = recentActivities.findIndex(x => x.ConcernID === concern?.ConcernID);
+            if (index === -1) {
+                recentActivities.push({ ...concern, lastOpened: moment() });
+                handleAddRecentActivities(recentActivities);
+            } else {
+                // If the concern is already added, update its lastOpened timestamp
+                recentActivities[index].lastOpened = moment();
+                handleAddRecentActivities(recentActivities);
+            }
         }
     };
 
@@ -203,24 +240,21 @@ const AppProvider = ({ children }) => {
         const SiteList = await localStorage.getData(LOCAL_STORAGE_VARIABLES.SITES);
         const Token = await localStorage.getData(LOCAL_STORAGE_VARIABLES.Token);
         const UserId = await localStorage.getData(LOCAL_STORAGE_VARIABLES.UserId);
-        const SiteId = await localStorage.getData(LOCAL_STORAGE_VARIABLES.SiteId);
+        // const SiteId = await localStorage.getData(LOCAL_STORAGE_VARIABLES.SiteId);
+        const SiteDetails = await localStorage.getData(LOCAL_STORAGE_VARIABLES.SiteDetails);
         const UserFullName = await localStorage.getData(LOCAL_STORAGE_VARIABLES.UserFullName);
         const UserEmail = await localStorage.getData(LOCAL_STORAGE_VARIABLES.UserEmail);
         const CurrentApp = await localStorage.getData('CurrentApp')
-        let serverUrl = await localStorage.getData(LOCAL_STORAGE_VARIABLES.SERVER_URL) || "";
-        // if(!serverUrl) {
-        //     await localStorage.storeData(LOCAL_STORAGE_VARIABLES.SERVER_URL, API_URL);
-        //     serverUrl = API_URL
-        // }
-
-        //prblem solver
-        // let deviceStatusSettings = (await localStorage.getData(LOCAL_STORAGE_VARIABLES.DEVICE_STATUS_SETTINGS)) || ''
+        let serverUrl = (await localStorage.getData(LOCAL_STORAGE_VARIABLES.SERVER_URL)) || '';
+        let deviceStatusSettings = (await localStorage.getData(LOCAL_STORAGE_VARIABLES.DEVICE_STATUS_SETTINGS)) || '';
+        let timeSettings = (await localStorage.getData(LOCAL_STORAGE_VARIABLES.TIME_SETTINGS)) || DATE_FORMAT.DD_MM_YYYY;
         Token &&
             setProfile({
                 ...profile,
                 Token,
                 UserId,
-                SiteId,
+                SiteDetails,
+                // SiteId,
                 UserFullName,
                 UserEmail,
                 loading: false,
@@ -230,15 +264,24 @@ const AppProvider = ({ children }) => {
             ...appSettings,
             serverUrl,
             //problem solver
-            // deviceStatusSettings
+            deviceStatusSettings,
         });
+        setTimeSettings(timeSettings);
         handleSiteList(SiteList);
-        SiteId && handleSite(SiteId);
+        SiteDetails && handleSite(SiteDetails);
+        // SiteId && handleSite(SiteId);
     };
 
     const getRecentActivity = async () => {
-        const recentActivities = await localStorage.getData(LOCAL_STORAGE_VARIABLES.RECENT_ACTIVITIES);
-        setRecentActivities(recentActivities || []);
+        let recentActivities = await localStorage.getData(LOCAL_STORAGE_VARIABLES.RECENT_ACTIVITIES);
+        recentActivities = recentActivities || [];
+
+        // Sort the recentActivities array by lastOpened in descending order
+        recentActivities.sort((a, b) => {
+            return moment(b.lastOpened).diff(moment(a.lastOpened));
+        });
+
+        setRecentActivities(recentActivities);
     };
 
     useEffect(() => {
@@ -258,6 +301,7 @@ const AppProvider = ({ children }) => {
                 sites,
                 recentActivities,
                 appSettings,
+                timeSettings,
                 globalURL,
                 globalLoginData,
                 globalDeviceDetails,
@@ -265,10 +309,12 @@ const AppProvider = ({ children }) => {
                 handleLogout,
                 handleOrganization,
                 handleSite,
+                clearSite,
                 resetContextData,
                 handleAppSetting,
                 handleSiteList,
                 handleRecentActivity,
+                handleRemoveActivity,
                 handleGlobalURL,
                 handleGlobalLogin,
                 handleDeviceDetails,

@@ -14,7 +14,6 @@ const FilteredConcernListScreenFunctional = ({}) => {
         loading: true,
     });
     const [refreshing, setRefreshing] = useState(false);
-    console.log('reached FilteredConcernListScreen----->')
 
     useFocusEffect(
         React.useCallback(() => {
@@ -38,8 +37,8 @@ const FilteredConcernListScreenFunctional = ({}) => {
     const getConcernList = async res => {
         var formData = new FormData();
         formData.append(LOCAL_STORAGE_VARIABLES.UserId, res.UserId);
-        // formData.append(LOCAL_STORAGE_VARIABLES.SiteId, res.SiteId);
         formData.append(LOCAL_STORAGE_VARIABLES.SiteId, res.Siteid);
+        // formData.append(LOCAL_STORAGE_VARIABLES.SiteId, res.SiteId);
         formData.append(APP_VARIABLES.MAX_ROW, 500);
         if (fromdate) {
             formData.append(APP_VARIABLES.FROM_DATE, fromdate);

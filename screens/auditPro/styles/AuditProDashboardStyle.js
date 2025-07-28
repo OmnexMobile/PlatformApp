@@ -9,7 +9,7 @@ export default styles = StyleSheet.create({
   },
   welcomeTxtView: {
     maxWidth: '70%',
-    marginLeft: 10,
+    marginLeft: 20,
   },
   header: {
     width: '100%',

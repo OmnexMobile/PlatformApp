@@ -1,16 +1,18 @@
 import React from 'react';
 import { ScrollView, View } from 'react-native';
-import { ConfirmModal, RenderInputs, Content, GradientButton, Header, Loader } from 'components';
+import { useNavigation } from '@react-navigation/native';
+import { ConfirmModal, RenderInputs, Content, GradientButton, Header, Loader, FAB } from 'components';
 import { SPACING } from 'constants/theme-constants';
-import { BUTTON_ICONS, INPUTS_CONSTANTS, STATUS_CODES } from 'constants/app-constant';
-import EightDModal from 'screens/problemSolver/containers/concerns/create-concern/components/8DModal';
+import { INPUTS_CONSTANTS, ROUTES, STATUS, STATUS_CODES, USER_TYPE } from 'constants/app-constant';
+import EightDModal from 'screens/problemSolver/containers/concerns/create-concern/components/8DModal'
+import { RFPercentage } from 'helpers/utils';
 
 const ConcernInitialEvaluationPresentational = ({
-    handleInputChange,
     isValid,
     isDynamicInputsValid,
     handleSaveConcern,
     savingConcern,
+    handleInputChange,
     ConcernID,
     formModalVisible,
     setFormModalVisible,
@@ -29,8 +31,12 @@ const ConcernInitialEvaluationPresentational = ({
     dropdownList,
     isProjectCreating,
     filteredPriorities,
+    sites,
+    handleDynamicInputChange,
+    refreshElementData,
 }) => {
-    console.log('concernDetails?.FormUrl', selectedTeam, concernDetails?.ProjectStartDate, concernDetails?.PriorityID, concernDetails?.StatusID);
+    const navigation = useNavigation();
+    const pageLoading = dynamicInputsLoading || concernDetails?.Loading || isDeleting;
     return (
         <Content noPadding>
             <ConfirmModal
@@ -42,74 +48,79 @@ const ConcernInitialEvaluationPresentational = ({
                 }}
             />
             <EightDModal {...{ modalVisible: formModalVisible, onRequestClose: () => setFormModalVisible(false), url: concernDetails?.FormUrl }} />
-            {/* <Header rightIconClick={() => setConfirmModal(true)} rightIcon="trash" title={ConcernID ? `Concern #${ConcernID}` : 'New Concern'} /> */}
             <Header
-                rightIconClick={() => setConfirmModal(true)}
-                rightIcon="trash"
+                {...{
+                    ...(sites?.selectedSite?.UserType !== USER_TYPE.SUPPLIER && {
+                            rightIcon: 'trash',
+                            rightIconClick: () => setConfirmModal(true),
+                        }),
+                }}
                 title={ConcernID ? `${concernDetails?.ConcernNo}` : 'New Concern'}
             />
             {isProjectCreating ? <Loader {...{ loadingText: 'Project is being created...', absolute: true }} /> : null}
-            {dynamicInputsLoading || concernDetails?.Loading || isDeleting ? (
+            {pageLoading ? (
                 <Loader {...{ ...(isDeleting && { loadingText: 'Concern is being deleted' }) }} />
             ) : (
                 <>
                     <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingVertical: 0, flexGrow: 1 }}>
                         <RenderInputs {...{ inputs: defaultInputs, handleInputChange }} />
-                        <RenderInputs {...{ inputs: dynamicInputs, handleInputChange }} />
-                        {ConcernID && concernDetails?.ConcernStatus === 'Created' && !concernDetails?.IsUserSuperChampion ? (
-                            <>
-                                <RenderInputs
-                                    {...{
-                                        inputs: [
-                                            {
-                                                label: 'Assign Team',
-                                                name: 'TeamId',
-                                                type: INPUTS_CONSTANTS.TEAM_PICKER,
-                                                ConcernID,
-                                                value: selectedTeam,
-                                                required: true,
-                                                // editable: false
-                                            },
-                                        ],
-                                        handleInputChange: (TeamId, value) => setSelectedTeam(value),
-                                    }}
-                                />
-                                <RenderInputs
-                                    {...{
-                                        inputs: [
-                                            {
-                                                type: INPUTS_CONSTANTS.DATE_PICKER,
-                                                ConcernID,
-                                                label: 'Project Start date',
-                                                name: 'ProjectStartDate',
-                                                value: concernDetails?.ProjectStartDate,
-                                                required: true,
-                                                dynamic: false,
-                                                handleInputChange: (TeamId, value) => setSelectedTeam(value),
-                                            },
-                                        ],
-                                        handleInputChange,
-                                    }}
-                                />
-                                <RenderInputs
-                                    {...{
-                                        inputs: [
-                                            {
-                                                label: 'Priority',
-                                                name: 'PriorityID',
-                                                data: (filteredPriorities || []).map(data => ({
-                                                    label: data?.PriorityName,
-                                                    value: data?.PriorityID,
-                                                })),
-                                                required: true,
-                                                value: concernDetails?.PriorityID,
-                                                type: INPUTS_CONSTANTS.DROPDOWN,
-                                            },
-                                            ,
-                                        ],
-                                        handleInputChange,
-                                    }}
-                                />
+                        <RenderInputs {...{ inputs: dynamicInputs, handleInputChange: handleDynamicInputChange, concernDetails, ConcernID }} />
+                        {/* {ConcernID && concernDetails?.ConcernStatus === 'Created' && concernDetails?.IsUserSuperChampion ? ( */}
+                        <>
+                            <RenderInputs
+                                {...{
+                                    inputs: [
+                                        {
+                                            label: 'Assign Team',
+                                            name: 'TeamId',
+                                            type: INPUTS_CONSTANTS.TEAM_PICKER,
+                                            ConcernID,
+                                            value: selectedTeam,
+                                            required: true,
+                                            editable: sites?.selectedSite?.UserType !== USER_TYPE.SUPPLIER && concernDetails?.IsUserSuperChampion,
+                                        },
+                                    ],
+                                    handleInputChange: (TeamId, value) => setSelectedTeam(value),
+                                }}
+                            />
+                            <RenderInputs
+                                {...{
+                                    inputs: [
+                                        {
+                                            type: INPUTS_CONSTANTS.DATE_PICKER,
+                                            ConcernID,
+                                            label: 'Project Start date',
+                                            name: 'ProjectStartDate',
+                                            value: concernDetails?.ProjectStartDate,
+                                            required: true,
+                                            dynamic: false,
+                                            editable: sites?.selectedSite?.UserType !== USER_TYPE.SUPPLIER && concernDetails?.IsUserSuperChampion,
+                                            handleInputChange: (TeamId, value) => setSelectedTeam(value),
+                                        },
+                                    ],
+                                    handleInputChange,
+                                }}
+                            />
+                            <RenderInputs
+                                {...{
+                                    inputs: [
+                                        {
+                                            label: 'Priority',
+                                            name: 'PriorityID',
+                                            data: (filteredPriorities || []).map(data => ({
+                                                label: data?.PriorityName,
+                                                value: data?.PriorityID,
+                                            })),
+                                            required: true,
+                                            value: concernDetails?.PriorityID,
+                                            type: INPUTS_CONSTANTS.DROPDOWN,
+                                            editable: sites?.selectedSite?.UserType !== USER_TYPE.SUPPLIER && concernDetails?.IsUserSuperChampion,
+                                        },
+                                    ],
+                                    handleInputChange,
+                                }}
+                            />
+                            {concernDetails?.IsUserSuperChampion && (
                                 <RenderInputs
                                     {...{
                                         inputs: [
@@ -123,16 +134,18 @@ const ConcernInitialEvaluationPresentational = ({
                                                 required: true,
                                                 value: concernDetails?.StatusID,
                                                 type: INPUTS_CONSTANTS.DROPDOWN,
+                                                editable: sites?.selectedSite?.UserType !== USER_TYPE.SUPPLIER && concernDetails?.IsUserSuperChampion,
                                             },
                                             ,
                                         ],
                                         handleInputChange,
                                     }}
                                 />
-                            </>
-                        ) : null}
+                            )}
+                        </>
+                        {/* ) : null} */}
                     </ScrollView>
-                    {concernDetails?.ConcernStatus === 'Created' && !concernDetails?.IsUserSuperChampion ? (
+                    {sites?.selectedSite?.UserType === USER_TYPE.SUPPLIER || !concernDetails?.IsUserSuperChampion ? null : (
                         <View style={{ padding: SPACING.NORMAL }}>
                             <GradientButton
                                 disabled={
@@ -140,7 +153,7 @@ const ConcernInitialEvaluationPresentational = ({
                                         selectedTeam &&
                                         concernDetails?.ProjectStartDate &&
                                         concernDetails?.PriorityID &&
-                                        concernDetails?.StatusID !== 1
+                                        concernDetails?.StatusID !== STATUS_CODES.OpenConcern
                                     )
                                 }
                                 loading={isSubmitting}
@@ -148,14 +161,7 @@ const ConcernInitialEvaluationPresentational = ({
                                 Submit
                             </GradientButton>
                         </View>
-                    ) : null}
-                    {/* {concernDetails?.FormUrl && concernDetails?.StatusID === STATUS_CODES.InprogressConcern ? (
-                        <View style={{ padding: SPACING.NORMAL, paddingTop: 0 }}>
-                            <GradientButton icon={BUTTON_ICONS.eye} onPress={() => setFormModalVisible(true)}>
-                                {concernDetails?.ApproachName || ''} Form
-                            </GradientButton>
-                        </View>
-                    ) : null} */}
+                    )}
                 </>
             )}
             {/* {!ConcernID ? (
@@ -165,6 +171,19 @@ const ConcernInitialEvaluationPresentational = ({
                     </GradientButton>
                 </View>
             ) : null} */}
+            {sites?.selectedSite?.UserType === USER_TYPE.SUPPLIER ? null : (
+                <FAB
+                    onPress={() =>
+                        navigation.navigate(ROUTES.EDIT_CONCERN, {
+                            ConcernID,
+                            FormTypeID: 3,
+                            refreshElementData,
+                        })
+                    }
+                    iconName="edit"
+                    bottom={RFPercentage(15)}
+                />
+            )}
         </Content>
     );
 };

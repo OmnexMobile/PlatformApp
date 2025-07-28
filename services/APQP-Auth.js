@@ -1,4 +1,5 @@
-import api from "./APQP-API";
+import api from "./NormalApi";
+// import Reactotron from "reactotron-react-native";
 
 export default {
   setServerUrl(serverUrl) {
@@ -99,6 +100,7 @@ export default {
     });
   },
   getapqpweblogindata(docattachurl, UserName, Password, cb) {
+    // Reactotron.log("enteringtwo");
     api.webLogin(docattachurl, UserName, Password, (res) => {
       cb(true, res);
     });
@@ -445,6 +447,7 @@ export default {
     isAdditional,
     cb
   ) {
+    // Reactotron.log(weburl, "weburl1");
     api.outputAttachments(
       IPDocId,
       IPIdentity,

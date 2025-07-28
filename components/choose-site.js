@@ -1,6 +1,6 @@
 import React from 'react';
 import Ripple from 'react-native-material-ripple';
-import { ScrollView, View } from 'react-native';
+import { Platform, ScrollView, StatusBar, View } from 'react-native';
 import { TextComponent, NoRecordFound, Avatar } from 'components';
 import { Modalize } from 'react-native-modalize';
 import { getAvatarInitials, RFPercentage } from 'helpers/utils';
@@ -10,9 +10,24 @@ import { toast } from 'helpers/utils';
 import useTheme from 'theme/useTheme';
 
 const ChooseSite = ({ modalizeRef, filteredSites, sites, handleSite, searchKey, setSearchKey }) => {
+    console.log('current sites--->', sites)
+    console.log('current filteredSites', sites?.selectedSite, sites?.selectedSite?.[0]?.Siteid, filteredSites)
+    // const finalSiteId = (sites?.selectedSite?.Siteid === undefined) ? sites?.selectedSite?.[0]?.Siteid : sites?.selectedSite?.Siteid
     const { theme } = useTheme();
     return (
         <Modalize
+            onOpen={() => {
+                if (Platform.OS === 'android') {
+                    StatusBar.setBackgroundColor('rgba(0, 0, 0, 0.65)', true);
+                    StatusBar.setBarStyle('light-content');
+                }
+            }}
+            onClose={() => {
+                if (Platform.OS === 'android') {
+                    StatusBar.setBackgroundColor(COLORS.white, true);
+                    StatusBar.setBarStyle('dark-content');
+                }
+            }}
             ref={modalizeRef}
             // adjustToContentHeight
             scrollViewProps={{
@@ -22,7 +37,10 @@ const ChooseSite = ({ modalizeRef, filteredSites, sites, handleSite, searchKey, 
                     flexGrow: 1,
                 },
             }}
-            modalHeight={RFPercentage(80)}
+            modalStyle={{
+                backgroundColor: theme.mode.backgroundColor,
+            }}
+            modalHeight={RFPercentage(Platform.OS === 'android' ? 80 : 50)}
             HeaderComponent={
                 <View
                     style={{
@@ -34,40 +52,29 @@ const ChooseSite = ({ modalizeRef, filteredSites, sites, handleSite, searchKey, 
                         borderTopRightRadius: SPACING.SMALL,
                     }}>
                     <TextComponent>Choose site ({filteredSites?.length || 0})</TextComponent>
-                    {/* <TextComponent>Organizations ({organizations?.length})</TextComponent> */}
-                    {/* <View
-                            style={{
-                                width: '100%',
-                                padding: SPACING.NORMAL,
-                                paddingHorizontal: 0,
-                                paddingBottom: 0,
-                            }}>
-                            <View>
-                                <TextInput
-                                    value={searchKey}
-                                    onChangeText={searchKey => setSearchKey(searchKey)}
-                                    style={{ fontFamily: 'ProximaNova-Regular', fontSize: FONT_SIZE.LARGE }}
-                                    placeholder="search site"
-                                />
-                            </View>
-                        </View> */}
                 </View>
             }>
             <View style={{ flex: 1, backgroundColor: theme.mode.backgroundColor }}>
-                <ScrollView style={{ flex: 1, paddingBottom: SPACING.LARGE }} contentContainerStyle={{ flexGrow: 1, flex: 1 }}>
-                    <View style={{ flex: 1 }}>
+                <ScrollView
+                    style={{ flex: 1, backgroundColor: theme.mode.backgroundColor, paddingBottom: SPACING.LARGE }}
+                    contentContainerStyle={{ flexGrow: 1, flex: 1, backgroundColor: theme.mode.backgroundColor }}>
+                    <View style={{ flex: 1, backgroundColor: theme.mode.backgroundColor, paddingTop: SPACING.SMALL }}>
                         {!!filteredSites?.length ? (
+                            
                             <>
-                            {console.log('filteredSites--->', filteredSites)}
+                            
                                 {filteredSites.map(
-                                    ({ EntityNode, FullName, Siteid, SiteName, SupplierAccess, UserId, UserType, img = null }, index) => (
+                                    // ({ EntityNode, FullName, SiteId, SiteName, SupplierAccess, UserId, UserType, img = null }, index) => (
+                                        // console.log('sites?.selectedSite?.SiteId === Siteid', sites?.selectedSite?.SiteId ,Siteid)
+                                        ({ EntityNode, FullName, Siteid, SiteName, SupplierManagementAccess, UserId, UserType, img = null }, index) => (
+                                            
                                         <Ripple
                                             onPress={() => {
                                                 setTimeout(() => {
                                                     modalizeRef.current?.close();
                                                 }, 1000);
                                                 // handleSite({ EntityNode, FullName, SiteId, SiteName, SupplierAccess, UserId, UserType });
-                                                handleSite({ EntityNode, FullName, Siteid, SiteName, SupplierAccess, UserId, UserType });
+                                                handleSite({ EntityNode, FullName, Siteid, SiteName, SupplierManagementAccess, UserId, UserType });
                                                 toast('Loading...', 'setting up site details...', TOAST_STATUS.SUCCESS, 100);
                                             }}
                                             activeOpacity={0.8}
@@ -83,17 +90,20 @@ const ChooseSite = ({ modalizeRef, filteredSites, sites, handleSite, searchKey, 
                                                     borderWidth: 2,
                                                     borderRadius: 100,
                                                     padding: 2,
-                                                    // borderColor: sites?.selectedSite?.SiteId === SiteId ? COLORS.primaryThemeColor : COLORS.white,
-                                                    borderColor: sites?.selectedSite?.Siteid === Siteid ? COLORS.primaryThemeColor : COLORS.white,
+                                                    borderColor:
+                                                        sites?.selectedSite?.Siteid === Siteid ? theme.colors.primaryThemeColor : COLORS.lightGrey,
                                                 }}>
                                                 <Avatar
                                                     img={img}
                                                     placeholder={getAvatarInitials(SiteName)}
                                                     width={RFPercentage(5)}
                                                     height={RFPercentage(5)}
+                                                    selected={sites?.selectedSite?.Siteid === Siteid}
+                                                    theme={theme}
                                                 />
                                             </View>
                                             <TextComponent style={{ paddingLeft: SPACING.NORMAL }}>{SiteName}</TextComponent>
+                                            {console.log('sites?.selectedSite?.Siteid === Siteid', sites?.selectedSite?.Siteid ,Siteid)}
                                         </Ripple>
                                     ),
                                 )}

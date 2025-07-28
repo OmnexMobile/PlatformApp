@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import moment from 'moment';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { APP_VARIABLES, DATE_FORMAT, INPUTS_CONSTANTS, LOCAL_STORAGE_VARIABLES, STATUS_CODES } from 'constants/app-constant';
 import API_URL from 'global/ApiUrl';
 import { postAPI, getAPI } from 'global/api-helpers';
@@ -27,7 +27,12 @@ const ViewConcernFunctional = ({}) => {
         Mode: 'Save',
         Loading: true,
     });
+    const [nestedConcernDetails, setNestedConcernDetails] = useState({});
     const [dynamicConcernDetails, setDynamicConcernDetails] = useState({});
+    const [problemImages, setProblemImages] = useState([]);
+    const [attachments, setAttachments] = useState([]);
+    const [okPicker, setOkPicker] = useState(null);
+    const [notOkPicker, setNotOkPicker] = useState(null);
     const [confirmModal, setConfirmModal] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const [isProjectCreating, setIsProjectCreating] = useState(false);
@@ -41,14 +46,13 @@ const ViewConcernFunctional = ({}) => {
         loading: false,
     });
     const [statusValue, setStatusValue] = useState(null);
-    console.log('🚀 ~ file: concern-initial-evaluation-functional.js:40 ~ ViewConcernFunctional ~ dropdownList:', dropdownList?.data?.Priorities);
 
     const route = useRoute();
     const { sites, handleRecentActivity } = useAppContext();
     const navigation = useNavigation();
     const dispatch = useDispatch();
 
-    const { ConcernID = '' } = route?.params || { ConcernID: '' };
+    const { ConcernID = '', FormTypeID = '' } = route?.params || { ConcernID: '' };
 
     const getDynamicInputList = async (res, categoryId) => {
         setDynamicInputsLoading(true);
@@ -59,9 +63,9 @@ const ViewConcernFunctional = ({}) => {
                     [APP_VARIABLES.SOURCE_ID]: categoryId,
                     [APP_VARIABLES.FORM_TYPE]: 'cat',
                     [LOCAL_STORAGE_VARIABLES.UserId]: res.UserId,
-                    [APP_VARIABLES.FORM_TYPE_ID]: 1, // 1 for Draft page
-                    // [APP_VARIABLES.SITE_ID]: res.SiteId,
-                    [APP_VARIABLES.SITE_ID]: res.Siteid,
+                    [APP_VARIABLES.FORM_TYPE_ID]: FormTypeID || 1, // 1 for Draft page
+                    // [APP_VARIABLES.FORM_TYPE_ID]: 2, // 1 for Draft page
+                    [APP_VARIABLES.SITE_ID]: res.SiteId,
                     [APP_VARIABLES.CONCERN_FORM_ID]: concernDetails?.ConcernFormID,
                     ...(ConcernID && {
                         ConcernId: ConcernID,
@@ -69,44 +73,64 @@ const ViewConcernFunctional = ({}) => {
                 }),
             );
 
-            const tempDynamicInputs = dynamicInputs?.filter(input => input?.value);
+            const tempDynamicInputs = dynamicInputs?.filter(input => !['TeamID', 'ProjectStartDate', 'StatusID'].includes(input?.name));
+            // const tempDynamicInputs = dynamicInputs?.filter(input => input?.value);
             const dynamicConcernDetails = {};
-            console.log(
-                '🚀 ~ file: concern-initial-evaluation-functional.js:63 ~ getDynamicInputList ~ tempDynamicInputs:',
-                concernDetails,
-                concernDetails['SupplierName'],
-            );
+
             setDynamicInputs([
                 ...tempDynamicInputs?.map(input => {
                     dynamicConcernDetails[input.name] =
-                        input?.name === 'ReportedDate' ? moment.utc(concernDetails['ReportedDate']).format() : input.value;
+                        input?.name === 'ReportedDate'
+                            ? moment.utc(concernDetails['ReportedDate']).format()
+                            : (concernDetails?.[input?.name]?.toString() || input?.value || '')?.toString();
                     return {
                         ...input,
-                        editable: !!!ConcernID,
-                        type: INPUTS_CONSTANTS.INPUT,
-                        ...(input?.name === 'CustomerID' && { value: concernDetails['CustomerName'] }),
-                        ...(input?.name === 'ApproachID' && { value: concernDetails['ApproachName'] }),
-                        ...(input?.name === 'QAlert' && { value: concernDetails['QAlertType'] }),
-                        ...(input?.name === 'Disposition' && { value: concernDetails['DispositionName'] }),
-                        ...(input?.name === 'SupplierID' && {
-                            value: concernDetails['SupplierName'],
-                            ...(!!!concernDetails['SupplierName'] && {
-                                type: INPUTS_CONSTANTS.DROPDOWN,
-                                editable: true,
-                            }),
+                        ...(input?.name === 'EstimatedTotalCost' && {
+                            label: `${input?.label} ${concernDetails?.['ShortName'] ? `(${concernDetails?.['ShortName']})` : ''}`,
                         }),
-                        ...(input?.name === 'ReportedDate' && { value: moment(concernDetails['ReportedDate']).format(DATE_FORMAT.DD_MM_YYYY) }),
+                        // value: concernDetails?.[input?.name]?.toString(),
+                        value: concernDetails?.[input?.name]?.toString() || input?.Value || input?.value || '',
+                        ...(input?.name === 'PriorityID' && { value: concernDetails['PriorityID']?.toString() }),
+                        ...(input?.name === 'ReportedDate' && { value: moment(concernDetails['ReportedDate'])?.toString() }),
+                        ...(input?.name === 'CategoryofComplaint' && {
+                            value: concernDetails['CategoryofComplaint']?.toString(),
+                        }),
+                        ...(input?.name === 'SerialNumber' && { value: concernDetails['SerialNumber']?.toString() }),
+                        ...(input?.name === 'Source' && { value: concernDetails['Source']?.toString() }),
+                        ...(input?.name === 'NotifySupplier' && { value: concernDetails['NotifySupplier']?.toString() }),
+                        ...(input?.name === 'Repeat' && { value: concernDetails['Repeat']?.toString() }),
+
                         ...(input?.name === 'ProbDesc' && {
                             type: INPUTS_CONSTANTS.RICH_EDITOR,
                             value: concernDetails['ProbDesc']?.replace(/<[^>]+>|&[^;]+;/gi, ''),
                         }),
-                        // value: input?.value,
-                        // ...(!!ConcernID && { editable: false }),
+
+                        ...(concernDetails?.StatusID === STATUS_CODES.DraftConcern && {
+                            editable: false,
+                        }),
+
+                        // editable: !!!ConcernID,
+                        // type: INPUTS_CONSTANTS.INPUT,
+                        // ...(input?.name === 'CustomerID' && { value: concernDetails['CustomerName'] }),
+                        // ...(input?.name === 'ApproachID' && { value: concernDetails['ApproachName'] }),
+                        // ...(input?.name === 'QAlert' && { value: concernDetails['QAlertType'] }),
+                        // ...(input?.name === 'Disposition' && { value: concernDetails['DispositionName'] }),
+                        // ...(input?.name === 'SupplierID' && {
+                        //     value: concernDetails['SupplierName'],
+                        //     ...(!!!concernDetails['SupplierName'] && {
+                        //         type: INPUTS_CONSTANTS.DROPDOWN,
+                        //         editable: true,
+                        //     }),
+                        // }),
+                        // ...(input?.name === 'ReportedDate' && { value: moment(concernDetails['ReportedDate']).format(DATE_FORMAT.DD_MM_YYYY) }),
+                        // ...(input?.name === 'ProbDesc' && {
+                        //     type: INPUTS_CONSTANTS.RICH_EDITOR,
+                        //     value: concernDetails['ProbDesc']?.replace(/<[^>]+>|&[^;]+;/gi, ''),
+                        // }),
                     };
                 }),
             ]);
             setDynamicConcernDetails(dynamicConcernDetails);
-            console.log('🚀 ~ file: view-concern-functional.js:108 ~ getDynamicInputList ~ dynamicConcernDetails:', dynamicConcernDetails);
             setDynamicInputsLoading(false);
         } catch (error) {
             setDynamicInputsLoading(false);
@@ -139,8 +163,13 @@ const ViewConcernFunctional = ({}) => {
     };
 
     const getConcern = async ConcernID => {
+        setConcernDetails({
+            ...concernDetails,
+            Loading: true,
+        });
         const formData = new FormData();
         formData.append(APP_VARIABLES.CONCERN_ID, ConcernID);
+        formData.append('UserId', sites?.selectedSite?.UserId);
         try {
             const res = await postAPI(`${API_URL.GET_CONCERN}`, formData);
             console.log('🚀 ~ file: concern-initial-evaluation-functional.js:70 ~ getConcern ~ res:', res);
@@ -233,8 +262,22 @@ const ViewConcernFunctional = ({}) => {
         setDynamicInputs([...dyInputs]);
     };
 
+    const handleNestedInputChange = (name, Value, Key, isBulk) => {
+        if (isBulk) {
+            setNestedConcernDetails({
+                ...nestedConcernDetails,
+                ...Value,
+            });
+        } else {
+            setNestedConcernDetails({
+                ...nestedConcernDetails,
+                [name]: Value,
+                // [name]: { Value, Key },
+            });
+        }
+    };
+
     const handleInputChange = (label, value) => {
-        console.log('🚀 ~ file: view-concern-functional.js:233 ~ handleInputChange ~ label, value:', label, value);
         setConcernDetails({
             ...concernDetails,
             [label]: value,
@@ -242,6 +285,7 @@ const ViewConcernFunctional = ({}) => {
     };
 
     const handleDynamicInputChange = (label, value) => {
+        console.log('🚀 ~ handleDynamicInputChange ~ label, value:', label, value);
         setDynamicConcernDetails({
             ...dynamicConcernDetails,
             [label]: value,
@@ -254,13 +298,14 @@ const ViewConcernFunctional = ({}) => {
 
     useEffect(() => handleDynamicInputs(concernDetails), [concernDetails]);
 
-    useEffect(() => {
-        ConcernID && getConcern(ConcernID);
-    }, [ConcernID]);
+    useFocusEffect(
+        React.useCallback(() => {
+            ConcernID && getConcern(ConcernID);
+        }, [ConcernID]),
+    );
 
     useEffect(() => {
-        // sites?.selectedSite?.SiteId && getDropdownList(sites?.selectedSite?.SiteId);
-        sites?.selectedSite?.Siteid && getDropdownList(sites?.selectedSite?.Siteid);
+        sites?.selectedSite?.SiteId && getDropdownList(sites?.selectedSite?.SiteId);
     }, [sites?.selectedSite]);
 
     useEffect(() => {
@@ -269,11 +314,27 @@ const ViewConcernFunctional = ({}) => {
         }
     }, [concernDetails?.CategoryID, sites?.selectedSite]);
 
+    useEffect(() => {
+        handleDynamicInputChange('ProblemImages', problemImages);
+    }, [problemImages]);
+
+    useEffect(() => {
+        handleDynamicInputChange('Attachments', attachments);
+    }, [attachments]);
+
+    useEffect(() => {
+        okPicker?.FileName && handleDynamicInputChange('OkPicker', okPicker);
+    }, [okPicker]);
+
+    useEffect(() => {
+        notOkPicker?.FileName && handleDynamicInputChange('NotOkPicker', notOkPicker);
+    }, [notOkPicker]);
+
     const getListData = res => {
         const defaultObj = {
             [LOCAL_STORAGE_VARIABLES.UserId]: res.UserId,
             // [LOCAL_STORAGE_VARIABLES.SiteId]: res.SiteId,
-            [LOCAL_STORAGE_VARIABLES.SiteId]: res.Siteid,
+            [LOCAL_STORAGE_VARIABLES.SiteId]: res.SiteId,
             [LOCAL_STORAGE_VARIABLES.MaxRow]: 3,
         };
         dispatch(
@@ -281,7 +342,7 @@ const ViewConcernFunctional = ({}) => {
                 formReq({
                     [LOCAL_STORAGE_VARIABLES.UserId]: res.UserId,
                     // [LOCAL_STORAGE_VARIABLES.SiteId]: res.SiteId,
-                    [LOCAL_STORAGE_VARIABLES.SiteId]: res.Siteid,
+                    [LOCAL_STORAGE_VARIABLES.SiteId]: res.SiteId,
                 }),
             ),
         );
@@ -323,7 +384,6 @@ const ViewConcernFunctional = ({}) => {
         }
     };
 
-    console.log('🚀 ~ file: view-concern-functional.js:321 ~ handleSubmitConcern ~ dynamicConcernDetails:', dynamicConcernDetails?.SupplierID);
     const handleSubmitConcern = async () => {
         // if (!!dynamicConcernDetails?.SupplierID) {
         const filteredConcern = {
@@ -362,14 +422,23 @@ const ViewConcernFunctional = ({}) => {
                     ButtonSave: APP_VARIABLES.SUBMIT,
                     Mode: 'Add',
                     CreatedBy: sites?.selectedSite?.UserId,
-                    // [LOCAL_STORAGE_VARIABLES.SiteId]: sites?.selectedSite?.SiteId,
-                    [LOCAL_STORAGE_VARIABLES.SiteId]: sites?.selectedSite?.Siteid,
+                    [LOCAL_STORAGE_VARIABLES.SiteId]: sites?.selectedSite?.SiteId,
                 },
             ],
-            // ...(!!formattedDynamicConcernDetails?.length && { DynamicConcernInput: formattedDynamicConcernDetails }),
             DynamicConcernInput: formattedDynamicConcernDetails,
+            ...(problemImages?.length > 0 && {
+                ProblemImages: problemImages,
+            }),
+            ...(attachments?.length > 0 && {
+                Attachments: attachments,
+            }),
+            ...(okPicker?.FileName && {
+                OkPicker: [okPicker],
+            }),
+            ...(notOkPicker?.FileName && {
+                NotOkPicker: [notOkPicker],
+            }),
         };
-        console.log('🚀 ~ file: view-concern-functional.js:353 ~ handleSubmitConcern ~ request:', request);
 
         setIsSubmitting(true);
         try {
@@ -422,6 +491,38 @@ const ViewConcernFunctional = ({}) => {
         }
     };
 
+    const isDynamicInputsValid = useMemo(
+        () =>
+            dynamicInputs.filter(detail => detail?.required && dynamicConcernDetails[detail?.name])?.length ===
+            dynamicInputs.filter(detail => detail.required)?.length,
+        [dynamicInputs, dynamicConcernDetails],
+    );
+
+    console.log(
+        '🚀 ~ CreateConcernFunctional ~ isDynamicInputsValid:',
+        isDynamicInputsValid,
+        dynamicInputs.find(detail => detail?.required && !dynamicConcernDetails[detail?.name]),
+        dynamicInputs.filter(detail => detail?.required && dynamicConcernDetails[detail?.name])?.length,
+        dynamicInputs.filter(detail => detail.required)?.length,
+        dynamicConcernDetails?.OkPicker,
+        concernDetails?.StatusID,
+    );
+
+    const handleProblemImages = images => {
+        setProblemImages(images);
+    };
+
+    const handleAttachments = attachments => {
+        setAttachments(attachments);
+    };
+
+    const handleOKPicker = okPicker => {
+        setOkPicker(okPicker);
+    };
+
+    const handleNotOKPicker = notOkPicker => {
+        setNotOkPicker(notOkPicker);
+    };
     return (
         <ViewConcernPresentational
             {...{
@@ -447,6 +548,13 @@ const ViewConcernFunctional = ({}) => {
                 handleUpdateStatus,
                 statusValue,
                 setStatusValue,
+                handleNestedInputChange,
+                sites,
+                isDynamicInputsValid,
+                handleProblemImages,
+                handleAttachments,
+                handleOKPicker,
+                handleNotOKPicker,
             }}
         />
     );

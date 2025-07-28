@@ -48,7 +48,7 @@ import { ROUTES } from 'constants/app-constant';
 
 let Window = Dimensions.get('window');
 
-class LoginUIScreen1 extends Component {
+class LoginUIScreen extends Component {
   TotalFile = [];
   FileArray = [];
   auditRecords = '';
@@ -377,14 +377,11 @@ class LoginUIScreen1 extends Component {
                     this.props?.data?.audits?.suppliermanagementstatus,
                 );
                 if (this.props?.data?.audits?.suppliermanagementstatus == 'true') {
-                  this.props.navigation.navigate('SupplyManage');
+                  this.props.navigation.navigate(ROUTES.SUPPLY_MANAGE);
                 } else {
                   console.log('redirect AUDIT_DASHBOARD_LISTING 1', this.props.route.params.title, this.props.route.params.projectStatus, this.props.route.params.category)
                   this.props.navigation.navigate(ROUTES.AUDIT_DASHBOARD_LISTING, { projectTitle: this.props.route.params.title, status: this.props.route.params.projectStatus, category: this.props.route.params.category }) 
                 }
-                // } else {
-                //   this.props.navigation.navigate(ROUTES.ALLTABAUDITLIST);
-                // }
               },
             );
           })
@@ -425,16 +422,11 @@ class LoginUIScreen1 extends Component {
                     this.props.data.audits.suppliermanagementstatus,
                 );
                 if (this.props.data.audits.suppliermanagementstatus == 'true') {
-                  this.props.navigation.navigate('SupplyManage');
+                  this.props.navigation.navigate(ROUTES.SUPPLY_MANAGE);
                 } else {
-                  // this.props.navigation.navigate(ROUTES.AUDIT_DASHBOARD_LISTING);
                   console.log('redirect AUDIT_DASHBOARD_LISTING 2', this.props?.route?.params?.title, this.props?.route?.params?.projectStatus, this.props?.route?.params?.category)
-                  this.props.navigation.navigate(ROUTES.AUDIT_DASHBOARD_LISTING, { projectTitle: this.props?.route?.params?.title, status: this.props?.route?.params?.projectStatus, category: this.props?.route?.params?.category })
+                  this.props.navigation.navigate(ROUTES.AUDIT_DASHBOARD_LISTING, { projectTitle: this.props?.route?.params?.title, status: this.props?.route?.params?.projectStatus, category: this.props?.route?.params?.category });
                 }
-                
-                // else {
-                //   this.props.navigation.navigate(ROUTES.ALLTABAUDITLIST);
-                // }
 
                 //  this.props.navigation.navigate("AllTabAuditList");
               },
@@ -593,15 +585,13 @@ class LoginUIScreen1 extends Component {
                   if (
                     this.props.data.audits.suppliermanagementstatus == 'true'
                   ) {
-                    this.props.navigation.navigate('SupplyManage');
+                    // this.props.navigation.navigate('SupplyManage');
+                    this.props.navigation.navigate(ROUTES.SUPPLY_MANAGE);
                   } else {
                     // this.props.navigation.navigate(ROUTES.AUDIT_DASHBOARD_LISTING);
                     console.log('redirect AUDIT_DASHBOARD_LISTING 3', this.props.route.params.title, this.props.route.params.projectStatus, this.props.route.params.category)
                     this.props.navigation.navigate(ROUTES.AUDIT_DASHBOARD_LISTING, { projectTitle: this.props.route.params.title, status: this.props.route.params.projectStatus, category: this.props.route.params.category })
                   }
-                  // else {
-                  //   this.props.navigation.navigate(ROUTES.ALLTABAUDITLIST);
-                  // }
 
                   //}else{
                   //alert('navigated to dashboard to avoid null issue')
@@ -658,6 +648,7 @@ class LoginUIScreen1 extends Component {
             LoggedUserDetails[0].audits.logo,
             LoggedUserDetails[0].audits.phone,
           );
+          console.log( LoggedUserDetails[0].audits.siteId, "siteidinlogin");
 
           this.storelogindetails(
             LoggedUserDetails[0].audits.userName,
@@ -743,15 +734,13 @@ class LoginUIScreen1 extends Component {
                     if (
                       this.props.data.audits.suppliermanagementstatus == 'true'
                     ) {
-                      this.props.navigation.navigate('SupplyManage');
+                      this.props.navigation.navigate(ROUTES.SUPPLY_MANAGE);
                     } else {
+                      // this.props.navigation.navigate('AllTabAuditList');
                       // this.props.navigation.navigate(ROUTES.AUDIT_DASHBOARD_LISTING);
                       console.log('redirect AUDIT_DASHBOARD_LISTING 4', this.props.route.params.title, this.props.route.params.projectStatus, this.props.route.params.category)
                       this.props.navigation.navigate(ROUTES.AUDIT_DASHBOARD_LISTING, { projectTitle: this.props.route.params.title, status: this.props.route.params.projectStatus, category: this.props.route.params.category })
                     }
-                    // else {
-                    //   this.props.navigation.navigate(ROUTES.ALLTABAUDITLIST);
-                    // }
 
                     //this.props.navigation.navigate("AllTabAuditList");
                   },
@@ -782,15 +771,13 @@ class LoginUIScreen1 extends Component {
                     if (
                       this.props.data.audits.suppliermanagementstatus == 'true'
                     ) {
-                      this.props.navigation.navigate('SupplyManage');
+                      this.props.navigation.navigate(ROUTES.SUPPLY_MANAGE);
                     } else {
+                      // this.props.navigation.navigate('AllTabAuditList');
                       // this.props.navigation.navigate(ROUTES.AUDIT_DASHBOARD_LISTING);
                       console.log('redirect AUDIT_DASHBOARD_LISTING 5', this.props.route.params.title, this.props.route.params.projectStatus, this.props.route.params.category)
                       this.props.navigation.navigate(ROUTES.AUDIT_DASHBOARD_LISTING, { projectTitle: this.props.route.params.title, status: this.props.route.params.projectStatus, category: this.props.route.params.category })
                     }
-                    // else {
-                    //   this.props.navigation.navigate(ROUTES.ALLTABAUDITLIST);
-                    // }
                   },
                 );
               })
@@ -851,6 +838,7 @@ class LoginUIScreen1 extends Component {
     companyurl,
     logo,
     phone,
+    deviceID,
   ) => {
     try {
       console.log(
@@ -863,7 +851,8 @@ class LoginUIScreen1 extends Component {
           companyname +
           companyurl +
           logo +
-          phone,
+          phone +
+          deviceID,
       );
       await AsyncStorage.setItem('userName', username);
       await AsyncStorage.setItem('userId', userid);
@@ -889,7 +878,7 @@ class LoginUIScreen1 extends Component {
     // console.log('--CurrentPage--->',CurrentPage)
     var CurrentPage = this.props?.route?.params?.name
     console.log('--CurrentPage--->',CurrentPage)
-    if (CurrentPage == 'LOGINUISCREEN') {
+    if (CurrentPage == 'GLOBAL_LOGIN') {
       if (this.props.data.audits.language === 'Chinese') {
         this.setState({ChineseScript: true}, () => {
           // console.log('Chinese props',this.state.ChineseScript)
@@ -903,41 +892,41 @@ class LoginUIScreen1 extends Component {
         });
       }
 
-    //   this.getToken();
+      this.getToken();
     } else {
       // console.log('LoginUIScreen Pass')
     }
   }
 
-  //need too fix - firebase
-  // async getToken() {
-  //   let fcmToken = await AsyncStorage.getItem('fcmToken');
-  //   if (fcmToken) {
-  //     this.setState(
-  //       {
-  //         fcmToken: fcmToken,
-  //       },
-  //       () => {
-  //         // console.log('login fcmToken',this.state.fcmToken)
-  //       },
-  //     );
-  //   }
-  //   if (!fcmToken) {
-  //     fcmToken = await firebase.messaging().getToken();
-  //     if (fcmToken) {
-  //       // user has a device token
-  //       await AsyncStorage.setItem('fcmToken', fcmToken);
-  //       this.setState(
-  //         {
-  //           fcmToken: fcmToken,
-  //         },
-  //         () => {
-  //           // console.log('login fcmToken',this.state.fcmToken)
-  //         },
-  //       );
-  //     }
-  //   }
-  // }
+  async getToken() {
+    let fcmToken = await AsyncStorage.getItem('fcmToken');
+    if (fcmToken) {
+      this.setState(
+        {
+          fcmToken: fcmToken,
+        },
+        () => {
+          // console.log('login fcmToken',this.state.fcmToken)
+        },
+      );
+    }
+    if (!fcmToken) {
+      // fcmToken = await firebase.messaging().getToken();
+      fcmToken = '';
+      if (fcmToken) {
+        // user has a device token
+        await AsyncStorage.setItem('fcmToken', fcmToken);
+        this.setState(
+          {
+            fcmToken: fcmToken,
+          },
+          () => {
+            // console.log('login fcmToken',this.state.fcmToken)
+          },
+        );
+      }
+    }
+  }
 
   ssoOnPress = async () => {
     let issuerurl = await AsyncStorage.getItem('sso_issuer');
@@ -976,8 +965,9 @@ class LoginUIScreen1 extends Component {
           : tokenEndPoint;
       console.log('additionalParameters', additionalParameters);
       this.setState({loginFlag:1})
-      const redirectUri = 'com.omnex.auditpro';
-       // Platform.OS == 'ios' ? 'org.omnex.auditpro' : 'com.omnex.auditpro';
+      // const redirectUri = 'com.omnex.auditpro';
+      const redirectUri = 
+        Platform.OS == 'ios' ? 'org.omnex.auditpro' : 'com.omnex.auditpro';
       let myConfig = {
         issuer: this.state.ssoConfigObj.issuer, //'https://aser0001.ww.faurecia.com',
         serviceConfiguration: {
@@ -1010,7 +1000,7 @@ class LoginUIScreen1 extends Component {
 
       console.log(resultAuth, 'resultauth');
       await AsyncStorage.setItem('ssologinstatusbool', "true");
-      this.loginCall(resultAuth.accessToken, '',this.state.loginFlag, {
+      this.loginCall(resultAuth.accessToken, '', this.state.loginFlag, {
         config: myConfig,
         token: {
           tokenToRevoke: resultAuth.accessToken,
@@ -1121,7 +1111,7 @@ class LoginUIScreen1 extends Component {
     }
   };
 
-  loginCall = (email, password,loginflag, isSso) => {
+  loginCall = (email, password, loginflag, isSso) => {
     var key = CryptoJS.enc.Utf8.parse('8080808080808080');
     var iv = CryptoJS.enc.Utf8.parse('8080808080808080');
     console.log('checkinglogin', loginflag)
@@ -1185,16 +1175,16 @@ class LoginUIScreen1 extends Component {
               // alert('ok')
             },
           );
-          const userDetails = {
-            userId: data.data.Data[0].UserId.toString(),
-            siteId: data.data.Data[0].Siteid,
-            // siteId: data.data.Data[0].Siteid,
-            accessToken: data.data.Token,
-            userFullName: data.data.Data[0].FullName
-          };
-          const stringifiedUserDetails = JSON.stringify(userDetails);
-          AsyncStorage.setItem('userDetails', stringifiedUserDetails);
-          console.log('Set Async userDetails ', stringifiedUserDetails)
+          // const userDetails = {
+          //   userId: data.data.Data[0].UserId.toString(),
+          //   siteId: data.data.Data[0].Siteid,
+          //   // siteId: data.data.Data[0].Siteid,
+          //   accessToken: data.data.Token,
+          //   userFullName: data.data.Data[0].FullName
+          // };
+          // const stringifiedUserDetails = JSON.stringify(userDetails);
+          // AsyncStorage.setItem('userDetails', stringifiedUserDetails);
+          // console.log('Set Async userDetails ', stringifiedUserDetails)
         } else {
           this.setState(
             {
@@ -1290,7 +1280,7 @@ class LoginUIScreen1 extends Component {
         this.state.Logo,
         this.state.Phone,
       );
-      console.log('Refillign props2', this.state);
+      console.log(this.state.siteId, 'siteidinlogin1');
       this.storelogindetails(
         this.state.userFullName,
         this.state.userId,
@@ -1317,15 +1307,12 @@ class LoginUIScreen1 extends Component {
               this.props.data.audits.suppliermanagementstatus,
           );
           if (this.props.data.audits.suppliermanagementstatus == 'true') {
-            this.props.navigation.navigate('SupplyManage');
+            this.props.navigation.navigate(ROUTES.SUPPLY_MANAGE);
           } else {
             // this.props.navigation.navigate(ROUTES.AUDIT_DASHBOARD_LISTING);
             console.log('redirect AUDIT_DASHBOARD_LISTING 6', this.props?.route?.params?.title, this.props?.route?.params?.projectStatus, this.props?.route?.params?.category)
             this.props.navigation.navigate(ROUTES.AUDIT_DASHBOARD_LISTING, { projectTitle: this.props?.route?.params?.title, status: this.props?.route?.params?.projectStatus, category: this.props?.route?.params?.category })
           }
-          // else {
-          //   this.props.navigation.navigate(ROUTES.ALLTABAUDITLIST);
-          // }
         },
       );
     } catch (error) {
@@ -1770,4 +1757,4 @@ const mapDispatchToProps = dispatch => {
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(LoginUIScreen1);
+export default connect(mapStateToProps, mapDispatchToProps)(LoginUIScreen);

@@ -67,7 +67,7 @@
 
 
 import React, { Component } from "react";
-import { Text, View, Button } from 'react-native';
+import { Text, View, Button, LogBox } from 'react-native';
 import Voice from "@react-native-community/voice";
 
 class VoiceAssist extends Component {
@@ -79,6 +79,10 @@ class VoiceAssist extends Component {
     Voice.onSpeechStart = this.onSpeechStartHandler.bind(this);
     Voice.onSpeechEnd = this.onSpeechEndHandler.bind(this);
     Voice.onSpeechResults = this.onSpeechResultsHandler.bind(this);
+  }
+
+  componentDidMount() {
+    LogBox.ignoreLogs(['new NativeEventEmitter']);
   }
 
   componentWillUnmount() {

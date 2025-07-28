@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {View, ImageBackground, TouchableOpacity, Text, Platform} from 'react-native';
+import {View, ImageBackground, TouchableOpacity, Text, Platform, Alert} from 'react-native';
 //styles
 import styles from '../styles/CalandarListStyle';
 //components
@@ -60,6 +60,13 @@ const yearList = [
   {label: '2021', value: '2021'},
   {label: '2022', value: '2022'},
   {label: '2023', value: '2023'},
+  {label: '2024', value: '2024'},
+  {label: '2025', value: '2025'},
+  {label: '2026', value: '2026'},
+  {label: '2027', value: '2027'},
+  {label: '2028', value: '2028'},
+  {label: '2029', value: '2029'},
+  {label: '2030', value: '2030'}
  
 ];
 const monthList = [
@@ -92,7 +99,7 @@ class CalandarList extends Component {
       end: '',
       month_change: '',
       monthValue: '01',
-      yearValue: '2024',
+      yearValue: '2025',
       calendarupdateKey: ''
     };
   }
@@ -113,7 +120,86 @@ class CalandarList extends Component {
         this.setState({});
       });
     }
+    this.checkUser();
     this.getYearAudits();
+  }
+
+  async checkUser () {
+    console.log('user id', this.props.data.audits);
+    var userid = this.props.data.audits.userId;
+    var token = this.props.data.audits.token;
+    var UserStatus = '';
+    var serverUrl = this.props.data.audits.serverUrl;
+    var ID = this.props.data.audits.userId;
+    var type = 3;
+    var path = '';
+    const deviceId = await AsyncStorage.getItem('loginDeviceId');
+
+    var RegisterDevice = this.props.data.audits.deviceid;
+    console.log(userid, token, deviceId, RegisterDevice);
+  
+    // auth.getCheckUser(userid,RegisterDevice,token, (res, data) => {
+    auth.getCheckUser(userid, deviceId, token, (res, data) => {
+      console.log('User information', data);
+      if (data.data.Message == 'Success') {
+        console.log('Checking User status', data.data.Data.ActiveStatus);
+        UserStatus = data.data.Data.ActiveStatus;
+     
+        if (this.props.data.audits.isOfflineMode) {
+          this.refs.toast.show(strings.Offline_Notice, DURATION.LENGTH_LONG);
+        } else {
+          NetInfo.fetch().then(netState => {
+            if (netState.isConnected) {
+              // this.props.navigation.navigate('AuditPage', {
+              //   datapass: iAuditDetails,
+              //   auditStatusPass: this.props.item.cStatus,
+              // });
+            } else {
+              this.refs.toast.show(strings.No_Internet, DURATION.LENGTH_LONG);
+            }
+          });
+        }
+         if (UserStatus == 2) {
+          console.log('User active');
+        
+          // this.syncAuditsToServerMethod()
+          this.checkFilePath();
+        } else if (UserStatus == 1) {
+          console.log('deleting user details');
+          var cleanURL = serverUrl.replace(/^https?:\/\//, '');
+          var formatURL = cleanURL.replace(/[&\/\\#,+()$~%.'":*?<>{}]/g, '');
+          this.propsServerUrl = formatURL;
+          console.log('cleanURL', this.propsServerUrl);
+          // var ID = this.props.data.audits.userId
+          console.log('path', this.propsServerUrl + ID);
+          if (Platform.OS == 'android') {
+            path =
+              '/data/user/0/com.omnex.auditpro/cache/AuditUser' +
+              '/' +
+              this.propsServerUrl +
+              ID;
+            console.log('path storing-->', path);
+          } else {
+            var iOSpath = RNFS.DocumentDirectoryPath;
+            path = iOSpath + '/' + this.propsServerUrl + ID;
+          }
+          console.log('*** path', path);
+          // this.deleteUserFile(path)
+          this.refs.toast.show(
+            strings.user_disabled_text,
+            DURATION.LENGTH_SHORT,
+          );
+          this.props.navigation.navigate(ROUTES.GLOBAL_LOGIN);
+        } else if (UserStatus == 0) {
+         Alert.alert("Your session has expired,Please login again.");
+          this.refs.toast.show(
+            strings.user_inactive_text,
+            DURATION.LENGTH_SHORT,
+          );
+          this.props.navigation.navigate(ROUTES.GLOBAL_LOGIN);
+        }
+      }
+    });
   }
 
   getYearAudits() {
@@ -370,7 +456,7 @@ this.setState({
     console.log('xxxxxx!!!!!!!!!!!!', this.state.yearValue);
     return (
       <View style={styles.container}>
-        {Platform.OS === 'ios' ? <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> : null }
+        {Platform.OS === 'ios' ? <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
         {/* Offline notification */}
         <OfflineNotice />
         <ImageBackground

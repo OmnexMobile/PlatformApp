@@ -169,16 +169,18 @@ class AuditCard extends Component {
 
   openAuditPage(iAuditDetails) {
     console.log('iAuditDetails', iAuditDetails);
-    var auditRecords = this.props.data.audits.auditRecords;
+    var auditRecords = this.props?.data?.audits?.auditRecords;
+    console.log('auditRecords', auditRecords);
     var isDownloadedDone = false;
 
     for (var i = 0; i < auditRecords.length; i++) {
+      console.log('auditRecords[i].AuditId', auditRecords[i]?.AuditId, iAuditDetails?.ActualAuditId);
       if (auditRecords[i].AuditId == iAuditDetails.ActualAuditId) {
         isDownloadedDone = true;
       }
       console.log('isDownloadedDone', isDownloadedDone)
     }
-
+    console.log('this.props.naviData-->', this.props, '--', this.props?.naviData)
     if (isDownloadedDone) {
       console.log('this.props.naviData-->', this.props, '--', this.props?.naviData)
       // this.props.navigation.navigate(ROUTES.AUDIT_PAGE)
@@ -186,7 +188,7 @@ class AuditCard extends Component {
         this.props.naviData.navigate(ROUTES.AUDIT_PAGE, {
       // this.props.naviData.navigate(ROUTES.AUDIT_PAGE, {
         datapass: iAuditDetails,
-        auditStatusPass: this.props.item.cStatus,
+        auditStatusPass: this.props?.item?.cStatus,
       });
     } else {
       if (this.props.data.audits.isOfflineMode) {

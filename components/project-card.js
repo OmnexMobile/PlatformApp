@@ -79,7 +79,7 @@ const ProjectCard = ({ item = {}, onClick }) => {
                                 borderRadius: SPACING.SMALL,
                                 padding: SPACING.NORMAL,
                                 marginBottom: SPACING.NORMAL,
-                                marginTop: SPACING.XX_SMALL,
+                                marginTop: SPACING.X_SMALL,
                                 flexDirection: 'row',
                             },
                             elevation,

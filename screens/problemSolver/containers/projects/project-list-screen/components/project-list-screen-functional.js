@@ -68,8 +68,8 @@ const ProjectListScreenFunctional = ({}) => {
         Promise.all([
             postAPI(`${API_URL.PROJECT_LIST}`, {
                 UserID: res.UserId,
-                // SiteID: res.SiteId,
                 SiteID: res.Siteid,
+                // SiteID: res.SiteId,
                 Index: '0',
                 MaxRow: '500',
                 ListType: '0',
@@ -134,6 +134,7 @@ const ProjectListScreenFunctional = ({}) => {
             setUpdatingPercentage(false);
         } catch (err) {
             setUpdatingPercentage(false);
+            setErrorText('Error while updating.. Please try again');
             console.log('🚀 ~ file: project-list-screen-functional.js:119 ~ handleUpdatePercentage ~ res:', err);
         }
     };

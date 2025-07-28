@@ -140,7 +140,7 @@ class Registration extends Component {
               if (!this.isRedirectFromLogin) {
                 // Forward to landing page
                 // this.props.navigation.navigate('LaunchScreen');
-                this.props.navigation.navigate(ROUTES.LOGINUISCREEN)
+                this.props.navigation.navigate(ROUTES.LAUNCH_SCREEN)
               } else {
                 this.setState(
                   {
@@ -266,8 +266,7 @@ class Registration extends Component {
                     this.props.storeDeviceid(this.state.deviceId);
                     // Forward to landing page
                     // this.props.navigation.navigate('LaunchScreen');
-                    this.props.navigation.navigate(ROUTES.LOGINUISCREEN)
-                    
+                    this.props.navigation.navigate(ROUTES.LAUNCH_SCREEN)
                   } else {
                     this.setState(
                       {
@@ -342,7 +341,7 @@ class Registration extends Component {
           if (!this.isRedirectFromLogin) {
             // Forward to landing page
             // this.props.navigation.navigate('LaunchScreen');
-            this.props.navigation.navigate(ROUTES.LOGINUISCREEN)
+            this.props.navigation.navigate(ROUTES.LAUNCH_SCREEN)
           } else {
             this.setState(
               {
@@ -382,12 +381,11 @@ class Registration extends Component {
       sso === 'false'
         ? 'false'
         : 'true';
-        console.log('sso.toString()', sso.toString())
     await AsyncStorage.setItem('sso_login_state', sso.toString());
   };
 
   storeSSoConfig = async ssoConfig => {
-    console.log('ssoConfig-->', ssoConfig, '--', JSON.stringify(ssoConfig));
+    console.log('in', ssoConfig);
     await AsyncStorage.setItem('sso_config_flags', JSON.stringify(ssoConfig));
     await AsyncStorage.setItem('sso_issuer', JSON.stringify(ssoConfig.issuer));
     await AsyncStorage.setItem(
@@ -396,8 +394,7 @@ class Registration extends Component {
     );
     await AsyncStorage.setItem(
       'sso_redirecturl',
-      // JSON.stringify(ssoConfig.redirectUri),
-      JSON.stringify(ssoConfig.redirectUrl),
+      JSON.stringify(ssoConfig.redirectUri),
     );
   };
 
@@ -497,7 +494,7 @@ class Registration extends Component {
                                 this.props.storeDeviceid(this.state.deviceId);
                                 // Forward to landing page
                                 // this.props.navigation.navigate('LaunchScreen');
-                                this.props.navigation.navigate(ROUTES.LOGINUISCREEN)
+                                this.props.navigation.navigate(ROUTES.LAUNCH_SCREEN)
                               },
                             );
                           } else {
@@ -606,15 +603,14 @@ class Registration extends Component {
 
   backFromReg = () => {
     if (this.state.isDeviceRegistered) {
-      this.props.navigation.navigate(ROUTES.LOGINUISCREEN);
+      this.props.navigation.navigate(ROUTES.LAUNCH_SCREEN);
     }
   };
   goToRegister() {
     this.props.navigation.navigate(ROUTES.REGISTRATION);
   }
-  
+
   handleDimensionChange = ({ window, screen }) => {
-    console.log('window.width--->', window.width, screen);
     this.setState({screenWidth: window.width});
   };
 

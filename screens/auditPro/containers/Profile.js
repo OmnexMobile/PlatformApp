@@ -15,19 +15,19 @@ import {
 } from 'react-native';
 import {Images} from '../Themes/index';
 import {connect} from 'react-redux';
-// import styles from '../styles/ProfileStyle';
-// import {width} from 'react-native-dimension';
-// import AuditHeader from '../Components/AuditHeader';
-// import ResponsiveImage from 'react-native-responsive-image';
-// import Modal from 'react-native-modal';
+import styles from '../styles/ProfileStyle';
+import {width} from 'react-native-dimension';
+import AuditHeader from '../components/AuditHeader';
+import ResponsiveImage from 'react-native-responsive-image';
+import Modal from 'react-native-modal';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Fonts from '../Themes/Fonts';
 import {strings} from '../language/Language';
+// import Geocoder from 'react-native-geocoder';
+import {Googel_API_KEY} from '../constants/AppConstants';
+import {debounce, once} from 'underscore';
 import { ROUTES } from 'constants/app-constant';
 import { SPACING } from 'constants/theme-constants';
-// import Geocoder from 'react-native-geocoder';
-// import {Googel_API_KEY} from '../constants/AppConstants';
-// import {debounce, once} from 'underscore';
 
 let Window = Dimensions.get('window');
 
@@ -113,7 +113,7 @@ class Profile extends Component {
   render() {
     return (
       <View style={{flex: 1}}>
-        {Platform.OS === 'ios' ? <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> : null }
+        {Platform.OS === 'ios' ? <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
         <ImageBackground
           source={Images.DashboardBG}
           style={{
@@ -152,7 +152,8 @@ class Profile extends Component {
             <View>
               <TouchableOpacity
                 onPress={() =>
-                  this.props.navigation.navigate(ROUTES.AUDITPRODASHBOARD)
+                  // this.props.navigation.navigate('AuditDashboard')
+                  this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)
                 }>
                 <Icon name="home" size={30} color="white" />
               </TouchableOpacity>

@@ -161,7 +161,7 @@ export default {
         formData.append('StartDate', StartDate);
         formData.append('EndDate', EndDate);
 
-        console.log('apqp managerformData', formData);
+        console.log('apqp managerformData', SiteId, formData);
         console.log('apqp API_URL', API_URL + 'APQPLanding/List');
 
         console.log('apqp Authorization--->' + Token);
@@ -287,6 +287,46 @@ export default {
                 });
             });
     },
+
+    webLogin(docattachurl, UserName, Password, cb) {
+        var myHeaders = new Headers();
+        myHeaders.append("Content-Type", "application/json");
+    
+        var raw = JSON.stringify({
+          username: UserName,
+          password: Password,
+          grant_type: "password",
+        });
+    
+        var requestOptions = {
+          method: "POST",
+          headers: myHeaders,
+          body: raw,
+          redirect: "follow",
+        };
+    
+        console.log("APQPWebTokenCheck--------->"+"API-------->"+docattachurl + "/apqpwebapi/token")
+        console.log("APQPWebTokenCheck--------->"+"Request----1---->"+raw)
+        console.log("APQPWebTokenCheck--------->"+"Request----2---->"+requestOptions)
+        
+        // Reactotron.log("enteringweblogin", UserName, Password, docattachurl);
+        
+        fetch(docattachurl + "/apqpwebapi/token", requestOptions)
+          .then((resp) => resp.json())
+          .then((data) => {
+            console.log("APQPWebTokenCheck--------->"+"Response----1---->"+JSON.stringify(data))
+            cb({
+              data,
+            });
+          })
+          .catch((data) => {
+            console.log("APQPWebTokenCheck--------->"+"Response----2---->"+JSON.stringify(data))
+            cb({
+              //status: cons.ERROR_500
+              status: data,
+            });
+          });
+      },
 
     // registerDevice(
     //   RegisteredDeviceId,
@@ -481,6 +521,7 @@ export default {
                 });
             });
     },
+
     getapqpPeriodicList(UserID, TaskId, Index, MaxIndex, Token, cb) {
         var formData = new FormData();
         formData.append('UserId', UserID);
@@ -626,7 +667,8 @@ export default {
         formData.append('UserId', UserID);
         formData.append('SiteID', SiteID);
         formData.append('TodayTask', TodayTask);
-
+        console.log('getCalendarapi formData', formData);
+        console.log('getCalendarapi API_URL1', API_URL + 'Calender/List');
         fetch(API_URL + 'Calender/List', {
             method: 'POST',
             headers: {
@@ -637,7 +679,7 @@ export default {
         })
             .then(resp => resp.json())
             .then(data => {
-                //console.log(data);
+                console.log('getCalendarapi data', data);
                 cb({
                     data,
                 });
@@ -1006,7 +1048,7 @@ export default {
         })
             .then(resp => resp.json())
             .then(data => {
-                // console.log(data);
+                console.log(data);
                 cb({
                     data,
                 });
@@ -1016,6 +1058,7 @@ export default {
                     //status: cons.ERROR_500
                     status: data,
                 });
+								console.log('error-->', data)
             });
     },
 
@@ -1136,4 +1179,144 @@ export default {
                 });
             });
     },
+
+		uploadattachment(filename, filecontent, token, cb) {
+			var formData = new FormData();
+			formData.append("filename", filename);
+			formData.append("filecontent", filecontent);
+			console.warn("AttachDoc==========>URL==========>"+API_URL + "DeliverableInfo/UploadAttachment")
+			console.warn("AttachDoc==========>formData==========>"+formData)
+			console.warn("AttachDoc==========>"+
+			"filename======>"+filename+"\n"+
+			"======Token======>"+token+"\n"+
+			"=====filecontent======>"+filecontent)
+	
+			fetch(API_URL + "DeliverableInfo/UploadAttachment", {
+				method: "POST",
+				headers: {
+					"Content-Type": "multipart/form-data",
+					Authorization: 'Bearer' + ' ' + token,
+				},
+				body: formData,
+			})
+				.then((resp) => resp.json())
+				.then((data) => {
+					console.warn("AttachDoc==========>EndResult===========>"+JSON.stringify(data))
+					cb({
+						data,
+					});
+				})
+				.catch((data) => {
+					console.warn("AttachDoc==========>EndResult=====Catch======>"+JSON.stringify(data))
+					cb({
+						//status: cons.ERROR_500
+						status: data,
+					});
+				});
+		},
+
+		outputAttachments(
+			IPDocId,
+			IPIdentity,
+			OPDocId,
+			OPIdentity,
+			ProjectID,
+			RevId,
+			TaskId,
+			UserDocName,
+			FileName,
+			FilePath,
+			ext,
+			UserId,
+			siteid,
+			WebToken,
+			weburl,
+			comment,
+			isAdditional,
+			cb
+		) {
+			console.warn("AttachDoc==========>URL==========>"+weburl +"/"+ "apqpwebapi/DeliverableInfo/OutputAttachment")
+			console.warn("AttachDoc==========>Body=========>"+JSON.stringify({
+				CopyDocId: 0,
+				DocMode: 0,
+				DocumentType: "Local",
+				DraftId: 0,
+				IPDocId: IPDocId,
+				IPIdentity: IPIdentity,
+				IsAdditional: isAdditional,
+				LinkType: "",
+				OPDocId: OPDocId,
+				OPIdentity: OPIdentity,
+				ProjectId: ProjectID,
+				RevId: RevId,
+				TaskId: TaskId,
+				URL: "",
+				UserDocName: UserDocName,
+				FileName: FileName,
+				FilePath: FilePath,
+				ext: ext,
+				comment: comment,
+				prop: {
+					UserId: UserId,
+					SiteId: siteid,
+					UserDateFormat: "MM/DD/YYYY",
+					UserDateFormatDelimiter: "/",
+					LanguageId: 1,
+				},
+			}),)
+			console.warn("AttachDoc==========>method=====>"+"POST")
+			console.warn("AttachDoc==========>Authorization=====Bearer=====>"+WebToken)
+			console.warn("AttachDoc==========>Content-Type=====>"+"POST")
+		 
+			fetch(weburl + "/"+"apqpwebapi/DeliverableInfo/OutputAttachment", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: "Bearer" + " " + WebToken,
+				},
+				body: JSON.stringify({
+					CopyDocId: 0,
+					DocMode: 0,
+					DocumentType: "Local",
+					DraftId: 0,
+					IPDocId: IPDocId,
+					IPIdentity: IPIdentity,
+					IsAdditional: isAdditional,
+					LinkType: "",
+					OPDocId: OPDocId,
+					OPIdentity: OPIdentity,
+					ProjectId: ProjectID,
+					RevId: RevId,
+					TaskId: TaskId,
+					URL: "",
+					UserDocName: UserDocName,
+					FileName: FileName,
+					FilePath: FilePath,
+					ext: ext,
+					comment: comment,
+					prop: {
+						UserId: UserId,
+						SiteId: siteid,
+						UserDateFormat: "MM/DD/YYYY",
+						UserDateFormatDelimiter: "/",
+						LanguageId: 1,
+					},
+				}),
+			})
+				.then((resp) => resp.json())
+				.then((data) => {
+					// console.log(data);
+					cb({
+						data,
+					});
+					console.log("AttachDoc==========>EndResult========2===>"+JSON.stringify(data))
+				})
+				.catch((data) => {
+					cb({
+						//status: cons.ERROR_500
+						status: data,
+					});
+					console.log("AttachDoc==========>EndResult========Catch===>"+JSON.stringify(data))
+				});
+		},
 };

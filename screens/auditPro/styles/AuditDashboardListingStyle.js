@@ -35,10 +35,11 @@ export default StyleSheet.create({
     backlogo:{
         flexDirection: 'row',
         backgroundColor:'transparent',
-        width: width(15),
+        width: width(10),
         height: 65,
         justifyContent: 'center', 
-        alignItems:'center'
+        alignItems:'center',
+        paddingRight: 10,
     },
     heading:{
         flexDirection: 'column',

@@ -60,6 +60,7 @@ const versionDetails = {
 };
 
 const ProfileHomeFunctional = () => {
+    console.log('reach ProfileHomeFunctional')
     const [loading, setLoading] = useState(false);
     const [isActive, setIsActive] = useState(false);
     // const [currentUserData, setCurrentUserData] = useState(null);
@@ -67,6 +68,8 @@ const ProfileHomeFunctional = () => {
     const { profile, appSettings, handleLogout, globalURL, handleGlobalURL, globalDeviceDetails } = useAppContext();
     const navigation = useNavigation();
     // const dispatch = useDispatch();
+
+        console.log('current appSettings', appSettings)
 
     //// need to fix ////
     
@@ -96,15 +99,20 @@ const ProfileHomeFunctional = () => {
         // await getUserDetails()
         // setLogoutFlag(parseInt(0))
         setLoading(true);
-        console.log('reach handlelogout---<>', globalDeviceDetails?.deviceDetails?.ServerUrl, '---', globalURL?.serverUrl)
+        console.log('reach handlelogout---<>',globalDeviceDetails, globalDeviceDetails?.deviceDetails?.ServerUrl, '---', globalURL?.serverUrl)
+        const currentServerUrl = await localStorage.getData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL);
+        // const currentServerUrl = JSON.parse(rawServerUrl);
+        console.log('currentServerUrl------>', currentServerUrl)
         await registerDevice(
             // appSettings?.serverUrl,
             // globalURL?.serverUrl,
             globalDeviceDetails?.deviceDetails?.ServerUrl,
+            // currentServerUrl,
             {
                 RegisteredDeviceId: await getUniqueId(),
                 // ServerUrl: appSettings?.serverUrl,
                 ServerUrl: globalDeviceDetails?.deviceDetails?.ServerUrl,
+                // ServerUrl: currentServerUrl,
             },
             REGISTER_TYPES.LOGOUT,
         )
@@ -133,42 +141,6 @@ const ProfileHomeFunctional = () => {
                 // showErrorMessage(data?.Error || 'Something went wrong while Logout');
             });
     };
-
-    // const logoutCall = async() => {
-    //     console.log('currentUserData--->logout-->', currentUserData)
-    //     const userName = currentUserData?.userFullName;
-    //     const password = '';
-    //     const loginfcmtkn = '';
-    //     const deviceId = await AsyncStorage.getItem('loginDeviceId');
-    //     const loginDeviceId = deviceId || '';
-    //     const ssologinstatusbool = await AsyncStorage.getItem('ssologinstatusbool');
-    //     const isSso = ssologinstatusbool || '';
-    //     auth.loginUserPs(
-    //     // auth.globalLogin(
-    //       userName,
-    //       password,
-    //       loginfcmtkn,
-    //       loginDeviceId,
-    //       logoutFlag,
-    //       isSso,
-    //       (res, data) => {
-    //         console.log('loginUser', data);
-    //         console.log('checkingloginUserresponse', res);
-    //         //this.props.storeSupplierManagement("true");
-    
-    //         if (data.data.Message == "Logout Successfully") {
-    //           console.log('sjdfsjdfjdfjsdfjsfj',data);
-    //           console.log('storeUserName', email);
-              
-             
-    //         } else {
-    //           // Alert.alert(data.data.Message)
-    //           console.log('checkingloginUserresponseelse', res);
-    
-    //         }
-    //       },
-    //     );
-    // };
 
     return (
         <ProfilePresentational

@@ -8,26 +8,28 @@ export default StyleSheet.create({
 
   // Header styles
   header: {
-    width:width(100),
-    zIndex: 3000,
+    width:'100%',
+    //zIndex: 3000,
     flexDirection: 'row',
     //backgroundColor: 'white',
-    padding: 5,
-    alignItems: 'center',
-    justifyContent: 'center',
+   padding: 5,
+    justifyContent: 'flex-start',
+    alignContent:'center',
     height: 65,
     elevation: 4,
     shadowOffset: { width: 2, height: 10 },
     shadowColor: "lightgrey",
     shadowOpacity: 0.5,
     shadowRadius: 4,
-    flex:1
+    flex:1,
+    marginRight:10,
+    marginLeft:10
   },
   heading:{
     flexDirection: 'column',
     justifyContent: 'center', 
     alignItems:'center', 
-    width: width(70),
+    width: '70%',
     height: 60
   },
   headingText:{
@@ -40,13 +42,13 @@ export default StyleSheet.create({
   backlogo:{
     flexDirection: 'row',
     backgroundColor:'transparent',
-    width: width(15),
+    width: '25%',
     height: 65,
     justifyContent: 'center', 
     alignItems:'center'
   },
   headerDiv:{
-    width:width(15),
+    width:'15%',
     height: 65,
     flexDirection:'row',
     justifyContent: 'center',
@@ -72,18 +74,18 @@ export default StyleSheet.create({
     flexDirection:'row',
     justifyContent: 'center',
     alignItems: 'center',
-    width:width(100),
+    width:'100%',
     backgroundColor:'transparent',
-    height: 65,
-    zIndex: 3000
+    height: 60,
+   // zIndex: 3000
   },  
   footerDiv:{
     flexDirection:'row',
     justifyContent: 'center',
-    alignItems: 'center',
-    width:width(100),
-    height:65,
-    position:'absolute'
+    alignContent:'center',
+    width:'100%',
+    height:70,
+   // position:'absolute'
   },
   footerLoader: {
     flexDirection: 'row', 
@@ -97,8 +99,8 @@ export default StyleSheet.create({
   },
   footerDivContent: {
     flexDirection: 'row', 
-    justifyContent: 'center', 
-    alignItems: 'center'
+    justifyContent: 'flex-start', 
+    alignContent:'center'
   },
 
   // Body styles
@@ -116,7 +118,7 @@ export default StyleSheet.create({
   },
   uploadDiv:{
     width:Window.width,
-    height:height(15),
+    height:'15%',
     justifyContent: 'center',
     alignItems: 'center',
     top:height(20)
@@ -130,20 +132,19 @@ export default StyleSheet.create({
     alignItems: 'center'
   },
   buttonBox:{
-    width:width(75),
-    height:height(23),
-    justifyContent: 'center',
-    alignItems: 'center',
+    width:'75%',
+    height:'23%',
+    justifyContent: 'flex-start',
+    alignContent:'center',
     borderWidth:1,
     borderRadius:8,
     backgroundColor: 'white'
   },
   uploadBox:{
-    width:width(75),
-    height:height(28),
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1,
+    width:'75%',
+    height:'28%',
+    justifyContent:'flex-start',
+alignContent:'center',    borderWidth: 1,
     backgroundColor: 'white',
     borderRadius: 8
 
@@ -171,7 +172,7 @@ export default StyleSheet.create({
   },
   secondDiv:{
     flexDirection: 'row',
-    width:Window.width,
+    width:'100%',
     height: 70,
     backgroundColor: 'transparent',
     //position: 'absolute',
@@ -186,7 +187,7 @@ export default StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'transparent',
-    height: height(30)
+    height: '30%'
   },
   checktBox:{
     width:'100%',
@@ -198,12 +199,14 @@ export default StyleSheet.create({
     // flexDirection:'column',
   },
   CheckButton:{
-    width: width(95),
+    width: '100%',
     height: 40,
     backgroundColor:'#00A2E5',
-    borderRadius: 20,
-    justifyContent: "space-around",
-    alignItems: 'center',
+    borderRadius: 10,
+   // justifyContent: "space-around",
+    // alignItems: 'center',
+    justifyContent:'center',
+    alignContent:'center',
     flexDirection:"row",
     
     // left:0
@@ -236,7 +239,7 @@ export default StyleSheet.create({
       alignItems:'center'
     },
     LoginBtn01:{
-      width: width(90),
+      width:'90%',
       height: 50,
       backgroundColor:'transparent',
       alignItems:'center',
@@ -250,8 +253,8 @@ export default StyleSheet.create({
     alignItems:"center",
     color: '#ffffff',
     backgroundColor: 'transparent',
-    fontSize: Fonts.size.h5,
-    fontFamily:'OpenSans-Regular'
+    fontSize: Fonts.size.regular,
+    fontFamily:'OpenSans-Regular',marginTop:10
   },
   checkListDiv2:{
     width:Window.width,
@@ -273,19 +276,18 @@ export default StyleSheet.create({
     paddingTop: 30
   },
   checklistBox0:{
-    width:width(90),
+    width:'90%',
     height:height(7),
     borderWidth: 1,
     backgroundColor:'white',
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: 'flex-start',
+    alignContent:'center',
     flexDirection: 'column',
     borderRadius: 8,
-
   },
   body:{
     width:Window.width,
-    height: height(90) ,
+    height:'90%' ,
     backgroundColor:'transparent',
     position :'absolute' ,
     top: 80,
@@ -294,8 +296,8 @@ export default StyleSheet.create({
     alignItems: 'center'
   },
   checklistBox:{
-    width:width(95),
-    height:height(16),
+    width:'95%',
+    height:'16%',
     borderWidth: 1,
     backgroundColor:'white',
 
@@ -338,8 +340,8 @@ export default StyleSheet.create({
     alignItems: 'center',
   },
   cardDivBox:{
-    width:width(90),
-    height:height(16),
+    width:'90%',
+    height:'15%',
     backgroundColor:'white',
     elevation:5,
     flexDirection:'column',
@@ -374,7 +376,7 @@ export default StyleSheet.create({
   wrapper: {
     flex: 1,
     flexDirection: "column",
-    justifyContent: 'flex-start'
+    justifyContent: 'flex-start',
   },
 
   // Card view styles

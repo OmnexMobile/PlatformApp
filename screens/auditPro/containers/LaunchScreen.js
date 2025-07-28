@@ -61,7 +61,7 @@ class LaunchScreen extends Component {
           });
         } else {
           Animated.spring(this.state.pan, {
-            toValue: {x: 0, y: 0},
+            toValue: {x: 10, y: 0},
             useNativeDriver: false,
           }).start();
         }
@@ -111,7 +111,7 @@ class LaunchScreen extends Component {
     });
     console.log('onPanResponderRelease working1');
     Animated.spring(this.state.pan, {
-      toValue: {x: 0, y: 0},
+      toValue: {x: 10, y: 0},
       useNativeDriver: false,
     }).start();
   }
@@ -143,7 +143,8 @@ class LaunchScreen extends Component {
           'isactive' +
           this.props.data.audits.isActive +
           'device registration status:' +
-          this.props.data.audits.isDeviceRegistered,
+          this.props.data.audits.isDeviceRegistered, 
+          'deviceId:' + this.props.data.audits.deviceid
       );
       this.setState({
         showDraggable: true,
@@ -192,6 +193,8 @@ class LaunchScreen extends Component {
         const companyurl = await AsyncStorage.getItem('companyurl');
         const logo = await AsyncStorage.getItem('logo');
         const phone = await AsyncStorage.getItem('phone');
+        const deviceid = await AsyncStorage.getItem('deviceid');
+        console.log(phone, userName, Userid, deviceid, "333 details")
         console.log('Started to store user session details in redux..');
         this.props.storeUserSession(
           userName,
@@ -203,6 +206,7 @@ class LaunchScreen extends Component {
           companyurl,
           logo,
           phone,
+          deviceid,
         );
         console.log(
           'session value:' +
@@ -214,7 +218,8 @@ class LaunchScreen extends Component {
             companyname +
             companyurl +
             logo +
-            phone,
+            phone +
+            deviceid,
         );
         console.log('Stored user session details in redux..');
         //this.props.navigation.navigate('AuditDashboard')
@@ -238,14 +243,14 @@ class LaunchScreen extends Component {
           // this.props.navigation.navigate('AuditProDashboard')
           // this.props.navigation.navigate('AuditDashboard');
 
-          this.props.navigation.navigate(ROUTES.LOGINUISCREEN);
+          this.props.navigation.navigate(ROUTES.GLOBAL_LOGIN);
         } else {
           console.log('token was empty. so navigated to loginUIScreen...');
           // this.props.navigation.navigate('LoginUIScreen');
-          this.props.navigation.navigate(ROUTES.LOGINUISCREEN);
+          this.props.navigation.navigate(ROUTES.GLOBAL_LOGIN);
         }
       } else {
-        this.props.navigation.navigate(ROUTES.LOGINUISCREEN);
+        this.props.navigation.navigate(ROUTES.GLOBAL_LOGIN);
         // this.props.navigation.navigate('LoginUIScreen');
         // this.props.navigation.navigate('AuditDashboard')
       }
@@ -313,7 +318,7 @@ class LaunchScreen extends Component {
                   : styles.logoPosition01
               }
             /> */}
-        
+          <Text style={{}}>{"App Version"}:{"10.24"}</Text>
         </View>
         <View style={styles.msgbox}>
           <View style={styles.Omnex00}>
@@ -383,6 +388,7 @@ const mapDispatchToProps = dispatch => {
       companyurl,
       logo,
       phone,
+      deviceid,
     ) =>
       dispatch({
         type: 'STORE_USER_SESSION',
@@ -395,6 +401,7 @@ const mapDispatchToProps = dispatch => {
         companyurl,
         logo,
         phone,
+        deviceid,
       }),
     storeLoginSession: isActive =>
       dispatch({type: 'STORE_LOGIN_SESSION', isActive}),

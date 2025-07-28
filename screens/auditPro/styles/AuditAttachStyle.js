@@ -11,7 +11,7 @@ export default StyleSheet.create({
     justifyContent: 'flex-start',
   },
   header: {
-    width:width(100),
+    width:"100%",
     zIndex: 3000,
     flexDirection: 'row',
     //backgroundColor: 'white',
@@ -29,7 +29,7 @@ export default StyleSheet.create({
   backlogo:{
     flexDirection: 'row',
     backgroundColor:'transparent',
-    width: width(10),
+    width: width(15),
     height: 65,
     justifyContent: 'center', 
     alignItems:'center'
@@ -38,7 +38,7 @@ export default StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'center', 
     alignItems:'center', 
-    width: width(70),
+    width: '70%',
     height: 65
   },  
   headingText:{
@@ -49,7 +49,7 @@ export default StyleSheet.create({
     fontFamily:'OpenSans-Bold'
   },
   headerDiv:{
-    width:width(15),
+    width:'15%',
     height: 65,
     flexDirection:'row',
     justifyContent: 'center',
@@ -60,7 +60,7 @@ export default StyleSheet.create({
     flexDirection:'row',
     justifyContent: 'center',
     alignItems: 'center',
-    width:width(100),
+    width:'100%',
     backgroundColor:'transparent',
     height: 65,
     zIndex: 3000
@@ -90,8 +90,8 @@ export default StyleSheet.create({
     backgroundColor: 'transparent' 
   },
   card1:{
-    width:'95%',
-    height:'95%',
+    width:'100%',
+    height:'100%',
     backgroundColor:'white',
     flexDirection:'column',
     borderWidth:0.5,
@@ -102,12 +102,14 @@ export default StyleSheet.create({
     alignItems:'center'
   },
   card:{
-    width:Window.width,
-    height:290,
-    backgroundColor:'white',
-    marginTop:10,
-    justifyContent:'center',
-    alignItems:'center',
+    // width:Window.width,
+    // height:290,
+    // marginTop:10,
+    // justifyContent:'center',
+    // alignItems:'center',
+    flex:1,
+    margin:25,
+    borderRadius:8,
   },
   cardT:{
   backgroundColor:'white',
