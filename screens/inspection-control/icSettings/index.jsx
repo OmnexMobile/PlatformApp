@@ -40,16 +40,6 @@ let sitesData = {
         },
         {
             EntityNode: 'Corporate 1',
-            FullName: 'Dhanapal Swetha   ',
-            InspectionControlAccess: 'true',
-            IsSupervisor: false,
-            LoginAccess: '1',
-            SiteName: 'Corporate',
-            Siteid: '1',
-            UserId: 6,
-        },
-        {
-            EntityNode: 'Corporate 1',
             FullName: 'Dhanapal Awetha   ',
             InspectionControlAccess: 'true',
             IsSupervisor: false,
