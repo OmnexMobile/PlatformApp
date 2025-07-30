@@ -19,6 +19,8 @@ import { ROUTES } from 'constants/app-constant';
 import { Modal } from 'react-native-paper';
 import NoDataFound from '../Components/NoDataFound';
 import ConfirmationModal from '../Components/inprocess-inspection/ConfirmationModal';
+import { getInspectionDataByUserAndSite, updateInspectionByUniqueId } from 'store/database/inspectStorage';
+import OfflineFileViewModal from '../Components/inprocess-inspection/OfflineFileViewModal';
 const moreList = [
     {
         id: 1,
@@ -36,7 +38,8 @@ const moreList = [
 
 const InprocessInspection = ({ route }) => {
     const { inspectData } = route.params;
-    const { inspectList, icSettings } = useSelector(state => state.inspection);
+    const { icUserData, icSettings } = useSelector(state => state.inspection);
+    const [inspectList, setInspectList] = useState([]);
     const [showGeneral, setShowGeneral] = useState(false);
     const [showChar, setShowChar] = useState(false);
     const [showSignModal, setShowSignModal] = useState(false);
@@ -65,12 +68,22 @@ const InprocessInspection = ({ route }) => {
         CSampleSize: '',
         CTolerance: '',
     });
+    const [showFileModal, setShowFileModal] = useState(false);
+
     const flatListRef = useRef(null);
     const navigation = useNavigation();
     const dispatch = useDispatch();
+
     useLayoutEffect(() => {
         setInfoData(inspectData);
     }, [inspectData]);
+    const handleGetSQliteInspectionList = async () => {
+        const inspectLists = await getInspectionDataByUserAndSite(icUserData?.userData?.UserId, icUserData?.userData?.Siteid);
+        setInspectList(inspectLists);
+    };
+    useLayoutEffect(() => {
+        handleGetSQliteInspectionList();
+    }, [icUserData]);
 
     const handleGenOpen = () => {
         setShowGeneral(!showGeneral);
@@ -150,24 +163,73 @@ const InprocessInspection = ({ route }) => {
         return inspectData.intInspectionTypeID !== 2 ? (list?.length ? list[0].Value !== '' : true) : true;
         // return list.length ? list[0].Value !== '':true;
     };
-    const handleFinalSavePress = (flag = false) => {
+    const rendetBtnText = item => {
+        const combined = [...item?.VariableCharacteristics, ...item?.AttributeCharacteristics];
+        if (!combined.some(item => 'status' in item)) {
+            return {
+                status: 'launch',
+                colorCode: COLORS.apptheme,
+            };
+        }
+        let hasInprogress = false;
+        let hasCompleted = false;
+        let hasMissingStatus = false;
+
+        for (const item of combined) {
+            if ('status' in item) {
+                if (item.status === 'In Progress') {
+                    hasInprogress = true;
+                } else if (item.status === 'Completed') {
+                    hasCompleted = true;
+                }
+            } else {
+                hasMissingStatus = true;
+            }
+        }
+
+        if (hasInprogress) return { colorCode: COLORS.ipBgColor, status: 'In Progress' };
+        if (hasCompleted && hasMissingStatus) return { colorCode: COLORS.ipBgColor, status: 'In Progress' };
+        if (hasCompleted && !hasMissingStatus) return { colorCode: COLORS.fiBgColor, status: 'Completed' };
+
+        return {
+            status: 'launch',
+            colorCode: COLORS.apptheme,
+        };
+    };
+    const handleFinalSavePress = async (flag = false) => {
         const result = handleValidation(infoData);
         if (result) {
-            dispatch({
-                type: 'UPDATE_INSPECT_LIST',
-                updatedData: infoData,
+            const getStatus = rendetBtnText(infoData);
+            console.log(getStatus, 'getStatus');
+            const sqlitFlag = await updateInspectionByUniqueId(icUserData?.userData?.UserId, icUserData?.userData?.Siteid, {
+                ...infoData,
+                status: getStatus?.status,
+                colorCode: getStatus?.colorCode,
             });
-            if (!showChar && !flag) {
-                if (navigation.canGoBack()) {
-                    navigation.goBack();
-                } else {
-                    navigation.reset({
-                        index: 0,
-                        routes: [{ name: ROUTES.HOME_FAB_VIEW }],
-                    });
+            if (sqlitFlag) {
+                if (!showChar && !flag) {
+                    if (navigation.canGoBack()) {
+                        navigation.goBack();
+                    } else {
+                        navigation.reset({
+                            index: 0,
+                            routes: [{ name: ROUTES.HOME_FAB_VIEW }],
+                        });
+                    }
                 }
+                Boolean(flag) && navigation.goBack();
+            } else {
+                showMessage({
+                    message: 'Error updating inspection',
+                    backgroundColor: COLORS.ERROR,
+                    color: COLORS.white,
+                    duration: 1500,
+                    statusBarHeight: 40,
+                    icon: 'warning',
+                    position: 'right',
+                    style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+                });
             }
-            Boolean(flag) && navigation.goBack();
         } else {
             setShowAlart(false);
             showMessage({
@@ -185,28 +247,32 @@ const InprocessInspection = ({ route }) => {
     const handleBackPress = () => {
         if (!showConfirmModal) {
             if (!showCamer) {
-                if (!showFilePage) {
-                    if (!showGeneral) {
-                        if (!showChar) {
-                            if (navigation.canGoBack()) {
-                                navigation.goBack();
+                if (!showFileModal) {
+                    if (!showFilePage) {
+                        if (!showGeneral) {
+                            if (!showChar) {
+                                if (navigation.canGoBack()) {
+                                    navigation.goBack();
+                                } else {
+                                    navigation.reset({
+                                        index: 0,
+                                        routes: [{ name: ROUTES.HOME_FAB_VIEW }],
+                                    });
+                                }
                             } else {
-                                navigation.reset({
-                                    index: 0,
-                                    routes: [{ name: ROUTES.HOME_FAB_VIEW }],
-                                });
+                                setShowChar(false);
+                                setSelectedData({});
+                                setMasterData([]);
+                                setValueUpadted([]);
                             }
                         } else {
-                            setShowChar(false);
-                            setSelectedData({});
-                            setMasterData([]);
-                            setValueUpadted([]);
+                            setShowGeneral(false);
                         }
                     } else {
-                        setShowGeneral(false);
+                        setShowFilePage(false);
                     }
                 } else {
-                    setShowFilePage(false);
+                    setShowFileModal(false);
                 }
             } else {
                 setShowCamer(false);
@@ -293,7 +359,6 @@ const InprocessInspection = ({ route }) => {
             const index = characteristicsList.findIndex(
                 obj => obj?.CCharacteristicsId === selectedData?.CCharacteristicsId && obj.FuncDetailsId == selectedData?.FuncDetailsId,
             );
-            console.log(characteristicsList.filter(obj => obj?.CCharacteristicsId === selectedData?.CCharacteristicsId).length, 'lrnh');
             const newCharacteristicsList = [...characteristicsList];
             if (index !== -1) {
                 newCharacteristicsList[index] = updatedObj;
@@ -305,11 +370,11 @@ const InprocessInspection = ({ route }) => {
             }));
             setMasterData([]);
             setValueUpadted([]);
-            console.log('inside1');
+            console.log(updatedObj, '**************************************inside1');
         } else {
             handleFinalSavePress();
 
-            console.log('inside2', showChar);
+            console.log('inside2', infoData);
         }
         if (close && showChar) {
             setShowChar(false);
@@ -454,9 +519,10 @@ const InprocessInspection = ({ route }) => {
             title={renderHeader(inspectData.intInspectionTypeID)}
             activeTabId={2}
             showIcons={false}
-            showFileIcon={false}
+            showFileIcon={true}
             handleFileIconPress={() => {
-                setShowFilePage(true);
+                // setShowFilePage(true);
+                setShowFileModal(true);
             }}
             customBackHandler={true}
             customHandleGoBack={() => {
@@ -637,7 +703,9 @@ const InprocessInspection = ({ route }) => {
                                 onPress={async () => {
                                     await handleSavePress(nextSave);
                                 }}
-                                textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}> Yes
+                                textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}>
+                                {' '}
+                                Yes
                             </ButtonComponent>
                         </View>
                         {/* <View style={[styles.modalBtnContainer]}>
@@ -681,6 +749,15 @@ const InprocessInspection = ({ route }) => {
                         handleConfirmYesPress();
                     }}
                     typeOfModal={typeOfModal}
+                />
+            )}
+            {Boolean(showFileModal) && (
+                <OfflineFileViewModal
+                    visible={showFileModal}
+                    list={inspectData?.attachments || []}
+                    onDismiss={() => {
+                        setShowFileModal(false);
+                    }}
                 />
             )}
         </CustomHeader>

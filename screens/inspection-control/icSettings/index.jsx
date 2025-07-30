@@ -29,14 +29,14 @@ let sitesData = {
     },
     siteList: [
         {
-            EntityNode: 'Corporate 1',
-            FullName: 'Dhanapal Swetha   ',
+            EntityNode: 'Corporate',
+            FullName: 'Kumar Dinesh ',
             InspectionControlAccess: 'true',
             IsSupervisor: false,
             LoginAccess: '1',
             SiteName: 'Corporate',
             Siteid: '1',
-            UserId: 6,
+            UserId: 7,
         },
         {
             EntityNode: 'Corporate 1',
@@ -261,7 +261,7 @@ const IcSettings = () => {
             <TouchableOpacity
                 style={styles.siteBox}
                 onPress={() => {
-                    if (sites?.selectedSite.Siteid != item.Siteid) {
+                    if (sites?.selectedSite?.Siteid != item.Siteid) {
                         handleSelectedSite(item);
                     } else {
                         showErrorMessage('Site already selected');

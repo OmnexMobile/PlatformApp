@@ -7,18 +7,18 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { PLACEHOLDERS, ROUTES } from 'constants/app-constant';
 import { Divider, Modal } from 'react-native-paper';
-import { RFPercentage } from 'helpers/utils';
+import { RFPercentage, showErrorMessage } from 'helpers/utils';
 import DeleteModal from '../Components/DeleteModal';
 import NoDataFound from '../Components/NoDataFound';
 import { useDispatch, useSelector } from 'react-redux';
 import ApiUrl from 'global/ApiUrl';
 import { postAPI } from 'global/api-helpers';
 import IcSkeleton from '../Components/IcSkeleton';
-import { getInspectionDataByUserAndSite } from 'store/database/inspectStorage';
+import { deleteInspectionByUniqueId, getInspectionDataByUserAndSite } from 'store/database/inspectStorage';
 
 const OperatorWorksheet = () => {
-    const {  icUserData } = useSelector(state => state.inspection);
-    const [inspectList,setInspectionList]=useState([])
+    const { icUserData } = useSelector(state => state.inspection);
+    const [inspectList, setInspectionList] = useState([]);
     const [showDelete, setShowDelete] = useState(false);
     const navigation = useNavigation();
     const [masterData, setMasterData] = useState([]);
@@ -30,12 +30,11 @@ const OperatorWorksheet = () => {
 
     // getting a data from SQLite
     const handleGetSQliteList = async () => {
-        const list=await getInspectionDataByUserAndSite(icUserData?.userData?.UserId,icUserData?.userData?.Siteid)
-        setInspectionList(list)
-        console.log(list, '***********list');
+        const list = await getInspectionDataByUserAndSite(icUserData?.userData?.UserId, icUserData?.userData?.Siteid);
+        setInspectionList(list);
     };
     useEffect(() => {
-        handleGetSQliteList()
+        handleGetSQliteList();
     }, [icUserData, isFocused]);
 
     const handleLaunchPress = item => {
@@ -90,6 +89,15 @@ const OperatorWorksheet = () => {
             status: 'launch',
             colorCode: COLORS.apptheme,
         };
+    };
+    const handleSingleDeletePress = async value => {
+        const flag = await deleteInspectionByUniqueId(icUserData?.userData?.UserId, icUserData?.userData?.Siteid, value.uniqueId);
+        if (flag) {
+            handleGetSQliteList();
+            setShowDelete(false);
+        } else {
+            showErrorMessage('Error deleting inspection');
+        }
     };
     const renderItem = ({ item }) => {
         const { status, colorCode } = rendetBtnText(item);
@@ -159,11 +167,12 @@ const OperatorWorksheet = () => {
                     setShowDelete(false);
                 }}
                 handleYesPress={() => {
-                    dispatch({
-                        type: 'REMOVE_INSPECT_LIST',
-                        inspectionToRemove: selectedValue,
-                    });
-                    setShowDelete(false);
+                    handleSingleDeletePress(selectedValue);
+                    // dispatch({
+                    //     type: 'REMOVE_INSPECT_LIST',
+                    //     inspectionToRemove: selectedValue,
+                    // });
+                    // setShowDelete(false);
                 }}
             />
         </CustomHeader>

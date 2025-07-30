@@ -1,5 +1,5 @@
 import { ButtonComponent, CheckBox, RadioButton, TextComponent } from 'components';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import CustomHeader from '../Components/CustomHeader';
 import { FlatList, Platform, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { COLORS } from 'constants/theme-constants';
@@ -21,6 +21,9 @@ import ApiUrl from 'global/ApiUrl';
 import { postAPI } from 'global/api-helpers';
 import { Bubbles } from 'react-native-loader';
 import { showMessage } from 'react-native-flash-message';
+import { deleteInspectionByUniqueId, getInspectionDataByUserAndSite } from 'store/database/inspectStorage';
+import { isArray } from 'underscore';
+import { showErrorMessage } from 'helpers/utils';
 
 const optionsList = [
     {
@@ -56,8 +59,7 @@ const optionsList = [
 ];
 
 const CompletedInspection = () => {
-    const { icUserData, inspectList } = useSelector(state => state.inspection);
-    const inspectionRef = useRef(inspectList);
+    const { icUserData } = useSelector(state => state.inspection);
     const [syncModal, setSyncModal] = useState(false);
     const [selectedRadio, setSelectedRadio] = useState({
         id: 1,
@@ -77,24 +79,24 @@ const CompletedInspection = () => {
     const isFocused = useIsFocused();
     const dispatch = useDispatch();
 
-    // Keep it updated
-    useEffect(() => {
-        inspectionRef.current = inspectList;
-    }, [inspectList, isFocused]);
     const getAllCompletedData = async (showSkt = true) => {
         showSkt && setShowSkeleton(true);
-        const completedList = inspectionRef?.current?.filter(item => item?.status === 'Completed');
+        const inspectList = await getInspectionDataByUserAndSite(icUserData?.userData?.UserId, icUserData?.userData?.Siteid);
+        const completedList = inspectList?.filter(item => item?.status === 'Completed' || item?.status === 'In Progress');
         setMasterData(completedList?.length ? completedList : []);
         setShowSkeleton(false);
         setRefreshing(false);
     };
+
     const onRefresh = () => {
         setRefreshing(true);
         getAllCompletedData(false);
     };
-    useEffect(() => {
-        getAllCompletedData();
-    }, [inspectList]);
+    useLayoutEffect(() => {
+        if (isFocused) {
+            getAllCompletedData();
+        }
+    }, [icUserData, isFocused]);
 
     const handleISbtnpress = () => {
         navigation.navigate(ROUTES.INSPECTION_SCHEDULE);
@@ -144,7 +146,7 @@ const CompletedInspection = () => {
                 </View>
                 <View style={[styles.lastBox]}>
                     <TouchableOpacity
-                        style={styles.launchCard}
+                        style={[styles.launchCard, { backgroundColor: item.colorCode }]}
                         onPress={() => {
                             handleCompletedPress(item);
                         }}>
@@ -219,7 +221,7 @@ const CompletedInspection = () => {
                     Object.keys(item?.DefectsValue)?.length && {
                         Case: 'DEFECTPHENOMENON',
                         StrID: item?.DefectsValue.ID,
-                        Name: type === 'number'?'CustomInspectionCharacteristicsV':'CustomInspectionCharacteristics',
+                        Name: type === 'number' ? 'CustomInspectionCharacteristicsV' : 'CustomInspectionCharacteristics',
                         Topic: 'DefectPhenomenon',
                     }),
                 samples: samples.map(sample => ({
@@ -301,6 +303,15 @@ const CompletedInspection = () => {
             });
         }
         setDisableBtn(false);
+    };
+    const handleSingleDeletePress = async () => {
+        const flag = await deleteInspectionByUniqueId(icUserData?.userData?.UserId, icUserData?.userData?.Siteid, selectedValue.uniqueId);
+        if (flag) {
+            setShowDelete(false);
+            getAllCompletedData(false);
+        } else {
+            showErrorMessage('Error deleting inspection');
+        }
     };
     return (
         <CustomHeader title="Completed Inspection" activeTabId={3} handleSyncPress={handleSyncPress}>
@@ -392,12 +403,7 @@ const CompletedInspection = () => {
                     setShowDelete(false);
                 }}
                 handleYesPress={() => {
-                    dispatch({
-                        type: 'REMOVE_INSPECT_LIST',
-                        inspectionToRemove: selectedValue,
-                    });
-                    setShowDelete(false);
-                    getAllCompletedData(false);
+                    handleSingleDeletePress();
                 }}
             />
         </CustomHeader>
@@ -439,7 +445,6 @@ const styles = StyleSheet.create({
         fontFamily: 'OpenSans-Regular',
     },
     launchCard: {
-        backgroundColor: COLORS.fiBgColor,
         paddingHorizontal: 13,
         paddingVertical: 4,
         borderRadius: 5,
