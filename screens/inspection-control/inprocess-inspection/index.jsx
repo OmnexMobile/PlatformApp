@@ -67,6 +67,7 @@ const InprocessInspection = ({ route }) => {
     });
     const [finalConfirmation, setFinalConfirmation] = useState(false);
     const [showFileModal, setShowFileModal] = useState(false);
+
     const flatListRef = useRef(null);
     const navigation = useNavigation();
     const dispatch = useDispatch();
