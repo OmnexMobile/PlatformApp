@@ -67,6 +67,8 @@ const InprocessInspection = ({ route }) => {
     });
     const [showFileModal, setShowFileModal] = useState(false);
     const [finalConfirmation, setFinalConfirmation] = useState(false);
+    const [showFileModal, setShowFileModal] = useState(false);
+
     const flatListRef = useRef(null);
     const navigation = useNavigation();
     const dispatch = useDispatch();
@@ -738,6 +740,15 @@ const InprocessInspection = ({ route }) => {
                     }}
                     typeOfModal={typeOfModal}
                     showType={false}
+                />
+            )}
+            {Boolean(showFileModal) && (
+                <OfflineFileViewModal
+                    visible={showFileModal}
+                    list={inspectData?.attachments || []}
+                    onDismiss={() => {
+                        setShowFileModal(false);
+                    }}
                 />
             )}
         </CustomHeader>
