@@ -46,7 +46,7 @@ const optionsList = [
 ];
 const SupervisorSchedule = () => {
     const navigation = useNavigation();
-    const { inspectList, icUserData, icSettings } = useSelector(state => state.inspection);
+    const {  icUserData } = useSelector(state => state.inspection);
     const isFocused = useIsFocused();
     const [showFilterList, setShowFilterList] = useState(false);
     const [showEye, setShowEye] = useState(false);

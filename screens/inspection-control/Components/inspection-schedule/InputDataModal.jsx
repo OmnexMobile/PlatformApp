@@ -6,7 +6,7 @@ import { Divider, HelperText, Modal } from 'react-native-paper';
 import { RFPercentage } from 'react-native-responsive-fontsize';
 import SingleDropDown from '../SingleDropDown';
 import DynamicDropDown from '../DynamicDropDown';
-import {  useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { Bubbles } from 'react-native-loader';
 import { showMessage } from 'react-native-flash-message';
 import { postAPI } from 'global/api-helpers';
@@ -32,7 +32,7 @@ const InputDataModal = ({
     shiftData = [],
     userData = {},
     handleSubmitPress = () => {},
-    selectedSite={}
+    selectedSite = {},
 }) => {
     const { icSettings } = useSelector(state => state.inspection);
     const [formFields, setFormFields] = useState({
@@ -162,7 +162,6 @@ const InputDataModal = ({
     };
     const handleValidation = () => {
         const { shift, lotNumber, lotQty, frequency, receiptNumber } = formFields;
-        console.log(formFields, 'frequency');
         const errorobj = {
             shift: false,
             lotNumber: false,
@@ -188,9 +187,21 @@ const InputDataModal = ({
         setErrorList(errorobj);
         return Object.values(errorobj).every(item => item == false);
     };
+    const getAllFiles = async () => {
+        const formData = new FormData();
+        formData.append('operationId', selectedValue?.OperationID);
+        formData.append('productionItemH', selectedValue?.ProductionItemId);
+        const response = await postAPI(ApiUrl.IC_GET_ATTACHEMENTS, formData);
+        if (response.Success) {
+            return response.Data || [];
+        } else {
+            return [];
+        }
+    };
     const handleSubmitBtnPress = async () => {
         const result = handleValidation();
         if (result) {
+            setShowLoader(true);
             const deviceId = await AsyncStorage.getItem('deviceid');
             const formData = new FormData();
             formData.append('OrderDetailsId', selectedValue?.OrderDetailsId);
@@ -269,6 +280,7 @@ const InputDataModal = ({
 
             const response = await postAPI(ApiUrl.IC_FORM_SUBMIT, formData);
             if (response.Success) {
+                const attachments = await getAllFiles();
                 const { shift, lotNumber, lotQty, frequency, receiptNumber } = formFields;
                 let InspectionID = '';
                 if (response.VariableCharacteristics.length > 0) {
@@ -297,8 +309,10 @@ const InputDataModal = ({
                     OrderDetailsId: selectedValue?.OrderDetailsId,
                     InspectionEntryDetailsID: response?.Data || '',
                     InspectionID: InspectionID,
+                    userType: 'Inspector',
+                    attachments: attachments,
                 };
-                await addInspectionData(selectedSite?.UserId,selectedSite?.Siteid, inspectObj);
+                await addInspectionData(selectedSite?.UserId, selectedSite?.Siteid, inspectObj);
                 // dispatch({
                 //     type: 'INSPECT_LIST',
                 //     inspectList: [inspectObj],
@@ -328,6 +342,7 @@ const InputDataModal = ({
                 });
             }
         }
+        setShowLoader(false);
     };
     return (
         <>

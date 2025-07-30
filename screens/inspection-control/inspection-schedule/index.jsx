@@ -173,15 +173,10 @@ const InspectionSchedule = () => {
         }
         setMasterData(tempSearch);
     };
-     const hnadleGetSQliteList=async(userId,siteId)=>{
-        // const list=await getInspectionDataByUserAndSite(userId,siteId)
-        console.log(list,'***********list')
-    }
   
     useEffect(() => {
         if (icUserData && isFocused) {
             console.log('icUserData',icUserData)
-            // hnadleGetSQliteList(icUserData?.userData?.UserId,icUserData?.userData?.Siteid)
             handleListFetch(null, true, filterData.type);
         }
         return () => {
