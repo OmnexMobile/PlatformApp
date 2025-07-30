@@ -68,7 +68,6 @@ const InprocessInspection = ({ route }) => {
         CSampleSize: '',
         CTolerance: '',
     });
-    const [showFileModal, setShowFileModal] = useState(false);
     const [finalConfirmation, setFinalConfirmation] = useState(false);
     const [showFileModal, setShowFileModal] = useState(false);
 
