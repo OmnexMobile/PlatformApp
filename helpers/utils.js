@@ -61,7 +61,7 @@ export const successMessage = ({ message = 'Success', description = 'Successfull
         // },
     });
 
-export const showErrorMessage = message =>
+export const showErrorMessage = (message,position='bottom') =>
     showMessage({
         message: 'Error',
         description: message,
@@ -69,7 +69,7 @@ export const showErrorMessage = message =>
         backgroundColor: FlashMessage.ColorTheme.danger,
         color: COLORS.white,
         duration: 1500,
-        position: 'bottom',
+        position: position,
         style: {
             borderRadius: SPACING.NORMAL,
             margin: SPACING.SMALL,
