@@ -24,8 +24,8 @@ const LoginFunctional = ({}) => {
         loggingIn: false,
     });
     const [currentToken, setCurrentToken] = useState('');
-    const [isRegistered,setIsRegistered] = useState(false)
-    const isFocused=useIsFocused();
+    const [isRegistered, setIsRegistered] = useState(false);
+    const isFocused = useIsFocused();
     // const [currentURL, setCurrentURL] = useState('');
     const {
         profile,
@@ -48,8 +48,8 @@ const LoginFunctional = ({}) => {
     useLayoutEffect(() => {
         async function fetchData() {
             const currentUrl = await localStorage.getData(LOCAL_STORAGE_VARIABLES.globalRegister);
-            let flag=currentUrl != null ? true : false
-            setIsRegistered(flag)
+            let flag = currentUrl != null ? true : false;
+            setIsRegistered(flag);
             !flag && navigation.navigate(ROUTES.GLOBAL_REGISTER);
         }
         fetchData();
@@ -61,7 +61,6 @@ const LoginFunctional = ({}) => {
             [label]: value,
         });
     };
-
 
     const handleSubmit = async () => {
         const loginflag = 1;
@@ -130,7 +129,7 @@ const LoginFunctional = ({}) => {
             handleServerURL(response);
         } else if (response?.Message !== '') {
             handleInputChange('loggingIn', false);
-            showErrorMessage('User data not found!' || response?.Message || strings?.InvalidCred);
+            showErrorMessage('Please enter valid username and password' || response?.Message || strings?.InvalidCred, 'top');
         } else {
             handleInputChange('loggingIn', false);
             showErrorMessage('Something went wrong!!');
