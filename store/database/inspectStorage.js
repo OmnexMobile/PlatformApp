@@ -143,4 +143,3 @@ export const getDatabaseSize = async () => {
         return null;
     }
 };
-
