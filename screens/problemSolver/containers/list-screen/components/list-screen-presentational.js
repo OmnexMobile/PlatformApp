@@ -6,7 +6,7 @@ import { SPACING } from 'constants/theme-constants';
 
 const ListScreenPresentational = ({ list, title, handleRefresh, refreshing }) =>
   <Content noPadding>
-     {Platform.OS === 'ios' ? <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> : null }
+     {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }}/> : null }
     <Header title={`${title} Concerns`} backState={true} />
       {/* <Header title={`${title} (${list?.data?.length})`} /> */}
       {/* <Header title={`${title} ${list?.loading ? '' : `- (${list?.data?.length})`}`} /> */}

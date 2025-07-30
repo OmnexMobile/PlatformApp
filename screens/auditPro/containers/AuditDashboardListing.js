@@ -682,7 +682,7 @@ class AuditDashboardListing extends Component {
     // console.log('tret1 login data render', this.state.userFullName, this.state.userId, this.state.siteId, this.state.accessToken)
     return (
       <View style={styles.wrapper}>
-        {Platform.OS === 'ios' ? <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
+        {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
         {/* // Trigger getAudits method when initial render */}
         {/* <NavigationEvents onDidFocus={() => this.getAudits()} /> */}
         {/* Offline notification */}

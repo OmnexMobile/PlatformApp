@@ -124,7 +124,7 @@ export const SPACING = {
     X_SMALL: RFPercentage(0.5),
     SMALL: RFPercentage(1),
     NORMAL: RFPercentage(2),
-    MEDIUM: RFPercentage(5),
+    MEDIUM: RFPercentage(3),
     LARGE: RFPercentage(4),
     X_LARGE: RFPercentage(6),
     XX_LARGE: RFPercentage(8),

@@ -108,7 +108,7 @@ const HomePresentational = ({
 
     return (
         <Content noPadding>
-            {Platform.OS === 'ios' ? <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> : null }
+            {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }}/> : null }
                 {/* <View style={{ flex: 9 }}>
                     <TextComponent type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.LARGE}>
                         {strings.welcome}!

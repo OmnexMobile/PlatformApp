@@ -714,7 +714,7 @@ class AttachAdditionalDocScreen extends Component {
 
     return (
       <>
-      {Platform.OS === 'ios' ? <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
+      {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
       <View style={styles.mainContainer}>
         <Image source={Images.apqpmanagerbg} style={styles.bgImage} />
 

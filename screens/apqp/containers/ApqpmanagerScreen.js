@@ -2697,7 +2697,7 @@ getData = async () => {
       // console.log("loadProjects---------->2--------->");
       return (
         <View style={styles.mainContainer}>
-          {Platform.OS === 'ios' ? <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
+          {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
           <OfflineNotice />
           {this.renderHeader()}
           {showHide !== true ? (
@@ -3018,7 +3018,7 @@ getData = async () => {
       console.log("loadProjects---------->3--------->");
       return (
         <View style={styles.mainContainer}>
-          {Platform.OS === 'ios' ? <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
+          {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
           <OfflineNotice />
           {this.renderHeader()}
           <View style={styles.bodyCont1}>

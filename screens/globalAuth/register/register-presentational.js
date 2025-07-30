@@ -16,7 +16,7 @@ const RegisterPresentational = ({ navigation, handleChange, state, handleRegiste
 		console.log('currentURL--->', currentURL)
     return (
         <View style={{ flex: 1, backgroundColor: COLORS.white }}>
-             {Platform.OS === 'ios' ? <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }        
+             {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }        
             {/* need image with transparent background */}
             <ImageComponent style={{ width: '100%', height: '100%', position: 'absolute', zIndex: 0 }} source={IMAGES.loginBack} />
             <KeyboardAwareScrollViewComponent style={{ flex: 1, backgroundColor: COLORS.transparent }}>

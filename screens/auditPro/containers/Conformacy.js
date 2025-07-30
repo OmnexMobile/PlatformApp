@@ -1051,7 +1051,7 @@ class Conformacy extends React.Component {
     return (
       <>
         <KeyboardAvoidingView style={styles.wrapper}>
-          {Platform.OS === 'ios' ? <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
+          {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
           <NavigationEvents onDidFocus={ () => this.getAuditDetails() } />
           {/* {isFocused ? console.log('trigger isFocused return', isFocused) : console.log('trigger not isFocused', isFocused) }  */}
           <OfflineNotice/>

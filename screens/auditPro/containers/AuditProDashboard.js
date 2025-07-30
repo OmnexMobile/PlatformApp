@@ -1091,7 +1091,7 @@ class AuditProDashboard extends Component {
     console.log('reach render-->', this.state.loading, '---', this.state.noaudits, '---', this.state.ShowNotifyBadge)
     return (
       <View style={styles.mainContainer}>
-        {Platform.OS === 'ios' ? <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
+        {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
         {/* <OfflineNotice /> */}
         {this.render_header()}
         {/* { this.render_statusBar()} */}
