@@ -776,6 +776,15 @@ const InprocessInspection = ({ route }) => {
                     showType={false}
                 />
             )}
+            {Boolean(showFileModal) && (
+                <OfflineFileViewModal
+                    visible={showFileModal}
+                    list={inspectData?.attachments || []}
+                    onDismiss={() => {
+                        setShowFileModal(false);
+                    }}
+                />
+            )}
         </CustomHeader>
     );
 };
