@@ -177,7 +177,6 @@ const InspectionSchedule = () => {
     useEffect(() => {
         if (icUserData && isFocused) {
             console.log('icUserData',icUserData)
-            // hnadleGetSQliteList(icUserData?.userData?.UserId,icUserData?.userData?.Siteid)
             handleListFetch(null, true, filterData.type);
         }
         return () => {
