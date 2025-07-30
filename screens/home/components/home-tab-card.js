@@ -34,7 +34,7 @@ import { Bubbles } from 'react-native-loader';
 import { useDispatch } from 'react-redux';
 import { showMessage } from 'react-native-flash-message';
 import { Images } from 'theme/Apqp';
-import { APQP_URL, AUDITPRO_URL, GLOBALSERVER_URL, IC_URL, PROBLEMSOLVING_URL } from 'screens/globalConstant/globalURL';
+import { APQP_URL, AUDITPRO_URL, GLOBAL_BASE_URL, GLOBALSERVER_URL, IC_URL, PROBLEMSOLVING_URL } from 'screens/globalConstant/globalURL';
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -119,7 +119,7 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
   ];
 
   const finalUser = currentUser.replace(/\s+/g, '');
-  console.log(finalUser, 'finalUser');
+  // console.log(finalUser, 'finalUser');
   const dataSet = React.useMemo(() => {
     if (!data || data.length === 0) return [];
     // if (finalUser === "AzhalleAnna") return data.filter(item => item.id === 1);
@@ -336,61 +336,85 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
     const loginData = currentUserData
     console.log('globalAPQPLogin loginData--->', loginData, 'loginData?.userId', loginData?.userId, 'loginData?.siteId', loginData?.siteId);
     console.log('globalAPQPLogin loginData1111--->',loginData?.accessToken, loginData?.userFullName, loginData, category, title)
+
+    // Call  webAPQPLogin
     if (loginData != "") {
-      const userDataApqp = {
-        userId: loginData?.userId,
-        siteId: loginData?.siteId,
-        accessToken: loginData?.accessToken,
-        userFullName: loginData?.userFullName,
-        // email: loginData?.Email.toString(), //need to add
-        // docattachurl: loginData?.url, //need to add
-        // webToken: data.data, //need to add
-        email: null, //need to add
-        docattachurl: null, //need to add
-        webToken: null, //need to add
-        currentServerUrl: API_URL,
-        isDeviceRegistered: true,
-        Address: "1/807A Pillaiyar Kovil Street, Thoraipakkam, Chennai - 600097",
-        CompanyName: "Omnex Software Solutions",
-        CompanyUrl: "http://www.omnexsystems.com",
-        Logo: Images.topLogo,
-        Phone: "044248634566",
-        loginuser: loginData,
-        category: category,
-        title: title,
-      };
-      console.log('userDataApqp global-->', userDataApqp)
-      const stringifiedUserDetails = JSON.stringify(userDataApqp);
-      AsyncStorage.setItem('userDataApqp', stringifiedUserDetails);
-      console.log('Set Async userDataApqp ', stringifiedUserDetails);
+      const UserName = await AsyncStorage.getItem('loginUserName');
+      const Password = await AsyncStorage.getItem('loginPassword');
+      console.log("APQPWebTokenCheck---->urldoc--->"+API_URL, 'name', UserName,'pawd', Password, loginData);
+      var key = CryptoJS.enc.Utf8.parse("8080808080808080");
+      var iv = CryptoJS.enc.Utf8.parse("8080808080808080");
+      var encryptedpassword = CryptoJS.AES.encrypt(
+        CryptoJS.enc.Utf8.parse(Password),
+        key,
+        {
+          keySize: 128 / 8,
+          iv: iv,
+          mode: CryptoJS.mode.CBC,
+          padding: CryptoJS.pad.Pkcs7,
+        }
+      );
+      auth.getapqpweblogindata(
+        GLOBAL_BASE_URL,
+        UserName,
+        encryptedpassword.toString(),
+        async (res, data) => {
+          console.log("webToken", data.data);
+          if (data != "") {
+            const userDataApqp = {
+              userId: loginData?.userId,
+              siteId: loginData?.siteId,
+              accessToken: loginData?.accessToken,
+              userFullName: loginData?.userFullName,
+              // email: loginData?.Email.toString(), //need to add
+              email: null, //need to add
+              docattachurl: GLOBAL_BASE_URL, //need to add
+              webToken: data?.data, //need to add
+              currentServerUrl: API_URL,
+              isDeviceRegistered: true,
+              Address: "1/807A Pillaiyar Kovil Street, Thoraipakkam, Chennai - 600097",
+              CompanyName: "Omnex Software Solutions",
+              CompanyUrl: "http://www.omnexsystems.com",
+              Logo: Images.topLogo,
+              Phone: "044248634566",
+              loginuser: loginData,
+              category: category,
+              title: title,
+            };
+            console.log('userDataApqp global-->', userDataApqp)
+            const stringifiedUserDetails = JSON.stringify(userDataApqp);
+            AsyncStorage.setItem('userDataApqp', stringifiedUserDetails);
+            console.log('Set Async userDataApqp ', stringifiedUserDetails);
 
-      if(category === 'APQP/PPAP') {
-        console.log('reach APQP/PPAP')
-        navigations.navigate(ROUTES.APQP_PPAP_MANAGER_SCREEN, {
-          filterId: 2,
-          title: strings.projects,
-          todayn: 1,
-          allprojects: null
-            // this.state.projects + this.state.risks + this.state.meetings,
-        })
-      } else if(category === 'Risk') {
-        console.log('reach Risk')
-        navigations.navigate(ROUTES.RISK_SCREEN, {
-          filterId: 3,
-          title: strings.risks,
-        })
-      } else if(category === 'Meeting') {
-        console.log('reach Meeting')
-        navigations.navigate(ROUTES.MEETING_SCREEN, {
-          filterId: 4,
-          title: strings.meetings,
-          recentActivity: null
-          // this.props.data.projects.recentActivity,
-        })
-      } else {
-          console.log('reach Today Task')
-      }
-
+            if(category === 'APQP/PPAP') {
+              console.log('reach APQP/PPAP')
+              navigations.navigate(ROUTES.APQP_PPAP_MANAGER_SCREEN, {
+                filterId: 2,
+                title: strings.projects,
+                todayn: 1,
+                allprojects: null
+                  // this.state.projects + this.state.risks + this.state.meetings,
+              })
+            } else if(category === 'Risk') {
+              console.log('reach Risk')
+              navigations.navigate(ROUTES.RISK_SCREEN, {
+                filterId: 3,
+                title: strings.risks,
+              })
+            } else if(category === 'Meeting') {
+              console.log('reach Meeting')
+              navigations.navigate(ROUTES.MEETING_SCREEN, {
+                filterId: 4,
+                title: strings.meetings,
+                recentActivity: null
+                // this.props.data.projects.recentActivity,
+              })
+            } else {
+                console.log('reach Today Task')
+            }
+          }
+        }
+      );
     }
   };
 
@@ -506,7 +530,7 @@ const loginCallIC = async routeName => {
     </>
   )
 
-  console.log('dataSet--1--->', dataSet, 'data--->', data?.length, data)
+  // console.log('dataSet--1--->', dataSet, 'data--->', data?.length, data)
 
   return (
     <SafeAreaView>

@@ -1184,9 +1184,9 @@ export default {
 			var formData = new FormData();
 			formData.append("filename", filename);
 			formData.append("filecontent", filecontent);
-			console.warn("AttachDoc==========>URL==========>"+API_URL + "DeliverableInfo/UploadAttachment")
-			console.warn("AttachDoc==========>formData==========>"+formData)
-			console.warn("AttachDoc==========>"+
+			console.log("AttachDoc==========>URL==========>"+API_URL + "DeliverableInfo/UploadAttachment")
+			console.log("AttachDoc==========>formData==========>"+formData)
+			console.log("AttachDoc==========>"+
 			"filename======>"+filename+"\n"+
 			"======Token======>"+token+"\n"+
 			"=====filecontent======>"+filecontent)
@@ -1201,13 +1201,13 @@ export default {
 			})
 				.then((resp) => resp.json())
 				.then((data) => {
-					console.warn("AttachDoc==========>EndResult===========>"+JSON.stringify(data))
+					console.log("AttachDoc==========>EndResult===========>"+JSON.stringify(data))
 					cb({
 						data,
 					});
 				})
 				.catch((data) => {
-					console.warn("AttachDoc==========>EndResult=====Catch======>"+JSON.stringify(data))
+					console.log("AttachDoc==========>EndResult=====Catch======>"+JSON.stringify(data))
 					cb({
 						//status: cons.ERROR_500
 						status: data,
@@ -1235,8 +1235,8 @@ export default {
 			isAdditional,
 			cb
 		) {
-			console.warn("AttachDoc==========>URL==========>"+weburl +"/"+ "apqpwebapi/DeliverableInfo/OutputAttachment")
-			console.warn("AttachDoc==========>Body=========>"+JSON.stringify({
+			console.log("AttachDoc==========>URL==========>"+weburl +"/"+ "apqpwebapi/DeliverableInfo/OutputAttachment")
+			console.log("AttachDoc==========>Body=========>"+JSON.stringify({
 				CopyDocId: 0,
 				DocMode: 0,
 				DocumentType: "Local",
@@ -1264,9 +1264,9 @@ export default {
 					LanguageId: 1,
 				},
 			}),)
-			console.warn("AttachDoc==========>method=====>"+"POST")
-			console.warn("AttachDoc==========>Authorization=====Bearer=====>"+WebToken)
-			console.warn("AttachDoc==========>Content-Type=====>"+"POST")
+			console.log("AttachDoc==========>method=====>"+"POST", weburl + "/"+"apqpwebapi/DeliverableInfo/OutputAttachment")
+			console.log("AttachDoc==========>Authorization=====Bearer=====>"+WebToken)
+			console.log("AttachDoc==========>Content-Type=====>"+"POST")
 		 
 			fetch(weburl + "/"+"apqpwebapi/DeliverableInfo/OutputAttachment", {
 				method: "POST",

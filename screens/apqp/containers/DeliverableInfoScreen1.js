@@ -18,6 +18,7 @@ import DocumentPicker from "react-native-document-picker";
 import styles from "./styles/DeliverableInfoStyles";
 import { ROUTES } from "constants/app-constant";
 import { SPACING } from "constants/theme-constants";
+import { strings } from "../language/Language";
 // import { OpenDocument } from "./OpenDocumentScreen";
 export class DeliverableInfoScreen extends Component {
   TaskId = "";
@@ -196,10 +197,10 @@ export class DeliverableInfoScreen extends Component {
           <ImageBackground
             source={Images.headerBG}
             style={{
-              resizeMode: "stretch",
               width: "100%",
-              height: 73,
-              flexDirection: "column",
+              height: 50,
+              alignItems: "center",
+              flexDirection: "row",
             }}
           >
             <View>
@@ -208,7 +209,10 @@ export class DeliverableInfoScreen extends Component {
                   <TouchableOpacity
                     onPress={() => this.props.navigation.goBack()}
                   >
-                    <Icon name="angle-left" size={40} color="white" />
+                    <View style={styles.headerDiv}>
+                      <Icon name="angle-left" size={40} color="white" />
+                      <Text style={styles.LabelText}>{strings.Back}</Text>
+                    </View>
                   </TouchableOpacity>
                 </View>
                 <View style={styles.headerTextDiv}>

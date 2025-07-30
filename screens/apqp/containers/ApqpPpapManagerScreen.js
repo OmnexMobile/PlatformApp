@@ -89,6 +89,7 @@ class ApqpPpapManagerScreen extends Component {
       activeFilterColor: "lightgrey",
       apqpAll: 0,
       apqpTobecompleted: 0,
+      apqpOpen: 0,
       apqpPending: 0,
       isVisible: false,
       quickModal: false,
@@ -419,6 +420,7 @@ class ApqpPpapManagerScreen extends Component {
               apqpAll: this.props?.route?.params?.allprojects,
               apqpTobecompleted: this.props?.data?.projects?.counts?.TobeCompleted,
               apqpPending: this.props?.data?.projects?.counts?.PendingTask,
+              apqpOpen: this.props?.data?.projects?.counts?.Open,
               selectedIndex: 2,
               // activeTab: this.props.navigation.state.params.activeTab
               activeTab: this.props?.route?.params?.activeTab
@@ -2782,6 +2784,7 @@ class ApqpPpapManagerScreen extends Component {
                     apqpNew: this.state.apqpNew,
                     apqpTobecompleted: this.state.apqpTobecompleted,
                     apqpPending: this.state.apqpPending,
+                    apqpOpen: this.state.apqpOpen,
                     todayn: 1,
                   })
                 }
@@ -2799,10 +2802,12 @@ class ApqpPpapManagerScreen extends Component {
   render() {
     // const showHide = this.props.navigation.state.params?.taskHide;
     const showHide = this.props?.route?.params?.taskHide;
+    console.log("Tab changed this.props", this.props);
     // Reactotron.log("Tab changed", showHide);
     console.log("Tab changed", showHide);
     console.log("Tab changed this.state.apqpPending", this.state.apqpPending, '--', this.props?.data?.projects?.counts?.PendingTask);
     console.log("Tab changed this.state.apqpTobecompleted", this.state.apqpTobecompleted, '--', this.props?.data?.projects?.counts?.TobeCompleted);
+    console.log("Tab changed this.state.apqpOpen", this.state.apqpOpen, '--', this.props?.data?.projects?.counts?.Open);
     const datas = this.state.apqpList;
 
     const isRefreshing = this.state.isRefreshing;
@@ -2811,7 +2816,6 @@ class ApqpPpapManagerScreen extends Component {
     // var v2 = (this.state.apqpPending == undefined) ? 0 : this.state?.apqpPending;
     var v1 = (this.state.apqpTobecompleted ?? this.props?.data?.projects?.counts?.TobeCompleted) ?? 0;
     var v2 = (this.state.apqpPending ?? this.props?.data?.projects?.counts?.PendingTask) ?? 0;
-    console.log("Tab changed result----->", (v2 + v1), 'test', Number.isNaN(v2 + v1) ? 0 : v2 + v1);
     const result = Number.isNaN(v2 + v1) ? 0 : v2 + v1;
     const result1 = v2 + v1;
     console.log("Tab changed result", v1, v2, result, result1);
@@ -2834,7 +2838,7 @@ class ApqpPpapManagerScreen extends Component {
       // console.log("loadProjects---------->2--------->");
       return (
         <View style={styles.mainContainer}>
-        {Platform.OS === 'ios' ? <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
+        {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
           <OfflineNotice />
           {this.renderHeader()}
           {showHide !== true ? (
@@ -3155,7 +3159,7 @@ class ApqpPpapManagerScreen extends Component {
       console.log("loadProjects---------->3--------->");
       return (
         <View style={styles.mainContainer}>
-          {Platform.OS === 'ios' ? <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
+          {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
           <OfflineNotice />
           {this.renderHeader()}
           <View style={styles.bodyCont1}>
@@ -3342,7 +3346,7 @@ class ApqpPpapManagerScreen extends Component {
     } else {
       return (
         <View style={styles.mainContainer}>
-          {Platform.OS === 'ios' ? <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
+          {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
           <OfflineNotice />
           {this.renderHeader()}
           <View style={styles.bodyCont1}>

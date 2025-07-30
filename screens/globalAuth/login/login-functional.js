@@ -74,6 +74,8 @@ const LoginFunctional = ({}) => {
 				padding: CryptoJS.pad.Pkcs7,
 			});
 			console.log('get response from Login', loginDetails?.username, loginDetails?.password, encryptedPassword);
+			AsyncStorage.setItem('loginUserName', loginDetails?.username);
+			AsyncStorage.setItem('loginPassword', loginDetails?.password);
 			handleLoginCall(encryptedPassword, loginflag)
 		} else {
 			navigation.navigate(ROUTES.GLOBAL_REGISTER);

@@ -79,8 +79,11 @@ export default StyleSheet.create({
   },
 
   apqpTextStyle: {
-    fontSize: 24,
-    color: "white",
+    fontSize: Fonts.size.h5,
+    color: "#fff",
+    textAlign: "center",
+    fontFamily: "OpenSans-Bold",
+    left: 10,
   },
   footerDiv: {
     width: "100%",
@@ -140,6 +143,21 @@ export default StyleSheet.create({
     height: 70,
     justifyContent: "center",
     alignItems: "center",
+  },
+  headerDiv: {
+    width: width(50),
+    height: 65,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    paddingLeft: 25,
+  },
+  LabelText: {
+    paddingLeft: 5,
+    fontSize: Fonts.size.h5,
+    color: "#fff",
+    textAlign: "center",
+    fontFamily: "OpenSans-Bold",
   },
   headerTextDiv: {
     width: "80%",

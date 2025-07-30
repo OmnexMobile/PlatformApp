@@ -28,6 +28,7 @@ import { DeviceUniqueId } from "../config/Utils";
 import RNFS from "react-native-fs";
 import { ROUTES } from "constants/app-constant";
 import { SPACING } from "constants/theme-constants";
+import { strings } from "../language/Language";
 
 // import RNBlobUtil from "react-native-blob-util";
 
@@ -722,16 +723,19 @@ class AttachAdditionalDocScreen extends Component {
           <ImageBackground
             source={Images.headerBG}
             style={{
-              resizeMode: "stretch",
               width: "100%",
-              height: 73,
-              flexDirection: "column",
+              height: 50,
+              alignItems: "center",
+              flexDirection: "row",
             }}
           >
             <View style={{ flexDirection: "row" }}>
               <View style={styles.backLogo}>
                 <TouchableOpacity onPress={this.onPressBack.bind(this)}>
-                  <Icon name="angle-left" size={48} color="white" />
+                  <View style={styles.headerDiv}>
+                    <Icon name="angle-left" size={40} color="white" />
+                    <Text style={styles.LabelText}>{strings.Back}</Text>
+                  </View>
                 </TouchableOpacity>
               </View>
               <View style={styles.headerTextDiv}>
@@ -743,6 +747,7 @@ class AttachAdditionalDocScreen extends Component {
                     : "Revise Output Document"}
                 </Text>
               </View>
+              <View style={styles.backLogo} />
             </View>
           </ImageBackground>
         </View>

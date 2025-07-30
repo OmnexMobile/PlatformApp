@@ -46,6 +46,21 @@ export default StyleSheet.create({
     //textAlign: 'center'
     fontFamily: "OpenSans-Bold",
   },
+  headerDiv: {
+    width: width(50),
+    height: 65,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    paddingLeft: 25,
+  },
+  LabelText: {
+    paddingLeft: 5,
+    fontSize: Fonts.size.h5,
+    color: "#fff",
+    textAlign: "center",
+    fontFamily: "OpenSans-Bold",
+  },
   flatListWholeView: {
     width: "100%",
     height: Window.height - 140,
@@ -177,8 +192,10 @@ export default StyleSheet.create({
     alignItems: "center",
   },
   apqpTextStyle: {
-    fontSize: 24,
-    color: "white",
+    fontSize: Fonts.size.h5,
+    color: "#fff",
+    textAlign: "center",
+    fontFamily: "OpenSans-Bold",
   },
   DeliveryButton: {
     width: width(38),
