@@ -15,18 +15,11 @@ import { TouchableHighlight } from 'react-native';
 
 
 const HomeFabFunctional = ({ countDetails }) => {
-  const internal = true
-  const supplier = true
-  // const internal = false
-  // const supplier = false
-  const isTab = ((internal && supplier) === true) ? true : false
-  const tabIndex = (internal === true) ? 0 : 1
   const [currentName, setCurrentName] = useState("");
   const { sites } = useAppContext();
   const navigations = useNavigation();
 	const { theme } = useTheme();
   // console.log('CURRENT_PAGE---->', 'home-fab-functional')
-  // console.log('sites---->', sites, sites?.selectedSite?.SiteId)
  
   useEffect(() => {
     async function fetchData() {
@@ -51,13 +44,9 @@ const HomeFabFunctional = ({ countDetails }) => {
 
   return (
     <Content noPadding>
-       {/* {Platform.OS === 'ios' ? <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> : null } */}
-       {/* <Header title={currentName} backState={true} /> */}
 
        {/* Header */}
        <View style={{ padding: SPACING.SMALL, flexDirection: 'row', maxHeight: '12%', backgroundColor: COLORS.white }}>
-              
-                
             {/* <TextComponent style={{ width: '80%', marginRight: '4%', height: RFPercentage(8) }} type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.XLARGE} color={COLORS.white}>
               {'Welcome '}&nbsp;{sites?.selectedSite?.FullName || currentName}
             </TextComponent>
@@ -73,8 +62,7 @@ const HomeFabFunctional = ({ countDetails }) => {
 
            
       </View>
-      {(isTab) ? <TabsView countDetails={countDetails} currentName={currentName} /> :
-        <TabsCard {...{ countDetails }} tabIndex={tabIndex} currentUser={currentName} />}
+        <TabsView countDetails={countDetails} currentName={currentName} />
     </Content>
   );
 };

@@ -9,32 +9,21 @@ import { FONT_TYPE } from 'constants/app-constant';
 import AsyncStorage from '@react-native-community/async-storage';
 
 
-// const renderLabel = ({ route, focused }) => { 
-//   if (focused) { 
-//     return <Text style={{ color: 'black', fontSize: 15, minWidth: 100, textAlign: 'center' }}> {route.title} </Text>;
-//    } 
-//   //  return <Text style={{ color: 'blue', fontSize: 15, minWidth: 100, textAlign: 'center' }}> {route.title} </Text>; 
-//   }
-
 const TabsView = ({ countDetails, currentName }) => {
-  // console.log('CURRENT_PAGE---->', 'home-tab-view')
-  const internal = true
-  // const supplier = true
-  // const internal = false
+  console.log('CURRENT_PAGE---->', 'home-tab-view')
   const layout = useWindowDimensions();
   const [index, setIndex] = React.useState(0);
+  console.log('index---->', index)
   // const [isFocus, setIsFocus] = React.useState(false);
   const [isSupplier, setSupplier] = React.useState(false);
   const [isValue, setIsValue] = React.useState(0);
   const [routes, setRoutes] = React.useState([]);
-  
-  // const isTab = ((internal && supplier) === true) ? true : false
-  // const tabIndex = (internal === true) ? 0 : 1
 
   React.useEffect(() => {
     async function getAccessToken() {
       const stringifiedUserDetails = await AsyncStorage.getItem('userDetails');
       const value = JSON.parse(stringifiedUserDetails);
+      console.log('SM_ACESS--->', value?.smAccess, '---', value)
       setSupplier(value?.smAccess)
       if(value?.smAccess == "true") {
         setRoutes([
@@ -50,23 +39,19 @@ const TabsView = ({ countDetails, currentName }) => {
       }
       setIsValue(1)
       console.log('current userdata--->',  value?.smAccess)
-      // setTimeout(() => {
-      //   setSupplier(value?.smAccess)
-      //   console.log('current userdata--->',internal,  value?.smAccess, isSupplier)
-      // }, 1000);
     }
     getAccessToken();
   }, []);
 
   const InternalTabRoute = () => (
     <View style={{ flex: 1 }} >
-      <TabsCard {...{ countDetails }} tabIndex={index} currentUser={currentName} />
+      <TabsCard {...{ countDetails }} tabIndex={index} currentUser={currentName} isSupplier={isSupplier} />
     </View>
   );
   
   const SupplierTabRoute = () => (
     <View style={{ flex: 1 }}>
-      <TabsCard {...{ countDetails }}  tabIndex={index} currentUser={currentName} />
+      <TabsCard {...{ countDetails }}  tabIndex={index} currentUser={currentName} isSupplier={isSupplier} />
     </View>
   );
   
@@ -74,30 +59,6 @@ const TabsView = ({ countDetails, currentName }) => {
     first:  InternalTabRoute,
     second: SupplierTabRoute,
   });
-
-  const handleRoutes = () => {
-    if((internal && supplier) === true) {
-      return <InternalTabRoute  />
-    } else {
-      return <SupplierTabRoute />
-    }
-  }
-
-  // const renderScene = () => {
-  //   switch (routes.key) {
-  //     case 'first':
-  //       return <InternalTabRoute  />;
-  //     case 'second':
-  //       return <SupplierTabRoute />;
-  //     default:
-  //       return null;
-  //   }
-  //   // if(isFocus) {
-  //   //   return <InternalTabRoute  />
-  //   // } else {
-  //   //   return <SupplierTabRoute />
-  //   // }
-  // };
 
   const renderLabel = ({ route, focused }) => {
     return <TextComponent

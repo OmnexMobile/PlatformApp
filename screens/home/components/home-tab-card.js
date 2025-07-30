@@ -38,8 +38,8 @@ import { APQP_URL, AUDITPRO_URL, GLOBALSERVER_URL, IC_URL, PROBLEMSOLVING_URL } 
 
 const screenWidth = Dimensions.get("window").width;
 
-const TabsCard = ({ countDetails, tabIndex, currentUser, noTab, navigation }) => {
-  // console.log('tabIndex--------', tabIndex, noTab)
+const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
+  // console.log('tabIndex--------', tabIndex, '--', currentUser, '--', isSupplier)
   // console.log('CURRENT_PAGE---->', 'home-tab-card')
   const navigations = useNavigation();
   const [currentUserData, setCurrentUserData] = useState([]);
@@ -49,7 +49,7 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, noTab, navigation }) =>
   const [isRegister, setIsRegister] = useState(null);
   const [loading, setLoading] = useState(false);
   const [opacity, setOpacity] = useState(1);
-  const [dataSet, setDataSet] = useState(null);
+  // const [dataSet, setDataSet] = useState(null);
   const { handleGlobalURL, globalDeviceDetails } = useAppContext();
   const dispatch = useDispatch();
 
@@ -109,42 +109,25 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, noTab, navigation }) =>
     {
         id: 5,
         title: tabIndex === 0 ? strings.inspectionControl : null,
-        detail:
-            tabIndex === 0
-                ? [
-                      { images: IMAGES.ICIS, category: strings.inspectionSchedule, status: 1, routeName: ROUTES.INSPECTION_SCHEDULE },
-                      { images: IMAGES.ICOS, category: strings.operatorWorksheet, status: 2, routeName: ROUTES.OPERATOR_WORKSHEET },
-                      { images: IMAGES.ICCI, category: strings.completedInspection, status: 3, routeName: ROUTES.COMPLETED_INSPECTION },
-                    //   { images: IMAGES.ICSS, category: strings.supervisorSchedule, status: 4, routeName: ROUTES.SUPERVISOR_SCHEDULE },
-                  ]
-                : [],
+        detail: tabIndex === 0 ? [
+          { images: IMAGES.ICIS, category: strings.inspectionSchedule, status: 1, routeName: ROUTES.INSPECTION_SCHEDULE },
+          { images: IMAGES.ICOS, category: strings.operatorWorksheet, status: 2, routeName: ROUTES.OPERATOR_WORKSHEET },
+          { images: IMAGES.ICCI, category: strings.completedInspection, status: 3, routeName: ROUTES.COMPLETED_INSPECTION },
+        //   { images: IMAGES.ICSS, category: strings.supervisorSchedule, status: 4, routeName: ROUTES.SUPERVISOR_SCHEDULE },
+        ] : [],
     },
   ];
 
-  useEffect(() => {
-    let currentData;
-    let array;
-    const finalUser = currentUser.replace(/\s+/g, '');
-    console.log('currentUser---', currentUser, '-----', finalUser, currentUser?.length, finalUser?.length);
-    if(finalUser === "NBhoopathy") {
-      currentData = data.find(item => item.id === 4);
-      array = [currentData];
-      console.log("currentUserData---nb--->", array);
-    } else if(finalUser === "NVignesh") {
-      currentData = data.find(item => item.id === 2);
-      array = [currentData];
-      console.log("currentUserData---vk--->", array);
-    } else if(finalUser === "PradeepaDeva") {
-      currentData = data.find(item => item.id === 3);
-      array = [currentData];
-      console.log("currentUserData---dp--->", array);
-    } else { 
-      array = data;
-      console.log("currentUserData---brps--->", currentData);
-    }
-    setDataSet(array)
-    console.log('final currentData---', array);
-  }, [currentUser]);
+  const finalUser = currentUser.replace(/\s+/g, '');
+  console.log(finalUser, 'finalUser');
+  const dataSet = React.useMemo(() => {
+    if (!data || data.length === 0) return [];
+    // if (finalUser === "AzhalleAnna") return data.filter(item => item.id === 1);
+    if (finalUser === "NVignesh") return data.filter(item => item.id === 2);
+    if (finalUser === "PradeepaDeva") return data.filter(item => item.id === 3);
+    if (finalUser === "NBhoopathy") return data.filter(item => item.id === 4);
+    return data;
+  }, [data, currentUser]);
 
   const redirectToPage = (title, status, category) => {
     ((status > 0) && (title === strings.auditPro)) 
@@ -167,7 +150,6 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, noTab, navigation }) =>
         const value = JSON.parse(stringifiedUserDetails);
         // console.log('current userdata--->', value)
         if (value !== null) {
-          // value previously stored
           // console.log('current token2 Auditpro--->', value?.accessToken)
           setCurrentUserData(value)
         } else {
@@ -189,7 +171,6 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, noTab, navigation }) =>
         const value = JSON.parse(stringifiedUserDetailsPS);
         // console.log('current userdata ps--->', value)
         if (value !== null) {
-          // value previously stored
           // console.log('current token2 ps--->', value)
           setCurrentUserDataPS(value)
         } else {
@@ -222,14 +203,14 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, noTab, navigation }) =>
     getdeviceRegisterStatus()
   }, [isRegister, isFocused])
 
-  const showToast = () => {
-    // Toast.show("This is a toast message!", Toast.SHORT);
-    Toast.showWithGravity(
-      "No Settings Data!",
-      Toast.LONG,
-      Toast.TOP,
-    );
-  };
+  // const showToast = () => {
+  //   // Toast.show("This is a toast message!", Toast.SHORT);
+  //   Toast.showWithGravity(
+  //     "No Settings Data!",
+  //     Toast.LONG,
+  //     Toast.TOP,
+  //   );
+  // };
 
   const handleNavigation = async (title, status, category, auditTitle, routeName) => {
     console.log('handleNavigation currentUserData?.accessToken--->', currentUserData, globalDeviceDetails?.deviceDetails, 'token', currentUserData?.accessToken)
@@ -524,7 +505,9 @@ const loginCallIC = async routeName => {
       </ScrollView>
     </>
   )
-  console.log('dataSet--->', dataSet)
+
+  console.log('dataSet--1--->', dataSet, 'data--->', data?.length, data)
+
   return (
     <SafeAreaView>
       {loading ? (
@@ -539,11 +522,14 @@ const loginCallIC = async routeName => {
         </View>
       </Modal>
       ) : null }
-      <FlatList
-        data={dataSet}
-        renderItem={({ item }) => item.title === null ?  null :  <Item detail={item.detail} title={item.title} images={item.images} />}
-        keyExtractor={item => item.id}
-      />
+      
+      {dataSet?.length > 0 && (
+        <FlatList
+          data={dataSet}
+          renderItem={({ item }) => item?.title === null ?  null :  <Item detail={item?.detail} title={item?.title} images={item?.images} />}
+          keyExtractor={item => item?.id}
+        />
+      )}
     </SafeAreaView>
   )
 }
