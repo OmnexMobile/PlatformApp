@@ -293,11 +293,10 @@ const CompletedInspection = () => {
         const response = await postAPI(selectedValue.intInspectionTypeID == '2' ? ApiUrl.IC_INPROCESS_SINGLE_SYNC : ApiUrl.IC_SINGLE_SYNC, payLoad);
         if (response?.insertedCount) {
             setSyncModal(false);
-            dispatch({
-                type: 'REMOVE_INSPECT_LIST',
-                inspectionToRemove: selectedValue,
-            });
-            getAllCompletedData(true);
+            const flag = await deleteInspectionByUniqueId(icUserData?.userData?.UserId, icUserData?.userData?.Siteid, selectedValue.uniqueId);
+            if (flag) {
+                getAllCompletedData(true);
+            }
         } else {
             showMessage({
                 message: 'Something went wrong',
