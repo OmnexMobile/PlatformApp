@@ -22,7 +22,7 @@ import QRCodeScannerScreen from '../Components/QRCodeScannerScreen';
 import NoDataFound from '../Components/NoDataFound';
 import { postAPI } from 'global/api-helpers';
 import ApiUrl from 'global/ApiUrl';
-import { getInspectionDataByUserAndSite } from 'store/database/inspectStorage';
+import { getAllInspectionData, getInspectionDataByUserAndSite } from 'store/database/inspectStorage';
 
 const filterList = [
     {
@@ -57,7 +57,7 @@ const moreList = [
     },
 ];
 const InspectionSchedule = () => {
-    const {  icUserData } = useSelector(state => state.inspection);
+    const { icUserData } = useSelector(state => state.inspection);
     const dispatch = useDispatch();
     const isFocused = useIsFocused();
     const {
@@ -93,6 +93,13 @@ const InspectionSchedule = () => {
         setSelectedData(temp);
         setShowFileModal(true);
     };
+    useEffect(() => {
+        getSQliteList()
+    }, [isFocused]);
+    const getSQliteList = async () => {
+        const list = await getAllInspectionData();
+        console.log(list.length, '*********************************************list.length');
+    };
     const getOverAllSettings = async () => {
         const settingsRes = await postAPI(`${ApiUrl.IC_SETTINGS}`);
         if (settingsRes.Success) {
@@ -100,8 +107,8 @@ const InspectionSchedule = () => {
         }
     };
     const handleListFetch = async (inspect = null, showSktn = true, filterType = '') => {
-        const inspectList=await getInspectionDataByUserAndSite(icUserData?.userData?.UserId,icUserData?.userData?.Siteid)
-        console.log(inspectList.length,'*********************************************inspectList.length')
+        const inspectList = await getInspectionDataByUserAndSite(icUserData?.userData?.UserId, icUserData?.userData?.Siteid);
+        console.log(inspectList.length, '*********************************************inspectList.length');
         showSktn && setShowSkeleton(true);
         const { startDate, endDate, type } = filterData;
         let dateFlag = startDate !== '' && endDate !== '';
@@ -173,10 +180,10 @@ const InspectionSchedule = () => {
         }
         setMasterData(tempSearch);
     };
-  
+
     useEffect(() => {
         if (icUserData && isFocused) {
-            console.log('icUserData',icUserData)
+            console.log('icUserData', icUserData);
             handleListFetch(null, true, filterData.type);
         }
         return () => {
@@ -293,10 +300,16 @@ const InspectionSchedule = () => {
         setSearch('');
         handleListFetch(null, false, filterData.type);
     };
-    const handleSearch = value => {
+    const handleSearch = (value,filterType) => {
         let temp = JSON.parse(JSON.stringify(overAllData));
+         let tempList = [];
+        if (filterType !== '' ) {
+            tempList = temp.filter(item => item.TypeOfInspection == filterType);
+        } else {
+            tempList = temp;
+        }
         if (value?.length) {
-            const tempSearch = temp.filter(
+            const tempSearch = tempList.filter(
                 item =>
                     item.ProductionItem.toLowerCase().includes(value.toLowerCase()) || item.OperationName.toLowerCase().includes(value.toLowerCase()),
             );
@@ -309,7 +322,7 @@ const InspectionSchedule = () => {
         var handler;
         if (search.length && isFocused) {
             handler = setTimeout(() => {
-                handleSearch(search);
+                handleSearch(search,filterData?.type);
             }, 500);
         }
         return () => {
@@ -317,7 +330,7 @@ const InspectionSchedule = () => {
         };
     }, [search, isFocused]);
     const handleSubmitBtnPress = async val => {
-        const latestInspection = await getInspectionDataByUserAndSite(icUserData?.userData?.UserId,icUserData?.userData?.Siteid)
+        const latestInspection = await getInspectionDataByUserAndSite(icUserData?.userData?.UserId, icUserData?.userData?.Siteid);
         const apiData = await handleListFetch(null, true, filterData.type);
         let filterTemp = filterData.type !== '' ? apiData.filter(item => item.TypeOfInspection == filterData.type) : apiData;
         let temp = [...filterTemp] || [];
@@ -335,7 +348,7 @@ const InspectionSchedule = () => {
         });
         setMasterData(updatedArray);
     };
-    console.log(masterData.length,'masterData')
+    console.log(masterData.length, 'masterData');
     return (
         <CustomHeader
             title="Inspection Schedule"
@@ -387,7 +400,11 @@ const InspectionSchedule = () => {
                         />
                     </View>
                     <View style={[styles.iconFilter]}>
-                        <TouchableOpacity style={styles.getDataBox} onPress={() => {handleMenuPress()}}>
+                        <TouchableOpacity
+                            style={styles.getDataBox}
+                            onPress={() => {
+                                handleMenuPress();
+                            }}>
                             <IconI name="sync-sharp" size={22} color={COLORS.black} />
                         </TouchableOpacity>
                         {/* <FilterWithMenu

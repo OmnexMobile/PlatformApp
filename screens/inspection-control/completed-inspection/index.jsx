@@ -61,7 +61,7 @@ const optionsList = [
 const CompletedInspection = () => {
     const { icUserData } = useSelector(state => state.inspection);
     const [syncModal, setSyncModal] = useState(false);
-    const [inProgressData, setInProgressData] = useState(false);
+    const [syncList, setSyncList] = useState([...optionsList]);
     const [selectedRadio, setSelectedRadio] = useState({
         id: 1,
         value: 'Sync',
@@ -105,7 +105,6 @@ const CompletedInspection = () => {
     const handleSyncPress = item => {
         setSyncModal(true);
         setSelectedValue(item);
-        
     };
     const hideModal = () => {
         if (!disableBtn) {
@@ -117,6 +116,7 @@ const CompletedInspection = () => {
             });
             setSyncModal(false);
         }
+        setCheckBox(false);
     };
     const handleDeletePress = item => {
         setSelectedValue(item);
@@ -158,10 +158,10 @@ const CompletedInspection = () => {
                         <TouchableOpacity
                             style={{ marginRight: 10 }}
                             onPress={() => {
-                                if(item?.status=='In Progress'){
-                                    setInProgressData(true);
-                                }else{
-                                    setInProgressData(false);
+                                if (item?.status == 'In Progress') {
+                                    setSyncList([...optionsList.slice(0, 1)]);
+                                } else {
+                                    setSyncList([...optionsList]);
                                 }
                                 setSelectedValue(item);
                                 handleSyncPress(item);
@@ -277,7 +277,7 @@ const CompletedInspection = () => {
             InspectedDate: moment(new Date()).format('MM/DD/YYYY hh:mm:ss A'),
             characteristicDetails: templist,
             GeneralInfo: updatedGeneralInfo,
-            SiteId:icUserData?.userData?.Siteid,
+            SiteId: icUserData?.userData?.Siteid,
             Status: [
                 {
                     UserId: icUserData?.userData?.UserId,
@@ -360,7 +360,7 @@ const CompletedInspection = () => {
                                 <Text style={styles.headertext}>Choose Sync Options</Text>
                                 <Divider />
                                 <View style={[styles.contentBox]}>
-                                    {optionsList.map(item => {
+                                    {syncList.map(item => {
                                         return (
                                             <View style={{ marginVertical: 10 }} key={item.id}>
                                                 <RadioButtonComponent
@@ -375,15 +375,17 @@ const CompletedInspection = () => {
                                         );
                                     })}
                                 </View>
-                                <View>
-                                    <ICCheckBox
-                                        isChecked={checkBox}
-                                        label="Supervisor Approved"
-                                        onChange={() => {
-                                            setCheckBox(!checkBox);
-                                        }}
-                                    />
-                                </View>
+                                {Boolean(syncList.length > 1) && (
+                                    <View>
+                                        <ICCheckBox
+                                            isChecked={checkBox}
+                                            label="Supervisor Approved"
+                                            onChange={() => {
+                                                setCheckBox(!checkBox);
+                                            }}
+                                        />
+                                    </View>
+                                )}
                             </View>
                         )}
                         <View>
