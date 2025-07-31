@@ -196,10 +196,10 @@ const SampleCharInfo = ({
                 <View style={styles.subBox}>
                     <Text style={styles.headerText}>Inspection method</Text>
                     <TextInput
-                        value={''}
+                        value={selectedData?.GageName || ''}
                         style={[styles.inputBox, { backgroundColor: COLORS.inputBG }]}
                         onChangeText={val => {
-                            handleInputChange('', val);
+                            handleInputChange('GageName', val);
                         }}
                         placeholder={''}
                     />
@@ -209,10 +209,10 @@ const SampleCharInfo = ({
                 <View style={styles.subBox}>
                     <Text style={styles.headerText}>Gage or Instrument</Text>
                     <TextInput
-                        value={selectedData?.GageName || ''}
+                        value={selectedData?.GageNo || ''}
                         style={[styles.inputBox, { backgroundColor: COLORS.inputBG }]}
                         onChangeText={val => {
-                            handleInputChange('GageName', val);
+                            handleInputChange('GageNo', val);
                         }}
                         placeholder={''}
                     />

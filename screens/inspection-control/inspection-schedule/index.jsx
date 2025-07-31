@@ -295,10 +295,16 @@ const InspectionSchedule = () => {
         setSearch('');
         handleListFetch(null, false, filterData.type);
     };
-    const handleSearch = value => {
+    const handleSearch = (value,filterType) => {
         let temp = JSON.parse(JSON.stringify(overAllData));
+         let tempList = [];
+        if (filterType !== '' ) {
+            tempList = temp.filter(item => item.TypeOfInspection == filterType);
+        } else {
+            tempList = temp;
+        }
         if (value?.length) {
-            const tempSearch = temp.filter(
+            const tempSearch = tempList.filter(
                 item =>
                     item.ProductionItem.toLowerCase().includes(value.toLowerCase()) || item.OperationName.toLowerCase().includes(value.toLowerCase()),
             );
@@ -311,7 +317,7 @@ const InspectionSchedule = () => {
         var handler;
         if (search.length && isFocused) {
             handler = setTimeout(() => {
-                handleSearch(search);
+                handleSearch(search,filterData.type);
             }, 500);
         }
         return () => {
