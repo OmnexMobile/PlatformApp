@@ -97,7 +97,7 @@ PODS:
   - libwebp/webp (1.3.2):
     - libwebp/sharpyuv
   - lottie-ios (3.4.0)
-  - lottie-react-native (5.1.4):
+  - lottie-react-native (5.1.6):
     - lottie-ios (~> 3.4.0)
     - React-Core
   - OpenSSL-Universal (1.1.1100)
@@ -329,7 +329,11 @@ PODS:
     - React-Core
   - react-native-flipper (0.163.0):
     - React-Core
+  - react-native-geocoder (0.5.0):
+    - React
   - react-native-image-marker (0.9.2):
+    - React-Core
+  - react-native-image-picker (4.10.2):
     - React-Core
   - react-native-netinfo (9.3.0):
     - React-Core
@@ -359,7 +363,7 @@ PODS:
     - React-Core
   - react-native-voice (1.1.9):
     - React
-  - react-native-webview (11.26.1):
+  - react-native-webview (13.15.0):
     - React-Core
   - React-perflogger (0.70.0)
   - React-RCTActionSheet (0.70.0):
@@ -464,6 +468,8 @@ PODS:
     - React-Core
     - React-RCTImage
     - TOCropViewController
+  - RNInAppBrowser (3.7.0):
+    - React-Core
   - RNPermissions (5.2.4):
     - React-Core
   - RNReanimated (2.17.0):
@@ -573,7 +579,9 @@ DEPENDENCIES:
   - react-native-document-picker (from `../node_modules/react-native-document-picker`)
   - react-native-fetch-blob (from `../node_modules/react-native-fetch-blob`)
   - react-native-flipper (from `../node_modules/react-native-flipper`)
+  - react-native-geocoder (from `../node_modules/react-native-geocoder`)
   - react-native-image-marker (from `../node_modules/react-native-image-marker`)
+  - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - "react-native-netinfo (from `../node_modules/@react-native-community/netinfo`)"
   - react-native-pager-view (from `../node_modules/react-native-pager-view`)
   - react-native-render-html (from `../node_modules/react-native-render-html`)
@@ -611,6 +619,7 @@ DEPENDENCIES:
   - RNFS (from `../node_modules/react-native-fs`)
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNImageCropPicker (from `../node_modules/react-native-image-crop-picker`)
+  - RNInAppBrowser (from `../node_modules/react-native-inappbrowser-reborn`)
   - RNPermissions (from `../node_modules/react-native-permissions`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
@@ -703,8 +712,12 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-fetch-blob"
   react-native-flipper:
     :path: "../node_modules/react-native-flipper"
+  react-native-geocoder:
+    :path: "../node_modules/react-native-geocoder"
   react-native-image-marker:
     :path: "../node_modules/react-native-image-marker"
+  react-native-image-picker:
+    :path: "../node_modules/react-native-image-picker"
   react-native-netinfo:
     :path: "../node_modules/@react-native-community/netinfo"
   react-native-pager-view:
@@ -779,6 +792,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-gesture-handler"
   RNImageCropPicker:
     :path: "../node_modules/react-native-image-crop-picker"
+  RNInAppBrowser:
+    :path: "../node_modules/react-native-inappbrowser-reborn"
   RNPermissions:
     :path: "../node_modules/react-native-permissions"
   RNReanimated:
@@ -819,7 +834,7 @@ SPEC CHECKSUMS:
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   libwebp: 1786c9f4ff8a279e4dac1e8f385004d5fc253009
   lottie-ios: 69495122151a378fdc7d1bb4c5930347e37baf1f
-  lottie-react-native: 61e02fe80b8873ae42c45df06b5941d158b46776
+  lottie-react-native: 5d89c05930d4180a1e39b1757d46e6c0eec90255
   OpenSSL-Universal: ebc357f1e6bc71fa463ccb2fe676756aff50e88c
   RCT-Folly: fd2673f5bfadb2a8173799b6965b892a67ae31d9
   RCTRequired: d0e501e8024056451424aa341daa078c0c620b0d
@@ -841,7 +856,9 @@ SPEC CHECKSUMS:
   react-native-document-picker: a338165804b1a14c8e408448115dc0edfd7b73ca
   react-native-fetch-blob: 77898160945cb307c0b855e686910b3ab73c5270
   react-native-flipper: e8f174ec25ddab9c44d076fbcfa828af6a77d7ab
+  react-native-geocoder: bc977303c9c53cce36bcdb3c6f17e6832f86beb6
   react-native-image-marker: 63e22229eba0bbd3cfeac6f0eb26a337c598dc88
+  react-native-image-picker: 9cc620a366422349445e009fb83682e920e02610
   react-native-netinfo: 17063d97f52803d5b38048b6425ba670c1e50dca
   react-native-pager-view: 84b6e34912c99f73a02f200da372fc48d6ee267b
   react-native-render-html: 5afc4751f1a98621b3009432ef84c47019dcb2bd
@@ -852,7 +869,7 @@ SPEC CHECKSUMS:
   react-native-version-number: 3d74b5224ca4e1032b1593937d86d3f3c94bf95c
   react-native-video: 2aad0d963bf3952bd9ebb2f53fab799338e8e202
   react-native-voice: 8d95edc2806570cd545890d549c41f54148b6e1f
-  react-native-webview: ec195db71ebf55705d7b46a7da5f1b1746bb7efd
+  react-native-webview: 02bd5fa172cb6f14036863b2d63bf571cc143088
   React-perflogger: 77947e49d84e31eb87d454d4ef327542dcfeaebc
   React-RCTActionSheet: 9f5fd6c1666c1a834ab7f45a452ed08b1de44eb8
   React-RCTAnimation: 6fd3db6ca387c8432fd6a26428e940a081bcb476
@@ -879,6 +896,7 @@ SPEC CHECKSUMS:
   RNFS: 89de7d7f4c0f6bafa05343c578f61118c8282ed8
   RNGestureHandler: 0a3b91cd1c1b014f64cbdcc7523317c5413ad782
   RNImageCropPicker: bc4b9945657c093166610202e803307c9b10f348
+  RNInAppBrowser: 6d3eb68d471b9834335c664704719b8be1bfdb20
   RNPermissions: 7741de0eda3911c4b4aa39b4fb20ad82462165d3
   RNReanimated: 32ed5a11b7feae1cd35c005cda69822a3a2efdd4
   RNScreens: 5881a577ff90316c1dc44d33e6bab68bcdbb2945
@@ -894,6 +912,6 @@ SPEC CHECKSUMS:
   Yoga: 82c9e8f652789f67d98bed5aef9d6653f71b04a9
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
-PODFILE CHECKSUM: ae1805a8041df4a630b6d88cb6ad9a6f0a423d5c
+PODFILE CHECKSUM: 0a14c9db18fe5910258374f19f81789b4ad28b13
 
 COCOAPODS: 1.16.2

@@ -303,15 +303,10 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
         }
         console.log('current click--->', strings.documentPro);
       } else if (title === strings.inspectionControl) {
-          currentGlobalURL = globalDeviceDetails?.deviceDetails?.ICApiURL ? globalDeviceDetails?.deviceDetails?.ICApiURL: IC_URL;
-          console.log('currentGlobalURL--->', currentGlobalURL )
-          localStorage.storeData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL, currentGlobalURL);
-          handleGlobalURL('serverUrl', currentGlobalURL)
-          globalAuth.setServerUrl(currentGlobalURL);
-          auth.setServerUrl(currentGlobalURL);
-          setLoading(true);
-          loginCallIC(routeName);
-          console.log('*************current click', globalDeviceDetails, category, strings.inspectionControl, routeName);
+            localStorage.storeData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL, globalDeviceDetails?.deviceDetails?.ICApiURL);
+            setLoading(true);
+            navigations.navigate(routeName);
+            setLoading(false);
       } else {
         // console.log('current click--->')
       }

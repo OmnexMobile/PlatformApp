@@ -11,8 +11,10 @@ import LoginPresentational from './login-presentational';
 import { postAPI } from 'global/api-helpers';
 import auth from '../../../services/Auditpro-Auth';
 import AsyncStorage from '@react-native-community/async-storage';
+import { useDispatch } from 'react-redux';
 
 const LoginFunctional = ({}) => {
+	const dispatch = useDispatch();
 	const [selectLanguageModal, setSelectLanguageModal] = useState(false);
 	const [loginDetails, setLoginDetails] = useState({
 			// username: 'Champion1@michelin',
@@ -162,6 +164,11 @@ const LoginFunctional = ({}) => {
 		handleSiteList(data?.Data);
         handleSite(data?.Data)
 		setCurrentToken(data?.Token);
+		 let icUserData = {
+                userData: data?.Data[0] || {},
+                token: data?.Token || '',
+            };
+            dispatch({ type: 'IC_USER_DATA', icUserData: icUserData });
 	};
 
 	return (
