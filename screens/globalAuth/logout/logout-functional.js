@@ -11,48 +11,8 @@ import { getUniqueId } from 'react-native-device-info';
 import localStorage from 'global/localStorage';
 import AsyncStorage from '@react-native-community/async-storage';
 import { GLOBALSERVER_URL } from 'screens/globalConstant/globalURL';
-// import auth from '../../../../../../services/Auditpro-Auth';
 
-const menus = [
-    // {
-    //     // title: 'Tasks',
-    //     menus: [
-    //         {
-    //             title: 'Settings',
-    //             iconType: ICON_TYPE.AntDesign,
-    //             iconName: 'setting',
-    //             route: ROUTES.SETTINGS,
-    //         },
-    //     ],
-    // },
-    // {
-    //     title: 'SUPPORT',
-    //     menus: [
-    //         {
-    //             title: 'Get help',
-    //             iconType: ICON_TYPE.Ionicons,
-    //             iconName: 'ios-help',
-    //             link: 'https://www.swiggy.com/terms-and-conditions',
-    //         },
-    //         {
-    //             title: 'Give us feedback',
-    //             iconType: ICON_TYPE.AntDesign,
-    //             iconName: 'message1',
-    //         },
-    //     ],
-    // },
-    // {
-    //     title: 'LEGAL',
-    //     menus: [
-    //         {
-    //             title: 'Terms of Services',
-    //             iconType: ICON_TYPE.Ionicons,
-    //             iconName: 'ios-document-text-outline',
-    //             link: 'https://www.swiggy.com/terms-and-conditions',
-    //         },
-    //     ],
-    // },
-];
+const menus = [];
 
 const versionDetails = {
     appVersion: VersionNumber.appVersion,

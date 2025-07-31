@@ -17,7 +17,7 @@ export const DP_API_URL = 'http://1.22.172.236/DPAPI/api/' // Static IP - DocPro
 
 // export const API_URL = 'https://cloudqa1.ewqims.com/auditproapi/api/' //SM
 // export const API_URL = 'https://training-michelin.ewqims.com/auditproapi/api/' // Training Server SM
-export const API_URL = AUDITPRO_URL // Global Server SM
+export const API_URL_SM = AUDITPRO_URL // Global Server SM
 
 
 /** NXP  */ 

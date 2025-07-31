@@ -91,6 +91,7 @@ class AuditDashboardListing extends Component {
   }
 
   componentDidMount() {
+    this.props.storeServerUrl(AUDITPRO_URL);
     LogBox.ignoreLogs(["componentWillReceiveProps has been renamed"])
     if (this.props.data.audits.language === 'Chinese') {
       this.setState({ChineseScript: true}, () => {
@@ -769,6 +770,7 @@ class AuditDashboardListing extends Component {
             item={item}
             index={index}
             length={this.state.auditList.length + 1}
+            naviData={this.props.navigation}
           />
         
         )}

@@ -202,7 +202,7 @@ const RegisterFunctional = ({}) => {
             localStorage.storeData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL, DEFAULT_URL)
             handleDeviceDetails(data?.Data)
             console.log('handleDeviceDetails-->', data, '--', data?.Data)
-            setCurrentURL(true)
+            setCurrentURL(DEFAULT_URL)
             await AsyncStorage.setItem('isdeviceregistered', 'yes');
             console.log('🚀 ~ file: DEVICE_STATUS ~ res', data, '---', data?.Data);
         } catch (err) {
@@ -236,7 +236,7 @@ const RegisterFunctional = ({}) => {
                     });
 
                     globalAuth.setServerUrl('');
-                    setCurrentURL(false)
+                    setCurrentURL('')
                     console.log('currentURL--->unregister', currentURL, !!currentURL)
                     successMessage({ message: 'Success', description: 'Successfully Unregistered this Device' });
                 } else {

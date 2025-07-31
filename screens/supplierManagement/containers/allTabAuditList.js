@@ -46,7 +46,7 @@ import * as _ from 'lodash';
 
 // Static register nd login //
 
-import {API_URL} from '../../../constants/SupplierMgnt/APIConstants';
+import {API_URL_SM} from '../../../constants/SupplierMgnt/APIConstants';
 import {isRegExp} from 'lodash';
 import AsyncStorage from '@react-native-community/async-storage';
 import {CheckBox as CheckedElement} from 'react-native-elements';
@@ -172,12 +172,7 @@ class AllTabAuditList extends Component {
       isLoading: true,
       isDeviceRegistered: '',
       deviceRegistration: '',
-      serverUrl:
-        this.props.data.audits.serverUrl == null ||
-        this.props.data.audits.serverUrl == undefined ||
-        this.props.data.audits.serverUrl == ''
-            ? API_URL
-            : this.props.data.audits.serverUrl,
+      serverUrl: API_URL_SM || this.props.data?.audits?.serverUrl,
       type: 1,
       screenWidth: Dimensions.get('window').width,
       // login //
@@ -204,6 +199,7 @@ class AllTabAuditList extends Component {
       deviceId: '',
       
     };
+    console.log('props', this.props.data.audits.serverUrl, 'API_URL_SM', API_URL_SM, 'serverurl', this.state.serverUrl)
     this.backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
       // this.backHandle();
       return true;
@@ -733,124 +729,6 @@ todayAudits() {
     }
   };
 
-  loadDataSM = async () => {
-    console.log('logpropssssssssss',this.props);
-
-    Dimensions.addEventListener('change', this.handleDimensionChange);
-
-    async () =>{
-    AsyncStorage.setItem('NCSettingvalue', JSON.stringify(data?.data?.Data?.ncofisetting));
-
-    }
-    console.log('unregisterlog5');
-
-    // this.setState({serverUrl: 'https://cloudqa1.ewqims.com/auditproapi/api/'})
-    this.getdeviceRegisterStatus();
-    console.log('******************* printing here *********************');
-    DeviceInfo.getUniqueId().then(deviceId => {
-    this.setState(
-      {
-        deviceId,
-      },
-      async () => {
-        console.log('Registration screen mounted successfully!');
-        this.RestoringLoginData();
-        console.log('Registration screen url--->', this.state.serverUrl);
-        var smIndex = await AsyncStorage.getItem('supplierIndex');
-        console.log('smIndex componentDidMount----->', smIndex);
-        auth.setServerUrl(this.state.serverUrl);
-        if (this.props.data.audits.language === 'Chinese') {
-          this.setState({ChineseScript: true}, () => {
-            strings.setLanguage('zh');
-            this.setState({});
-            console.log('Chinese script on', this.state.ChineseScript);
-          });
-        } else if (
-          this.props.data.audits.language === null ||
-          this.props.data.audits.language === 'English'
-        ) {
-          this.setState({ChineseScript: false}, () => {
-            strings.setLanguage('en-US');
-            this.setState({});
-            console.log('Chinese script off', this.state.ChineseScript);
-          });
-        }
-        // console.log('this.props', this.props)
-        // console.log('Received params',this.props.navigation.state.params)
-
-      //   if (this.props.navigation.state.params) {
-        if (this.props?.route?.params) {
-          this.isRedirectFromLogin = true;
-          console.log('checking navigation state params');
-        }
-
-        console.log(
-          'isredirectfromlogin ',
-          this.isRedirectFromLogin,
-          this.props.data.audits.isOfflineMode,
-        );
-
-        if (this.props.data.audits.isOfflineMode) {
-          if (this.props.data.audits.isDeviceRegistered) {
-            if (!this.isRedirectFromLogin) {
-              // Forward to landing page
-              // this.props.navigation.navigate('LaunchScreen');
-              console.log('LAUNCH_SCREENn 1111111')
-              // this.props.navigation.navigate(ROUTES.LOGIN_SM)
-              this.loginHandler()
-              
-            } else {
-              this.setState(
-                {
-                  isDeviceRegistered: true,
-                  isLoading: false,
-                },
-                async () => {
-                  await AsyncStorage.setItem('isdeviceregistered', 'yes');
-                  this.props.registrationState(this.state.isDeviceRegistered);
-                  await AsyncStorage.setItem('deviceid', this.state.deviceId);
-                  this.props.storeDeviceid(this.state.deviceId);
-                  console.log('isDeviceRegistered => 1',this.state.isDeviceRegistered)
-                },
-              );
-            }
-          }
-          console.log('Offline mode!');
-          // this.refs.toast.show(strings.Offline_Notice, 2000);
-        } else {
-          console.log(
-            'this.state.deviceId',
-            this.state.deviceId,
-            this.state.serverUrl,
-          );
-          //this.checkRegistrationStatus(this.state.deviceId)
-          if (this.state.serverUrl !== '') {
-            this.checkRegistrationStatus(this.state.deviceId);
-          } else {
-            console.log('Hitting here 1 else component');
-            this.setState(
-              {
-                isDeviceRegistered: false,
-                isLoading: false,
-                deviceRegistration: 'no',
-              },
-              async () => {
-                await AsyncStorage.setItem('isdeviceregistered', 'no');
-                console.log('registere2');
-                this.props.registrationState(this.state.isDeviceRegistered);
-                await AsyncStorage.setItem('deviceid', this.state.deviceId);
-                this.props.storeDeviceid(this.state.deviceId);
-              },
-            );
-            console.log('Server url is empty');
-          }
-        }
-        smIndex == 2 ? this.registerCall(2) : this.registerCall(3);
-      },
-    );
-    });
-
-  }
 
   async getDeviceId() {
     let deviceId = await AsyncStorage.getItem('deviceid')
@@ -880,11 +758,18 @@ todayAudits() {
 
   async componentDidMount() {
     this.setState({loading: true});
+    this.props.storeServerUrl(API_URL_SM);
+    var propsServerUrl = API_URL_SM || this.props.data?.audits?.serverUrl;
+    var cleanURL = propsServerUrl?.replace(/^https?:\/\//, '');
+
+    var formatURL = cleanURL?.replace(/[&\/\\#,+()$~%.'":*?<>{}]/g, '');
+    this.propsServerUrl = formatURL;
+    console.log('cleanURL', this.propsServerUrl);
     try {
       // await this.loadDataSM(); // 1. Load data and static login & register call
       // await this.registerCall(); // 1. wait for async call
 
-      await this.loginCall();
+      await this.globalLoginCall();
   
       console.log('this.state.activetab', this.state.activeTab);
       console.log('check audits.smdata', this.props.data.audits.smdata);
@@ -937,426 +822,6 @@ todayAudits() {
     }
   }
 
-  
-  
-
-  // async componentDidMount() {
-
-  //   await this.registerCall();
-
-  //   console.log('this.state.activetab', this.state.activeTab);
-  //   console.log('checkkkkkkkkkkkthis.props.data.audits.smdata',this.props.data.audits.smdata);
-  //   console.log('qqqcheckkkkkkkkkkkthisqqqqqqq',this.props);
-
-    
-  //   // console.log('AuditDashboardBody mounted',this.props.data.audits)
-  //   // this.loadRecentAudits()
-  //   if (this.props.data.audits.language === 'Chinese') {
-  //     this.setState({ChineseScript: true}, () => {
-  //       strings.setLanguage('zh');
-  //       this.setState({});
-  //       // console.log('Chinese script on',this.state.ChineseScript)
-  //     });
-  //   } else if (
-  //     this.props.data.audits.language === null ||
-  //     this.props.data.audits.language === 'English'
-  //   ) {
-  //     this.setState({ChineseScript: false}, () => {
-  //       strings.setLanguage('en-US');
-  //       this.setState({});
-  //     });
-  //   }
-
-  //   this.props.navigation.addListener('didFocus', () => {
-  //     console.log('Audit List SM Component Focussed!')
-      
-      
-
-  //     // if (this.props.navigation.getParam('filter_Arr')) {
-  //       if (this.props?.route?.params?.filter_Arr) {
-  //       console.log(
-  //         'Filter Applied',
-  //         this.props.route.params.filter_Arr,
-  //         // this.props.navigation.getParam('filter_Arr'),
-  //       );
-  //       // this.filterApplied(this.props.navigation.getParam('filter_Arr'));
-  //       this.filterApplied(this.props?.route?.params?.filter_Arr)
-  //       // this.loadRecentAudits()
-  //     } else {
-  //       if (this.state.isMounted) {
-  //         this.setState(
-  //           {
-  //             auditList: this.props.data.audits.audits,
-  //             auditListAll: this.props.data.audits.audits,
-  //             loading: false,
-  //             isRefreshing: false,
-  //             isPageEmpty: false,
-  //             isErrorRefresh: false,
-  //           },
-  //           () => {
-  //             // console.warn('auditList',this.state.auditList);
-  //           },
-  //         );
-  //       }
-  //       if (this.state.token == '') {
-  //         this.getSessionValues();
-  //       }
-  //     }
-
-  //     // this.componentWhenReceiveProps()
-  //   });
-  //   this.getYearAudits();
-  //   this.handleRefresh()
-  // }
-
-  registerCall = async () => {
-    // await AsyncStorage.setItem('supplierIndex', JSON.stringify(supplierIndex));
-    // this.setState({serverUrl: 'https://cloudqa1.ewqims.com/auditproapi/api/'})
-    // this.setState({serverUrl: 'https://training-michelin.ewqims.com/auditproapi/api/'}) // Training Server SM
-    this.setState({serverUrl: AUDITPRO_URL}); // Global Server SM
-    const { deviceRegistration } = this.state;
-    const deviceReg = (deviceRegistration === 'no' || !deviceRegistration);
-    console.log('deviceReg--->', deviceReg, this.state.serverUrl)
-    this.handleRegister(deviceReg ? 1 : 2);
-  }
-
-  handleRegister = type => {
-    console.log('typereg', type);
-    var re = /^https?\:\/\/[^\/\s]+(\/.*)?$/;
-    if (this.state.serverUrl === '') {
-        // this.refs.toast.show(strings.EmptyURL);
-    } else if (!re.test(this.state.serverUrl)) {
-        // this.refs.toast.show(strings.InvURL);
-    } else {
-      console.log('serverUrl', this.state.serverUrl);
-      if (this.props.data.audits.isOfflineMode) {
-          // this.refs.toast.show(strings.Offline_Notice, 2000);
-      } else {
-        NetInfo.fetch().then(netState => {
-          if (netState.isConnected) {
-          this.setState(
-            {
-                type: type,
-                isLoading: true,
-            },
-            async () => {
-              if (
-                this.state.serverUrl != null &&
-                this.state.serverUrl != ''
-              ) {
-                this.props.storeServerUrl(this.state.serverUrl);
-                await AsyncStorage.setItem(
-                    'storedserverrul',
-                    this.state.serverUrl,
-                );
-                auth.setServerUrl(this.state.serverUrl);
-              }
-              auth.registerDevice(
-                this.state.deviceId,
-                this.state.serverUrl,
-                type,
-                (res, data) => {
-                  console.log('Response data', data.data);
-                  if (data.data) {
-                    if (data.data.Success === true) {
-                      if (data.data.Data == 'Already 5 Device Registered!') {
-                          // console.log('Device registration failed!')
-                        this.setState(
-                        {
-                          isDeviceRegistered: false,
-                          isLoading: false,
-                          deviceRegistration: 'no',
-                        },
-                        async () => {
-                            await AsyncStorage.setItem(
-                                'isdeviceregistered',
-                                'no',
-                            );
-                            console.log('registere3');
-                            this.props.registrationState(
-                                this.state.isDeviceRegistered,
-                            );
-                            await AsyncStorage.setItem(
-                                'deviceid',
-                                this.state.deviceId,
-                            );
-                            this.props.storeDeviceid(this.state.deviceId);
-                            this.checkRegistrationStatus(this.state.deviceId);
-                            // console.log('isDeviceRegistered =>',this.state.isDeviceRegistered)
-                            // this.refs.toast.show(strings.MaxCon, 2000);
-                        },
-                        );
-                      } else {
-                        console.log('type--->else', type);
-                        if (type == 1) {
-                          console.log('Device is registered.');
-                          // this.refs.toast.show(strings.DeviceRed);
-                          this.setState(
-                            {
-                            isDeviceRegistered: true,
-                            isLoading: false,
-                            },
-                          async () => {
-                            await AsyncStorage.setItem(
-                                'isdeviceregistered',
-                                'yes',
-                            );
-                            console.log(
-                                'isDeviceRegistered =>',
-                                this.state.isDeviceRegistered,
-                            );
-                            this.props.registrationState(
-                                this.state.isDeviceRegistered,
-                            );
-                            this.checkRegistrationStatus(
-                                this.state.deviceId,
-                            );
-                            this.props.storeDeviceid(this.state.deviceId);
-                            // Forward to landing page
-                            // this.props.navigation.navigate('LaunchScreen');
-                            console.log('LAUNCH_SCREENn 444444 ')
-                            // this.props.navigation.navigate(ROUTES.LOGIN_SM)
-                            this.loginHandler()
-                            },
-                          );
-                        } else {
-                            console.log('Device type is 2');
-                            // this.props.navigation.navigate(ROUTES.LOGIN_SM)
-                            this.loginHandler()
-                            console.log('LAUNCH_SCREENn 555555 ')
-                          }
-                      }
-                    } else {
-                      // console.log('Device registration failed!')
-                      this.setState(
-                          {
-                              isDeviceRegistered: false,
-                              isLoading: false,
-                              deviceRegistration: 'no',
-                          },
-                          async () => {
-                              await AsyncStorage.setItem(
-                                  'isdeviceregistered',
-                                  'no',
-                              );
-                              console.log('registere5');
-                          },
-                      );
-                    }
-                  } else {
-                    console.log('Error connecting to server!');
-                    // this.refs.toast.show(strings.DevError, 2000);
-                    this.setState(
-                    {
-                        isDeviceRegistered: false,
-                        isLoading: false,
-                        deviceRegistration: 'no',
-                    },
-                    async () => {
-                      await AsyncStorage.setItem(
-                          'isdeviceregistered',
-                          'no',
-                      );
-                      console.log('registere6');
-                      this.props.registrationState(
-                          this.state.isDeviceRegistered,
-                      );
-                      await AsyncStorage.setItem(
-                          'deviceid',
-                          this.state.deviceId,
-                      );
-                      this.props.storeDeviceid(this.state.deviceId);
-                      // console.log('isDeviceRegistered =>',this.state.isDeviceRegistered)
-                      // this.refs.toast.show(strings.NotReg, 2000)
-                    },
-                    );
-                  }
-                },
-              );
-            },
-          );
-          } else {
-            this.refs.toast.show(strings.NoInternet, 2000);
-          }
-        });
-      }
-    }
-  };
-
-  async checkRegistrationStatus(deviceId) {
-    NetInfo.fetch().then(netState => {
-      console.log('netstate is', netState.isConnected);
-      if (netState.isConnected) {
-        console.log('this.state.deviceId', deviceId);
-        //console.log('data value '+ data)
-        auth.checkRegistrationStatus(
-          deviceId, //this.state.deviceId,
-          async (res, data) => {
-            if (data.data) {
-              let isRegistered = false;
-              console.log('data.data checkRegistrationStatus===>', data);
-              if (data.data.Data) {
-                if (
-                  data.data.Data.SSOActive !== null &&
-                  data.data.Data.SSOActive !== undefined
-                ) {
-                  isRegistered = data.data.Data.SSOActive;
-                  this.storeSSoCreds(isRegistered);
-                  //1q1this.storeSSoCreds(true);
-                }
-                console.log('isRegistered::::----', isRegistered.toString());
-                await AsyncStorage.setItem('isRegistered', isRegistered.toString())
-                if (
-                  data.data.Data.SSOFlags !== null &&
-                  data.data.Data.SSOFlags !== undefined &&
-                  Object.keys(data.data.Data.SSOFlags).length > 0 &&
-                  isRegistered === true
-                ) {
-                  this.storeSSoConfig(data.data.Data.SSOFlags);
-                } else {
-                  //this.storeSSoConfig({});
-                }
-                console.log('data.data.Data', data.data.Data);
-                console.log(
-                  'checking props' +
-                  this.props.data.audits.userFullName +
-                  this.props.data.audits.siteId +
-                  'user id:' +
-                  this.props.data.audits.userId +
-                  'token:' +
-                  this.props.data.audits.token +
-                  'isactive' +
-                  this.props.data.audits.isActive +
-                  'device registration status:' +
-                  this.props.data.audits.isDeviceRegistered,
-                );
-                //if (data.data.Data.Active || data.data.Data.ServerUrl || data.data.Data.ServerUrl != '') {
-                if (
-                  data.data.Data.Active ||
-                  this.props.data.audits.isDeviceRegistered == true
-                ) {
-                  console.log('if serverurl not empty then allowed!');
-                  if (
-                    data.data.Data.ServerUrl &&
-                    data.data.Data.ServerUrl != ''
-                  ) {
-                    this.props.storeServerUrl(data.data.Data.ServerUrl);
-                    await AsyncStorage.setItem(
-                      'storedserverrul',
-                      this.state.serverUrl,
-                    );
-                    auth.setServerUrl(data.data.Data.ServerUrl);
-                  }
-
-                  if (!this.isRedirectFromLogin) {
-                    this.props.registrationState(true);
-                    await AsyncStorage.setItem('isdeviceregistered', 'yes');
-                    await AsyncStorage.setItem('deviceid', this.state.deviceId);
-                    this.props.storeDeviceid(this.state.deviceId);
-                    // Forward to landing page
-                    // this.props.navigation.navigate('LaunchScreen');
-                    console.log('LAUNCH_SCREENn 222222 ')
-                    // Static Changes for AM API
-                    // this.props.navigation.navigate(ROUTES.LOGIN_SM)
-                  } else {
-                    this.setState(
-                      {
-                        isDeviceRegistered: true,
-                        isLoading: false,
-                      },
-                      async () => {
-                        await AsyncStorage.setItem('isdeviceregistered', 'yes');
-                        await AsyncStorage.setItem('isRegistered', 'true')
-
-                        this.props.registrationState(
-                          this.state.isDeviceRegistered,
-                        );
-                        await AsyncStorage.setItem(
-                          'deviceid',
-                          this.state.deviceId,
-                        );
-                        this.props.storeDeviceid(this.state.deviceId);
-                        console.log('isDeviceRegistered => 2', this.state.isDeviceRegistered)
-                      },
-                    );
-                  }
-                } else {
-                  console.log('Device is not registered with us!');
-                  this.setState(
-                    {
-                      isDeviceRegistered: false,
-                      isLoading: false,
-                      deviceRegistration: 'no',
-                    },
-                    async () => {
-                      await AsyncStorage.setItem('isdeviceregistered', 'no');
-
-                      console.log('registere1');
-                      this.props.registrationState(
-                        this.state.isDeviceRegistered,
-                      );
-                      await AsyncStorage.setItem(
-                        'deviceid',
-                        this.state.deviceId,
-                      );
-                      this.props.storeDeviceid(this.state.deviceId);
-                      // console.log('isDeviceRegistered =>',this.state.isDeviceRegistered)
-                      // this.refs.toast.show(strings.NotReg, 2000);
-                    },
-                  );
-                }
-              } else {
-                console.log('Hitting here 1');
-                this.setState(
-                  {
-                    isDeviceRegistered: false,
-                    isLoading: false,
-                    deviceRegistration: 'no',
-                  },
-                  async () => {
-                    await AsyncStorage.setItem('isdeviceregistered', 'no');
-                    console.log('registere2');
-                    this.props.registrationState(this.state.isDeviceRegistered);
-                    await AsyncStorage.setItem('deviceid', this.state.deviceId);
-                    this.props.storeDeviceid(this.state.deviceId);
-                    // console.log('isDeviceRegistered =>',this.state.isDeviceRegistered)
-                    // this.refs.toast.show(strings.server_reach_error, 2000);
-                  },
-                );
-              }
-            }
-          },
-        );
-      } else {
-        if (this.props.data.audits.isDeviceRegistered) {
-          if (!this.isRedirectFromLogin) {
-            // Forward to landing page
-            // this.props.navigation.navigate('LaunchScreen');
-            console.log(
-              'LAUNCH_SCREENn 333333 ')
-            // this.props.navigation.navigate(ROUTES.LOGIN_SM)
-            this.loginHandler()
-          } else {
-            this.setState(
-              {
-                isDeviceRegistered: true,
-                isLoading: false,
-              },
-              async () => {
-                await AsyncStorage.setItem('isdeviceregistered', 'yes');
-                this.props.registrationState(this.state.isDeviceRegistered);
-                await AsyncStorage.setItem('deviceid', this.state.deviceId);
-                this.props.storeDeviceid(this.state.deviceId);
-                console.log('isDeviceRegistered => 3', this.state.isDeviceRegistered)
-              },
-            );
-          }
-        }
-        console.log('No Internet Connection found!');
-        // this.refs.toast.show(strings.NoInternet, 2000);
-      }
-    });
-  }
     
   storeSSoCreds = async sso => {
       console.log('Registration:SSO_Status', sso);
@@ -1384,28 +849,6 @@ todayAudits() {
           JSON.stringify(ssoConfig?.redirectUrl),
       );
   };
-
-  loginHandler = async () => {
-    console.log('Reach Login call---->')
-    this.getSsoCreds();
-    this.getDeviceId();
-    // this.checkActiveDirectory();
-    console.log(this.props.data.audits, 'serverurllogin');
-    var propsServerUrl = this.props.data.audits.serverUrl;
-    var cleanURL = propsServerUrl?.replace(/^https?:\/\//, '');
-
-    var formatURL = cleanURL?.replace(/[&\/\\#,+()$~%.'":*?<>{}]/g, '');
-    this.propsServerUrl = formatURL;
-    console.log('cleanURL', this.propsServerUrl);
-    this.getToken();
-    this.initialLoginCall()
-  }
-
-  // async getDeviceId() {
-  //   this.setState({
-  //     deviceId: await AsyncStorage.getItem('deviceid'),
-  //   });
-  // }
 
   getSsoCreds = async () => {
     try {
@@ -1523,7 +966,7 @@ todayAudits() {
                 ) {
                   this.callActiveDirectory(usrfield, pwdfield);
                 } else {
-                  this.loginCall(usrfield, pwdfield, this.state.loginFlag);
+                  this.globalLoginCall(usrfield, pwdfield, this.state.loginFlag);
                 }
               },
             );
@@ -1565,94 +1008,12 @@ todayAudits() {
             },
           );
         } else {
-          this.loginCall(username, password);
+          this.globalLoginCall(username, password);
         }
       })
       .catch(err => console.warn(err));
   }
-  
-  loginCall1 = (email, password,loginflag, isSso) => {
-    var key = CryptoJS.enc.Utf8.parse('8080808080808080');
-    var iv = CryptoJS.enc.Utf8.parse('8080808080808080');
-    console.log('checkinglogin', loginflag)
-    var encryptedpassword = CryptoJS.AES.encrypt(
-      CryptoJS.enc.Utf8.parse(password),
-      key,
-      {
-        keySize: 128 / 8,
-        iv: iv,
-        mode: CryptoJS.mode.CBC,
-        padding: CryptoJS.pad.Pkcs7,
-      },
-    );
-
-    // console.log('login submit fcmToken',this.state.fcmToken)
-    console.log('hi', auth.loginUser);
-    console.log('Device ID:' + this.state.deviceId);
-    console.log('Device ID:' + this.props?.data?.audits?.deviceregisterdetails);
-
-    
-    this.storeData('loginDeviceId', this.state.deviceId);
-    this.storeData('loginFcmToken', this.state.fcmToken);
-    this.storeData('loginEmail', email);
-    auth.loginUser(
-      email,
-      encryptedpassword.toString(),
-      this.state.fcmToken,
-      this.state.deviceId,
-      loginflag,
-      isSso,
-      (res, data) => {
-        console.log('loginUser', data);
-        console.log('checkingloginUserresponse', res);
-        //this.props.storeSupplierManagement("true");
-        if (data?.data?.Success == true) {
-          console.log(
-            'data value checking' + data?.data?.Data[0]?.SupplierManagementAccess,
-          );
-          this.props.storeLoginData(data?.data?.Data);
-          this.props.storeSupplierManagement(
-            data.data.Data[0].SupplierManagementAccess,
-          );
-          console.log('storeUserName', email);
-
-          this.props.storeUserName(email);
-          this.setState(
-            {
-              userId: data.data.Data[0].UserId.toString(),
-              siteId: data.data.Data[0].Siteid,
-              accessToken: data.data.Token,
-              userFullName: data.data.Data[0].FullName,
-            },
-            () => {
-              // console.log('userFullName',this.state.userFullName)
-              // call below 2 methods later zzzss
-              // this.getProfileCall(this.state.accessToken)
-              // this.getYearAudit()
-              this.getProfileCall(this.state.accessToken);
-              this.checkUser(this.state.userId, this.state.accessToken);
-
-              // alert('ok')
-            },
-          );
-        } else {
-          this.setState(
-            {
-              progressVisible: false,
-            },
-            () => {
-              
-              
-              // this.refs.toast.show(data.data.Message, DURATION.LENGTH_LONG);
-              Alert.alert(data.data.Message)
-            },
-          );
-        }
-      },
-    );
-  };
-
-  loginCall = async () => {
+  globalLoginCall = async () => {
     await this.getUserDetails()
     console.log('currentUserData---get', this.state?.currentUserData)
     await this.getDeviceId()

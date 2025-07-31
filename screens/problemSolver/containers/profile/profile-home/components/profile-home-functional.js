@@ -10,8 +10,6 @@ import { registerDevice, REGISTER_TYPES } from 'screens/globalAuth/register/regi
 import { getUniqueId } from 'react-native-device-info';
 import localStorage from 'global/localStorage';
 import AsyncStorage from '@react-native-community/async-storage';
-// import auth from '../../../../../../services/Auditpro-Auth';
-
 const menus = [
     // {
     //     // title: 'Tasks',
@@ -80,20 +78,6 @@ const ProfileHomeFunctional = () => {
                 routes: [{ name: ROUTES.SPLASH_SCREEN_PS }],
             });
     }, [profile]);
-
-    // const getUserDetails = async () => {
-    //     try {
-    //       const stringifiedUserDetails = await AsyncStorage.getItem('userDetails');
-    //       const value = JSON.parse(stringifiedUserDetails);
-    //       console.log('current userDetails--->', value)
-    //       if (value !== null) {
-    //         setCurrentUserData(value);
-    //       }
-    //     } catch (e) {
-    //       // error reading value
-    //       console.log('error--->', e)
-    //     }
-    // };
 
     const handleLogoutFun = async () => {
         // await getUserDetails()

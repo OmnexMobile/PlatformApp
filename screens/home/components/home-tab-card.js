@@ -25,8 +25,9 @@ import AsyncStorage from '@react-native-community/async-storage';
 import Toast from "react-native-simple-toast";
 import { useAppContext } from 'contexts/app-context';
 import localStorage from 'global/localStorage';
-import globalAuth from '../../../services/Auditpro-Auth';
-import auth from '../../../services/APQP-Auth';
+import auditproAuth from '../../../services/Auditpro-Auth';
+import apqpAuth from '../../../services/APQP-Auth';
+import supplierAuth from  '../../../services/SupplierMgnt-Auth';
 import CryptoJS from 'react-native-crypto-js';
 import { postAPI } from 'global/api-helpers';
 import ApiUrl from 'global/ApiUrl';
@@ -34,7 +35,7 @@ import { Bubbles } from 'react-native-loader';
 import { useDispatch } from 'react-redux';
 import { showMessage } from 'react-native-flash-message';
 import { Images } from 'theme/Apqp';
-import { APQP_URL, AUDITPRO_URL, GLOBAL_BASE_URL, GLOBALSERVER_URL, IC_URL, PROBLEMSOLVING_URL } from 'screens/globalConstant/globalURL';
+import { APQP_URL, AUDITPRO_URL, GLOBAL_BASE_URL, PROBLEMSOLVING_URL } from 'screens/globalConstant/globalURL';
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -43,13 +44,11 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
   // console.log('CURRENT_PAGE---->', 'home-tab-card')
   const navigations = useNavigation();
   const [currentUserData, setCurrentUserData] = useState([]);
-  const [currentUserDataPS, setCurrentUserDataPS] = useState([]);
   // This hook returns `true` if the screen is focused, `false` otherwise
   const isFocused = useIsFocused();
   const [isRegister, setIsRegister] = useState(null);
   const [loading, setLoading] = useState(false);
   const [opacity, setOpacity] = useState(1);
-  // const [dataSet, setDataSet] = useState(null);
   const { handleGlobalURL, globalDeviceDetails } = useAppContext();
   const dispatch = useDispatch();
 
@@ -58,18 +57,12 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
       id: 1,
       title: tabIndex === 0 ? strings.ppapProjects : strings.apqp_ppapManager,
       detail: [
-        // { images: IMAGES.actions, category: strings.Actions, status: 0 },
         { images: tabIndex === 0 ? IMAGES.actions : null, category: tabIndex === 0 ? strings.Actions : null, status: 0 },
-        // { images: IMAGES.projects, category: strings.projects, status: 0 },
         { images: IMAGES.projects, category: tabIndex === 0 ? strings.projects : strings.apap_ppap, status: 0 },
         { images: tabIndex === 0 ? null : IMAGES.risk, category: tabIndex === 0 ? null : strings.risk, status: 0 },
         { images: tabIndex === 0 ? null : IMAGES.meeting, category: tabIndex === 0 ? null : strings.meeting, status: 0 },
         { images: tabIndex === 0 ? IMAGES.todayTask : null, category: tabIndex === 0 ? strings.todayTask : null, status: 0 },
         { images: tabIndex === 0 ? IMAGES.dailyTask : null, category: tabIndex === 0 ? strings.dailyTask : null, status: 0 },
-
-
-        // { images: IMAGES.todayTask, category: strings.todayTask, status: 0 },
-        // { images: IMAGES.dailyTask, category: strings.dailyTask, status: 0 }
       ]
     },
     {
@@ -104,7 +97,6 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
         { images: IMAGES.scheduledAudit, category: strings.supplierInitialAssessment, status: 0 },
         { images: IMAGES.completedAudit, category: strings.supplierRoutineAudit, status: 0 },
       ]
-
     },
     {
         id: 5,
@@ -122,10 +114,7 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
   // console.log(finalUser, 'finalUser');
   const dataSet = React.useMemo(() => {
     if (!data || data.length === 0) return [];
-    // if (finalUser === "AzhalleAnna") return data.filter(item => item.id === 1);
-    if (finalUser === "NVignesh") return data.filter(item => item.id === 2);
-    if (finalUser === "PradeepaDeva") return data.filter(item => item.id === 3);
-    if (finalUser === "NBhoopathy") return data.filter(item => item.id === 4);
+    if (finalUser === "AzhalleAnna") return data.filter(item => item.id === 1);
     return data;
   }, [data, currentUser]);
 
@@ -134,13 +123,6 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
       ? navigations.navigate(ROUTES.AUDIT_DASHBOARD_LISTING, { projectTitle: title, status: status, category: category.replace(/\n/g, ' ') }) 
       : null
   }
-
-  const navigateToSettings = () => {
-    console.log('click settings')
-    // navigations.navigate(ROUTES.GLOBAL_DASHBOARD);
-  }
-
-  // console.log('currentUserData---', isFocused, currentUserData, currentUserData?.siteId?.length)
 
   useEffect(() => {
     LogBox.ignoreLogs(['Animated: `useNativeDriver`'])
@@ -165,28 +147,6 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
   }, [currentUserData?.siteId, isFocused]);
 
   useEffect(() => {
-    async function getUserDetailsPS() {
-      try {
-        const stringifiedUserDetailsPS = await AsyncStorage.getItem('userDetailsPS');
-        const value = JSON.parse(stringifiedUserDetailsPS);
-        // console.log('current userdata ps--->', value)
-        if (value !== null) {
-          // console.log('current token2 ps--->', value)
-          setCurrentUserDataPS(value)
-        } else {
-          // console.log('current token3 ps--->', value)
-          setCurrentUserDataPS('')
-        }
-      } catch (e) {
-        // error reading value
-        console.log('currentUserData ps error--->', e)
-      }
-    }
-    getUserDetailsPS();
-  }, [isFocused]);
-  // }, [currentUserDataPS, isFocused]);
-
-  useEffect(() => {
     async function getdeviceRegisterStatus() {
       try {
         const value = await AsyncStorage.getItem('isdeviceregistered')
@@ -203,14 +163,12 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
     getdeviceRegisterStatus()
   }, [isRegister, isFocused])
 
-  // const showToast = () => {
-  //   // Toast.show("This is a toast message!", Toast.SHORT);
-  //   Toast.showWithGravity(
-  //     "No Settings Data!",
-  //     Toast.LONG,
-  //     Toast.TOP,
-  //   );
-  // };
+  const storeUrl = async (url) => {
+    console.log("reach storeUrl--->", url);
+    localStorage.storeData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL, url);
+    handleGlobalURL('serverUrl', url)
+    await AsyncStorage.setItem('storedserverrul', url);
+  };
 
   const handleNavigation = async (title, status, category, auditTitle, routeName) => {
     console.log('handleNavigation currentUserData?.accessToken--->', currentUserData, globalDeviceDetails?.deviceDetails, 'token', currentUserData?.accessToken)
@@ -219,11 +177,8 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
     if(currentUserData?.accessToken?.length && currentUserData?.accessToken) {
       if(title === strings.auditPro) {
         currentGlobalURL = globalDeviceDetails?.deviceDetails?.AuditProURL ? globalDeviceDetails?.deviceDetails?.AuditProURL: AUDITPRO_URL;
-        localStorage.storeData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL, currentGlobalURL);
-        handleGlobalURL('serverUrl', currentGlobalURL)
-        globalAuth.setServerUrl(currentGlobalURL);
-        await AsyncStorage.setItem('storedserverrul', currentGlobalURL);
-        console.log('current click--->', strings.auditPro)
+        auditproAuth.setServerUrl(currentGlobalURL);
+        storeUrl(currentGlobalURL);
         const projectDetails = {
           projectTitle: title,
           projectStatus: status,
@@ -232,44 +187,25 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
         };
         const stringifiedProjectDetails = JSON.stringify(projectDetails);
         AsyncStorage.setItem('projectDetails', stringifiedProjectDetails);
-        // console.log('Set Async projectDetails ', stringifiedProjectDetails)
         redirectToPage(title, status, category)
-
         // PROBLEMSOLVER //
       } else if (title === strings.problemSolver) {
-
-        // console.log('globalDeviceDetails?.deviceDetails?.PSApiURL ',globalDeviceDetails,'--', globalDeviceDetails?.deviceDetails?.PSApiURL)
         currentGlobalURL = globalDeviceDetails?.deviceDetails?.PSApiURL ? globalDeviceDetails?.deviceDetails?.PSApiURL: PROBLEMSOLVING_URL;
-        localStorage.storeData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL, currentGlobalURL);
-        handleGlobalURL('serverUrl', currentGlobalURL)
         console.log('current click--->', strings.problemSolver,'--', category.replace(/\n/g, ' '),'--', category, '--')
-        await AsyncStorage.setItem('concerns', category.replace(/\n/g, ' '));
+        storeUrl(currentGlobalURL);
         navigateToStatusCount(category.replace(/\n/g, ' '));
-
         // APQP //
       } else if (title === (strings.apqp_ppapManager)) {
         console.log('apqp_ppapManager handleNavigation 1--->', title, status, category, globalDeviceDetails?.deviceDetails?.APQPApiURL)
-        // Global API // 
         currentGlobalURL = globalDeviceDetails?.deviceDetails?.APQPApiURL ? globalDeviceDetails?.deviceDetails?.APQPApiURL: APQP_URL;
-        console.log('currentGlobalURL APQPApiURL ', currentGlobalURL)
-        localStorage.storeData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL, currentGlobalURL);
-        handleGlobalURL('serverUrl', currentGlobalURL)
-        globalAuth.setServerUrl(currentGlobalURL);
-        auth.setServerUrl(currentGlobalURL);
-        await AsyncStorage.setItem('storedserverrul', currentGlobalURL);
-        // setLoading(true);
-        console.log('current click--->', strings.apqp_ppapManager)
-        //Global API //
-        console.log('currentUserData--->', currentUserData)
+        apqpAuth.setServerUrl(currentGlobalURL);
+        storeUrl(currentGlobalURL);
         globalAPQPLogin(category, title, currentGlobalURL)
-
-      // DOCUMENT PRO //
+       // DOCUMENT PRO //
       } else if (title === strings.documentPro) {
         console.log('current click--->', strings.documentPro)
-
       // SUPPLIER MANAGEMENT //
       } else if (title === strings.supplierMgnt) {
-
         console.log('sm_ current click--->', strings.supplierMgnt)
         console.log('sm_ current category--->', category )
         let supplierIndex;
@@ -279,22 +215,12 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
           supplierIndex = 3
         }
         await AsyncStorage.setItem('supplierIndex', JSON.stringify(supplierIndex));
-        console.log('current supplierIndex--->', supplierIndex )
         localStorage.storeData('CurrentApp', strings.supplierMgnt);
-        // const currentURL = 'https://cloudqa1.ewqims.com/auditproapi/api/'
-        // const currentURL = 'https://training-michelin.ewqims.com/auditproapi/api/' // Training Server SM
-        // console.log('currentURL--->', currentURL)
-        // navigations.navigate(ROUTES.SUPPLY_MANAGE_SM)
-        // Global API //
         currentGlobalURL = globalDeviceDetails?.deviceDetails?.AuditProURL ? globalDeviceDetails?.deviceDetails?.AuditProURL: AUDITPRO_URL;
-        console.log('currentGlobalURL--->', currentGlobalURL )
-        localStorage.storeData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL, currentGlobalURL);
-        handleGlobalURL('serverUrl', currentGlobalURL)
-        globalAuth.setServerUrl(currentGlobalURL);
-        auth.setServerUrl(currentGlobalURL);
-        await AsyncStorage.setItem('storedserverrul', currentGlobalURL);
-        console.log('current click--->', strings.supplierMgnt)
+        supplierAuth.setServerUrl(currentGlobalURL);
+        storeUrl(currentGlobalURL);
         navigations.navigate(ROUTES.ALLTABAUDITLIST_SM)
+        // DOCUMENT PRO //
       } else if (title === strings.documentPro) {
         if (category == 'Document\nLevels') {
             navigations.navigate(ROUTES.DOCPRO_DOCUMENTFOLDER);
@@ -349,7 +275,7 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
           padding: CryptoJS.pad.Pkcs7,
         }
       );
-      auth.getapqpweblogindata(
+      apqpAuth.getapqpweblogindata(
         GLOBAL_BASE_URL,
         UserName,
         encryptedpassword.toString(),
@@ -453,44 +379,44 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
 
 // IC Login
 
-const loginCallIC = async routeName => {
-    let Password = 'a1';
-    var key = CryptoJS.enc.Utf8.parse('8080808080808080');
-    var iv = CryptoJS.enc.Utf8.parse('8080808080808080');
-    var encryptedpassword = CryptoJS.AES.encrypt(CryptoJS.enc.Utf8.parse(Password), key, {
-        keySize: 128 / 8,
-        iv: iv,
-        mode: CryptoJS.mode.CBC,
-        padding: CryptoJS.pad.Pkcs7,
-    });
-    const formData = new FormData();
-    formData.append('UserName', 'swetha');
-    formData.append('RegisteredDeviceId', 'testdevice');
-    formData.append('Password', encryptedpassword.toString());
-    formData.append('LoginFlag', 1);
-    const response = await postAPI(`${ApiUrl.IC_LOGIN}`, formData);
-    if (response?.Success) {
-        let icUserData = {
-            userData: response?.Data[0] || {},
-            token: response?.Token || '',
-        };
-        dispatch({ type: 'IC_USER_DATA', icUserData: icUserData });
-        const settingsRes=await postAPI(`${ApiUrl.IC_SETTINGS}`)
-        if(settingsRes.Success){
-            dispatch({ type: 'IC_SETTINGS', icSettings: settingsRes?.Data[0] || {} });
-            navigations.navigate(routeName);
-        }
-    } else {
-        showMessage({
-            message: `${response.Message}`,
-            backgroundColor: COLORS.ERROR,
-            color: COLORS.white,
-            duration: 1500,
-            style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
-        });
-    }
-    setLoading(false);
-};
+// const loginCallIC = async routeName => {
+//     let Password = 'a1';
+//     var key = CryptoJS.enc.Utf8.parse('8080808080808080');
+//     var iv = CryptoJS.enc.Utf8.parse('8080808080808080');
+//     var encryptedpassword = CryptoJS.AES.encrypt(CryptoJS.enc.Utf8.parse(Password), key, {
+//         keySize: 128 / 8,
+//         iv: iv,
+//         mode: CryptoJS.mode.CBC,
+//         padding: CryptoJS.pad.Pkcs7,
+//     });
+//     const formData = new FormData();
+//     formData.append('UserName', 'swetha');
+//     formData.append('RegisteredDeviceId', 'testdevice');
+//     formData.append('Password', encryptedpassword.toString());
+//     formData.append('LoginFlag', 1);
+//     const response = await postAPI(`${ApiUrl.IC_LOGIN}`, formData);
+//     if (response?.Success) {
+//         let icUserData = {
+//             userData: response?.Data[0] || {},
+//             token: response?.Token || '',
+//         };
+//         dispatch({ type: 'IC_USER_DATA', icUserData: icUserData });
+//         const settingsRes=await postAPI(`${ApiUrl.IC_SETTINGS}`)
+//         if(settingsRes.Success){
+//             dispatch({ type: 'IC_SETTINGS', icSettings: settingsRes?.Data[0] || {} });
+//             navigations.navigate(routeName);
+//         }
+//     } else {
+//         showMessage({
+//             message: `${response.Message}`,
+//             backgroundColor: COLORS.ERROR,
+//             color: COLORS.white,
+//             duration: 1500,
+//             style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+//         });
+//     }
+//     setLoading(false);
+// };
 
   const Item = ({ title, detail, images }) => (
     <>

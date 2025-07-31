@@ -9,7 +9,7 @@ import strings from 'config/localization';
 import { useAppContext } from 'contexts/app-context';
 import LoginPresentational from './login-presentational';
 import { postAPI } from 'global/api-helpers';
-import auth from '../../../services/Auditpro-Auth';
+import globalAuth from '../../../services/Auditpro-Auth';
 import AsyncStorage from '@react-native-community/async-storage';
 import { useDispatch } from 'react-redux';
 
@@ -120,7 +120,7 @@ const LoginFunctional = ({}) => {
 		const deviceId = await AsyncStorage.getItem('deviceid')
 		console.log('get deviceId', deviceId)
 		try {
-			auth.globalLogin(
+			globalAuth.globalLogin(
 				loginDetails?.username,
 				encryptedPassword.toString(),
 				fcmToken,
