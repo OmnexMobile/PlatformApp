@@ -1,5 +1,5 @@
 import { ButtonComponent } from 'components';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FlatList, Platform, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import CustomHeader from '../Components/CustomHeader';
 import { COLORS } from 'constants/theme-constants';
@@ -22,7 +22,7 @@ import QRCodeScannerScreen from '../Components/QRCodeScannerScreen';
 import NoDataFound from '../Components/NoDataFound';
 import { postAPI } from 'global/api-helpers';
 import ApiUrl from 'global/ApiUrl';
-import { getAllInspectionData, getInspectionDataByUserAndSite } from 'store/database/inspectStorage';
+import {  getInspectionDataByUserAndSite } from 'store/database/inspectStorage';
 
 const filterList = [
     {
@@ -93,13 +93,13 @@ const InspectionSchedule = () => {
         setSelectedData(temp);
         setShowFileModal(true);
     };
-    useEffect(() => {
-        getSQliteList()
-    }, [isFocused]);
-    const getSQliteList = async () => {
-        const list = await getAllInspectionData();
-        console.log(list.length, '*********************************************list.length');
-    };
+    // useEffect(() => {
+    //     getSQliteList()
+    // }, [isFocused]);
+    // const getSQliteList = async () => {
+    //     const list = await getAllInspectionData();
+    //     console.log(list, '*********************************************list.length');
+    // };
     const getOverAllSettings = async () => {
         const settingsRes = await postAPI(`${ApiUrl.IC_SETTINGS}`);
         if (settingsRes.Success) {
