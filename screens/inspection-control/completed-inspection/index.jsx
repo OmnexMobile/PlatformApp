@@ -61,6 +61,7 @@ const optionsList = [
 const CompletedInspection = () => {
     const { icUserData } = useSelector(state => state.inspection);
     const [syncModal, setSyncModal] = useState(false);
+    const [inProgressData, setInProgressData] = useState(false);
     const [selectedRadio, setSelectedRadio] = useState({
         id: 1,
         value: 'Sync',
@@ -104,6 +105,7 @@ const CompletedInspection = () => {
     const handleSyncPress = item => {
         setSyncModal(true);
         setSelectedValue(item);
+        
     };
     const hideModal = () => {
         if (!disableBtn) {
@@ -156,6 +158,11 @@ const CompletedInspection = () => {
                         <TouchableOpacity
                             style={{ marginRight: 10 }}
                             onPress={() => {
+                                if(item?.status=='In Progress'){
+                                    setInProgressData(true);
+                                }else{
+                                    setInProgressData(false);
+                                }
                                 setSelectedValue(item);
                                 handleSyncPress(item);
                             }}>
