@@ -294,7 +294,17 @@ const CompletedInspection = () => {
         const response = await postAPI(selectedValue.intInspectionTypeID == '2' ? ApiUrl.IC_INPROCESS_SINGLE_SYNC : ApiUrl.IC_SINGLE_SYNC, payLoad);
         if (response?.insertedCount) {
             setSyncModal(false);
-            const flag = await deleteInspectionByUniqueId(icUserData?.userData?.UserId, icUserData?.userData?.Siteid, selectedValue.uniqueId);
+            const flag = await deleteInspectionByUniqueId(selectedValue.uniqueId);
+            showMessage({
+                message:'Inspection synced successfully',
+                backgroundColor: COLORS.SUCCESS,
+                color: COLORS.white,
+                duration: 1500,
+                statusBarHeight: 40,
+                icon: 'success',
+                position: 'right',
+                style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+            });
             if (flag) {
                 getAllCompletedData(true);
             }
@@ -313,7 +323,7 @@ const CompletedInspection = () => {
         setDisableBtn(false);
     };
     const handleSingleDeletePress = async () => {
-        const flag = await deleteInspectionByUniqueId(icUserData?.userData?.UserId, icUserData?.userData?.Siteid, selectedValue.uniqueId);
+        const flag = await deleteInspectionByUniqueId(selectedValue.uniqueId);
         if (flag) {
             setShowDelete(false);
             getAllCompletedData(false);

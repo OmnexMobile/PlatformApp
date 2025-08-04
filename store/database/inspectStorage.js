@@ -4,161 +4,108 @@ import { getDBConnection } from './dbService';
 
 export const createInspectTable = async () => {
     const db = await getDBConnection();
-    await db.executeSql(`
-    CREATE TABLE IF NOT EXISTS inspectList (
+    await db.executeSql(
+        `CREATE TABLE IF NOT EXISTS inspections (
       userId TEXT NOT NULL,
       siteId TEXT NOT NULL,
-      inspectionList TEXT,
-      PRIMARY KEY (userId, siteId)
+      uniqueId TEXT PRIMARY KEY NOT NULL,
+      inspectionData TEXT NOT NULL
+    )`,
     );
-  `);
 };
 
-export const addInspectionData = async (userId, siteId, inspectionData) => {
+export const addInspectionData = async (userId, siteId, uniqueId, inspectionData) => {
     const db = await getDBConnection();
-    const result = await db.executeSql(`SELECT inspectionList FROM inspectList WHERE userId = ? AND siteId = ?`, [userId, siteId]);
-
-    let updatedList = [];
-
-    if (result[0].rows.length > 0) {
-        const existingList = JSON.parse(result[0].rows.item(0).inspectionList || '[]');
-        updatedList = [...existingList, inspectionData];
-    } else {
-        updatedList = [inspectionData];
-    }
-
-    await db.executeSql(`INSERT OR REPLACE INTO inspectList (userId, siteId, inspectionList) VALUES (?, ?, ?)`, [
-        userId,
-        siteId,
-        JSON.stringify(updatedList),
-    ]);
+    const query = `
+    INSERT OR REPLACE INTO inspections (userId, siteId, uniqueId, inspectionData)
+    VALUES (?, ?, ?, ?)
+  `;
+    await db.executeSql(query, [userId, siteId, uniqueId, JSON.stringify(inspectionData)]);
 };
 
 export const getInspectionDataByUserAndSite = async (userId, siteId) => {
     const db = await getDBConnection();
-    const results = await db.executeSql(`SELECT inspectionList FROM inspectList WHERE userId = ? AND siteId = ?`, [userId, siteId]);
+    const [results] = await db.executeSql(`SELECT inspectionData FROM inspections WHERE userId = ? AND siteId = ?`, [userId, siteId]);
 
-    if (results[0].rows.length > 0) {
-        return JSON.parse(results[0].rows.item(0).inspectionList);
+    const inspections = [];
+    for (let i = 0; i < results.rows.length; i++) {
+        inspections.push(JSON.parse(results.rows.item(i).inspectionData));
     }
 
-    return [];
+    return inspections;
 };
 
-export const updateInspectionByUniqueId = async (userId, siteId, updatedInspection) => {
+export const updateInspectionByUniqueId = async (uniqueId, updatedData) => {
     const db = await getDBConnection();
+    const query = `
+    UPDATE inspections SET inspectionData = ?
+    WHERE uniqueId = ?
+  `;
 
-    try {
-        const result = await db.executeSql(`SELECT * FROM inspectList WHERE userId = ? AND siteId = ?`, [userId, siteId]);
+    const [result] = await db.executeSql(query, [JSON.stringify(updatedData), uniqueId]);
 
-        if (result[0].rows.length === 0) {
-            console.warn('No matching userId + siteId record found');
-            return false;
-        }
-
-        const row = result[0].rows.item(0);
-        let inspectionList = JSON.parse(row.inspectionList || '[]');
-
-        const index = inspectionList.findIndex(item => item.uniqueId === updatedInspection.uniqueId);
-
-        if (index === -1) {
-            console.warn('No matching uniqueId found in inspectionList');
-            return false;
-        }
-
-        inspectionList[index] = {
-            ...inspectionList[index],
-            ...updatedInspection, // merge updated fields
-        };
-
-        const updatedListJson = JSON.stringify(inspectionList);
-
-        await db.executeSql(`UPDATE inspectList SET inspectionList = ? WHERE userId = ? AND siteId = ?`, [updatedListJson, userId, siteId]);
-
-        console.log(`✅ Inspection item with uniqueId ${updatedInspection.uniqueId} updated.`);
-        return true;
-    } catch (err) {
-        console.error('❌ Error updating inspection:', err);
-        return false;
-    }
+    // If a row was updated, return true
+    return result.rowsAffected > 0;
 };
 
 export const getAllInspectionData = async () => {
     const db = await getDBConnection();
 
-    const results = await db.executeSql(`SELECT * FROM inspectList`);
+    const results = await db.executeSql(`SELECT * FROM inspections`);
 
-    const data = [];
+    const groupedData = {};
 
     if (results[0].rows.length > 0) {
         for (let i = 0; i < results[0].rows.length; i++) {
             const row = results[0].rows.item(i);
-            data.push({
-                userId: row.userId,
-                siteId: row.siteId,
-                inspectionList: JSON.parse(row.inspectionList || '[]'),
-            });
+            const key = `${row.userId}_${row.siteId}`;
+
+            if (!groupedData[key]) {
+                groupedData[key] = {
+                    userId: row.userId,
+                    siteId: row.siteId,
+                    inspectionList: [],
+                };
+            }
+
+            groupedData[key].inspectionList.push(JSON.parse(row.inspectionData));
         }
     }
 
-    return data;
+    // Convert grouped object into array format
+    return Object.values(groupedData);
 };
 
 export const deleteAllInspectionData = async () => {
     const db = await getDBConnection();
-    try {
-        await db.executeSql(`DELETE FROM inspectList`);
-        console.log('🧹 All inspection data cleared.');
-    } catch (error) {
-        console.error('❌ Failed to clear inspection data:', error);
-    }
+    await db.executeSql(`DELETE FROM inspections`);
 };
-export const deleteInspectionByUniqueId = async (userId, siteId, uniqueId) => {
+export const deleteInspectionByUniqueId = async uniqueId => {
     const db = await getDBConnection();
+    const [result] = await db.executeSql(`DELETE FROM inspections WHERE uniqueId = ?`, [uniqueId]);
 
+    // If a row was deleted, return true; otherwise, return false
+    return result.rowsAffected > 0;
+};
+export const getDatabaseSize = async () => {
     try {
-        const results = await db.executeSql(`SELECT inspectionList FROM inspectList WHERE userId = ? AND siteId = ?`, [userId, siteId]);
+        const db = await getDBConnection();
 
-        if (results[0].rows.length > 0) {
-            const row = results[0].rows.item(0);
-            const currentList = JSON.parse(row.inspectionList || '[]');
+        const [pageCountResult] = await db.executeSql(`PRAGMA page_count`);
+        const [pageSizeResult] = await db.executeSql(`PRAGMA page_size`);
 
-            // Filter out the one to delete
-            const updatedList = currentList.filter(item => item.uniqueId !== uniqueId);
+        const pageCount = pageCountResult.rows.item(0).page_count;
+        const pageSize = pageSizeResult.rows.item(0).page_size;
 
-            // Update the DB
-            await db.executeSql(`UPDATE inspectList SET inspectionList = ? WHERE userId = ? AND siteId = ?`, [
-                JSON.stringify(updatedList),
-                userId,
-                siteId,
-            ]);
-            console.log(`✅ Deleted item with uniqueId ${uniqueId}`);
-            return true;
-        } else {
-            console.warn('⚠️ No matching record found for that user/site.');
-            return false;
-        }
+        const dbSizeInBytes = pageCount * pageSize;
+        const sizeInKB = (dbSizeInBytes / 1024).toFixed(2);
+        const sizeInMB = (dbSizeInBytes / (1024 * 1024)).toFixed(2);
+
+        console.log(`📦 DB Size: ${sizeInKB} KB (${sizeInMB} MB)`);
+
+        return { dbSizeInBytes, sizeInKB, sizeInMB };
     } catch (err) {
-        console.error('❌ Error deleting inspection:', err);
-        return false;
+        console.error('❌ Failed to calculate DB size:', err.message);
+        return null;
     }
 };
-// export const getDatabaseSize = async (dbName = 'inspection.db') => {
-//     const db = await getDBConnection();
-//     try {
-//         const result1 = await db.executeSql(`PRAGMA page_count`);
-//         const result2 = await db.executeSql(`PRAGMA page_size`);
-
-//         const pageCount = result1[0].rows.item(0).page_count;
-//         const pageSize = result2[0].rows.item(0).page_size;
-
-//         const dbSizeInBytes = pageCount * pageSize;
-//         const sizeInKB = (dbSizeInBytes / 1024).toFixed(2);
-//         const sizeInMB = (dbSizeInBytes / (1024 * 1024)).toFixed(2);
-
-//         console.log(`📦 DB Size from PRAGMA: ${sizeInKB} KB (${sizeInMB} MB)`);
-//         return { dbSizeInBytes, sizeInKB, sizeInMB };
-//     } catch (err) {
-//         console.error('❌ PRAGMA failed:', err.message);
-//     }
-// };

@@ -14,7 +14,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import ApiUrl from 'global/ApiUrl';
 import { postAPI } from 'global/api-helpers';
 import IcSkeleton from '../Components/IcSkeleton';
-import { deleteInspectionByUniqueId, getDatabaseSize, getInspectionDataByUserAndSite } from 'store/database/inspectStorage';
+import { deleteInspectionByUniqueId,getInspectionDataByUserAndSite } from 'store/database/inspectStorage';
 
 const OperatorWorksheet = () => {
     const { icUserData } = useSelector(state => state.inspection);
@@ -31,7 +31,6 @@ const OperatorWorksheet = () => {
     // getting a data from SQLite
     const handleGetSQliteList = async () => {
         const list = await getInspectionDataByUserAndSite(icUserData?.userData?.UserId, icUserData?.userData?.Siteid);
-        const size= await getDatabaseSize('inspection.db');
         setInspectionList(list);
     };
     useEffect(() => {
@@ -92,7 +91,7 @@ const OperatorWorksheet = () => {
         };
     };
     const handleSingleDeletePress = async value => {
-        const flag = await deleteInspectionByUniqueId(icUserData?.userData?.UserId, icUserData?.userData?.Siteid, value.uniqueId);
+        const flag = await deleteInspectionByUniqueId(value.uniqueId);
         if (flag) {
             handleGetSQliteList();
             setShowDelete(false);

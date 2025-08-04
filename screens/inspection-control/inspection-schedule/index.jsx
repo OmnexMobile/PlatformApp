@@ -22,7 +22,7 @@ import QRCodeScannerScreen from '../Components/QRCodeScannerScreen';
 import NoDataFound from '../Components/NoDataFound';
 import { postAPI } from 'global/api-helpers';
 import ApiUrl from 'global/ApiUrl';
-import {  getInspectionDataByUserAndSite } from 'store/database/inspectStorage';
+import {  deleteAllInspectionData, getInspectionDataByUserAndSite } from 'store/database/inspectStorage';
 
 const filterList = [
     {
@@ -107,6 +107,7 @@ const InspectionSchedule = () => {
         }
     };
     const handleListFetch = async (inspect = null, showSktn = true, filterType = '') => {
+        // await deleteAllInspectionData();
         const inspectList = await getInspectionDataByUserAndSite(icUserData?.userData?.UserId, icUserData?.userData?.Siteid);
         console.log(inspectList.length, '*********************************************inspectList.length');
         showSktn && setShowSkeleton(true);

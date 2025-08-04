@@ -153,12 +153,15 @@ const InprocessInspection = ({ route }) => {
         return inspectData.intInspectionTypeID !== 2 ? (list?.length ? list[0].Value !== '' : true) : true;
         // return list.length ? list[0].Value !== '':true;
     };
-    const handleFinalSavePress = (flag = false) => {
+    const handleFinalSavePress = async(flag = false) => {
         const result = handleValidation(infoData);
         if (result) {
-            dispatch({
-                type: 'UPDATE_INSPECT_LIST',
-                updatedData: infoData,
+            const getStatus = rendetBtnText(infoData);
+            console.log(getStatus, 'getStatus');
+            const sqlitFlag = await updateInspectionByUniqueId(infoData.uniqueId, {
+                ...infoData,
+                status: getStatus?.status,
+                colorCode: getStatus?.colorCode,
             });
             if (!showChar && !flag) {
                 if (navigation.canGoBack()) {
