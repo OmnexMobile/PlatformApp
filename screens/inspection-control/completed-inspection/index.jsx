@@ -15,7 +15,7 @@ import ICCheckBox from '../Components/ICCheckBox';
 import DeleteModal from '../Components/DeleteModal';
 import IcSkeleton from '../Components/IcSkeleton';
 import NoDataFound from '../Components/NoDataFound';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import moment from 'moment';
 import ApiUrl from 'global/ApiUrl';
 import { postAPI } from 'global/api-helpers';
@@ -78,7 +78,6 @@ const CompletedInspection = () => {
     const [disableBtn, setDisableBtn] = useState(false);
 
     const isFocused = useIsFocused();
-    const dispatch = useDispatch();
 
     const getAllCompletedData = async (showSkt = true) => {
         showSkt && setShowSkeleton(true);
@@ -203,18 +202,20 @@ const CompletedInspection = () => {
                 // Filter only valid numeric values
                 // const numericValues = samples.map(s => parseFloat(s.FunctionValue)).filter(val => !isNaN(val));
                 const notOkSample = samples.filter(x => x?.backColor == '#FF0100');
-                const finalNotOkaySample = notOkSample?.length
-                    ? notOkSample[notOkSample.length - 1].FunctionValue
-                    : samples[samples.length - 1].FunctionValue;
+                const finalNotOkaySample = notOkSample.length
+                    ? notOkSample[notOkSample.length - 1]?.FunctionValue
+                    : samples?.length
+                    ? samples[samples.length - 1]?.FunctionValue
+                    : '';
                 // Use Math.min only if numericValues has at least one number
                 actualValue = finalNotOkaySample;
             } else {
                 // For string values: return first non-"ok" FunctionValue
                 actualValue = 'ok';
                 for (const sample of samples) {
-                    const val = sample.FunctionValue?.toLowerCase();
+                    const val = sample?.FunctionValue?.toLowerCase();
                     if (val && val !== 'ok') {
-                        actualValue = sample.FunctionValue;
+                        actualValue = sample?.FunctionValue;
                         break;
                     }
                 }
