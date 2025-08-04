@@ -7,7 +7,7 @@ const NoDataFound = () => {
   return (
    <View style={[styles.container]}>
      <Image source={require('../../../assets/images/empty-box.png')} style={[styles.imageStyle]} />
-     <Text style={[styles.textStyle]}>No Data Found</Text>
+     <Text style={[styles.textStyle]}>No Data Available</Text>
    </View>
   )
 }

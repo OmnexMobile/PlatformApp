@@ -1,5 +1,6 @@
 // src/database/inspectStorage.js
 import { getDBConnection } from './dbService';
+// import RNFS from 'react-native-fs';
 
 export const createInspectTable = async () => {
     const db = await getDBConnection();
@@ -142,3 +143,22 @@ export const deleteInspectionByUniqueId = async (userId, siteId, uniqueId) => {
         return false;
     }
 };
+// export const getDatabaseSize = async (dbName = 'inspection.db') => {
+//     const db = await getDBConnection();
+//     try {
+//         const result1 = await db.executeSql(`PRAGMA page_count`);
+//         const result2 = await db.executeSql(`PRAGMA page_size`);
+
+//         const pageCount = result1[0].rows.item(0).page_count;
+//         const pageSize = result2[0].rows.item(0).page_size;
+
+//         const dbSizeInBytes = pageCount * pageSize;
+//         const sizeInKB = (dbSizeInBytes / 1024).toFixed(2);
+//         const sizeInMB = (dbSizeInBytes / (1024 * 1024)).toFixed(2);
+
+//         console.log(`📦 DB Size from PRAGMA: ${sizeInKB} KB (${sizeInMB} MB)`);
+//         return { dbSizeInBytes, sizeInKB, sizeInMB };
+//     } catch (err) {
+//         console.error('❌ PRAGMA failed:', err.message);
+//     }
+// };
