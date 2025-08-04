@@ -202,7 +202,7 @@ const InprocessInspection = ({ route }) => {
         if (result) {
             const getStatus = rendetBtnText(infoData);
             console.log(getStatus, 'getStatus');
-            const sqlitFlag = await updateInspectionByUniqueId(icUserData?.userData?.UserId, icUserData?.userData?.Siteid, {
+            const sqlitFlag = await updateInspectionByUniqueId(infoData.uniqueId, {
                 ...infoData,
                 status: getStatus?.status,
                 colorCode: getStatus?.colorCode,
