@@ -311,8 +311,10 @@ const InputDataModal = ({
                     InspectionID: InspectionID,
                     userType: 'Inspector',
                     attachments: attachments,
+                    userId: selectedSite?.UserId,
+                    siteId: selectedSite?.Siteid,
                 };
-                await addInspectionData(selectedSite?.UserId, selectedSite?.Siteid,inspectObj.uniqueId, inspectObj);
+                await addInspectionData(selectedSite?.UserId, selectedSite?.Siteid, inspectObj.uniqueId, inspectObj);
                 showMessage({
                     message: 'Form Downloaded Successfully',
                     backgroundColor: COLORS.SUCCESS,
