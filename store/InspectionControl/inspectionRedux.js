@@ -14,6 +14,7 @@ const { Types, Creators } = createActions({
     removeInspectList: ['removeInspectList'],
     updateInspectList: ['updateInspectList'],
     deleteAllInspectList: ['deleteAllInspectList'],
+    resetToInitial: ['resetToInitial'],
 });
 
 export const InspectTypes = Types;
@@ -76,6 +77,9 @@ const updateInspectList = (state, { updatedData }) => {
     });
     return { ...state, inspectList: updatedArray };
 };
+const resetToInitial = () => {
+    return INITIAL_STATE;
+}
 /* ------------- Hookup Reducers To Types ------------- */
 const rawReducer = createReducer(INITIAL_STATE, {
     [Types.INSPECT_LIST]: storeInspectList,
@@ -83,7 +87,8 @@ const rawReducer = createReducer(INITIAL_STATE, {
     [Types.IC_SETTINGS]: storeIcSettings,
     [Types.REMOVE_INSPECT_LIST]: removeInspectList,
     [Types.UPDATE_INSPECT_LIST]: updateInspectList,
-    [Types.DELETE_ALL_INSPECT_LIST]: deleteAllInspectList
+    [Types.DELETE_ALL_INSPECT_LIST]: deleteAllInspectList,
+    [Types.RESET_TO_INITIAL]: resetToInitial,
 });
 const persistConfig = {
     key: 'inspect', // Unique key for the reducer's data
