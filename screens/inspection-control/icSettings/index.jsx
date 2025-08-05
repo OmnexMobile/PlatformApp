@@ -176,7 +176,7 @@ const IcSettings = () => {
     const [showLogoutModal, setShowLogoutModal] = useState(false);
     const [showSiteList, setShowSiteList] = useState(false);
     const { sites, handleLogout, handleLogin, handleSite } = useAppContext();
-    const { inspectList, icUserData } = useSelector(state => state.inspection);
+    const { icUserData } = useSelector(state => state.inspection);
 
     const [siteList, setSiteList] = useState([]);
     const [filteredSite, setFilteredSite] = useState([]);
@@ -203,21 +203,18 @@ const IcSettings = () => {
             },
             REGISTER_TYPES.LOGOUT,
         )
-            .then(data => {
+            .then(async data => {
                 if (data?.Success) {
-                    handleLogout();
+                    await handleLogout();
                     successMessage({ message: 'Success', description: 'Successfully Logged Out' });
                     localStorage.storeData('appLogged', false);
                     localStorage.storeData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL, currentServerUrl);
-                    dispatch({
-                        type: 'DELETE_ALL_INSPECT_LIST',
-                        inspectList: [],
-                    });
+                    dispatch({type:'RESET_TO_INITIAL'})
                     navigation.reset({
                         index: 0,
                         routes: [{ name: ROUTES.GLOBAL_LOGIN }],
                     });
-                    localStorage.removeItem(LOCAL_STORAGE_VARIABLES.SiteId);
+                    await localStorage.removeItem(LOCAL_STORAGE_VARIABLES.SiteId);
                     handleSite(null);
                 } else {
                     showErrorMessage(data?.Error || 'Something went wrong while Logout');

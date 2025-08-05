@@ -14,7 +14,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import ApiUrl from 'global/ApiUrl';
 import { postAPI } from 'global/api-helpers';
 import IcSkeleton from '../Components/IcSkeleton';
-import { deleteInspectionByUniqueId,getDatabaseSize,getInspectionDataByUserAndSite } from 'store/database/inspectStorage';
+import { deleteInspectionByUniqueId, getDatabaseSize, getInspectionDataByUserAndSite } from 'store/database/inspectStorage';
 
 const OperatorWorksheet = () => {
     const { icUserData } = useSelector(state => state.inspection);
@@ -33,9 +33,13 @@ const OperatorWorksheet = () => {
         // await getDatabaseSize()
         const list = await getInspectionDataByUserAndSite(icUserData?.userData?.UserId, icUserData?.userData?.Siteid);
         setInspectionList(list);
+        setShowSkeleton(false);
     };
     useEffect(() => {
-        handleGetSQliteList();
+        if (isFocused) {
+            setShowSkeleton(true);
+            handleGetSQliteList();
+        }
     }, [icUserData, isFocused]);
 
     const handleLaunchPress = item => {
@@ -140,7 +144,9 @@ const OperatorWorksheet = () => {
     return (
         <CustomHeader title="Operator Worksheet" activeTabId={2}>
             <View style={[styles.container]}>
-                {Boolean(inspectList?.length) ? (
+                {showSkeleton ? (
+                    <IcSkeleton type={PLACEHOLDERS.OPERATOR_CARD} />
+                ) : Boolean(inspectList?.length) ? (
                     <FlatList
                         data={inspectList}
                         renderItem={renderItem}

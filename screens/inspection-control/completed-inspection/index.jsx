@@ -82,7 +82,8 @@ const CompletedInspection = () => {
     const getAllCompletedData = async (showSkt = true) => {
         showSkt && setShowSkeleton(true);
         const inspectList = await getInspectionDataByUserAndSite(icUserData?.userData?.UserId, icUserData?.userData?.Siteid);
-        const completedList = inspectList?.filter(item => item?.status === 'Completed' || item?.status === 'In Progress');
+        const completedList = inspectList?.filter(item => item?.status === 'Completed');
+        // const completedList = inspectList?.filter(item => item?.status === 'Completed' || item?.status === 'In Progress');
         setMasterData(completedList?.length ? completedList : []);
         setShowSkeleton(false);
         setRefreshing(false);
