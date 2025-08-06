@@ -1,6 +1,6 @@
 import { ButtonComponent } from 'components';
 import React, { useEffect, useState } from 'react';
-import { FlatList, Platform, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { FlatList, Platform, RefreshControl, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import CustomHeader from '../Components/CustomHeader';
 import { COLORS } from 'constants/theme-constants';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
@@ -22,7 +22,9 @@ import QRCodeScannerScreen from '../Components/QRCodeScannerScreen';
 import NoDataFound from '../Components/NoDataFound';
 import { postAPI } from 'global/api-helpers';
 import ApiUrl from 'global/ApiUrl';
-import {  deleteAllInspectionData, getInspectionDataByUserAndSite } from 'store/database/inspectStorage';
+import { deleteAllInspectionData, getInspectionDataByUserAndSite } from 'store/database/inspectStorage';
+import { Modal } from 'react-native-paper';
+import { Bubbles } from 'react-native-loader';
 
 const filterList = [
     {
@@ -57,6 +59,7 @@ const moreList = [
     },
 ];
 const InspectionSchedule = () => {
+    const { height } = useWindowDimensions();
     const { icUserData } = useSelector(state => state.inspection);
     const dispatch = useDispatch();
     const isFocused = useIsFocused();
@@ -84,6 +87,7 @@ const InspectionSchedule = () => {
         frequencyList: [],
         personList: [],
     });
+    const [showBubble, setShowBubble] = useState(false);
     const handleFilePress = item => {
         let temp = {
             ProductionItem: item.ProductionItem,
@@ -301,10 +305,10 @@ const InspectionSchedule = () => {
         setSearch('');
         handleListFetch(null, false, filterData.type);
     };
-    const handleSearch = (value,filterType) => {
+    const handleSearch = (value, filterType) => {
         let temp = JSON.parse(JSON.stringify(overAllData));
-         let tempList = [];
-        if (filterType !== '' ) {
+        let tempList = [];
+        if (filterType !== '') {
             tempList = temp.filter(item => item.TypeOfInspection == filterType);
         } else {
             tempList = temp;
@@ -323,7 +327,7 @@ const InspectionSchedule = () => {
         var handler;
         if (search.length && isFocused) {
             handler = setTimeout(() => {
-                handleSearch(search,filterData?.type);
+                handleSearch(search, filterData?.type);
             }, 500);
         }
         return () => {
@@ -331,8 +335,9 @@ const InspectionSchedule = () => {
         };
     }, [search, isFocused]);
     const handleSubmitBtnPress = async val => {
+        setShowBubble(true);
         const latestInspection = await getInspectionDataByUserAndSite(icUserData?.userData?.UserId, icUserData?.userData?.Siteid);
-        const apiData = await handleListFetch(null, true, filterData.type);
+        const apiData = await handleListFetch(null, false, filterData.type);
         let filterTemp = filterData.type !== '' ? apiData.filter(item => item.TypeOfInspection == filterData.type) : apiData;
         let temp = [...filterTemp] || [];
         const updatedArray = temp.map(item => {
@@ -348,6 +353,7 @@ const InspectionSchedule = () => {
             };
         });
         setMasterData(updatedArray);
+        setShowBubble(false);
     };
     console.log(masterData.length, 'masterData');
     return (
@@ -482,6 +488,22 @@ const InspectionSchedule = () => {
                         handleSearch(val);
                     }}
                 />
+            )}
+            {Boolean(showBubble) && (
+                <Modal
+                    transparent={true}
+                    animationType={'none'}
+                    visible={showBubble}
+                    onRequestClose={() => {
+                        console.log('close modal');
+                    }}
+                    contentContainerStyle={{
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flex: 1,
+                    }}>
+                    <Bubbles size={10} color="#12C0CF" />
+                </Modal>
             )}
         </CustomHeader>
     );
