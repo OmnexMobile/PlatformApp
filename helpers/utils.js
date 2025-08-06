@@ -1,10 +1,12 @@
 import { isIphoneX } from 'react-native-iphone-x-helper';
-import { Platform, StatusBar, Dimensions } from 'react-native';
+import { Platform, StatusBar, Dimensions, Alert } from 'react-native';
 import FlashMessage, { showMessage } from 'react-native-flash-message';
 import JailMonkey from 'jail-monkey';
 import { COLORS, SPACING } from 'constants/theme-constants';
 import useTheme from 'theme/useTheme';
 import { LOCAL_STORAGE_VARIABLES, TOAST_STATUS } from 'constants/app-constant';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { check, request, openSettings, PERMISSIONS, RESULTS } from 'react-native-permissions';
 
 export const getAvatarInitials = textString => {
     if (!textString) return '';
@@ -152,4 +154,52 @@ export const formReq = request => {
     const transformedData = Object.entries(request).map(([key, value]) => ({ key, value }));
     transformedData.map(({ key, value }) => formData.append(key, value));
     return formData;
+};
+
+export const requestAllPermissionsOnce = async () => {
+    const alreadyAsked = await AsyncStorage.getItem('permissionsAskedOnce');
+    if (alreadyAsked === 'true') return;
+
+    const androidPermissions = [];
+
+    // Check Android version
+    const sdkVersion = parseInt(Platform.Version, 10);
+
+    if (sdkVersion < 30) {
+        androidPermissions.push(PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE);
+    }
+
+    androidPermissions.push(PERMISSIONS.ANDROID.CAMERA, PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION);
+
+    const permissionsToRequest = Platform.select({
+        ios: [PERMISSIONS.IOS.PHOTO_LIBRARY_ADD_ONLY, PERMISSIONS.IOS.CAMERA, PERMISSIONS.IOS.LOCATION_WHEN_IN_USE],
+        android: androidPermissions,
+    });
+
+    let allGranted = true;
+
+    for (const permission of permissionsToRequest) {
+        const status = await check(permission);
+
+        if (status === RESULTS.GRANTED) continue;
+
+        if (status === RESULTS.BLOCKED) {
+            Alert.alert('Permission Blocked', 'Some permissions are blocked. Please enable them in device Settings.', [
+                { text: 'Cancel', style: 'cancel' },
+                { text: 'Open Settings', onPress: () => openSettings() },
+            ]);
+            allGranted = false;
+            continue;
+        }
+
+        const result = await request(permission);
+
+        if (result !== RESULTS.GRANTED) {
+            Alert.alert('Permission Denied', `App needs permission: ${permission.split('.').pop()} to function properly.`);
+            allGranted = false;
+        }
+    }
+    if (allGranted) {
+        await AsyncStorage.setItem('permissionsAskedOnce', 'true');
+    }
 };

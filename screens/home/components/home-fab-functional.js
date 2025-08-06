@@ -54,7 +54,7 @@
 //             .then(data => {
 //                 console.log('🚀 ~ file: profile-home-functional.js:100 ~ handleLogoutFun ~ data:', data);
 //                 if (data?.Success) {
-                    
+
 //                     handleLogout();
 //                     successMessage({ message: 'Success', description: 'Successfully Logged Out' });
 //                     localStorage.storeData('appLogged', false);
@@ -67,12 +67,12 @@
 //                 } else {
 //                     showErrorMessage(data?.Error || 'Something went wrong while Logout');
 //                     setShowLoader(false);
-                    
+
 //                 }
 //             })
 //             .catch(data => {
 //                 setShowLoader(false);
-                
+
 //                 showErrorMessage(data?.Error || 'Something went wrong while Logout');
 //             });
 //     };
@@ -183,7 +183,6 @@
 // });
 // export default HomeFabFunctional;
 
-
 import React, { useEffect, useState } from 'react';
 import { Content, Header, TextComponent, IconComponent, ButtonComponent } from 'components';
 import { FONT_TYPE, ICON_TYPE, LOCAL_STORAGE_VARIABLES, ROUTES } from 'constants/app-constant';
@@ -195,7 +194,7 @@ import { COLORS, FONT_SIZE, SPACING } from 'constants/theme-constants';
 
 import { useAppContext } from 'contexts/app-context';
 import { REGISTER_TYPES, registerDevice } from 'screens/globalAuth/register/register-functional';
-import { showErrorMessage, successMessage } from 'helpers/utils';
+import {  requestAllPermissionsOnce, showErrorMessage, successMessage } from 'helpers/utils';
 import { getUniqueId } from 'react-native-device-info';
 import { useNavigation } from '@react-navigation/native';
 import { Avatar, Divider, Modal } from 'react-native-paper';
@@ -216,7 +215,7 @@ const HomeFabFunctional = ({ countDetails }) => {
     const [showLoader, setShowLoader] = useState(false);
     const [showLogoutModal, setShowLogoutModal] = useState(false);
     const dispatch = useDispatch();
-    console.log(sites,'sites')
+    console.log(sites, 'sites');
 
     useEffect(() => {
         async function fetchData() {
@@ -225,6 +224,12 @@ const HomeFabFunctional = ({ countDetails }) => {
         }
         fetchData();
     }, [name]);
+    useEffect(() => {
+        const askPermissions = async () => {
+            const granted = await requestAllPermissionsOnce();
+        };
+        askPermissions();
+    }, []);
 
     const handleLogoutCall = async () => {
         setShowLogoutModal(false);
@@ -275,10 +280,10 @@ const HomeFabFunctional = ({ countDetails }) => {
                             {'Welcome !'}
                         </TextComponent> */}
                         <TextComponent type={FONT_TYPE.BOLD} fontSize={25} color={COLORS.black} numberOfLines={1}>
-                        {sites?.selectedSite?.FullName || name}
+                            {sites?.selectedSite?.FullName || name}
                         </TextComponent>
                         <TextComponent type={FONT_TYPE.SEMIBOLD} fontSize={18} color={COLORS.black} numberOfLines={1} style={{ marginLeft: 2 }}>
-                        Site Name : {sites?.selectedSite?.SiteName}
+                            Site Name : {sites?.selectedSite?.SiteName}
                         </TextComponent>
                     </View>
 
@@ -287,9 +292,9 @@ const HomeFabFunctional = ({ countDetails }) => {
                             size={50}
                             label={sites?.selectedSite?.FullName?.split('')[0] || name?.split('')[0]}
                             maxFontSizeMultiplier={1}
-                            style={{ backgroundColor: COLORS.apptheme  }}
+                            style={{ backgroundColor: COLORS.apptheme }}
                             color={COLORS.white}
-                            labelStyle={{fontFamily:'OpenSans-Bold',fontSize:20}}
+                            labelStyle={{ fontFamily: 'OpenSans-Bold', fontSize: 20 }}
                         />
                     </Pressable>
                 </View>
@@ -383,4 +388,3 @@ const styles = StyleSheet.create({
     },
 });
 export default HomeFabFunctional;
-

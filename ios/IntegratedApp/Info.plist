@@ -41,6 +41,8 @@
 			</dict>
 		</dict>
 	</dict>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>App needs access to save files to your photo library</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Please allow the app to access the Camera.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>

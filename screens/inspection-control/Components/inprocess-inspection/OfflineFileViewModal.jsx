@@ -1,7 +1,7 @@
 import { COLORS } from 'constants/theme-constants';
 import { RFPercentage, RFValue } from 'helpers/utils';
 import React, { useEffect, useState } from 'react';
-import { Alert, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, FlatList, StyleSheet, Text, TouchableOpacity, View, Platform } from 'react-native';
 import { Divider, Modal } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import IconF from 'react-native-vector-icons/Feather';
@@ -9,6 +9,8 @@ import FileViewer from 'react-native-file-viewer';
 import RNFS from 'react-native-fs';
 import { Bubbles } from 'react-native-loader';
 import NoDataFound from '../NoDataFound';
+import { check, request, PERMISSIONS, RESULTS, openSettings } from 'react-native-permissions';
+import { showMessage } from 'react-native-flash-message';
 
 const OfflineFileViewModal = ({ list = [], visible = false, onDismiss = () => {} }) => {
     const [fileList, setFileList] = useState([]);
@@ -35,6 +37,59 @@ const OfflineFileViewModal = ({ list = [], visible = false, onDismiss = () => {}
             setFileList([]);
         }
     }, [list]);
+    const handleDownloadLocal = async (fileName, base64Data, fileExtension) => {
+        try {
+            const fileNameText = fileName.split('.')[0];
+            const fullFileName = `${fileNameText}.${fileExtension}`;
+            const filePath =
+                Platform.OS === 'android' ? `${RNFS.DownloadDirectoryPath}/${fullFileName}` : `${RNFS.DocumentDirectoryPath}/${fullFileName}`;
+            await RNFS.writeFile(filePath, base64Data, 'base64');
+            showMessage({
+                message: 'File saved successfully',
+                backgroundColor: COLORS.SUCCESS,
+                color: COLORS.white,
+                duration: 1500,
+                statusBarHeight: 40,
+                icon: 'success',
+                position: 'right',
+                style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+            });
+            return filePath;
+        } catch (error) {
+            console.error('Download error:', error);
+            Alert.alert('Error', `Failed to save file: ${error.message}`);
+        }
+    };
+    const requestPermsion = async (item) => {
+        const isAndroid11OrAbove = Platform.OS === 'android' && Platform.Version >= 30;
+        const permission = Platform.select({
+            ios: PERMISSIONS.IOS.PHOTO_LIBRARY_ADD_ONLY,
+            android: isAndroid11OrAbove ? null : PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE,
+        });
+        let granted = true;
+        if (permission) {
+            let status = await check(permission);
+            if (status === RESULTS.DENIED) {
+                status = await request(permission);
+            }
+
+            if (status === RESULTS.BLOCKED) {
+                Alert.alert('Permission Blocked', 'Storage permission is blocked. Please enable it from Settings.', [
+                    { text: 'Cancel', style: 'cancel' },
+                    { text: 'Open Settings', onPress: () => openSettings() },
+                ]);
+                granted = false;
+            } else if (status !== RESULTS.GRANTED) {
+                Alert.alert('Permission Denied', 'Storage permission is required to download files.');
+                granted = false;
+            }
+        }
+
+        if (granted) {
+            await handleDownloadLocal(item?.FileName, item.FileContentBase64, item.FileExtension);
+        }
+    };
+
     const renderFiles = ({ item, index }) => {
         return (
             <View style={[styles.fileContainer]} key={index + 1}>
@@ -51,6 +106,13 @@ const OfflineFileViewModal = ({ list = [], visible = false, onDismiss = () => {}
                     }}>
                     <IconF name="eye" size={25} color={COLORS.grey} />
                 </TouchableOpacity>
+                {/* <TouchableOpacity
+                    style={{ marginLeft: 10 }}
+                    onPress={async () => {
+                        await requestPermsion(item);
+                    }}>
+                    <IconF name="download" size={25} color={COLORS.grey} />
+                </TouchableOpacity> */}
             </View>
         );
     };
