@@ -72,7 +72,7 @@ const CustomHeader = ({
         if (searchValue?.length) {
             setIsExpanded(true);
             Animated.timing(widthAnim, {
-                toValue: activeTabId !== 4 ? width / 1.8 : width / 2.2,
+                toValue: activeTabId !== 4 ? width / 1.5 : width / 2.2,
                 duration: 0,
                 useNativeDriver: false,
             }).start();
@@ -89,7 +89,7 @@ const CustomHeader = ({
         } else {
             setIsExpanded(true);
             Animated.timing(widthAnim, {
-                toValue: activeTabId !== 4 ? width / 1.8 : width / 2.2,
+                toValue: activeTabId !== 4 ? width / 1.5 : width / 2.2,
                 duration: 300,
                 useNativeDriver: false,
             }).start();
