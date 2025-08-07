@@ -189,19 +189,21 @@ import { FONT_TYPE, ICON_TYPE, LOCAL_STORAGE_VARIABLES, ROUTES } from 'constants
 import TabsView from './home-tab-view';
 import TabsCard from './home-tab-card';
 import localStorage from 'global/localStorage';
-import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Platform, Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import { COLORS, FONT_SIZE, SPACING } from 'constants/theme-constants';
 
 import { useAppContext } from 'contexts/app-context';
 import { REGISTER_TYPES, registerDevice } from 'screens/globalAuth/register/register-functional';
-import {  requestAllPermissionsOnce, showErrorMessage, successMessage } from 'helpers/utils';
+import { requestAllPermissionsOnce, showErrorMessage, successMessage } from 'helpers/utils';
 import { getUniqueId } from 'react-native-device-info';
 import { useNavigation } from '@react-navigation/native';
 import { Avatar, Divider, Modal } from 'react-native-paper';
 import { Bubbles } from 'react-native-loader';
 import { useDispatch } from 'react-redux';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const HomeFabFunctional = ({ countDetails }) => {
+    const insets = useSafeAreaInsets();
     const internal = true;
     const supplier = true;
     // const internal = false
@@ -224,12 +226,12 @@ const HomeFabFunctional = ({ countDetails }) => {
         }
         fetchData();
     }, [name]);
-    useEffect(() => {
-        const askPermissions = async () => {
-            const granted = await requestAllPermissionsOnce();
-        };
-        askPermissions();
-    }, []);
+    // useEffect(() => {
+    //     const askPermissions = async () => {
+    //         const granted = await requestAllPermissionsOnce();
+    //     };
+    //     askPermissions();
+    // }, []);
 
     const handleLogoutCall = async () => {
         setShowLogoutModal(false);
@@ -270,93 +272,98 @@ const HomeFabFunctional = ({ countDetails }) => {
         setShowLogoutModal(false);
     };
     return (
-        <Content noPadding>
-            {Platform.OS === 'ios' ? <View style={{ padding: 10, flexDirection: 'row' }} /> : null}
-            {/* <Header title={name} backState={true} /> */}
-            <View style={{ padding: 10, flexDirection: 'row', maxHeight: '9%' }}>
-                <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
-                    <View style={{ width: '85%' }}>
-                        {/* <TextComponent type={FONT_TYPE.BOLD} fontSize={20} color={COLORS.black}>
+        <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
+            <Content noPadding>
+                {Platform.OS === 'ios' ? <View style={{ padding: 10, flexDirection: 'row' }} /> : null}
+                {/* <Header title={name} backState={true} /> */}
+                <View style={{ padding: 10, flexDirection: 'row', maxHeight: '9%' }}>
+                    <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
+                        <View style={{ width: '85%' }}>
+                            {/* <TextComponent type={FONT_TYPE.BOLD} fontSize={20} color={COLORS.black}>
                             {'Welcome !'}
                         </TextComponent> */}
-                        <TextComponent type={FONT_TYPE.BOLD} fontSize={25} color={COLORS.black} numberOfLines={1}>
-                            {sites?.selectedSite?.FullName || name}
-                        </TextComponent>
-                        <TextComponent type={FONT_TYPE.SEMIBOLD} fontSize={18} color={COLORS.black} numberOfLines={1} style={{ marginLeft: 2 }}>
-                            Site Name : {sites?.selectedSite?.SiteName}
-                        </TextComponent>
-                    </View>
+                            <TextComponent type={FONT_TYPE.BOLD} fontSize={25} color={COLORS.black} numberOfLines={1}>
+                                {sites?.selectedSite?.FullName || name}
+                            </TextComponent>
+                            <TextComponent type={FONT_TYPE.SEMIBOLD} fontSize={18} color={COLORS.black} numberOfLines={1} style={{ marginLeft: 2 }}>
+                                Site Name : {sites?.selectedSite?.SiteName}
+                            </TextComponent>
+                        </View>
 
-                    <Pressable style={{ width: '15%', alignItems: 'center' }} onPress={() => navigation.navigate(ROUTES.INSPECTION_SETTINGS)}>
-                        <Avatar.Text
-                            size={50}
-                            label={sites?.selectedSite?.FullName?.split('')[0] || name?.split('')[0]}
-                            maxFontSizeMultiplier={1}
-                            style={{ backgroundColor: COLORS.apptheme }}
-                            color={COLORS.white}
-                            labelStyle={{ fontFamily: 'OpenSans-Bold', fontSize: 20 }}
-                        />
-                    </Pressable>
-                </View>
-            </View>
-            {/* {(isTab) ? <TabsView countDetails={countDetails}/> : */}
-            <TabsCard {...{ countDetails }} tabIndex={tabIndex} />
-            {Boolean(showLoader) && (
-                <Modal
-                    transparent={true}
-                    animationType={'none'}
-                    visible={showLoader}
-                    onRequestClose={() => {
-                        console.log('close modal');
-                    }}
-                    contentContainerStyle={{
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        flex: 1,
-                        height: '100%',
-                    }}>
-                    <Bubbles size={10} color="#12C0CF" />
-                </Modal>
-            )}
-            {Boolean(showLogoutModal) && (
-                <Modal
-                    visible={showLogoutModal}
-                    onDismiss={() => {
-                        handleClose();
-                    }}
-                    contentContainerStyle={[styles.modalConatiner]}
-                    style={{ backgroundColor: 'transparent' }}>
-                    <View style={[styles.modalcontainer]}>
-                        <Text style={[styles.deleteHeader]}>Logout</Text>
-                        <View style={[styles.contentContainer]}>
-                            <Divider />
-                            <Text style={[styles.contentText]}>Are you sure you want to log out? </Text>
-                        </View>
-                        <View style={[styles.btnStyle]}>
-                            <ButtonComponent
-                                style={{ height: 30, width: 100, marginRight: 10 }}
-                                onPress={() => {
-                                    handleClose();
-                                }}
-                                textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}>
-                                No
-                            </ButtonComponent>
-                            <ButtonComponent
-                                style={{ height: 30, width: 100 }}
-                                onPress={() => {
-                                    handleLogoutCall();
-                                }}
-                                textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}>
-                                Yes
-                            </ButtonComponent>
-                        </View>
+                        <Pressable style={{ width: '15%', alignItems: 'center' }} onPress={() => navigation.navigate(ROUTES.INSPECTION_SETTINGS)}>
+                            <Avatar.Text
+                                size={50}
+                                label={sites?.selectedSite?.FullName?.split('')[0] || name?.split('')[0]}
+                                maxFontSizeMultiplier={1}
+                                style={{ backgroundColor: COLORS.apptheme }}
+                                color={COLORS.white}
+                                labelStyle={{ fontFamily: 'OpenSans-Bold', fontSize: 20 }}
+                            />
+                        </Pressable>
                     </View>
-                </Modal>
-            )}
-        </Content>
+                </View>
+                {/* {(isTab) ? <TabsView countDetails={countDetails}/> : */}
+                <TabsCard {...{ countDetails }} tabIndex={tabIndex} />
+                {Boolean(showLoader) && (
+                    <Modal
+                        transparent={true}
+                        animationType={'none'}
+                        visible={showLoader}
+                        onRequestClose={() => {
+                            console.log('close modal');
+                        }}
+                        contentContainerStyle={{
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            flex: 1,
+                            height: '100%',
+                        }}>
+                        <Bubbles size={10} color="#12C0CF" />
+                    </Modal>
+                )}
+                {Boolean(showLogoutModal) && (
+                    <Modal
+                        visible={showLogoutModal}
+                        onDismiss={() => {
+                            handleClose();
+                        }}
+                        contentContainerStyle={[styles.modalConatiner]}
+                        style={{ backgroundColor: 'transparent' }}>
+                        <View style={[styles.modalcontainer]}>
+                            <Text style={[styles.deleteHeader]}>Logout</Text>
+                            <View style={[styles.contentContainer]}>
+                                <Divider />
+                                <Text style={[styles.contentText]}>Are you sure you want to log out? </Text>
+                            </View>
+                            <View style={[styles.btnStyle]}>
+                                <ButtonComponent
+                                    style={{ height: 30, width: 100, marginRight: 10 }}
+                                    onPress={() => {
+                                        handleClose();
+                                    }}
+                                    textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}>
+                                    No
+                                </ButtonComponent>
+                                <ButtonComponent
+                                    style={{ height: 30, width: 100 }}
+                                    onPress={() => {
+                                        handleLogoutCall();
+                                    }}
+                                    textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}>
+                                    Yes
+                                </ButtonComponent>
+                            </View>
+                        </View>
+                    </Modal>
+                )}
+            </Content>
+        </SafeAreaView>
     );
 };
 const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+    },
     modalcontainer: {
         width: '90%',
         backgroundColor: '#fff',

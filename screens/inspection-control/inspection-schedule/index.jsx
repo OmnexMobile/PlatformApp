@@ -320,7 +320,7 @@ const InspectionSchedule = () => {
             );
             setMasterData(tempSearch);
         } else {
-            setMasterData(overAllData);
+            setMasterData(tempList);
         }
     };
     useEffect(() => {
@@ -367,13 +367,13 @@ const InspectionSchedule = () => {
             handleSearch={value => {
                 setSearch(value);
                 if (!value?.length) {
-                    handleSearch('');
+                    handleSearch('', filterData?.type);
                 }
             }}
             searchValue={search}
             handleClosePress={() => {
                 setSearch('');
-                handleSearch('');
+                handleSearch('', filterData?.type);
             }}>
             <View style={[styles.mainContainer]}>
                 <View style={[styles.overAllBox]}>
@@ -501,6 +501,7 @@ const InspectionSchedule = () => {
                         alignItems: 'center',
                         justifyContent: 'center',
                         flex: 1,
+                        height: '100%',
                     }}>
                     <Bubbles size={10} color="#12C0CF" />
                 </Modal>
