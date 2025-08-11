@@ -1,7 +1,7 @@
 import { COLORS } from 'constants/theme-constants';
 import { RFPercentage, RFValue } from 'helpers/utils';
 import React, { useEffect, useState } from 'react';
-import { Alert, FlatList, StyleSheet, Text, TouchableOpacity, View, Platform } from 'react-native';
+import { Alert, FlatList, StyleSheet, Text, TouchableOpacity, View, Platform, Share } from 'react-native';
 import { Divider, Modal } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import IconF from 'react-native-vector-icons/Feather';
@@ -41,26 +41,51 @@ const OfflineFileViewModal = ({ list = [], visible = false, onDismiss = () => {}
         try {
             const fileNameText = fileName.split('.')[0];
             const fullFileName = `${fileNameText}.${fileExtension}`;
-            const filePath =
-                Platform.OS === 'android' ? `${RNFS.DownloadDirectoryPath}/${fullFileName}` : `${RNFS.DocumentDirectoryPath}/${fullFileName}`;
-            await RNFS.writeFile(filePath, base64Data, 'base64');
-            showMessage({
-                message: 'File saved successfully',
-                backgroundColor: COLORS.SUCCESS,
-                color: COLORS.white,
-                duration: 1500,
-                statusBarHeight: 40,
-                icon: 'success',
-                position: 'right',
-                style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
-            });
-            return filePath;
+
+            if (Platform.OS === 'android') {
+                const filePath = `${RNFS.DownloadDirectoryPath}/${fullFileName}`;
+                await RNFS.writeFile(filePath, base64Data, 'base64');
+                showMessage({
+                    message: 'File saved successfully',
+                    backgroundColor: COLORS.SUCCESS,
+                    color: COLORS.white,
+                    duration: 1500,
+                    statusBarHeight: 40,
+                    icon: 'success',
+                    position: 'right',
+                    style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+                });
+                return filePath;
+            } else {
+                const filePath = `${RNFS.TemporaryDirectoryPath}/${fullFileName}`;
+                await RNFS.writeFile(filePath, base64Data, 'base64');
+
+                const result = await Share.share({
+                    url: 'file://' + filePath,
+                    message: `Download ${fullFileName}`,
+                    title: fullFileName,
+                });
+                if (result.action === Share.sharedAction) {
+                    showMessage({
+                        message: 'File saved successfully',
+                        backgroundColor: COLORS.SUCCESS,
+                        color: COLORS.white,
+                        duration: 1500,
+                        statusBarHeight: 40,
+                        icon: 'success',
+                        position: 'right',
+                        style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+                    });
+                }
+
+                return filePath;
+            }
         } catch (error) {
             console.error('Download error:', error);
             Alert.alert('Error', `Failed to save file: ${error.message}`);
         }
     };
-    const requestPermsion = async (item) => {
+    const requestPermsion = async item => {
         const isAndroid11OrAbove = Platform.OS === 'android' && Platform.Version >= 30;
         const permission = Platform.select({
             ios: PERMISSIONS.IOS.PHOTO_LIBRARY_ADD_ONLY,

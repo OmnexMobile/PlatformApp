@@ -4,7 +4,7 @@ import { COLORS } from 'constants/theme-constants';
 import { useAppContext } from 'contexts/app-context';
 import { getAvatarInitials, showErrorMessage, successMessage } from 'helpers/utils';
 import React, { useEffect, useState } from 'react';
-import { FlatList, KeyboardAvoidingView, Text, TouchableOpacity } from 'react-native';
+import { FlatList, KeyboardAvoidingView, SafeAreaView, Text, TouchableOpacity } from 'react-native';
 import { StyleSheet, View } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useDispatch, useSelector } from 'react-redux';
@@ -16,6 +16,7 @@ import { ButtonComponent } from 'components';
 import { Bubbles } from 'react-native-loader';
 import InputWithSearch from '../Components/InputWithSearch';
 import NoDataFound from '../Components/NoDataFound';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 // let sitesData = {
 //     selectedSite: {
 //         EntityNode: 'Corporate',
@@ -171,6 +172,7 @@ import NoDataFound from '../Components/NoDataFound';
 //     ],
 // };
 const IcSettings = () => {
+    const insets = useSafeAreaInsets();
     const navigation = useNavigation();
     const [showLoader, setShowLoader] = useState(false);
     const [showLogoutModal, setShowLogoutModal] = useState(false);
@@ -189,7 +191,7 @@ const IcSettings = () => {
         } else {
             setSiteList([]);
         }
-    }, [sites.siteList]);
+    }, [sites?.siteList]);
     const handleLogoutCall = async () => {
         setShowLogoutModal(false);
         setShowLoader(true);
@@ -208,7 +210,7 @@ const IcSettings = () => {
                     successMessage({ message: 'Success', description: 'Successfully Logged Out' });
                     localStorage.storeData('appLogged', false);
                     localStorage.storeData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL, currentServerUrl);
-                    dispatch({type:'RESET_TO_INITIAL'})
+                    dispatch({ type: 'RESET_TO_INITIAL' });
                     navigation.reset({
                         index: 0,
                         routes: [{ name: ROUTES.GLOBAL_LOGIN }],
@@ -303,137 +305,141 @@ const IcSettings = () => {
         };
     }, [searchText]);
     return (
-        <KeyboardAvoidingView style={styles.container}>
-            <View style={styles.headerBox}>
-                <View style={styles.iconBox}>
-                    <TouchableOpacity onPress={() => navigation.goBack()}>
-                        <Icon name="keyboard-backspace" size={30} color={COLORS.apptheme} />
-                    </TouchableOpacity>
-                </View>
-                <View style={styles.headerTextBox}>
-                    <Text style={styles.htext}>Settings</Text>
-                </View>
-            </View>
-            <TouchableOpacity
-                style={{
-                    paddingVertical: 10,
-                    paddingHorizontal: 5,
-                }}
-                onPress={() => {
-                    handleOptionActions();
-                }}>
-                <View style={[styles.optionBox]}>
-                    <Text style={[styles.optiontext, { color: COLORS.black }]}>Choose Site</Text>
-                    <Icon name="arrow-drop-down" size={25} color={COLORS.black} />
-                </View>
-            </TouchableOpacity>
-            {Boolean(showSiteList) && (
-                <View style={styles.siteListContainer}>
-                    <TouchableOpacity style={styles.siteBox} activeOpacity={1}>
-                        <Avatar.Text
-                            size={40}
-                            label={getAvatarInitials(`${sites?.selectedSite?.FullName || ''}`)}
-                            maxFontSizeMultiplier={1}
-                            style={{ backgroundColor: COLORS.apptheme }}
-                            color={COLORS.white}
-                            labelStyle={{ fontFamily: 'OpenSans-Bold', fontSize: 15 }}
-                        />
-                        <Text style={[styles.siteText, { color: COLORS.apptheme }]}>{sites?.selectedSite?.SiteName}</Text>
-                    </TouchableOpacity>
-                    {siteList.length > 5 && (
-                        <InputWithSearch
-                            onSearch={val => {
-                                setSearchText(val);
-                                if (!val?.length) {
-                                    handleSearch('');
-                                }
-                            }}
-                            searchValue={searchText}
-                        />
-                    )}
-                    {Boolean(filteredSite?.length) ? (
-                        <FlatList
-                            data={filteredSite}
-                            renderItem={renderSites}
-                            keyExtractor={(item, index) => index.toString()}
-                            nestedScrollEnabled
-                            showsVerticalScrollIndicator={false}
-                        />
-                    ) : (
-                        <View style={{ justifyContent: 'center', alignItems: 'center', height: 200 }}>
-                            <NoDataFound />
-                        </View>
-                    )}
-                </View>
-            )}
-            <TouchableOpacity
-                style={{
-                    borderTopWidth: 1,
-                    borderTopColor: COLORS.lightGrey,
-                    paddingVertical: 10,
-                    paddingHorizontal: 5,
-                }}
-                onPress={() => {
-                    setShowLogoutModal(true);
-                }}>
-                <View style={[styles.optionBox]}>
-                    <Text style={[styles.optiontext, { color: COLORS.apptheme }]}>Logout</Text>
-                    <Icon name="logout" size={25} color={COLORS.apptheme} />
-                </View>
-            </TouchableOpacity>
-            {Boolean(showLogoutModal) && (
-                <Modal
-                    visible={showLogoutModal}
-                    onDismiss={() => {
-                        handleClose();
-                    }}
-                    contentContainerStyle={[styles.modalConatiner]}
-                    style={{ backgroundColor: 'transparent' }}>
-                    <View style={[styles.modalcontainer]}>
-                        <Text style={[styles.deleteHeader]}>Logout</Text>
-                        <View style={[styles.contentContainer]}>
-                            <Divider />
-                            <Text style={[styles.contentText]}>Are you sure you want to log out? </Text>
-                        </View>
-                        <View style={[styles.btnStyle]}>
-                            <ButtonComponent
-                                style={{ height: 30, width: 100, marginRight: 10 }}
-                                onPress={() => {
-                                    handleClose();
-                                }}
-                                textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}>
-                                No
-                            </ButtonComponent>
-                            <ButtonComponent
-                                style={{ height: 30, width: 100 }}
-                                onPress={() => {
-                                    handleLogoutCall();
-                                }}
-                                textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}>
-                                Yes
-                            </ButtonComponent>
-                        </View>
+        <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
+            <KeyboardAvoidingView style={styles.container}>
+                <View style={styles.headerBox}>
+                    <View style={styles.iconBox}>
+                        <TouchableOpacity onPress={() => navigation.goBack()}>
+                            <Icon name="keyboard-backspace" size={30} color={COLORS.apptheme} />
+                        </TouchableOpacity>
                     </View>
-                </Modal>
-            )}
-            {Boolean(showLoader) && (
-                <Modal
-                    transparent={true}
-                    animationType={'none'}
-                    visible={showLoader}
-                    onRequestClose={() => {
-                        console.log('close modal');
+                    <View style={styles.headerTextBox}>
+                        <Text style={styles.htext}>Settings</Text>
+                    </View>
+                </View>
+                <TouchableOpacity
+                    style={{
+                        paddingVertical: 10,
+                        paddingHorizontal: 5,
                     }}
-                    contentContainerStyle={{
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        flex: 1,
-                        height: '100%',
+                    onPress={() => {
+                        handleOptionActions();
                     }}>
-                    <Bubbles size={10} color="#12C0CF" />
-                </Modal>
-            )}
-        </KeyboardAvoidingView>
+                    <View style={[styles.optionBox]}>
+                        <Text style={[styles.optiontext, { color: COLORS.black }]}>Choose Site</Text>
+                        <Icon name="arrow-drop-down" size={25} color={COLORS.black} />
+                    </View>
+                </TouchableOpacity>
+                {Boolean(showSiteList) && (
+                    <View style={styles.siteListContainer}>
+                        <TouchableOpacity style={styles.siteBox} activeOpacity={1}>
+                            <Avatar.Text
+                                size={40}
+                                label={getAvatarInitials(`${sites?.selectedSite?.FullName || ''}`)}
+                                maxFontSizeMultiplier={1}
+                                style={{ backgroundColor: COLORS.apptheme }}
+                                color={COLORS.white}
+                                labelStyle={{ fontFamily: 'OpenSans-Bold', fontSize: 15 }}
+                            />
+                            <Text style={[styles.siteText, { color: COLORS.apptheme }]}>{sites?.selectedSite?.SiteName}</Text>
+                        </TouchableOpacity>
+                        {siteList.length > 5 && (
+                            <InputWithSearch
+                                onSearch={val => {
+                                    setSearchText(val);
+                                    if (!val?.length) {
+                                        handleSearch('');
+                                    }
+                                }}
+                                searchValue={searchText}
+                            />
+                        )}
+                        {Boolean(filteredSite?.length) ? (
+                            <FlatList
+                                data={filteredSite}
+                                renderItem={renderSites}
+                                keyExtractor={(item, index) => index.toString()}
+                                nestedScrollEnabled
+                                showsVerticalScrollIndicator={false}
+                            />
+                        ) : (
+                            <View style={{ justifyContent: 'center', alignItems: 'center', height: 200 }}>
+                                <NoDataFound />
+                            </View>
+                        )}
+                    </View>
+                )}
+                <TouchableOpacity
+                    style={{
+                        borderTopWidth: 1,
+                        borderTopColor: COLORS.lightGrey,
+                        paddingVertical: 10,
+                        paddingHorizontal: 5,
+                    }}
+                    onPress={() => {
+                        setShowLogoutModal(true);
+                    }}>
+                    <View style={[styles.optionBox]}>
+                        <Text style={[styles.optiontext, { color: COLORS.apptheme }]}>Logout</Text>
+                        <Icon name="logout" size={25} color={COLORS.apptheme} />
+                    </View>
+                </TouchableOpacity>
+                {Boolean(showLogoutModal) && (
+                    <Modal
+                        visible={showLogoutModal}
+                        onDismiss={() => {
+                            handleClose();
+                        }}
+                        contentContainerStyle={[styles.modalConatiner]}
+                        style={{ backgroundColor: 'transparent' }}>
+                        <View style={[styles.modalcontainer]}>
+                            <Text style={[styles.deleteHeader]}>Logout</Text>
+                            <View style={[styles.contentContainer]}>
+                                <Divider />
+                                <Text style={[styles.contentText]}>Are you sure you want to log out? </Text>
+                            </View>
+                            <View style={[styles.btnStyle]}>
+                                <ButtonComponent
+                                    danger={true}
+                                    style={{ height: 30, width: 100, marginRight: 10 }}
+                                    onPress={() => {
+                                        handleClose();
+                                    }}
+                                    textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}>
+                                    No
+                                </ButtonComponent>
+                                <ButtonComponent
+                                    success={true}
+                                    style={{ height: 30, width: 100 }}
+                                    onPress={() => {
+                                        handleLogoutCall();
+                                    }}
+                                    textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}>
+                                    Yes
+                                </ButtonComponent>
+                            </View>
+                        </View>
+                    </Modal>
+                )}
+                {Boolean(showLoader) && (
+                    <Modal
+                        transparent={true}
+                        animationType={'none'}
+                        visible={showLoader}
+                        onRequestClose={() => {
+                            console.log('close modal');
+                        }}
+                        contentContainerStyle={{
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            flex: 1,
+                            height: '100%',
+                        }}>
+                        <Bubbles size={10} color="#12C0CF" />
+                    </Modal>
+                )}
+            </KeyboardAvoidingView>
+        </SafeAreaView>
     );
 };
 const styles = StyleSheet.create({
