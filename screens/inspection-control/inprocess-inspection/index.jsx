@@ -67,6 +67,7 @@ const InprocessInspection = ({ route }) => {
         CLowValue: '',
         CSampleSize: '',
         CTolerance: '',
+        charInfo: [],
     });
     const [finalConfirmation, setFinalConfirmation] = useState(false);
     const [showFileModal, setShowFileModal] = useState(false);
@@ -470,7 +471,9 @@ const InprocessInspection = ({ route }) => {
                 // });
                 // setUserUpdateValue(pre => ({ ...pre, CSampleSize: selectedData.CSampleSize.toString() }));
             } else {
-                setSelectedData(pre => ({ ...pre, CSampleSize: userUpdateValue.CSampleSize }));
+                let temp = JSON.parse(JSON.stringify(userUpdateValue.charInfo));
+                let updatedtemp = temp.map(item => (item.PropertyName === 'CSampleSize' ? { ...item, Value: userUpdateValue.CSampleSize } : item));
+                setSelectedData(pre => ({ ...pre, CSampleSize: userUpdateValue.CSampleSize, charInfo: updatedtemp }));
                 setShowConfirmModal(false);
                 setTypeOfModal('');
             }
@@ -488,15 +491,21 @@ const InprocessInspection = ({ route }) => {
                     position: 'right',
                     style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
                 });
-                setUserUpdateValue(pre => ({ ...pre, CHighValue: selectedData.CHighValue.toString() }));
+                let temp = JSON.parse(JSON.stringify(userUpdateValue.charInfo));
+                let updatedtemp = temp.map(item => (item.PropertyName === 'CHighValue' ? { ...item, Value: selectedData.CHighValue.toString() } : item));
+                setUserUpdateValue(pre => ({ ...pre, CHighValue: selectedData.CHighValue.toString(), charInfo: updatedtemp }));
             } else {
-                setSelectedData(pre => ({ ...pre, CHighValue: userUpdateValue.CHighValue }));
+                let temp = JSON.parse(JSON.stringify(userUpdateValue.charInfo));
+                let updatedtemp = temp.map(item => (item.PropertyName === 'CHighValue' ? { ...item, Value: userUpdateValue.CHighValue } : item));
+                setSelectedData(pre => ({ ...pre, CHighValue: userUpdateValue.CHighValue, charInfo: updatedtemp }));
                 setShowConfirmModal(false);
                 setTypeOfModal('');
             }
         } else if (typeOfModal == 'lowvalue') {
             if (Number(selectedData.CHighValue) >= Number(userUpdateValue.CLowValue)) {
-                setSelectedData(pre => ({ ...pre, CLowValue: userUpdateValue.CLowValue }));
+                let temp = JSON.parse(JSON.stringify(userUpdateValue.charInfo));
+                let updatedtemp = temp.map(item => (item.PropertyName === 'CLowValue' ? { ...item, Value: userUpdateValue.CLowValue } : item));
+                setSelectedData(pre => ({ ...pre, CLowValue: userUpdateValue.CLowValue, charInfo: updatedtemp }));
                 setShowConfirmModal(false);
                 setTypeOfModal('');
             } else {
@@ -512,10 +521,14 @@ const InprocessInspection = ({ route }) => {
                     position: 'right',
                     style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
                 });
-                setUserUpdateValue(pre => ({ ...pre, CLowValue: selectedData.CLowValue.toString() }));
+                let temp = JSON.parse(JSON.stringify(userUpdateValue.charInfo));
+                let updatedtemp = temp.map(item => (item.PropertyName === 'CLowValue' ? { ...item, Value: selectedData.CLowValue.toString() } : item));
+                setUserUpdateValue(pre => ({ ...pre, CLowValue: selectedData.CLowValue.toString(), charInfo: updatedtemp }));
             }
         } else if (typeOfModal == 'spec') {
-            setSelectedData(pre => ({ ...pre, CTolerance: userUpdateValue.CTolerance }));
+            let temp = JSON.parse(JSON.stringify(userUpdateValue.charInfo));
+            let updatedtemp = temp.map(item => (item.PropertyName === 'CTolerance' ? { ...item, Value: userUpdateValue.CTolerance } : item));
+            setSelectedData(pre => ({ ...pre, CTolerance: userUpdateValue.CTolerance, charInfo: updatedtemp }));
             setShowConfirmModal(false);
             setTypeOfModal('');
         }
@@ -748,9 +761,11 @@ const InprocessInspection = ({ route }) => {
                             CHighValue: selectedData.CHighValue,
                             CLowValue: selectedData.CLowValue,
                             CTolerance: selectedData.CTolerance,
+                            charInfo: selectedData.charInfo,
                         }));
                         setShowConfirmModal(false);
                         setTypeOfModal('');
+                        // setSelectedData((pre) => ({ ...pre, CSampleSize: userUpdateValue.CSampleSize }));
                     }}
                     handleYesPress={() => {
                         handleConfirmYesPress();
@@ -777,6 +792,7 @@ const InprocessInspection = ({ route }) => {
                             CHighValue: selectedData.CHighValue,
                             CLowValue: selectedData.CLowValue,
                             CTolerance: selectedData.CTolerance,
+                            charInfo: selectedData.charInfo,
                         }));
                         setFinalConfirmation(false);
                         setTypeOfModal('');
@@ -810,6 +826,7 @@ const InprocessInspection = ({ route }) => {
                             CHighValue: selectedData.CHighValue,
                             CLowValue: selectedData.CLowValue,
                             CTolerance: selectedData.CTolerance,
+                            charInfo: selectedData.charInfo,
                         }));
                         setFinalConfirmation(false);
                         setTypeOfModal('');

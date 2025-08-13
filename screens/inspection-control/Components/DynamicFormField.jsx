@@ -93,9 +93,11 @@ const DynamicFormField = ({
                 </View>
             );
         case 'filepicker':
+        case 'File':
             return (
                 <View style={{ marginTop: 8 }}>
                     <InputFilePicker
+                        maxLimit={1}
                         ListData={value || []}
                         isEditable={isEditable}
                         title={title}

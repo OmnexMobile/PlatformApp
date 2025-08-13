@@ -131,13 +131,13 @@ const OfflineFileViewModal = ({ list = [], visible = false, onDismiss = () => {}
                     }}>
                     <IconF name="eye" size={25} color={COLORS.grey} />
                 </TouchableOpacity>
-                {/* <TouchableOpacity
+                <TouchableOpacity
                     style={{ marginLeft: 10 }}
                     onPress={async () => {
                         await requestPermsion(item);
                     }}>
                     <IconF name="download" size={25} color={COLORS.grey} />
-                </TouchableOpacity> */}
+                </TouchableOpacity>
             </View>
         );
     };

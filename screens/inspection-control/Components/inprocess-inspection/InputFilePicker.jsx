@@ -1,7 +1,7 @@
 import { ButtonComponent } from 'components';
 import { COLORS } from 'constants/theme-constants';
 import { RFPercentage } from 'helpers/utils';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 import { Alert, FlatList, KeyboardAvoidingView, Modal, Platform, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 // import { Modal } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/AntDesign';
@@ -15,10 +15,11 @@ import NoDataFound from '../NoDataFound';
 import { showMessage } from 'react-native-flash-message';
 import CameraScreen from './CameraScreen';
 
-const InputFilePicker = ({ ListData = [], isEditable = false, title = '', handleInputChange = () => {} }) => {
+const InputFilePicker = ({ ListData = [], maxLimit = 10, isEditable = false, title = '', handleInputChange = () => {} }) => {
     const [fileList, setFileList] = useState([]);
     const [visible, setVisible] = useState(false);
     const [showCamer, setShowCamer] = useState(false);
+    const [disableBtn, setDisableBtn] = useState(false);
     useEffect(() => {
         if (ListData?.length) {
             setFileList(ListData);
@@ -26,7 +27,13 @@ const InputFilePicker = ({ ListData = [], isEditable = false, title = '', handle
             setFileList([]);
         }
     }, [ListData]);
-
+    useLayoutEffect(()=>{
+        if(fileList?.length >= maxLimit){
+            setDisableBtn(true)
+        }else{
+            setDisableBtn(false)
+        }
+    },[fileList,maxLimit])
     const handlePickFile = async () => {
         try {
             const response = await DocumentPicker.pick({
@@ -44,29 +51,10 @@ const InputFilePicker = ({ ListData = [], isEditable = false, title = '', handle
                 setFileList([...fileList, file]);
                 // setSelectedData({ ...selectedData, fileList: [...fileList, file] });
             } else {
-                showMessage({
-                    message: 'File size exceeds 5MB limit.',
-                    backgroundColor: COLORS.ERROR,
-                    color: COLORS.white,
-                    duration: 1500,
-                    statusBarHeight: 40,
-                    icon: 'danger',
-                    position: 'right',
-                    style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
-                });
+                Alert.alert('Error', 'File size exceeds 5MB limit.');
             }
         } catch (err) {
             Alert.alert('Error', `${err}`);
-            showMessage({
-                message: `${err}`,
-                backgroundColor: COLORS.ERROR,
-                color: COLORS.white,
-                duration: 1500,
-                statusBarHeight: 40,
-                icon: 'danger',
-                position: 'right',
-                style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
-            });
         }
     };
     const openBase64File = async (base64String, fileType, name) => {
@@ -194,6 +182,7 @@ const InputFilePicker = ({ ListData = [], isEditable = false, title = '', handle
                             <View style={[styles.btnContainer]}>
                                 <View style={[styles.btnBox]}>
                                     <ButtonComponent
+                                        disabled={disableBtn}
                                         textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}
                                         style={{ height: 40, width: '48%' }}
                                         onPress={() => {
@@ -202,6 +191,7 @@ const InputFilePicker = ({ ListData = [], isEditable = false, title = '', handle
                                         Camera
                                     </ButtonComponent>
                                     <ButtonComponent
+                                        disabled={disableBtn}
                                         textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}
                                         style={{ height: 40, width: '48%' }}
                                         onPress={handlePickFile}>
