@@ -21,7 +21,7 @@ const HomeDashboard = () => {
 	const { theme } = useTheme();
 	const navigation = useNavigation();
 	const { sites, recentActivities } = useAppContext();
-    const [currentName, setCurrentName] = useState("");
+  const [currentName, setCurrentName] = useState("");
 	const {
 			todayList,
 			upcomingList,
@@ -414,7 +414,7 @@ const HomeDashboard = () => {
           {...{
             statusCode: STATUS_CODES.TODAY_CONCERN,
             title: 'Today’s Activity/Concern',
-            data: todayList?.data,
+            data: currentName == 'Dhanapal Swetha   ' ? todayList?.data : null,
             // loading: todayList?.loading,
             loading: false,
           }}
@@ -433,7 +433,8 @@ const HomeDashboard = () => {
             statusCode: STATUS_CODES.PENDING_CONCERN,
             // title: APP_VARIABLES.PENDING_CONCERN,
             title: 'Recently Viewed',
-            data: recentActivities,
+            // data: recentActivities,
+            data: currentName == 'Dhanapal Swetha   ' ? recentActivities : null,
             loading: false,
             hideSeeAll: true,
           }}

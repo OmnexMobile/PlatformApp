@@ -34,14 +34,14 @@ const HomeListCard = ({ item = {} }) => {
                 activeOpacity={1}
                 onPress={() => handleClickCard?.(item)}
                 style={[
-                                    {
-                                        padding: SPACING.NORMAL,
-                                        borderRadius: SPACING.SMALL,
-                                        padding: SPACING.NORMAL,
-                                        marginBottom: SPACING.NORMAL,
-                                        marginTop: SPACING.X_SMALL,
-                                    },
-                                    elevation,
+                    {
+                        padding: SPACING.NORMAL,
+                        borderRadius: SPACING.SMALL,
+                        padding: SPACING.NORMAL,
+                        marginBottom: SPACING.NORMAL,
+                        marginTop: SPACING.X_SMALL,
+                    },
+                    elevation,
                 ]}>
                 {sites?.selectedSite?.UserType !== USER_TYPE.SUPPLIER && (
                 <>  
