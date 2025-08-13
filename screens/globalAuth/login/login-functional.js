@@ -58,8 +58,8 @@ const LoginFunctional = ({}) => {
 		});
 	};
 
-	console.log('!!globalURL?.serverUrl--->', !!globalURL?.serverUrl, '--', globalURL?.serverUrl, '--globalLoginData', globalLoginData)
-	console.log('sites---->get', sites)
+	// console.log('!!globalURL?.serverUrl--->', !!globalURL?.serverUrl, '--', globalURL?.serverUrl, '--globalLoginData', globalLoginData)
+	// console.log('sites---->get', sites)
 
 	const handleSubmit = async () => {
 		const loginflag = 1;
@@ -87,18 +87,11 @@ const LoginFunctional = ({}) => {
 
 	const handleServerURL = (currentData) => {
 		console.log('loginDetails?.username---->', loginDetails?.username, currentData?.Data[0], typeof currentData?.Data[0].FullName)
-		var currentUser = ''
-		if(currentData?.Data[0].FullName == "Chandran Bragi  "){
-			currentUser = 'Chandran Bragi';
-		} else {
-			currentUser = currentData?.Data[0].FullName;
-		}
-		console.log('username--->', currentUser)
 		const userDetails = {
 			userId: currentData?.Data[0]?.UserId.toString(),
 			siteId: currentData?.Data[0]?.Siteid,
 			accessToken: currentData?.Token,
-			userFullName: currentUser,
+			userFullName: currentData?.Data[0].FullName,
 			smAccess: currentData?.Data[0]?.SupplierManagementAccess,
 			message: currentData?.Message,
 			success: currentData?.Success,
@@ -108,11 +101,7 @@ const LoginFunctional = ({}) => {
 		  const stringifiedUserDetails = JSON.stringify(userDetails);
 		  AsyncStorage.setItem('userDetails', stringifiedUserDetails);
 		  console.log('Set Async userDetails ', stringifiedUserDetails)
-
-		
-		// 	localStorage.storeData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL, globalDeviceDetails?.deviceDetails?.PSApiURL);
-		// 	handleGlobalURL('serverUrl', globalDeviceDetails?.deviceDetails?.PSApiURL)
-		localStorage.storeData('appLogged', true);
+		  localStorage.storeData('appLogged', true);
 	}
 
 	const handleLoginCall = async (encryptedPassword, loginflag, isSso) => { 

@@ -20,7 +20,7 @@ const SplashScreenFunctional = ({}) => {
                 index: 0,
                 // routes: [{ name: profile?.Token ? ROUTES.HOME : profile?.CurrentApp == 'problemSolver' ? ROUTES.LOGIN_PS : ROUTES.LOGIN }],
                 // routes: [{ name: profile?.Token ? ROUTES.HOME_PS : ROUTES.LOGIN_PS }],
-                routes: [{ name: profile?.Token ? ROUTES.HOME_PS : ROUTES.GLOBAL_LOGIN }],
+                routes: [{ name: profile?.Token ? ROUTES.GLOBAL_DASHBOARD : ROUTES.GLOBAL_LOGIN }],
             });
     }, [loading]);
 

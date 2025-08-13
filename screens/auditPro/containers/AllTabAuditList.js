@@ -1101,6 +1101,7 @@ class AllTabAuditList extends Component {
         var userId = this.props.data.audits.userId;
         var siteId = this.props.data.audits.siteId;
         var filterId = this.state.filterId;
+        console.log('getAuditlist -->filterId123', filterId);
         var pageSize = 10;
         var GlobalFilter = this.state.AuditSearch;
         // var StartDate = (startDate == undefined) ? '' : startDate
@@ -1125,7 +1126,8 @@ class AllTabAuditList extends Component {
           SortBy,
           SortOrder,
           SM,
-          Default,
+          // Default,
+          1,
           (response, data) => {
             console.log('Filter data', data);
             if (data.data.Message === 'Success') {
@@ -1522,6 +1524,7 @@ class AllTabAuditList extends Component {
         var userId = this.props.data.audits.userId;
         var siteId = this.props.data.audits.siteId;
         var filterId = this.state.filterId;
+        console.log('getAuditlist -->filterId123', filterId);
         var pageSize = 10;
         var GlobalFilter = this.state.AuditSearch;
         var StartDate = startDate == undefined ? '' : startDate;
@@ -1560,7 +1563,8 @@ class AllTabAuditList extends Component {
           SortBy,
           SortOrder,
           SM,
-          Default,
+          // Default,
+          1,
           (response, data) => {
             console.log('AuditList list data', data);
 

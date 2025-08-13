@@ -87,6 +87,28 @@ class AuditDashboardListing extends Component {
       currentLoginDetails: null,
       projectData: null,
       currentUserData: null,
+      token: '',
+      userId: '',
+      siteId: '',
+      AuditSearch: '',
+      SortBy: '',
+      SortOrder: '',
+      loading: true,
+      noaudits: 0,
+      showMyAllAudits: false,
+      notifybadge: [],
+      ShowNotifyBadge: 0,
+      filterId: '',
+      scheduled: '',
+      completed: '',
+      deadlineviolated: '',
+      deadlineviolatedandcompleted: '',
+      isMounted: false,
+      isPageEmpty: false,
+      isRefreshing: false,
+      isLazyLoading: false,
+      isLazyLoadingRequired: true,
+      default: 0, //todays activity
     };
   }
 
@@ -107,18 +129,437 @@ class AuditDashboardListing extends Component {
         this.setState({});
       });
     }
-    this.focusListener = this.props.navigation.addListener('focus', () => {
+    this.focusListener = this.props.navigation.addListener('focus', async() => {
       console.log('AuditDashboardListing focused');
       // this.checkUser();
-      this.loginCall()
-      this.getAudits();
-    });
-    // this.getAudits()
+      await this.loginCall()
+      await this.getAudits();
+
+      await this.getAuditLists();
+      await this.getAuditStatusDetails();
+      await this.getAuditlist();
+    })
   }
 
   componentWillUnmount() {
     this.focusListener();
   }
+
+  async getAuditLists() { 
+    await this.getUserDetails()
+    var pageNo = 1;
+    var token = this.props?.data?.audits?.token || this.state.currentUserData?.accessToken;
+    var userId = this.props?.data?.audits?.userId || this.state.currentUserData?.userId;
+    var siteId = this.props?.data?.audits?.siteId  || this.state.currentUserData?.siteId;
+    var filterId = this.state.filterId;
+    var pageSize = 10;
+    var GlobalFilter = this.state.AuditSearch === undefined ? '' : this.state.AuditSearch;
+    var StartDate = '';
+    var EndDate = '';
+    var SortBy = this.state.SortBy;
+    var SortOrder = this.state.SortOrder;
+    var SM = this.props?.data?.audits?.smdata;
+    console.log('reach here 001',
+          token,
+          userId,
+          siteId,
+          pageNo,
+          pageSize,
+          filterId,
+          GlobalFilter,
+          StartDate,
+          EndDate,
+          SortBy,
+          SortOrder,
+          SM,
+          1,
+    )
+    NetInfo.fetch().then(netState => {
+      this.setState({
+        loading: true,
+      });
+      if (netState.isConnected) {
+        auth.getauditlist(
+          token,
+          userId,
+          siteId,
+          pageNo,
+          pageSize,
+          filterId,
+          GlobalFilter,
+          StartDate,
+          EndDate,
+          SortBy,
+          SortOrder,
+          SM,
+          1,
+          (response, data) => {
+            console.log('getauditlist count --->:' + data);
+            if (data.data) {
+              if (data.data.Message === 'Success') {
+                var data = data.data.Data[0].AuditCount;
+                console.log('Notification data', data);
+                this.setState({noaudits: data, showMyAllAudits: true});
+                /** inital request will be skipped so we have data and we request the notifications */
+                this.getNotifications();
+              } else {
+                this.setState({noaudits: 0, showMyAllAudits: true});
+              }
+            }
+          },
+        );
+      }
+    });
+  }
+
+  getNotifications() {
+    console.log('this.props.notifications', this.props?.notifications);
+    const {token, userId} = this.props?.data?.audits;
+    const siteId = this.props?.data?.audits?.siteId;
+    const {noaudits} = this.state;
+    const {auditCount, dynamicAuditCount} = this.props?.notifications;
+    console.log('reach here 0011',
+      auditCount,
+      token,
+      userId,
+      siteId,
+    )
+    /** First request skipped because we have initially zero */
+    auth.getAuditNotification(
+      auditCount,
+      token,
+      userId,
+      siteId,
+      (response, data) => {
+        console.log('------------------------------');
+        console.log('Audit notifications data', data);
+        console.log('------------------------------');
+        if (data?.data) {
+          if (data?.data?.Message == 'Success') {
+            var auditList = [];
+            var auditListProps = this.props?.data?.audits?.audits;
+
+            for (var i = 0; i < data?.data?.Data?.length; i++) {
+              var auditInfo = data?.data?.Data[i];
+              auditInfo['color'] = '#1081de';
+              auditInfo['cStatus'] = constant.StatusScheduled;
+              auditInfo['key'] = this.keyVal + 1;
+
+              // Set Audit Status
+              if (auditInfo.AuditStatus == 3 && (auditInfo.CloseOutStatus == "7" || auditInfo.CloseOutStatus === "9")) {
+                auditInfo['cStatus'] = constant.StatusCompleted;
+              }else if (auditInfo.AuditStatus == 3 && auditInfo.CloseOutStatus != "7" && auditInfo.CloseOutStatus != "9") {
+                auditInfo['cStatus'] = constant.Completed;
+              } 
+                else if (
+                data?.data?.Data[i].AuditStatus == 2 &&
+                data?.data?.Data[i].PerformStarted == 0
+              ) {
+                auditInfo['cStatus'] = constant.StatusScheduled;
+              } else if (
+                data?.data?.Data[i].AuditStatus == 2 &&
+                data?.data?.Data[i].PerformStarted == 1
+              ) {
+                auditInfo['cStatus'] = constant.StatusProcessing;
+              } else if (data?.data?.Data[i].AuditStatus == 4) {
+                auditInfo['cStatus'] = constant.StatusDV;
+              } else if (data?.data?.Data[i].AuditStatus == 5) {
+                auditInfo['cStatus'] = constant.StatusDVC;
+              }
+
+              for (var j = 0; j < auditListProps.length; j++) {
+                if (
+                  parseInt(auditListProps[j].ActualAuditId) ==
+                  parseInt(data?.data?.Data[i].ActualAuditId)
+                ) {
+                  // Update Audit Status
+                  if (
+                    auditListProps[j].cStatus == constant.StatusDownloaded ||
+                    auditListProps[j].cStatus == constant.StatusNotSynced ||
+                    auditListProps[j].cStatus == constant.StatusSynced
+                  ) {
+                    auditInfo['cStatus'] = auditListProps[j].cStatus;
+                  }
+                  break;
+                }
+              }
+
+              // Set Audit Card color by checking its Status
+              switch (auditInfo['cStatus']) {
+                case constant.StatusScheduled:
+                  auditInfo['color'] = '#1081de';
+                  break;
+                case constant.StatusDownloaded:
+                  auditInfo['color'] = '#cd8cff';
+                  break;
+                case constant.StatusNotSynced:
+                  auditInfo['color'] = '#2ec3c7';
+                  break;
+                case constant.StatusProcessing:
+                  auditInfo['color'] = '#e88316';
+                  break;
+                case constant.StatusSynced:
+                  auditInfo['color'] = '#48bcf7';
+                  break;
+                case constant.Completed:
+                  auditInfo['color'] = 'green';
+                  break;
+                case constant.StatusCompleted:
+                  auditInfo['color'] = '#000';
+                  break;
+                case constant.StatusDV:
+                  auditInfo['color'] = 'red';
+                  break;
+                case constant.StatusDVC:
+                  auditInfo['color'] = 'green';
+                  break;
+                default:
+                  auditInfo['color'] = '#1081de';
+                  break;
+              }
+
+              auditList.push(auditInfo);
+              this.keyVal = this.keyVal + 1;
+            }           
+
+            let bufferList = Array.from(new Set(auditList));
+            
+            if (dynamicAuditCount == noaudits) {
+              console.log('no new notification');
+              this.setState({ShowNotifyBadge: 0});
+            } else {
+              let badge = noaudits - dynamicAuditCount;
+              console.log('badge', badge);
+              this.setState({ShowNotifyBadge: badge});
+            }
+            this.setState({notifybadge: bufferList});
+          } else {
+            this.setState({ShowNotifyBadge: 0, notifybadge: []});
+          }
+        } else {
+          this.setState({ShowNotifyBadge: 0, notifybadge: []});
+        }
+      },
+    );
+  }
+  
+  async getAuditStatusDetails() {
+    await this.getUserDetails()
+    this.setState({
+      loading: true,
+    });
+    console.log('getAuditStatusDetails--->', this.state.token, this.state.currentUserData?.userId, this.state.currentUserData?.siteId, this.props.data.audits)
+    auth.getStat(
+      this.props?.data?.audits?.token || this.state.currentUserData?.accessToken,
+      this.props?.data?.audits?.userId || this.state.currentUserData?.userId,
+      this.props?.data?.audits?.siteId || this.state.currentUserData?.siteId,
+      this.props?.data?.audits?.smdata,
+      (response, data) => {
+        if (data.data) {
+          this.props.storeAuditStats(
+            data?.data?.Data?.Scheduled,
+            data?.data?.Data?.Completed,
+            data?.data?.Data?.DeadlineViolated,
+            data?.data?.Data?.CompletedDeadlineViolated,
+          );
+          this.setState(
+            {
+              scheduled: data?.data?.Data?.Scheduled,
+              completed: data?.data?.Data?.Completed,
+              deadlineviolated: data?.data?.Data?.DeadlineViolated,
+              deadlineviolatedandcompleted:
+                data?.data?.Data?.CompletedDeadlineViolated,
+              isInitialLoad: false,
+              isLoading: false,
+              loading: false,
+            },
+            () => {
+              this.isInitialLoad = false;
+            },
+          );
+        } else {
+          this.props.storeAuditStats(0, 0, 0, 0);
+          this.setState(
+            {
+              scheduled: 0,
+              completed: 0,
+              deadlineviolated: 0,
+              deadlineviolatedandcompleted: 0,
+              isInitialLoad: false,
+              isLoading: false,
+              loading: false,
+            },
+            () => {
+              // console.log('this.state.completed',this.state.completed)
+              // console.log('this.state.inprogress',this.state.inprogress)
+              // console.log('this.state.scheduled',this.state.scheduled)
+              this.isInitialLoad = false;
+            },
+          );
+        }
+      },
+    );
+  }
+
+  getAuditlist = (startDate, endDate) => {
+    this.setState({
+      loading: true,
+    });
+    if (this.props?.data?.audits?.isOfflineMode) {
+      // this.refs.toast.show(strings.Audit_List_Failed, DURATION.LENGTH_LONG)
+      this.setState({
+        auditList: this.props?.data?.audits?.audits,
+        auditListAll: this.props?.data?.audits?.audits,
+        loading: false,
+        isRefreshing: false,
+        isLazyLoading: false,
+        isLazyLoadingRequired: false,
+        isPageEmpty: false,
+        isMounted: true,
+      });
+    }
+    NetInfo.fetch().then(netState => {
+      if (netState.isConnected) {
+        console.log('getAuditlist ------>')
+        var pageNo = 1;
+        var token = this.props?.data?.audits?.token || this.state.currentUserData?.accessToken;
+        var userId = this.props?.data?.audits?.userId || this.state.currentUserData?.userId;
+        var siteId = this.props?.data?.audits?.siteId  || this.state.currentUserData?.siteId;
+        var filterId = this.state.filterId;
+        var pageSize = 10;
+        var GlobalFilter = this.state.AuditSearch === undefined ? '' : this.state.AuditSearch;
+        var StartDate = startDate == undefined ? '' : startDate;
+        var EndDate = endDate == undefined ? '' : endDate;
+        var SortBy = this.state.SortBy;
+        var SortOrder = this.state.SortOrder;
+        var SM = this.props?.data?.audits?.smdata;
+        var Default = this.state.default;
+
+        auth.getauditlist(
+          token,
+          userId,
+          siteId,
+          pageNo,
+          pageSize,
+          filterId,
+          GlobalFilter,
+          StartDate,
+          EndDate,
+          SortBy,
+          SortOrder,
+          SM,
+          Default,
+          (response, data) => {
+            console.log('AuditList todaysactivity data', data);
+            if (data.data) {
+              if (data.data.Message === 'Success') {
+                var auditList = [];
+                var auditListProps = this.props?.data?.audits?.audits;
+                console.log(
+                  this.props?.data?.audits?.audits,
+                  '=========Au=========',
+                );
+                for (var i = 0; i < data?.data?.Data?.length; i++) {
+                  var auditInfo = data?.data?.Data[i];
+                  auditInfo['color'] = '#1081de';
+                  auditInfo['cStatus'] = constant.StatusScheduled;
+                  auditInfo['key'] = this.keyVal + 1;
+
+                  // Set Audit Status
+                  if (auditInfo.AuditStatus == 3 && (auditInfo.CloseOutStatus === "7" || auditInfo.CloseOutStatus === "9")) {
+                    auditInfo['cStatus'] = constant.StatusCompleted;
+                  } 
+                  else if (data.data.Data[i].AuditStatus == 3 && auditInfo.CloseOutStatus != "7" && auditInfo.CloseOutStatus != "9") {
+                    auditInfo['cStatus'] = constant.Completed;
+                  } else if (
+                    data?.data?.Data[i].AuditStatus == 2 &&
+                    data?.data?.Data[i].PerformStarted == 0
+                  ) {
+                    auditInfo['cStatus'] = constant.StatusScheduled;
+                  } else if (
+                    data?.data?.Data[i].AuditStatus == 2 &&
+                    data?.data?.Data[i].PerformStarted == 1
+                  ) {
+                    auditInfo['cStatus'] = constant.StatusProcessing;
+                  } else if (data?.data?.Data[i].AuditStatus == 4) {
+                    auditInfo['cStatus'] = constant.StatusDV;
+                  } else if (data?.data?.Data[i].AuditStatus == 5) {
+                    auditInfo['cStatus'] = constant.StatusDVC;
+                  }
+
+                  for (var j = 0; j < auditListProps.length; j++) {
+                    console.log('auditListProps', auditListProps);
+                    if (
+                      parseInt(auditListProps[j].ActualAuditId) ==
+                      parseInt(data?.data?.Data[i].ActualAuditId)
+                    ) {
+                      // Update Audit Status
+                      if (
+                        auditListProps[j].cStatus ==
+                          constant.StatusDownloaded ||
+                        auditListProps[j].cStatus == constant.StatusNotSynced ||
+                        auditListProps[j].cStatus == constant.StatusSynced
+                      ) {
+                        auditInfo['cStatus'] = auditListProps[j].cStatus;
+                      }
+                      break;
+                    }
+                  }
+
+                  // Set Audit Card color by checking its Status
+                  switch (auditInfo['cStatus']) {
+                    case constant.StatusScheduled:
+                      auditInfo['color'] = '#1081de';
+                      break;
+                    case constant.StatusDownloaded:
+                      auditInfo['color'] = '#cd8cff';
+                      break;
+                    case constant.StatusNotSynced:
+                      auditInfo['color'] = '#2ec3c7';
+                      break;
+                    case constant.StatusProcessing:
+                      auditInfo['color'] = '#e88316';
+                      break;
+                    case constant.StatusSynced:
+                      auditInfo['color'] = '#48bcf7';
+                      break;
+                    case constant.Completed:
+                      auditInfo['color'] = 'green';
+                      break;
+                    case constant.StatusCompleted:
+                        auditInfo['color'] = '#000';
+                        break;
+                    case constant.StatusDV:
+                      auditInfo['color'] = 'red';
+                      break;
+                    case constant.StatusDVC:
+                      auditInfo['color'] = 'green';
+                      break;
+                    default:
+                      auditInfo['color'] = '#1081de';
+                      break;
+                  }
+
+                  auditList.push(auditInfo);
+                  this.keyVal = this.keyVal + 1;
+                }
+
+                this.setState({todaysactivity: auditList, todayLoading: false});
+              } else {
+                this.setState({todaysactivity: [], todayLoading: false});
+              }
+            } else {
+              this.setState({todaysactivity: [], todayLoading: false});
+            }
+          }, 
+        );
+
+       
+      } else {
+        this.setState({todaysactivity: [], todayLoading: false});
+      }
+    });
+  };
 
 
   checkUser = async () => {
@@ -963,34 +1404,49 @@ class AuditDashboardListing extends Component {
         console.log('test props---->',this.props?.route?.params?.fromHome,'---' ,this.props?.route?.params?.filterId, '----', this.state.projectData?.projectStatus)
         
 
-        if (this.props?.route?.params?.fromHome === false) {
-          console.log('test props---->iffffff', typeof this.props?.route?.params?.filterId)
-          if (this.props?.route?.params?.filterId === 2) {
-            filterStr = 'AuditStatus IN (2)';
-          } else if (this.props?.route?.params?.filterId === 3) {
-            filterStr = 'AuditStatus IN (3)';
-          } else if (this.props?.route?.params?.filterId === 4) {
-            filterStr = 'AuditStatus IN (4)';
-          } else if (this.props?.route?.params?.filterId === 5) {
-            filterStr = 'AuditStatus IN (5)';
-          }
-        } 
-        else {
-          console.log('test props---->else', this.state.projectData?.projectStatus)
-            if (this.state.projectData?.projectStatus === 2) {
-              filterStr = 'AuditStatus IN (2)';
-            } else if (this.state.projectData?.projectStatus === 3) {
-              filterStr = 'AuditStatus IN (3)';
-            } else if (this.state.projectData?.projectStatus === 4) {
-              filterStr = 'AuditStatus IN (4)';
-            } else if (this.state.projectData?.projectStatus === 5) {
-              filterStr = 'AuditStatus IN (5)';
-            }
-        }
+        // if (this.props?.route?.params?.fromHome === false) {
+        //   console.log('test props---->iffffff', typeof this.props?.route?.params?.filterId)
+        //   if (this.props?.route?.params?.filterId === 2) {
+        //     filterStr = 'AuditStatus IN (2)';
+        //   } else if (this.props?.route?.params?.filterId === 3) {
+        //     filterStr = 'AuditStatus IN (3)';
+        //   } else if (this.props?.route?.params?.filterId === 4) {
+        //     filterStr = 'AuditStatus IN (4)';
+        //   } else if (this.props?.route?.params?.filterId === 5) {
+        //     filterStr = 'AuditStatus IN (5)';
+        //   }
+        // } 
+        // else {
+        //   console.log('test props---->else', this.state.projectData?.projectStatus)
+        //     if (this.state.projectData?.projectStatus === 2) {
+        //       filterStr = 'AuditStatus IN (2)';
+        //     } else if (this.state.projectData?.projectStatus === 3) {
+        //       filterStr = 'AuditStatus IN (3)';
+        //     } else if (this.state.projectData?.projectStatus === 4) {
+        //       filterStr = 'AuditStatus IN (4)';
+        //     } else if (this.state.projectData?.projectStatus === 5) {
+        //       filterStr = 'AuditStatus IN (5)';
+        //     }
+        // }
           
 
         // console.log('trets', auth.getauditlist);
         console.log('trets data', token,userId,siteId, this.state.currentUserData);
+        console.log('reach here 003',
+          this.state.currentUserData?.accessToken || token ,
+          this.state.currentUserData?.userId || userId,
+          this.state.currentUserData?.siteId || siteId,
+          this.pageNo,
+          this.pageSize,
+          filterStr,
+          GlobalFilter,
+          StartDate,
+          EndDate,
+          SortBy,
+          SortOrder,
+          SM,
+          Default,
+        )
         auth.getauditlist(
           // this.state.accessToken,
           // this.state.userId,

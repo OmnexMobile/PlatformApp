@@ -153,7 +153,7 @@ class AllTabAuditList extends Component {
       SortOrder: '',
       cFilterVal: 0,
       default: 1, // existing workf
-      // default: 0 // existing workf
+      // default: 0 // today activity
       recentAudits: this.props.data.audits.recentAudits
         ? this.props.data.audits.recentAudits.length > 0
           ? this.props.data.audits.recentAudits.asMutable().reverse()
@@ -506,6 +506,7 @@ class AllTabAuditList extends Component {
       </View>
     );
   }
+
   recentAudits() {
     console.log('this.state.recentAudits', this.state.recentAudits)
     return (
@@ -520,8 +521,7 @@ class AllTabAuditList extends Component {
             renderItem={({item}) => (
               <TouchableOpacity onPress={() => this.openAuditPage(item)}>
                 <View style={{flex:0.5,backgroundColor:'#fff',margin:10,borderRadius:5,flexDirection:'row',elevation:3,shadowColor: Platform.OS === 'ios' ? '#D3D3D3' : '#000',
-                shadowOffset: { width: 5, height: 5 }, shadowOpacity: 5,
-}}>
+                shadowOffset: { width: 5, height: 5 }, shadowOpacity: 5}}>
                   <View
                   style={{flex:0.020,
                     backgroundColor:this.getColorCode(item.cStatus), margin:10}}></View>
@@ -602,40 +602,40 @@ class AllTabAuditList extends Component {
       </View>
     );
   }
-//all tab offline mode
-todayAudits() {
+  //all tab offline mode
+  todayAudits() {
     return (
-      <View
-        tabLabel={strings.todaysaudits}
-        style={styles.calendarScrollViewBody}>
-          {this.props.data.audits.isOfflineMode ?
-          <View style={{        
-            width: window_width,           
-            flex: 1,
-            flexDirection: 'row',  
-            justifyContent:'center',
-            alignItems: 'center',
-          }}><Text style={{fontFamily: "OpenSans-Regular", color:'grey' , fontSize: Fonts.size.h5 }}>
-            Data will be visible only in the online mode</Text></View> :
-          this.state.todayLoader ? (
-            <View
-              style={{
-                paddingVertical: 20,
-                width: window_width,
-                height: height(100) - 213,
-                flex: 1,
-                flexDirection: 'column',
-                alignItems: 'center',
-              }}>
-              <ActivityIndicator size={20} color="#1CAFF6" />
-            </View>
-          ) : (
-            <CalendarAgenda
-              dateFormat={this.props.data.audits.userDateFormat}
-              agendaData={this.state.agendaData}
-            />
-          )}
-      </View>
+    <View
+      tabLabel={strings.todaysaudits}
+      style={styles.calendarScrollViewBody}>
+        {this.props.data.audits.isOfflineMode ?
+        <View style={{        
+          width: window_width,           
+          flex: 1,
+          flexDirection: 'row',  
+          justifyContent:'center',
+          alignItems: 'center',
+        }}><Text style={{fontFamily: "OpenSans-Regular", color:'grey' , fontSize: Fonts.size.h5 }}>
+          Data will be visible only in the online mode</Text></View> :
+        this.state.todayLoader ? (
+          <View
+            style={{
+              paddingVertical: 20,
+              width: window_width,
+              height: height(100) - 213,
+              flex: 1,
+              flexDirection: 'column',
+              alignItems: 'center',
+            }}>
+            <ActivityIndicator size={20} color="#1CAFF6" />
+          </View>
+        ) : (
+          <CalendarAgenda
+            dateFormat={this.props.data.audits.userDateFormat}
+            agendaData={this.state.agendaData}
+          />
+        )}
+    </View>
     );
   }
 
@@ -770,6 +770,10 @@ todayAudits() {
       // await this.registerCall(); // 1. wait for async call
 
       await this.globalLoginCall();
+
+      await this.getAuditLists();
+      await this.getAuditStatusDetails();
+      await this.getAuditlist();
   
       console.log('this.state.activetab', this.state.activeTab);
       console.log('check audits.smdata', this.props.data.audits.smdata);
@@ -820,6 +824,262 @@ todayAudits() {
     } catch (error) {
       console.error('componentDidMount error:', error);
     }
+  }
+
+  async getAuditLists() { 
+    await this.getUserDetails()
+    var pageNo = 1;
+    var token = this.props?.data?.audits?.token || this.state.currentUserData?.accessToken;
+    var userId = this.props?.data?.audits?.userId || this.state.currentUserData?.userId;
+    var siteId = this.props?.data?.audits?.siteId  || this.state.currentUserData?.siteId;
+    var filterId = this.state.filterId;
+    var pageSize = 10;
+    var GlobalFilter = this.state.AuditSearch === undefined ? '' : this.state.AuditSearch;
+    var StartDate = '';
+    var EndDate = '';
+    var SortBy = '';
+    var SortOrder = this.state.SortOrder;
+    var SM = this.props?.data?.audits?.smdata;
+    console.log('reach here 001',
+          token,
+          userId,
+          siteId,
+          pageNo,
+          pageSize,
+          filterId,
+          GlobalFilter,
+          StartDate,
+          EndDate,
+          SortBy,
+          SortOrder,
+          SM,
+          1,
+    )
+    NetInfo.fetch().then(netState => {
+      this.setState({
+        loading: true,
+      });
+      if (netState.isConnected) {
+        auth.getauditlist(
+          token,
+          userId,
+          siteId,
+          pageNo,
+          pageSize,
+          filterId,
+          GlobalFilter,
+          StartDate,
+          EndDate,
+          SortBy,
+          SortOrder,
+          SM,
+          1,
+          (response, data) => {
+            console.log('getauditlist count --->:' + data);
+            if (data.data) {
+              if (data.data.Message === 'Success') {
+                var data = data.data.Data[0].AuditCount;
+                console.log('Notification data', data);
+                this.setState({noaudits: data, showMyAllAudits: true});
+                /** inital request will be skipped so we have data and we request the notifications */
+                this.getNotifications();
+              } else {
+                this.setState({noaudits: 0, showMyAllAudits: true});
+              }
+            }
+          },
+        );
+      }
+    });
+  }
+  
+  getNotifications() {
+    console.log('this.props.notifications', this.props?.notifications);
+    const {token, userId} = this.props?.data?.audits;
+    const siteId = this.props?.data?.audits?.siteId;
+    const {noaudits} = this.state;
+    const {auditCount, dynamicAuditCount} = this.props?.notifications;
+    console.log('reach here 0011',
+      auditCount,
+      token,
+      userId,
+      siteId,
+    )
+    /** First request skipped because we have initially zero */
+    auth.getAuditNotification(
+      auditCount,
+      token,
+      userId,
+      siteId,
+      (response, data) => {
+        console.log('------------------------------');
+        console.log('Audit notifications data', data);
+        console.log('------------------------------');
+        if (data?.data) {
+          if (data?.data?.Message == 'Success') {
+            var auditList = [];
+            var auditListProps = this.props?.data?.audits?.audits;
+
+            for (var i = 0; i < data?.data?.Data?.length; i++) {
+              var auditInfo = data?.data?.Data[i];
+              auditInfo['color'] = '#1081de';
+              auditInfo['cStatus'] = constant.StatusScheduled;
+              auditInfo['key'] = this.keyVal + 1;
+
+              // Set Audit Status
+              if (auditInfo.AuditStatus == 3 && (auditInfo.CloseOutStatus == "7" || auditInfo.CloseOutStatus === "9")) {
+                auditInfo['cStatus'] = constant.StatusCompleted;
+              }else if (auditInfo.AuditStatus == 3 && auditInfo.CloseOutStatus != "7" && auditInfo.CloseOutStatus != "9") {
+                auditInfo['cStatus'] = constant.Completed;
+              } 
+                else if (
+                data?.data?.Data[i].AuditStatus == 2 &&
+                data?.data?.Data[i].PerformStarted == 0
+              ) {
+                auditInfo['cStatus'] = constant.StatusScheduled;
+              } else if (
+                data?.data?.Data[i].AuditStatus == 2 &&
+                data?.data?.Data[i].PerformStarted == 1
+              ) {
+                auditInfo['cStatus'] = constant.StatusProcessing;
+              } else if (data?.data?.Data[i].AuditStatus == 4) {
+                auditInfo['cStatus'] = constant.StatusDV;
+              } else if (data?.data?.Data[i].AuditStatus == 5) {
+                auditInfo['cStatus'] = constant.StatusDVC;
+              }
+
+              for (var j = 0; j < auditListProps.length; j++) {
+                if (
+                  parseInt(auditListProps[j].ActualAuditId) ==
+                  parseInt(data?.data?.Data[i].ActualAuditId)
+                ) {
+                  // Update Audit Status
+                  if (
+                    auditListProps[j].cStatus == constant.StatusDownloaded ||
+                    auditListProps[j].cStatus == constant.StatusNotSynced ||
+                    auditListProps[j].cStatus == constant.StatusSynced
+                  ) {
+                    auditInfo['cStatus'] = auditListProps[j].cStatus;
+                  }
+                  break;
+                }
+              }
+
+              // Set Audit Card color by checking its Status
+              switch (auditInfo['cStatus']) {
+                case constant.StatusScheduled:
+                  auditInfo['color'] = '#1081de';
+                  break;
+                case constant.StatusDownloaded:
+                  auditInfo['color'] = '#cd8cff';
+                  break;
+                case constant.StatusNotSynced:
+                  auditInfo['color'] = '#2ec3c7';
+                  break;
+                case constant.StatusProcessing:
+                  auditInfo['color'] = '#e88316';
+                  break;
+                case constant.StatusSynced:
+                  auditInfo['color'] = '#48bcf7';
+                  break;
+                case constant.Completed:
+                  auditInfo['color'] = 'green';
+                  break;
+                case constant.StatusCompleted:
+                  auditInfo['color'] = '#000';
+                  break;
+                case constant.StatusDV:
+                  auditInfo['color'] = 'red';
+                  break;
+                case constant.StatusDVC:
+                  auditInfo['color'] = 'green';
+                  break;
+                default:
+                  auditInfo['color'] = '#1081de';
+                  break;
+              }
+
+              auditList.push(auditInfo);
+              this.keyVal = this.keyVal + 1;
+            }           
+
+            let bufferList = Array.from(new Set(auditList));
+            
+            if (dynamicAuditCount == noaudits) {
+              console.log('no new notification');
+              this.setState({ShowNotifyBadge: 0});
+            } else {
+              let badge = noaudits - dynamicAuditCount;
+              console.log('badge', badge);
+              this.setState({ShowNotifyBadge: badge});
+            }
+            this.setState({notifybadge: bufferList});
+          } else {
+            this.setState({ShowNotifyBadge: 0, notifybadge: []});
+          }
+        } else {
+          this.setState({ShowNotifyBadge: 0, notifybadge: []});
+        }
+      },
+    );
+  }
+    
+  async getAuditStatusDetails() {
+    await this.getUserDetails()
+    this.setState({
+      loading: true,
+    });
+    console.log('getAuditStatusDetails--->', this.state.token, this.state.currentUserData?.userId, this.state.currentUserData?.siteId, this.props.data.audits)
+    auth.getStat(
+      this.props?.data?.audits?.token || this.state.currentUserData?.accessToken,
+      this.props?.data?.audits?.userId || this.state.currentUserData?.userId,
+      this.props?.data?.audits?.siteId || this.state.currentUserData?.siteId,
+      this.props?.data?.audits?.smdata,
+      (response, data) => {
+        if (data.data) {
+          this.props.storeAuditStats(
+            data?.data?.Data?.Scheduled,
+            data?.data?.Data?.Completed,
+            data?.data?.Data?.DeadlineViolated,
+            data?.data?.Data?.CompletedDeadlineViolated,
+          );
+          this.setState(
+            {
+              scheduled: data?.data?.Data?.Scheduled,
+              completed: data?.data?.Data?.Completed,
+              deadlineviolated: data?.data?.Data?.DeadlineViolated,
+              deadlineviolatedandcompleted:
+                data?.data?.Data?.CompletedDeadlineViolated,
+              isInitialLoad: false,
+              isLoading: false,
+              loading: false,
+            },
+            () => {
+              this.isInitialLoad = false;
+            },
+          );
+        } else {
+          this.props.storeAuditStats(0, 0, 0, 0);
+          this.setState(
+            {
+              scheduled: 0,
+              completed: 0,
+              deadlineviolated: 0,
+              deadlineviolatedandcompleted: 0,
+              isInitialLoad: false,
+              isLoading: false,
+              loading: false,
+            },
+            () => {
+              // console.log('this.state.completed',this.state.completed)
+              // console.log('this.state.inprogress',this.state.inprogress)
+              // console.log('this.state.scheduled',this.state.scheduled)
+              this.isInitialLoad = false;
+            },
+          );
+        }
+      },
+    );
   }
 
     
@@ -2940,6 +3200,7 @@ todayAudits() {
       // console.log('Failed to retrive a login session!!!',error)
     }
   };
+
   getAuditlist = (startDate, endDate) => {
     if (this.props.data.audits.isOfflineMode) {
       this.refs.toast.show(strings.Audit_List_Failed, DURATION.LENGTH_LONG);
@@ -2971,7 +3232,7 @@ todayAudits() {
         var EndDate = endDate == undefined ? '' : endDate;
         var SortBy = this.state.SortBy;
         var SortOrder = this.state.SortOrder;
-        var Default = this.state.default;
+        var Default = 0;
         var SM = this.props.data.audits.smdata;
         console.log(
           'api date',

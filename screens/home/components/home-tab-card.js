@@ -77,44 +77,53 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
     },
     {
       id: 3,
-      title: strings.problemSolver,
-      detail: [
-        { images: tabIndex === 0 ? IMAGES.supplierConcerns : IMAGES.concerns, category: tabIndex === 0 ? strings.supplierConcerns : strings.concerns, status: 0 },
+      title: tabIndex === 0 ? strings.problemSolver : null,
+      detail: tabIndex === 0 ? [
+        // { images: tabIndex === 0 ? IMAGES.supplierConcerns : IMAGES.concerns, category: tabIndex === 0 ? strings.supplierConcerns : strings.concerns, status: 0 },
+        { images: IMAGES.supplierConcerns, category: strings.supplierConcerns, status: 0 },
         { images: IMAGES.openConcerns, category: strings.openConcerns, status: 0 },
         { images: IMAGES.inProgressConcerns, category: strings.inProgressConcerns, status: 0 }
-      ]
+      ] : [],
     },
     {
       id: 4,
-      title: tabIndex === 0 ? strings.documentPro : strings.supplierMgnt,
+      title: tabIndex === 0 ? strings.documentPro : null,
       detail: tabIndex === 0 ? [
         { images: IMAGES.inProgressConcerns, category: strings.documentLevels, status: 0 },
         { images: IMAGES.inProgressConcerns, category: strings.actionList, status: 0 },
         { images: IMAGES.inProgressConcerns, category: strings.adminActions, status: 0 }
-      ] : 
-      // []
+      ] : [],
+    },
+    {
+      id: 5,
+      title: tabIndex === 0 ? strings.inspectionControl : null,
+      detail: tabIndex === 0 ? [
+        { images: IMAGES.ICIS, category: strings.inspectionSchedule, status: 1, routeName: ROUTES.INSPECTION_SCHEDULE },
+        { images: IMAGES.ICOS, category: strings.operatorWorksheet, status: 2, routeName: ROUTES.OPERATOR_WORKSHEET },
+        { images: IMAGES.ICCI, category: strings.completedInspection, status: 3, routeName: ROUTES.COMPLETED_INSPECTION },
+      //   { images: IMAGES.ICSS, category: strings.supervisorSchedule, status: 4, routeName: ROUTES.SUPERVISOR_SCHEDULE },
+      ] : [],
+    },
+    {
+      id: 6,
+      title: tabIndex === 0 ? null : strings.supplierMgnt,
+      detail: tabIndex === 0 ? [] : 
       [
         { images: IMAGES.scheduledAudit, category: strings.supplierInitialAssessment, status: 0 },
         { images: IMAGES.completedAudit, category: strings.supplierRoutineAudit, status: 0 },
       ]
-    },
-    {
-        id: 5,
-        title: tabIndex === 0 ? strings.inspectionControl : null,
-        detail: tabIndex === 0 ? [
-          { images: IMAGES.ICIS, category: strings.inspectionSchedule, status: 1, routeName: ROUTES.INSPECTION_SCHEDULE },
-          { images: IMAGES.ICOS, category: strings.operatorWorksheet, status: 2, routeName: ROUTES.OPERATOR_WORKSHEET },
-          { images: IMAGES.ICCI, category: strings.completedInspection, status: 3, routeName: ROUTES.COMPLETED_INSPECTION },
-        //   { images: IMAGES.ICSS, category: strings.supervisorSchedule, status: 4, routeName: ROUTES.SUPERVISOR_SCHEDULE },
-        ] : [],
     },
   ];
 
   const finalUser = currentUser.replace(/\s+/g, '');
   // console.log(finalUser, 'finalUser');
   const dataSet = React.useMemo(() => {
+    // Static data is used for show app based on user 
     if (!data || data.length === 0) return [];
     if (finalUser === "AzhalleAnna") return data.filter(item => item.id === 1);
+    if (finalUser === "KRoopa") return data.filter(item => item.id === 2);
+    if (finalUser === "DhanapalSwetha") return data.filter(item => [3,5,6].includes(item.id));
+
     return data;
   }, [data, currentUser]);
 
@@ -152,7 +161,7 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
         const value = await AsyncStorage.getItem('isdeviceregistered')
         if (value !== null) {
           // value previously stored
-          console.log('current isRegister app--->', value)
+          // console.log('current isRegister app--->', value)
           setIsRegister(value)
         }
       } catch (e) {
@@ -188,22 +197,19 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
         const stringifiedProjectDetails = JSON.stringify(projectDetails);
         AsyncStorage.setItem('projectDetails', stringifiedProjectDetails);
         redirectToPage(title, status, category)
-        // PROBLEMSOLVER //
+      // PROBLEMSOLVER //
       } else if (title === strings.problemSolver) {
         currentGlobalURL = globalDeviceDetails?.deviceDetails?.PSApiURL ? globalDeviceDetails?.deviceDetails?.PSApiURL: PROBLEMSOLVING_URL;
         console.log('current click--->', strings.problemSolver,'--', category.replace(/\n/g, ' '),'--', category, '--')
         storeUrl(currentGlobalURL);
         navigateToStatusCount(category.replace(/\n/g, ' '));
-        // APQP //
+      // APQP //
       } else if (title === (strings.apqp_ppapManager)) {
         console.log('apqp_ppapManager handleNavigation 1--->', title, status, category, globalDeviceDetails?.deviceDetails?.APQPApiURL)
         currentGlobalURL = globalDeviceDetails?.deviceDetails?.APQPApiURL ? globalDeviceDetails?.deviceDetails?.APQPApiURL: APQP_URL;
         apqpAuth.setServerUrl(currentGlobalURL);
         storeUrl(currentGlobalURL);
         globalAPQPLogin(category, title, currentGlobalURL)
-       // DOCUMENT PRO //
-      } else if (title === strings.documentPro) {
-        console.log('current click--->', strings.documentPro)
       // SUPPLIER MANAGEMENT //
       } else if (title === strings.supplierMgnt) {
         console.log('sm_ current click--->', strings.supplierMgnt)
@@ -220,14 +226,14 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
         supplierAuth.setServerUrl(currentGlobalURL);
         storeUrl(currentGlobalURL);
         navigations.navigate(ROUTES.ALLTABAUDITLIST_SM)
-        // DOCUMENT PRO //
+      // DOCUMENT PRO //
       } else if (title === strings.documentPro) {
         if (category == 'Document\nLevels') {
             navigations.navigate(ROUTES.DOCPRO_DOCUMENTFOLDER);
         } else if (category == 'Actions\nList') {
             navigations.navigate(ROUTES.DOCPRO_ACTION);
         }
-        console.log('current click--->', strings.documentPro);
+      // INSPECTION CONTROL //
       } else if (title === strings.inspectionControl) {
             localStorage.storeData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL, globalDeviceDetails?.deviceDetails?.ICApiURL);
             setLoading(true);
