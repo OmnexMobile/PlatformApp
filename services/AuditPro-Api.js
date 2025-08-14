@@ -1271,6 +1271,7 @@ import {
       formData.append('RegisterdDevice',RegisterDevice)
       console.log(UserId,RegisterDevice,"op/api.js")
       console.log(formData,"formdatareg")
+      console.log(sURL + 'CredentialCheck 1274');
   
       fetch(sURL + 'CredentialCheck', {
         method: 'POST',

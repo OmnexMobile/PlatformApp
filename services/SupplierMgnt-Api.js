@@ -1,5 +1,5 @@
 import {
-    API_URL,
+    API_URL_SM,
     DP_API_URL,
     auditList,
     login,
@@ -33,7 +33,7 @@ import {
     GetConformnaceDetails,
   } from '../constants/SupplierMgnt/APIConstants';
   
-  export var sURL = API_URL;
+  export var sURL = API_URL_SM;
   export var dpURL = DP_API_URL;
   
   export default {
@@ -1129,6 +1129,7 @@ import {
       formData.append('RegisterdDevice',RegisterDevice)
       console.log(UserId,RegisterDevice,"op/api.js")
       console.log(formData,"formdatareg")
+      console.log(sURL + 'CredentialCheck 1132');
   
       fetch(sURL + 'CredentialCheck', {
         method: 'POST',
