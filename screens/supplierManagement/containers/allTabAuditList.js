@@ -910,9 +910,9 @@ class AllTabAuditList extends Component {
     /** First request skipped because we have initially zero */
     auth.getAuditNotification(
       auditCount,
-      token,
-      userId,
-      siteId,
+      token || this.state.currentUserData?.accessToken,
+      userId || this.state.currentUserData?.userId,
+      siteId || this.state.currentUserData?.siteId,
       (response, data) => {
         console.log('------------------------------');
         console.log('Audit notifications data', data);

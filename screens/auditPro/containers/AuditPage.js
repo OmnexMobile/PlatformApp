@@ -1518,11 +1518,12 @@ class AuditPage extends Component {
     var type = 3;
     var path = '';
     // var RegisterDevice = this.props.data.audits.deviceid;
-    const deviceId = await AsyncStorage.getItem('loginDeviceId');
+    // const deviceId = await AsyncStorage.getItem('loginDeviceId');
+    const deviceId = await AsyncStorage.getItem('deviceid')
 
-    console.log(userid, token);
+    console.log(userid, token, deviceId, 'checkUser');
 
-    auth.getCheckUser(userid,deviceId, token, (res, data) => {
+    auth.getCheckUser(userid, deviceId, token, (res, data) => {
       console.log('User information', data);
 
       if (data.data.Message == 'Success') {

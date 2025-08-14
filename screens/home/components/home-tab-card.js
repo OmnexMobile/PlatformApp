@@ -224,6 +224,7 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
         localStorage.storeData('CurrentApp', strings.supplierMgnt);
         currentGlobalURL = globalDeviceDetails?.deviceDetails?.AuditProURL ? globalDeviceDetails?.deviceDetails?.AuditProURL: AUDITPRO_URL;
         supplierAuth.setServerUrl(currentGlobalURL);
+        auditproAuth.setServerUrl(currentGlobalURL);
         storeUrl(currentGlobalURL);
         navigations.navigate(ROUTES.ALLTABAUDITLIST_SM)
       // DOCUMENT PRO //

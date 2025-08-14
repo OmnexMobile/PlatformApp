@@ -38,6 +38,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 import RNFetchBlob from 'react-native-fetch-blob';
 import ToastNew, {ErrorToast} from 'react-native-toast-message';
 import { ROUTES } from 'constants/app-constant';
+import { SPACING } from 'constants/theme-constants';
 
 let Window = Dimensions.get('window');
 const window_width = Dimensions.get('window').width;
@@ -151,7 +152,7 @@ class AuditPage extends Component {
     Voice.onSpeechVolumeChanged = this.onSpeechVolumeChanged;
   }
   componentWillMount() {
-    console.log('cStatusfff', tthis.props?.route?.params?.datapass);
+    console.log('cStatusfff', this.props?.route?.params?.datapass);
 
     NetInfo.fetch().then(isConnected => {
       if (isConnected.isConnected) {
@@ -473,8 +474,9 @@ class AuditPage extends Component {
     //   this.deleteAuditRecord;
     // }
     var getCurrentPage = [];
-    getCurrentPage = this.props.data.nav.routes;
-    var CurrentPage = getCurrentPage[getCurrentPage.length - 1].routeName;
+    var CurrentPage = this.props.route.name;
+    // getCurrentPage = this.props.data.nav.routes;
+    // var CurrentPage = getCurrentPage[getCurrentPage.length - 1].routeName;
     console.log('--CurrentPage--->', CurrentPage);
 
     if (CurrentPage == ROUTES.AUDIT_PAGE_SM) {
@@ -1538,7 +1540,7 @@ console.log('checkk838838383',this.props.data.audits);
     AsyncStorage.setItem('SITEID',this.props?.route?.params?.datapass?.SiteId);
     AsyncStorage.setItem('AUDITPROGORDER',this.props?.route?.params?.datapass?.AuditProgramId);
     // AsyncStorage.setItem('AUDIT_SITE_ID',this.state.AUDIT_SITE_ID);
-    AsyncStorage.setItem('AUDIT_STATUS',this.props?.route?.params?.datapass?.AuditStatus);
+    // AsyncStorage.setItem('AUDIT_STATUS',this.props?.route?.params?.datapass?.AuditStatus);
 }
   checkUser  = async() =>{
     console.log('user id', this.props.data.audits.userId);
@@ -1550,9 +1552,10 @@ console.log('checkk838838383',this.props.data.audits);
     var type = 3;
     var path = '';
     // var RegisterDevice = this.props.data.audits.deviceid;
-    const deviceId = await AsyncStorage.getItem('loginDeviceId');
+    // const deviceId = await AsyncStorage.getItem('loginDeviceId');
+    const deviceId = await AsyncStorage.getItem('deviceid')
 
-    console.log(userid, token);
+    console.log(userid, token, deviceId, 'checkUser');
 
     auth.getCheckUser(userid,deviceId, token, (res, data) => {
       console.log('User information', data);
@@ -3233,7 +3236,8 @@ console.log('checkk838838383',this.props.data.audits);
     
     return (
       <View style={styles.wrapper}>
-        <OfflineNotice />
+      {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
+       <OfflineNotice />
 
         {!this.state.isLoading ? (
           <ImageBackground
@@ -3723,7 +3727,7 @@ console.log('checkk838838383',this.props.data.audits);
                     this.getParamsDetails();
                   }}>
                     
-                    <View style={styles.footerDivContent}>
+                    <View style={styles.footerDivContent1}>
                       <ResponsiveImage
                         source={Images.downloadCloud}
                         initWidth="40"
@@ -3835,16 +3839,6 @@ console.log('checkk838838383',this.props.data.audits);
                         </TouchableOpacity>
                       </View>
                     ) : null}
-                    
-                    {/*
-                :  <View style={{width: '30%'}}>
-                  <TouchableOpacity onPress={once(this.onNavigateTo.bind(this,3))} style={{alignItems: 'center'}}>
-                    {/* <ResponsiveImage source={Images.BTN5} initWidth="26" initHeight="25"/> *}
-                    <Icon  name="file" size={20} color="white"/>
-                    <Text style={styles.footerTextContent}>{strings.NC_OFI}</Text>
-                  </TouchableOpacity>
-                </View>
-             */}
                   </View>
                 ) : (
                   <View style={styles.footerLoader}>
