@@ -1,7 +1,7 @@
 import { RadioButton } from 'components';
 import { COLORS } from 'constants/theme-constants';
 import React, { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Divider, HelperText, Modal } from 'react-native-paper';
 import { RFPercentage } from 'react-native-responsive-fontsize';
 import SingleDropDown from '../SingleDropDown';
@@ -50,6 +50,7 @@ const InputDataModal = ({
     const [isEditableField, setIsEditableField] = useState({
         lotNo: true,
     });
+    const [btndisabled, setBtnDisabled] = useState(false);
     useEffect(() => {
         const currentShift = getCurrentShift(shiftData);
         if (currentShift) {
@@ -101,6 +102,7 @@ const InputDataModal = ({
         return true;
     };
     const getResponsibleList = async freq => {
+        setBtnDisabled(true);
         const formData = new FormData();
         formData.append('strUserID', userData?.UserId);
         formData.append('strOperationID', selectedValue?.OperationID);
@@ -136,6 +138,7 @@ const InputDataModal = ({
         } else {
             setResList([]);
         }
+        setBtnDisabled(false);
         return true;
     };
     const getPageApi = async () => {
@@ -495,7 +498,10 @@ const InputDataModal = ({
                             </View>
                             {Boolean(selectedValue.TypeOfInspection == 2) && (
                                 <View style={[styles.inputContainer]}>
-                                    <Text style={styles.inputText}>Responsible Person</Text>
+                                    <View style={{ flexDirection: 'row' }}>
+                                        <Text style={styles.inputText}>Responsible Person</Text>
+                                        {Boolean(btndisabled) && <ActivityIndicator style={{ marginLeft: 5 }} size="small" color={COLORS.apptheme} />}
+                                    </View>
                                     <DynamicDropDown
                                         isMultiSelect={icSettings?.IsRespPartyMultiSelect}
                                         list={resList || []}
@@ -510,10 +516,11 @@ const InputDataModal = ({
                     </ScrollView>
                     <Divider />
                     <View style={styles.btnConatiner}>
-                        <TouchableOpacity style={styles.cancelConatiner} onPress={hideModal}>
+                        <TouchableOpacity disabled={btndisabled} style={styles.cancelConatiner} onPress={hideModal}>
                             <Text style={styles.btnStyle}>CANCEL</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
+                            disabled={btndisabled}
                             style={styles.cancelConatiner}
                             onPress={() => {
                                 handleSubmitBtnPress();
