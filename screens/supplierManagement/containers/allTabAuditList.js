@@ -206,6 +206,75 @@ class AllTabAuditList extends Component {
     });
   }
 
+  async componentDidMount() {
+    this.setState({loading: true});
+    this.props.storeServerUrl(API_URL_SM);
+    var propsServerUrl = API_URL_SM || this.props.data?.audits?.serverUrl;
+    var cleanURL = propsServerUrl?.replace(/^https?:\/\//, '');
+
+    var formatURL = cleanURL?.replace(/[&\/\\#,+()$~%.'":*?<>{}]/g, '');
+    this.propsServerUrl = formatURL;
+    console.log('cleanURL', this.propsServerUrl);
+    try {
+      // await this.loadDataSM(); // 1. Load data and static login & register call
+      // await this.registerCall(); // 1. wait for async call
+
+      await this.globalLoginCall();
+      await this.getAuditStatusDetails();
+      await this.getRecentAuditlist();
+      await this.getAuditLists();
+  
+      console.log('this.state.activetab', this.state.activeTab);
+      console.log('check audits.smdata', this.props.data.audits.smdata);
+      console.log('this.props check', this.props);
+  
+      // 2. Handle language setting
+      const language = this.props.data.audits.language;
+      if (language === 'Chinese') {
+        this.setState({ ChineseScript: true }, () => {
+          strings.setLanguage('zh');
+        });
+      } else if (language === null || language === 'English') {
+        this.setState({ ChineseScript: false }, () => {
+          strings.setLanguage('en-US');
+        });
+      }
+  
+      // 3. Set up focus listener
+      this.focusListener = this.props.navigation.addListener('didFocus', () => {
+        console.log('Audit List SM Component Focused!');
+  
+        const filterArr = this.props?.route?.params?.filter_Arr;
+  
+        if (filterArr) {
+          console.log('Filter Applied:', filterArr);
+          this.filterApplied(filterArr);
+        } else {
+          if (this.state.isMounted) {
+            this.setState({
+              auditList: this.props.data.audits.audits,
+              auditListAll: this.props.data.audits.audits,
+              loading: false,
+              isRefreshing: false,
+              isPageEmpty: false,
+              isErrorRefresh: false,
+            });
+          }
+          if (this.state.token === '') {
+            this.getSessionValues();
+          }
+        }
+      });
+  
+      // 4. Final setup calls
+      // this.getYearAudits();
+      // this.handleRefresh();
+  
+    } catch (error) {
+      console.error('componentDidMount error:', error);
+    }
+  }
+
   deleteFilter() {
     // this.props.navigation.state.params = undefined;
     this.props.route.params = undefined;
@@ -755,76 +824,6 @@ class AllTabAuditList extends Component {
       console.log('error--->', e)
     }
   };
-
-  async componentDidMount() {
-    this.setState({loading: true});
-    this.props.storeServerUrl(API_URL_SM);
-    var propsServerUrl = API_URL_SM || this.props.data?.audits?.serverUrl;
-    var cleanURL = propsServerUrl?.replace(/^https?:\/\//, '');
-
-    var formatURL = cleanURL?.replace(/[&\/\\#,+()$~%.'":*?<>{}]/g, '');
-    this.propsServerUrl = formatURL;
-    console.log('cleanURL', this.propsServerUrl);
-    try {
-      // await this.loadDataSM(); // 1. Load data and static login & register call
-      // await this.registerCall(); // 1. wait for async call
-
-      await this.globalLoginCall();
-
-      await this.getAuditLists();
-      await this.getAuditStatusDetails();
-      await this.getAuditlist();
-  
-      console.log('this.state.activetab', this.state.activeTab);
-      console.log('check audits.smdata', this.props.data.audits.smdata);
-      console.log('this.props check', this.props);
-  
-      // 2. Handle language setting
-      const language = this.props.data.audits.language;
-      if (language === 'Chinese') {
-        this.setState({ ChineseScript: true }, () => {
-          strings.setLanguage('zh');
-        });
-      } else if (language === null || language === 'English') {
-        this.setState({ ChineseScript: false }, () => {
-          strings.setLanguage('en-US');
-        });
-      }
-  
-      // 3. Set up focus listener
-      this.focusListener = this.props.navigation.addListener('didFocus', () => {
-        console.log('Audit List SM Component Focused!');
-  
-        const filterArr = this.props?.route?.params?.filter_Arr;
-  
-        if (filterArr) {
-          console.log('Filter Applied:', filterArr);
-          this.filterApplied(filterArr);
-        } else {
-          if (this.state.isMounted) {
-            this.setState({
-              auditList: this.props.data.audits.audits,
-              auditListAll: this.props.data.audits.audits,
-              loading: false,
-              isRefreshing: false,
-              isPageEmpty: false,
-              isErrorRefresh: false,
-            });
-          }
-          if (this.state.token === '') {
-            this.getSessionValues();
-          }
-        }
-      });
-  
-      // 4. Final setup calls
-      // this.getYearAudits();
-      // this.handleRefresh();
-  
-    } catch (error) {
-      console.error('componentDidMount error:', error);
-    }
-  }
 
   async getAuditLists() { 
     await this.getUserDetails()
@@ -3201,7 +3200,7 @@ class AllTabAuditList extends Component {
     }
   };
 
-  getAuditlist = (startDate, endDate) => {
+  getRecentAuditlist = (startDate, endDate) => {
     if (this.props.data.audits.isOfflineMode) {
       this.refs.toast.show(strings.Audit_List_Failed, DURATION.LENGTH_LONG);
       this.setState({
@@ -3543,6 +3542,350 @@ class AllTabAuditList extends Component {
   }
   '      */
   };
+
+  getAuditlist = (startDate, endDate) => {
+    if (this.props.data.audits.isOfflineMode) {
+      this.refs.toast.show(strings.Audit_List_Failed, DURATION.LENGTH_LONG);
+      this.setState({
+        auditList: this.props.data.audits.audits,
+        auditListAll: this.props.data.audits.audits,
+        loading: false,
+        isRefreshing: false,
+        isLazyLoading: false,
+        isLazyLoadingRequired: false,
+        isPageEmpty: false,
+        isMounted: true,
+      });
+    }
+    NetInfo.fetch().then(netState => {
+      if (netState.isConnected) {
+        console.log('getAuditlist ------>');
+        var pageNo = this.state.page;
+        // var token = this.props.data.audits.token;
+        // var userId = this.props.data.audits.userId;
+        // var siteId = this.props.data.audits.siteId;
+        const token = this.state.accessToken || this.props.data.audits.token;
+        const siteId = this.state.siteId || this.props.data.audits.siteId;
+        const userId = this.state.userId || this.props.data.audits.userId;
+        var filterId = this.state.filterId;
+        var pageSize = 10;
+        var GlobalFilter = this.state.AuditSearch;
+        var StartDate = startDate == undefined ? '' : startDate;
+        var EndDate = endDate == undefined ? '' : endDate;
+        var SortBy = this.state.SortBy;
+        var SortOrder = this.state.SortOrder;
+        var Default = 1;
+        var SM = this.props.data.audits.smdata;
+        console.log(
+          'api date',
+          token,
+          userId,
+          siteId,
+          pageNo,
+          pageSize,
+          filterId,
+          GlobalFilter,
+          StartDate,
+          EndDate,
+          SortBy,
+          SortOrder,
+          SM,
+          Default,
+        );
+
+        auth.getauditlist(
+          token,
+          userId,
+          siteId,
+          pageNo,
+          pageSize,
+          filterId,
+          GlobalFilter,
+          StartDate,
+          EndDate,
+          SortBy,
+          SortOrder,
+          SM,
+          Default,
+          (response, data) => {
+            console.log('AuditList list data', data);
+            console.log('AuditList list data', data?.data?.Data, '----', data.data.Message, '----', this.props);
+            
+
+            if (data.data) {
+              if (data.data.Message == 'Success') {
+                var auditRecords = this.props.data.audits.auditRecords;
+                console.log("audit Records",auditRecords)
+                console.log('auditList API response', data.data)
+                console.log('auditList from props', this.props.data.audits.audits)
+                var auditList = [];
+                var auditListProps = this.props.data.audits.audits;
+
+                for (var i = 0; i < data.data.Data.length; i++) {
+                  var auditInfo = data.data.Data[i];
+                  auditInfo['color'] = '#1081de';
+                  auditInfo['cStatus'] = constant.StatusScheduled;
+                  auditInfo['key'] = this.keyVal + 1;
+
+                  // Set Audit Status
+                  if (auditInfo.AuditStatus == 3 && (auditInfo.CloseOutStatus === "7" || auditInfo.CloseOutStatus === "9")) {
+                    auditInfo['cStatus'] = constant.StatusCompleted;
+                  } else if (data.data.Data[i].AuditStatus == 3) {
+                    auditInfo['cStatus'] = constant.Completed;
+                  } else if (
+                    data.data.Data[i].AuditStatus == 2 &&
+                    data.data.Data[i].PerformStarted == 0
+                  ) {
+                    auditInfo['cStatus'] = constant.StatusScheduled;
+                  } else if (
+                    data.data.Data[i].AuditStatus == 2 &&
+                    data.data.Data[i].PerformStarted == 1
+                  ) {
+                    auditInfo['cStatus'] = constant.StatusProcessing;
+                  } else if (data.data.Data[i].AuditStatus == 4) {
+                    auditInfo['cStatus'] = constant.StatusDV;
+                  } else if (data.data.Data[i].AuditStatus == 5) {
+                    auditInfo['cStatus'] = constant.StatusDVC;
+                  }
+
+                  for (var j = 0; j < auditRecords.length; j++) {
+                    if (
+                      parseInt(auditRecords[j].AuditId) ==
+                      parseInt(data.data.Data[i].ActualAuditId)
+                    ) {
+                      // Update Audit Status
+                      console.log(
+                        'auditRecords AuditRecordStatus',
+                        auditRecords[j].AuditRecordStatus,
+                      );
+                      if (
+                        auditRecords[j].AuditRecordStatus ==
+                          constant.StatusDownloaded ||
+                        auditRecords[j].AuditRecordStatus ==
+                          constant.StatusNotSynced ||
+                        auditRecords[j].AuditRecordStatus ==
+                          constant.StatusSynced
+                      ) {
+                        auditInfo['cStatus'] =
+                          auditRecords[j].AuditRecordStatus;
+                      }
+                      break;
+                    }
+                  }
+
+                  // Set Audit Card color by checking its Status
+                  auditInfo['color'] =  this.getColorCode(auditInfo['cStatus']);
+                
+
+                  auditList.push(auditInfo);
+                  this.keyVal = this.keyVal + 1;
+                }
+
+              
+                try {
+                  console.log(
+                    'this.state.auditList.concat(auditList)',
+                    this.state.auditList,
+                  );
+
+                  var finalAuditListAll =
+                    this.state.auditListAll.concat(auditList);
+                  var finalAuditList = this.state.auditList.concat(auditList);
+
+                  let bufferList = Array.from(new Set(auditList));
+                  console.log('bufferList', bufferList)
+
+                  // Store audit list in redux store to set it in persistant storage
+                  this.props.storeAudits(bufferList);
+
+                  if (StartDate != '' && EndDate != '') {
+                    this.setState({
+                      auditList: finalAuditList.filter(item => {
+                        var isDateInRange = false;
+
+                        if (item && StartDate && EndDate) {
+                          var sDateArr = StartDate.split('-');
+                          var eDateArr = EndDate.split('-');
+                          var sAuditDateArr =
+                            item.StartDate.split('T')[0].split('-');
+                          var eAuditDateArr =
+                            item.EndDate.split('T')[0].split('-');
+
+                          var startDateFilter = new Date(
+                            sDateArr[2],
+                            sDateArr[0] - 1,
+                            sDateArr[1],
+                          );
+                          var endDateFilter = new Date(
+                            eDateArr[2],
+                            eDateArr[0] - 1,
+                            eDateArr[1],
+                          );
+                          var startDateAudit = new Date(
+                            sAuditDateArr[0],
+                            sAuditDateArr[1] - 1,
+                            sAuditDateArr[2],
+                          );
+                          var endDateAudit = new Date(
+                            eAuditDateArr[0],
+                            eAuditDateArr[1] - 1,
+                            eAuditDateArr[2],
+                          );
+
+                          var range = moment.range(
+                            startDateFilter,
+                            endDateFilter,
+                          );
+
+                          if (range.contains(startDateAudit)) {
+                            isDateInRange = true;
+                          }
+
+                          if (range.contains(endDateAudit)) {
+                            isDateInRange = true;
+                          }
+                        } else {
+                          isDateInRange = true;
+                        }
+
+                        return isDateInRange;
+                      }),
+                      auditListAll: finalAuditListAll,
+                      loading: false,
+                      isRefreshing: false,
+                      isLazyLoading: false,
+                      isLazyLoadingRequired: true,
+                      isPageEmpty: false,
+                      isMounted: true,
+                      isErrorRefresh: false,
+                    });
+                  } else {
+                    this.setState({
+                      auditList: finalAuditList,
+                      auditListAll: finalAuditListAll,
+                      loading: false,
+                      isRefreshing: false,
+                      isLazyLoading: false,
+                      isLazyLoadingRequired: true,
+                      isPageEmpty: false,
+                      isMounted: true,
+                      isErrorRefresh: false,
+                    });
+                  }
+                } catch (e) {
+                  console.warn('Error', e);
+                  this.setState(
+                    {
+                      loading: false,
+                      isRefreshing: false,
+                      isLazyLoading: false,
+                      isLazyLoadingRequired: true,
+                      isMounted: true,
+                      isPageEmpty: true,
+                      isErrorRefresh: true,
+                      auditList: [],
+                      auditListAll: [],
+                      SortBy: 'StartDate',
+                    },
+                    () => {
+                      // this.getAuditlist()
+                      // this.refs.toast.show(strings.Audit_List_Failed, DURATION.LENGTH_LONG)
+                    },
+                  );
+                }
+              } else {
+                console.log('Error in here fetching list')
+                this.setState(
+                  {
+                    loading: false,
+                    isRefreshing: false,
+                    isLazyLoading: false,
+                    isLazyLoadingRequired: true,
+                    isMounted: true,
+                    isPageEmpty: true,
+                    isErrorRefresh: false,
+                  },
+                  () => {
+                    console.log('auditList',this.state.auditList);
+                    console.log('AuditDashBody Props After State Changing1...', this.props)
+                    // this.props.onFilterChange(this.state.cFilterVal)
+                  },
+                );
+              }
+            } else {
+              console.log('Error in error fetching list')
+              this.refs.toast.show(
+                strings.Audit_List_Failed,
+                DURATION.LENGTH_LONG,
+              );
+              this.setState(
+                {
+                  loading: false,
+                  isRefreshing: false,
+                  isLazyLoading: false,
+                  isLazyLoadingRequired: true,
+                  isMounted: true,
+                  isPageEmpty: true,
+                  isErrorRefresh: false,
+                },
+                () => {
+                  console.log('auditList',this.state.auditList);
+                  console.log('AuditDashBody Props After State Changing2...', this.props)
+                  //this.props.onFilterChange(this.state.cFilterVal)
+                },
+              );
+            }
+          },
+        );
+      } else {
+        this.refs.toast.show(strings.Audit_List_Failed, DURATION.LENGTH_LONG);
+        this.setState(
+          {
+            auditList: this.props.data.audits.audits,
+            auditListAll: this.props.data.audits.audits,
+            loading: false,
+            isRefreshing: false,
+            isLazyLoading: false,
+            isLazyLoadingRequired: false,
+            isPageEmpty: false,
+            isMounted: true,
+            isErrorRefresh: false,
+          },
+          () => {
+            console.log('auditList',this.state.auditList);
+            console.log('AuditDashBody Props After State Changing3...', this.props)
+            //this.props.onFilterChange(this.state.cFilterVal)
+          },
+        );
+      }
+    });
+
+    /**
+
+  else{
+
+
+    this.setState({
+      auditList: this.props.data.audits.audits, 
+      auditListAll: this.props.data.audits.audits, 
+      loading: false, 
+      isRefreshing: false,
+      isLazyLoading: false,
+      isLazyLoadingRequired: false,
+      isPageEmpty: false,
+      isMounted: true
+    }, () => {
+      // console.log('auditList',this.state.auditList);
+      // console.log('AuditDashBody Props After State Changing...', this.props)
+      //this.props.onFilterChange(this.state.cFilterVal)             
+    });
+
+
+
+  }
+  '      */
+  };
+  
   listFooter() {
     console.log('footer enabled');
     return (
