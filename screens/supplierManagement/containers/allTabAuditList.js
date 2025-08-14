@@ -154,9 +154,9 @@ class AllTabAuditList extends Component {
       cFilterVal: 0,
       default: 1, // existing workf
       // default: 0 // today activity
-      recentAudits: this.props.data.audits.recentAudits
-        ? this.props.data.audits.recentAudits.length > 0
-          ? this.props.data.audits.recentAudits.asMutable().reverse()
+      recentAudits: this.props?.data?.audits?.recentAudits
+        ? this.props?.data?.audits?.recentAudits?.length > 0
+        ? this.props?.data?.audits?.recentAudits?.asMutable ? this.props?.data?.audits?.recentAudits.asMutable() : this.props?.data?.audits?.recentAudits || []
           : []
         : [],
       filterArrSplit: [],
