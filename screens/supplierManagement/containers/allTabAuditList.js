@@ -220,9 +220,10 @@ class AllTabAuditList extends Component {
       // await this.registerCall(); // 1. wait for async call
 
       await this.globalLoginCall();
+
+      await this.getAuditLists();
       await this.getAuditStatusDetails();
       await this.getRecentAuditlist();
-      await this.getAuditLists();
   
       console.log('this.state.activetab', this.state.activeTab);
       console.log('check audits.smdata', this.props.data.audits.smdata);
@@ -827,6 +828,8 @@ class AllTabAuditList extends Component {
 
   async getAuditLists() { 
     await this.getUserDetails()
+    var smIndex = await AsyncStorage.getItem('supplierIndex');
+    console.log('smIndex getAuditLists----->', smIndex);
     var pageNo = 1;
     var token = this.props?.data?.audits?.token || this.state.currentUserData?.accessToken;
     var userId = this.props?.data?.audits?.userId || this.state.currentUserData?.userId;
@@ -838,7 +841,7 @@ class AllTabAuditList extends Component {
     var EndDate = '';
     var SortBy = '';
     var SortOrder = this.state.SortOrder;
-    var SM = this.props?.data?.audits?.smdata;
+    var SM = smIndex ||this.props?.data?.audits?.smdata;
     console.log('reach here 001',
           token,
           userId,
@@ -2633,8 +2636,10 @@ class AllTabAuditList extends Component {
     });
   }
 
-  filterApplied(filter) {
+  async filterApplied(filter) {
     console.log('filterApplied', filter);
+    var smIndex = await AsyncStorage.getItem('supplierIndex');
+    console.log('smIndex filterApplied----->', smIndex);
     var sortype = this.state.audit_sort;
     var droptext = this.state.audit_sortText;
     var FilterArray = [];
@@ -2723,7 +2728,7 @@ class AllTabAuditList extends Component {
         var SortBy = this.state.SortBy;
         var SortOrder = this.state.SortOrder;
         var Default = this.state.default;
-        var SM = this.props.data.audits.smdata;
+        var SM = smIndex || this.props.data.audits.smdata;
 
         // this.getAuditlist(filter.startDate,filter.endDate)
         // console.log('jdata',getauditlist)
@@ -3097,8 +3102,10 @@ class AllTabAuditList extends Component {
     }
   }
 
-  searchResult() {
+  async searchResult() {
     // console.log('Audit entered',this.state.AuditSearch)
+    var smIndex = await AsyncStorage.getItem('supplierIndex');
+    console.log('smIndex searchResult----->', smIndex);
     var Params = [];
     var SiteID = this.props.data.audits.siteId;
     var UserID = this.props.data.audits.userId;
@@ -3109,7 +3116,7 @@ class AllTabAuditList extends Component {
     var TOKEN = this.props.data.audits.token;
     var StartDate = '';
     var EndDate = '';
-    var SM = this.props.data.audits.smdata;
+    var SM = smIndex || this.props.data.audits.smdata;
 
     Params.push({
       SiteID: SiteID,
@@ -3200,7 +3207,9 @@ class AllTabAuditList extends Component {
     }
   };
 
-  getRecentAuditlist = (startDate, endDate) => {
+  getRecentAuditlist = async (startDate, endDate) => {
+    var smIndex = await AsyncStorage.getItem('supplierIndex');
+    console.log('smIndex getRecentAuditlist----->', smIndex);
     if (this.props.data.audits.isOfflineMode) {
       this.refs.toast.show(strings.Audit_List_Failed, DURATION.LENGTH_LONG);
       this.setState({
@@ -3232,7 +3241,7 @@ class AllTabAuditList extends Component {
         var SortBy = this.state.SortBy;
         var SortOrder = this.state.SortOrder;
         var Default = 0;
-        var SM = this.props.data.audits.smdata;
+        var SM = smIndex || this.props.data.audits.smdata;
         console.log(
           'api date',
           token,
@@ -3543,7 +3552,9 @@ class AllTabAuditList extends Component {
   '      */
   };
 
-  getAuditlist = (startDate, endDate) => {
+  getAuditlist = async (startDate, endDate) => {
+    var smIndex = await AsyncStorage.getItem('supplierIndex');
+    console.log('smIndex getAuditLists----->', smIndex);
     if (this.props.data.audits.isOfflineMode) {
       this.refs.toast.show(strings.Audit_List_Failed, DURATION.LENGTH_LONG);
       this.setState({
@@ -3575,7 +3586,7 @@ class AllTabAuditList extends Component {
         var SortBy = this.state.SortBy;
         var SortOrder = this.state.SortOrder;
         var Default = 1;
-        var SM = this.props.data.audits.smdata;
+        var SM = smIndex || this.props.data.audits.smdata;
         console.log(
           'api date',
           token,
