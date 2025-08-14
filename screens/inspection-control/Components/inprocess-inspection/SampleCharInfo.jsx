@@ -43,9 +43,6 @@ const SampleCharInfo = ({
             CTolerance: selectedData?.CTolerance || '',
             charInfo: JSON.parse(JSON.stringify(tempCharInfo)) || [],
         }));
-
-        console.log(selectedData, 'selectedData');
-
         if (selectedData?.DefectPhenomenonList?.length) {
             let temp = [];
             selectedData?.DefectPhenomenonList?.map(item => {
@@ -102,7 +99,7 @@ const SampleCharInfo = ({
             return userUpdateValue.CLowValue?.toString();
         } else if (item?.PropertyName === 'CTolerance' || item?.RefData === '##ATTorVAR##') {
             return userUpdateValue.CTolerance?.toString();
-        } else if (item?.PropertyName === 'CSampleSize' || item?.RefData === '##CSampleSize##') {
+        } else if (item?.PropertyName === 'CSampleSize' || item?.RefData === '##CSampleSize##' || item.PropertyName.includes('SampleSize')) {
             return userUpdateValue.CSampleSize?.toString();
         } else {
             return item?.Value;
@@ -139,7 +136,7 @@ const SampleCharInfo = ({
                                             handleUserInputChange(item.PropertyName, val, 'lowvalue', selectedData.CLowValue, 'CLowValue');
                                         } else if (item.PropertyName == 'CTolerance' || item.RefData == '##ATTorVAR##') {
                                             handleUserInputChange(item.PropertyName, val, 'spec', selectedData.CTolerance, 'CTolerance');
-                                        } else if (item.PropertyName == 'CSampleSize' || item.RefData == '##CSampleSize##') {
+                                        } else if (item.PropertyName == 'CSampleSize' || item.RefData == '##CSampleSize##' || item.PropertyName.includes('SampleSize')) {
                                             handleUserInputChange('CSampleSize', val, 'samplesize', null, 'CSampleSize');
                                         } else {
                                             handleInputChange(item.PropertyName, val);
