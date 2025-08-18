@@ -172,11 +172,12 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
     getdeviceRegisterStatus()
   }, [isRegister, isFocused])
 
-  const storeUrl = async (url) => {
-    console.log("reach storeUrl--->", url);
+  const storeUrl = async (url, recentApp) => {
+    console.log("reach storeUrl--->", url, 'recentApp', recentApp);
     localStorage.storeData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL, url);
     handleGlobalURL('serverUrl', url)
     await AsyncStorage.setItem('storedserverrul', url);
+    localStorage.storeData('CurrentApp', recentApp);
   };
 
   const handleNavigation = async (title, status, category, auditTitle, routeName) => {
@@ -187,7 +188,7 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
       if(title === strings.auditPro) {
         currentGlobalURL = globalDeviceDetails?.deviceDetails?.AuditProURL ? globalDeviceDetails?.deviceDetails?.AuditProURL: AUDITPRO_URL;
         auditproAuth.setServerUrl(currentGlobalURL);
-        storeUrl(currentGlobalURL);
+        storeUrl(currentGlobalURL, strings.auditPro);
         const projectDetails = {
           projectTitle: title,
           projectStatus: status,
@@ -201,14 +202,14 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
       } else if (title === strings.problemSolver) {
         currentGlobalURL = globalDeviceDetails?.deviceDetails?.PSApiURL ? globalDeviceDetails?.deviceDetails?.PSApiURL: PROBLEMSOLVING_URL;
         console.log('current click--->', strings.problemSolver,'--', category.replace(/\n/g, ' '),'--', category, '--')
-        storeUrl(currentGlobalURL);
+        storeUrl(currentGlobalURL, strings.problemSolver);
         navigateToStatusCount(category.replace(/\n/g, ' '));
       // APQP //
       } else if (title === (strings.apqp_ppapManager)) {
         console.log('apqp_ppapManager handleNavigation 1--->', title, status, category, globalDeviceDetails?.deviceDetails?.APQPApiURL)
         currentGlobalURL = globalDeviceDetails?.deviceDetails?.APQPApiURL ? globalDeviceDetails?.deviceDetails?.APQPApiURL: APQP_URL;
         apqpAuth.setServerUrl(currentGlobalURL);
-        storeUrl(currentGlobalURL);
+        storeUrl(currentGlobalURL, strings.apqp_ppapManager);
         globalAPQPLogin(category, title, currentGlobalURL)
       // SUPPLIER MANAGEMENT //
       } else if (title === strings.supplierMgnt) {
@@ -221,11 +222,11 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
           supplierIndex = 3
         }
         await AsyncStorage.setItem('supplierIndex', JSON.stringify(supplierIndex));
-        localStorage.storeData('CurrentApp', strings.supplierMgnt);
+        // localStorage.storeData('CurrentApp', strings.supplierMgnt);
         currentGlobalURL = globalDeviceDetails?.deviceDetails?.AuditProURL ? globalDeviceDetails?.deviceDetails?.AuditProURL: AUDITPRO_URL;
         supplierAuth.setServerUrl(currentGlobalURL);
         auditproAuth.setServerUrl(currentGlobalURL);
-        storeUrl(currentGlobalURL);
+        storeUrl(currentGlobalURL, strings.supplierMgnt);
         navigations.navigate(ROUTES.ALLTABAUDITLIST_SM)
       // DOCUMENT PRO //
       } else if (title === strings.documentPro) {

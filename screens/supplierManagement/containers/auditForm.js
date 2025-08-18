@@ -14,8 +14,8 @@ import {
   InteractionManager,
   ActivityIndicator,
 } from 'react-native';
-import { Images } from '../Themes';
-import styles from './Styles/AuditFormStyle';
+import {Images} from '../../auditPro/Themes';
+import styles from '../../auditPro/styles/AuditFormStyle';
 import { width } from 'react-native-dimension';
 import Modal from 'react-native-modal';
 import CryptoJS from 'crypto-js';
@@ -23,8 +23,8 @@ import CryptoJS from 'crypto-js';
 import { connect } from 'react-redux';
 import Toast, { DURATION } from 'react-native-easy-toast';
 import { Bubbles, DoubleBounce, Bars, Pulse } from 'react-native-loader';
-import auth from '../Services/Auth';
-import OfflineNotice from '../Components/OfflineNotice';
+import auth from '../../../services/Auditpro-Auth';
+import OfflineNotice from '../../auditPro/components/OfflineNotice';
 import ScrollableTabView, {
   DefaultTabBar,
 } from 'react-native-scrollable-tab-view';
@@ -32,22 +32,23 @@ import DocumentPicker from 'react-native-document-picker';
 import RNFetchBlob from 'react-native-fetch-blob';
 import ResponsiveImage from 'react-native-responsive-image';
 import { ConfirmDialog } from 'react-native-simple-dialogs';
-import Fonts from '../Themes/Fonts';
+import Fonts from '../../auditPro/Themes/Fonts';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import LinearGradient from 'react-native-linear-gradient';
-import { strings } from '../Language/Language';
+import {strings} from '../../auditPro/language/Language';
 var RNFS = require('react-native-fs');
 import base64 from 'react-native-base64';
 import NetInfo from '@react-native-community/netinfo';
 import FileViewer from 'react-native-file-viewer';
 import { create } from 'apisauce';
 import { Dropdown } from 'react-native-element-dropdown';
-import * as constant from '../Constants/AppConstants';
+import * as constant from '../../auditPro/constants/AppConstants';
 import DeviceInfo from 'react-native-device-info';
 import Moment from 'moment';
-import constants from '../Constants/AppConstants';
-import { SPACING } from 'constants/theme-constants';
+import constants from '../../auditPro/constants/AppConstants';
 import { ROUTES } from 'constants/app-constant';
+import AsyncStorage from '@react-native-community/async-storage';
+import { SPACING } from 'constants/theme-constants';
 
 let Window = Dimensions.get('window');
 
@@ -66,7 +67,7 @@ class AuditForm extends Component {
 
   constructor(props) {
     super(props);
-
+    console.log('get this.props----->', props)
     this.state = {
       token: '',
       CheckListbtn: false,
@@ -100,6 +101,13 @@ class AuditForm extends Component {
       generarereport_param: '',
       auditObj: '',
       loopCount: 0,
+      uploadIndex : 0,
+      totalFiles:0,
+      AuditAttachments : [],
+      FailedAttachments: [],
+      syncStatusLabel : '',
+      syncMode: 0,
+      currentUserData: [],
     };
   }
 
@@ -109,14 +117,14 @@ class AuditForm extends Component {
         deviceId,
       });
     });
-    if (this.props.navigation.state.params.SpeechCommand) {
+    if (this.props?.route?.params?.SpeechCommand) {
       console.log('Coming from speech command');
-      if (this.props.navigation.state.params.SpeechCommand == 'Template') {
+      if (this.props?.route?.params?.SpeechCommand == 'Template') {
         this.setState({ ActiveTab: 1 }, () => {
           console.log('Template Flag ', this.state.ActiveTab);
         });
       } else if (
-        this.props.navigation.state.params.SpeechCommand == 'Reference'
+        this.props?.route?.params?.SpeechCommand == 'Reference'
       ) {
         this.setState({ ActiveTab: 2 }, () => {
           console.log('Reference Flag ', this.state.ActiveTab);
@@ -125,7 +133,26 @@ class AuditForm extends Component {
     }
   }
 
+  async getAccessToken(){
+    try {
+      const stringifiedUserDetails = await AsyncStorage.getItem('userDetails');
+      const value = JSON.parse(stringifiedUserDetails);
+      console.log('current userdata--->', value)
+      if (value !== null) {
+        // value previously stored
+        console.log('current token2--->', value.accessToken)
+        this.setState({ currentUserData: value },()=>{
+          console.log('Token set')
+        })
+      }
+    } catch (e) {
+      // error reading value
+      console.log('error--->', e)
+    }
+  };
+
   componentDidMount() {
+    // this.getParamsDetails();
     let Files =
       '/' +
       RNFetchBlob.fs.dirs.DocumentDir +
@@ -150,7 +177,7 @@ class AuditForm extends Component {
       }
     });
     console.log('Auditform mounted', this.props);
-    console.log('checkinnngthis.props.navigation.state.params.datapass',this.props.navigation.state.params.datapass);
+    console.log('checkinnngthis.props.navigation.state.params.datapass',this.props?.route?.params?.datapass);
     // console.log('Recieved props in Audit Form', this.props.navigation.state.params)
 
     if (this.props.data.audits.language === 'Chinese') {
@@ -170,7 +197,7 @@ class AuditForm extends Component {
       });
     }
 
-    if (this.props.navigation.state.params.ChecklistBtn === true) {
+    if (this.props?.route?.params?.ChecklistBtn === true) {
       this.setState({ CheckListbtn: true }, () => {
         // console.log('Check list button enabled',this.state.CheckListbtn)
       });
@@ -178,11 +205,15 @@ class AuditForm extends Component {
 
     this.setState(
       {
-        token: this.props.data.audits.token,
-        AuditID: this.props.navigation.state.params.AuditID,
-        Checkpointpass: this.props.navigation.state.params.CreateNCdataBundle,
+        token: this.props?.data?.audits?.token,
+        // AuditID: this.props.navigation.state.params.AuditID,
+        // Checkpointpass: this.props.navigation.state.params.CreateNCdataBundle,
+        // breadCrumbText:
+        //   this.props.navigation.state.params.CreateNCdataBundle.breadCrumb,
+        AuditID: this.props?.route?.params?.AuditID,
+        Checkpointpass: this.props?.route?.params?.CreateNCdataBundle,
         breadCrumbText:
-          this.props.navigation.state.params.CreateNCdataBundle.breadCrumb,
+          this.props?.route?.params?.CreateNCdataBundle?.breadCrumb,
         // breadCrumbText: this.props.navigation.state.params.CreateNCdataBundle.breadCrumb.length > 30 ? this.props.navigation.state.params.CreateNCdataBundle.breadCrumb.slice(0, 30) + '...' : this.props.navigation.state.params.CreateNCdataBundle.breadCrumb
         // dropPass: this.props.navigation.state.params.DropDownVal
         // formDetails : this.props.navigation.state.params.FormDetails /*=== undefined ? 'N/A' : this.props.navigation.state.params.FormDetails.FormName*/ ,
@@ -224,11 +255,12 @@ class AuditForm extends Component {
 
   componentWillReceiveProps(props) {
     var getCurrentPage = [];
-    getCurrentPage = this.props.data.nav.routes;
-    var CurrentPage = getCurrentPage[getCurrentPage.length - 1].routeName;
+    // getCurrentPage = this.props.data.nav.routes;
+    // var CurrentPage = getCurrentPage[getCurrentPage.length - 1].routeName;
+    var CurrentPage = this.props.route.name
     console.log('--CurrentPage--->', CurrentPage);
 
-    if (CurrentPage == ROUTES.AUDIT_FORM) {
+    if (CurrentPage == ROUTES.AUDIT_FORM_SM) {
       console.log('Audit form page focussed!');
       console.log('--AuditForm-PROPS-->', props);
       console.log('--AuditForm-this.PROPS-->', this.props);
@@ -344,7 +376,8 @@ class AuditForm extends Component {
     }
   }
 
-  getFormdeTails() {
+  async getFormdeTails() {
+    await this.getAccessToken()
     var AllData = this.props.data.audits.auditRecords;
     var AuditID = this.state.AuditID;
     var FormData = [];
@@ -362,7 +395,7 @@ class AuditForm extends Component {
             AuditOrderId: AllData[i].AuditTypeOrder,
           },
           () => {
-            console.log('AuditOrderId', this.state.AuditOrderId);
+            console.log('AuditOrderId-----', this.state.AuditOrderId);
           },
         );
       }
@@ -474,7 +507,7 @@ class AuditForm extends Component {
     }
     if (this.state.CheckListbtn === true) {
       console.log('===>btnclick', item);
-      this.props.navigation.navigate('CheckListMenu', {
+      this.props.navigation.navigate(ROUTES.CHECKLIST_MENU, {
         AuditID: this.state.AuditID,
         Checkpass: this.state.Checkpointpass,
         FormId: item.FormId,
@@ -501,7 +534,7 @@ class AuditForm extends Component {
             isLoaderVisible: false,
           },
           () => {
-            this.refs.toast.show(strings.Offline_Notice, DURATION.LENGTH_LONG);
+            this.toast.show(strings.Offline_Notice, DURATION.LENGTH_LONG);
           },
         );
       } else {
@@ -527,7 +560,7 @@ class AuditForm extends Component {
                 isLoaderVisible: false,
               },
               () => {
-                this.refs.toast.show(strings.No_sync, DURATION.LENGTH_LONG);
+                this.toast.show(strings.No_sync, DURATION.LENGTH_LONG);
               },
             );
           }
@@ -548,7 +581,7 @@ class AuditForm extends Component {
   }
 
   handleConnectionChange() {
-    const TOKEN = this.state.token;
+    const TOKEN = this.state.currentUserData?.accessToken || this.state.token;
     var audits = this.props.data.audits.auditRecords;
     console.log('auditrecored.......',audits);
     
@@ -674,7 +707,7 @@ class AuditForm extends Component {
                     console.log(audits[i], 'formidlength');
 
                     //let addFiles = audits[i].Listdata[j].AttachmentList.filter((i) => i.Attachment !== 'Downloaded')
-                                        let fileNames = NewAttachments.map((it) => it.FileName).join(',')
+                    let fileNames = NewAttachments.map((it) => it.FileName).join(',')
                     console.log("cjshjhgfsdjgfjsgjfgsjd",this.auditAttachments);
                     auditCheckPoints.push({
                       ChecklistTemplateId: parseInt(
@@ -713,14 +746,11 @@ class AuditForm extends Component {
                         audits[i].Listdata[j].FailureCategoryId,
                       FailureReasonId: audits[i].Listdata[j].FailureReasonId,
                       FormId: audits[i].Listdata[j].FormId,
-
                       // FormId: audits[i].FormId == '' ? 0 : parseInt(audits[i].FormId),
                     });
                   }
                 }
               }
-
-
               if (hasListData == true) {
                 console.log(FormIds[kk], 'FormIds1entering loop');
                 auditRecords.push({
@@ -732,7 +762,7 @@ class AuditForm extends Component {
                   AuditTypeId: parseInt(audits[i].AuditTypeId),
                   AuditOrderId: parseInt(audits[i].AuditTypeOrder),
                   SiteId: parseInt(audits[i].SiteId),
-                  UserId: parseInt(audits[i].UserId),
+                  UserId: parseInt(this.state.currentUserData?.userId || audits[i].UserId),
                   FromDocPro: parseInt(audits[i].FromDocPro),
                   DocumentId: parseInt(audits[i].DocumentId),
                   DocRevNo: parseInt(audits[i].DocRevNo),
@@ -942,13 +972,13 @@ class AuditForm extends Component {
       // Dynamic parameters
       // console.log('dksfskfhskdfhsdhfksdhfsdhf893393483993',this.props.data.audits.siteId);
       var dnum = this.state.Checkpointpass.AUDIT_NO;
-      var siteId = this.props.data.audits.siteId;
-      var UserId = this.props.data.audits.userId;
+      var siteId = this.state.currentUserData?.siteId || this.props.data.audits.siteId;
+      var UserId = this.state.currentUserData?.userId || this.props.data.audits.userId;
       var siteid = 'sit' + siteId;
       var effectivedate = Moment(new Date()).format('MM/DD/YYYY');
       var revdate = Moment(new Date()).format('MM/DD/YYYY');
       var deviceId = await DeviceInfo.getUniqueId();
-      var token = this.props.data.audits.token;
+      var token = this.state.currentUserData?.accessToken || this.props.data.audits.token;
 
       // Static parameters
       var langid = 1;
@@ -1108,7 +1138,7 @@ class AuditForm extends Component {
     });
   }
   attachmentFileApiCall(formRequestArr) {
-    var token = this.props.data.audits.token;
+    var token = this.state.currentUserData?.accessToken || this.props.data.audits.token;
 
     console.log('fromrequestArrayCHECK-------', formRequestArr);
     //const objValues = this.checkListObjects.map(item => item.obj);
@@ -1290,7 +1320,7 @@ class AuditForm extends Component {
       'getting local unsaved data',
       this.props.data.audits.ncofiRecords,
     );
-    var token = this.props.data.audits.token;
+    var token = this.state.currentUserData?.accessToken || this.props.data.audits.token;
     var formRequest = [];
     var dataArr = this.props.data.audits.ncofiRecords;
     console.log(dataArr, 'duplicatees');
@@ -1304,6 +1334,8 @@ class AuditForm extends Component {
       );
       if (dataArr[i].AuditID === this.state.AuditID) {
         for (var j = 0; j < dataArr[i].Pending.length; j++) {
+          console.log('syncing pending data:', dataArr[i].Pending);
+
           // if (dataArr[i].Pending[j].ChecklistTemplateId !== 0) {
           console.log('syncing data:', dataArr[i].Pending[j]);
           console.log('file data:', dataArr[i].Pending[j].filedata);
@@ -1346,7 +1378,10 @@ class AuditForm extends Component {
                   ? dataArr[i].Pending[j].selectedItemsProcess.join(',')
                   : '',
               CorrectiveId: dataArr[i].Pending[j].AuditID,
-              CategoryId: dataArr[i].Pending[j].categoryDrop
+              // CategoryId: dataArr[i].Pending[j].categoryDrop
+              //   ? dataArr[i].Pending[j].categoryDrop.id
+              //   : 0,
+              CategoryId: dataArr[i].Pending[j].CategoryId == 0 ? 0 : dataArr[i].Pending[j].categoryDrop
                 ? dataArr[i].Pending[j].categoryDrop.id
                 : 0,
               FileName: formattedImages,//dataArr[i].Pending[j].filename,
@@ -1356,7 +1391,7 @@ class AuditForm extends Component {
                 dataArr[i].Pending[j].auditstatus === ''
                   ? 0
                   : isNaN(parseInt(dataArr[i].Pending[j].auditstatus))
-                  ? this.props.navigation.state.params.datapass
+                  ? this.props?.route?.params?.datapass
                   : parseInt(dataArr[i].Pending[j].auditstatus),
               NonConformity: dataArr[i].Pending[j].NonConfirmity,
               RequestedBy: dataArr[i].Pending[j].requestDrop
@@ -1420,7 +1455,10 @@ class AuditForm extends Component {
                   ? dataArr[i].Pending[j].selectedItemsProcess.join(',')
                   : '',
               CorrectiveId: dataArr[i].Pending[j].AuditID,
-              CategoryId: dataArr[i].Pending[j].categoryDrop
+              // CategoryId: dataArr[i].Pending[j].categoryDrop
+              //   ? dataArr[i].Pending[j].categoryDrop.id
+              //   : 0,
+              CategoryId: dataArr[i].Pending[j].CategoryId == 0 ? 0 : dataArr[i].Pending[j].categoryDrop
                 ? dataArr[i].Pending[j].categoryDrop.id
                 : 0,
                 Title: dataArr[i].Pending[j].NCNumber ? dataArr[i].Pending[j].NCNumber: ''  ,
@@ -1432,7 +1470,7 @@ class AuditForm extends Component {
                 dataArr[i].Pending[j].auditstatus === ''
                   ? 0
                   : isNaN(parseInt(dataArr[i].Pending[j].auditstatus))
-                  ? this.props.navigation.state.params.datapass
+                  ? this.props?.route?.params?.datapass
                   : parseInt(dataArr[i].Pending[j].auditstatus),
               RequestedBy: dataArr[i].Pending[j].requestDrop
                 ? dataArr[i].Pending[j].requestDrop.id
@@ -1764,7 +1802,7 @@ class AuditForm extends Component {
         AuditProgramId:this.props.data.audits.smdata == 2 ? -2 : auditListOrg[i].AuditTemplateId,
         AuditProgramName: auditListOrg[i].AuditProgramName,
         // AuditStatus: auditListOrg[i].AuditStatus,
-        AuditStatus: this.props.navigation.state.params.datapassParam.AuditStatus,
+        AuditStatus: this.props?.route?.params?.datapassParam?.AuditStatus,
         AuditTemplateId: auditListOrg[i].AuditTemplateId,
         AuditTypeId: auditListOrg[i].AuditTypeId,
         AuditTypeName: auditListOrg[i].AuditTypeName,
@@ -2034,8 +2072,18 @@ class AuditForm extends Component {
     console.log('auditRecords', auditRecords);
     this.props.storeAuditRecords(auditRecords);
   }
-
+  // async getParamsDetails() {
+  //   console.log('this.props.navigation.state.params.datapass.SiteId)',this.props.navigation.state.params.datapass.SiteId);
+    
+  //   const vall = AsyncStorage.setItem('AUDITYPE_ORDER',this.props.navigation.state.params.datapass.ActualAuditOrderNo);
+  //   this.setState({
+  //     AuditTypeOrdersync: vall
+  //   })
+    // AsyncStorage.setItem('AUDIT_SITE_ID',this.state.AUDIT_SITE_ID);
+    // AsyncStorage.setItem('AUDIT_STATUS',this.props.navigation.state.params.datapass.AuditStatus);
+// }
   syncAuditFormsToServer = () => {
+    // this.getParamsDetails();
     var documentList = [];
     const TOKEN = this.state.token;
     var userid = this.props.data.audits.userId;
@@ -2062,7 +2110,8 @@ class AuditForm extends Component {
           documentList.push({
             UploadedBy: userid,
             AuditId: parseInt(this.state.AuditID),
-            AuditOrderId: parseInt(this.state.AuditTypeOrder),
+            // AuditOrderId: parseInt(this.state.AuditTypeOrder),
+            AuditOrderId: parseInt(this.state.AuditOrderId),
             FormId: parseInt(this.state.formDetails[j].FormId),
             // UploadId: this.state.Checkpointpass.AUDIT_NO,
             FormType: this.state.formDetails[j].Attachmenttype == 0 ? 0 : 1,
@@ -2345,7 +2394,7 @@ class AuditForm extends Component {
               AuditProgramId: this.props.data.audits.smdata == 2 ? -2 : auditListOrg[i].AuditTemplateId,
               AuditProgramName: auditListOrg[i].AuditProgramName,
               // AuditStatus: auditListOrg[i].AuditStatus,
-              AuditStatus: this.props.navigation.state.params.datapassParam.AuditStatus,
+              AuditStatus: this.props?.route?.params?.datapassParam?.AuditStatus,
               AuditTemplateId: auditListOrg[i].AuditTemplateId,
               AuditTypeId: auditListOrg[i].AuditTypeId,
               AuditTypeName: auditListOrg[i].AuditTypeName,
@@ -3207,7 +3256,7 @@ class AuditForm extends Component {
               <TouchableOpacity
                 style={{ paddingHorizontal: 10 }}
                 onPress={() =>
-                  this.props.navigation.navigate('AuditDashboard')
+                  this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)
                 }>
                 <Icon name="home" size={30} color="white" />
               </TouchableOpacity>
@@ -3376,7 +3425,7 @@ class AuditForm extends Component {
                                       : item.AttachedDocument}
                                 </Text>
                               </TouchableOpacity>
-                              {item.AttachedDocument &&
+                              {/* {item.AttachedDocument &&
                                 item.Attachmenttype == 0 ? (
                                 <TouchableOpacity
                                   onPress={() =>
@@ -3384,7 +3433,7 @@ class AuditForm extends Component {
                                   }>
                                   <Icon name="trash" size={20} color="red" />
                                 </TouchableOpacity>
-                              ) : null}
+                              ) : null} */}
                               {item.Attachmenttype == 0 ? (
                                 <TouchableOpacity
                                   onPress={() => {
@@ -3660,11 +3709,11 @@ class AuditForm extends Component {
                                 alert(url);
                               });*/
                                   }}>
-                                  <ResponsiveImage
+                                  {/* <ResponsiveImage
                                     source={Images.AttachIcon}
                                     initWidth="24"
                                     initHeight="22"
-                                  />
+                                  /> */}
                                 </TouchableOpacity>
                               ) : null}
                             </View>

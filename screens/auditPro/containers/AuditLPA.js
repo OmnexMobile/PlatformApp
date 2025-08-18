@@ -233,8 +233,9 @@ class AuditForm extends Component {
 
   componentWillReceiveProps(props) {
     var getCurrentPage = [];
-    getCurrentPage = this.props.data.nav.routes;
-    var CurrentPage = getCurrentPage[getCurrentPage.length - 1].routeName;
+    // getCurrentPage = this.props.data.nav.routes;
+    // var CurrentPage = getCurrentPage[getCurrentPage.length - 1].routeName;
+    var CurrentPage = this.props?.route?.name;
     console.log('--CurrentPage--->', CurrentPage);
 
     if (CurrentPage == ROUTES.AUDIT_FORM) {
@@ -243,6 +244,11 @@ class AuditForm extends Component {
       console.log('--AuditForm-this.PROPS-->', this.props);
 
       console.log('componentWillReceiveProps', props.data.audits.ncofiRecords);
+      this.displayNCSync(props.data.audits.ncofiRecords);
+    } else if(CurrentPage == ROUTES.AUDIT_FORM_SM) {
+      console.log('--AuditForm-this.PROPS SM-->', this.props);
+
+      console.log('componentWillReceiveProps SM', props.data.audits.ncofiRecords);
       this.displayNCSync(props.data.audits.ncofiRecords);
     } else {
       console.log('AuditForm pass');

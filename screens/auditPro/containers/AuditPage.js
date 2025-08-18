@@ -30,6 +30,7 @@ import Modal from 'react-native-modal';
 import {debounce, once} from 'underscore';
 import NetInfo from '@react-native-community/netinfo';
 import constant from '../constants/AppConstants';
+import localStorage from 'global/localStorage';
 import Conformacy from './Conformacy';
 
 // Voice packages
@@ -603,7 +604,9 @@ class AuditPage extends Component {
     }
   }
 
-  VoiceLogic() {
+  async VoiceLogic() {
+    let CurrentApp = await localStorage .getData('CurrentApp');
+    console.log('current app--->', CurrentApp)
     this.setState({txt: this.state.results}, () => {
       console.log('txt', this.state.txt);
       if (Platform.OS == 'ios') {
@@ -739,27 +742,51 @@ class AuditPage extends Component {
           this._stopRecognizing();
           Voice.removeAllListeners();
           this.InitVoice();
-          this.props.navigation.navigate(ROUTES.AUDIT_FORM, {
-            AuditID: this.state.AUDIT_ID,
-            ChecklistBtn: this.state.ChecklistBtn,
-            CreateNCdataBundle: {
+          if(CurrentApp === 'Audit Pro') {
+            this.props.navigation.navigate(ROUTES.AUDIT_FORM, {
               AuditID: this.state.AUDIT_ID,
-              AuditOrder: this.state.AUDITYPE_ORDER,
-              title: 'order by FormName asc',
-              auditstatus: this.state.auditstatus,
-              SiteID: this.state.SITEID,
-              Formid: this.state.IFormID,
-              ChecklistID: this.state.checklistID,
-              AUDIT_NO: this.state.AUDIT_NO,
-              AuditProgramId: this.state.AUDITPROG_ID,
-              breadCrumb: this.state.auditDetailList.Auditee,
-            },
-            SpeechCommand: 'Template',
-            // DropDownVal : this.state.DropDownProps
-            // ChecklistProp : this.state.CheckListPropData,
-            // FormDetails : this.state.Formdata,
-            // Checkpointlogic : this.state.CheckpointLogic,
-          });
+              ChecklistBtn: this.state.ChecklistBtn,
+              CreateNCdataBundle: {
+                AuditID: this.state.AUDIT_ID,
+                AuditOrder: this.state.AUDITYPE_ORDER,
+                title: 'order by FormName asc',
+                auditstatus: this.state.auditstatus,
+                SiteID: this.state.SITEID,
+                Formid: this.state.IFormID,
+                ChecklistID: this.state.checklistID,
+                AUDIT_NO: this.state.AUDIT_NO,
+                AuditProgramId: this.state.AUDITPROG_ID,
+                breadCrumb: this.state.auditDetailList.Auditee,
+              },
+              SpeechCommand: 'Template',
+              // DropDownVal : this.state.DropDownProps
+              // ChecklistProp : this.state.CheckListPropData,
+              // FormDetails : this.state.Formdata,
+              // Checkpointlogic : this.state.CheckpointLogic,
+            });
+          } else { 
+            this.props.navigation.navigate(ROUTES.AUDIT_FORM_SM, {
+              AuditID: this.state.AUDIT_ID,
+              ChecklistBtn: this.state.ChecklistBtn,
+              CreateNCdataBundle: {
+                AuditID: this.state.AUDIT_ID,
+                AuditOrder: this.state.AUDITYPE_ORDER,
+                title: 'order by FormName asc',
+                auditstatus: this.state.auditstatus,
+                SiteID: this.state.SITEID,
+                Formid: this.state.IFormID,
+                ChecklistID: this.state.checklistID,
+                AUDIT_NO: this.state.AUDIT_NO,
+                AuditProgramId: this.state.AUDITPROG_ID,
+                breadCrumb: this.state.auditDetailList.Auditee,
+              },
+              SpeechCommand: 'Template',
+              // DropDownVal : this.state.DropDownProps
+              // ChecklistProp : this.state.CheckListPropData,
+              // FormDetails : this.state.Formdata,
+              // Checkpointlogic : this.state.CheckpointLogic,
+            });
+          }
         }, 2000);
       } else if (
         txt.includes(strings.va_cmd25) ||
@@ -775,53 +802,100 @@ class AuditPage extends Component {
           this._stopRecognizing();
           Voice.removeAllListeners();
           this.InitVoice();
-          this.props.navigation.navigate(ROUTES.AUDIT_FORM, {
-            AuditID: this.state.AUDIT_ID,
-            ChecklistBtn: this.state.ChecklistBtn,
-            CreateNCdataBundle: {
+          if(CurrentApp === 'Audit Pro') {
+            this.props.navigation.navigate(ROUTES.AUDIT_FORM, {
               AuditID: this.state.AUDIT_ID,
-              AuditOrder: this.state.AUDITYPE_ORDER,
-              title: 'order by FormName asc',
-              auditstatus: this.state.auditstatus,
-              SiteID: this.state.SITEID,
-              Formid: this.state.IFormID,
-              ChecklistID: this.state.checklistID,
-              AUDIT_NO: this.state.AUDIT_NO,
-              AuditProgramId: this.state.AUDITPROG_ID,
-              breadCrumb: this.state.auditDetailList.Auditee,
-            },
-            SpeechCommand: 'Reference',
-            // DropDownVal : this.state.DropDownProps
-            // ChecklistProp : this.state.CheckListPropData,
-            // FormDetails : this.state.Formdata,
-            // Checkpointlogic : this.state.CheckpointLogic,
-          });
+              ChecklistBtn: this.state.ChecklistBtn,
+              CreateNCdataBundle: {
+                AuditID: this.state.AUDIT_ID,
+                AuditOrder: this.state.AUDITYPE_ORDER,
+                title: 'order by FormName asc',
+                auditstatus: this.state.auditstatus,
+                SiteID: this.state.SITEID,
+                Formid: this.state.IFormID,
+                ChecklistID: this.state.checklistID,
+                AUDIT_NO: this.state.AUDIT_NO,
+                AuditProgramId: this.state.AUDITPROG_ID,
+                breadCrumb: this.state.auditDetailList.Auditee,
+              },
+              SpeechCommand: 'Reference',
+              // DropDownVal : this.state.DropDownProps
+              // ChecklistProp : this.state.CheckListPropData,
+              // FormDetails : this.state.Formdata,
+              // Checkpointlogic : this.state.CheckpointLogic,
+            });
+          } else {
+            this.props.navigation.navigate(ROUTES.AUDIT_FORM_SM, {
+              AuditID: this.state.AUDIT_ID,
+              ChecklistBtn: this.state.ChecklistBtn,
+              CreateNCdataBundle: {
+                AuditID: this.state.AUDIT_ID,
+                AuditOrder: this.state.AUDITYPE_ORDER,
+                title: 'order by FormName asc',
+                auditstatus: this.state.auditstatus,
+                SiteID: this.state.SITEID,
+                Formid: this.state.IFormID,
+                ChecklistID: this.state.checklistID,
+                AUDIT_NO: this.state.AUDIT_NO,
+                AuditProgramId: this.state.AUDITPROG_ID,
+                breadCrumb: this.state.auditDetailList.Auditee,
+              },
+              SpeechCommand: 'Reference',
+              // DropDownVal : this.state.DropDownProps
+              // ChecklistProp : this.state.CheckListPropData,
+              // FormDetails : this.state.Formdata,
+              // Checkpointlogic : this.state.CheckpointLogic,
+            });
+          }
         }, 2000);
       } else if (txt.toLowerCase().includes(strings.va_cmd26)) {
         setTimeout(() => {
           this._stopRecognizing();
           Voice.removeAllListeners();
           this.InitVoice();
-          this.props.navigation.navigate(ROUTES.AUDIT_FORM, {
-            AuditID: this.state.AUDIT_ID,
-            ChecklistBtn: this.state.ChecklistBtn,
-            CreateNCdataBundle: {
+          if(CurrentApp === 'Audit Pro') {
+            this.props.navigation.navigate(ROUTES.AUDIT_FORM, {
               AuditID: this.state.AUDIT_ID,
-              AuditOrder: this.state.AUDITYPE_ORDER,
-              title: 'order by FormName asc',
-              auditstatus: this.state.auditstatus,
-              SiteID: this.state.SITEID,
-              Formid: this.state.IFormID,
-              ChecklistID: this.state.checklistID,
-              AUDIT_NO: this.state.AUDIT_NO,
-              AuditProgramId: this.state.AUDITPROG_ID,
-              breadCrumb: this.state.auditDetailList.Auditee,
-            },
-            // DropDownVal : this.state.DropDownProps
-            // ChecklistProp : this.state.CheckListPropData,
-            // FormDetails : this.state.Formdata,
-            // Checkpointlogic : this.state.CheckpointLogic,
-          });
+              ChecklistBtn: this.state.ChecklistBtn,
+              CreateNCdataBundle: {
+                AuditID: this.state.AUDIT_ID,
+                AuditOrder: this.state.AUDITYPE_ORDER,
+                title: 'order by FormName asc',
+                auditstatus: this.state.auditstatus,
+                SiteID: this.state.SITEID,
+                Formid: this.state.IFormID,
+                ChecklistID: this.state.checklistID,
+                AUDIT_NO: this.state.AUDIT_NO,
+                AuditProgramId: this.state.AUDITPROG_ID,
+                breadCrumb: this.state.auditDetailList.Auditee,
+              },
+              // DropDownVal : this.state.DropDownProps
+              // ChecklistProp : this.state.CheckListPropData,
+              // FormDetails : this.state.Formdata,
+              // Checkpointlogic : this.state.CheckpointLogic,
+            });
+          } else {
+            this.props.navigation.navigate(ROUTES.AUDIT_FORM_SM, {
+              AuditID: this.state.AUDIT_ID,
+              ChecklistBtn: this.state.ChecklistBtn,
+              CreateNCdataBundle: {
+                AuditID: this.state.AUDIT_ID,
+                AuditOrder: this.state.AUDITYPE_ORDER,
+                title: 'order by FormName asc',
+                auditstatus: this.state.auditstatus,
+                SiteID: this.state.SITEID,
+                Formid: this.state.IFormID,
+                ChecklistID: this.state.checklistID,
+                AUDIT_NO: this.state.AUDIT_NO,
+                AuditProgramId: this.state.AUDITPROG_ID,
+                breadCrumb: this.state.auditDetailList.Auditee,
+              },
+              // DropDownVal : this.state.DropDownProps
+              // ChecklistProp : this.state.CheckListPropData,
+              // FormDetails : this.state.Formdata,
+              // Checkpointlogic : this.state.CheckpointLogic,
+            });
+          }
         }, 2000);
       }
     });
@@ -843,8 +917,10 @@ class AuditPage extends Component {
     });
   };
   
-  _suggestionPress(item) {
+  async _suggestionPress(item) {
     console.log('pressed', item);
+    let CurrentApp = await localStorage.getData('CurrentApp');
+    console.log('current app--->', CurrentApp)
     if (item == strings.sugesstion1) {
       Tts.setDucking(true).then(() => {
         Tts.speak(strings.va_reply4);
@@ -948,27 +1024,51 @@ class AuditPage extends Component {
             console.log('cloded');
           },
         );
-        this.props.navigation.navigate(ROUTES.AUDIT_FORM, {
-          AuditID: this.state.AUDIT_ID,
-          ChecklistBtn: this.state.ChecklistBtn,
-          CreateNCdataBundle: {
+        if(CurrentApp === 'Audit Pro') {
+          this.props.navigation.navigate(ROUTES.AUDIT_FORM, {
             AuditID: this.state.AUDIT_ID,
-            AuditOrder: this.state.AUDITYPE_ORDER,
-            title: 'order by FormName asc',
-            auditstatus: this.state.auditstatus,
-            SiteID: this.state.SITEID,
-            Formid: this.state.IFormID,
-            ChecklistID: this.state.checklistID,
-            AUDIT_NO: this.state.AUDIT_NO,
-            AuditProgramId: this.state.AUDITPROG_ID,
-            breadCrumb: this.state.auditDetailList.Auditee,
-          },
-          SpeechCommand: 'Template',
-          // DropDownVal : this.state.DropDownProps
-          // ChecklistProp : this.state.CheckListPropData,
-          // FormDetails : this.state.Formdata,
-          // Checkpointlogic : this.state.CheckpointLogic,
-        });
+            ChecklistBtn: this.state.ChecklistBtn,
+            CreateNCdataBundle: {
+              AuditID: this.state.AUDIT_ID,
+              AuditOrder: this.state.AUDITYPE_ORDER,
+              title: 'order by FormName asc',
+              auditstatus: this.state.auditstatus,
+              SiteID: this.state.SITEID,
+              Formid: this.state.IFormID,
+              ChecklistID: this.state.checklistID,
+              AUDIT_NO: this.state.AUDIT_NO,
+              AuditProgramId: this.state.AUDITPROG_ID,
+              breadCrumb: this.state.auditDetailList.Auditee,
+            },
+            SpeechCommand: 'Template',
+            // DropDownVal : this.state.DropDownProps
+            // ChecklistProp : this.state.CheckListPropData,
+            // FormDetails : this.state.Formdata,
+            // Checkpointlogic : this.state.CheckpointLogic,
+          });
+        } else {
+          this.props.navigation.navigate(ROUTES.AUDIT_FORM_SM, {
+            AuditID: this.state.AUDIT_ID,
+            ChecklistBtn: this.state.ChecklistBtn,
+            CreateNCdataBundle: {
+              AuditID: this.state.AUDIT_ID,
+              AuditOrder: this.state.AUDITYPE_ORDER,
+              title: 'order by FormName asc',
+              auditstatus: this.state.auditstatus,
+              SiteID: this.state.SITEID,
+              Formid: this.state.IFormID,
+              ChecklistID: this.state.checklistID,
+              AUDIT_NO: this.state.AUDIT_NO,
+              AuditProgramId: this.state.AUDITPROG_ID,
+              breadCrumb: this.state.auditDetailList.Auditee,
+            },
+            SpeechCommand: 'Template',
+            // DropDownVal : this.state.DropDownProps
+            // ChecklistProp : this.state.CheckListPropData,
+            // FormDetails : this.state.Formdata,
+            // Checkpointlogic : this.state.CheckpointLogic,
+          });
+        }
       }, 500);
     } else if (item == strings.sugesstion5) {
       Tts.setDucking(true).then(() => {
@@ -981,27 +1081,51 @@ class AuditPage extends Component {
             console.log('cloded');
           },
         );
-        this.props.navigation.navigate(ROUTES.AUDIT_FORM, {
-          AuditID: this.state.AUDIT_ID,
-          ChecklistBtn: this.state.ChecklistBtn,
-          CreateNCdataBundle: {
+        if(CurrentApp === 'Audit Pro') {
+          this.props.navigation.navigate(ROUTES.AUDIT_FORM, {
             AuditID: this.state.AUDIT_ID,
-            AuditOrder: this.state.AUDITYPE_ORDER,
-            title: 'order by FormName asc',
-            auditstatus: this.state.auditstatus,
-            SiteID: this.state.SITEID,
-            Formid: this.state.IFormID,
-            ChecklistID: this.state.checklistID,
-            AUDIT_NO: this.state.AUDIT_NO,
-            AuditProgramId: this.state.AUDITPROG_ID,
-            breadCrumb: this.state.auditDetailList.Auditee,
-          },
-          SpeechCommand: 'Reference',
-          // DropDownVal : this.state.DropDownProps
-          // ChecklistProp : this.state.CheckListPropData,
-          // FormDetails : this.state.Formdata,
-          // Checkpointlogic : this.state.CheckpointLogic,
-        });
+            ChecklistBtn: this.state.ChecklistBtn,
+            CreateNCdataBundle: {
+              AuditID: this.state.AUDIT_ID,
+              AuditOrder: this.state.AUDITYPE_ORDER,
+              title: 'order by FormName asc',
+              auditstatus: this.state.auditstatus,
+              SiteID: this.state.SITEID,
+              Formid: this.state.IFormID,
+              ChecklistID: this.state.checklistID,
+              AUDIT_NO: this.state.AUDIT_NO,
+              AuditProgramId: this.state.AUDITPROG_ID,
+              breadCrumb: this.state.auditDetailList.Auditee,
+            },
+            SpeechCommand: 'Reference',
+            // DropDownVal : this.state.DropDownProps
+            // ChecklistProp : this.state.CheckListPropData,
+            // FormDetails : this.state.Formdata,
+            // Checkpointlogic : this.state.CheckpointLogic,
+          });
+        } else {
+          this.props.navigation.navigate(ROUTES.AUDIT_FORM_SM, {
+            AuditID: this.state.AUDIT_ID,
+            ChecklistBtn: this.state.ChecklistBtn,
+            CreateNCdataBundle: {
+              AuditID: this.state.AUDIT_ID,
+              AuditOrder: this.state.AUDITYPE_ORDER,
+              title: 'order by FormName asc',
+              auditstatus: this.state.auditstatus,
+              SiteID: this.state.SITEID,
+              Formid: this.state.IFormID,
+              ChecklistID: this.state.checklistID,
+              AUDIT_NO: this.state.AUDIT_NO,
+              AuditProgramId: this.state.AUDITPROG_ID,
+              breadCrumb: this.state.auditDetailList.Auditee,
+            },
+            SpeechCommand: 'Reference',
+            // DropDownVal : this.state.DropDownProps
+            // ChecklistProp : this.state.CheckListPropData,
+            // FormDetails : this.state.Formdata,
+            // Checkpointlogic : this.state.CheckpointLogic,
+          });
+        }
       }, 500);
     } else if (item == strings.sugesstion6) {
       Tts.setDucking(true).then(() => {
@@ -1014,26 +1138,49 @@ class AuditPage extends Component {
             console.log('cloded');
           },
         );
-        this.props.navigation.navigate(ROUTES.AUDIT_FORM, {
-          AuditID: this.state.AUDIT_ID,
-          ChecklistBtn: this.state.ChecklistBtn,
-          CreateNCdataBundle: {
+        if(CurrentApp === 'Audit Pro') {
+          this.props.navigation.navigate(ROUTES.AUDIT_FORM, {
             AuditID: this.state.AUDIT_ID,
-            AuditOrder: this.state.AUDITYPE_ORDER,
-            title: 'order by FormName asc',
-            auditstatus: this.state.auditstatus,
-            SiteID: this.state.SITEID,
-            Formid: this.state.IFormID,
-            ChecklistID: this.state.checklistID,
-            AUDIT_NO: this.state.AUDIT_NO,
-            AuditProgramId: this.state.AUDITPROG_ID,
-            breadCrumb: this.state.auditDetailList.Auditee,
-          },
-          // DropDownVal : this.state.DropDownProps
-          // ChecklistProp : this.state.CheckListPropData,
-          // FormDetails : this.state.Formdata,
-          // Checkpointlogic : this.state.CheckpointLogic,
-        });
+            ChecklistBtn: this.state.ChecklistBtn,
+            CreateNCdataBundle: {
+              AuditID: this.state.AUDIT_ID,
+              AuditOrder: this.state.AUDITYPE_ORDER,
+              title: 'order by FormName asc',
+              auditstatus: this.state.auditstatus,
+              SiteID: this.state.SITEID,
+              Formid: this.state.IFormID,
+              ChecklistID: this.state.checklistID,
+              AUDIT_NO: this.state.AUDIT_NO,
+              AuditProgramId: this.state.AUDITPROG_ID,
+              breadCrumb: this.state.auditDetailList.Auditee,
+            },
+            // DropDownVal : this.state.DropDownProps
+            // ChecklistProp : this.state.CheckListPropData,
+            // FormDetails : this.state.Formdata,
+            // Checkpointlogic : this.state.CheckpointLogic,
+          });
+        } else {
+          this.props.navigation.navigate(ROUTES.AUDIT_FORM_SM, {
+            AuditID: this.state.AUDIT_ID,
+            ChecklistBtn: this.state.ChecklistBtn,
+            CreateNCdataBundle: {
+              AuditID: this.state.AUDIT_ID,
+              AuditOrder: this.state.AUDITYPE_ORDER,
+              title: 'order by FormName asc',
+              auditstatus: this.state.auditstatus,
+              SiteID: this.state.SITEID,
+              Formid: this.state.IFormID,
+              ChecklistID: this.state.checklistID,
+              AUDIT_NO: this.state.AUDIT_NO,
+              AuditProgramId: this.state.AUDITPROG_ID,
+              breadCrumb: this.state.auditDetailList.Auditee,
+            },
+            // DropDownVal : this.state.DropDownProps
+            // ChecklistProp : this.state.CheckListPropData,
+            // FormDetails : this.state.Formdata,
+            // Checkpointlogic : this.state.CheckpointLogic,
+          });
+        }
       }, 500);
     }
   }
@@ -2058,8 +2205,10 @@ class AuditPage extends Component {
     );
   }
 
-  onNavigateTo(id) {
+  async onNavigateTo(id) {
     console.log('Navigating...', id);
+    let CurrentApp = await localStorage.getData('CurrentApp');
+    console.log('current app--->', CurrentApp)
     const multiprocess = this.props?.route?.params?.datapass?.multiprocess;
     // return
     if (id === 1) {
@@ -2073,27 +2222,51 @@ class AuditPage extends Component {
         breadCrumb: this.state.auditDetailList.Auditee,
       });
     } else if (id === 2) {
-      this.props.navigation.navigate(ROUTES.AUDIT_FORM, {
-        AuditID: this.state.AUDIT_ID,
-        ChecklistBtn: this.state.ChecklistBtn,
-        CreateNCdataBundle: {
-          AuditID: this.state.AUDIT_ID,
-          AuditOrder: this.state.AUDITYPE_ORDER,
-          title: 'order by FormName asc',
-          auditstatus: this.state.auditstatus,
-          SiteID: this.state.SITEID,
-          Formid: this.state.IFormID,
+        if(CurrentApp === 'Audit Pro') {
+          this.props.navigation.navigate(ROUTES.AUDIT_FORM, {
+            AuditID: this.state.AUDIT_ID,
+            ChecklistBtn: this.state.ChecklistBtn,
+            CreateNCdataBundle: {
+              AuditID: this.state.AUDIT_ID,
+              AuditOrder: this.state.AUDITYPE_ORDER,
+              title: 'order by FormName asc',
+              auditstatus: this.state.auditstatus,
+              SiteID: this.state.SITEID,
+              Formid: this.state.IFormID,
 
-          ChecklistID: this.state.checklistID,
-          AUDIT_NO: this.state.AUDIT_NO,
-          AuditProgramId: this.state.AUDITPROG_ID,
-          breadCrumb: this.state.auditDetailList.Auditee,
-        },
-        // DropDownVal : this.state.DropDownProps
-        // ChecklistProp : this.state.CheckListPropData,
-        // FormDetails : this.state.Formdata,
-        // Checkpointlogic : this.state.CheckpointLogic,
-      });
+              ChecklistID: this.state.checklistID,
+              AUDIT_NO: this.state.AUDIT_NO,
+              AuditProgramId: this.state.AUDITPROG_ID,
+              breadCrumb: this.state.auditDetailList.Auditee,
+            },
+            // DropDownVal : this.state.DropDownProps
+            // ChecklistProp : this.state.CheckListPropData,
+            // FormDetails : this.state.Formdata,
+            // Checkpointlogic : this.state.CheckpointLogic,
+          });
+        } else {
+          this.props.navigation.navigate(ROUTES.AUDIT_FORM_SM, {
+            AuditID: this.state.AUDIT_ID,
+            ChecklistBtn: this.state.ChecklistBtn,
+            CreateNCdataBundle: {
+              AuditID: this.state.AUDIT_ID,
+              AuditOrder: this.state.AUDITYPE_ORDER,
+              title: 'order by FormName asc',
+              auditstatus: this.state.auditstatus,
+              SiteID: this.state.SITEID,
+              Formid: this.state.IFormID,
+
+              ChecklistID: this.state.checklistID,
+              AUDIT_NO: this.state.AUDIT_NO,
+              AuditProgramId: this.state.AUDITPROG_ID,
+              breadCrumb: this.state.auditDetailList.Auditee,
+            },
+            // DropDownVal : this.state.DropDownProps
+            // ChecklistProp : this.state.CheckListPropData,
+            // FormDetails : this.state.Formdata,
+            // Checkpointlogic : this.state.CheckpointLogic,
+          });
+        }
     } else if (id === 3) {
       console.log('this.state.AUDITYPE_ORDER', this.state.AUDITYPE_ORDER);
       console.log('this.state.auditstatus', this.state.auditstatus);

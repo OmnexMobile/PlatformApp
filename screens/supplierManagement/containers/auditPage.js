@@ -166,10 +166,11 @@ class AuditPage extends Component {
     Dimensions.addEventListener('change', this.handleDimensionChange);
 
     console.log('auditprops', this.props.data);
-    // console.log(
-    //   'navigationparamsauditpage',
-    //   this.props.navigation.state.params,
-    // );
+    console.log(
+      'navigationparamsauditpage',
+      // this.props.navigation.state.params,
+      this.props?.route?.params,
+    );
 
     let Files =
       '/' +
@@ -211,7 +212,7 @@ class AuditPage extends Component {
     var getCurrentPage = [];
     var PreviousPage = "";
     // getCurrentPage = this.props.data.nav.routes;
-    // var PreviousPage = getCurrentPage[getCurrentPage.length - 2].routeName;age = getCurrentPage[getCurrentPage.length - 2].routeName;
+    // var PreviousPage = getCurrentPage[getCurrentPage.length - 2].routeName;
     this.setState({PreviousPage: PreviousPage}, () => {
       console.log('QA testing mounted PreviousPage', this.state.PreviousPage);
     });
@@ -720,7 +721,7 @@ class AuditPage extends Component {
           this._stopRecognizing();
           Voice.removeAllListeners();
           this.InitVoice();
-          this.props.navigation.navigate(ROUTES.AUDIT_FORM, {
+          this.props.navigation.navigate(ROUTES.AUDIT_FORM_SM, {
             datapassParam: this.props?.route?.params?.datapass,
             AuditID: this.state.AUDIT_ID,
             ChecklistBtn: this.state.ChecklistBtn,
@@ -757,7 +758,7 @@ class AuditPage extends Component {
           this._stopRecognizing();
           Voice.removeAllListeners();
           this.InitVoice();
-          this.props.navigation.navigate(ROUTES.AUDIT_FORM, {
+          this.props.navigation.navigate(ROUTES.AUDIT_FORM_SM, {
             datapassParam: this.props?.route?.params?.datapass,
             AuditID: this.state.AUDIT_ID,
             ChecklistBtn: this.state.ChecklistBtn,
@@ -785,7 +786,7 @@ class AuditPage extends Component {
           this._stopRecognizing();
           Voice.removeAllListeners();
           this.InitVoice();
-          this.props.navigation.navigate(ROUTES.AUDIT_FORM, {
+          this.props.navigation.navigate(ROUTES.AUDIT_FORM_SM, {
             datapassParam: this.props?.route?.params?.datapass,
             AuditID: this.state.AUDIT_ID,
             ChecklistBtn: this.state.ChecklistBtn,
@@ -932,7 +933,7 @@ class AuditPage extends Component {
             console.log('cloded');
           },
         );
-        this.props.navigation.navigate(ROUTES.AUDIT_FORM, {
+        this.props.navigation.navigate(ROUTES.AUDIT_FORM_SM, {
           datapassParam: this.props?.route?.params?.datapass,
           AuditID: this.state.AUDIT_ID,
           ChecklistBtn: this.state.ChecklistBtn,
@@ -966,7 +967,7 @@ class AuditPage extends Component {
             console.log('cloded');
           },
         );
-        this.props.navigation.navigate(ROUTES.AUDIT_FORM, {
+        this.props.navigation.navigate(ROUTES.AUDIT_FORM_SM, {
           datapassParam: this.props?.route?.params?.datapass,
           AuditID: this.state.AUDIT_ID,
           ChecklistBtn: this.state.ChecklistBtn,
@@ -1000,7 +1001,7 @@ class AuditPage extends Component {
             console.log('cloded');
           },
         );
-        this.props.navigation.navigate(ROUTES.AUDIT_FORM, {
+        this.props.navigation.navigate(ROUTES.AUDIT_FORM_SM, {
           datapassParam: this.props?.route?.params?.datapass,
           AuditID: this.state.AUDIT_ID,
           ChecklistBtn: this.state.ChecklistBtn,
@@ -1533,6 +1534,8 @@ console.log('checkk838838383',this.props.data.audits);
   }
  
   async getParamsDetails() {
+    console.log('this.props.navigation.state.params.datapass.SiteId)',this.props.route?.params?.datapass?.SiteId);
+    
     AsyncStorage.setItem('AUDIT_ID',this.props?.route?.params?.datapass.ActualAuditId);
     AsyncStorage.setItem('AUDITPROG_ID',this.props?.route?.params?.datapass?.AuditProgramId);
     AsyncStorage.setItem('AUDITYPE_ORDER',this.props?.route?.params?.datapass?.ActualAuditOrderNo);
@@ -1540,7 +1543,7 @@ console.log('checkk838838383',this.props.data.audits);
     AsyncStorage.setItem('SITEID',this.props?.route?.params?.datapass?.SiteId);
     AsyncStorage.setItem('AUDITPROGORDER',this.props?.route?.params?.datapass?.AuditProgramId);
     // AsyncStorage.setItem('AUDIT_SITE_ID',this.state.AUDIT_SITE_ID);
-    // AsyncStorage.setItem('AUDIT_STATUS',this.props?.route?.params?.datapass?.AuditStatus);
+    // AsyncStorage.setItem('AUDIT_STATUS',this.props.navigation.state.params.datapass.AuditStatus);
 }
   checkUser  = async() =>{
     console.log('user id', this.props.data.audits.userId);
@@ -1799,7 +1802,7 @@ console.log('checkk838838383',this.props.data.audits);
               }
               this.setState({IFormID: FormId, Formdata: Formdata}, () => {
                 console.log('download:this.state.IFORMID', this.state.IFormID);
-                this.checkUser();
+                // this.checkUser();
                 this.checkListCall();
               });
             }
@@ -2106,7 +2109,7 @@ console.log('checkk838838383',this.props.data.audits);
         breadCrumb: this.state.auditDetailList.Auditee,
       });
     } else if (id === 2) {
-      this.props.navigation.navigate(ROUTES.AUDIT_RESULT, {
+      this.props.navigation.navigate(ROUTES.AUDIT_FORM_SM, {
         datapassParam: this.props?.route?.params?.datapass,
         AuditID: this.state.AUDIT_ID,
         ChecklistBtn: this.state.ChecklistBtn,
@@ -3435,7 +3438,7 @@ console.log('checkk838838383',this.props.data.audits);
                       </Text>
                     </View>
                     <View style={styles.boxCard2}>
-                    {this.displayStatusNew(this.props?.route?.params?.datapass?.cStatus)}                                         
+                    {this.displayStatusNew(this.props.navigation.state.params.datapass.cStatus)}                                         
                     </View>
                   </View>
 
@@ -3727,6 +3730,7 @@ console.log('checkk838838383',this.props.data.audits);
                     this.getParamsDetails();
                   }}>
                     
+                    {/* <View style={styles.footerDivContent}> */}
                     <View style={styles.footerDivContent1}>
                       <ResponsiveImage
                         source={Images.downloadCloud}
@@ -3810,9 +3814,9 @@ console.log('checkk838838383',this.props.data.audits);
                     {/*(this.state.checkSync === true || this.state.AuditProp.cStatus == constant.StatusSynced || this.state.AuditProp.cStatus == constant.StatusCompleted || this.state.auditDetailList.VDA != true) ?
               //changes here!
               */}
-                    {(this.state.auditDetailList.AuditProgramName !== 'LPA' &&
+                    {/* {(this.state.auditDetailList.AuditProgramName !== 'LPA' &&
                       this.state.AuditProp.ReportId == 3) || this.state.AuditProp.ReportId !== '5' ||
-                    this.state.AuditProp.ReportId == 7 ? (
+                    this.state.AuditProp.ReportId == 7 ? ( */}
                       <View style={{width: '22%'}}>
                         <TouchableOpacity
                           onPress={once(this.onNavigateTo.bind(this, 3))}
@@ -3824,7 +3828,7 @@ console.log('checkk838838383',this.props.data.audits);
                           </Text>
                         </TouchableOpacity>
                       </View>
-                    ) : null}
+                    {/* ) : null} */}
                     {this.state.AuditProp.ReportId == 3 ||
                     this.state.AuditProp.ReportId == 7 ? (
                       <View style={{width: '25%'}}>
@@ -3839,6 +3843,16 @@ console.log('checkk838838383',this.props.data.audits);
                         </TouchableOpacity>
                       </View>
                     ) : null}
+                    
+                    {/*
+                :  <View style={{width: '30%'}}>
+                  <TouchableOpacity onPress={once(this.onNavigateTo.bind(this,3))} style={{alignItems: 'center'}}>
+                    {/* <ResponsiveImage source={Images.BTN5} initWidth="26" initHeight="25"/> *}
+                    <Icon  name="file" size={20} color="white"/>
+                    <Text style={styles.footerTextContent}>{strings.NC_OFI}</Text>
+                  </TouchableOpacity>
+                </View>
+             */}
                   </View>
                 ) : (
                   <View style={styles.footerLoader}>

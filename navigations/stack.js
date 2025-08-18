@@ -115,6 +115,7 @@ import AuditDashboardListingSM from 'screens/supplierManagement/containers/audit
 import AuditDashboardSM from 'screens/supplierManagement/containers/auditProDashboard';
 import CheckPointDemoSM from 'screens/supplierManagement/containers/checkPointDemo';
 import AuditPageSM from 'screens/supplierManagement/containers/auditPage';
+import AuditFormSM from '../screens/supplierManagement/containers/auditForm';
 //DOC-PRO
 import DocproDashboard from 'screens/docpro/DocproDashboard';
 // import DocproAction from 'screens/docpro/actions/DocproAction';
@@ -678,6 +679,11 @@ export const AppStackData = [
          name: ROUTES.AUDIT_PAGE_SM,
          component: AuditPageSM,
          cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
+     },
+     {
+        name: ROUTES.AUDIT_FORM_SM,
+        component: AuditFormSM,
+        cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
      },
 
      //DOC-PRO
