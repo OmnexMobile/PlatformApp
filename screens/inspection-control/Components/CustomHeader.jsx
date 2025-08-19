@@ -11,12 +11,20 @@ import InspectionInspectionSvg from '../../../assets/images/svg/inspection-scedu
 import OperatorWorksheetSvg from '../../../assets/images/svg/operator-worksheet.svg';
 import CompletedInspectionnSvg from '../../../assets/images/svg/completed-inspection.svg';
 import SupervisorScheduleSvg from '../../../assets/images/svg/supervisor-schedule.svg';
+import SearchInspectionSvg from '../../../assets/images/svg/search-inspection.svg';
 import { ROUTES } from 'constants/app-constant';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { IconButton, Menu, Tooltip } from 'react-native-paper';
 import { useAppContext } from 'contexts/app-context';
+import { useSelector } from 'react-redux';
 
 const footerList = [
+    {
+        id: 0,
+        title: 'Search\nInspection',
+        svg: SearchInspectionSvg,
+        routeName: ROUTES.SEARCH_INSPECTION,
+    },
     {
         id: 1,
         title: 'Inspection\nSchedule',
@@ -42,7 +50,6 @@ const footerList = [
     //     routeName: ROUTES.SUPERVISOR_SCHEDULE,
     // },
 ];
-
 const CustomHeader = ({
     children,
     title = '',
@@ -59,15 +66,24 @@ const CustomHeader = ({
     customBackHandler = false,
     customHandleGoBack = () => {},
 }) => {
+    const { icSettings } = useSelector(state => state.inspection);
     const insets = useSafeAreaInsets();
     const { width } = useWindowDimensions();
     const navigation = useNavigation();
     const [isExpanded, setIsExpanded] = useState(false);
     const [visible, setVisible] = useState(false);
+    const [bottomTabList, setBottomTabList] = useState([]);
     const openMenu = () => setVisible(true);
     const closeMenu = () => setVisible(false);
-    const {  sites } = useAppContext();
+    const { sites } = useAppContext();
     const widthAnim = useRef(new Animated.Value(0)).current;
+    useEffect(() => {
+        if (icSettings.searchInspection) {
+            setBottomTabList(footerList.filter(item => item.title !== 'Inspection\nSchedule'));
+        } else {
+            setBottomTabList(footerList.filter(item => item.title !== 'Search\nInspection'));
+        }
+    }, [footerList, icSettings.searchInspection]);
     useEffect(() => {
         if (searchValue?.length) {
             setIsExpanded(true);
@@ -137,7 +153,9 @@ const CustomHeader = ({
                 </TouchableOpacity>
                 <View style={{ flex: 1, marginLeft: 10 }}>
                     {!isExpanded ? (
-                        <Text style={[styles.headerText]} numberOfLines={1}>{title} <Text style={{fontSize:15}}>{`(${sites?.selectedSite.SiteName})`}</Text></Text>
+                        <Text style={[styles.headerText]} numberOfLines={1}>
+                            {title} <Text style={{ fontSize: 15 }}>{`(${sites?.selectedSite.SiteName})`}</Text>
+                        </Text>
                     ) : (
                         <Animated.View style={[{ width: widthAnim }]}>
                             <InputWithSearch
@@ -155,7 +173,12 @@ const CustomHeader = ({
                 <View style={[styles.rightIconList]}>
                     {showIcons && (
                         <>
-                            {(activeTabId == 1 || activeTabId == 4) && (
+                            {activeTabId == 0 && (
+                                <TouchableOpacity onPress={() => handleFilterPress()}>
+                                    <Icon name="filter" size={25} style={styles.iconButton} color={COLORS.white} />
+                                </TouchableOpacity>
+                            )}
+                            {(activeTabId == 1 || activeTabId == 4 || activeTabId == 0) && (
                                 <TouchableOpacity
                                     onPress={() => {
                                         toggleSearchBar();
@@ -239,7 +262,7 @@ const CustomHeader = ({
             <View style={styles.contentContainer}>{children}</View>
             <View style={[styles.footerBox]}>
                 <FlatList
-                    data={footerList}
+                    data={bottomTabList}
                     renderItem={renderTab}
                     keyExtractor={item => item.id}
                     contentContainerStyle={{ flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 10, paddingTop: 10 }}

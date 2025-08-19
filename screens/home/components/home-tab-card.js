@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 import { TouchableOpacity, SafeAreaView, View, FlatList, StyleSheet, Text, Linking, Dimensions, Modal, Platform } from 'react-native';
 import { Card, IconButton } from 'react-native-paper';
 import { COLORS, FONT_SIZE, SPACING } from 'constants/theme-constants';
@@ -19,12 +19,14 @@ import CryptoJS from 'react-native-crypto-js';
 import { postAPI } from 'global/api-helpers';
 import ApiUrl from 'global/ApiUrl';
 import { Bubbles } from 'react-native-loader';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { showMessage } from 'react-native-flash-message';
 
 const screenWidth = Dimensions.get('window').width;
 const TabsCard = ({ countDetails, tabIndex, noTab, navigation }) => {
     console.log('tabIndex--------', tabIndex, noTab);
+    const { icSettings } = useSelector(state => state.inspection);
+
     // console.log('CURRENT_PAGE---->', 'home-tab-card')
     const navigations = useNavigation();
     const [currentUserData, setCurrentUserData] = useState([]);
@@ -35,70 +37,104 @@ const TabsCard = ({ countDetails, tabIndex, noTab, navigation }) => {
     const [isRegisterPS, setIsRegisterPS] = useState(null);
     const { handleGlobalURL, globalDeviceDetails } = useAppContext();
     const [loading, setLoading] = useState(false);
+    const [tabList, setTabList] = useState([]);
     const dispatch = useDispatch();
-
-    const data = [
-        // {
-        //     id: 1,
-        //     title: tabIndex === 0 ? strings.ppapProjects : strings.apqp_ppapManager,
-        //     detail: [
-        //         { images: IMAGES.actions, category: strings.Actions, status: 0 },
-        //         { images: IMAGES.projects, category: strings.projects, status: 0 },
-        //         { images: tabIndex === 0 ? null : IMAGES.risk, category: tabIndex === 0 ? null : strings.risk, status: 0 },
-        //         { images: tabIndex === 0 ? null : IMAGES.meeting, category: tabIndex === 0 ? null : strings.meeting, status: 0 },
-        //         { images: IMAGES.todayTask, category: strings.todayTask, status: 0 },
-        //         { images: IMAGES.dailyTask, category: strings.dailyTask, status: 0 },
-        //     ],
-        // },
-        // {
-        //     id: 2,
-        //     title: strings.auditPro,
-        //     detail: [
-        //         { images: IMAGES.scheduledAudit, category: strings.scheduledAudit, status: 2, auditTitle: strings.scheduled },
-        //         { images: IMAGES.completedAudit, category: strings.completedAudit, status: 3, auditTitle: strings.completed },
-        //         { images: IMAGES.deadlineViolated, category: strings.deadlineViolated, status: 4, auditTitle: strings.deadlineviolated },
-        //         { images: IMAGES.closedOut, category: strings.closedOut, status: 5, auditTitle: strings.abb_deadlineviolatedandcompleted },
-        //     ],
-        // },
-        // {
-        //     id: 3,
-        //     title: strings.problemSolver,
-        //     detail: [
-        //         {
-        //             images: tabIndex === 0 ? IMAGES.supplierConcerns : IMAGES.concerns,
-        //             category: tabIndex === 0 ? strings.supplierConcerns : strings.concerns,
-        //             status: 0,
-        //         },
-        //         { images: IMAGES.openConcerns, category: strings.openConcerns, status: 0 },
-        //         { images: IMAGES.inProgressConcerns, category: strings.inProgressConcerns, status: 0 },
-        //     ],
-        // },
-        // {
-        //     id: 4,
-        //     title: tabIndex === 0 ? strings.documentPro : null,
-        //     detail:
-        //         tabIndex === 0
-        //             ? [
-        //                   { images: IMAGES.docproIcon, category: strings.documentLevels, status: 0 },
-        //                   { images: IMAGES.docAction, category: strings.actionList, status: 0 },
-        //                   //   { images: IMAGES.inProgressConcerns, category: strings.adminActions, status: 0 },
-        //               ]
-        //             : [],
-        // },
-        {
-            id: 5,
-            title: tabIndex === 0 ? strings.inspectionControl : null,
-            detail:
-                tabIndex === 0
-                    ? [
-                          { images: IMAGES.ICIS, category: strings.inspectionSchedule, status: 1, routeName: ROUTES.INSPECTION_SCHEDULE },
-                          { images: IMAGES.ICOS, category: strings.operatorWorksheet, status: 2, routeName: ROUTES.OPERATOR_WORKSHEET },
-                          { images: IMAGES.ICCI, category: strings.completedInspection, status: 3, routeName: ROUTES.COMPLETED_INSPECTION },
-                          //   { images: IMAGES.ICSS, category: strings.supervisorSchedule, status: 4, routeName: ROUTES.SUPERVISOR_SCHEDULE },
-                      ]
-                    : [],
-        },
-    ];
+    const getICsettings = async () => {
+        const settingsRes = await postAPI(`${ApiUrl.IC_SETTINGS}`);
+        if (settingsRes.Success) {
+            const settings = {
+                ...settingsRes?.Data[0],
+                searchInspection: false,
+            };
+            dispatch({ type: 'IC_SETTINGS', icSettings: settings || {} });
+        }
+    };
+    useLayoutEffect(() => {
+        if(isFocused){
+        getICsettings();
+        }
+    }, [isFocused]);
+    useEffect(() => {
+        const data = [
+            // {
+            //     id: 1,
+            //     title: tabIndex === 0 ? strings.ppapProjects : strings.apqp_ppapManager,
+            //     detail: [
+            //         { images: IMAGES.actions, category: strings.Actions, status: 0 },
+            //         { images: IMAGES.projects, category: strings.projects, status: 0 },
+            //         { images: tabIndex === 0 ? null : IMAGES.risk, category: tabIndex === 0 ? null : strings.risk, status: 0 },
+            //         { images: tabIndex === 0 ? null : IMAGES.meeting, category: tabIndex === 0 ? null : strings.meeting, status: 0 },
+            //         { images: IMAGES.todayTask, category: strings.todayTask, status: 0 },
+            //         { images: IMAGES.dailyTask, category: strings.dailyTask, status: 0 },
+            //     ],
+            // },
+            // {
+            //     id: 2,
+            //     title: strings.auditPro,
+            //     detail: [
+            //         { images: IMAGES.scheduledAudit, category: strings.scheduledAudit, status: 2, auditTitle: strings.scheduled },
+            //         { images: IMAGES.completedAudit, category: strings.completedAudit, status: 3, auditTitle: strings.completed },
+            //         { images: IMAGES.deadlineViolated, category: strings.deadlineViolated, status: 4, auditTitle: strings.deadlineviolated },
+            //         { images: IMAGES.closedOut, category: strings.closedOut, status: 5, auditTitle: strings.abb_deadlineviolatedandcompleted },
+            //     ],
+            // },
+            // {
+            //     id: 3,
+            //     title: strings.problemSolver,
+            //     detail: [
+            //         {
+            //             images: tabIndex === 0 ? IMAGES.supplierConcerns : IMAGES.concerns,
+            //             category: tabIndex === 0 ? strings.supplierConcerns : strings.concerns,
+            //             status: 0,
+            //         },
+            //         { images: IMAGES.openConcerns, category: strings.openConcerns, status: 0 },
+            //         { images: IMAGES.inProgressConcerns, category: strings.inProgressConcerns, status: 0 },
+            //     ],
+            // },
+            // {
+            //     id: 4,
+            //     title: tabIndex === 0 ? strings.documentPro : null,
+            //     detail:
+            //         tabIndex === 0
+            //             ? [
+            //                   { images: IMAGES.docproIcon, category: strings.documentLevels, status: 0 },
+            //                   { images: IMAGES.docAction, category: strings.actionList, status: 0 },
+            //                   //   { images: IMAGES.inProgressConcerns, category: strings.adminActions, status: 0 },
+            //               ]
+            //             : [],
+            // },
+            {
+                id: 5,
+                title: tabIndex === 0 ? strings.inspectionControl : null,
+                detail:
+                    tabIndex === 0
+                        ? [
+                              { images: IMAGES.ICIS, category: strings.inspectionSchedule, status: 1, routeName: ROUTES.INSPECTION_SCHEDULE },
+                              { images: IMAGES.ICOS, category: strings.operatorWorksheet, status: 2, routeName: ROUTES.OPERATOR_WORKSHEET },
+                              { images: IMAGES.ICCI, category: strings.completedInspection, status: 3, routeName: ROUTES.COMPLETED_INSPECTION },
+                              //   { images: IMAGES.ICSS, category: strings.supervisorSchedule, status: 4, routeName: ROUTES.SUPERVISOR_SCHEDULE },
+                          ]
+                        : [],
+            },
+        ];
+        // Step 2: Modify only if searchInspection is TRUE
+        if (icSettings.searchInspection && tabIndex === 0) {
+            const inspectionIndex = data.findIndex(item => item.id === 5);
+            if (inspectionIndex !== -1) {
+                data[inspectionIndex].detail = data[inspectionIndex].detail.map(detailItem =>
+                    detailItem.category === strings.inspectionSchedule
+                        ? {
+                              images: IMAGES.ICIS,
+                              category: strings.searchInspection,
+                              status: 1,
+                              routeName: ROUTES.SEARCH_INSPECTION,
+                          }
+                        : detailItem,
+                );
+            }
+        }
+        setTabList([...data]);
+    }, [tabIndex, icSettings.searchInspection]);
 
     const redirectToPage = (title, status, category) => {
         status > 0 && title === strings.auditPro
@@ -265,16 +301,15 @@ const TabsCard = ({ countDetails, tabIndex, noTab, navigation }) => {
             }
             console.log('current click--->', strings.documentPro);
         } else if (title === strings.inspectionControl) {
-            console.log(globalDeviceDetails,'globalDeviceDetails?.deviceDetails?.ICURL')
+            console.log(globalDeviceDetails, 'globalDeviceDetails?.deviceDetails?.ICURL');
             localStorage.storeData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL, globalDeviceDetails?.deviceDetails?.ICApiURL);
             setLoading(true);
             // const settingsRes = await postAPI(`${ApiUrl.IC_SETTINGS}`);
             // if (settingsRes.Success) {
             //     dispatch({ type: 'IC_SETTINGS', icSettings: settingsRes?.Data[0] || {} });
-                navigations.navigate(routeName);
+            navigations.navigate(routeName);
             // }
             setLoading(false);
-           
         } else {
             // console.log('current click--->')
         }
@@ -322,7 +357,7 @@ const TabsCard = ({ countDetails, tabIndex, noTab, navigation }) => {
                 </Modal>
             ) : null}
             <FlatList
-                data={data}
+                data={tabList}
                 renderItem={({ item }) => (item.title === null ? null : <Item detail={item.detail} title={item.title} images={item.images} />)}
                 keyExtractor={item => item.id}
             />
@@ -408,8 +443,8 @@ const styles = StyleSheet.create({
         borderTopRightRadius: 10,
         paddingTop: 15,
         flexDirection: 'row',
-        borderBottomWidth:StyleSheet.hairlineWidth,
-        borderBottomColor:'lightgrey'
+        borderBottomWidth: StyleSheet.hairlineWidth,
+        borderBottomColor: 'lightgrey',
     },
     imageView: {
         height: 40,
@@ -424,14 +459,14 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(0,0,0,0.7)',
         height: '50%',
     },
-    eachItemStyle:{
-        paddingTop:10,
-        paddingHorizontal:7,
+    eachItemStyle: {
+        paddingTop: 10,
+        paddingHorizontal: 7,
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.5,
         shadowRadius: 2,
         elevation: 2,
-    }
+    },
 });
 
 export default TabsCard;

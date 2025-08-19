@@ -107,13 +107,16 @@ const InspectionSchedule = () => {
     const getOverAllSettings = async () => {
         const settingsRes = await postAPI(`${ApiUrl.IC_SETTINGS}`);
         if (settingsRes.Success) {
-            dispatch({ type: 'IC_SETTINGS', icSettings: settingsRes?.Data[0] || {} });
+            const settings = {
+                ...settingsRes?.Data[0],
+                searchInspection: false,
+            };
+            dispatch({ type: 'IC_SETTINGS', icSettings: settings || {} });
         }
     };
     const handleListFetch = async (inspect = null, showSktn = true, filterType = '') => {
         // await deleteAllInspectionData();
         const inspectList = await getInspectionDataByUserAndSite(icUserData?.userData?.UserId, icUserData?.userData?.Siteid);
-        console.log(inspectList.length, '*********************************************inspectList.length');
         showSktn && setShowSkeleton(true);
         const { startDate, endDate, type } = filterData;
         let dateFlag = startDate !== '' && endDate !== '';

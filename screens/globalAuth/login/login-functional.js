@@ -121,7 +121,11 @@ const LoginFunctional = ({}) => {
             dispatch({ type: 'IC_USER_DATA', icUserData: icUserData });
             const settingsRes = await postAPI(`${APIURL}${ApiUrl.IC_SETTINGS}`);
             if (settingsRes.Success) {
-                dispatch({ type: 'IC_SETTINGS', icSettings: settingsRes?.Data[0] || {} });
+                const settings = {
+                ...settingsRes?.Data[0],
+                searchInspection: false,
+            };
+                dispatch({ type: 'IC_SETTINGS', icSettings: settings || {} });
             }
             response?.Token && setProfileCall(response);
             localStorage.storeData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL, APIURL);

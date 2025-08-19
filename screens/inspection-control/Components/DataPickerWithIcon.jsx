@@ -5,9 +5,7 @@ import Icon from 'react-native-vector-icons/Entypo';
 import IconE from 'react-native-vector-icons/Fontisto';
 // import DateTimePicker from '@react-native-community/datetimepicker';
 import DateTimePicker from 'react-native-modal-datetime-picker';
-
 import moment from 'moment';
-import { RFPercentage } from 'react-native-responsive-fontsize';
 
 const DataPickerWithIcon = ({
     placeHolder = 'Start Date',
@@ -112,7 +110,6 @@ const DataPickerWithIcon = ({
                         setShowPicker(false);
                         if (selectedDate) {
                             onSelectedDate(selectedDate);
-                            setDate(selectedDate);
                         }
                     }}
                 />

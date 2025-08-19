@@ -54,7 +54,11 @@ const OperatorWorksheet = () => {
     const getOverAllSettings = async () => {
         const settingsRes = await postAPI(`${ApiUrl.IC_SETTINGS}`);
         if (settingsRes?.Success) {
-            dispatch({ type: 'IC_SETTINGS', icSettings: settingsRes?.Data[0] || {} });
+            const settings = {
+                ...settingsRes?.Data[0],
+                searchInspection: false,
+            };
+            dispatch({ type: 'IC_SETTINGS', icSettings: settings || {} });
         }
     };
     const handleDeletePress = item => {

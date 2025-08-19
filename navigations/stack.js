@@ -87,6 +87,7 @@ import SupervisorSchedule from 'screens/inspection-control/supervisor-schedule';
 import InprocessInspection from 'screens/inspection-control/inprocess-inspection';
 import ContainmentActions from 'screens/inspection-control/containmentActions';
 import IcSettings from 'screens/inspection-control/icSettings';
+import SearchInspection from 'screens/inspection-control/search-inspection';
 const Stack = createStackNavigator();
 
 export const AppStackData = [
@@ -489,6 +490,11 @@ export const AppStackData = [
     {
         name: ROUTES.CONTAINMENT_ACTIONS,
         component: ContainmentActions,
+        cardStyleInterpolator: CardStyleInterpolators.forFadeFromCenter,
+    },
+    {
+        name: ROUTES.SEARCH_INSPECTION,
+        component: SearchInspection,
         cardStyleInterpolator: CardStyleInterpolators.forFadeFromCenter,
     }
     // ...HomeStackData,
