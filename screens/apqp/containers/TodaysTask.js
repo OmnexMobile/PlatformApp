@@ -171,7 +171,9 @@ class ActionTabInterface extends Component {
     var getCurrentPage = [];
     // getCurrentPage = this.props.data.nav.routes;
     getCurrentPage = this.props.route.name;
-    var PreviousPage = getCurrentPage[getCurrentPage.length - 2].routeName;
+    // var PreviousPage = getCurrentPage[getCurrentPage.length - 2].routeName;
+    var routes = this.props.navigation.getState().routes;
+    var PreviousPage = routes[routes.length - 2]?.name;
     console.log("Previous---->", PreviousPage);
     console.log("Page------->"+getCurrentPage)
     if (PreviousPage == ROUTES.ACTION_TAB_INTERFACE) {

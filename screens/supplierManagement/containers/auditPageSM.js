@@ -211,8 +211,11 @@ class AuditPage extends Component {
 
     var getCurrentPage = [];
     var PreviousPage = "";
-    // getCurrentPage = this.props.data.nav.routes;
+    getCurrentPage = this.props.route.name;
     // var PreviousPage = getCurrentPage[getCurrentPage.length - 2].routeName;
+    var routes = this.props.navigation.getState().routes;
+    PreviousPage = routes[routes.length - 2]?.name;
+    console.log("Previous---->", PreviousPage);
     this.setState({PreviousPage: PreviousPage}, () => {
       console.log('QA testing mounted PreviousPage', this.state.PreviousPage);
     });

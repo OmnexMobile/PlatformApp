@@ -639,12 +639,11 @@ class CreateNC extends Component {
 
     //console.log(cancelled + 'value');
 
-    var getCurrentPage = [];
-    getCurrentPage = this.props.data.nav.routes;
-    var CurrentPage = getCurrentPage[getCurrentPage.length - 1].routeName;
-    //console.log('--CurrentPage--->', CurrentPage);
-    var getpreviouspage = getCurrentPage[getCurrentPage.length - 2].routeName;
-    //console.log('previous page' + getpreviouspage);
+    var CurrentPage = this.props?.route?.name;
+    console.log("--CurrentPage--->", CurrentPage);
+    var routes = this.props.navigation.getState().routes;
+    var getpreviouspage = routes[routes.length - 2]?.name;
+    console.log('previous page' + getpreviouspage);
 
     if (CurrentPage == ROUTES.CREATE_NC) {
       this.InitVoice();

@@ -20,8 +20,8 @@ import {
   LayoutAnimation,
 } from 'react-native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
-import {Images} from '../Themes/index';
-import styles from '../styles/CreateNCStyle';
+import {Images} from '../../auditPro/Themes/index'; 
+import styles from '../../auditPro/styles/CreateNCStyle';
 // import {Dropdown} from 'react-native-element-dropdown';
 import {Dropdown} from 'react-native-material-dropdown';
 import Toast, {DURATION} from 'react-native-easy-toast';
@@ -31,16 +31,15 @@ import {Bubbles, DoubleBounce, Bars, Pulse} from 'react-native-loader';
 // import auth from '../Services/Auth';
 import {connect} from 'react-redux';
 import Modal from 'react-native-modal';
-import OfflineNotice from '../components/OfflineNotice';
+import OfflineNotice from '../../auditPro//components/OfflineNotice';
 import SectionedMultiSelect from 'react-native-sectioned-multi-select';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {width} from 'react-native-dimension';
 import ResponsiveImage from 'react-native-responsive-image';
 import Moment from 'moment';
-import Fonts from '../Themes/Fonts';
-import {strings} from '../language/Language';
+import Fonts from '../../auditPro/Themes/Fonts';
+import {strings} from '../../auditPro/language/Language';
 import {ConfirmDialog} from 'react-native-simple-dialogs';
-import GlobalHeader from '../components/shared/GlobalHeader';
 import RadioForm, {
   RadioButton,
   RadioButtonInput,
@@ -50,12 +49,9 @@ import {debounce, once} from 'underscore';
 // Voice packages
 import Voice from '@react-native-community/voice';
 import Tts from 'react-native-tts';
-// import AsyncStorage from '@react-native-async-storage/async-storage';
 import AsyncStorage from '@react-native-community/async-storage';
 import FileViewer from 'react-native-file-viewer';
-import XLSX from 'xlsx'; // Import the xlsx library
-import constant from '../constants/AppConstants';
-// import ImagePicker from 'react-native-image-picker';
+import constant from '../../auditPro/constants/AppConstants';
 import { ROUTES } from 'constants/app-constant';
 import { SPACING } from 'constants/theme-constants';
 
@@ -111,8 +107,7 @@ class CreateNC extends Component {
   // VoiceClauseFill =  false
   VoiceRequesFill = false;
   VoiceResp = false;
-  VoiceOFIcategory = false;
-
+ 
   constructor(props) {
     super(props);
     console.log('get this.props-->', this.props)
@@ -225,6 +220,7 @@ class CreateNC extends Component {
       fileType: '', // 'pdf', 'txt', 'xls', 'png', or other values to indicate the file type
       fileContent: null,
       PrevNonConformity: '',
+      NCNumberUpdate : ''
     };
     Voice.onSpeechStart = this.onSpeechStart;
     Voice.onSpeechRecognized = this.onSpeechRecognized;
@@ -241,31 +237,25 @@ class CreateNC extends Component {
     //   // ...long-running synchronous task...
     //   this.LongTask()
     // });
-    var CurrentPage = this.props?.route?.name;
-    console.log("--CurrentPage--->", CurrentPage);
-    var routes = this.props.navigation.getState().routes;
-    var getpreviouspage = routes[routes.length - 2]?.name;
-    console.log('previous page' + getpreviouspage, 'routes', routes);
-
     Voice.onSpeechResults = this.onSpeechResults;
 
-    // if (this.props.navigation.state.params.data != null) {
-      if (this.props?.route?.params?.data != null) {
+   console.log('checksthispropsdata***************',this.props);
+   
+    if (this.props?.route?.params?.data != null) {
       console.log(
         'this.props?.route?.params?.data',
-       this.props?.route?.params?.data,
+        this.props?.route?.params?.data,
       );
       this.setProcessList();
       const filenameArray = this.props?.route?.params?.data?.filename;
-     console.log('checklist-filenameArray--------', filenameArray);
-     const originalData = this.props?.route?.params?.data.filedata;
-     console.log('checklist-originalData--------', originalData);
+      console.log('checklist-filenameArray--------', filenameArray);
+      const originalData = this.props?.route?.params?.data?.filedata;
+      console.log('checklist-originalData--------', originalData);
 
       if (originalData.length > 0) {
         console.log(
           'XSDASDASDASD',
-          // this.props.navigation.state.params.data.filedata,
-          this.props?.route?.params?.data.filedata,
+          this.props?.route?.params?.data?.filedata,
         );
         // const updatedData = originalData.map(item => 'file:/' + item);
         // const combinedData = filenameArray.map((fileName, index) => ({
@@ -278,9 +268,15 @@ class CreateNC extends Component {
         console.log('Original Data:', this.state.fileArrayList);
         // console.log('Updated Data:', updatedData);
         // console.log('combinedData----------------------- Data:', combinedData);
+        console.log(
+          'XSDASDASDASD321233',
+          this.props?.route?.params?.data,
+        );
+        if(this.props?.route?.params?.data?.selectedItemsProcess === true){
 
+        }else{
         const selectedItems =
-        this.props?.route?.params?.data.selectedItemsProcess; // Example array with undefined elements
+          this.props?.route?.params?.data?.selectedItemsProcess; // Example array with undefined elements
 
         // Filter out undefined elements
         const filteredItems = selectedItems.filter(item => item !== undefined);
@@ -290,7 +286,7 @@ class CreateNC extends Component {
 
         //SelectedArray--->
         const arr1 =
-        this.props?.route?.params?.data.selectedItemsProcess;
+          this.props?.route?.params?.data?.selectedItemsProcess;
         //Default array--->
         const arr2 = this.state.processdata;
         // console.log("this.state.processdatathis.state.processdata",arr1 );
@@ -298,7 +294,6 @@ class CreateNC extends Component {
           'this.state.processdatathis.state.processdata123',
           this.state.selectedItemsProcessDumm,
         );
-
         const matchingItems = [];
 
         for (let i = 0; i < arr1.length; i++) {
@@ -306,41 +301,43 @@ class CreateNC extends Component {
             matchingItems.push(arr1[i]);
           }
         }
-
-        // Display the matching items
         console.log('Matching items:', matchingItems);
         this.setState({
-          fileArrayList: originalData,
           selectedItemsProcess: filteredItems,
         });
+      }
+      this.setState({
+        fileArrayList: originalData,
+      });
+
+        // Display the matching items
+        
         // Now you have an array without undefined elements (filteredItems)
       }
     }
     setTimeout(() => this.LongTask(), 1000);
     this.getUserDetails();
   }
+  
   async getUserDetails() {
-    // var userid = await AsyncStorage.getItem('userId');
-    // var username = await AsyncStorage.getItem('userName');
-    const stringifiedUserDetails = await AsyncStorage.getItem('userDetails');
-    const value = JSON.parse(stringifiedUserDetails);
-    console.log('current userdata--->', value)
-    console.log(value.userId, value.userFullName, 'Asyncusergetand set');
+    var userid = await AsyncStorage.getItem('userId');
+    var username = await AsyncStorage.getItem('userName');
+    var ncNumberUpdate = await AsyncStorage.getItem('ncNumberUpdate');
+    console.log(userid, username,ncNumberUpdate, 'Asyncusergetand set');
     var userDetails = [];
     userDetails.push({
-      // value: username,
-      // id: userid,
-      value: value.userFullName,
-      id: value.userId,
+      value: username,
+      id: userid,
     });
     console.log(userDetails, 'userdetails');
     this.setState({
       requestDropdown: userDetails,
+      NCNumberUpdate : ncNumberUpdate
     });
   }
 
   // onSpeechResults = (e) => {this.setState({ nonconfirmityText: e.value[0] });};
-
+  
   // handleInputChange = (text) => {     this.setState({ PrevNonConformity: this.state.nonconfirmityText, : text });   };
 
   componentWillMount() {
@@ -376,11 +373,9 @@ class CreateNC extends Component {
   LongTask() {
     this.setState({
       clauseMandatory:
-        // this.props.navigation.state.params.NCOFIDetails.clauseMandatory,
         this.props?.route?.params?.NCOFIDetails?.clauseMandatory,
     });
     console.log(
-      // this.props.navigation.state.params.NCOFIDetails.clauseMandatory,
       this.props?.route?.params?.NCOFIDetails?.clauseMandatory,
       'clausemandatory',
     );
@@ -402,7 +397,6 @@ class CreateNC extends Component {
         console.log('Chinese script off', this.state.ChineseScript);
       });
     }
-    // console.log('CreateNCmounted', this.props.navigation.state.params);
     console.log('CreateNCmounted', this.props?.route?.params);
     // console.log('getting props',this.props.data.audits)
 
@@ -415,9 +409,6 @@ class CreateNC extends Component {
       auditRecords,
       'AuditID',
       this.props.data.audits.auditRecords[0].AuditProcessList,
-      // typeof this.props.navigation.state.params.NCOFIDetails == 'string'
-      //   ? this.props.navigation.state.params.AuditID
-      //   : this.props.navigation.state.params.NCOFIDetails.AuditID,
       typeof this.props?.route?.params?.NCOFIDetails == 'string'
         ? this.props?.route?.params?.AuditID
         : this.props?.route?.params?.NCOFIDetails?.AuditID,
@@ -425,9 +416,6 @@ class CreateNC extends Component {
 
     for (var i = 0; i < auditRecords.length; i++) {
       var auid =
-        // typeof this.props.navigation.state.params.NCOFIDetails == 'string'
-        //   ? this.props.navigation.state.params.AuditID
-        //   : this.props.navigation.state.params.NCOFIDetails.AuditID;
         typeof this.props?.route?.params?.NCOFIDetails == 'string'
           ? this.props?.route?.params?.AuditID
           : this.props?.route?.params?.NCOFIDetails?.AuditID;
@@ -464,17 +452,26 @@ class CreateNC extends Component {
         this.props?.route?.params,
       );
       console.log(
-        'this.props?.route?.params?.CheckpointRoute',
-        this.props?.route?.params?.NCOFIDetails,
+        'this.props?.route?.params?.NCOFIDetails',
+        this.props.navigation,
       );
-
+      console.log(
+        'this.props?.route?.params?.CreateNCdetails',
+        this.props?.route?.params?.CreateNCdetails,
+      );
+      var navigationRoute = ''
+      if(this.props?.route?.params?.navigationfrom == "checkpointDemo"){
+         navigationRoute = this.props?.route?.params?.Formid
+      }else{
+         navigationRoute = this.props?.route?.params?.NCOFIDetails?.Formid
+      }
       this.setState(
         {
           isLPA: isLpa,
           ProcessListAll: auditProcessListAll,
           breadCrumbText:
             this.props?.route?.params?.NCOFIDetails?.breadCrumb,
-          // breadCrumbText: this.props?.route?.params?.NCOFIDetails?.breadCrumb.length > 30 ? this.props?.route?.params?.NCOFIDetails?.breadCrumb.slice(0, 30) + '...' : this.props?.route?.params?.NCOFIDetails?.breadCrumb,
+          // breadCrumbText: this.props?.route?.params?.NCOFIDetails.breadCrumb.length > 30 ? this.props?.route?.params?.NCOFIDetails.breadCrumb.slice(0, 30) + '...' : this.props?.route?.params?.NCOFIDetails.breadCrumb,
           RouteParam: this.props?.route?.params?.CheckpointRoute,
           templateId: this.props?.route?.params?.templateId,
           isUploaded: this.props?.route?.params?.isUploaded,
@@ -487,62 +484,62 @@ class CreateNC extends Component {
             this.props?.route?.params?.NCOFIDetails?.AuditOrder,
           ChecklistID:
             this.props?.route?.params?.NCOFIDetails?.ChecklistID,
-          Formid: this.props?.route?.params?.NCOFIDetails?.Formid,
+          Formid: navigationRoute,
           SiteID: this.props?.route?.params?.NCOFIDetails?.SiteID,
           auditstatus:
             this.props?.route?.params?.NCOFIDetails?.auditstatus,
           title: this.props?.route?.params?.NCOFIDetails?.title,
           auditnumber: this.props?.route?.params?.NCOFIDetails?.AUDIT_NO,
-          clauseRecords: this.props.data.audits.auditRecords,
+          clauseRecords: this.props?.data?.audits?.auditRecords,
           type: this.props?.route?.params?.type,
           ncData: this.props?.route?.params?.data,
           selectedItems: this.props?.route?.params?.data
-            ? this.props?.route?.params?.data.selectedItems
+            ? this.props?.route?.params?.data?.selectedItems
             : [],
           selectedItemsProcess: this.props?.route?.params?.data
-            ? this.props?.route?.params?.data.selectedItemsProcess
+            ? this.props?.route?.params?.data?.selectedItemsProcess
             : [],
           displayData: this.props?.route?.params?.data
-            ? this.props?.route?.params?.data.requiretext
+            ? this.props?.route?.params?.data?.requiretext
             : undefined,
-            NCcategoryt: this.props?.route?.params?.data
-            ? this.props?.route?.params?.data.categoryDrop
+          NCcategoryt: this.props?.route?.params?.data
+            ? this.props?.route?.params?.data?.categoryDrop
             : undefined,
           NCrequestby: this.props?.route?.params?.data
-            ? this.props?.route?.params?.data.userDrop
+            ? this.props?.route?.params?.data?.userDrop
             : undefined, 
           NCdept: this.props?.route?.params?.data
-            ? this.props?.route?.params?.data.deptDrop
+            ? this.props?.route?.params?.data?.deptDrop
             : undefined,
           NCFailure: this.props?.route?.params?.data
-            ? this.props?.route?.params?.data.failureDrop == "0" ? undefined : this.props?.route?.params?.data.failureDrop
+            ? this.props?.route?.params?.data?.failureDrop == "0" ? undefined : this.props?.route?.params?.data?.failureDrop
             : undefined,
           nonconfirmityText: this.props?.route?.params?.data
-            ? this.props?.route?.params?.data.NonConfirmity
+            ? this.props?.route?.params?.data?.NonConfirmity
             : undefined,
           NCresponsible: this.props?.route?.params?.data
-            ? this.props?.route?.params?.data.requestDrop
+            ? this.props?.route?.params?.data?.requestDrop
             : undefined,
           ofitext: this.props?.route?.params?.data
-            ? this.props?.route?.params?.data.OFI
+            ? this.props?.route?.params?.data?.OFI
             : this.state.ofitext,
           fileName: this.props?.route?.params?.data
-            ? this.props?.route?.params?.data.filename
+            ? this.props?.route?.params?.data?.filename
             : undefined,
           fileData: this.props?.route?.params?.data
-            ? this.props?.route?.params?.data.filedata
+            ? this.props?.route?.params?.data?.filedata
             : undefined,
           ncIdentifier: this.props?.route?.params?.data
-            ? this.props?.route?.params?.data.ncIdentifier
+            ? this.props?.route?.params?.data?.ncIdentifier
             : undefined,
           objEvidence: this.props?.route?.params?.data
-            ? this.props?.route?.params?.data.objEvidence
+            ? this.props?.route?.params?.data?.objEvidence
             : undefined,
           recommAction: this.props?.route?.params?.data
-            ? this.props?.route?.params?.data.recommAction
+            ? this.props?.route?.params?.data?.recommAction
             : undefined,
           documentRef: this.props?.route?.params?.data
-            ? this.props?.route?.params?.data.documentRef
+            ? this.props?.route?.params?.data?.documentRef
             : undefined,
         },
         () => {
@@ -596,12 +593,7 @@ class CreateNC extends Component {
     var processautoid =
       this.props?.route?.params?.NCOFIDetails?.ProcessID;
     var type = this.props?.route?.params?.type;
-    if (
-      processautoid !== '' &&
-      processautoid !== null &&
-      processautoid !== undefined &&
-      type === 'ADD'
-    ) {
+    if ((processautoid !== '' && processautoid !== null && processautoid !== undefined) && type === 'ADD') {
       var processArray = [processautoid];
       this.setState({
         selectedItemsProcess: processArray,
@@ -610,60 +602,55 @@ class CreateNC extends Component {
     }
   }
 
-  async componentWillReceiveProps(props) {
-    console.log('test123this.props--> componentWillReceiveProps', this.props)
-    const stringifiedCameraCapture = await AsyncStorage.getItem('cameraCapture');
-    const value = JSON.parse(stringifiedCameraCapture);
-    console.log('current cameraCapture async--->', value)
-    // const {navigation} = this.props;
-    // const cancelled = navigation.getParam('cancelpressed', 'empty');
-    // const uri_details = navigation.getParam('Uri', 'empty');
-    // const video_name = navigation.getParam('Name', 'empty');
-    // const video_type = navigation.getParam('Type', 'empty');
-    const cancelled = this.props?.route?.params?.cancelpressed || 'empty';
-    const uri_details = this.props?.route?.params?.Uri || 'empty';
-    const video_name = this.props?.route?.params?.Name || 'empty';
-    const video_type = this.props?.route?.params?.Type || 'empty';
+  componentWillReceiveProps(props) {
+    const {navigation} = this.props;
+    const cancelled = navigation.getParam('cancelpressed', 'empty');
+    const uri_details = navigation.getParam('Uri', 'empty');
+    const video_name = navigation.getParam('Name', 'empty');
+    const video_type = navigation.getParam('Type', 'empty');
+
     console.log(cancelled + 'value');
 
-    // need to fix
-    // getCurrentPage = this.props?.data?.nav?.routes;
+    // var getCurrentPage = [];
+    // getCurrentPage = this.props.data.nav.routes;
     // var CurrentPage = getCurrentPage[getCurrentPage.length - 1].routeName;
+    // console.log('--CurrentPage--->', CurrentPage);
+    // var getpreviouspage = getCurrentPage[getCurrentPage.length - 2].routeName;
     var CurrentPage = this.props?.route?.name;
     console.log("--CurrentPage--->", CurrentPage);
     var routes = this.props.navigation.getState().routes;
     var getpreviouspage = routes[routes.length - 2]?.name;
     console.log('previous page' + getpreviouspage);
 
-    if (CurrentPage == 'CREATE_NC') {
+    if (CurrentPage == 'CREATE_NC_SM') {
       this.InitVoice();
       console.log(
         'exception1',
-        this.props.data.audits.cameraCapture,
+        props.data.audits.cameraCapture,
         this.state.fileName,
       );
-      if (this.props.data.audits.cameraCapture) {
+      if (props.data.audits.cameraCapture) {
         if (cancelled == 1) {
           this.setState({
             fileName: undefined,
             fileData: undefined,
             fileSize: undefined,
           });
-          console.log('exception1 cancel', this.props.data.audits.cameraCapture);
+          console.log('exception1 cancel', props.data.audits.cameraCapture);
         }
 
-        if (cancelled == 0 && this.props.data.audits.cameraCapture.length == 0) {
+        if (cancelled == 0 && props.data.audits.cameraCapture.length == 0) {
           console.log('inside save set state part..');
           let FileArrayTemp = this.state.fileArrayList;
-          let FileArrayTempOne =  [{
-              id: Moment().unix(),
-              fileName: video_name,
-              fileData: uri_details,
-              fileSize: video_type,
-              filetype: 'video/mp4',
-            }];
+         let FileArrayTempOne =  [{
+            id: Moment().unix(),
+            fileName: video_name,
+            fileData: uri_details,
+            fileSize: video_type,
+            filetype: 'video/mp4',
+          }];
           console.log(FileArrayTemp, 'filearraytemp - will rcv pop');
-          let fileMergeResult = FileArrayTemp.concat(FileArrayTempOne);
+           let fileMergeResult = FileArrayTemp.concat(FileArrayTempOne);
           // console.log(fileMergeResult, 'filearraytemp2xxxxxxxx11111');
           this.setState(
             {
@@ -676,9 +663,9 @@ class CreateNC extends Component {
         }
 
         console.log('file name' + this.state.fileName);
-        if (this.props.data.audits.cameraCapture.length > 0 && cancelled != 1) {
-          var res = this.props.data.audits.cameraCapture;
-          console.log('exception3', this.props.data.audits.cameraCapture);
+        if (props.data.audits.cameraCapture.length > 0 && cancelled != 1) {
+          var res = props.data.audits.cameraCapture;
+          console.log('exception3', props.data.audits.cameraCapture);
           let FileArrayTemp = this.state.fileArrayList;
          let FileArrayTempOne = [{
             fileName: res[0].name,
@@ -687,7 +674,7 @@ class CreateNC extends Component {
             id: Moment().unix(),
           }];
           console.log(FileArrayTemp, 'filearraytemp');
-          let fileMergeResult = FileArrayTemp.concat(FileArrayTempOne);
+           let fileMergeResult = FileArrayTemp.concat(FileArrayTempOne);
           // console.log(fileMergeResult, 'filearraytemp2xxxxxxx22222');
 
           const uniqueFiles = fileMergeResult.reduce(
@@ -716,7 +703,7 @@ class CreateNC extends Component {
         } else {
           console.log('no pic found');
           console.log('inside file path' + this.state.fileData);
-          console.log('exception14', this.props.data.audits.cameraCapture);
+          console.log('exception14', props.data.audits.cameraCapture);
         }
       } else {
         console.log('no pic found');
@@ -784,7 +771,6 @@ class CreateNC extends Component {
         if (type == 'Camera') {
           this.props.navigation.navigate(ROUTES.CAMERA_CAPTURE);
         } else if (type == 'Video') {
-          // this.props.navigation.navigate('VideoCapture');
           this.props.navigation.navigate(ROUTES.VIDEO_CAPTURE);
         }
       },
@@ -836,6 +822,7 @@ class CreateNC extends Component {
     // eslint-disable-next-line
     console.log('voice:onSpeechResults: ', e);
     if (Platform.OS == 'android') {
+     
       this.setState(
         {
           results: e.value[0],
@@ -935,7 +922,7 @@ class CreateNC extends Component {
       //eslint-disable-next-line
       console.error(e);
     }
-  };
+  }; 
 
   _stopRecognizing = async () => {
     try {
@@ -1036,7 +1023,7 @@ class CreateNC extends Component {
       case 'jpg':
       case 'jpeg':
       case 'png':
-      case 'heic':
+      case 'heic' :
       case 'gif': {
         icon = 'image';
         break;
@@ -1084,16 +1071,20 @@ class CreateNC extends Component {
     }
     console.log('_---_results: ', this.state.results);
     console.log('_---txt: ', txt);
+    
 
     if (this.VoiceDocumentRef === true) {
-      this.setState(
+      this.setState((
         {
-          documentRef: txt.charAt(0).toUpperCase() + txt.slice(1),
-        },
+          documentRef: txt.charAt(0).toUpperCase() + txt.slice(1)
+        }
+      )
+        ,
         () => {
           Tts.setDucking(true).then(() => {
             Tts.speak(strings.cn_reply_03);
           });
+        
           this.VoiceFill = false;
           this.VoicNCIdentifier = false;
           this.VoiceObjective = false;
@@ -1101,30 +1092,27 @@ class CreateNC extends Component {
           this.VoiceOfi = false;
           this.AutoFillCatogory = false;
           this.AutoFillCDept = false;
-          this.VoiceDocumentRef = false;
+          this.VoiceDocumentRef = false
           this.VoiceRequesFill = false;
           this.VoiceResp = false;
-          this.VoiceOFIcategory = false;
           this.refs.docRefTxtField.blur();
           this._stopRecognizing();
-          Voice.removeAllListeners();
+        Voice.removeAllListeners();
           this.InitVoice();
         },
       );
-    } else if (this.VoiceFill === true) {
-      this.setState(
-        {
-          PrevNonConformity: this.state.nonconfirmityText,
-          nonconfirmityText: txt.charAt(0).toUpperCase() + txt.slice(1),
-        },
-        // this.setState( ( {
-        //   nonconfirmityText: txt.charAt(0).toUpperCase() + txt.slice(1)
-        // })
+    } 
+    else if (this.VoiceFill === true) {
+      this.setState({ PrevNonConformity: this.state.nonconfirmityText, nonconfirmityText: txt.charAt(0).toUpperCase() + txt.slice(1) }
+      // this.setState( ( {
+      //   nonconfirmityText: txt.charAt(0).toUpperCase() + txt.slice(1)
+      // })
+       ,
         () => {
           Tts.setDucking(true).then(() => {
             Tts.speak(strings.cn_reply_03);
           });
-
+        
           this.VoiceFill = false;
           this.VoicNCIdentifier = false;
           this.VoiceObjective = false;
@@ -1132,16 +1120,15 @@ class CreateNC extends Component {
           this.VoiceOfi = false;
           this.AutoFillCatogory = false;
           this.AutoFillCDept = false;
-          this.VoiceDocumentRef = false;
+          this.VoiceDocumentRef = false
           this.VoiceRequesFill = false;
           this.VoiceResp = false;
-          this.VoiceOFIcategory = false;
           this._stopRecognizing();
-          Voice.removeAllListeners();
+         Voice.removeAllListeners();
           this.InitVoice();
         },
       );
-    } else if (this.VoiceOfi === true) {
+    } else if (this.VoiceOfi === true) { 
       this.setState(
         {
           ofitext: txt.charAt(0).toUpperCase() + txt.slice(1),
@@ -1157,11 +1144,9 @@ class CreateNC extends Component {
           this.VoiceOfi = false;
           this.AutoFillCatogory = false;
           this.AutoFillCDept = false;
-          this.VoiceDocumentRef = false;
+          this.VoiceDocumentRef = false
           this.VoiceRequesFill = false;
           this.VoiceResp = false;
-          this.VoiceOFIcategory = false;
-
           this._stopRecognizing();
           Voice.removeAllListeners();
           this.InitVoice();
@@ -1183,10 +1168,9 @@ class CreateNC extends Component {
           this.VoiceOfi = false;
           this.AutoFillCatogory = false;
           this.AutoFillCDept = false;
-          this.VoiceDocumentRef = false;
+          this.VoiceDocumentRef = false
           this.VoiceRequesFill = false;
           this.VoiceResp = false;
-          this.VoiceOFIcategory = false;
           this._stopRecognizing();
           Voice.removeAllListeners();
           this.InitVoice();
@@ -1208,11 +1192,10 @@ class CreateNC extends Component {
           this.VoiceOfi = false;
           this.AutoFillCatogory = false;
           this.AutoFillCDept = false;
-          this.VoiceDocumentRef = false;
+          this.VoiceDocumentRef = false
           this.VoiceRequesFill = false;
           this.VoiceResp = false;
-          this.VoiceOFIcategory = false;
-          this.refs.objEviTxtField.blur();
+          this.refs.objEviTxtField.blur(); 
           this._stopRecognizing();
           Voice.removeAllListeners();
           this.InitVoice();
@@ -1234,10 +1217,9 @@ class CreateNC extends Component {
           this.VoiceOfi = false;
           this.AutoFillCatogory = false;
           this.AutoFillCDept = false;
-          this.VoiceDocumentRef = false;
+          this.VoiceDocumentRef = false
           this.VoiceRequesFill = false;
           this.VoiceResp = false;
-          this.VoiceOFIcategory = false;
           this._stopRecognizing();
           Voice.removeAllListeners();
           this.InitVoice();
@@ -1267,54 +1249,16 @@ class CreateNC extends Component {
           this.VoiceOfi = false;
           this.AutoFillCatogory = false;
           this.AutoFillCDept = false;
-          this.VoiceDocumentRef = false;
+          this.VoiceDocumentRef = false
           this.VoiceRequesFill = false;
           this.VoiceResp = false;
-          this.VoiceOFIcategory = false;
           this.refs.categoryTxtField.blur();
           this._stopRecognizing();
           Voice.removeAllListeners();
           this.InitVoice();
         },
       );
-    } 
-    else if (this.VoiceOFIcategory === true) {
-      var CategoryList = this.state.categoryArr;
-      var AutoFillData = null;
-      for (var i = 0; i < CategoryList.length; i++) {
-        if (txt.toLowerCase() == CategoryList[i].value.toLowerCase()) {
-          Tts.setDucking(true).then(() => {
-            Tts.speak(strings.cn_reply_03);
-          });
-          AutoFillData = CategoryList[i];
-          break;
-        }
-      }
-      this.setState(
-        {
-          NCcategoryt: AutoFillData,
-        },
-        () => {
-          this.VoiceFill = false;
-          this.VoicNCIdentifier = false;
-          this.VoiceObjective = false;
-          this.VoiceRecom = false;
-          this.VoiceOfi = false;
-          this.AutoFillCatogory = false;
-          this.AutoFillCDept = false;
-          this.VoiceDocumentRef = false;
-          this.VoiceRequesFill = false;
-          this.VoiceResp = false;
-          this.VoiceOFIcategory = false;
-
-          this.refs.categoryTxtField.blur();
-          this._stopRecognizing();
-          Voice.removeAllListeners();
-          this.InitVoice();
-        },
-      );
-    }
-    else if (this.AutoFillCDept === true) {
+    } else if (this.AutoFillCDept === true) {
       var DeptList = this.state.departArr;
       var AutoFillData = null;
       for (var i = 0; i < DeptList.length; i++) {
@@ -1338,10 +1282,9 @@ class CreateNC extends Component {
           this.VoiceOfi = false;
           this.AutoFillCatogory = false;
           this.AutoFillCDept = false;
-          this.VoiceDocumentRef = false;
+          this.VoiceDocumentRef = false
           this.VoiceRequesFill = false;
           this.VoiceResp = false;
-          this.VoiceOFIcategory = false;
 
           if (this.state.departArr.length > 0) {
             this.refs.departmentTxtField.blur();
@@ -1367,7 +1310,7 @@ class CreateNC extends Component {
         {
           NCresponsible: AutoFillData,
         },
-        () => {
+        () => { 
           this.VoiceFill = false;
           this.VoicNCIdentifier = false;
           this.VoiceObjective = false;
@@ -1375,10 +1318,9 @@ class CreateNC extends Component {
           this.VoiceOfi = false;
           this.AutoFillCatogory = false;
           this.AutoFillCDept = false;
-          this.VoiceDocumentRef = false;
+          this.VoiceDocumentRef = false
           this.VoiceRequesFill = false;
           this.VoiceResp = false;
-          this.VoiceOFIcategory = false;
           this.refs.responsibleTxtField.blur();
           this._stopRecognizing();
           Voice.removeAllListeners();
@@ -1397,8 +1339,7 @@ class CreateNC extends Component {
           break;
         }
       }
-      this.setState(
-        {
+      this.setState(        {
           NCrequestby: AutoFillData,
         },
         () => {
@@ -1409,10 +1350,9 @@ class CreateNC extends Component {
           this.VoiceOfi = false;
           this.AutoFillCatogory = false;
           this.AutoFillCDept = false;
-          this.VoiceDocumentRef = false;
+          this.VoiceDocumentRef = false
           this.VoiceRequesFill = false;
           this.VoiceResp = false;
-          this.VoiceOFIcategory = false;
           this.refs.requestTxtField.blur();
           this._stopRecognizing();
           Voice.removeAllListeners();
@@ -1459,10 +1399,9 @@ class CreateNC extends Component {
         this.VoiceOfi = false;
         this.AutoFillCatogory = false;
         this.AutoFillCDept = false;
-        this.VoiceDocumentRef = false;
+        this.VoiceDocumentRef = false
         this.VoiceRequesFill = false;
         this.VoiceResp = false;
-        this.VoiceOFIcategory = false;
 
         this.refs.ncTxtField.focus();
         Tts.setDucking(true).then(() => {
@@ -1482,10 +1421,9 @@ class CreateNC extends Component {
         this.VoiceOfi = false;
         this.AutoFillCatogory = false;
         this.AutoFillCDept = false;
-        this.VoiceDocumentRef = false;
+        this.VoiceDocumentRef = false
         this.VoiceRequesFill = false;
         this.VoiceResp = false;
-        this.VoiceOFIcategory = false;
 
         Tts.setDucking(true).then(() => {
           Tts.speak(strings.va_rep04);
@@ -1509,10 +1447,9 @@ class CreateNC extends Component {
         this.VoiceOfi = false;
         this.AutoFillCatogory = false;
         this.AutoFillCDept = false;
-        this.VoiceDocumentRef = false;
+        this.VoiceDocumentRef = false
         this.VoiceRequesFill = false;
         this.VoiceResp = false;
-        this.VoiceOFIcategory = false;
 
         Tts.setDucking(true).then(() => {
           Tts.speak(strings.va_rep05);
@@ -1526,9 +1463,7 @@ class CreateNC extends Component {
         // }, 2500);
       } else if ( //NC Category
         txt.toLowerCase().includes(strings.va_cmd91) ||
-        txt.toLowerCase().includes(strings.va_cmd92) ||
-        txt.toLowerCase().includes("OFI CATEGORY") ||
-        txt.toLowerCase().includes('ofi')
+        txt.toLowerCase().includes(strings.va_cmd92)
       ) {//NC Category
         this.VoiceFill = false;
         this.VoicNCIdentifier = false;
@@ -1537,10 +1472,9 @@ class CreateNC extends Component {
         this.VoiceOfi = false;
         this.AutoFillCatogory = false;
         this.AutoFillCDept = false;
-        this.VoiceDocumentRef = false;
+        this.VoiceDocumentRef = false
         this.VoiceRequesFill = false;
         this.VoiceResp = false;
-        this.VoiceOFIcategory = false;
 
         Tts.setDucking(true).then(() => {
           Tts.speak(strings.va_rep06);
@@ -1552,14 +1486,7 @@ class CreateNC extends Component {
         // setTimeout(() => {
         //   this._startRecognizing();
         // }, 3000);
-      } 
-      else if (
-        //ofi Category
-        txt.toLowerCase().includes("OFI CATEGORY") ||
-        txt.toLowerCase().includes("OFI") 
-        ||txt.toLowerCase().includes("WI-FI CATEGORY")
-      ) {
-        //OFI Category
+      } else if (txt.toLowerCase().includes('failure') || txt.toLowerCase().includes('failure category')) {
         this.VoiceFill = false;
         this.VoicNCIdentifier = false;
         this.VoiceObjective = false;
@@ -1567,57 +1494,27 @@ class CreateNC extends Component {
         this.VoiceOfi = false;
         this.AutoFillCatogory = false;
         this.AutoFillCDept = false;
-        this.VoiceDocumentRef = false;
+        this.VoiceDocumentRef = false
         this.VoiceRequesFill = false;
         this.VoiceResp = false;
-        this.VoiceOFIcategory = false;
-        Tts.setDucking(true).then(() => {
-          Tts.speak(strings.va_rep06);
-        });
-        this.refs.categoryTxtField.focus();
-        this._stopRecognizing();
-        Voice.removeAllListeners();
-        this.InitVoice();
-        // setTimeout(() => {
-        //   this._startRecognizing();
-        // }, 3000);
-      } 
-      else if (
-        txt.toLowerCase().includes('failure category') ||
-        txt.toLowerCase().includes('failure') ||
-        txt.toLowerCase().includes('fail')
-      ) {
-        this.VoiceFill = false;
-        this.VoicNCIdentifier = false;
-        this.VoiceObjective = false;
-        this.VoiceRecom = false;
-        this.VoiceOfi = false;
-        this.AutoFillCatogory = false;
-        this.AutoFillCDept = false;
-        this.VoiceDocumentRef = false;
-        this.VoiceRequesFill = false;
-        this.VoiceResp = false;
-        this.VoiceOFIcategory = false;
-        this.VoiceOFIcategory = false;
-
 
         if (this.state.FailureCategory.length > 0) {
           Tts.setDucking(true).then(() => {
-            Tts.speak('Please selectd the Failure Category');
+            Tts.speak("Please selectd the Failure Category");
           });
-          this.refs.departmentTxtField.focus();
+          this.refs.departmentTxtField.focus(); 
           this._stopRecognizing();
           Voice.removeAllListeners();
           this.InitVoice();
-          //   setTimeout(() => {
-          //     this._startRecognizing();
-          //   }, 2500);
+        //   setTimeout(() => {
+        //     this._startRecognizing();
+        //   }, 2500);
         } else {
           Tts.setDucking(true).then(() => {
-            Tts.speak('Currently there is no failure category available'); //strings.ap_reply_04);
+            Tts.speak('Currently there is no failure category available');//strings.ap_reply_04);
           });
         }
-      } else if (txt.toLowerCase().includes(strings.va_cmd301)) {//OFI
+      }  else if (txt.toLowerCase().includes(strings.va_cmd301)) {//OFI
         this.VoiceFill = false;
         this.VoicNCIdentifier = true;
         this.VoiceObjective = false;
@@ -1625,10 +1522,9 @@ class CreateNC extends Component {
         this.VoiceOfi = false;
         this.AutoFillCatogory = false;
         this.AutoFillCDept = false;
-        this.VoiceDocumentRef = false;
+        this.VoiceDocumentRef = false
         this.VoiceRequesFill = false;
         this.VoiceResp = false;
-        this.VoiceOFIcategory = false;
 
         this.refs.ncidentifierTxtField.focus();
         Tts.setDucking(true).then(() => {
@@ -1645,11 +1541,10 @@ class CreateNC extends Component {
         this.VoiceOfi = false;
         this.AutoFillCatogory = false;
         this.AutoFillCDept = false;
-        this.VoiceDocumentRef = false;
+        this.VoiceDocumentRef = false
         this.VoiceRequesFill = false;
         this.VoiceResp = false;
-        this.VoiceOFIcategory = false;
-        this.refs.objEviTxtField.focus();
+        this.refs.objEviTxtField.focus(); 
         //this.refs.objEvidence.focus();
         Tts.setDucking(true).then(() => {
           Tts.speak(strings.va_Uni_rep08);
@@ -1669,10 +1564,9 @@ class CreateNC extends Component {
         this.VoiceOfi = false;
         this.AutoFillCatogory = false;
         this.AutoFillCDept = false;
-        this.VoiceDocumentRef = false;
+        this.VoiceDocumentRef = false
         this.VoiceRequesFill = false;
         this.VoiceResp = false;
-        this.VoiceOFIcategory = false;
 
         this.refs.recomTxtField.focus();
         Tts.setDucking(true).then(() => {
@@ -1681,7 +1575,7 @@ class CreateNC extends Component {
         setTimeout(() => {
           this._startRecognizing();
         }, 1500);
-      } else if (// OFI
+      } else if ( // OFI
         txt.toLowerCase().includes(strings.va_cmd601) ||
         txt.toLowerCase().includes(strings.va_cmd605)
       ) {
@@ -1692,10 +1586,9 @@ class CreateNC extends Component {
         this.VoiceOfi = true;
         this.AutoFillCatogory = false;
         this.AutoFillCDept = false;
-        this.VoiceDocumentRef = false;
+        this.VoiceDocumentRef =  false;
         this.VoiceRequesFill = false;
         this.VoiceResp = false;
-        this.VoiceOFIcategory = false;
 
         this.refs.ofiTxtField.focus();
         Tts.setDucking(true).then(() => {
@@ -1703,47 +1596,45 @@ class CreateNC extends Component {
         });
         setTimeout(() => {
           this._startRecognizing();
-        }, 1500);
+        }, 1500); 
       } else if (
-        txt.toLowerCase().includes('document') ||
-        txt.toLowerCase().includes('document reference')
-      ) {
-        this.VoiceFill = false;
-        this.VoicNCIdentifier = false;
-        this.VoiceObjective = false;
-        this.VoiceRecom = false;
-        this.VoiceOfi = false;
-        this.VoiceDocumentRef = true;
-        this.AutoFillCatogory = false;
-        this.AutoFillCDept = false;
-        this.VoiceRequesFill = false;
-        this.VoiceResp = false;
-        this.VoiceOFIcategory = false;
-        this.refs.docRefTxtField.focus();
-        Tts.setDucking(true).then(() => {
-          Tts.speak(strings.va_Uni_rep08);
-        });
-        setTimeout(() => {
-          this._startRecognizing();
-        }, 1500);
-      } else if (
-        txt.toLowerCase().includes(strings.va_cmd701) ||
-        txt.toLowerCase().includes('attachment')
-      ) { //attach
+          txt.toLowerCase().includes("document") ||
+          txt.toLowerCase().includes("document reference")
+        ) {
+          this.VoiceFill = false;
+          this.VoicNCIdentifier = false;
+          this.VoiceObjective = false;
+          this.VoiceRecom = false;
+          this.VoiceOfi = false;
+          this.VoiceDocumentRef = true
+          this.AutoFillCatogory = false;
+          this.AutoFillCDept = false;         
+          this.VoiceRequesFill = false;
+          this.VoiceResp = false;
+  
+          this.refs.docRefTxtField.focus();
+          Tts.setDucking(true).then(() => {
+            Tts.speak(strings.va_Uni_rep08);
+          });
+          setTimeout(() => {
+            this._startRecognizing();
+          }, 1500);
+         
+      } else if (txt.toLowerCase().includes(strings.va_cmd701) || txt.toLowerCase().includes("attachment")) { //attach
 
         this.VoiceFill = false;
-        this.VoicNCIdentifier = false;
-        this.VoiceObjective = false;
-        this.VoiceRecom = false;
-        this.VoiceOfi = false;
-        this.VoiceDocumentRef = false;
-        this.AutoFillCatogory = false;
-        this.AutoFillCDept = false;
-        this.VoiceRequesFill = false;
-        this.VoiceResp = false;
-        this.VoiceOFIcategory = false;
+          this.VoicNCIdentifier = false;
+          this.VoiceObjective = false;
+          this.VoiceRecom = false;
+          this.VoiceOfi = false;
+          this.VoiceDocumentRef = false
+          this.AutoFillCatogory = false;
+          this.AutoFillCDept = false;         
+          this.VoiceRequesFill = false;
+          this.VoiceResp = false;
+
         Tts.setDucking(true).then(() => {
-          Tts.speak('Click the attachment button to continue'); //Tts.speak(strings.va_rep09);
+          Tts.speak('Click the attachment button to continue');;//Tts.speak(strings.va_rep09);
         });
 
         this._stopRecognizing();
@@ -1753,7 +1644,7 @@ class CreateNC extends Component {
         // console.log("open attachment");
         //this.evidenceField.focus()
         // }, 1000);
-      } else if (txt.toLowerCase().includes(strings.va_cmd802)) {
+      } else if (txt.toLowerCase().includes(strings.va_cmd802)) { 
         Tts.setDucking(true).then(() => {
           Tts.speak(strings.va_rep10);
         });
@@ -1819,7 +1710,7 @@ class CreateNC extends Component {
                       RecordList[i].DropDownProps.ClauseList[j]
                         .StandardDescription,
                 id: RecordList[i].DropDownProps.ClauseList[j].ElementId,
-                newid: parseFloat(RecordList[i].DropDownProps.ClauseList[j].Element),
+                newid : parseFloat(RecordList[i].DropDownProps.ClauseList[j].Element),
                 Requirement:
                   RecordList[i].DropDownProps.ClauseList[j].StandardRequirement,
               });
@@ -1842,7 +1733,7 @@ class CreateNC extends Component {
     });
 
     this.setState({clausedata: Clausedropdown}, () => {
-      console.log('Clause dropdown', this.state.clausedata);
+      console.log('Clause dropdown',this.state.clausedata)
       this.onSelectedItemsChange(this.state.selectedItems);
       // this.onSelectedItemsProcessChange(this.state.selectedItemsProcess)
       this.setProcessList();
@@ -1989,9 +1880,9 @@ class CreateNC extends Component {
       }
       console.log('Process List:', processList);
       console.log('this.state.selectedItemsProces123', processList);
-      this.setState({
-        selectedItemsProcessDumm: processList,
-      });
+      // this.setState({
+      //   selectedItemsProcessDumm: processList,
+      // });
       this.setState(
         {
           processdata: processList,
@@ -2040,6 +1931,7 @@ class CreateNC extends Component {
       },
       () => {
         console.log('setEditValues NCresponsible', this.state.ncData.userDrop);
+        console.log("objevi",this.state.ncData.objEvidence)
         this.setProcessList();
       },
     );
@@ -2049,14 +1941,14 @@ class CreateNC extends Component {
     console.log('selectedItemsProcess selectedItems  ', selectedItems);
     const multiprocess = this.props?.route?.params?.NCOFIDetails?.multiprocess
     let newArry = [];
-    if (multiprocess == '1') {
-      selectedItems.length > 0 &&
-        newArry.push(selectedItems[selectedItems.length - 1]);
-      this.setState({selectedItemsProcess: newArry, MarkProcess: false});
-    } else {
-      // const itemFilter = selectedItems.filter((data)=>data !== undefined)
-      this.setState({selectedItemsProcess: selectedItems, MarkProcess: false});
+    if (multiprocess == "1") {
+      selectedItems.length > 0 && newArry.push(selectedItems[selectedItems.length-1]);
+      this.setState({selectedItemsProcess: newArry, MarkProcess:false});  
     }
+    else {
+    // const itemFilter = selectedItems.filter((data)=>data !== undefined)
+    this.setState({selectedItemsProcess: selectedItems, MarkProcess:false});
+    } 
     // console.log('selectedItemsProcess selectedItems --------- ', itemFilter);
   };
 
@@ -2290,7 +2182,7 @@ class CreateNC extends Component {
   onBuffer(dupNCrecords) {
     console.log('once called', this.state.isBuffered, dupNCrecords);
     if (this.state.isBuffered == false) {
-
+     
       this.setState(
         {
           isSaved: true,
@@ -2327,16 +2219,11 @@ class CreateNC extends Component {
     }
   }
 
-  onSave() {
+    onSave() {
     console.log('on click save');
     console.log('faliurecategory', this.state.FailureCategory);
     console.log(this.state.clausedata, 'marcclause');
-    console.log('displayData--->', this.state.displayData);
-    console.log(
-      this.state.selectedItemsProcess.length,
-      'selecteditemprocess',
-      this.state.selectedItemsProcess,
-    );
+    console.log(this.state.selectedItemsProcess.length, 'selecteditemprocess',this.state.selectedItemsProcess);
 
     // if(this.props.data.smdata !==2 && this.props.data.smdata !==3 ){
     //   this.setState({
@@ -2351,29 +2238,27 @@ class CreateNC extends Component {
         MarkProcess: true,
       });
     }
-    if (
-      this.state.clauseMandatory === 1 &&
-      this.state.selectedItems.length === 0 &&
-      this.state.RouteParam == 'NC'
-    ) {
+    if (this.state.clauseMandatory === 1 && this.state.selectedItems.length === 0  && this.state.RouteParam == 'NC') {
       this.setState({
         MarkClause: true,
       });
     }
+    
+    
     if (
       this.props.data.audits.smdata === 2 ||
       this.props.data.audits.smdata === 3
     ) {
       this.setState({
-        documentRef: true,
-        objEvidence: true,
-        selectedItemsProcess: true,
+       // documentRef:true,
+       // objEvidence: true,
+        // selectedItemsProcess: true,
       });
     }
 
-    if (this.props.data.audits.smdata === 3) {
-      this.setState({displayData: true});
-    }
+    // if (this.props.data.audits.smdata === 3) {
+    //   this.setState({displayData: true});
+    // }
 
     console.log(this.state.MarkClausedrop, 'marsk');
     this.setState({PageLoader: true, isSavebtn: true, isSaved: false}, () => {
@@ -2415,27 +2300,23 @@ class CreateNC extends Component {
 
         let bcontinue = true;
         let pcontinue = true;
-        if (
-          this.state.selectedItems.length == 0 &&
-          this.state.clauseMandatory === 1 &&
-          this.state.RouteParam == 'NC'
-        ) {
-          bcontinue = false;
-        }
+        // if (this.state.selectedItems.length == 0 && this.state.clauseMandatory === 1 && this.state.RouteParam == "NC"){
+        //   bcontinue = true;
+        // }
 
-        if (this.state.selectedItemsProcess.length == 0) {
-          pcontinue = false;
-        }
+        // if (this.state.selectedItemsProcess.length == 0){
+        //   pcontinue = true;
+        // }
         if (
           this.state.NCcategoryt &&
           // this.state.NCresponsible &&
           this.state.NCrequestby &&
-          bcontinue &&
-          this.state.nonconfirmityText &&
-          this.state.objEvidence &&
-          this.state.documentRef &&
-          pcontinue &&
-          this.state.displayData
+          // bcontinue &&
+          this.state.nonconfirmityText 
+        //  this.state.objEvidence &&
+         // this.state.documentRef &&
+          // pcontinue 
+          // this.state.displayData
         ) {
           if (
             this.state.selectedItems.length > 0 ||
@@ -2447,13 +2328,14 @@ class CreateNC extends Component {
               file => file.fileName,
             );
             console.log('########fileNames', fileNames);
+
             const fileDatas = this.state.fileArrayList;
             console.log(
               'checkkkkkkkkkkkkkkkk----------ncccccc------------',
               this.state.fileArrayList,
             );
 
-            console.log('########fileNames', fileDatas);
+            console.log('########fileNames-----------11111', this.state.NCcategoryt,this.state.NCrequestby);
 
             BundleArr = {
               requiretext:
@@ -2471,7 +2353,9 @@ class CreateNC extends Component {
               requestDrop: this.state.requestDropdown[0].id,
               deptDrop: this.state.NCdept === undefined ? 0 : this.state.NCdept,
               failureDrop:
-                this.state.NCFailure === undefined ? 0 : this.state.NCFailure,
+                this.state.NCFailure === undefined
+                  ? 0 
+                  : this.state.NCFailure,
               filename: fileNames?.length == 0 ? [] : fileNames,
               filedata: fileDatas?.length == 0 ? [] : fileDatas,
               AuditID: this.state.AuditID,
@@ -2481,7 +2365,8 @@ class CreateNC extends Component {
               SiteID: this.state.SiteID,
               auditstatus: this.state.auditstatus,
               title: this.state.title,
-              NCNumber: this.state.auditnumber,
+              // NCNumber: this.state.auditnumber,
+              NCNumber: this.props?.navigation?.state?.params?.navigationfrom == "checkpointDemo" ? this.state.NCNumberUpdate : this.state.auditnumber,
               Category: 'NC',
               OFI: this.state.ofitext,
               uniqueNCkey: Moment().unix(),
@@ -2553,7 +2438,7 @@ class CreateNC extends Component {
                         OFI: NCrecords?.[i]?.Pending?.[j]?.OFI,
                         categoryDrop:
                           NCrecords?.[i]?.Pending?.[j]?.categoryDrop,
-                        userDrop: NCrecords?.[i]?.Pending?.[j]?.userDrop,
+                        userDrop: NCrecords?.[i]?.Pending?.[j]?.userDrop,                       
                         requestDrop: NCrecords?.[i]?.Pending?.[j]?.requestDrop,
                         deptDrop: NCrecords?.[i]?.Pending?.[j]?.deptDrop,
                         failureDrop: NCrecords?.[i]?.Pending?.[j]?.failureDrop,
@@ -2604,14 +2489,18 @@ class CreateNC extends Component {
                 );
 
                 dupNCrecords.push({
-                  AuditID: NCrecords[i]?.AuditID,
-                  Uploaded: NCrecords[i]?.Uploaded,
-                  Pending: NCrecords[i]?.Pending,
+                  AuditID: NCrecords[i].AuditID,
+                  Uploaded: NCrecords[i].Uploaded,
+                  Pending: NCrecords[i].Pending,
                 });
               }
             }
             console.log(this.state.selectedItemsProcess.length, 'onetwothree');
-            if (this.state.selectedItemsProcess.length !== 0) {
+           
+           
+          
+            
+            if (this.state.selectedItemsProcess.length !== 0 || this.state.selectedItemsProcess.length == 0 ) {
               this.onBuffer(dupNCrecords);
             } else {
               this.setState({
@@ -2620,9 +2509,10 @@ class CreateNC extends Component {
                 PageLoader: false,
                 isSavebtn: false,
               });
-              alert('Please select all mandatory fields');
+              // alert('Please select all mandatory fields111');
             }
           } else {
+            console.log('########fileNames-----------2222', this.state.NCcategoryt,this.state.NCrequestby);
             this.setState({isSaved: false}, () => {
               // , MarkClause: true
               // ---> this.refs.toast.show(strings.Clauses,DURATION.LENGTH_LONG)
@@ -2630,6 +2520,8 @@ class CreateNC extends Component {
           }
         } else {
           // console.log('-->',this.state.NCcategoryt,this.state.NCresponsible,this.state.NCrequestby)
+          console.log('########fileNames-----------', this.state.NCcategoryt,this.state.NCrequestby);
+          alert('Please select all mandatory fields');
 
           this.setState({isSaved: false, PageLoader: false}, () => {
             if (this.state.NCrequestby === undefined) {
@@ -2682,8 +2574,7 @@ class CreateNC extends Component {
               });
             }
             if (
-              this.state.selectedItems.length === 0 &&
-              this.state.clauseMandatory === 1 &&
+              this.state.selectedItems.length === 0 && this.state.clauseMandatory === 1 &&
               this.state.RouteParam == 'NC'
             ) {
               this.setState({
@@ -2740,13 +2631,13 @@ class CreateNC extends Component {
               'hellothreefour',
             );
             if (
-              (this.state.selectedItems.length == 0 && !this.state.isLPA) ||
-              this.state.selectedItemsProcess.length == 0
+              (this.state.selectedItems.length == 0 && !this.state.isLPA) 
+              // ||
+              // this.state.selectedItemsProcess.length == 0
             ) {
               /** disabling standard requirement field */
               // this.setState({ underline2: true }, () => {
               //this.refs.toast.show(strings.Clauses,3000)
-              // this.refs.toast.show("Please select all mandatory fields.", 4000);
               alert('Please select all mandatory fields');
 
               // })
@@ -2789,8 +2680,7 @@ class CreateNC extends Component {
           // this.state.NCresponsible &&
           this.state.NCrequestby &&
           this.state.selectedItems &&
-          this.state.ofitext &&
-          this.state.objEvidence
+          this.state.ofitext
         ) {
           console.log('this.state.NCcategoryt', this.state.NCcategoryt);
           console.log('this.state.NCrequestby', this.state.NCrequestby);
@@ -2836,7 +2726,7 @@ class CreateNC extends Component {
             SiteID: this.state.SiteID,
             auditstatus: this.state.auditstatus,
             title: this.state.title,
-            NCNumber: this.state.auditnumber,
+            NCNumber: this.props?.navigation?.state?.params?.navigationfrom == "checkpointDemo" ? this.state.NCNumberUpdate : this.state.auditnumber,
             Category: 'OFI',
             // OFI: this.state.ofitext,
             NonConfirmity:
@@ -2866,6 +2756,8 @@ class CreateNC extends Component {
                 : this.state.recommAction,
           };
           console.log('Information bundled one', BundleArr);
+          console.log('NCrecords?.[i]?.Pending?.[j]', NCrecords?.[i]?.Pending?.[j]);
+
 
           for (var i = 0; i < NCrecords.length; i++) {
             if (NCrecords[i].AuditID === this.state.AuditID) {
@@ -2897,8 +2789,10 @@ class CreateNC extends Component {
                       Category: NCrecords?.[i]?.Pending?.[j]?.Category,
                       // filename: NCrecords?.[i]?.Pending?.[j]?.filename,
                       // filedata: NCrecords?.[i]?.Pending?.[j]?.filedata,
-                      filename: NCrecords?.[i]?.Pending?.[j].filename,
-                      filedata: NCrecords?.[i]?.Pending?.[j].filedata,
+                      filename:
+                        NCrecords?.[i]?.Pending?.[j].filename,
+                      filedata:
+                        NCrecords?.[i]?.Pending?.[j].filedata,
                       auditstatus: NCrecords?.[i]?.Pending?.[j]?.auditstatus,
                       NonConfirmity:
                         NCrecords?.[i]?.Pending?.[j]?.NonConfirmity,
@@ -2924,15 +2818,15 @@ class CreateNC extends Component {
               }
 
               dupNCrecords.push({
-                AuditID: NCrecords[i]?.AuditID,
-                Uploaded: NCrecords[i]?.Uploaded,
+                AuditID: NCrecords[i].AuditID,
+                Uploaded: NCrecords[i].Uploaded,
                 Pending: Information,
               });
             } else {
               dupNCrecords.push({
-                AuditID: NCrecords[i]?.AuditID,
-                Uploaded: NCrecords[i]?.Uploaded,
-                Pending: NCrecords[i]?.Pending,
+                AuditID: NCrecords[i].AuditID,
+                Uploaded: NCrecords[i].Uploaded,
+                Pending: NCrecords[i].Pending,
               });
             }
           }
@@ -2940,6 +2834,7 @@ class CreateNC extends Component {
           console.log('dupNCrecords', dupNCrecords);
 
           // Store audit list in redux store to set it in persistant storage
+          
 
           this.setState(
             {
@@ -2977,7 +2872,7 @@ class CreateNC extends Component {
           this.setState(
             {isSaved: false, PageLoader: false, isSavebtn: false},
             () => {
-              alert('Please Fill Mandatory Fields');
+              alert('Please select all mandatory fields');
 
               if (this.state.NCrequestby === undefined) {
                 this.setState(
@@ -3102,54 +2997,20 @@ class CreateNC extends Component {
       }, 500);
     });
   }
-  attachFilesonly() {
-    this.setState({AttachModal: false}, () => {
-      setTimeout(() => {
-        console.log('attach pressed');
-        this.openFileSystemFiles();
-      }, 500);
-    });
-  }
 
   checkFileAlreadyExist = (AttachmentList, response) => {
     for (var i = 0; i < AttachmentList.length; i++) {
       console.log('one:third');
       console.log('one:thirdentering', AttachmentList);
       let filename = response.name.replace(/ /g, '_');
-      var fileExist = AttachmentList.filter(item => item.fileName === filename);
-      if (fileExist.length > 0) return true;
-    }
+        var fileExist = AttachmentList.filter(
+          item => item.fileName === filename,
+        );
+        if (fileExist.length > 0) return true;
+      }  
     return false;
   };
-  handleImagePick = async () => {
-    try {
-      const res = await DocumentPicker.pick({
-        type: [DocumentPicker.types.allFiles],
-      });
-      console.log('File picked:', res.uri);
-    } catch (err) {
-      if (DocumentPicker.isCancel(err)) {
-        console.log('User cancelled file picker');
-      } else {
-        console.log('DocumentPicker Error:', err);
-      }
-    }
-  };
-  handleFilePick = async () => {
-    try {
-      const res = await DocumentPicker.pick({
-        type: [DocumentPicker.types.pdf, DocumentPicker.types.xls],
-      });
-      console.log('File picked:', res.uri);
-    } catch (err) {
-      if (DocumentPicker.isCancel(err)) {
-        console.log('User cancelled file picker');
-      } else {
-        console.log('DocumentPicker Error:', err);
-      }
-    }
-  };
-
+  
   renderItem = ({item}) => {
     return (
       <View
@@ -3176,12 +3037,12 @@ class CreateNC extends Component {
         ) : (
           <View style={{flexDirection: 'column'}}>
             <View>
-              {item?.fileData !== '' &&
-              item?.fileData !== undefined &&
-              item?.fileData !== null ? (
+              {item.fileData !== '' &&
+              item.fileData !== undefined &&
+              item.fileData !== null ? (
                 <TouchableOpacity
-                  onPress={this.openAttachmentFile.bind(this, item?.fileData)}>
-                  {this.getFileIcon(item?.fileName, item?.fileData)}
+                  onPress={this.openAttachmentFile.bind(this, item.fileData)}>
+                  {this.getFileIcon(item.fileName, item.fileData)}                 
                 </TouchableOpacity>
               ) : null}
             </View>
@@ -3191,11 +3052,11 @@ class CreateNC extends Component {
                 fontFamily: 'OpenSans-Regular',
                 alignSelf: 'center',
               }}>
-              {item?.fileName}
+              {item.fileName}
             </Text>
           </View>
         )}
-        {item?.fileName ? (
+        {item.fileName ? (
           <TouchableOpacity
             onPress={() => this.deleteAttachments(item.id)}
             style={{
@@ -3222,10 +3083,10 @@ class CreateNC extends Component {
 
 
   renderEdiitItem = ({item}) => {
-    console.log('FILETYPE:----------123', item?.fileName);
+    console.log('FILETYPE:----------123', item.fileName);
     console.log('FILETYPE:----------123', item);
 
-    const filepath = 'file:/' + item?.fileData;
+    const filepath = 'file:/' + item.fileData;
 
     const format = item.filetype;
 
@@ -3233,9 +3094,9 @@ class CreateNC extends Component {
       <View>
         <TouchableOpacity
           onPress={this.openAttachmentFile.bind(this, filepath)}>
-          {this.getFileIcon(item?.fileName, item?.fileData)}
+          {this.getFileIcon(item.fileName, item.fileData)}
 
-          {/* {format.indexOf('image') === 0 ? (
+            {/* {format.indexOf('image') === 0 ? (
             <View
               style={{
                 flexDirection: 'column',
@@ -3322,12 +3183,13 @@ class CreateNC extends Component {
   };
 
   openFileSystem = async () => {
-    let newFilePath =
-      '/' +
-      RNFetchBlob.fs.dirs.DocumentDir +
-      '/' +
-      (Platform.OS == 'ios' ? 'IosFiles' : 'AuditFiles');
-    try {
+   
+      let newFilePath =
+        '/' +
+        RNFetchBlob.fs.dirs.DocumentDir +
+        '/' +
+        (Platform.OS == 'ios' ? 'IosFiles' : 'AuditFiles');
+        try {
       const response = await DocumentPicker.pickSingle({
         presentationStyle: 'fullScreen',
       });
@@ -3341,13 +3203,15 @@ class CreateNC extends Component {
       newFilePath = newFilePath + '/' + newfileName; // + response.name.replace(/ /g,'_')
 
       if (response) {
+
         if (
           this.checkFileAlreadyExist(this.state.fileArrayList, response) ===
           true
-        ) {
-          alert('File already Exist, Kindly add a different file');
+        ) {          
+          alert('File already Exist, Kindly add a different file');                
           return;
         }
+
 
         var fileuri =
           Platform.OS == 'ios'
@@ -3362,93 +3226,8 @@ class CreateNC extends Component {
         if (response.size > 5000000) {
           alert(strings.alert);
         } else if (response.size < 1910485760456) {
-          console.log('helloenter', response.size);
-          //console.log('helll no', response.size);
 
-          var data = await RNFS.readFile(fileuri, 'base64')
-            .then(res => {
-              console.log('1:first');
-              RNFetchBlob.fs.writeFile(newFilePath, res, 'base64').then(res => {
-                console.log('1:second');
-                //fileArrayList
-                let FileArrayTemp = this.state.fileArrayList;
-                let FileArrayTempOne = [
-                  {
-                    id: Moment().unix(),
-                    fileName: filename,
-                    fileData: newFilePath,
-                    fileSize: response.size,
-                    filetype: response.type,
-                  },
-                ];
-                console.log(FileArrayTemp, 'filearraytemp');
-                var fileMergeResult = FileArrayTemp.concat(FileArrayTempOne);
-                // console.log(fileMergeResult, 'filearraytemp2xxxxxxxxxxx333333');
-                this.setState(
-                  {
-                    fileArrayList: fileMergeResult,
-                  },
 
-                  () => {
-                    console.log(
-                      response,
-                      'filedatabase',
-                      this.state.fileArrayList,
-                    );
-                  },
-                );
-              });
-            })
-            .catch(err => {
-              console.log(err, 'Err in file catch');
-            });
-        }
-      }
-    } catch (err) {
-      console.log(err);
-      if (DocumentPicker.isCancel(err)) return;
-    }
-  };
-  openFileSystemFiles = async () => {
-    let newFilePath =
-      '/' +
-      RNFetchBlob.fs.dirs.DocumentDir +
-      '/' +
-      (Platform.OS == 'ios' ? 'IosFiles' : 'AuditFiles');
-    try {
-      const response = await DocumentPicker.pickSingle({
-        presentationStyle: 'fullScreen',
-      });
-      console.log(response, 'filedataresponse');
-      var filename = response.name.trim();
-      var newfileName =
-        'file_' +
-        Moment().unix() +
-        '.' +
-        filename.substring(filename.lastIndexOf('.') + 1);
-      newFilePath = newFilePath + '/' + newfileName; // + response.name.replace(/ /g,'_')
-
-      if (response) {
-        if (
-          this.checkFileAlreadyExist(this.state.fileArrayList, response) ===
-          true
-        ) {
-          alert('File already Exist, Kindly add a different file');
-          return;
-        }
-        var fileuri =
-          Platform.OS == 'ios'
-            ? decodeURIComponent(response.uri.slice(6))
-            : response.uri;
-        console.log('fileuri', fileuri);
-
-        //const fileuri = decodeURIComponent(fileuri);
-        console.log(fileuri, 'decoded path');
-        filename = filename.replace(/ /g, '_');
-
-        if (response.size > 5000000) {
-          alert(strings.alert);
-        } else if (response.size < 1910485760456) {
           console.log('helloenter', response.size);
           //console.log('helll no', response.size);
 
@@ -3475,14 +3254,11 @@ class CreateNC extends Component {
                   },
 
                   () => {
-                    console.log(
-                      response,
-                      'filedatabase',
-                      this.state.fileArrayList,
-                    );
+                    console.log(response, 'filedatabase', this.state.fileArrayList);
                   },
                 );
               });
+              
             })
             .catch(err => {
               console.log(err, 'Err in file catch');
@@ -3492,11 +3268,11 @@ class CreateNC extends Component {
     } catch (err) {
       console.log(err);
       if (DocumentPicker.isCancel(err)) return;
-
+      
     }
   };
 
-  async deleteAttachments(value) {
+  deleteAttachments(value) {
     console.log('XXXXXXXXXXXXXXXXXXXXXXXXXXX', value);
     console.log(
       'XXXXXXXXXXXXXXXXXXXXXXXXXXX this.state.fileArrayList',
@@ -3522,8 +3298,6 @@ class CreateNC extends Component {
 
         var cameraCapture = [];
         this.props.storeCameraCapture(cameraCapture);
-        const stringifiedCameraCapture = JSON.stringify(cameraCapture);
-        AsyncStorage.setItem('cameraCapture', stringifiedCameraCapture);
       },
     );
   }
@@ -3533,7 +3307,7 @@ class CreateNC extends Component {
       'one:Navigation,PARAMS',
       this.props?.route?.params?.data,
     );
-
+ 
     const multiprocess = this.props?.route?.params?.NCOFIDetails?.multiprocess
     console.log(this.state.processdata, 'processautoone');
     console.log('userdetailsdropdown', this.state.requestDropdown);
@@ -3556,6 +3330,7 @@ class CreateNC extends Component {
     const FailureCategory = this.state.FailureCategory;
     console.log('ncDATRA', this.state.ncData);
     console.log('ofidata', this.props.navigation);
+    console.log('objevi',this.state.objEvidence);
     const array = this.state.FailureCategory?.map(obj => ({
       label: obj?.FailureCategoryName,
 
@@ -3576,7 +3351,7 @@ class CreateNC extends Component {
         name: strings.ProcessL,
         id: 0,
         children: this.state.processdata,
-        // children: this.props.navigation.state.params?.auditDetailsList,
+        // children: this.props?.route?.params?.auditDetailsList,
       },
     ];
 
@@ -3592,7 +3367,6 @@ class CreateNC extends Component {
 
     return (
       <View style={styles.wrapper}>
-        {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
         <OfflineNotice />
         <ImageBackground
           source={Images.DashboardBG}
@@ -3631,10 +3405,10 @@ class CreateNC extends Component {
               </Text>
             </View>
             <View style={styles.headerDiv}>
-            <TouchableOpacity
+              {/* <ImageBackground source={Images.headerBG} style={styles.backgroundImage}></ImageBackground> */}
+              <TouchableOpacity
                 style={{paddingHorizontal: 10}}
                 onPress={() =>
-                  // this.props.navigation.navigate('Home')
                   this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)
                 }>
                 <Icon name="home" size={30} color="white" />
@@ -3647,6 +3421,7 @@ class CreateNC extends Component {
             <View style={styles.auditPageBody}>
               <ScrollView showsVerticalScrollIndicator={false}>
                 <View style={{marginBottom: 50}}>
+                  <View style={styles.div1}></View>
                   <View style={styles.div1}>
                     {this.state.RouteParam === 'NC' ? (
                       <View style={styles.input02}>
@@ -3683,11 +3458,12 @@ class CreateNC extends Component {
                           textColor="#747474"
                           // underlineColorAndroid={this.state.underline1 === true ? 'red': '#A9A9A9'}
                           onChangeText={text => {
-                            this.setState({nonconfirmityText: text}, () => {
+                            this.setState(({nonconfirmityText: text}), () => {
                               // console.log('---->',this.state.nonconfirmityText)
                               this.isCheck5 = true;
                             });
                           }}
+                          
                         />
                       </View>
                     ) : (
@@ -3768,7 +3544,7 @@ class CreateNC extends Component {
                           </Text>
                         ) : null}
                         <TextInput
-                          ref="objEviTxtField"
+                          ref="objEviTxtField" 
                           value={this.state.objEvidence}
                           multiline={true}
                           autoCapitalize="sentences"
@@ -3789,7 +3565,7 @@ class CreateNC extends Component {
                           // underlineColorAndroid={this.state.underline1 === true ? 'red': '#A9A9A9'}
                           onChangeText={text => {
                             this.setState({objEvidence: text}, () => {
-                              // console.log('---->',this.state.nonconfirmityText)
+                              console.log('---->objEvidence',this.state.objEvidence)
                               this.isCheck5 = true;
                             });
                           }}
@@ -3837,7 +3613,8 @@ class CreateNC extends Component {
                           // underlineColorAndroid={this.state.underline1 === true ? 'red': '#A9A9A9'}
                           onChangeText={text => {
                             this.setState({objEvidence: text}, () => {
-                               this.isCheck5 = true;
+                              // this.isCheck3 = true;
+                              console.log('---->objEvidence222',this.state.objEvidence)
                             });
                           }}
                         />
@@ -3856,18 +3633,12 @@ class CreateNC extends Component {
                       ) : null}
                     </View>
                   </View>
-                  <View style={styles.input02}>
-                    <Text
-                      style={{
-                        color:
-                          this.state.clauseMandatory === 1 &&
-                          this.state.RouteParam === 'NC' &&
-                          this.state.MarkClause == false
-                            ? '#A6A6A6'
-                            : '#000000',
-                      }}>
-                      {strings.ClausesL}
-                    </Text>
+                  <View  style={styles.input02}>
+                  <Text style={{
+                    color: this.state.clauseMandatory === 1 && this.state.RouteParam === 'NC' && this.state.MarkClause == false  ?'#A6A6A6' : "#000000"
+                    } }>
+                    {strings.ClausesL}</Text>
+
                   </View>
                   <View style={styles.div2}>
                     <View style={styles.inputhigh}>
@@ -3929,27 +3700,16 @@ class CreateNC extends Component {
                       ) : null}
                     </View>
                   </View>
-                  <View style={{flexDirection:'row',justifyContent:'space-between',alignContent:'space-between'}}>
-                  <Text>{""}</Text>
-                  <TouchableOpacity  onPress={() =>
-                    this.setState({NCtxtFlag: false, isVisible: true})
-                  }>
-                  <Icon name={"eye"} size={20} style={{marginRight:35}}/>
-                  </TouchableOpacity>
-                  </View>
-                  
-
-
                   <View style={styles.div01}>
                     <View
                       style={[
                         styles.input002,
-                        // this.state.underline2 == true
-                        //   ? {borderBottomColor: 'red', borderBottomWidth: 0.5}
-                        //   : {
-                        //       borderBottomColor: 'lightgrey',
-                        //       borderBottomWidth: 0.7,
-                        //     },
+                        this.state.underline2 == true
+                          ? {borderBottomColor: 'red', borderBottomWidth: 0.5}
+                          : {
+                              borderBottomColor: 'lightgrey',
+                              borderBottomWidth: 0.7,
+                            },
                       ]}
                       onPress={() => this.setState({isVisible: true})}>
                       {this.state.displayData ? (
@@ -3958,7 +3718,7 @@ class CreateNC extends Component {
                             padding: 0,
                             margin: 0,
                             color: '#A6A6A6',
-                            width: '80%',
+                            width: '90%',
                             fontSize: Fonts.size.regular,
                             fontFamily: 'OpenSans-Regular',
                           }}>
@@ -3967,13 +3727,19 @@ class CreateNC extends Component {
                       ) : null}
                       <View style={{flexDirection: 'row'}}>
                         <TextInput
+                          style={
+                            this.state.displayData
+                              ? styles.placeholderSRLabel
+                              : styles.placeholderSR
+                          }
                           multiline={true}
-                          placeholder={strings.StandardRequirementsL}
+                          // placeholder={strings.StandardRequirementsL}
                           placeholderTextColor={
                             this.state.underline2 == true ? 'red' : '#A6A6A6'
                           }
                           textColor="#747474"
-                          numberOfLines={1}
+                          // numberOfLines={1}
+                          // underlineColorAndroid={this.state.MarkClause === true ? 'red' : '#747474'}
                           value={
                             this.state.displayData
                               ? this.state.displayData.length > 40
@@ -3982,19 +3748,21 @@ class CreateNC extends Component {
                                 : this.state.displayData
                               : ''
                           }
+                          // value={this.state.displayData}
                           editable={false}
                           onFocus={() => this.setState({isVisible: true})}
                         />
-                        {/* {this.state.displayData != '' &&
+                        {this.state.displayData != '' &&
                         this.state.displayData != undefined ? (
                           <TouchableOpacity
                             style={{
                               right: 0,
                               left: 11,
-bottom:10,                              backgroundColor: 'white',
-                              width: "7%",
-                              justifyContent:'flex-end',
-                              alignItems:'flex-end',
+                              top: 5,
+                              backgroundColor: 'white',
+                              width: 30,
+                              justifyContent: 'center',
+                              alignItems: 'center',
                             }}
                             onPress={() =>
                               this.setState({NCtxtFlag: false, isVisible: true})
@@ -4003,7 +3771,7 @@ bottom:10,                              backgroundColor: 'white',
                           </TouchableOpacity>
                         ) : (
                           <View></View>
-                        )} */}
+                        )}
                       </View>
                     </View>
                     <View
@@ -4012,6 +3780,7 @@ bottom:10,                              backgroundColor: 'white',
                           ? {display: 'none'}
                           : styles.check
                       }>
+                      {/* <Icon style={{ left: 10 }} name="asterisk" size={8} color="red" /> */}
                     </View>
                   </View>
                   <View style={styles.div1}>
@@ -4057,16 +3826,16 @@ bottom:10,                              backgroundColor: 'white',
                               this.isCheckCategory = false;
                             } else if (CategoryID) {
                               this.isCheckCategory = true;
-                              this.setState(
-                                {NCcategoryt: CategoryID},
-                                () => {},
-                              );
+                              this.setState({NCcategoryt: CategoryID}, () => {
+                                // console.log('CategoryID',this.state.NCcategoryt)
+                                // console.log('Category id',this.isCheckCategory)
+                              });
                             }
                           }}
                         />
                       ) : (
                         <Dropdown
-                          ref="categoryTxtField"
+                        ref="categoryTxtField"
                           label={
                             this.state.RouteParam === 'NC'
                               ? 'NC' + ' ' + strings.CategoryL
@@ -4098,8 +3867,7 @@ bottom:10,                              backgroundColor: 'white',
                   <View style={styles.div1}>
                     <View style={styles.input05}>
                       {this.state.isContainValue4 === true ? (
-                        <Dropdown
-                          ref="responsibleTxtField"
+                        <Dropdown ref="responsibleTxtField"         
                           value={
                             this.state.NCrequestby
                               ? this.state.NCrequestby.value
@@ -4127,7 +3895,7 @@ bottom:10,                              backgroundColor: 'white',
                               i < this.state.UserArr.length;
                               i++
                             ) {
-                              if (value === this.state.UserArr[i].value) {
+                              if (value === this.state.UserArr[i].value) { 
                                 RequestID = this.state.UserArr[i];
                               }
                             }
@@ -4145,7 +3913,7 @@ bottom:10,                              backgroundColor: 'white',
                         />
                       ) : (
                         <Dropdown
-                          ref="responsibleTxtField"
+                        ref="responsibleTxtField"
                           label={strings.ResponsibilityL}
                           baseColor={
                             this.state.MarkReq === false ? '#A6A6A6' : 'red'
@@ -4175,7 +3943,7 @@ bottom:10,                              backgroundColor: 'white',
                     <View style={styles.input04}>
                       {this.state.isContainValue3 === true ? (
                         <Dropdown
-                          ref="requestTxtField"
+                        ref="requestTxtField"
                           // value={
                           //   this.state.NCresponsible
                           //     ? this.state.NCresponsible.value
@@ -4266,6 +4034,9 @@ bottom:10,                              backgroundColor: 'white',
                       />
                     </View>
                   </View>
+                  {/* FailureCategory remmoved for supplier */}
+                  {this.props.data.audits.smdata !== 2 &&
+                          this.props.data.audits.smdata !== 3 ?
                   <View style={styles.div1}>
                     <View style={styles.input07}>
                       {this.state.isContainValue4 === true ? (
@@ -4401,91 +4172,12 @@ bottom:10,                              backgroundColor: 'white',
                         </View>
                       )}
                     </View>
-                  </View>
-
+                  </View> : <></>
+                    }
                   <View style={styles.div2}>
                     <View style={styles.inputhigh}>
                       <View>
-                        {this.state.selectedItemsProcess ? (
-                          <SectionedMultiSelect //single={multiprocess == "1" ? true : false}
-                            IconRenderer={this.icon}
-                            ref={processListField =>
-                              (this.processListField = processListField)
-                            }
-                            items={itemsProcess}
-                            uniqueKey="id"
-                            subKey="children"
-                            selectText={
-                              this.state.processdata.length > 0
-                                ? strings.ProcessL
-                                : 'No process(s) found'
-                            }
-                            //alwaysShowSelectText={multiprocess == "1" ? false : true}
-                            renderSelectText={() => strings.ProcessL}
-                            baseColor={
-                              this.state.MarkProcess == false
-                                ? '#A6A6A6'
-                                : 'red'
-                            }
-                            textColor={
-                              this.state.MarkProcess == false
-                                ? '#A6A6A6'
-                                : 'red'
-                            }
-                            showDropDowns={true}
-                            readOnlyHeadings={true}
-                            selectedIconComponent={
-                              <Icon
-                                name="check"
-                                size={18}
-                                style={{
-                                  color: '#4caf50',
-                                  paddingLeft: 10,
-                                }}
-                              />
-                            }
-                            onSelectedItemsChange={
-                              this.onSelectedItemsProcessChange
-                            }
-                            selectedItems={this.state.selectedItemsProcess}
-                            expandDropDowns={true}
-                            //  alwaysShowSelectText={true}
-                            placeholderTextColor="#A6A6A6"
-                            itemNumberOfLines={3}
-                            selectLabelNumberOfLines={3}
-                            styles={{
-                              chipText: {
-                                maxWidth: Dimensions.get('screen').width - 90,
-                              },
-                            }}
-                            colors={{
-                              text: '#A6A6A6',
-                              subText: '#A6A6A6',
-                              selectToggleTextColor:
-                                this.state.MarkProcess == false
-                                  ? '#A6A6A6'
-                                  : 'red',
-                            }}
-                          />
-                        ) : null}
-
-                        <View
-                          style={
-                            this.state.RouteParam == 'OFI' || this.state.isLPA
-                              ? {display: 'none'}
-                              : styles.check
-                          }>
-                          {this.props.data.audits.smdata !== 2 &&
-                          this.props.data.audits.smdata !== 3 ? (
-                            <Icon
-                              style={{right: 10}}
-                              name="asterisk"
-                              size={8}
-                              color="red"
-                            />
-                          ) : null}
-                        </View>
-                        <View
+                      <View
                           style={{paddingLeft: 10, flexDirection: 'column'}}>
                           <Text
                             ref="dummyFocus"
@@ -4521,6 +4213,81 @@ bottom:10,                              backgroundColor: 'white',
                             buttonSize={15}
                             labelStyle={{color: 'black', paddingRight: 12}}
                           />
+                        </View>
+                        {this.state.selectedItemsProcess ? (
+                          <SectionedMultiSelect //single={multiprocess == "1" ? true : false}                 
+                          IconRenderer={this.icon}
+                            ref={processListField =>
+                              (this.processListField = processListField)
+                            }
+                            items={itemsProcess}
+                            uniqueKey="id"
+                            subKey="children"
+                            selectText={
+                              this.state.processdata.length > 0
+                                ? strings.ProcessL
+                                : 'No process(s) found'
+                            }
+                            //alwaysShowSelectText={multiprocess == "1" ? false : true}
+                            renderSelectText={() => strings.ProcessL}
+                            baseColor={
+                              this.state.MarkProcess == false ? '#A6A6A6' : 'A6A6A6'
+                            }
+                            textColor={
+                              this.state.MarkProcess == false ? '#A6A6A6' : 'A6A6A6'
+                            }
+                            showDropDowns={true}
+                            readOnlyHeadings={true}
+                            selectedIconComponent={
+                              <Icon
+                                name="check"
+                                size={18}
+                                style={{
+                                  color: '#4caf50',
+                                  paddingLeft: 10,
+                                }}
+                              />
+                            }
+                            onSelectedItemsChange={
+                              this.onSelectedItemsProcessChange
+                            }
+                            selectedItems={this.state.selectedItemsProcess}
+                            expandDropDowns={true}
+                            //  alwaysShowSelectText={true}
+                            placeholderTextColor="#A6A6A6"
+                            itemNumberOfLines={3}
+                            selectLabelNumberOfLines={3}
+                            styles={{
+                              chipText: {
+                                maxWidth: Dimensions.get('screen').width - 90,
+                              },                              
+                            }}
+                            colors={{
+                              text: '#A6A6A6',
+                              subText: '#A6A6A6',
+                              selectToggleTextColor:
+                                this.state.MarkProcess == false
+                                  ? '#A6A6A6'
+                                  : 'A6A6A6',
+                            }}
+                          />
+                        ) : null}
+
+                        <View
+                          style={
+                            this.state.RouteParam == 'OFI' || this.state.isLPA
+                              ? {display: 'none'}
+                              : styles.check
+                          }>
+                          {this.props.data.audits.smdata !== 2 &&
+                          this.props.data.audits.smdata !== 3 ? (
+                            <Icon
+                              style={{left: 10}}
+                              name="asterisk"
+                              size={8}
+                              color="red"
+                            />
+                          ) : null}
                         </View>
                       </View>
                     </View>
@@ -4651,10 +4418,6 @@ bottom:10,                              backgroundColor: 'white',
                       ) : null}
                     </View>
                   </View>
-                  {/* <View>
-        <Button title="Pick Image" onPress={this.handleImagePick} />
-        <Button title="Pick File" onPress={this.handleFilePick} />
-      </View> */}
                   <View style={styles.div1}>
                     {/* <View style={styles.uploadButton}>
                       <Text style={{ fontSize: Fonts.size.regular, color: '#A6A6A6' }}>{strings.Attach_EvidenceL}</Text>
@@ -4695,7 +4458,7 @@ bottom:10,                              backgroundColor: 'white',
                         })
                       }
                       ref={evidenceField =>
-                        (this.evidenceField = evidenceField)
+                        (this.evidenceField = evidenceField) 
                       }
                       style={styles.check}>
                       <ResponsiveImage
@@ -4715,8 +4478,7 @@ bottom:10,                              backgroundColor: 'white',
                       style={{ marginTop: 10 }}
                     />
                   </View> */}
-                  {this.state.fileArrayList != null &&
-                  this.state.fileArrayList.length > 0 ? (
+                  {this.state.fileArrayList != null && this.state.fileArrayList.length > 0 ? (
                     <View style={{flex: 1}}>
                       <FlatList
                         data={this.state.fileArrayList}
@@ -4726,8 +4488,8 @@ bottom:10,                              backgroundColor: 'white',
                         style={{marginTop: 10}}
                       />
                     </View>
-                  ) : null}
-                  {/*}   <View style={{flex: 1}}>
+                  ) : null }
+                 {/*}   <View style={{flex: 1}}>
                       <FlatList
                         data={this.state.fileArrayList}
                         renderItem={this.renderItem}
@@ -4836,13 +4598,13 @@ bottom:10,                              backgroundColor: 'white',
                   </View>
                 </View>
                 {/** zzzzzzz */}
-                <View style={styles.floatingDiv}>
+                {/* <View style={styles.floatingDiv}>
                   <TouchableOpacity
-                    onPress={() => {
-                      this.state.startVoice === false
-                        ? debounce(this.StartVoicePress(), 800)
-                        : debounce(this.StopVoicePress(), 800);
-                    }}
+                    onPress={ () => {
+                      (this.state.startVoice === false ? debounce(this.StartVoicePress(), 800) : 
+                      debounce(this.StopVoicePress(), 800))
+                    }
+                    }
                     style={
                       this.state.startVoice === true
                         ? [styles.floatinBtn, {backgroundColor: '#14D0AE'}]
@@ -4858,7 +4620,7 @@ bottom:10,                              backgroundColor: 'white',
                       <Icon name="microphone" size={25} color="#2EA4E2" />
                     )}
                   </TouchableOpacity>
-                </View>
+                </View> */}
 
                 <View
                   style={{
@@ -4910,137 +4672,144 @@ bottom:10,                              backgroundColor: 'white',
         </View>
 
         <Toast ref="toast" position="top" opacity={1} />
-        <Modal
-          isVisible={this.state.isVisible}
-          onBackdropPress={() => this.setState({isVisible: false})}
-          style={styles.modalOuterBox}>
-          <View>
-            <View style={styles.ModalBox}>
-              <View style={styles.modalheader}>
-                <Text
-                  style={{
-                    fontSize: Fonts.size.h5,
-                    fontFamily: 'OpenSans-Regular',
-                  }}>
-                  {this.state.NCtxtFlag == false
-                    ? strings.StandardRequirementsL
-                    : this.state.RouteParam === 'NC'
-                    ? 'Non conformance'
-                    : 'Opportunity for improvements'}
-                </Text>
-              </View>
-              <ScrollView style={styles.modalbody}>
-                <View>
-                  {this.state.NCtxtFlag === false ? (
-                    <View style={{paddingBottom: 20}}>
-                      {this.state.modalDisplay.map((item, key) => (
-                        <View key={key}>
-                          <Text
-                            selectable={true}
-                            style={{
-                              fontSize: Fonts.size.regular,
-                              fontFamily: 'OpenSans-Bold',
-                            }}>
-                            {item.name}
-                          </Text>
-                          <Text
-                            selectable={true}
-                            style={{
-                              fontSize: Fonts.size.regular,
-                              fontFamily: 'OpenSans-Regular',
-                            }}>
-                            {item.Requirement == null
-                              ? 'No content found for this clause'
-                              : item.Requirement}
-                          </Text>
-                        </View>
-                      ))}
-                    </View>
-                  ) : (
-                    <View style={{paddingBottom: 20}}>
-                      <Text
-                        selectable={true}
-                        style={{
-                          fontSize: Fonts.size.regular,
-                          fontFamily: 'OpenSans-Regular',
-                        }}>
-                        {this.state.RouteParam === 'NC'
-                          ? this.state.nonconfirmityText
-                          : this.state.ofitext}
-                      </Text>
-                    </View>
-                  )}
-                </View>
-              </ScrollView>
-              <View style={styles.modalfooter}>
-                <TouchableOpacity
-                  onPress={() =>
-                    this.setState({NCtxtFlag: false, isVisible: false})
-                  }>
+
+      
+          <Modal
+            isVisible={this.state.isVisible}
+            onBackdropPress={() => this.setState({isVisible: false})}
+            style={styles.modalOuterBox}>
+            <View>
+              <View style={styles.ModalBox}>
+                <View style={styles.modalheader}>
                   <Text
                     style={{
-                      fontSize: Fonts.size.regular,
-                      color: '#00a1e2',
-                      top: 1,
+                      fontSize: Fonts.size.h5,
                       fontFamily: 'OpenSans-Regular',
                     }}>
-                    {strings.Close}
+                    {this.state.NCtxtFlag == false
+                      ? strings.StandardRequirementsL
+                      : this.state.RouteParam === 'NC'
+                      ? 'Non conformance'
+                      : 'Opportunity for improvements'}
                   </Text>
+                </View>
+                <ScrollView style={styles.modalbody}>
+                  <View>
+                    {this.state.NCtxtFlag === false ? (
+                      <View style={{paddingBottom: 20}}>
+                        {this.state.modalDisplay.map((item, key) => (
+                          <View key={key}>
+                            <Text
+                              selectable={true}
+                              style={{
+                                fontSize: Fonts.size.regular,
+                                fontFamily: 'OpenSans-Bold',
+                              }}>
+                              {item.name}
+                            </Text>
+                            <Text
+                              selectable={true}
+                              style={{
+                                fontSize: Fonts.size.regular,
+                                fontFamily: 'OpenSans-Regular',
+                              }}>
+                              {item.Requirement == null
+                                ? 'No content found for this clause'
+                                : item.Requirement}
+                            </Text>
+                          </View>
+                        ))}
+                      </View>
+                    ) : (
+                      <View style={{paddingBottom: 20}}>
+                        <Text
+                     
+                          selectable={true}
+                          style={{
+                            fontSize: Fonts.size.regular,
+                            fontFamily: 'OpenSans-Regular',
+                          }}>
+                          {this.state.RouteParam === 'NC'
+                            ? this.state.nonconfirmityText
+                            : this.state.ofitext}
+                        </Text>
+                      </View>
+                    )}
+                  </View>
+                </ScrollView>
+                <View style={styles.modalfooter}>
+                  <TouchableOpacity
+                    onPress={() =>
+                      this.setState({NCtxtFlag: false, isVisible: false})
+                    }>
+                    <Text
+                      style={{
+                        fontSize: Fonts.size.regular,
+                        color: '#00a1e2',
+                        top: 1,
+                        fontFamily: 'OpenSans-Regular',
+                      }}>
+                      {strings.Close}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+          </Modal>
+      
+
+   
+          <Modal
+            isVisible={this.state.dialogVisible}
+            onBackdropPress={() => this.setState({dialogVisible: false})}
+            // animationIn="slideInUp"
+            // animationOut="slideOutDown"
+            // transparent={true}
+            backdropColor="rgba(0,0,0,0.5)"
+            style={styles.modalOuterBox}>
+            <View style={styles.ncModal}>
+              <View>
+                <View style={styles.modalheading}>
+                  <View
+                    style={{justifyContent: 'center', alignItems: 'center'}}>
+                    <Text
+                      style={{
+                        color: 'black',
+                        fontSize: Fonts.size.regular,
+                        fontFamily: 'OpenSans-Regular',
+                      }}>
+                      {strings.Confirm}
+                    </Text>
+                  </View>
+                </View>
+
+                <View style={styles.sectionTop}>
+                  <View style={styles.sectionContent}>
+                    <Text style={styles.boxContent}>{strings.ResetField}</Text>
+                  </View>
+                </View>
+
+                <TouchableOpacity
+                  onPress={() => {
+                    this.resetForm();
+                  }}>
+                  <View style={styles.sectionBtn}>
+                    <Text style={styles.boxContent}>{strings.yes}</Text>
+                  </View>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={() => this.setState({dialogVisible: false})}>
+                  <View style={styles.sectionTopCancel}>
+                    <View style={styles.sectionContent}>
+                      <Text style={styles.boxContentClose}>{strings.no}</Text>
+                    </View>
+                  </View>
                 </TouchableOpacity>
               </View>
             </View>
-          </View>
-        </Modal>
-        <Modal
-          isVisible={this.state.dialogVisible}
-          onBackdropPress={() => this.setState({dialogVisible: false})}
-          // animationIn="slideInUp"
-          // animationOut="slideOutDown"
-          // transparent={true}
-          backdropColor="rgba(0,0,0,0.5)"
-          style={styles.modalOuterBox}>
-          <View style={styles.ncModal}>
-            <View>
-              <View style={styles.modalheading}>
-                <View style={{justifyContent: 'center', alignItems: 'center'}}>
-                  <Text
-                    style={{
-                      color: 'black',
-                      fontSize: Fonts.size.regular,
-                      fontFamily: 'OpenSans-Regular',
-                    }}>
-                    {strings.Confirm}
-                  </Text>
-                </View>
-              </View>
-
-              <View style={styles.sectionTop}>
-                <View style={styles.sectionContent}>
-                  <Text style={styles.boxContent}>{strings.ResetField}</Text>
-                </View>
-              </View>
-
-              <TouchableOpacity
-                onPress={() => {
-                  this.resetForm();
-                }}>
-                <View style={styles.sectionBtn}>
-                  <Text style={styles.boxContent}>{strings.yes}</Text>
-                </View>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                onPress={() => this.setState({dialogVisible: false})}>
-                <View style={styles.sectionTopCancel}>
-                  <View style={styles.sectionContent}>
-                    <Text style={styles.boxContentClose}>{strings.no}</Text>
-                  </View>
-                </View>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </Modal>
-        {/* <Modal isVisible={this.state.dialogVisible}
+          </Modal>
+          {/* <Modal isVisible={this.state.dialogVisible}
           onBackdropPress={() => this.setState({ dialogVisible: false })}
           style={styles.modalOuterBox}
           >
@@ -5064,43 +4833,46 @@ bottom:10,                              backgroundColor: 'white',
           </View>
 
           </Modal> */}
-          {this.renderModel(
-          <View style={styles.ncModal}>
-            <View /* style={styles.modalBody} */>
-              <View style={styles.modalheading}>
-                <View style={{justifyContent: 'center', alignItems: 'center'}}>
-                  <Text
-                    style={{
-                      color: 'black',
-                      fontSize: Fonts.size.regular,
-                      fontFamily: 'OpenSans-Regular',
-                    }}>
-                    {strings.Make_your_selection}
-                  </Text>
-                </View>
-              </View>
+      
 
-              <TouchableOpacity
-                onPress={this.cameraAction.bind(this, 'Camera')}>
-                <View style={styles.sectionTop}>
-                  <View style={[styles.sectionContent, styles.boxContent]}>
-                    <View style={{width: '12%', height: null}}>
-                      <Icon name="camera" size={25} color="grey" />
-                    </View>
-                    <View
+
+     { this.renderModel(<View style={styles.ncModal}>
+              <View /* style={styles.modalBody} */>
+                <View style={styles.modalheading}>
+                  <View
+                    style={{justifyContent: 'center', alignItems: 'center'}}>
+                    <Text
                       style={{
-                        width: '88%',
-                        height: null,
-                        justifyContent: 'flex-start',
+                        color: 'black',
+                        fontSize: Fonts.size.regular,
+                        fontFamily: 'OpenSans-Regular',
                       }}>
-                      <Text style={styles.boxContentCam}>
-                        {strings.Camera_Capture_Head}
-                      </Text>
-                    </View>
+                      {strings.Make_your_selection}
+                    </Text>
                   </View>
                 </View>
-              </TouchableOpacity>
-              {/* <TouchableOpacity
+
+                <TouchableOpacity
+                  onPress={this.cameraAction.bind(this, 'Camera')}>
+                  <View style={styles.sectionTop}>
+                    <View style={[styles.sectionContent, styles.boxContent]}>
+                      <View style={{width: '12%', height: null}}>
+                        <Icon name="camera" size={25} color="grey" />
+                      </View>
+                      <View
+                        style={{
+                          width: '88%',
+                          height: null,
+                          justifyContent: 'flex-start',
+                        }}>
+                        <Text style={styles.boxContentCam}>
+                          {strings.Camera_Capture_Head}
+                        </Text>
+                      </View>
+                    </View>
+                  </View>
+                </TouchableOpacity>
+                {/* <TouchableOpacity
                   onPress={this.cameraAction.bind(this, 'Video')}>
                   <View style={styles.sectionTop}>
                     <View style={[styles.sectionContent, styles.boxContent]}>
@@ -5118,32 +4890,34 @@ bottom:10,                              backgroundColor: 'white',
                     </View>
                   </View>
                 </TouchableOpacity> */}
-              <TouchableOpacity onPress={() => this.attachFiles()}>
-                <View style={styles.sectionTop}>
-                  <View style={[styles.sectionContent, styles.boxContent]}>
-                    <View style={{width: '12%', height: null}}>
-                      <Icon name="file-image-o" size={25} color="grey" />
+                <TouchableOpacity onPress={() => this.attachFiles()}>
+                  <View style={styles.sectionTop}>
+                    <View style={[styles.sectionContent, styles.boxContent]}>
+                      <View style={{width: '12%', height: null}}>
+                        <Icon name="file-image-o" size={25} color="grey" />
+                      </View>
+                      <View style={{width: '88%', height: null}}>
+                        <Text style={styles.boxContentCam}>
+                          {strings.Camera_Browse_Files}
+                        </Text>
+                      </View>
                     </View>
-                    <View style={{width: '88%', height: null}}>
-                      <Text style={styles.boxContentCam}>
-                        {strings.Camera_Browse_Files}
+                  </View>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={() => this.setState({AttachModal: false})}>
+                  <View style={styles.sectionTopCancel}>
+                    <View style={styles.sectionContent}>
+                      <Text style={styles.boxContentClose}>
+                        {strings.Cancel}
                       </Text>
                     </View>
                   </View>
-                </View>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                onPress={() => this.setState({AttachModal: false})}>
-                <View style={styles.sectionTopCancel}>
-                  <View style={styles.sectionContent}>
-                    <Text style={styles.boxContentClose}>{strings.Cancel}</Text>
-                  </View>
-                </View>
-              </TouchableOpacity>
-            </View>
-          </View>,
-        )}
+                </TouchableOpacity>
+              </View>
+            </View>)}
+        
 
         <Modal
           isVisible={this.state.suggestionPopUp}
@@ -5210,51 +4984,41 @@ bottom:10,                              backgroundColor: 'white',
     );
   }
 
-  renderModel(children) {
-    return Platform.OS == 'ios' ? (
-      <Modal
-        transparent="false"
-        isVisible={this.state.AttachModal}
-        onBackdropPress={() =>
-          this.setState({AttachModal: false}, () => {
-            console.log('modal closed');
-          })
-        }
-        style={styles.modalOuterBox}>
+  renderModel(children){
+    return(
+    Platform.OS == "ios" ?
+    <Modal transparent="false"
+      isVisible={this.state.AttachModal}
+      onBackdropPress={() => this.setState({AttachModal: false},() => {
+        console.log("modal closed");
+      })}
+      style={styles.modalOuterBox}>
         {children}
-      </Modal>
-    ) : (
-      <Modal
-        isVisible={this.state.AttachModal}
-        onBackdropPress={() =>
-          this.setState({AttachModal: false}, () => {
-            console.log('modal closed');
-          })
-        }
-        style={styles.modalOuterBox}>
+    </Modal> : <Modal 
+      isVisible={this.state.AttachModal}
+      onBackdropPress={() => this.setState({AttachModal: false},() => {
+        console.log("modal closed");
+      })}
+      style={styles.modalOuterBox}>
         {children}
-      </Modal>
-    );
+    </Modal>);
   }
 
-  updateAuditStatus = auditid => {
+  updateAuditStatus = (auditid) => {
     let bcontinue = false;
     var auditRecordsOrg = this.props.data.audits.auditRecords;
     var auditRecords = [];
     for (var p = 0; p < auditRecordsOrg.length; p++) {
-      if (
-        auditRecordsOrg[p].AuditId == auditid &&
-        auditRecordsOrg[p].AuditRecordStatus == constant.StatusDownloaded
-      ) {
-        bcontinue = true;
-        auditRecords.push({
-          ...auditRecordsOrg[p],
-          AuditRecordStatus: constant.StatusProcessing,
-        });
-      } else auditRecords.push(auditRecordsOrg[p]);
+      if (auditRecordsOrg[p].AuditId == auditid && auditRecordsOrg[p].AuditRecordStatus == constant.StatusDownloaded) {
+        bcontinue =true;
+        auditRecords.push({...auditRecordsOrg[p],AuditRecordStatus: constant.StatusProcessing });
+      }
+      else 
+        auditRecords.push(auditRecordsOrg[p]);
     }
-    if (bcontinue) this.props.storeAuditRecords(auditRecords);
-  };
+    if (bcontinue)
+      this.props.storeAuditRecords(auditRecords);
+  }
 }
 
 const mapStateToProps = state => {
@@ -5266,7 +5030,7 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
   return {
     storeAuditRecords: auditRecords =>
-      dispatch({type: 'STORE_AUDIT_RECORDS', auditRecords}),
+    dispatch({type: 'STORE_AUDIT_RECORDS', auditRecords}),
     storeNCRecords: ncofiRecords =>
       dispatch({type: 'STORE_NCOFI_RECORDS', ncofiRecords}),
     storeCameraCapture: cameraCapture =>

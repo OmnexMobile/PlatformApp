@@ -97,8 +97,10 @@ class AuditForm extends Component {
 
   backAction = () => {
     var getCurrentPage = [];
-    getCurrentPage = this.props.data.nav.routes;
-    var PreviousPage = getCurrentPage[getCurrentPage.length - 2].routeName;
+    getCurrentPage = this.props.route.name;
+    // var PreviousPage = getCurrentPage[getCurrentPage.length - 2].routeName;
+    var routes = this.props.navigation.getState().routes;
+    var PreviousPage = routes[routes.length - 2]?.name;
     console.log("Previous---->", PreviousPage);
 
     if (PreviousPage == ROUTES.GLOBAL_LOGIN) {

@@ -688,9 +688,12 @@ class AllTabAuditList extends Component {
     // var getCurrentPage = [];
     // getCurrentPage = this.props.data.nav.routes;
     // var CurrentPage = getCurrentPage[getCurrentPage.length - 1].routeName;
-    var PreviousPage = this.props.route.name;
-    console.log('--PreviousPage--->', PreviousPage)
+    var CurrentPage = this.props.route.name;
+    console.log('--CurrentPage--->', CurrentPage)
     // var PreviousPage = getCurrentPage[getCurrentPage.length - 2].routeName;
+    var routes = this.props.navigation.getState().routes;
+    var PreviousPage = routes[routes.length - 2]?.name;
+    console.log("Previous---->", PreviousPage);
     if (PreviousPage == ROUTES.LOGINUISCREEN || PreviousPage == ROUTES.SUPPLY_MANAGE) {
       this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD);
     } else {

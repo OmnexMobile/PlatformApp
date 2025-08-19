@@ -139,8 +139,10 @@ class FilterSection extends Component {
     // PreviousPage = getCurrentPage[getCurrentPage.length - 2].routeName;
     getCurrentPage = this.props?.route?.name;
     // PreviousPage = getCurrentPage[getCurrentPage.length - 2].routeName;
-    // console.log("Previous---->", PreviousPage);
-
+    var routesAll = this.props.navigation.getState().routes;
+    var PreviousPage = routesAll[routesAll.length - 2]?.name;
+    console.log('previous page' + PreviousPage);
+    
     const { routes, index } = this.props.navigation.getState();
     if (index > 0) {
       console.log("previousRoute---->", routes[index - 1].name);

@@ -3467,7 +3467,7 @@ class CheckPointDemo extends Component {
       }
     }
     ////console.log(TotalNCValue, 'TotalNCValuelocal');
-    await AsyncStorage.setItem('TotalNCValues', JSON.stringyfy(TotalNCValue));
+    await AsyncStorage.setItem('TotalNCValues', JSON.stringify(TotalNCValue));
   }
 
   popupModal(checkPointDetail) {
