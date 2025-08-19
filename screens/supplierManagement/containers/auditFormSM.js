@@ -2424,14 +2424,14 @@ class AuditForm extends Component {
               this.props.data.audits.smdata === 3
             ) {
               console.log('auditpagegoint');
-              this.props.navigation.navigate('AuditPage', {
+              this.props.navigation.navigate(ROUTES.AUDIT_PAGE, {
                 isSubmitted: this.state.notifyRed,
                 // isDownloaded : false
               });
             } else if (!this.isDocsAvail) {
               this.refs.toast.show(strings.AuditSync, DURATION.LENGTH_LONG);
               setTimeout(() => {
-                this.props.navigation.navigate('AuditStatus', {
+                this.props.navigation.navigate(ROUTES.AUDIT_STATUS, {
                   isSubmitted: true,
                   AuditID: this.state.AuditID,
                   breadCrumb: this.state.breadCrumbText,
@@ -2444,7 +2444,7 @@ class AuditForm extends Component {
             } else {
               this.isDocsAvail = false;
               this.refs.toast.show(strings.AuditSync, DURATION.LENGTH_LONG);
-              this.props.navigation.navigate('AuditStatus', {
+              this.props.navigation.navigate(ROUTES.AUDIT_STATUS, {
                 AuditID: this.state.AuditID,
                 breadCrumb: this.state.breadCrumbText,
                 generatereport:
@@ -2718,13 +2718,13 @@ class AuditForm extends Component {
             strings.user_disabled_text,
             DURATION.LENGTH_SHORT,
           );
-          this.props.navigation.navigate('LoginUIScreen');
+          this.props.navigation.navigate(ROUTES.GLOBAL_LOGIN);
         } else if (UserStatus == 0) {
           this.refs.toast.show(
             strings.user_inactive_text,
             DURATION.LENGTH_SHORT,
           );
-          this.props.navigation.navigate('LoginUIScreen');
+          this.props.navigation.navigate(ROUTES.GLOBAL_LOGIN);
         }
       }
     });
@@ -2896,7 +2896,7 @@ class AuditForm extends Component {
                       setTimeout(() => {
                         this.props.storeServerUrl(serURL);
                         console.log('FILE DELETED!');
-                        this.props.navigation.navigate('LoginUIScreen');
+                        this.props.navigation.navigate(ROUTES.GLOBAL_LOGIN);
                         this.refs.toast.show(
                           strings.user_disabled_text,
                           DURATION.LENGTH_SHORT,
@@ -4433,7 +4433,7 @@ class AuditForm extends Component {
             <View style={styles.floatingDiv}>
               <TouchableOpacity
                 onPress={() => {
-                  this.props.navigation.navigate('AuditSummary', {
+                  this.props.navigation.navigate(ROUTES.AUDIT_SUMMARY, {
                     AuditID: this.state.AuditID,
                     breadCrumbText: this.state.breadCrumbText,
                   });

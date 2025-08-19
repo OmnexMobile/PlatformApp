@@ -2538,13 +2538,12 @@ class CheckPointDemo extends Component {
   };
 
   componentWillReceiveProps(props) {
-      var getCurrentPage = [];
-      // getCurrentPage = this.props.data.nav.routes;
-      // var CurrentPage = getCurrentPage[getCurrentPage.length - 1].routeName;
-      var CurrentPage = this.props.route.name
-      console.log('--CurrentPage--->', CurrentPage);
-  
-      if (CurrentPage == ROUTES.CHECKPOINT_DEMO) {
+    var getCurrentPage = [];
+    // getCurrentPage = this.props.data.nav.routes;
+    // var CurrentPage = getCurrentPage[getCurrentPage.length - 1].routeName;
+    var CurrentPage = this.props.route.name
+    console.log('--CurrentPage--->', CurrentPage);
+    if (CurrentPage == ROUTES.CHECKPOINT_DEMO_SM) {
       //console.log('Checkpoints page focussed!');
       //console.log('--CheckPointScreen-PROPS-->', props);
       //console.log('--CheckPointScreen-this.PROPS-->', this.props);
@@ -3481,7 +3480,7 @@ updatecheckpointvalues_new = () => {
         }
       }
     }
-    ////console.log(TotalNCValue, 'TotalNCValuelocal');
+    console.log(TotalNCValue, 'TotalNCValuelocal');
     await AsyncStorage.setItem('TotalNCValues', JSON.stringyfy(TotalNCValue));
   }
 
@@ -3943,8 +3942,7 @@ updatecheckpointvalues_new = () => {
         console.log('Venkat Entering NC 2');
 
         this.setState({dialogVisibleNC: false});
-        // this.props.navigation.navigate('CreatencLPA', {
-          this.props.navigation.navigate(ROUTES.CREATE_NCLPA, {
+        this.props.navigation.navigate(ROUTES.CREATE_NCLPA, {
           CheckpointRoute: 'OFI',
           name: 2,
           AuditID: this.state.raiseID.AUDIT_NO,
@@ -3964,8 +3962,7 @@ updatecheckpointvalues_new = () => {
         console.log('Venkat Entering NC 3', this.state.raiseID);
 
         this.setState({dialogVisibleNC: false});
-        // this.props.navigation.navigate('CreatencLPA', {
-          this.props.navigation.navigate(ROUTES.CREATE_NCLPA, {
+        this.props.navigation.navigate(ROUTES.CREATE_NCLPA, {
           CheckpointRoute: 'NC',
           NCOFIDetails: this.state.raiseID,
           name: 3,
@@ -3991,8 +3988,7 @@ updatecheckpointvalues_new = () => {
           'AuditID in entering 4',
         );
         this.setState({dialogVisibleNC: false});
-        // this.props.navigation.navigate('CreatencLPA', {
-          this.props.navigation.navigate(ROUTES.CREATE_NCLPA, {
+        this.props.navigation.navigate(ROUTES.CREATE_NCLPA, {
           CheckpointRoute: 'OFI',
           NCOFIDetails: this.state.raiseID,
           name: 4,
@@ -4528,7 +4524,9 @@ updatecheckpointvalues_new = () => {
         if (Platform.OS !== 'ios') {
           setTimeout(() => {
             this.setState({ isCaroselLoaded: true }, () => {
-              this._carousel.snapToItem(index, true);
+              if (this._carousel) {
+                this._carousel.snapToItem(index, true);
+              }
             });
           }, 250);
         } else {
@@ -5906,7 +5904,7 @@ isFailureReasonValid(failureReasonId, categoryId) {
 
                             if (attachment.length > 0) {
                               this.downloadFile(attachment[0]);
-                              this.refs.toast.show(
+                              this.toast.show(
                                 'Downloading the attachments...',
                                 DURATION.LENGTH_LONG,
                               );
@@ -9366,6 +9364,10 @@ isFailureReasonValid(failureReasonId, categoryId) {
         <Modal
           isVisible={this.state.dialogVisibleNC}
           onBackdropPress={() => this.setState({dialogVisibleNC: false})}
+          // animationIn="slideInUp"
+          // animationOut="slideOutDown"
+          // transparent={true}
+          // backdropColor="rgba(0,0,0,0.5)"
           style={styles.modalOuterBox}>
           <View style={styles.ncModal}>
             <View /* style={styles.modalBody} */>
@@ -9382,40 +9384,23 @@ isFailureReasonValid(failureReasonId, categoryId) {
                 </View>
               </View>
 
-              {(this.state.radiovalue_ncofi == 9 ||
-              //  this.state.radiovalue_ncofi == 10 ||
-              this.state.radiovalue_ncofi == 14 ||
-              //   this.state.radiovalue_ncofi == 15 ||
-              this.state.Status_nc_ofi == 1 ||
-             ( this.state.Status_nc_ofi == 2 &&
-              this.state.radiovalue_ncofi !== 11)) && this.state.radiovalue_ncofi !==""? (
-                <TouchableOpacity
-                  onPress={this.navigateTo.bind(
-                    this,
-                    'NC',
-                    this.state.radiovalue_ncofi,
-                  )}>
-                  <View style={styles.sectionTop}>
-                    <View style={styles.sectionContent}>
-                      <Text style={styles.boxContent}>{strings.NC}</Text>
+              {
+                //this.state.isNCAllowed ? (
+                this.state.radiovalue_ncofi == 9 ||
+                this.state.radiovalue_ncofi == 10 ||
+                this.state.radiovalue_ncofi == 14 ||
+                this.state.radiovalue_ncofi == 15 ||
+                this.state.Status_nc_ofi == 1 ||
+                this.state.Status_nc_ofi == 2 ? (
+                  <TouchableOpacity onPress={this.navigateTo.bind(this, 'NC')}>
+                    <View style={styles.sectionTop}>
+                      <View style={styles.sectionContent}>
+                        <Text style={styles.boxContent}>{strings.NC}</Text>
+                      </View>
                     </View>
-                  </View>
-                </TouchableOpacity>
-              ) : this.state.radiovalue_ncofi !== 11 && this.state.radiovalue_ncofi !== "" ? (
-                <TouchableOpacity
-                  onPress={this.navigateTo.bind(
-                    this,
-                    'NC',
-                    this.state.radiovalue_ncofi,
-                  )}>
-                  <View style={styles.sectionTop}>
-                    <View style={styles.sectionContent}>
-                      {this.state.radiovalue_ncofi == 10 || this.state.radiovalue_ncofi == 15 ? (
-                      <Text style={styles.boxContent}>{'EDIT NC'}</Text>):null}
-                    </View>
-                  </View>
-                </TouchableOpacity>
-              ):null}
+                  </TouchableOpacity>
+                ) : null
+              }
 
               {this.state.radiovalue_ncofi == 9 ||
               this.state.radiovalue_ncofi == 10 ||

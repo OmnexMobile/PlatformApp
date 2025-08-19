@@ -743,7 +743,7 @@ class AllTabAuditList extends Component {
     // var CurrentPage = getCurrentPage[getCurrentPage.length - 1].routeName;
     var PreviousPage = this.props.route.name;
     console.log('--PreviousPage--->', PreviousPage)
-    if (PreviousPage == ROUTES.LOGIN_SM || PreviousPage == ROUTES.SUPPLY_MANAGE_SM) {
+    if (PreviousPage == ROUTES.GLOBAL_LOGIN || PreviousPage == ROUTES.SUPPLY_MANAGE_SM) {
         this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD);
     } else {
       if (this.backHandler) {

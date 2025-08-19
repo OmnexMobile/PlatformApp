@@ -108,14 +108,14 @@ import HelpAPQP from 'screens/apqp/containers/Help';
 import DailyAction from 'screens/apqp/containers/DailyAction';
 //// SUPPLIERMANAGEMENT ////
 import SupplyManageSM from 'screens/supplierManagement/containers/supplyManage';
-import RegisterSM from 'screens/supplierManagement/containers/registration';
-import LoginSM from 'screens/supplierManagement/containers/loginUIScreen';
-import AllTabAuditListSM from 'screens/supplierManagement/containers/allTabAuditList';
-import AuditDashboardListingSM from 'screens/supplierManagement/containers/auditDashboardListing';
-import AuditDashboardSM from 'screens/supplierManagement/containers/auditProDashboard';
-import CheckPointDemoSM from 'screens/supplierManagement/containers/checkPointDemo';
-import AuditPageSM from 'screens/supplierManagement/containers/auditPage';
-import AuditFormSM from '../screens/supplierManagement/containers/auditForm';
+import RegisterSM from 'screens/supplierManagement/containers/registrationSM';
+import LoginSM from 'screens/supplierManagement/containers/loginUIScreenSM';
+import AllTabAuditListSM from 'screens/supplierManagement/containers/allTabAuditListSM';
+import AuditDashboardListingSM from 'screens/supplierManagement/containers/auditDashboardListingSM';
+import AuditDashboardSM from 'screens/supplierManagement/containers/auditProDashboardSM';
+import CheckPointDemoSM from 'screens/supplierManagement/containers/checkPointDemoSM';
+import AuditPageSM from 'screens/supplierManagement/containers/auditPageSM';
+import AuditFormSM from '../screens/supplierManagement/containers/auditFormSM';
 //DOC-PRO
 import DocproDashboard from 'screens/docpro/DocproDashboard';
 // import DocproAction from 'screens/docpro/actions/DocproAction';
