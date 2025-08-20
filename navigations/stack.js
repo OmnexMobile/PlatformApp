@@ -117,6 +117,7 @@ import CheckPointDemoSM from 'screens/supplierManagement/containers/checkPointDe
 import AuditPageSM from 'screens/supplierManagement/containers/auditPageSM';
 import AuditFormSM from '../screens/supplierManagement/containers/auditFormSM';
 import CreateNCSM from 'screens/supplierManagement/containers/createNC-SM';
+import NCOFIPageSM from 'screens/supplierManagement/containers/NCOFIPageSM';
 //DOC-PRO
 import DocproDashboard from 'screens/docpro/DocproDashboard';
 // import DocproAction from 'screens/docpro/actions/DocproAction';
@@ -691,6 +692,11 @@ export const AppStackData = [
         component: CreateNCSM,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
      },
+    {
+        name: ROUTES.NC_OFI_PAGE_SM,
+        component: NCOFIPageSM,
+        cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
+    },
 
      //DOC-PRO
      {
