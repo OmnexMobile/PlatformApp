@@ -16,7 +16,7 @@ import { BottomTab } from './bottom-tab';
 import HomeFabView from '../screens/home/components/home-fab-view'
 //// AUDITPRO ////
 import AuditDashboardListing from '../screens/auditPro/containers/AuditDashboardListing';
-import AuditPage from '../screens/auditPro/containers/AuditPage';
+import AuditPage from '../screens/auditPro/containers/AuditPage1';
 import AuditAttach from '../screens/auditPro/containers/AuditAttach';
 import AuditForm from '../screens/auditPro/containers/AuditForm';
 import NCOFIPage from 'screens/auditPro/containers/NCOFIPage'
