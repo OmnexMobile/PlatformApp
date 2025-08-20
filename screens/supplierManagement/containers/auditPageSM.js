@@ -1543,7 +1543,7 @@ console.log('checkk838838383',this.props.data.audits);
     AsyncStorage.setItem('AUDITPROG_ID',this.props?.route?.params?.datapass?.AuditProgramId);
     AsyncStorage.setItem('AUDITYPE_ORDER',this.props?.route?.params?.datapass?.ActualAuditOrderNo);
     AsyncStorage.setItem('AUDITYPE_ID',this.props?.route?.params?.datapass?.AuditTypeId);
-    AsyncStorage.setItem('SITEID',this.props?.route?.params?.datapass?.SiteId);
+    AsyncStorage.setItem('SITEID',`${this.props?.route?.params?.datapass?.SiteId}`);
     AsyncStorage.setItem('AUDITPROGORDER',this.props?.route?.params?.datapass?.AuditProgramId);
     // AsyncStorage.setItem('AUDIT_SITE_ID',this.state.AUDIT_SITE_ID);
     // AsyncStorage.setItem('AUDIT_STATUS',this.props.navigation.state.params.datapass.AuditStatus);
@@ -3733,8 +3733,9 @@ console.log('checkk838838383',this.props.data.audits);
                     this.getParamsDetails();
                   }}>
                     
-                    {/* <View style={styles.footerDivContent}> */}
-                    <View style={styles.footerDivContent1}>
+                    <View style={styles.footerDivContent}>
+                      {/* need to check */}
+                    {/* <View style={styles.footerDivContent1}> */}
                       <ResponsiveImage
                         source={Images.downloadCloud}
                         initWidth="40"
