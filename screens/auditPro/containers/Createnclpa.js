@@ -244,12 +244,14 @@ class CreateNC extends Component {
     
     Voice.onSpeechResults = this.onSpeechResults;
 
-    const checklistName = this.props.data?.nav?.routes.find(
+    const routes = this.props.navigation.getState().routes;
+
+    // const checklistName = this.props?.route?.name?.find(
+    const checklistName = routes.find(
       route => route.routeName === ROUTES.CREATE_NCLPA,
     )?.params?.checklistName;
-    // //console.log(responsibiltyField,"responsi");
-
-    const radioVal = this.props.data?.nav?.routes.find(
+    // const radioVal = this.props?.route?.name?.find(
+    const radioVal = routes.find(
       route => route.routeName === ROUTES.CREATE_NCLPA,
     )?.params?.radiovalue;
 
@@ -3407,19 +3409,23 @@ class CreateNC extends Component {
     //console.log(this.state.radioValue, 'vlrad');
     //console.log(this.state.NCcategoryt,this.state.categoryArr, 'categoryt');
     //console.log(this.props.data, 'rrvalue');
+    const routes = this.props.navigation.getState().routes;
     console.log(
-      this.props.data.nav.routes.find(
+      // this.props.data.nav.routes.find(
+      routes.find(
         route => route.routeName === ROUTES.CREATE_NCLPA,
       )?.params?.checklistName,
       'tonclpa',
     );
     // //console.log(this.props.data.nav.routes.find(route => route.routeName === "CreatencLPA"), "demotolpa");
-    const radioValue = this.props.data.nav.routes.find(
+    // const radioValue = this.props.data.nav.routes.find(
+    const radioValue = routes.find(
       route => route.routeName === ROUTES.CREATE_NCLPA,
     )?.params?.radiovalue;
 
     //console.log(radioValue, 'radiofromdemo'); // Output: 15
-    const checklistName = this.props.data?.nav?.routes.find(
+    // const checklistName = this.props?.route?.name?.find(
+    const checklistName = routes.find(
       route => route.routeName === ROUTES.CREATE_NCLPA,
     )?.params?.checklistName;
 

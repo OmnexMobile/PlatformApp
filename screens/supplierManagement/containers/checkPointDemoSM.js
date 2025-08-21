@@ -5904,7 +5904,7 @@ isFailureReasonValid(failureReasonId, categoryId) {
 
                             if (attachment.length > 0) {
                               this.downloadFile(attachment[0]);
-                              this.toast.show(
+                              this.refs.toast.show(
                                 'Downloading the attachments...',
                                 DURATION.LENGTH_LONG,
                               );

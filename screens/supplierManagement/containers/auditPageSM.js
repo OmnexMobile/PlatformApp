@@ -3733,9 +3733,9 @@ console.log('checkk838838383',this.props.data.audits);
                     this.getParamsDetails();
                   }}>
                     
-                    <View style={styles.footerDivContent}>
+                    {/* <View style={styles.footerDivContent}> */}
                       {/* need to check */}
-                    {/* <View style={styles.footerDivContent1}> */}
+                    <View style={styles.footerDivContent1}>
                       <ResponsiveImage
                         source={Images.downloadCloud}
                         initWidth="40"
