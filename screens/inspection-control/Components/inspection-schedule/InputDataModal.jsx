@@ -1,7 +1,7 @@
 import { RadioButton } from 'components';
 import { COLORS } from 'constants/theme-constants';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import { Divider, HelperText, Modal } from 'react-native-paper';
 import { RFPercentage } from 'react-native-responsive-fontsize';
 import SingleDropDown from '../SingleDropDown';
@@ -14,8 +14,9 @@ import ApiUrl from 'global/ApiUrl';
 import AsyncStorage from '@react-native-community/async-storage';
 import moment from 'moment';
 import uuid from 'react-native-uuid';
-import { isArray } from 'underscore';
 import { addInspectionData } from 'store/database/inspectStorage';
+import Icon from 'react-native-vector-icons/AntDesign';
+import SamplingModal from './SamplingModal';
 
 const errorObj = {
     shift: false,
@@ -34,6 +35,8 @@ const InputDataModal = ({
     handleSubmitPress = () => {},
     selectedSite = {},
 }) => {
+    const { width } = useWindowDimensions();
+    const isTablet = width >= 768;
     const { icSettings } = useSelector(state => state.inspection);
     const [formFields, setFormFields] = useState({
         shift: null,
@@ -51,6 +54,10 @@ const InputDataModal = ({
         lotNo: true,
     });
     const [btndisabled, setBtnDisabled] = useState(false);
+    console.log(formFields.shift, 'ecev');
+    // this State is for the Sampling pages fields
+    const [showSamplingModal, setShowSamplingModal] = useState(false);
+
     useEffect(() => {
         const currentShift = getCurrentShift(shiftData);
         if (currentShift) {
@@ -378,8 +385,13 @@ const InputDataModal = ({
                     <Text style={styles.headertext}>Form Input Data</Text>
                     <Divider />
                     <ScrollView style={[styles.container]} nestedScrollEnabled showsVerticalScrollIndicator={false}>
-                        <View style={[]}>
-                            <View style={[styles.inputContainer]}>
+                        <View
+                            style={{
+                                flexDirection: isTablet ? 'row' : 'column',
+                                flexWrap: 'wrap', // important for tablet
+                                justifyContent:'space-between'
+                            }}>
+                            <View style={[styles.inputContainer, { width: isTablet ? '48%' : '100%' }]}>
                                 <Text style={styles.inputText}>
                                     Shift <Text style={[styles.rquired]}>*</Text>
                                 </Text>
@@ -404,7 +416,7 @@ const InputDataModal = ({
                                     </HelperText>
                                 )}
                             </View>
-                            <View style={[styles.inputContainer]}>
+                            <View style={[styles.inputContainer, { width: isTablet ? '48%' : '100%' }]}>
                                 <Text style={styles.inputText}>
                                     Lot Number <Text style={[styles.rquired]}>*</Text>
                                 </Text>
@@ -422,7 +434,7 @@ const InputDataModal = ({
                                     </HelperText>
                                 )}
                             </View>
-                            <View style={[styles.inputContainer]}>
+                            <View style={[styles.inputContainer, { width: isTablet ? '48%' : '100%' }]}>
                                 <Text style={styles.inputText}>
                                     Lot Size <Text style={[styles.rquired]}>*</Text>
                                 </Text>
@@ -441,7 +453,7 @@ const InputDataModal = ({
                                 )}
                             </View>
                             {Boolean(icSettings?.IsRefNo) && (
-                                <View style={[styles.inputContainer]}>
+                                <View style={[styles.inputContainer, { width: isTablet ? '48%' : '100%' }]}>
                                     <Text style={styles.inputText}>Serial Number</Text>
                                     <TextInput
                                         style={[styles.inputBox, { backgroundColor: COLORS.icborder }]}
@@ -451,7 +463,7 @@ const InputDataModal = ({
                                 </View>
                             )}
                             {Boolean(selectedValue.TypeOfInspection == 1) && (
-                                <View style={[styles.inputContainer]}>
+                                <View style={[styles.inputContainer, { width: isTablet ? '48%' : '100%' }]}>
                                     <Text style={styles.inputText}>
                                         Receipt Number <Text style={[styles.rquired]}>*</Text>
                                     </Text>
@@ -469,7 +481,7 @@ const InputDataModal = ({
                                     )}
                                 </View>
                             )}
-                            <View style={[styles.inputContainer]}>
+                            <View style={[styles.inputContainer, { width: isTablet ? '48%' : '100%' }]}>
                                 <Text style={styles.inputText}>
                                     Choose Frequency {Boolean(selectedValue.TypeOfInspection == 2) && <Text style={[styles.rquired]}>*</Text>}
                                 </Text>
@@ -497,7 +509,7 @@ const InputDataModal = ({
                                 )}
                             </View>
                             {Boolean(selectedValue.TypeOfInspection == 2) && (
-                                <View style={[styles.inputContainer]}>
+                                <View style={[styles.inputContainer, { width: isTablet ? '48%' : '100%' }]}>
                                     <View style={{ flexDirection: 'row' }}>
                                         <Text style={styles.inputText}>Responsible Person</Text>
                                         {Boolean(btndisabled) && <ActivityIndicator style={{ marginLeft: 5 }} size="small" color={COLORS.apptheme} />}
@@ -512,6 +524,15 @@ const InputDataModal = ({
                                     />
                                 </View>
                             )}
+                            <View style={[styles.inputContainer, { width: isTablet ? '48%' : '100%' }]}>
+                                <View style={[styles.row]}>
+                                    <Text style={styles.inputText}>Inspection Mode</Text>
+                                    <TouchableOpacity style={{ paddingHorizontal: 10 }} onPress={() => setShowSamplingModal(true)}>
+                                        <Icon name="edit" size={20} color={COLORS.apptheme} />
+                                    </TouchableOpacity>
+                                </View>
+                                <TextInput style={[styles.inputBox]} value={'Normal'} editable={false} />
+                            </View>
                         </View>
                     </ScrollView>
                     <Divider />
@@ -530,6 +551,7 @@ const InputDataModal = ({
                     </View>
                 </Modal>
             )}
+            {Boolean(showSamplingModal) && <SamplingModal visible={showSamplingModal} handleClose={() => setShowSamplingModal(false)} />}
         </>
     );
 };
@@ -579,6 +601,10 @@ const styles = StyleSheet.create({
     errorStyle: {
         color: COLORS.ERROR,
         marginBottom: -5,
+    },
+    row: {
+        flexDirection: 'row',
+        alignItems: 'center',
     },
 });
 
