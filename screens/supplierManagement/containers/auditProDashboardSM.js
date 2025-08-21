@@ -520,7 +520,7 @@ class AuditProDashboard extends Component {
     if (
       CurrentPage == 'AUDITPRODASHBOARD_SM' ||
       CurrentPage == 'ALLTABAUDITLIST_SM' ||
-      CurrentPage == 'AUDIT_PAGE'
+      CurrentPage == 'AUDIT_PAGE_SM'
     ) {
       if (this.state.recent_audits) {
         var recent = this.props?.data?.audits?.recentAudits;

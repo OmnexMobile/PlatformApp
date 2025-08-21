@@ -2430,10 +2430,17 @@ class AuditForm extends Component {
               this.props.data.audits.smdata === 3
             ) {
               console.log('auditpagegoint');
-              this.props.navigation.navigate(ROUTES.AUDIT_PAGE, {
+              if(this.props.data.audits.smdata == 2 || this.props.data.audits.smdata == 3){
+              this.props.navigation.navigate(ROUTES.AUDIT_PAGE_SM, {
                 isSubmitted: this.state.notifyRed,
                 // isDownloaded : false
               });
+            }else{
+               this.props.navigation.navigate(ROUTES.AUDIT_PAGE, {
+                isSubmitted: this.state.notifyRed,
+                // isDownloaded : false
+              });
+            }
             } else if (!this.isDocsAvail) {
               this.refs.toast.show(strings.AuditSync, DURATION.LENGTH_LONG);
               setTimeout(() => {

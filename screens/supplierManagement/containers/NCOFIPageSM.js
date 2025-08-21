@@ -14,7 +14,7 @@ import {
   Image,
   FlatList,
 } from 'react-native';
-import {Images} from '../Themes/index';
+import {Images} from '../../auditPro/Themes/index';
 import styles from '../../auditPro/styles/NCOFIPageStyle';
 import {connect} from 'react-redux';
 import Modal from 'react-native-modal';
@@ -30,7 +30,7 @@ import {width, height} from 'react-native-dimension';
 import OfflineNotice from '../../auditPro/components/OfflineNotice';
 import ResponsiveImage from 'react-native-responsive-image';
 import {ConfirmDialog} from 'react-native-simple-dialogs';
-import Fonts from '../Themes/Fonts';
+import Fonts from '../../auditPro/Themes/Fonts';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {strings} from '../../auditPro/language/Language';
 import {debounce, once} from 'underscore';

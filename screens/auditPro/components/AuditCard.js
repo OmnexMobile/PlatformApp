@@ -185,7 +185,7 @@ class AuditCard extends Component {
       console.log('this.props.naviData-->', this.props, '--', this.props?.naviData)
       // this.props.navigation.navigate(ROUTES.AUDIT_PAGE)
       // this.props.naviData.navigate(ROUTES.AUDIT_PAGE, {
-        this.props.naviData.navigate(ROUTES.AUDIT_PAGE, {
+        this.props.naviData.navigate(ROUTES.AUDIT_PAGE_SM, {
       // this.props.naviData.navigate(ROUTES.AUDIT_PAGE, {
         datapass: iAuditDetails,
         auditStatusPass: this.props?.item?.cStatus,
@@ -197,7 +197,7 @@ class AuditCard extends Component {
         NetInfo.fetch().then(netState => {
           if (netState.isConnected) {
             // this.props.navigation.navigate('AuditPage', {
-            this.props.naviData.navigate(ROUTES.AUDIT_PAGE, {
+            this.props.naviData.navigate(ROUTES.AUDIT_PAGE_SM, {
               datapass: iAuditDetails,
               auditStatusPass: this.props.item.cStatus,
             });

@@ -3905,7 +3905,7 @@ updatecheckpointvalues_new = () => {
       console.log('Venkat Entering NC 1');
       if (id == 'NC') {
         this.setState({dialogVisibleNC: false});
-        this.props.navigation.navigate(ROUTES.CREATE_NC, {
+        this.props.navigation.navigate(ROUTES.CREATE_NC_SM, {
           CheckpointRoute: 'NC',
           AuditID: this.state.auditId,
           name: 1,
@@ -3942,7 +3942,7 @@ updatecheckpointvalues_new = () => {
         console.log('Venkat Entering NC 2');
 
         this.setState({dialogVisibleNC: false});
-        this.props.navigation.navigate(ROUTES.CREATE_NCLPA, {
+        this.props.navigation.navigate(ROUTES.CREATE_NC_SM, {
           CheckpointRoute: 'OFI',
           name: 2,
           AuditID: this.state.raiseID.AUDIT_NO,
@@ -3962,7 +3962,7 @@ updatecheckpointvalues_new = () => {
         console.log('Venkat Entering NC 3', this.state.raiseID);
 
         this.setState({dialogVisibleNC: false});
-        this.props.navigation.navigate(ROUTES.CREATE_NCLPA, {
+        this.props.navigation.navigate(ROUTES.CREATE_NC_SM, {
           CheckpointRoute: 'NC',
           NCOFIDetails: this.state.raiseID,
           name: 3,
@@ -3988,7 +3988,7 @@ updatecheckpointvalues_new = () => {
           'AuditID in entering 4',
         );
         this.setState({dialogVisibleNC: false});
-        this.props.navigation.navigate(ROUTES.CREATE_NCLPA, {
+        this.props.navigation.navigate(ROUTES.CREATE_NC_SM, {
           CheckpointRoute: 'OFI',
           NCOFIDetails: this.state.raiseID,
           name: 4,

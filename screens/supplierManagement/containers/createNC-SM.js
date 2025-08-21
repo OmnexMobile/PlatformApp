@@ -220,7 +220,6 @@ class CreateNC extends Component {
       fileType: '', // 'pdf', 'txt', 'xls', 'png', or other values to indicate the file type
       fileContent: null,
       PrevNonConformity: '',
-      NCNumberUpdate : ''
     };
     Voice.onSpeechStart = this.onSpeechStart;
     Voice.onSpeechRecognized = this.onSpeechRecognized;
@@ -248,9 +247,9 @@ class CreateNC extends Component {
       );
       this.setProcessList();
       const filenameArray = this.props?.route?.params?.data?.filename;
-      console.log('checklist-filenameArray--------', filenameArray);
-      const originalData = this.props?.route?.params?.data?.filedata;
-      console.log('checklist-originalData--------', originalData);
+     console.log('checklist-filenameArray--------', filenameArray);
+     const originalData = this.props?.route?.params?.data.filedata;
+     console.log('checklist-originalData--------', originalData);
 
       if (originalData.length > 0) {
         console.log(
@@ -268,13 +267,7 @@ class CreateNC extends Component {
         console.log('Original Data:', this.state.fileArrayList);
         // console.log('Updated Data:', updatedData);
         // console.log('combinedData----------------------- Data:', combinedData);
-        console.log(
-          'XSDASDASDASD321233',
-          this.props?.route?.params?.data,
-        );
-        if(this.props?.route?.params?.data?.selectedItemsProcess === true){
 
-        }else{
         const selectedItems =
           this.props?.route?.params?.data?.selectedItemsProcess; // Example array with undefined elements
 
@@ -286,7 +279,7 @@ class CreateNC extends Component {
 
         //SelectedArray--->
         const arr1 =
-          this.props?.route?.params?.data?.selectedItemsProcess;
+        this.props?.route?.params?.data.selectedItemsProcess;
         //Default array--->
         const arr2 = this.state.processdata;
         // console.log("this.state.processdatathis.state.processdata",arr1 );
@@ -294,6 +287,7 @@ class CreateNC extends Component {
           'this.state.processdatathis.state.processdata123',
           this.state.selectedItemsProcessDumm,
         );
+
         const matchingItems = [];
 
         for (let i = 0; i < arr1.length; i++) {
@@ -301,43 +295,41 @@ class CreateNC extends Component {
             matchingItems.push(arr1[i]);
           }
         }
-        console.log('Matching items:', matchingItems);
-        this.setState({
-          selectedItemsProcess: filteredItems,
-        });
-      }
-      this.setState({
-        fileArrayList: originalData,
-      });
 
         // Display the matching items
-        
+        console.log('Matching items:', matchingItems);
+        this.setState({
+          fileArrayList: originalData,
+          selectedItemsProcess: filteredItems,
+        });
         // Now you have an array without undefined elements (filteredItems)
       }
     }
     setTimeout(() => this.LongTask(), 1000);
     this.getUserDetails();
   }
-  
   async getUserDetails() {
-    var userid = await AsyncStorage.getItem('userId');
-    var username = await AsyncStorage.getItem('userName');
-    var ncNumberUpdate = await AsyncStorage.getItem('ncNumberUpdate');
-    console.log(userid, username,ncNumberUpdate, 'Asyncusergetand set');
+    // var userid = await AsyncStorage.getItem('userId');
+    // var username = await AsyncStorage.getItem('userName');
+    const stringifiedUserDetails = await AsyncStorage.getItem('userDetails');
+    const value = JSON.parse(stringifiedUserDetails);
+    console.log('current userdata--->', value)
+    console.log(value.userId, value.userFullName, 'Asyncusergetand set');
     var userDetails = [];
     userDetails.push({
-      value: username,
-      id: userid,
+      // value: username,
+      // id: userid,
+      value: value.userFullName,
+      id: value.userId,
     });
     console.log(userDetails, 'userdetails');
     this.setState({
       requestDropdown: userDetails,
-      NCNumberUpdate : ncNumberUpdate
     });
   }
 
   // onSpeechResults = (e) => {this.setState({ nonconfirmityText: e.value[0] });};
-  
+
   // handleInputChange = (text) => {     this.setState({ PrevNonConformity: this.state.nonconfirmityText, : text });   };
 
   componentWillMount() {
@@ -373,9 +365,11 @@ class CreateNC extends Component {
   LongTask() {
     this.setState({
       clauseMandatory:
+        // this.props.navigation.state.params.NCOFIDetails.clauseMandatory,
         this.props?.route?.params?.NCOFIDetails?.clauseMandatory,
     });
     console.log(
+      // this.props.navigation.state.params.NCOFIDetails.clauseMandatory,
       this.props?.route?.params?.NCOFIDetails?.clauseMandatory,
       'clausemandatory',
     );
@@ -397,6 +391,7 @@ class CreateNC extends Component {
         console.log('Chinese script off', this.state.ChineseScript);
       });
     }
+    // console.log('CreateNCmounted', this.props.navigation.state.params);
     console.log('CreateNCmounted', this.props?.route?.params);
     // console.log('getting props',this.props.data.audits)
 
@@ -409,6 +404,9 @@ class CreateNC extends Component {
       auditRecords,
       'AuditID',
       this.props.data.audits.auditRecords[0].AuditProcessList,
+      // typeof this.props.navigation.state.params.NCOFIDetails == 'string'
+      //   ? this.props.navigation.state.params.AuditID
+      //   : this.props.navigation.state.params.NCOFIDetails.AuditID,
       typeof this.props?.route?.params?.NCOFIDetails == 'string'
         ? this.props?.route?.params?.AuditID
         : this.props?.route?.params?.NCOFIDetails?.AuditID,
@@ -416,6 +414,9 @@ class CreateNC extends Component {
 
     for (var i = 0; i < auditRecords.length; i++) {
       var auid =
+        // typeof this.props.navigation.state.params.NCOFIDetails == 'string'
+        //   ? this.props.navigation.state.params.AuditID
+        //   : this.props.navigation.state.params.NCOFIDetails.AuditID;
         typeof this.props?.route?.params?.NCOFIDetails == 'string'
           ? this.props?.route?.params?.AuditID
           : this.props?.route?.params?.NCOFIDetails?.AuditID;
@@ -452,12 +453,8 @@ class CreateNC extends Component {
         this.props?.route?.params,
       );
       console.log(
-        'this.props?.route?.params?.NCOFIDetails',
-        this.props.navigation,
-      );
-      console.log(
-        'this.props?.route?.params?.CreateNCdetails',
-        this.props?.route?.params?.CreateNCdetails,
+        'this.props?.route?.params?.CheckpointRoute',
+        this.props?.route?.params?.NCOFIDetails,
       );
       var navigationRoute = ''
       if(this.props?.route?.params?.navigationfrom == "checkpointDemo"){
@@ -471,7 +468,7 @@ class CreateNC extends Component {
           ProcessListAll: auditProcessListAll,
           breadCrumbText:
             this.props?.route?.params?.NCOFIDetails?.breadCrumb,
-          // breadCrumbText: this.props?.route?.params?.NCOFIDetails.breadCrumb.length > 30 ? this.props?.route?.params?.NCOFIDetails.breadCrumb.slice(0, 30) + '...' : this.props?.route?.params?.NCOFIDetails.breadCrumb,
+          // breadCrumbText: this.props?.route?.params?.NCOFIDetails?.breadCrumb.length > 30 ? this.props?.route?.params?.NCOFIDetails?.breadCrumb.slice(0, 30) + '...' : this.props?.route?.params?.NCOFIDetails?.breadCrumb,
           RouteParam: this.props?.route?.params?.CheckpointRoute,
           templateId: this.props?.route?.params?.templateId,
           isUploaded: this.props?.route?.params?.isUploaded,
@@ -593,7 +590,12 @@ class CreateNC extends Component {
     var processautoid =
       this.props?.route?.params?.NCOFIDetails?.ProcessID;
     var type = this.props?.route?.params?.type;
-    if ((processautoid !== '' && processautoid !== null && processautoid !== undefined) && type === 'ADD') {
+    if (
+      processautoid !== '' &&
+      processautoid !== null &&
+      processautoid !== undefined &&
+      type === 'ADD'
+    ) {
       var processArray = [processautoid];
       this.setState({
         selectedItemsProcess: processArray,
@@ -602,20 +604,25 @@ class CreateNC extends Component {
     }
   }
 
-  componentWillReceiveProps(props) {
-    const {navigation} = this.props;
-    const cancelled = navigation.getParam('cancelpressed', 'empty');
-    const uri_details = navigation.getParam('Uri', 'empty');
-    const video_name = navigation.getParam('Name', 'empty');
-    const video_type = navigation.getParam('Type', 'empty');
-
+  async componentWillReceiveProps(props) {
+    console.log('test123this.props--> componentWillReceiveProps', this.props)
+    const stringifiedCameraCapture = await AsyncStorage.getItem('cameraCapture');
+    const value = JSON.parse(stringifiedCameraCapture);
+    console.log('current cameraCapture async--->', value)
+    // const {navigation} = this.props;
+    // const cancelled = navigation.getParam('cancelpressed', 'empty');
+    // const uri_details = navigation.getParam('Uri', 'empty');
+    // const video_name = navigation.getParam('Name', 'empty');
+    // const video_type = navigation.getParam('Type', 'empty');
+    const cancelled = this.props?.route?.params?.cancelpressed || 'empty';
+    const uri_details = this.props?.route?.params?.Uri || 'empty';
+    const video_name = this.props?.route?.params?.Name || 'empty';
+    const video_type = this.props?.route?.params?.Type || 'empty';
     console.log(cancelled + 'value');
 
-    // var getCurrentPage = [];
-    // getCurrentPage = this.props.data.nav.routes;
+    // need to fix
+    // getCurrentPage = this.props?.data?.nav?.routes;
     // var CurrentPage = getCurrentPage[getCurrentPage.length - 1].routeName;
-    // console.log('--CurrentPage--->', CurrentPage);
-    // var getpreviouspage = getCurrentPage[getCurrentPage.length - 2].routeName;
     var CurrentPage = this.props?.route?.name;
     console.log("--CurrentPage--->", CurrentPage);
     var routes = this.props.navigation.getState().routes;
@@ -626,31 +633,31 @@ class CreateNC extends Component {
       this.InitVoice();
       console.log(
         'exception1',
-        props.data.audits.cameraCapture,
+        this.props.data.audits.cameraCapture,
         this.state.fileName,
       );
-      if (props.data.audits.cameraCapture) {
+      if (this.props.data.audits.cameraCapture) {
         if (cancelled == 1) {
           this.setState({
             fileName: undefined,
             fileData: undefined,
             fileSize: undefined,
           });
-          console.log('exception1 cancel', props.data.audits.cameraCapture);
+          console.log('exception1 cancel', this.props.data.audits.cameraCapture);
         }
 
-        if (cancelled == 0 && props.data.audits.cameraCapture.length == 0) {
+        if (cancelled == 0 && this.props.data.audits.cameraCapture.length == 0) {
           console.log('inside save set state part..');
           let FileArrayTemp = this.state.fileArrayList;
-         let FileArrayTempOne =  [{
-            id: Moment().unix(),
-            fileName: video_name,
-            fileData: uri_details,
-            fileSize: video_type,
-            filetype: 'video/mp4',
-          }];
+          let FileArrayTempOne =  [{
+              id: Moment().unix(),
+              fileName: video_name,
+              fileData: uri_details,
+              fileSize: video_type,
+              filetype: 'video/mp4',
+            }];
           console.log(FileArrayTemp, 'filearraytemp - will rcv pop');
-           let fileMergeResult = FileArrayTemp.concat(FileArrayTempOne);
+          let fileMergeResult = FileArrayTemp.concat(FileArrayTempOne);
           // console.log(fileMergeResult, 'filearraytemp2xxxxxxxx11111');
           this.setState(
             {
@@ -663,9 +670,9 @@ class CreateNC extends Component {
         }
 
         console.log('file name' + this.state.fileName);
-        if (props.data.audits.cameraCapture.length > 0 && cancelled != 1) {
-          var res = props.data.audits.cameraCapture;
-          console.log('exception3', props.data.audits.cameraCapture);
+        if (this.props.data.audits.cameraCapture.length > 0 && cancelled != 1) {
+          var res = this.props.data.audits.cameraCapture;
+          console.log('exception3', this.props.data.audits.cameraCapture);
           let FileArrayTemp = this.state.fileArrayList;
          let FileArrayTempOne = [{
             fileName: res[0].name,
@@ -674,7 +681,7 @@ class CreateNC extends Component {
             id: Moment().unix(),
           }];
           console.log(FileArrayTemp, 'filearraytemp');
-           let fileMergeResult = FileArrayTemp.concat(FileArrayTempOne);
+          let fileMergeResult = FileArrayTemp.concat(FileArrayTempOne);
           // console.log(fileMergeResult, 'filearraytemp2xxxxxxx22222');
 
           const uniqueFiles = fileMergeResult.reduce(
@@ -703,7 +710,7 @@ class CreateNC extends Component {
         } else {
           console.log('no pic found');
           console.log('inside file path' + this.state.fileData);
-          console.log('exception14', props.data.audits.cameraCapture);
+          console.log('exception14', this.props.data.audits.cameraCapture);
         }
       } else {
         console.log('no pic found');
@@ -771,6 +778,7 @@ class CreateNC extends Component {
         if (type == 'Camera') {
           this.props.navigation.navigate(ROUTES.CAMERA_CAPTURE);
         } else if (type == 'Video') {
+          // this.props.navigation.navigate('VideoCapture');
           this.props.navigation.navigate(ROUTES.VIDEO_CAPTURE);
         }
       },
@@ -822,7 +830,6 @@ class CreateNC extends Component {
     // eslint-disable-next-line
     console.log('voice:onSpeechResults: ', e);
     if (Platform.OS == 'android') {
-     
       this.setState(
         {
           results: e.value[0],
@@ -922,7 +929,7 @@ class CreateNC extends Component {
       //eslint-disable-next-line
       console.error(e);
     }
-  }; 
+  };
 
   _stopRecognizing = async () => {
     try {
@@ -1023,7 +1030,7 @@ class CreateNC extends Component {
       case 'jpg':
       case 'jpeg':
       case 'png':
-      case 'heic' :
+      case 'heic':
       case 'gif': {
         icon = 'image';
         break;
@@ -1071,20 +1078,16 @@ class CreateNC extends Component {
     }
     console.log('_---_results: ', this.state.results);
     console.log('_---txt: ', txt);
-    
 
     if (this.VoiceDocumentRef === true) {
-      this.setState((
+      this.setState(
         {
-          documentRef: txt.charAt(0).toUpperCase() + txt.slice(1)
-        }
-      )
-        ,
+          documentRef: txt.charAt(0).toUpperCase() + txt.slice(1),
+        },
         () => {
           Tts.setDucking(true).then(() => {
             Tts.speak(strings.cn_reply_03);
           });
-        
           this.VoiceFill = false;
           this.VoicNCIdentifier = false;
           this.VoiceObjective = false;
@@ -1092,27 +1095,30 @@ class CreateNC extends Component {
           this.VoiceOfi = false;
           this.AutoFillCatogory = false;
           this.AutoFillCDept = false;
-          this.VoiceDocumentRef = false
+          this.VoiceDocumentRef = false;
           this.VoiceRequesFill = false;
           this.VoiceResp = false;
+          this.VoiceOFIcategory = false;
           this.refs.docRefTxtField.blur();
           this._stopRecognizing();
-        Voice.removeAllListeners();
+          Voice.removeAllListeners();
           this.InitVoice();
         },
       );
-    } 
-    else if (this.VoiceFill === true) {
-      this.setState({ PrevNonConformity: this.state.nonconfirmityText, nonconfirmityText: txt.charAt(0).toUpperCase() + txt.slice(1) }
-      // this.setState( ( {
-      //   nonconfirmityText: txt.charAt(0).toUpperCase() + txt.slice(1)
-      // })
-       ,
+    } else if (this.VoiceFill === true) {
+      this.setState(
+        {
+          PrevNonConformity: this.state.nonconfirmityText,
+          nonconfirmityText: txt.charAt(0).toUpperCase() + txt.slice(1),
+        },
+        // this.setState( ( {
+        //   nonconfirmityText: txt.charAt(0).toUpperCase() + txt.slice(1)
+        // })
         () => {
           Tts.setDucking(true).then(() => {
             Tts.speak(strings.cn_reply_03);
           });
-        
+
           this.VoiceFill = false;
           this.VoicNCIdentifier = false;
           this.VoiceObjective = false;
@@ -1120,15 +1126,16 @@ class CreateNC extends Component {
           this.VoiceOfi = false;
           this.AutoFillCatogory = false;
           this.AutoFillCDept = false;
-          this.VoiceDocumentRef = false
+          this.VoiceDocumentRef = false;
           this.VoiceRequesFill = false;
           this.VoiceResp = false;
+          this.VoiceOFIcategory = false;
           this._stopRecognizing();
-         Voice.removeAllListeners();
+          Voice.removeAllListeners();
           this.InitVoice();
         },
       );
-    } else if (this.VoiceOfi === true) { 
+    } else if (this.VoiceOfi === true) {
       this.setState(
         {
           ofitext: txt.charAt(0).toUpperCase() + txt.slice(1),
@@ -1144,9 +1151,11 @@ class CreateNC extends Component {
           this.VoiceOfi = false;
           this.AutoFillCatogory = false;
           this.AutoFillCDept = false;
-          this.VoiceDocumentRef = false
+          this.VoiceDocumentRef = false;
           this.VoiceRequesFill = false;
           this.VoiceResp = false;
+          this.VoiceOFIcategory = false;
+
           this._stopRecognizing();
           Voice.removeAllListeners();
           this.InitVoice();
@@ -1168,9 +1177,10 @@ class CreateNC extends Component {
           this.VoiceOfi = false;
           this.AutoFillCatogory = false;
           this.AutoFillCDept = false;
-          this.VoiceDocumentRef = false
+          this.VoiceDocumentRef = false;
           this.VoiceRequesFill = false;
           this.VoiceResp = false;
+          this.VoiceOFIcategory = false;
           this._stopRecognizing();
           Voice.removeAllListeners();
           this.InitVoice();
@@ -1192,10 +1202,11 @@ class CreateNC extends Component {
           this.VoiceOfi = false;
           this.AutoFillCatogory = false;
           this.AutoFillCDept = false;
-          this.VoiceDocumentRef = false
+          this.VoiceDocumentRef = false;
           this.VoiceRequesFill = false;
           this.VoiceResp = false;
-          this.refs.objEviTxtField.blur(); 
+          this.VoiceOFIcategory = false;
+          this.refs.objEviTxtField.blur();
           this._stopRecognizing();
           Voice.removeAllListeners();
           this.InitVoice();
@@ -1217,9 +1228,10 @@ class CreateNC extends Component {
           this.VoiceOfi = false;
           this.AutoFillCatogory = false;
           this.AutoFillCDept = false;
-          this.VoiceDocumentRef = false
+          this.VoiceDocumentRef = false;
           this.VoiceRequesFill = false;
           this.VoiceResp = false;
+          this.VoiceOFIcategory = false;
           this._stopRecognizing();
           Voice.removeAllListeners();
           this.InitVoice();
@@ -1249,16 +1261,54 @@ class CreateNC extends Component {
           this.VoiceOfi = false;
           this.AutoFillCatogory = false;
           this.AutoFillCDept = false;
-          this.VoiceDocumentRef = false
+          this.VoiceDocumentRef = false;
           this.VoiceRequesFill = false;
           this.VoiceResp = false;
+          this.VoiceOFIcategory = false;
           this.refs.categoryTxtField.blur();
           this._stopRecognizing();
           Voice.removeAllListeners();
           this.InitVoice();
         },
       );
-    } else if (this.AutoFillCDept === true) {
+    } 
+    else if (this.VoiceOFIcategory === true) {
+      var CategoryList = this.state.categoryArr;
+      var AutoFillData = null;
+      for (var i = 0; i < CategoryList.length; i++) {
+        if (txt.toLowerCase() == CategoryList[i].value.toLowerCase()) {
+          Tts.setDucking(true).then(() => {
+            Tts.speak(strings.cn_reply_03);
+          });
+          AutoFillData = CategoryList[i];
+          break;
+        }
+      }
+      this.setState(
+        {
+          NCcategoryt: AutoFillData,
+        },
+        () => {
+          this.VoiceFill = false;
+          this.VoicNCIdentifier = false;
+          this.VoiceObjective = false;
+          this.VoiceRecom = false;
+          this.VoiceOfi = false;
+          this.AutoFillCatogory = false;
+          this.AutoFillCDept = false;
+          this.VoiceDocumentRef = false;
+          this.VoiceRequesFill = false;
+          this.VoiceResp = false;
+          this.VoiceOFIcategory = false;
+
+          this.refs.categoryTxtField.blur();
+          this._stopRecognizing();
+          Voice.removeAllListeners();
+          this.InitVoice();
+        },
+      );
+    }
+    else if (this.AutoFillCDept === true) {
       var DeptList = this.state.departArr;
       var AutoFillData = null;
       for (var i = 0; i < DeptList.length; i++) {
@@ -1282,9 +1332,10 @@ class CreateNC extends Component {
           this.VoiceOfi = false;
           this.AutoFillCatogory = false;
           this.AutoFillCDept = false;
-          this.VoiceDocumentRef = false
+          this.VoiceDocumentRef = false;
           this.VoiceRequesFill = false;
           this.VoiceResp = false;
+          this.VoiceOFIcategory = false;
 
           if (this.state.departArr.length > 0) {
             this.refs.departmentTxtField.blur();
@@ -1310,7 +1361,7 @@ class CreateNC extends Component {
         {
           NCresponsible: AutoFillData,
         },
-        () => { 
+        () => {
           this.VoiceFill = false;
           this.VoicNCIdentifier = false;
           this.VoiceObjective = false;
@@ -1318,9 +1369,10 @@ class CreateNC extends Component {
           this.VoiceOfi = false;
           this.AutoFillCatogory = false;
           this.AutoFillCDept = false;
-          this.VoiceDocumentRef = false
+          this.VoiceDocumentRef = false;
           this.VoiceRequesFill = false;
           this.VoiceResp = false;
+          this.VoiceOFIcategory = false;
           this.refs.responsibleTxtField.blur();
           this._stopRecognizing();
           Voice.removeAllListeners();
@@ -1339,7 +1391,8 @@ class CreateNC extends Component {
           break;
         }
       }
-      this.setState(        {
+      this.setState(
+        {
           NCrequestby: AutoFillData,
         },
         () => {
@@ -1350,9 +1403,10 @@ class CreateNC extends Component {
           this.VoiceOfi = false;
           this.AutoFillCatogory = false;
           this.AutoFillCDept = false;
-          this.VoiceDocumentRef = false
+          this.VoiceDocumentRef = false;
           this.VoiceRequesFill = false;
           this.VoiceResp = false;
+          this.VoiceOFIcategory = false;
           this.refs.requestTxtField.blur();
           this._stopRecognizing();
           Voice.removeAllListeners();
@@ -1399,9 +1453,10 @@ class CreateNC extends Component {
         this.VoiceOfi = false;
         this.AutoFillCatogory = false;
         this.AutoFillCDept = false;
-        this.VoiceDocumentRef = false
+        this.VoiceDocumentRef = false;
         this.VoiceRequesFill = false;
         this.VoiceResp = false;
+        this.VoiceOFIcategory = false;
 
         this.refs.ncTxtField.focus();
         Tts.setDucking(true).then(() => {
@@ -1421,9 +1476,10 @@ class CreateNC extends Component {
         this.VoiceOfi = false;
         this.AutoFillCatogory = false;
         this.AutoFillCDept = false;
-        this.VoiceDocumentRef = false
+        this.VoiceDocumentRef = false;
         this.VoiceRequesFill = false;
         this.VoiceResp = false;
+        this.VoiceOFIcategory = false;
 
         Tts.setDucking(true).then(() => {
           Tts.speak(strings.va_rep04);
@@ -1447,9 +1503,10 @@ class CreateNC extends Component {
         this.VoiceOfi = false;
         this.AutoFillCatogory = false;
         this.AutoFillCDept = false;
-        this.VoiceDocumentRef = false
+        this.VoiceDocumentRef = false;
         this.VoiceRequesFill = false;
         this.VoiceResp = false;
+        this.VoiceOFIcategory = false;
 
         Tts.setDucking(true).then(() => {
           Tts.speak(strings.va_rep05);
@@ -1463,7 +1520,9 @@ class CreateNC extends Component {
         // }, 2500);
       } else if ( //NC Category
         txt.toLowerCase().includes(strings.va_cmd91) ||
-        txt.toLowerCase().includes(strings.va_cmd92)
+        txt.toLowerCase().includes(strings.va_cmd92) ||
+        txt.toLowerCase().includes("OFI CATEGORY") ||
+        txt.toLowerCase().includes('ofi')
       ) {//NC Category
         this.VoiceFill = false;
         this.VoicNCIdentifier = false;
@@ -1472,9 +1531,10 @@ class CreateNC extends Component {
         this.VoiceOfi = false;
         this.AutoFillCatogory = false;
         this.AutoFillCDept = false;
-        this.VoiceDocumentRef = false
+        this.VoiceDocumentRef = false;
         this.VoiceRequesFill = false;
         this.VoiceResp = false;
+        this.VoiceOFIcategory = false;
 
         Tts.setDucking(true).then(() => {
           Tts.speak(strings.va_rep06);
@@ -1486,7 +1546,14 @@ class CreateNC extends Component {
         // setTimeout(() => {
         //   this._startRecognizing();
         // }, 3000);
-      } else if (txt.toLowerCase().includes('failure') || txt.toLowerCase().includes('failure category')) {
+      } 
+      else if (
+        //ofi Category
+        txt.toLowerCase().includes("OFI CATEGORY") ||
+        txt.toLowerCase().includes("OFI") 
+        ||txt.toLowerCase().includes("WI-FI CATEGORY")
+      ) {
+        //OFI Category
         this.VoiceFill = false;
         this.VoicNCIdentifier = false;
         this.VoiceObjective = false;
@@ -1494,27 +1561,57 @@ class CreateNC extends Component {
         this.VoiceOfi = false;
         this.AutoFillCatogory = false;
         this.AutoFillCDept = false;
-        this.VoiceDocumentRef = false
+        this.VoiceDocumentRef = false;
         this.VoiceRequesFill = false;
         this.VoiceResp = false;
+        this.VoiceOFIcategory = false;
+        Tts.setDucking(true).then(() => {
+          Tts.speak(strings.va_rep06);
+        });
+        this.refs.categoryTxtField.focus();
+        this._stopRecognizing();
+        Voice.removeAllListeners();
+        this.InitVoice();
+        // setTimeout(() => {
+        //   this._startRecognizing();
+        // }, 3000);
+      } 
+      else if (
+        txt.toLowerCase().includes('failure category') ||
+        txt.toLowerCase().includes('failure') ||
+        txt.toLowerCase().includes('fail')
+      ) {
+        this.VoiceFill = false;
+        this.VoicNCIdentifier = false;
+        this.VoiceObjective = false;
+        this.VoiceRecom = false;
+        this.VoiceOfi = false;
+        this.AutoFillCatogory = false;
+        this.AutoFillCDept = false;
+        this.VoiceDocumentRef = false;
+        this.VoiceRequesFill = false;
+        this.VoiceResp = false;
+        this.VoiceOFIcategory = false;
+        this.VoiceOFIcategory = false;
+
 
         if (this.state.FailureCategory.length > 0) {
           Tts.setDucking(true).then(() => {
-            Tts.speak("Please selectd the Failure Category");
+            Tts.speak('Please selectd the Failure Category');
           });
-          this.refs.departmentTxtField.focus(); 
+          this.refs.departmentTxtField.focus();
           this._stopRecognizing();
           Voice.removeAllListeners();
           this.InitVoice();
-        //   setTimeout(() => {
-        //     this._startRecognizing();
-        //   }, 2500);
+          //   setTimeout(() => {
+          //     this._startRecognizing();
+          //   }, 2500);
         } else {
           Tts.setDucking(true).then(() => {
-            Tts.speak('Currently there is no failure category available');//strings.ap_reply_04);
+            Tts.speak('Currently there is no failure category available'); //strings.ap_reply_04);
           });
         }
-      }  else if (txt.toLowerCase().includes(strings.va_cmd301)) {//OFI
+      } else if (txt.toLowerCase().includes(strings.va_cmd301)) {//OFI
         this.VoiceFill = false;
         this.VoicNCIdentifier = true;
         this.VoiceObjective = false;
@@ -1522,9 +1619,10 @@ class CreateNC extends Component {
         this.VoiceOfi = false;
         this.AutoFillCatogory = false;
         this.AutoFillCDept = false;
-        this.VoiceDocumentRef = false
+        this.VoiceDocumentRef = false;
         this.VoiceRequesFill = false;
         this.VoiceResp = false;
+        this.VoiceOFIcategory = false;
 
         this.refs.ncidentifierTxtField.focus();
         Tts.setDucking(true).then(() => {
@@ -1541,10 +1639,11 @@ class CreateNC extends Component {
         this.VoiceOfi = false;
         this.AutoFillCatogory = false;
         this.AutoFillCDept = false;
-        this.VoiceDocumentRef = false
+        this.VoiceDocumentRef = false;
         this.VoiceRequesFill = false;
         this.VoiceResp = false;
-        this.refs.objEviTxtField.focus(); 
+        this.VoiceOFIcategory = false;
+        this.refs.objEviTxtField.focus();
         //this.refs.objEvidence.focus();
         Tts.setDucking(true).then(() => {
           Tts.speak(strings.va_Uni_rep08);
@@ -1564,9 +1663,10 @@ class CreateNC extends Component {
         this.VoiceOfi = false;
         this.AutoFillCatogory = false;
         this.AutoFillCDept = false;
-        this.VoiceDocumentRef = false
+        this.VoiceDocumentRef = false;
         this.VoiceRequesFill = false;
         this.VoiceResp = false;
+        this.VoiceOFIcategory = false;
 
         this.refs.recomTxtField.focus();
         Tts.setDucking(true).then(() => {
@@ -1575,7 +1675,7 @@ class CreateNC extends Component {
         setTimeout(() => {
           this._startRecognizing();
         }, 1500);
-      } else if ( // OFI
+      } else if (// OFI
         txt.toLowerCase().includes(strings.va_cmd601) ||
         txt.toLowerCase().includes(strings.va_cmd605)
       ) {
@@ -1586,9 +1686,10 @@ class CreateNC extends Component {
         this.VoiceOfi = true;
         this.AutoFillCatogory = false;
         this.AutoFillCDept = false;
-        this.VoiceDocumentRef =  false;
+        this.VoiceDocumentRef = false;
         this.VoiceRequesFill = false;
         this.VoiceResp = false;
+        this.VoiceOFIcategory = false;
 
         this.refs.ofiTxtField.focus();
         Tts.setDucking(true).then(() => {
@@ -1596,45 +1697,47 @@ class CreateNC extends Component {
         });
         setTimeout(() => {
           this._startRecognizing();
-        }, 1500); 
+        }, 1500);
       } else if (
-          txt.toLowerCase().includes("document") ||
-          txt.toLowerCase().includes("document reference")
-        ) {
-          this.VoiceFill = false;
-          this.VoicNCIdentifier = false;
-          this.VoiceObjective = false;
-          this.VoiceRecom = false;
-          this.VoiceOfi = false;
-          this.VoiceDocumentRef = true
-          this.AutoFillCatogory = false;
-          this.AutoFillCDept = false;         
-          this.VoiceRequesFill = false;
-          this.VoiceResp = false;
-  
-          this.refs.docRefTxtField.focus();
-          Tts.setDucking(true).then(() => {
-            Tts.speak(strings.va_Uni_rep08);
-          });
-          setTimeout(() => {
-            this._startRecognizing();
-          }, 1500);
-         
-      } else if (txt.toLowerCase().includes(strings.va_cmd701) || txt.toLowerCase().includes("attachment")) { //attach
+        txt.toLowerCase().includes('document') ||
+        txt.toLowerCase().includes('document reference')
+      ) {
+        this.VoiceFill = false;
+        this.VoicNCIdentifier = false;
+        this.VoiceObjective = false;
+        this.VoiceRecom = false;
+        this.VoiceOfi = false;
+        this.VoiceDocumentRef = true;
+        this.AutoFillCatogory = false;
+        this.AutoFillCDept = false;
+        this.VoiceRequesFill = false;
+        this.VoiceResp = false;
+        this.VoiceOFIcategory = false;
+        this.refs.docRefTxtField.focus();
+        Tts.setDucking(true).then(() => {
+          Tts.speak(strings.va_Uni_rep08);
+        });
+        setTimeout(() => {
+          this._startRecognizing();
+        }, 1500);
+      } else if (
+        txt.toLowerCase().includes(strings.va_cmd701) ||
+        txt.toLowerCase().includes('attachment')
+      ) { //attach
 
         this.VoiceFill = false;
-          this.VoicNCIdentifier = false;
-          this.VoiceObjective = false;
-          this.VoiceRecom = false;
-          this.VoiceOfi = false;
-          this.VoiceDocumentRef = false
-          this.AutoFillCatogory = false;
-          this.AutoFillCDept = false;         
-          this.VoiceRequesFill = false;
-          this.VoiceResp = false;
-
+        this.VoicNCIdentifier = false;
+        this.VoiceObjective = false;
+        this.VoiceRecom = false;
+        this.VoiceOfi = false;
+        this.VoiceDocumentRef = false;
+        this.AutoFillCatogory = false;
+        this.AutoFillCDept = false;
+        this.VoiceRequesFill = false;
+        this.VoiceResp = false;
+        this.VoiceOFIcategory = false;
         Tts.setDucking(true).then(() => {
-          Tts.speak('Click the attachment button to continue');;//Tts.speak(strings.va_rep09);
+          Tts.speak('Click the attachment button to continue'); //Tts.speak(strings.va_rep09);
         });
 
         this._stopRecognizing();
@@ -1644,7 +1747,7 @@ class CreateNC extends Component {
         // console.log("open attachment");
         //this.evidenceField.focus()
         // }, 1000);
-      } else if (txt.toLowerCase().includes(strings.va_cmd802)) { 
+      } else if (txt.toLowerCase().includes(strings.va_cmd802)) {
         Tts.setDucking(true).then(() => {
           Tts.speak(strings.va_rep10);
         });
@@ -1710,7 +1813,7 @@ class CreateNC extends Component {
                       RecordList[i].DropDownProps.ClauseList[j]
                         .StandardDescription,
                 id: RecordList[i].DropDownProps.ClauseList[j].ElementId,
-                newid : parseFloat(RecordList[i].DropDownProps.ClauseList[j].Element),
+                newid: parseFloat(RecordList[i].DropDownProps.ClauseList[j].Element),
                 Requirement:
                   RecordList[i].DropDownProps.ClauseList[j].StandardRequirement,
               });
@@ -1733,7 +1836,7 @@ class CreateNC extends Component {
     });
 
     this.setState({clausedata: Clausedropdown}, () => {
-      console.log('Clause dropdown',this.state.clausedata)
+      console.log('Clause dropdown', this.state.clausedata);
       this.onSelectedItemsChange(this.state.selectedItems);
       // this.onSelectedItemsProcessChange(this.state.selectedItemsProcess)
       this.setProcessList();
@@ -1880,9 +1983,9 @@ class CreateNC extends Component {
       }
       console.log('Process List:', processList);
       console.log('this.state.selectedItemsProces123', processList);
-      // this.setState({
-      //   selectedItemsProcessDumm: processList,
-      // });
+      this.setState({
+        selectedItemsProcessDumm: processList,
+      });
       this.setState(
         {
           processdata: processList,
@@ -1931,7 +2034,6 @@ class CreateNC extends Component {
       },
       () => {
         console.log('setEditValues NCresponsible', this.state.ncData.userDrop);
-        console.log("objevi",this.state.ncData.objEvidence)
         this.setProcessList();
       },
     );
@@ -1941,14 +2043,14 @@ class CreateNC extends Component {
     console.log('selectedItemsProcess selectedItems  ', selectedItems);
     const multiprocess = this.props?.route?.params?.NCOFIDetails?.multiprocess
     let newArry = [];
-    if (multiprocess == "1") {
-      selectedItems.length > 0 && newArry.push(selectedItems[selectedItems.length-1]);
-      this.setState({selectedItemsProcess: newArry, MarkProcess:false});  
+    if (multiprocess == '1') {
+      selectedItems.length > 0 &&
+        newArry.push(selectedItems[selectedItems.length - 1]);
+      this.setState({selectedItemsProcess: newArry, MarkProcess: false});
+    } else {
+      // const itemFilter = selectedItems.filter((data)=>data !== undefined)
+      this.setState({selectedItemsProcess: selectedItems, MarkProcess: false});
     }
-    else {
-    // const itemFilter = selectedItems.filter((data)=>data !== undefined)
-    this.setState({selectedItemsProcess: selectedItems, MarkProcess:false});
-    } 
     // console.log('selectedItemsProcess selectedItems --------- ', itemFilter);
   };
 
@@ -2182,7 +2284,7 @@ class CreateNC extends Component {
   onBuffer(dupNCrecords) {
     console.log('once called', this.state.isBuffered, dupNCrecords);
     if (this.state.isBuffered == false) {
-     
+
       this.setState(
         {
           isSaved: true,
@@ -2219,11 +2321,16 @@ class CreateNC extends Component {
     }
   }
 
-    onSave() {
+  onSave() {
     console.log('on click save');
     console.log('faliurecategory', this.state.FailureCategory);
     console.log(this.state.clausedata, 'marcclause');
-    console.log(this.state.selectedItemsProcess.length, 'selecteditemprocess',this.state.selectedItemsProcess);
+    console.log('displayData--->', this.state.displayData);
+    console.log(
+      this.state.selectedItemsProcess.length,
+      'selecteditemprocess',
+      this.state.selectedItemsProcess,
+    );
 
     // if(this.props.data.smdata !==2 && this.props.data.smdata !==3 ){
     //   this.setState({
@@ -2238,20 +2345,22 @@ class CreateNC extends Component {
         MarkProcess: true,
       });
     }
-    if (this.state.clauseMandatory === 1 && this.state.selectedItems.length === 0  && this.state.RouteParam == 'NC') {
+    if (
+      this.state.clauseMandatory === 1 &&
+      this.state.selectedItems.length === 0 &&
+      this.state.RouteParam == 'NC'
+    ) {
       this.setState({
         MarkClause: true,
       });
     }
-    
-    
     if (
       this.props.data.audits.smdata === 2 ||
       this.props.data.audits.smdata === 3
     ) {
       this.setState({
-       // documentRef:true,
-       // objEvidence: true,
+        // documentRef: true,
+        // objEvidence: true,
         // selectedItemsProcess: true,
       });
     }
@@ -2300,12 +2409,16 @@ class CreateNC extends Component {
 
         let bcontinue = true;
         let pcontinue = true;
-        // if (this.state.selectedItems.length == 0 && this.state.clauseMandatory === 1 && this.state.RouteParam == "NC"){
-        //   bcontinue = true;
+        // if (
+        //   this.state.selectedItems.length == 0 &&
+        //   this.state.clauseMandatory === 1 &&
+        //   this.state.RouteParam == 'NC'
+        // ) {
+        //   bcontinue = false;
         // }
 
-        // if (this.state.selectedItemsProcess.length == 0){
-        //   pcontinue = true;
+        // if (this.state.selectedItemsProcess.length == 0) {
+        //   pcontinue = false;
         // }
         if (
           this.state.NCcategoryt &&
@@ -2313,9 +2426,9 @@ class CreateNC extends Component {
           this.state.NCrequestby &&
           // bcontinue &&
           this.state.nonconfirmityText 
-        //  this.state.objEvidence &&
-         // this.state.documentRef &&
-          // pcontinue 
+          // this.state.objEvidence &&
+          // this.state.documentRef &&
+          // pcontinue &&
           // this.state.displayData
         ) {
           if (
@@ -2328,14 +2441,13 @@ class CreateNC extends Component {
               file => file.fileName,
             );
             console.log('########fileNames', fileNames);
-
             const fileDatas = this.state.fileArrayList;
             console.log(
               'checkkkkkkkkkkkkkkkk----------ncccccc------------',
               this.state.fileArrayList,
             );
 
-            console.log('########fileNames-----------11111', this.state.NCcategoryt,this.state.NCrequestby);
+            console.log('########fileNames', fileDatas);
 
             BundleArr = {
               requiretext:
@@ -2353,9 +2465,7 @@ class CreateNC extends Component {
               requestDrop: this.state.requestDropdown[0].id,
               deptDrop: this.state.NCdept === undefined ? 0 : this.state.NCdept,
               failureDrop:
-                this.state.NCFailure === undefined
-                  ? 0 
-                  : this.state.NCFailure,
+                this.state.NCFailure === undefined ? 0 : this.state.NCFailure,
               filename: fileNames?.length == 0 ? [] : fileNames,
               filedata: fileDatas?.length == 0 ? [] : fileDatas,
               AuditID: this.state.AuditID,
@@ -2438,7 +2548,7 @@ class CreateNC extends Component {
                         OFI: NCrecords?.[i]?.Pending?.[j]?.OFI,
                         categoryDrop:
                           NCrecords?.[i]?.Pending?.[j]?.categoryDrop,
-                        userDrop: NCrecords?.[i]?.Pending?.[j]?.userDrop,                       
+                        userDrop: NCrecords?.[i]?.Pending?.[j]?.userDrop,
                         requestDrop: NCrecords?.[i]?.Pending?.[j]?.requestDrop,
                         deptDrop: NCrecords?.[i]?.Pending?.[j]?.deptDrop,
                         failureDrop: NCrecords?.[i]?.Pending?.[j]?.failureDrop,
@@ -2489,17 +2599,13 @@ class CreateNC extends Component {
                 );
 
                 dupNCrecords.push({
-                  AuditID: NCrecords[i].AuditID,
-                  Uploaded: NCrecords[i].Uploaded,
-                  Pending: NCrecords[i].Pending,
+                  AuditID: NCrecords[i]?.AuditID,
+                  Uploaded: NCrecords[i]?.Uploaded,
+                  Pending: NCrecords[i]?.Pending,
                 });
               }
             }
             console.log(this.state.selectedItemsProcess.length, 'onetwothree');
-           
-           
-          
-            
             if (this.state.selectedItemsProcess.length !== 0 || this.state.selectedItemsProcess.length == 0 ) {
               this.onBuffer(dupNCrecords);
             } else {
@@ -2509,10 +2615,9 @@ class CreateNC extends Component {
                 PageLoader: false,
                 isSavebtn: false,
               });
-              // alert('Please select all mandatory fields111');
+              // alert('Please select all mandatory fields');
             }
           } else {
-            console.log('########fileNames-----------2222', this.state.NCcategoryt,this.state.NCrequestby);
             this.setState({isSaved: false}, () => {
               // , MarkClause: true
               // ---> this.refs.toast.show(strings.Clauses,DURATION.LENGTH_LONG)
@@ -2520,9 +2625,7 @@ class CreateNC extends Component {
           }
         } else {
           // console.log('-->',this.state.NCcategoryt,this.state.NCresponsible,this.state.NCrequestby)
-          console.log('########fileNames-----------', this.state.NCcategoryt,this.state.NCrequestby);
           alert('Please select all mandatory fields');
-
           this.setState({isSaved: false, PageLoader: false}, () => {
             if (this.state.NCrequestby === undefined) {
               this.setState(
@@ -2574,7 +2677,8 @@ class CreateNC extends Component {
               });
             }
             if (
-              this.state.selectedItems.length === 0 && this.state.clauseMandatory === 1 &&
+              this.state.selectedItems.length === 0 &&
+              this.state.clauseMandatory === 1 &&
               this.state.RouteParam == 'NC'
             ) {
               this.setState({
@@ -2638,6 +2742,7 @@ class CreateNC extends Component {
               /** disabling standard requirement field */
               // this.setState({ underline2: true }, () => {
               //this.refs.toast.show(strings.Clauses,3000)
+              // this.refs.toast.show("Please select all mandatory fields.", 4000);
               alert('Please select all mandatory fields');
 
               // })
@@ -2680,7 +2785,8 @@ class CreateNC extends Component {
           // this.state.NCresponsible &&
           this.state.NCrequestby &&
           this.state.selectedItems &&
-          this.state.ofitext
+          this.state.ofitext 
+          // this.state.objEvidence
         ) {
           console.log('this.state.NCcategoryt', this.state.NCcategoryt);
           console.log('this.state.NCrequestby', this.state.NCrequestby);
@@ -2756,8 +2862,6 @@ class CreateNC extends Component {
                 : this.state.recommAction,
           };
           console.log('Information bundled one', BundleArr);
-          console.log('NCrecords?.[i]?.Pending?.[j]', NCrecords?.[i]?.Pending?.[j]);
-
 
           for (var i = 0; i < NCrecords.length; i++) {
             if (NCrecords[i].AuditID === this.state.AuditID) {
@@ -2789,10 +2893,8 @@ class CreateNC extends Component {
                       Category: NCrecords?.[i]?.Pending?.[j]?.Category,
                       // filename: NCrecords?.[i]?.Pending?.[j]?.filename,
                       // filedata: NCrecords?.[i]?.Pending?.[j]?.filedata,
-                      filename:
-                        NCrecords?.[i]?.Pending?.[j].filename,
-                      filedata:
-                        NCrecords?.[i]?.Pending?.[j].filedata,
+                      filename: NCrecords?.[i]?.Pending?.[j].filename,
+                      filedata: NCrecords?.[i]?.Pending?.[j].filedata,
                       auditstatus: NCrecords?.[i]?.Pending?.[j]?.auditstatus,
                       NonConfirmity:
                         NCrecords?.[i]?.Pending?.[j]?.NonConfirmity,
@@ -2818,15 +2920,15 @@ class CreateNC extends Component {
               }
 
               dupNCrecords.push({
-                AuditID: NCrecords[i].AuditID,
-                Uploaded: NCrecords[i].Uploaded,
+                AuditID: NCrecords[i]?.AuditID,
+                Uploaded: NCrecords[i]?.Uploaded,
                 Pending: Information,
               });
             } else {
               dupNCrecords.push({
-                AuditID: NCrecords[i].AuditID,
-                Uploaded: NCrecords[i].Uploaded,
-                Pending: NCrecords[i].Pending,
+                AuditID: NCrecords[i]?.AuditID,
+                Uploaded: NCrecords[i]?.Uploaded,
+                Pending: NCrecords[i]?.Pending,
               });
             }
           }
@@ -2834,7 +2936,6 @@ class CreateNC extends Component {
           console.log('dupNCrecords', dupNCrecords);
 
           // Store audit list in redux store to set it in persistant storage
-          
 
           this.setState(
             {
@@ -2872,7 +2973,7 @@ class CreateNC extends Component {
           this.setState(
             {isSaved: false, PageLoader: false, isSavebtn: false},
             () => {
-              alert('Please select all mandatory fields');
+              alert('Please Fill Mandatory Fields');
 
               if (this.state.NCrequestby === undefined) {
                 this.setState(
@@ -2997,20 +3098,16 @@ class CreateNC extends Component {
       }, 500);
     });
   }
-
   checkFileAlreadyExist = (AttachmentList, response) => {
     for (var i = 0; i < AttachmentList.length; i++) {
       console.log('one:third');
       console.log('one:thirdentering', AttachmentList);
       let filename = response.name.replace(/ /g, '_');
-        var fileExist = AttachmentList.filter(
-          item => item.fileName === filename,
-        );
-        if (fileExist.length > 0) return true;
-      }  
+      var fileExist = AttachmentList.filter(item => item.fileName === filename);
+      if (fileExist.length > 0) return true;
+    }
     return false;
   };
-  
   renderItem = ({item}) => {
     return (
       <View
@@ -3073,6 +3170,7 @@ class CreateNC extends Component {
     );
   };
 
+
   getFileIcon2 = filename => {
     console.log('getfileicon2====', filename);
     const format = getFileFormat(filename);
@@ -3083,10 +3181,10 @@ class CreateNC extends Component {
 
 
   renderEdiitItem = ({item}) => {
-    console.log('FILETYPE:----------123', item.fileName);
+    console.log('FILETYPE:----------123', item?.fileName);
     console.log('FILETYPE:----------123', item);
 
-    const filepath = 'file:/' + item.fileData;
+    const filepath = 'file:/' + item?.fileData;
 
     const format = item.filetype;
 
@@ -3094,9 +3192,9 @@ class CreateNC extends Component {
       <View>
         <TouchableOpacity
           onPress={this.openAttachmentFile.bind(this, filepath)}>
-          {this.getFileIcon(item.fileName, item.fileData)}
+          {this.getFileIcon(item?.fileName, item?.fileData)}
 
-            {/* {format.indexOf('image') === 0 ? (
+          {/* {format.indexOf('image') === 0 ? (
             <View
               style={{
                 flexDirection: 'column',
@@ -3271,6 +3369,7 @@ class CreateNC extends Component {
       
     }
   };
+  
 
   deleteAttachments(value) {
     console.log('XXXXXXXXXXXXXXXXXXXXXXXXXXX', value);
@@ -3302,13 +3401,7 @@ class CreateNC extends Component {
     );
   }
 
-  render() {
-    console.log(
-      'one:Navigation,PARAMS',
-      this.props?.route?.params?.data,
-    );
- 
-    const multiprocess = this.props?.route?.params?.NCOFIDetails?.multiprocess
+   render() {
     console.log(this.state.processdata, 'processautoone');
     console.log('userdetailsdropdown', this.state.requestDropdown);
     console.log(
@@ -3351,14 +3444,11 @@ class CreateNC extends Component {
         name: strings.ProcessL,
         id: 0,
         children: this.state.processdata,
-        // children: this.props?.route?.params?.auditDetailsList,
+        // children: this.props.navigation.state.params?.auditDetailsList,
       },
     ];
 
     console.log('this.state.processdata', this.state.processdata);
-    console.log('param.auditDetailsList',
-      this.props?.route?.params?.auditDetailsList,
-    );
 
     const radio_values = [
       {label: strings.no, value: 1},
@@ -3409,7 +3499,7 @@ class CreateNC extends Component {
               <TouchableOpacity
                 style={{paddingHorizontal: 10}}
                 onPress={() =>
-                  this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)
+                  this.props.navigation.navigate('AuditDashboard')
                 }>
                 <Icon name="home" size={30} color="white" />
               </TouchableOpacity>
@@ -4984,6 +5074,7 @@ class CreateNC extends Component {
     );
   }
 
+
   renderModel(children){
     return(
     Platform.OS == "ios" ?
@@ -5030,7 +5121,7 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
   return {
     storeAuditRecords: auditRecords =>
-    dispatch({type: 'STORE_AUDIT_RECORDS', auditRecords}),
+      dispatch({type: 'STORE_AUDIT_RECORDS', auditRecords}),
     storeNCRecords: ncofiRecords =>
       dispatch({type: 'STORE_NCOFI_RECORDS', ncofiRecords}),
     storeCameraCapture: cameraCapture =>

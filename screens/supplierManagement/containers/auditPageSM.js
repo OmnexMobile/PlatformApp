@@ -3441,7 +3441,7 @@ console.log('checkk838838383',this.props.data.audits);
                       </Text>
                     </View>
                     <View style={styles.boxCard2}>
-                    {this.displayStatusNew(this.props.navigation.state.params.datapass.cStatus)}                                         
+                    {this.displayStatusNew(this.props.route.params.datapass?.cStatus)}                                         
                     </View>
                   </View>
 
@@ -3759,7 +3759,7 @@ console.log('checkk838838383',this.props.data.audits);
                     this.state.AuditProp.cStatus == constant.StatusCompleted? (
                       <View style={{width: '25%'}}>
                         <TouchableOpacity
-                          onPress={once(this.onNavigateTo.bind(this, 4))}
+                          onPress={this.onNavigateTo.bind(this, 4)}
                           style={{
                             alignItems: 'center',
                           }}>
@@ -3776,7 +3776,7 @@ console.log('checkk838838383',this.props.data.audits);
                         'LPA' ? (
                           <View style={{width: '100%'}}>
                             <TouchableOpacity
-                              onPress={once(this.onNavigateTo.bind(this, 4))}
+                              onPress={this.onNavigateTo.bind(this, 4)}
                               style={{alignItems: 'center',}}>
                               {/* <ResponsiveImage source={Images.BTN5} initWidth="26" initHeight="25"/> */}
                               <Icon name="paperclip" size={20} color="white" />
@@ -3804,7 +3804,7 @@ console.log('checkk838838383',this.props.data.audits);
                             }
                       }>
                       <TouchableOpacity
-                        onPress={once(this.onNavigateTo.bind(this, 2))}
+                        onPress={this.onNavigateTo.bind(this, 2)}
                         style={{alignItems: 'center'}}>
                         {/* <ResponsiveImage source={Images.BTN2} initWidth="26" initHeight="25"/> */}
                         <Icon name="list" size={20} color="white" />

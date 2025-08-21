@@ -3963,7 +3963,7 @@ class AllTabAuditList extends Component {
     console.log("AllTab:>To Audit Page :", iAuditDetails);
 
     if (isDownloadedDone) {
-      this.props.navigation.navigate(ROUTES.AUDIT_PAGE, {
+      this.props.navigation.navigate(ROUTES.AUDIT_PAGE_SM, {
         datapass: iAuditDetails,
       });
     } else {
@@ -3972,7 +3972,7 @@ class AllTabAuditList extends Component {
       } else {
         NetInfo.fetch().then(netState => {
           if (netState.isConnected) {
-            this.props.navigation.navigate(ROUTES.AUDIT_PAGE, {
+            this.props.navigation.navigate(ROUTES.AUDIT_PAGE_SM, {
               datapass: iAuditDetails,
             });
           } else {
