@@ -2840,8 +2840,9 @@ class CheckPointDemo extends Component {
     this.refs.toast.show(this.state.displayData, 6000);
   };
 
-  updateCheckPointsValues = () => {
+  updateCheckPointsValues = async () => {
     //console.log('updateCheckPointsValues executed');
+    await AsyncStorage.setItem('redDotActive', 'true');
     let bcontinue = false;
     //  this.updatecheckpointvalues_new();
     var notifyRed = this.props?.route?.params?.notifyRed;

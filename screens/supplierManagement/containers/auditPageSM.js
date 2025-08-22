@@ -69,7 +69,7 @@ class AuditPage extends Component {
 
   constructor(props) {
     super(props);
-    console.log('get this.props', this.props)
+    console.log('get this.props---------******************', this.props)
     this.state = {
       ButtonShowClick: false,
       auditDetailList: null,
@@ -141,6 +141,7 @@ class AuditPage extends Component {
       SITEIDSync: '',
       AUDITPROGORDERSync: '',
       AUDIT_SITE_IDSync: '',
+      statusCheck: ''
     };
 
     Voice.onSpeechStart = this.onSpeechStart;
@@ -238,7 +239,7 @@ class AuditPage extends Component {
     this.setState(
       {
         EnableDownload:
-        this.props?.route?.params?.datapass.AuditStatus && this.props?.route?.params?.datapass.AuditStatus.toString() ===
+        this.props?.route?.params?.datapass?.AuditStatus && this.props?.route?.params?.datapass?.AuditStatus.toString() ===
           '3'
             ? false
             : true,
@@ -452,8 +453,7 @@ class AuditPage extends Component {
   componentWillUnmount() {
     if (Voice.isAvailable) Voice.destroy().then(Voice.removeAllListeners);
   }
-
-  componentWillReceiveProps(props) {
+  async componentWillReceiveProps(props) {
     console.log(
       'navigationparamsauditpagewill',
       this.props?.route?.params,
@@ -469,6 +469,7 @@ class AuditPage extends Component {
       // this.deleteAuditRecord;
       this.deleteAuditRecord.bind(this);
     }
+
     // const isSubmitted = this.props?.route?.params?.isSubmitted;
 
     // console.log(isSubmitted, 'issubmittedrec');
@@ -486,8 +487,8 @@ class AuditPage extends Component {
     if (CurrentPage == ROUTES.AUDIT_PAGE_SM) {
       console.log('Audit summary page focussed!');
       console.log('--AuditPage-PROPS-->', props);
-      console.log('--AuditPage-this.PROPS-->', this.props);
-
+      console.log('--AuditPage-this.PROPS-->', this.props, 'cstatus', this.props?.route?.params?.datapass?.cStatus);
+        AsyncStorage.setItem('CSTATUS',this.props?.route?.params?.datapass?.cStatus);
       this.InitVoice();
       var Data = props.data.audits.audits;
       for (var i = 0; i < Data.length; i++) {
@@ -506,6 +507,9 @@ class AuditPage extends Component {
           }
         }
       }
+    const Audit_Status = await AsyncStorage.getItem('CSTATUS');
+console.log('90900000000',Audit_Status);
+
       this.setState(
         {
           recognized: '',
@@ -519,9 +523,10 @@ class AuditPage extends Component {
           voicePopUp: false,
           isVisible: false,
           suggestionText: '',
+          statusCheck: Audit_Status
         },
         () => {
-          console.log('setSTate called');
+          console.log('setSTate called',this.state.statusCheck);
         },
       );
     } else {
@@ -3146,8 +3151,11 @@ console.log('checkk838838383',this.props.data.audits);
     //console.log('@auditstatus', AuditStatus, PerformStarted, CloseOutStatus);
 
     console.log('status===>', status);
+    console.log('status===>---------------------', this.props?.route?.params,this.props?.route?.params?.datapass?.cStatus);
+
 
     // Set Audit Card color by checking its Status
+    
     switch (status) {
       case constant.StatusScheduled:
         auditColor = '#1081de';
@@ -3181,7 +3189,42 @@ console.log('checkk838838383',this.props.data.audits);
         auditColor = '#BAB614';
         break;
     }
-    console.log('STSCOLOR===>', status);
+    switch (this.state.statusCheck) {
+      case constant.StatusScheduled:
+        auditColor = '#1081de';
+        break;
+      case constant.StatusDownloaded:
+        auditColor = '#cd8cff';
+        break;
+      case constant.StatusCompleted:
+        auditColor = '#00000';
+        break;
+
+      case constant.StatusDV:
+        auditColor = 'red';
+        break;
+      case constant.StatusDVC:
+        auditColor = 'green';
+        break;
+      case constant.Completed:
+        auditColor = 'green';
+        break;
+      case 'In progress':
+        auditColor = '#e88316';
+        break;
+      case constant.StatusNotSynced:
+        auditColor = '#2ec3c7';
+        break;
+      case constant.StatusSynced:
+        auditColor = '#48bcf7';
+        break;
+      default:
+        auditColor = '#BAB614';
+        break;
+    }
+
+
+    console.log('STSCOLOR===>', status, auditColor);
     return (
       <Text
         style={{
@@ -3189,7 +3232,7 @@ console.log('checkk838838383',this.props.data.audits);
           fontSize: Fonts.size.regular,
           fontFamily: 'OpenSans-Bold',
         }}>
-        {status}
+        {status == undefined ? this.state.statusCheck : status}
       </Text>
     );
   };
@@ -3542,10 +3585,10 @@ console.log('checkk838838383',this.props.data.audits);
                       </View>
                       <View style={styles.boxCard2}>
                         <Text numberOfLines={2} style={styles.detailContent}>
-                          {this.props?.route?.params?.datapass?.Plant !==
-                          ''
+                          {this.props?.route?.params?.datapass?.Plant !== '' && 
+                            this.props?.route?.params?.datapass?.Plant !== undefined
                             ? this.props?.route?.params?.datapass?.Plant
-                            : 'N/A'}
+                             : 'N/A'}
                         </Text>
                       </View>
                     </View>
@@ -3559,10 +3602,10 @@ console.log('checkk838838383',this.props.data.audits);
                       </View>
                       <View style={styles.boxCard2}>
                         <Text numberOfLines={2} style={styles.detailContent}>
-                          {this.props?.route?.params?.datapass?.Part !==
-                          ''
+                          {this.props?.route?.params?.datapass?.Part !== '' && 
+                            this.props?.route?.params?.datapass?.Part !== undefined
                             ? this.props?.route?.params?.datapass?.Part
-                            : 'N/A'}
+                             : 'N/A'}
                         </Text>
                       </View>
                     </View>

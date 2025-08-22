@@ -254,12 +254,14 @@ export default StyleSheet.create({
     paddingTop: 0,
     marginTop: 0,
     fontFamily: 'OpenSans-Regular',
+    color: 'black'
   },
   checkPointsTextInput: {
     fontSize: Fonts.size.mediump,
     paddingTop: 2,
     height: 50,
     fontFamily: 'OpenSans-Regular',
+    color:'black'
     // borderBottomColor: 'lightgrey',
     // borderTopWidth: 0.5,
   },

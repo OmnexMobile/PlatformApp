@@ -13,7 +13,6 @@ import {
   Keyboard,
   InteractionManager,
   ActivityIndicator,
-  FlatList
 } from 'react-native';
 import {Images} from '../../auditPro/Themes';
 import styles from '../../auditPro/styles/AuditFormStyle';
@@ -68,7 +67,7 @@ class AuditForm extends Component {
 
   constructor(props) {
     super(props);
-
+    console.log('get this.props----->', props)
     this.state = {
       token: '',
       CheckListbtn: false,
@@ -87,7 +86,6 @@ class AuditForm extends Component {
       isLoaderVisible: false,
       OnlineName: undefined,
       notifyRed: false,
-      auditEdited: false,
       breadCrumbText: undefined,
       ActiveTab: 0,
       MandateCheck: false,
@@ -103,16 +101,13 @@ class AuditForm extends Component {
       generarereport_param: '',
       auditObj: '',
       loopCount: 0,
-      uploadIndex: 0,
-      totalFiles: 0,
-      AuditAttachments: [],
+      uploadIndex : 0,
+      totalFiles:0,
+      AuditAttachments : [],
       FailedAttachments: [],
-      syncStatusLabel: '',
+      syncStatusLabel : '',
       syncMode: 0,
-      manualRedDot: false,      
-     redDotID : '',
-     uploadSpeed: null,
-
+      currentUserData: [],
     };
   }
 
@@ -137,10 +132,7 @@ class AuditForm extends Component {
       }
     }
   }
-  componentWillUnmount() {
-    if (this._navFocusListener) this._navFocusListener.remove();
-  }
-  
+
   async getAccessToken(){
     try {
       const stringifiedUserDetails = await AsyncStorage.getItem('userDetails');
@@ -161,13 +153,12 @@ class AuditForm extends Component {
 
   componentDidMount() {
     // this.getParamsDetails();
-    const AuditID = this.props.navigation.state.params.AuditID;  
     let Files =
       '/' +
       RNFetchBlob.fs.dirs.DocumentDir +
       '/' +
       (Platform.OS == 'ios' ? 'IosFiles' : 'AuditFiles');
-  
+
     console.log('AuditForm:Ios-Android-Path', Files);
     RNFetchBlob.fs.exists(Files).then(exist => {
       if (!exist || exist == '') {
@@ -185,9 +176,10 @@ class AuditForm extends Component {
         });
       }
     });
-  
     console.log('Auditform mounted', this.props);
-  
+    console.log('checkinnngthis.props.navigation.state.params.datapass',this.props?.route?.params?.datapass);
+    // console.log('Recieved props in Audit Form', this.props.navigation.state.params)
+
     if (this.props.data.audits.language === 'Chinese') {
       this.setState({ ChineseScript: true }, () => {
         strings.setLanguage('zh');
@@ -204,27 +196,43 @@ class AuditForm extends Component {
         console.log('Chinese script off', this.state.ChineseScript);
       });
     }
-  
-    if (this.props.navigation.state.params.ChecklistBtn === true) {
-      this.setState({ CheckListbtn: true }, () => {});
+
+    if (this.props?.route?.params?.ChecklistBtn === true) {
+      this.setState({ CheckListbtn: true }, () => {
+        // console.log('Check list button enabled',this.state.CheckListbtn)
+      });
     }
-  
+
     this.setState(
       {
-        token: this.props.data.audits.token,
-        AuditID: AuditID,
-        Checkpointpass: this.props.navigation.state.params.CreateNCdataBundle,
-        breadCrumbText: this.props.navigation.state.params.CreateNCdataBundle.breadCrumb,
+        token: this.props?.data?.audits?.token,
+        // AuditID: this.props.navigation.state.params.AuditID,
+        // Checkpointpass: this.props.navigation.state.params.CreateNCdataBundle,
+        // breadCrumbText:
+        //   this.props.navigation.state.params.CreateNCdataBundle.breadCrumb,
+        AuditID: this.props?.route?.params?.AuditID,
+        Checkpointpass: this.props?.route?.params?.CreateNCdataBundle,
+        breadCrumbText:
+          this.props?.route?.params?.CreateNCdataBundle?.breadCrumb,
+        // breadCrumbText: this.props.navigation.state.params.CreateNCdataBundle.breadCrumb.length > 30 ? this.props.navigation.state.params.CreateNCdataBundle.breadCrumb.slice(0, 30) + '...' : this.props.navigation.state.params.CreateNCdataBundle.breadCrumb
+        // dropPass: this.props.navigation.state.params.DropDownVal
+        // formDetails : this.props.navigation.state.params.FormDetails /*=== undefined ? 'N/A' : this.props.navigation.state.params.FormDetails.FormName*/ ,
+        // ChecklistProp : this.props.navigation.state.params.ChecklistProp,
+        // Checkpointlogic: this.props.navigation.state.params.Checkpointlogic,
       },
       () => {
+        // console.log('this.state.formdetails',this.state.formDetails)
+        // console.log('Form name fetched')
+        // console.log('BreadCrumb', this.state.breadCrumbText)
         console.log('AuditForm>-Checkpointpass', this.state.Checkpointpass);
         console.log('AuditForm>-AuditID', this.state.AuditID);
-  
+
         var auditRecords = this.props.data.audits.auditRecords;
+
         console.log('AuditForm>-auditRecords', auditRecords);
         var AuditCheckpointDetail = undefined;
         var Formdata = undefined;
-  
+
         for (var i = 0; i < auditRecords.length; i++) {
           if (this.state.AuditID == auditRecords[i].AuditId) {
             if (auditRecords[i].Formdata) {
@@ -237,29 +245,26 @@ class AuditForm extends Component {
         this.getFormdeTails();
         console.log('AuditForm>-AuditCheckpointDetail', AuditCheckpointDetail);
         console.log('AuditForm>-Formdata', Formdata);
-  
+
         if (Formdata && AuditCheckpointDetail) {
           this.countStatistics(AuditCheckpointDetail, Formdata);
         }
-      }
+      },
     );
   }
 
-  async componentWillReceiveProps(props) {
+  componentWillReceiveProps(props) {
     var getCurrentPage = [];
     // getCurrentPage = this.props.data.nav.routes;
     // var CurrentPage = getCurrentPage[getCurrentPage.length - 1].routeName;
     var CurrentPage = this.props.route.name
     console.log('--CurrentPage--->', CurrentPage);
 
-    if (CurrentPage == 'AuditForm') {
+    if (CurrentPage == ROUTES.AUDIT_FORM_SM) {
       console.log('Audit form page focussed!');
       console.log('--AuditForm-PROPS-->', props);
       console.log('--AuditForm-this.PROPS-->', this.props);
-        const notifyRedasync = await AsyncStorage.getItem('redDotActive');
-        this.setState({ CheckListbtn: true, redDotID : notifyRedasync }, () => {
-        console.log('Check list button enabled',notifyRedasync)
-        });
+
       console.log('componentWillReceiveProps', props.data.audits.ncofiRecords);
       this.displayNCSync(props.data.audits.ncofiRecords);
     } else {
@@ -368,12 +373,6 @@ class AuditForm extends Component {
       this.setState({ notifyRed: true }, () => {
         console.log('changes done in auditing');
       });
-    }
-     if (
-      this.props.data.audits.isAuditing === true &&
-      this.state.AuditID === this.props.navigation.state.params.AuditID
-    ) {
-      this.setState({ notifyRed: true });
     }
   }
 
@@ -742,7 +741,8 @@ class AuditForm extends Component {
                         : 0,
                       // Score: score_value,
                       ImmediateAction: audits[i].Listdata[j].immediateAction,
-                      Status: audits[i].Status == '' || audits[i].Status == undefined || audits[i].Status == null  ? 0 : parseInt(audits[i].Status),
+                      // Status: audits[i].Status == '' || audits[i].Status == undefined || audits[i].Status == null  ? 0 : parseInt(audits[i].Status),
+                      Status: parseInt(audits[i].Status),
                       FailureCategoryId:
                         audits[i].Listdata[j].FailureCategoryId,
                       FailureReasonId: audits[i].Listdata[j].FailureReasonId,
@@ -753,14 +753,6 @@ class AuditForm extends Component {
                 }
               }
               if (hasListData == true) {
-                console.log(FormIds[kk], 'FormIds1entering loop');
-
-                let delallstatus = audits[i].Listdata.filter(
-                  item =>
-                    item.deleteallattachment == 1 && item.FormId == FormIds[kk],
-                );
-                let delstatus = delallstatus.length >= 1 ? 1 : 0;
-
                 console.log(FormIds[kk], 'FormIds1entering loop');
                 auditRecords.push({
                   // FormId: audits[i].FormId == '' ? 0 : parseInt(audits[i].FormId),
@@ -775,7 +767,6 @@ class AuditForm extends Component {
                   FromDocPro: parseInt(audits[i].FromDocPro),
                   DocumentId: parseInt(audits[i].DocumentId),
                   DocRevNo: parseInt(audits[i].DocRevNo),
-                  deleteallattachment: delstatus,
                   // "Status": parseInt(audits[i].Status),
                   Listdata: auditCheckPoints,
                 });
@@ -929,7 +920,6 @@ class AuditForm extends Component {
               // Sync NC/OFIs to server
               this.handleNCOFIConnection();
             }
-          
           } else {
             this.syncStatus = 0;
             console.log('syncAuditsToServer Failed!');
@@ -975,28 +965,9 @@ class AuditForm extends Component {
   }
 
   async syncFilesToDocPro() {
-    let allattachments = [];
-    for (var i = 0; i < this.auditAttachments.length; i++) {
-      const data = this.auditAttachments[i];
-      console.log(data, 'venkats');
-      //const existPath = await RNFetchBlob.fs.exists(data.File);
-      allattachments.push({
-        filename: data.filename,
-        obj: data.Obj,
-        status: null,
-        path: data.File,
-        exist: true,
-      });
-    }
-    this.setState(
-      {
-        AuditAttachments: allattachments,
-      },
-      () => {
-        this.docProRequest();
-      },
-    );
+    this.docProRequest();
   }
+
   docProRequest() {
     return new Promise(async (resolve, reject) => {
       // Dynamic parameters
@@ -1033,24 +1004,8 @@ class AuditForm extends Component {
       var formRequestArr = [];
       console.log('Forming docpro param', this.auditAttachments);
       let loopCount = 0;
-      let notDownloadedAttach = 0;
       // console.log('CHECKLIST---------2222222', this.checkListObjects);
- if (
-        this.auditAttachments.length > 0 &&
-        this.auditAttachments[0].FormId === 0
-      ) {
-        const updatedAttachments = this.auditAttachments.map(attachment => {
-          return {
-            ...attachment,
-            FormId: -2, // Update FormId to -2
-          };
-        });
-        this.auditAttachments = updatedAttachments;
-        console.log(
-          'checkingjdforfnsdfsfupdatedAttachments',
-          updatedAttachments,
-        );
-      }
+
       const filteredNCArray = this.auditAttachments.filter(item => item.Type === 'NC');
       // console.log('filteredNCArray---------2222222', filteredNCArray);
 
@@ -1101,7 +1056,7 @@ class AuditForm extends Component {
         this.convertFile(this.auditAttachments[i].File, i, 0).then(res => {
           let attachment = this.auditAttachments[res.i];
           console.log('jjhjhsdjhsjdhjasdjhajsdh@@@@@@@@@@',attachment);
-          let ngetfname = attachment.filename.replace(/\s+/g, '');
+          let ngetfname = attachment.filename;
           console.log('jjhjhsdjhsjdhjasdjhajsdh@@@@@@@@@@ngetfname',ngetfname);
           
           let ntemplateid = attachment.Id;
@@ -1117,7 +1072,7 @@ class AuditForm extends Component {
         nobj = combinedArray.filter(item => item.filename === ngetfname && item.FormId === nformid);
         console.log("attachment.Type777777",attachment.Type,nobj);
       }else{
-        nobj = combinedArray.filter(item => item.filename.replace(/\s+/g, '') === ngetfname && item.templateId == ntemplateid && item.formId === nformid);
+        nobj = combinedArray.filter(item => item.filename === ngetfname && item.templateId == ntemplateid && item.formId === nformid);
         console.log("attachment.Type777777",attachment.Type,nobj)
       }
           console.log("Sync:conver", nobj, nobj[0]);
@@ -1174,19 +1129,6 @@ class AuditForm extends Component {
             );
             this.attachmentFileApiCall(formRequestArr);
 
-          }else {
-            this.updateAttachmentStatus(null, res.i, null);
-            notDownloadedAttach++;
-            console.log(
-              'notDownloadedAttach',
-              notDownloadedAttach,
-              res.i,
-              this.auditAttachments,
-            );
-          }
-          if (notDownloadedAttach === this.auditAttachments.length) {
-            notDownloadedAttach = 0;
-            this.setSyncCompleted();
           }
         });
 
@@ -1197,15 +1139,18 @@ class AuditForm extends Component {
     });
   }
   attachmentFileApiCall(formRequestArr) {
-    var token = this.props.data.audits.token;
+    var token = this.state.currentUserData?.accessToken || this.props.data.audits.token;
+
     console.log('fromrequestArrayCHECK-------', formRequestArr);
+    //const objValues = this.checkListObjects.map(item => item.obj);
+    // console.log('fromrequestArrayCHECK--objjjj-----', objValues);
+
     const formRequestArrPush = [];
     console.log('arraychjdhfjshf-0', arraylistData);
     const arraylistData = formRequestArr;
     console.log('arraychjdhfjshf-1', arraylistData);
     //const objArray = objValues;
     console.log('arraychjdhfjshf-2', arraylistData);
-    let allattachments = [];
     arraylistData.forEach((data, index) => {
       const formRequestObj = {
         dnum: data.dnum,
@@ -1239,701 +1184,359 @@ class AuditForm extends Component {
           userdtfmt: userPrefModel.userdtfmt,
           UserDtFmtDlm: userPrefModel.UserDtFmtDlm,
         })),
+
       };
 
       // Push the object into the array
       formRequestArrPush.push(formRequestObj);
     });
-
-    const initializedAttachments = formRequestArrPush.map(item => ({
-      filename: item.filename,
-      obj: item.obj,
-      path: item.filepath,
-      status: null,
-      exist: true,
-    }));
-
-    this.setState(
-      {
-        //AuditAttachments: allattachments,
-        uploadIndex: 0,
-        totalFiles: formRequestArrPush.length,
-        FailedAttachments: [],
-        AuditAttachments: initializedAttachments,
-      },
-      () => {
-        this.uploadFileSync(formRequestArrPush, token);
-        console.log('formRequestArrPush--------', formRequestArrPush);
-      },
-    );
-  }
-  checkFileExist(path) {
-    console.log('Attachment:>path', path);
-    return new Promise((resolve, reject) => {
-      RNFetchBlob.fs
-        .exists(path)
-        .then(exist => {
-          resolve(exist);
-        })
-        .catch(() => {
-          resolve(false);
-        });
-    });
-  }
-    setSyncCompleted() {
-    this.syncStatus = parseInt(this.syncStatus) + 1;
-    this.setState(
-      {
-        syncStatusLabel:
-          this.state.FailedAttachments.length === 0
-            ? 'Sync to Server Completed.'
-            : 'Sync to Server Completed with failed Attachment(s)',
-        syncMode: this.state.FailedAttachments.length > 0 ? 2 : 4,
-      },
-      () => {
-        console.log('Document Successfully Sequence Completed');
-      },
-    );
-  }
-  uploadFileSync = (formRequestArrPush, token) => {
-    let index = this.state.uploadIndex;
-    const formRequestObj = formRequestArrPush[index];
-    const attachmentsArr = [];
-    let failedAttachments = this.state.FailedAttachments;
-    attachmentsArr.push(formRequestObj);
-  
-    if (index <= formRequestArrPush.length - 1) {
-      this.checkFileExist(formRequestObj.filepath).then(exist => {
-        if (exist) {
-          auth.getdocProAttachment(attachmentsArr, token, (res, data) => {
-            console.log('120 formRequestArr response', data);
-            console.log(
-              '120 formRequestArr response formRequestArr-',
-              formRequestArrPush,
-            );
-  
-            if (data.data) {
-              if (data.data.Message === 'Success') {
-                this.updateAttachmentStatus(true, index);
-                if (this.state.uploadIndex >= formRequestArrPush.length - 1) {
-                  this.setSyncCompleted();
-                } else {
-                  this.setState(
-                    {
-                      uploadIndex: parseInt(this.state.uploadIndex) + 1,
-                      syncStatusLabel:
-                        'Syncing Attachment ' +
-                        (this.state.uploadIndex + 1) +
-                        ' of  ' +
-                        this.state.totalFiles,
-                    },
-                    () => {
-                      this.uploadFileSync(formRequestArrPush, token);
-                    },
-                  );
-                }
-              } else {
-                console.log('syncFilesToDocPro Failed!');
-                console.log('auditlog2');
-                failedAttachments.push(formRequestObj);
-                this.updateAttachmentStatus(false, index);
-                this.setState(
-                  {
-                    FailedAttachments: failedAttachments,
-                    uploadIndex: parseInt(this.state.uploadIndex) + 1,
-                  },
-                  () => {
-                    this.uploadFileSync(formRequestArrPush, token);
-                  },
-                );
-              }
-            } else {
-              console.log('syncFilesToDocPro Failed!');
-              this.updateAttachmentStatus(false, index);
-              failedAttachments.push(formRequestObj);
-              console.log('auditlog3');
-              this.setState(
-                {
-                  FailedAttachments: failedAttachments,
-                  uploadIndex: parseInt(this.state.uploadIndex) + 1,
-                },
-                () => {
-                  this.uploadFileSync(formRequestArrPush, token);
-                },
-              );
-            }
-          });
-        } else {
-          console.log('syncFilesToDocPro File Not Exist!');
-          this.updateAttachmentStatus(false, index, false);
-          failedAttachments.push(formRequestObj);
-          this.setState(
-            {
-              FailedAttachments: failedAttachments,
-              uploadIndex: parseInt(this.state.uploadIndex) + 1,
-            },
-            () => {
-              this.uploadFileSync(formRequestArrPush, token);
-            },
-          );
-        }
-      });
-    } else this.setSyncCompleted();
-  };
-  updateAttachmentStatus = (status, index, exist = true) => {
-    let updateAttach = [];
-    for (var z = 0; z < this.state.AuditAttachments.length; z++) {
-      let file = this.state.AuditAttachments[z];
-      if (index === z)
-        updateAttach.push({...file, status: status, exist: exist});
-      else {
-        updateAttach.push(file);
-      }
-    }
-    this.setState(
-      {
-        AuditAttachments: updateAttach,
-      },
-      () => {
-        console.log(
-          'update this.state.AuditAttachment',
-          this.state.AuditAttachments,
-        );
-      },
-    );
-  };
-
-   convertFile = (path, i, j) => {
-    return new Promise((resolve, reject) => {
-      const maxSize = 5 * 1024 * 1024; // 5 MB
-  
-      const handleData = (finalPath) => {
-        RNFetchBlob.fs.stat(finalPath)
-          .then(stat => {
-            if (stat.size > maxSize) {
-              console.warn(`File too large: ${stat.size} bytes`);
-              resolve({ data: null, i, j });
-            } else {
-              RNFetchBlob.fs.readFile(finalPath, 'base64')
-                .then(data => {
-                  console.log(`Base64 size: ${data.length} characters`);
-                  resolve({ data, i, j });
-                })
-                .catch(err => {
-                  console.warn('Base64 conversion failed:', err);
-                  resolve({ data: null, i, j });
-                });
-            }
-          })
-          .catch(err => {
-            console.warn('File stat failed:', err);
-            resolve({ data: null, i, j });
-          });
-      };
-  
-      if (Platform.OS === 'ios') {
-        const IosFilesPath = RNFetchBlob.fs.dirs.DocumentDir + '/' + 'IosFiles';
-        const arr = path.split('/');
-        const uripathIos = IosFilesPath + '/' + arr[arr.length - 1];
-        const decodedPath = decodeURIComponent(uripathIos);
-        handleData(decodedPath);
-      } else {
-        handleData(path);
-      }
-    });
-  };
-
-    OpenFile = path => {
-    const fpath = FileViewer.open('file:/' + path) // absolute-path-to-my-local-file.
-      .then(() => {
-        console.log('Attachmentfile opened');
-      })
-      .catch(err => {
-        console.log('Attachmentfile opened error', err);
-      });
-  };
-  getFileIcon(attach) {
-    let icon = 'file';
-    const filename = attach.filename;
-    if (filename == null || typeof filename == 'undefined' || filename == '')
-      return null;
-    let type =
-      filename !== ''
-        ? filename.substring(filename.lastIndexOf('.') + 1)
-        : 'file';
-    switch (type) {
-      case 'pdf': {
-        icon = 'file-pdf-o';
-        break;
-      }
-      case 'doc':
-      case 'docx': {
-        icon = 'file-word-o';
-        break;
-      }
-      case 'ppt':
-      case 'pps': {
-        icon = 'file-powerpoint-o';
-        break;
-      }
-      case 'xls':
-      case 'xlsx':
-      case 'xlsm': {
-        icon = 'file-excel-o';
-        break;
-      }
-      case 'video':
-      case 'mp4':
-      case 'mpeg': {
-        icon = 'play';
-        break;
-      }
-      case 'image':
-      case 'jpg':
-      case 'png':
-      case 'gif': {
-        icon = 'image';
-        break;
-      }
-      default: {
-        icon = 'file';
-      }
-    }
-
-    return (
-      <View>
-        <Icon
-          name={icon}
-          size={15}
-          color="black"
-          style={{padding: 6, justifyContent: 'center', alignSelf: 'center'}}
-        />
-      </View>
-    );
-  }
-   retryFailedAttachments = async attachment => {
-    const token = this.props.data.audits.token;
-    try {
-      const fileExists = await this.checkFileExist(attachment.path);
-      if (!fileExists) {
-        this.refs.toast.show('File not found');
-        return;
-      }
-      const response = await auth.getdocProAttachment([attachment], token);
-      if (response?.data?.Message === 'Success') {
-        this.updateAttachmentStatus(true, attachment);
-      } else {
-        this.updateAttachmentStatus(false, attachment);
-        this.saveToFailedSyncDB(attachment);
-      }
-    } catch (error) {
-      console.error('Retry failed', error);
-      this.updateAttachmentStatus(false, attachment);
-      this.saveToFailedSyncDB(attachment);
-    }
-  };
-  uploadFailedFileSync = formRequestObj => {
-    const token = this.props.data.audits.token;
-    const attachmentsArr = [];
-    attachmentsArr.push(formRequestObj);
-    auth.getdocProAttachment(attachmentsArr, token, (res, data) => {
+    auth.getdocProAttachment(formRequestArrPush, token, (res, data) => {
       console.log('120 formRequestArr response', data);
-      let updateAttachment = this.state.AuditAttachments;
-      let failedAttachments = this.state.FailedAttachments;
-      let index = updateAttachment.findIndex(
-        item => item.obj === formRequestObj.obj,
+      console.log(
+        '120 formRequestArr response formRequestArr---',
+        formRequestArrPush,
       );
-      let rindex = failedAttachments.findIndex(
-        item => item.obj === formRequestObj.obj,
-      );
+
       if (data.data) {
         if (data.data.Message === 'Success') {
-          this.updateAttachmentStatus(true, index);
-          this.removeFromFailedAttachment(rindex);
+          console.log('syncFilesToDocPro Success!');
+          this.syncStatus = parseInt(this.syncStatus) + 1;
+          this.syncResponseHandle();
         } else {
-          this.updateAttachmentStatus(false, index);
-          this.setState(
-            {
-              syncMode: 2,
-              syncStatusLabel:
-                'Sync to Server Completed with failed Attachment(s)',
-            },
-            () => {
-              this.refs.toast.show(strings.AuditFail, DURATION.LENGTH_LONG);
-            },
-          );
+          console.log('syncFilesToDocPro Failed!');
+          console.log('auditlog2');
+          this.setState({ isLoaderVisible: false }, () => {
+            this.refs.toast.show(strings.AuditFail, DURATION.LENGTH_LONG);
+          });
         }
       } else {
         console.log('syncFilesToDocPro Failed!');
-        this.updateAttachmentStatus(false, index);
-
-        this.setState(
-          {
-            syncMode: 2,
-            syncStatusLabel:
-              'Sync to Server Completed with failed Attachment(s)',
-          },
-          () => {
-            this.refs.toast.show(strings.AuditFail, DURATION.LENGTH_LONG);
-          },
-        );
+        console.log('auditlog3');
+        this.setState({ isLoaderVisible: false }, () => {
+          this.refs.toast.show(strings.AuditFail, DURATION.LENGTH_LONG);
+        });
       }
     });
-  };
-   removeFromFailedAttachment = index => {
-    let FailedAttachments = this.state.FailedAttachments;
-    let newFailedAttachment = [];
-    for (let i = 0; i < FailedAttachments.length; i++) {
-      if (i !== index) {
-        newFailedAttachment.push(FailedAttachments[i]);
-      }
-    }
-    this.setState(
-      {
-        FailedAttachments: newFailedAttachment,
-        syncMode: newFailedAttachment.length === 0 ? 4 : 2,
-        syncStatusLabel:
-          newFailedAttachment.length === 0
-            ? 'Sync to Server Completed'
-            : 'Sync to Server Completed with failed Attachment(s)',
-      },
-      () => {
-        console.log('Retry Attachment Removed', this.state.FailedAttachments);
-        //this.state.syncMode === 4 && this.reDirect()
-      },
-    );
-  };
-reDirect = () => {
-    Alert.alert(
-      'Sync Status',
-      'Sync to Server Completed',
-      [
-        {
-          text: 'Done',
-          onPress: () => {
-            this.syncResponseHandle();
-          },
-        },
-        {
-          text: 'Close',
-          style: 'cancel',
-          onPress: () => {
-            console.log('cancel clicked');
-          },
-        },
-      ],
-      {cancelable: false},
-    );
-  };
-   renderFileUploadStatus = () => {
-    console.log('this.state.AuditAttachments', this.state.AuditAttachments);
-  
-    return (
-      <FlatList
-        data={this.state.AuditAttachments}
-        ListHeaderComponent={() => (
-          <Text
-            style={{
-              paddingBottom: 10,
-              fontWeight: 'bold',
-              alignItems: 'center',
-              alignSelf: 'center',
-            }}>
-            Attachment Status
-          </Text>
-        )}
-        extraData={this.state}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            style={{
-              flex: 1,
-              flexDirection: 'row',
-              borderBottomWidth: 1,
-              minHeight: 40,
-              maxHeight: 60,
-              borderBottomColor: 'lightgrey',
-            }}
-            onPress={() => {
-              if (item.exist === undefined || item.exist === false) {
-                this.refs.toast.show('File not downloaded', DURATION.LENGTH_LONG);
-              } else {
-                this.OpenFile(item.path);
-              }
-            }}
-          >
-            {/* Icon */}
-            <View style={{ justifyContent: 'center', width: '5%', padding: 2 }}>
-              {this.getFileIcon(item)}
-            </View>
-  
-            {/* File name */}
-            <View style={{ width: '75%', justifyContent: 'center' }}>
-              <Text
-                multiline={true}
-                style={{
-                  flexShrink: 1,
-                  paddingLeft: 5,
-                  color: item.exist === false ? 'red' : 'black',
-                }}
-              >
-                {item.filename}
-              </Text>
-            </View>
-  
-            {/* Status icon */}
-            <View
-              style={{
-                width: '20%',
-                height: 40,
-                justifyContent: 'center',
-                alignItems: 'center',
-                alignSelf: 'center',
-              }}
-            >
-              {(() => {
-                if (item.exist === false) {
-                  return <Icon name="warning" size={18} color="red" />;
-                }
-                if (item.status === null) {
-                  return <Bars size={5} color="#1CB8CA" />;
-                }
-                if (item.status === true) {
-                  return <Icon name="check-circle" size={20} color="green" />;
-                }
-                if (item.status === false && item.exist === false) {
-                  return <Icon name="times-circle" size={15} color="red" />;
-                }
-                if (item.status === false) {
-                  return (
-                    <TouchableOpacity onPress={() => this.retryFailedAttachments(item)}>
-                      <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                        <Icon name="refresh" size={15} />
-                        <Text style={{ fontSize: 10, color: 'red' }}>{'Retry'}</Text>
-                      </View>
-                    </TouchableOpacity>
-                  );
-                }
-                return null;
-              })()}
-            </View>
-          </TouchableOpacity>
-        )}
-      />
-    );
-  };
- handleNCOFIConnection() {
-     console.log(
-       'getting local unsaved data',
-       this.props.data.audits.ncofiRecords,
-     );
-     var token = this.props.data.audits.token;
-     var formRequest = [];
-     var dataArr = this.props.data.audits.ncofiRecords;
-     console.log(dataArr, 'duplicatees');
- 
-     for (var i = 0; i < dataArr.length; i++) {
-       console.log(
-         'dataArr[i].AuditID === this.state.AuditID' +
-         dataArr[i].AuditID +
-         '' +
-         this.state.AuditID,
-       );
-       if (dataArr[i].AuditID === this.state.AuditID) {
-         for (var j = 0; j < dataArr[i].Pending.length; j++) {
-           // if (dataArr[i].Pending[j].ChecklistTemplateId !== 0) {
-           console.log('syncing data:', dataArr[i].Pending[j]);
-           console.log('file data:', dataArr[i].Pending[j].filedata);
-           
-           if (dataArr[i].Pending[j].filedata != '') {
-             // Attachments for DocPro sync
-             this.isDocsAvail = true;
-             for (
-               let k = 0;
-               k < dataArr[i].Pending[j].filedata.length;
-               k++
-             ) {
-               // let attachment = dataArr[i].Pending[j].AttachmentList[k];
-               this.auditAttachments.push({
-                 Type: 'NC',
-                 Id: parseInt(dataArr[i].Pending[j].uniqueNCkey),
-                 // obj: '',
-                 File: dataArr[i].Pending[j].filedata[k].fileData,
-                 filename: dataArr[i].Pending[j].filedata[k].fileName,
-                 SiteLevelId: 0,
-                 FormId: parseInt(dataArr[i].Pending[j].Formid)
-               });
-             }
-           }
- 
-           if (dataArr[i].Pending[j].Category === 'NC') {
-             console.log('into NC targeted arr', [i], dataArr[i].Pending[j]);
-             // console.log('into NC targeted arr221212121', dataArr?.[i]?.Pending?.[j]?.filedata[k].filename);
-             const objValues = dataArr[i].Pending[j].filedata.map(item => item.fileName);
-             const formattedImages = objValues.join("', '");
-             console.log("dbdjbfjkshjkfhskjfhsk", formattedImages);
-             const fileDataPath = dataArr[i].Pending[j].filedata.map(item => item.fileData);
-             const fileDataPathNC = fileDataPath.join("', '");
-             console.log("dbdjbfjkshjkfhskjfhskfileDataNC", fileDataPathNC);
- 
-             formRequest.push({
-               Title: dataArr[i].Pending[j].NCNumber ? dataArr[i].Pending[j].NCNumber: ''  ,
-               strProcess:
-                 dataArr[i].Pending[j].selectedItemsProcess.length > 0
-                   ? dataArr[i].Pending[j].selectedItemsProcess.join(',')
-                   : '',
-               CorrectiveId: dataArr[i].Pending[j].AuditID,
-               CategoryId: dataArr[i].Pending[j].categoryDrop
-                 ? dataArr[i].Pending[j].categoryDrop.id
-                 : 0,
-               FileName: formattedImages,//dataArr[i].Pending[j].filename,
-               AttachEvidence: fileDataPathNC,
-               Department: dataArr[i].Pending[j].deptDrop == null || undefined ? 0 :  dataArr[i].Pending[j].deptDrop,
-               AuditStatus:
-                 dataArr[i].Pending[j].auditstatus === ''
-                   ? 0
-                   : isNaN(parseInt(dataArr[i].Pending[j].auditstatus))
-                   ? this.props.navigation.state.params.datapass
-                   : parseInt(dataArr[i].Pending[j].auditstatus),
-               NonConformity: dataArr[i].Pending[j].NonConfirmity,
-               RequestedBy: dataArr[i].Pending[j].requestDrop
-                 ? dataArr[i].Pending[j].requestDrop
-                 : 0,
-               FormId:
-                 dataArr[i].Pending[j].Formid === ''
-                   ? 0
-                   : parseInt(dataArr[i].Pending[j].Formid),
-               SiteId: dataArr[i].Pending[j].SiteID,
-               ChecklistId:
-               dataArr[i].Pending[j].ChecklistTemplateId === ''
-                 ? 0
-                 : parseInt(dataArr[i].Pending[j].ChecklistTemplateId),
-               // ChecklistId:1,
-               //   dataArr[i].Pending[j].ChecklistTemplateId === ''
-               //     ? 0
-               //     : parseInt(dataArr[i].Pending[j].ChecklistTemplateId),
-               // ElementID: dataArr[i].Pending[j].selectedItems
-               //   ? dataArr[i].Pending[j].selectedItems.join(',')
-               //   : 0,
-               ResponsibilityUser: dataArr[i].Pending[j].userDrop.id,
-               // dataArr[i].Pending[j].userDrop
-               //   ? dataArr[i].Pending[j].userDrop.id
-               //   : 0,
-               NCIdentifier:
-                 dataArr[i].Pending[j].ncIdentifier === undefined
-                   ? ''
-                   : dataArr[i].Pending[j].ncIdentifier,
-               ObjectiveEvidence:  dataArr[i].Pending[j].objEvidence,
-                 // dataArr[i].Pending[j].objEvidence === undefined
-                 //   ? ''
-                 //   : dataArr[i].Pending[j].objEvidence,
-               RecommendedAction:
-                 dataArr[i].Pending[j].recommAction === undefined
-                   ? ''
-                   : dataArr[i].Pending[j].recommAction,
-               uniqueNCkey: dataArr[i].Pending[j].uniqueNCkey,
-               // ElementId:1,
-               ElementID: dataArr[i].Pending[j].selectedItems
-               ? dataArr[i].Pending[j].selectedItems.join(',')
-               : 0,
-               // Conformance: "",
-               ProcessID:1,
-               DocumentRef:dataArr[i].Pending[j].documentRef,
-               FailureCategoryId:dataArr[i].Pending[j].failureDrop.value
-             });
-             console.log("sjkdfjjksdfkjsdfk45343formRequest",formRequest);
-           } else if (dataArr[i].Pending[j].Category === 'OFI') {
-             const objValues = dataArr[i].Pending[j].filedata.map(item => item.fileName);
-             const formattedImages = objValues.join("', '");
-             console.log("dbdjbfjkshjkfhskjfhsk", formattedImages);
-             const fileDataPath = dataArr[i].Pending[j].filedata.map(item => item.fileData);
-             const fileDataPathNC = fileDataPath.join("', '");
-             console.log("dbdjbfjkshjkfhskjfhskfileDataNC", fileDataPathNC);
-             console.log('into OFI targeted arr', [i], dataArr[i].Pending[j]);
-             console.log("dbdjbfjkshjkfhskjfhsk", objValues);
-             formRequest.push({
-               strProcess:
-                 dataArr[i].Pending[j].selectedItemsProcess.length > 0
-                   ? dataArr[i].Pending[j].selectedItemsProcess.join(',')
-                   : '',
-               CorrectiveId: dataArr[i].Pending[j].AuditID,
-               CategoryId: dataArr[i].Pending[j].categoryDrop
-                 ? dataArr[i].Pending[j].categoryDrop.id
-                 : 0,
-                 Title: dataArr[i].Pending[j].NCNumber ? dataArr[i].Pending[j].NCNumber: ''  ,
-                 FileName: formattedImages,// dataArr[i].Pending[j].filename,
-               // AttachEvidence:dataArr[i].Pending[j].filedata,
-               Department: dataArr[i].Pending[j].deptDrop == null || undefined ? 0 :  dataArr[i].Pending[j].deptDrop,
- 
-               AuditStatus:
-                 dataArr[i].Pending[j].auditstatus === ''
-                   ? 0
-                   : isNaN(parseInt(dataArr[i].Pending[j].auditstatus))
-                   ? this.props.navigation.state.params.datapass
-                   : parseInt(dataArr[i].Pending[j].auditstatus),
-               RequestedBy: dataArr[i].Pending[j].requestDrop
-                 ? dataArr[i].Pending[j].requestDrop.id
-                 : 0,
-               NonConformity: dataArr[i].Pending[j].OFI,
-               FormId:
-                 dataArr[i].Pending[j].Formid === ''
-                   ? 0
-                   : parseInt(dataArr[i].Pending[j].Formid),
-               SiteId: dataArr[i].Pending[j].SiteID,
-               ChecklistId:
-                 dataArr[i].Pending[j].ChecklistTemplateId === ''
-                   ? 0
-                   : parseInt(dataArr[i].Pending[j].ChecklistTemplateId),
-               ElementID: dataArr[i].Pending[j].selectedItems
-                 ? dataArr[i].Pending[j].selectedItems.join(',')
-                 : 0,
-               ResponsibilityUser: dataArr[i].Pending[j].userDrop
-                 ? dataArr[i].Pending[j].userDrop.id
-                 : 0,
-               NCIdentifier:
-                 dataArr[i].Pending[j].ncIdentifier === undefined
-                   ? ''
-                   : dataArr[i].Pending[j].ncIdentifier,
-               ObjectiveEvidence:
-                 dataArr[i].Pending[j].objEvidence === undefined
-                   ? ''
-                   : dataArr[i].Pending[j].objEvidence,
-               RecommendedAction:
-                 dataArr[i].Pending[j].recommAction === undefined
-                   ? ''
-                   : dataArr[i].Pending[j].recommAction,
-               uniqueNCkey: dataArr[i].Pending[j].uniqueNCkey,
-             });
-           }
- 
-           // }
-         }//j
-       }
- 
-     }
- 
-     console.log('Request array pushed', formRequest, token);
-     this.setState({ generarereport_param: formRequest });
-     console.log('api params stored in generarereport_param state..');
- 
-     if (formRequest) {
-       if (formRequest.length > 0) {
-         console.log('checkncsuccess now formrequest-------');
-         this.formRequestArr(formRequest, token);
-       } else {
-         this.syncStatus = parseInt(this.syncStatus) + 1;
-         console.log('syncNCOFIToServer Skipped!');
-         // Sync audit templates and references to server
-         this.syncAuditFormsToServer();
-       }
-     } else {
-       this.syncStatus = parseInt(this.syncStatus) + 1;
-       console.log('syncNCOFIToServer Skipped!');
-       // Sync audit templates and references to server
-       this.syncAuditFormsToServer();
-     }
-   }
+    console.log('formRequestArrPush--------', formRequestArrPush);
+  }
+  // convertFile = (path, i, j) => {
 
- formRequestArr(formRequest, token) {
+  //   return new Promise((resolve, reject,) => {
+  //     if (Platform.OS == 'ios') {
+  //       let IosFilesPath = RNFetchBlob.fs.dirs.DocumentDir + '/' + 'IosFiles';
+  //       console.log('IosFilesPath--->', IosFilesPath);
+  //       const arr = path.split('/');
+  //       var uripathIos = IosFilesPath + '/' + arr[arr.length - 1];
+  //       const decodedPath = decodeURIComponent(uripathIos);
+  //       RNFetchBlob.fs
+  //         .readFile(decodedPath, 'base64')
+  //         .then(data => {
+  //           console.log(data, 'responseFIlecontent');
+  //           if (data) {
+  //             let retObj = {
+  //               data: data,
+  //               i: i,
+  //               j: j
+  //             }
+  //             console.log('retObj', retObj);
+  //             resolve(retObj);
+  //             // console.log('path found',arrpath)
+  //           }
+  //         })
+  //         .catch(err => {
+  //           resolve(undefined);
+  //           console.warn('path not found====>', err);
+  //         });
+  //     } else {
+  //       RNFetchBlob.fs
+  //         .readFile(path, 'base64')
+  //         .then(data => {
+  //           console.log('FILEPATHGETANDROID------', data);
+  //           let retObj = {
+  //             data: data,
+  //             i: i,
+  //             j: j
+  //           }
+  //           console.log('retObj', retObj);
+  //           resolve(retObj);
+  //         })
+  //         .catch(err => {
+  //           resolve(undefined);
+  //           console.log('Error in converting', err);
+  //         });
+  //     }
+  //   });
+  // };
+  convertFile = (path, i, j) => {
+ 
+    return new Promise((resolve, reject,) => {
+      if (Platform.OS == 'ios') {
+        let IosFilesPath = RNFetchBlob.fs.dirs.DocumentDir + '/' + 'IosFiles';
+        console.log('IosFilesPath--->', IosFilesPath);
+        const arr = path.split('/');
+        var uripathIos = IosFilesPath + '/' + arr[arr.length - 1];
+        const decodedPath = decodeURIComponent(uripathIos);
+        RNFetchBlob.fs
+          .readFile(decodedPath, 'base64')
+          .then(data => {
+            console.log(data, 'responseFIlecontent');
+            if (data) {
+              let retObj = {
+                data: data,
+                i: i,
+                j: j
+              }
+              console.log('retObj', retObj);
+              resolve(retObj);
+              // console.log('path found',arrpath)
+            }
+          })
+          .catch(err => {
+            resolve({data:null,i:i,j:j});
+            console.warn('path not found====>', err);
+          });
+      } else {
+        RNFetchBlob.fs
+          .readFile(path, 'base64')
+          .then(data => {
+            console.log('FILEPATHGETANDROID------', data);
+            let retObj = {
+              data: data,
+              i: i,
+              j: j
+            }
+            console.log('retObj', retObj);
+            resolve(retObj);
+          })
+          .catch(err => {
+            resolve({data:null,i:i,j:j});
+            console.log('Error in converting', err);
+          });
+      }
+    });
+  }
+ 
+  handleNCOFIConnection() {
+    console.log(
+      'getting local unsaved data',
+      this.props.data.audits.ncofiRecords,
+    );
+    var token = this.state.currentUserData?.accessToken || this.props.data.audits.token;
+    var formRequest = [];
+    var dataArr = this.props.data.audits.ncofiRecords;
+    console.log(dataArr, 'duplicatees');
+
+    for (var i = 0; i < dataArr.length; i++) {
+      console.log(
+        'dataArr[i].AuditID === this.state.AuditID' +
+        dataArr[i].AuditID +
+        '' +
+        this.state.AuditID,
+      );
+      if (dataArr[i].AuditID === this.state.AuditID) {
+        for (var j = 0; j < dataArr[i].Pending.length; j++) {
+          console.log('syncing pending data:', dataArr[i].Pending);
+
+          // if (dataArr[i].Pending[j].ChecklistTemplateId !== 0) {
+          console.log('syncing data:', dataArr[i].Pending[j]);
+          console.log('file data:', dataArr[i].Pending[j].filedata);
+          
+          if (dataArr[i].Pending[j].filedata != '') {
+            // Attachments for DocPro sync
+            this.isDocsAvail = true;
+            for (
+              let k = 0;
+              k < dataArr[i].Pending[j].filedata.length;
+              k++
+            ) {
+              // let attachment = dataArr[i].Pending[j].AttachmentList[k];
+              this.auditAttachments.push({
+                Type: 'NC',
+                Id: parseInt(dataArr[i].Pending[j].uniqueNCkey),
+                // obj: '',
+                File: dataArr[i].Pending[j].filedata[k].fileData,
+                filename: dataArr[i].Pending[j].filedata[k].fileName,
+                SiteLevelId: 0,
+                FormId: parseInt(dataArr[i].Pending[j].Formid)
+              });
+            }
+          }
+
+          if (dataArr[i].Pending[j].Category === 'NC') {
+            console.log('into NC targeted arr', [i], dataArr[i].Pending[j]);
+            // console.log('into NC targeted arr221212121', dataArr?.[i]?.Pending?.[j]?.filedata[k].filename);
+            const objValues = dataArr[i].Pending[j].filedata.map(item => item.fileName);
+            const formattedImages = objValues.join("', '");
+            console.log("dbdjbfjkshjkfhskjfhsk", formattedImages);
+            const fileDataPath = dataArr[i].Pending[j].filedata.map(item => item.fileData);
+            const fileDataPathNC = fileDataPath.join("', '");
+            console.log("dbdjbfjkshjkfhskjfhskfileDataNC", fileDataPathNC);
+
+            formRequest.push({
+              Title: dataArr[i].Pending[j].NCNumber ? dataArr[i].Pending[j].NCNumber: ''  ,
+              strProcess:
+                dataArr[i].Pending[j].selectedItemsProcess.length > 0
+                  ? dataArr[i].Pending[j].selectedItemsProcess.join(',')
+                  : '',
+              CorrectiveId: dataArr[i].Pending[j].AuditID,
+              // CategoryId: dataArr[i].Pending[j].categoryDrop
+              //   ? dataArr[i].Pending[j].categoryDrop.id
+              //   : 0,
+              CategoryId: dataArr[i].Pending[j].CategoryId == 0 ? 0 : dataArr[i].Pending[j].categoryDrop
+                ? dataArr[i].Pending[j].categoryDrop.id
+                : 0,
+              FileName: formattedImages,//dataArr[i].Pending[j].filename,
+              AttachEvidence: fileDataPathNC,
+              Department: dataArr[i].Pending[j].deptDrop == null || undefined ? 0 :  dataArr[i].Pending[j].deptDrop,
+              AuditStatus:
+                dataArr[i].Pending[j].auditstatus === ''
+                  ? 0
+                  : isNaN(parseInt(dataArr[i].Pending[j].auditstatus))
+                  ? this.props?.route?.params?.datapass
+                  : parseInt(dataArr[i].Pending[j].auditstatus),
+              NonConformity: dataArr[i].Pending[j].NonConfirmity,
+              RequestedBy: dataArr[i].Pending[j].requestDrop
+                ? dataArr[i].Pending[j].requestDrop
+                : 0,
+              FormId:
+                dataArr[i].Pending[j].Formid === ''
+                  ? 0
+                  : parseInt(dataArr[i].Pending[j].Formid),
+              SiteId: dataArr[i].Pending[j].SiteID,
+              ChecklistId:
+              dataArr[i].Pending[j].ChecklistTemplateId === ''
+                ? 0
+                : parseInt(dataArr[i].Pending[j].ChecklistTemplateId),
+              // ChecklistId:1,
+              //   dataArr[i].Pending[j].ChecklistTemplateId === ''
+              //     ? 0
+              //     : parseInt(dataArr[i].Pending[j].ChecklistTemplateId),
+              // ElementID: dataArr[i].Pending[j].selectedItems
+              //   ? dataArr[i].Pending[j].selectedItems.join(',')
+              //   : 0,
+              ResponsibilityUser: dataArr[i].Pending[j].userDrop.id,
+              // dataArr[i].Pending[j].userDrop
+              //   ? dataArr[i].Pending[j].userDrop.id
+              //   : 0,
+              NCIdentifier:
+                dataArr[i].Pending[j].ncIdentifier === undefined
+                  ? ''
+                  : dataArr[i].Pending[j].ncIdentifier,
+              ObjectiveEvidence:  dataArr[i].Pending[j].objEvidence,
+                // dataArr[i].Pending[j].objEvidence === undefined
+                //   ? ''
+                //   : dataArr[i].Pending[j].objEvidence,
+              RecommendedAction:
+                dataArr[i].Pending[j].recommAction === undefined
+                  ? ''
+                  : dataArr[i].Pending[j].recommAction,
+              uniqueNCkey: dataArr[i].Pending[j].uniqueNCkey,
+              // ElementId:1,
+              ElementID: dataArr[i].Pending[j].selectedItems
+              ? dataArr[i].Pending[j].selectedItems.join(',')
+              : 0,
+              // Conformance: "",
+              ProcessID:1,
+              DocumentRef:dataArr[i].Pending[j].documentRef,
+              FailureCategoryId:dataArr[i].Pending[j].failureDrop.value
+            });
+            console.log("sjkdfjjksdfkjsdfk45343formRequest",formRequest);
+          } else if (dataArr[i].Pending[j].Category === 'OFI') {
+            const objValues = dataArr[i].Pending[j].filedata.map(item => item.fileName);
+            const formattedImages = objValues.join("', '");
+            console.log("dbdjbfjkshjkfhskjfhsk", formattedImages);
+            const fileDataPath = dataArr[i].Pending[j].filedata.map(item => item.fileData);
+            const fileDataPathNC = fileDataPath.join("', '");
+            console.log("dbdjbfjkshjkfhskjfhskfileDataNC", fileDataPathNC);
+            console.log('into OFI targeted arr', [i], dataArr[i].Pending[j]);
+            console.log("dbdjbfjkshjkfhskjfhsk", objValues);
+            formRequest.push({
+              strProcess:
+                dataArr[i].Pending[j].selectedItemsProcess.length > 0
+                  ? dataArr[i].Pending[j].selectedItemsProcess.join(',')
+                  : '',
+              CorrectiveId: dataArr[i].Pending[j].AuditID,
+              // CategoryId: dataArr[i].Pending[j].categoryDrop
+              //   ? dataArr[i].Pending[j].categoryDrop.id
+              //   : 0,
+              CategoryId: dataArr[i].Pending[j].CategoryId == 0 ? 0 : dataArr[i].Pending[j].categoryDrop
+                ? dataArr[i].Pending[j].categoryDrop.id
+                : 0,
+                Title: dataArr[i].Pending[j].NCNumber ? dataArr[i].Pending[j].NCNumber: ''  ,
+                FileName: formattedImages,// dataArr[i].Pending[j].filename,
+              // AttachEvidence:dataArr[i].Pending[j].filedata,
+              Department: dataArr[i].Pending[j].deptDrop == null || undefined ? 0 :  dataArr[i].Pending[j].deptDrop,
+
+              AuditStatus:
+                dataArr[i].Pending[j].auditstatus === ''
+                  ? 0
+                  : isNaN(parseInt(dataArr[i].Pending[j].auditstatus))
+                  ? this.props?.route?.params?.datapass
+                  : parseInt(dataArr[i].Pending[j].auditstatus),
+              RequestedBy: dataArr[i].Pending[j].requestDrop
+                ? dataArr[i].Pending[j].requestDrop.id
+                : 0,
+              NonConformity: dataArr[i].Pending[j].OFI,
+              FormId:
+                dataArr[i].Pending[j].Formid === ''
+                  ? 0
+                  : parseInt(dataArr[i].Pending[j].Formid),
+              SiteId: dataArr[i].Pending[j].SiteID,
+              ChecklistId:
+                dataArr[i].Pending[j].ChecklistTemplateId === ''
+                  ? 0
+                  : parseInt(dataArr[i].Pending[j].ChecklistTemplateId),
+              ElementID: dataArr[i].Pending[j].selectedItems
+                ? dataArr[i].Pending[j].selectedItems.join(',')
+                : 0,
+              ResponsibilityUser: dataArr[i].Pending[j].userDrop
+                ? dataArr[i].Pending[j].userDrop.id
+                : 0,
+              NCIdentifier:
+                dataArr[i].Pending[j].ncIdentifier === undefined
+                  ? ''
+                  : dataArr[i].Pending[j].ncIdentifier,
+              ObjectiveEvidence:
+                dataArr[i].Pending[j].objEvidence === undefined
+                  ? ''
+                  : dataArr[i].Pending[j].objEvidence,
+              RecommendedAction:
+                dataArr[i].Pending[j].recommAction === undefined
+                  ? ''
+                  : dataArr[i].Pending[j].recommAction,
+              uniqueNCkey: dataArr[i].Pending[j].uniqueNCkey,
+            });
+          }
+
+          // }
+        }//j
+      }
+
+    }
+
+    console.log('Request array pushed', formRequest, token);
+    this.setState({ generarereport_param: formRequest });
+    console.log('api params stored in generarereport_param state..');
+
+    if (formRequest) {
+      if (formRequest.length > 0) {
+        console.log('checkncsuccess now formrequest-------');
+        this.formRequestArr(formRequest, token);
+      } else {
+        this.syncStatus = parseInt(this.syncStatus) + 1;
+        console.log('syncNCOFIToServer Skipped!');
+        // Sync audit templates and references to server
+        this.syncAuditFormsToServer();
+      }
+    } else {
+      this.syncStatus = parseInt(this.syncStatus) + 1;
+      console.log('syncNCOFIToServer Skipped!');
+      // Sync audit templates and references to server
+      this.syncAuditFormsToServer();
+    }
+  }
+
+  formRequestArr(formRequest, token) {
     var datapass = formRequest;
     var TOKEN = token;
     this.ncOfiObjects = [];
@@ -1941,7 +1544,7 @@ reDirect = () => {
     console.log('keypass', datapass);
 
     auth.syncNCOFIToServer(datapass, TOKEN, (res, data) => {
-      console.log('syncNCOFIToServer----------------------', data);
+      console.log("syncNCOFIToServer----------------------",data);
       if (data.data) {
         if (data.data.Message === 'Success') {
           for (var i = 0; i < data.data.Data.length; i++) {
@@ -1956,8 +1559,8 @@ reDirect = () => {
             let matches = auditObj.match(regex);
 
             var auditObjList = auditObj.split('|');
-            console.log('gdhsjgdhjsdgfjhdsgfauditObjList', auditObjList);
-            console.log('gdhsjgdhjsdgfjhdsgfauditObjListmatches', matches);
+            console.log('gdhsjgdhjsdgfjhdsgfauditObjList',auditObjList);
+            console.log('gdhsjgdhjsdgfjhdsgfauditObjListmatches',matches);
             if (matches) {
               matches.forEach(match => {
                 // for(var j = 0; j < matches.length; j++){
@@ -1965,21 +1568,19 @@ reDirect = () => {
                   uniqueNCkey: uniqueNCkey,
                   obj: match,
                   siteLevelId: auditSiteLevelID,
+                  
                 });
-                // }
+              // }
               });
             }
-            //   for (var j = 0; j < auditObjList.length; i++) {
-            //   this.ncOfiObjects.push({
-
-            //   });
-            // }
+          //   for (var j = 0; j < auditObjList.length; i++) {
+          //   this.ncOfiObjects.push({
+              
+          //   });
+          // }
             console.log('120 NCOFIObjectsArr', this.ncOfiObjects);
           }
-          console.log(
-            '120 NCOFIObjectsArrauditAttachments',
-            this.auditAttachments,
-          );
+          console.log('120 NCOFIObjectsArrauditAttachments', this.auditAttachments);
 
           // for (var i = 0; i < this.auditAttachments.length; i++) {
           //   for (var j = 0; j < this.ncOfiObjects.length; j++) {
@@ -2005,20 +1606,17 @@ reDirect = () => {
           let replaceIndex = 0;
 
           this.auditAttachments.forEach((item1, index1) => {
-            if (item1.Type === 'NC' || 'OFI') {
-              console.log('jdfjdfjdjfh', item1, index1);
-              const matchingItems2 = this.ncOfiObjects.filter(
-                item2 => item2.uniqueNCkey === item1.Id.toString(),
-              );
-              console.log('jdfjdfjdjfhwewerererer', matchingItems2);
+      if (item1.Type === 'NC' || 'OFI') {
+        console.log('jdfjdfjdjfh',item1,index1);
+        const matchingItems2 = this.ncOfiObjects.filter(item2 => item2.uniqueNCkey === item1.Id.toString());
+        console.log('jdfjdfjdjfhwewerererer',matchingItems2);
 
-              if (matchingItems2.length > 0) {
-                this.auditAttachments[index1].Obj =
-                  matchingItems2[replaceIndex % matchingItems2.length].obj;
-                replaceIndex++;
-              }
-            }
-          });
+        if (matchingItems2.length > 0) {
+          this.auditAttachments[index1].Obj = matchingItems2[replaceIndex % matchingItems2.length].obj;
+          replaceIndex++;
+        }
+      }
+    });
           console.log(
             'Request formed after audit formed4545454545',
             this.auditAttachments,
@@ -2041,6 +1639,7 @@ reDirect = () => {
       }
     });
   }
+
   updateFormUploadDetails = () => {
     console.log('this.state.formDetails', this.state.formDetails);
     var auditRecordsOrg = this.props.data.audits.auditRecords;
@@ -2094,7 +1693,8 @@ reDirect = () => {
         AuditProgramId: this.props.data.audits.smdata == 2 ? -2 : auditRecordsOrg[p].AuditTemplateId,
         AuditTypeId: auditRecordsOrg[p].AuditTypeId,
         SiteId: auditRecordsOrg[p].SiteId,
-        Status:  auditRecordsOrg[p].Status == '' || auditRecordsOrg[p].Status == undefined || auditRecordsOrg[p].Status == null  ? 0 : auditRecordsOrg[p].Status,
+        // Status:  auditRecordsOrg[p].Status == '' || auditRecordsOrg[p].Status == undefined || auditRecordsOrg[p].Status == null  ? 0 : auditRecordsOrg[p].Status,
+        Status:  auditRecordsOrg[p].Status,
         AssignedTaskRoutes: auditRecordsOrg[p].AssignedTaskRoutes,
         AssociatesName: auditRecordsOrg[p].AssociatesName,
         AuditConductedByName: auditRecordsOrg[p].AuditConductedByName,
@@ -2204,7 +1804,7 @@ reDirect = () => {
         AuditProgramId:this.props.data.audits.smdata == 2 ? -2 : auditListOrg[i].AuditTemplateId,
         AuditProgramName: auditListOrg[i].AuditProgramName,
         // AuditStatus: auditListOrg[i].AuditStatus,
-        AuditStatus: this.props.navigation.state.params.datapassParam.AuditStatus,
+        AuditStatus: this.props?.route?.params?.datapassParam?.AuditStatus,
         AuditTemplateId: auditListOrg[i].AuditTemplateId,
         AuditTypeId: auditListOrg[i].AuditTypeId,
         AuditTypeName: auditListOrg[i].AuditTypeName,
@@ -2275,8 +1875,6 @@ reDirect = () => {
                 scoreInvalidMsg: auditRecordsOrg[p].Listdata[q].scoreInvalidMsg,
                 nc_available_status: true,
                 ofi_avialable_status: true,
-                deleteallattachment:
-                  auditRecordsOrg[p].Listdata[q].deleteallattachment,
               });
             }
           }
@@ -2289,7 +1887,8 @@ reDirect = () => {
           AuditProgramId: this.props.data.audits.smdata == 2 ? -2 : auditRecordsOrg[p].AuditTemplateId,
           AuditTypeId: auditRecordsOrg[p].AuditTypeId,
           SiteId: auditRecordsOrg[p].SiteId,
-          Status: auditRecordsOrg[p].Status == '' || auditRecordsOrg[p].Status == undefined || auditRecordsOrg[p].Status == null? 0 : auditRecordsOrg[p].Status,
+          // Status: auditRecordsOrg[p].Status == '' || auditRecordsOrg[p].Status == undefined || auditRecordsOrg[p].Status == null? 0 : auditRecordsOrg[p].Status,
+          Status:  auditRecordsOrg[p].Status,
           AssignedTaskRoutes: auditRecordsOrg[p].AssignedTaskRoutes,
           AssociatesName: auditRecordsOrg[p].AssociatesName,
           AuditConductedByName: auditRecordsOrg[p].AuditConductedByName,
@@ -2340,7 +1939,8 @@ reDirect = () => {
           AuditProgramId: this.props.data.audits.smdata == 2 ? -2 : auditRecordsOrg[p].AuditTemplateId,
           AuditTypeId: auditRecordsOrg[p].AuditTypeId,
           SiteId: auditRecordsOrg[p].SiteId,
-          Status: auditRecordsOrg[p].Status == '' || auditRecordsOrg[p].Status == undefined || auditRecordsOrg[p].Status == null? 0 : auditRecordsOrg[p].Status,
+          // Status: auditRecordsOrg[p].Status == '' || auditRecordsOrg[p].Status == undefined || auditRecordsOrg[p].Status == null? 0 : auditRecordsOrg[p].Status,
+          Status:  auditRecordsOrg[p].Status,
           AssignedTaskRoutes: auditRecordsOrg[p].AssignedTaskRoutes,
           AssociatesName: auditRecordsOrg[p].AssociatesName,
           AuditConductedByName: auditRecordsOrg[p].AuditConductedByName,
@@ -2409,7 +2009,7 @@ reDirect = () => {
     });
   }
 
-   updateFormdataRecords() {
+  updateFormdataRecords() {
     var auditRecordsOrg = this.props.data.audits.auditRecords;
     var auditRecords = [];
     for (var p = 0; p < auditRecordsOrg.length; p++) {
@@ -2425,7 +2025,8 @@ reDirect = () => {
               AuditProgramId: this.props.data.audits.smdata == 2 ? -2 : auditRecordsOrg[p].AuditTemplateId,
               AuditTypeId: auditRecordsOrg[p].AuditTypeId,
               SiteId: auditRecordsOrg[p].SiteId,
-              Status: auditRecordsOrg[p].Status,
+              // Status: auditRecordsOrg[p].Status == '' || auditRecordsOrg[p].Status == undefined || auditRecordsOrg[p].Status == null ? 0 : auditRecordsOrg[p].Status,
+              Status:  auditRecordsOrg[p].Status,
               AssignedTaskRoutes: auditRecordsOrg[p].AssignedTaskRoutes,
               AssociatesName: auditRecordsOrg[p].AssociatesName,
               AuditConductedByName: auditRecordsOrg[p].AuditConductedByName,
@@ -2486,7 +2087,8 @@ reDirect = () => {
     // AsyncStorage.setItem('AUDIT_SITE_ID',this.state.AUDIT_SITE_ID);
     // AsyncStorage.setItem('AUDIT_STATUS',this.props.navigation.state.params.datapass.AuditStatus);
 // }
-   syncAuditFormsToServer = () => {
+  syncAuditFormsToServer = () => {
+    // this.getParamsDetails();
     var documentList = [];
     const TOKEN = this.state.token;
     var userid = this.props.data.audits.userId;
@@ -2576,7 +2178,7 @@ reDirect = () => {
                     if (
                       this.auditAttachments[i].Type == 'AR' &&
                       this.auditAttachments[i].Id ==
-                        parseInt(this.formObjects[j].formId)
+                      parseInt(this.formObjects[j].formId)
                     ) {
                       this.auditAttachments[i].Obj = this.formObjects[j].obj;
                       this.auditAttachments[i].Id = parseInt(
@@ -2600,30 +2202,22 @@ reDirect = () => {
 
                 if (this.isDocsAvail == true) {
                   // Sync attached documents to docpro
-                    this.setState(
-                    {
-                      syncStatusLabel: 'Syncing Attachments ',
-                      syncMode: 1,
-                    },
-                    () => {
-                      console.log('syncFilesToDocPro started.');
-                      this.syncFilesToDocPro();
-                    },
-                  );
+                  console.log('syncFilesToDocPro started.');
+                  this.syncFilesToDocPro();
                 } else {
                   this.syncStatus = parseInt(this.syncStatus) + 1;
                   this.syncResponseHandle();
                 }
               }
             } else {
-              this.setState({isLoaderVisible: false}, () => {
+              this.setState({ isLoaderVisible: false }, () => {
                 console.log('syncAuditFormsToServer Failed! 1');
                 console.log('auditlog4');
                 this.refs.toast.show(strings.AuditFail, DURATION.LENGTH_LONG);
               });
             }
           } else {
-            this.setState({isLoaderVisible: false}, () => {
+            this.setState({ isLoaderVisible: false }, () => {
               console.log('syncAuditFormsToServer Failure! 2');
               console.log('auditlog5');
               this.refs.toast.show(strings.AuditFail, DURATION.LENGTH_LONG);
@@ -2635,16 +2229,8 @@ reDirect = () => {
         this.syncStatus = parseInt(this.syncStatus) + 1;
         if (this.isDocsAvail == true) {
           // Sync attached documents to docpro
-          this.setState(
-            {
-              syncStatusLabel: 'Syncing Attachments ',
-              syncMode: 1,
-            },
-            () => {
-              console.log('syncFilesToDocPro 2');
-              this.syncFilesToDocPro();
-            },
-          );
+          console.log('syncFilesToDocPro 2');
+          this.syncFilesToDocPro();
         } else {
           this.syncStatus = parseInt(this.syncStatus) + 1;
           this.syncResponseHandle();
@@ -2655,16 +2241,8 @@ reDirect = () => {
       this.syncStatus = parseInt(this.syncStatus) + 1;
       if (this.isDocsAvail == true) {
         // Sync attached documents to docpro
-        this.setState(
-          {
-            syncStatusLabel: 'Syncing Attachments ',
-            syncMode: 1,
-          },
-          () => {
-            console.log('syncFilesToDocPro 3');
-            this.syncFilesToDocPro();
-          },
-        );
+        console.log('syncFilesToDocPro 3');
+        this.syncFilesToDocPro();
       } else {
         this.syncStatus = parseInt(this.syncStatus) + 1;
         this.syncResponseHandle();
@@ -2676,7 +2254,6 @@ reDirect = () => {
     this.setState(
       {
         isSyncing: false,
-        AuditAttachments: [],
       },
       () => {
         console.log('syncResponseHandle --> syncStatus: ' + this.syncStatus);
@@ -2691,12 +2268,12 @@ reDirect = () => {
               for (let b = 0; b < auditRecordsOrg[p].Listdata[z].AttachmentList.length; b++) {
                 let attach = { ...auditRecordsOrg[p].Listdata[z].AttachmentList[b] }
 
-                if (attach.Attachment.indexOf("Added") >= 0 || attach.Attachment.indexOf('added') >= 0) {
+                if (attach.Attachment.indexOf("Added") >= 0) {
                   attach.Attachment = 'Synced';
                 }
                 AttachList.push(attach);
               }
-              ListData.push({ ...auditRecordsOrg[p].Listdata[z], AttachmentList: [...AttachList],deleteallattachment: 0, })
+              ListData.push({ ...auditRecordsOrg[p].Listdata[z], AttachmentList: [...AttachList] })
             }
 
             auditRecords.push({
@@ -2706,7 +2283,8 @@ reDirect = () => {
               AuditProgramId: this.props.data.audits.smdata == 2 ? -2 : auditRecordsOrg[p].AuditTemplateId,
               AuditTypeId: auditRecordsOrg[p].AuditTypeId,
               SiteId: auditRecordsOrg[p].SiteId,
-             Status: auditRecordsOrg[p].Status == '' || auditRecordsOrg[p].Status == undefined || auditRecordsOrg[p].Status == null ? 0 : auditRecordsOrg[p].Status,
+              // Status: auditRecordsOrg[p].Status == '' || auditRecordsOrg[p].Status == undefined || auditRecordsOrg[p].Status == null ? 0 : auditRecordsOrg[p].Status,
+              Status:  auditRecordsOrg[p].Status,
               AssignedTaskRoutes: auditRecordsOrg[p].AssignedTaskRoutes,
               AssociatesName: auditRecordsOrg[p].AssociatesName,
               AuditConductedByName: auditRecordsOrg[p].AuditConductedByName,
@@ -2822,7 +2400,7 @@ reDirect = () => {
               AuditProgramId: this.props.data.audits.smdata == 2 ? -2 : auditListOrg[i].AuditTemplateId,
               AuditProgramName: auditListOrg[i].AuditProgramName,
               // AuditStatus: auditListOrg[i].AuditStatus,
-              AuditStatus: this.props.navigation.state.params.datapassParam.AuditStatus,
+              AuditStatus: this.props?.route?.params?.datapassParam?.AuditStatus,
               AuditTemplateId: auditListOrg[i].AuditTemplateId,
               AuditTypeId: auditListOrg[i].AuditTypeId,
               AuditTypeName: auditListOrg[i].AuditTypeName,
@@ -2842,10 +2420,9 @@ reDirect = () => {
           console.log(auditList, 'auditlistarraydata');
           this.props.storeAudits(auditList);
 
-          // this.props.changeAuditState(false);
+          this.props.changeAuditState(false);
 
-          this.setState({ isLoaderVisible: false }, async () => {
-            await AsyncStorage.setItem('redDotActive', 'false');
+          this.setState({ isLoaderVisible: false }, () => {
             console.log('Sync process completed successfully!');
             console.log(!this.isDocsAvail, 'docavail');
             if (
@@ -2853,18 +2430,17 @@ reDirect = () => {
               this.props.data.audits.smdata === 3
             ) {
               console.log('auditpagegoint');
-            //   if(this.props.data.audits.smdata == 2 || this.props.data.audits.smdata == 3){
-            //   this.props.navigation.navigate('AuditPage', {
-            //     isSubmitted: this.state.notifyRed,
-            //     // isDownloaded : false
-            //   });
-            // }
-           
+              if(this.props.data.audits.smdata == 2 || this.props.data.audits.smdata == 3){
               this.props.navigation.navigate(ROUTES.AUDIT_PAGE_SM, {
-                  isSubmitted: this.state.notifyRed,
+                isSubmitted: this.state.notifyRed,
                 // isDownloaded : false
               });
-            
+            }else{
+               this.props.navigation.navigate(ROUTES.AUDIT_PAGE, {
+                isSubmitted: this.state.notifyRed,
+                // isDownloaded : false
+              });
+            }
             } else if (!this.isDocsAvail) {
               this.refs.toast.show(strings.AuditSync, DURATION.LENGTH_LONG);
               setTimeout(() => {
@@ -3047,7 +2623,7 @@ reDirect = () => {
           }
         }
       } else {
-        FileViewer.open(filepath, {showOpenWithDialog: true})
+        FileViewer.open(filepath, { showOpenWithDialog: true })
           .then(() => {
             console.log(success);
           })
@@ -3058,8 +2634,9 @@ reDirect = () => {
     }
   }
 
+  syncPassword() { }
 
-   StartSyncProcess() {
+  StartSyncProcess() {
     console.log('StartSyncProcess called in Forms page...');
 
     /** Entry point for syncing */
@@ -3077,6 +2654,8 @@ reDirect = () => {
         const check = create({
           baseURL: baseURL + 'CheckConnection',
         });
+        console.log('loggggcheckkkkkk',check);
+        
         check.post().then(response => {
           if (response.duration > constant.ThresholdSpeed) {
             this.setState(
@@ -3084,18 +2663,18 @@ reDirect = () => {
                 isLowConnection: true,
               },
               () => {
-                this.syncAuditsToServer();
+                this.syncAuditsToServer()
 
                 // this.checkUser();
-                console.log('Download response', response);
+                console.log('Download response1', response);
                 console.log('Low network', this.state.isLowConnection);
               },
             );
           } else {
-            this.syncAuditsToServer();
+            this.syncAuditsToServer()
 
             // this.checkUser();
-            console.log('Download response', response);
+            console.log('Download response2', response);
             console.log('Low network', this.state.isLowConnection);
           }
         });
@@ -3103,7 +2682,7 @@ reDirect = () => {
     );
   }
 
-    checkUser() {
+  checkUser() {
     console.log('user id', this.props.data.audits.userId);
     var userid = this.props.data.audits.userId;
     var token = this.props.data.audits.token;
@@ -3137,7 +2716,7 @@ reDirect = () => {
 
           if (Platform.OS == 'android') {
             path =
-              '/data/user/0/com.omnex.auditpro/cache/AuditUser' +
+              '/data/user/0/com.omnex.suppliermanagement/cache/AuditUser' +
               '/' +
               this.propsServerUrl +
               ID;
@@ -3164,7 +2743,7 @@ reDirect = () => {
     });
   }
 
- async checkFilePath() {
+  async checkFilePath() {
     var audits = this.props.data.audits.auditRecords;
     console.log(audits, 'RE====>');
     var pushCLpath = [];
@@ -3174,11 +2753,14 @@ reDirect = () => {
     for (var i = 0; i < audits.length; i++) {
       if (audits[i].AuditId == this.state.Checkpointpass.AuditID) {
         for (var j = 0; j < audits[i].Listdata.length; j++) {
-          let attach = audits[i].Listdata?.[j]?.AttachmentList;
-          console.log('RE====>Attach', attach);
-          let len = audits[i].Listdata?.[j]?.AttachmentList ? attach.length : 0;
-          console.log('RE====>Len', len);
-          if (len > 0 && audits[i].Listdata[j].Modified) {
+          let attach = audits[i].Listdata?.[j]?.AttachmentList
+          console.log("RE====>Attach", attach)
+          let len = audits[i].Listdata?.[j]?.AttachmentList ? attach.length : 0
+          console.log("RE====>Len", len)
+          if (
+            len > 0 &&
+            audits[i].Listdata[j].Modified
+          ) {
             pushCLpath.push(audits[i].Listdata[j]);
           }
         }
@@ -3189,6 +2771,7 @@ reDirect = () => {
     // Para checkpoints
 
     for (var j = 0; j < pushCLpath.length; j++) {
+
       for (var k = 0; k < pushCLpath[j].AttachmentList.length; k++) {
         var attach = pushCLpath[j].AttachmentList[k];
         let checkPath = await this.isPathExist(attach.FileUri);
@@ -3257,13 +2840,13 @@ reDirect = () => {
     if (pushErrPath.length > 0) {
       // perform
       console.log('Broken path detected =========');
-      this.setState({missingFileArr: pushErrPath, isMissingFindings: false});
+      this.setState({ missingFileArr: pushErrPath, isMissingFindings: false });
     } else {
       this.syncAuditsToServer();
     }
   }
 
-   async isPathExist(arrpath) {
+  async isPathExist(arrpath) {
     return new Promise((resolve, reject) => {
       // console.log('arrpath',arrpath)
       if (Platform.OS == 'ios') {
@@ -3303,7 +2886,7 @@ reDirect = () => {
     });
   }
 
-   deleteUserFile(path) {
+  deleteUserFile(path) {
     console.log('RNFS.DocumentDirectoryPath', path);
     var serURL = this.props.data.audits.serverUrl;
     RNFS.exists(path)
@@ -3353,6 +2936,15 @@ reDirect = () => {
   deleteAttachments(item, type) {
     console.log('Item to be deleted', item);
     console.log('Type', type);
+    //** Delete file from ios  files folder */
+    // if(Platform.OS == 'ios'){
+    //       let IosFilesPath = RNFetchBlob.fs.dirs.DocumentDir+'/'+'IosFiles'
+    //       console.log("IosFilesPath--->",IosFilesPath)
+    //       var uripathIos = IosFilesPath+'/'+item.DocName
+    //       if(RNFetchBlob.fs.isDir(IosFilesPath)){
+    //       RNFetchBlob.fs.unlink(uripathIos).then( () => {console.log("IosFilesPath deleted successfully--->")})
+    //       }
+    //   }
 
     if (type == 'ref') {
       var RefList = this.state.RefList;
@@ -3607,11 +3199,8 @@ reDirect = () => {
     return count;
   }
 
-   render() {
+  render() {
     console.log('newformID', this.props.data.audits.auditRecords);
-    const {height} = Dimensions.get('window');
-    const middle = height / 2 - 200;
-    const attachmentHeight = middle + 100;
 
     const attachmentType = [
       {
@@ -3636,6 +3225,7 @@ reDirect = () => {
 
     return (
       <View style={styles.wrapper}>
+        {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
         <OfflineNotice />
 
         <ImageBackground
@@ -3651,10 +3241,11 @@ reDirect = () => {
                 this.state.isLoaderVisible === false
                   ? () => this.props.navigation.goBack()
                   : () => {
-                      console.log('please wait');
-                    }
+                    console.log('please wait');
+                  }
               }>
               <View style={styles.backlogo}>
+                {/* <ResponsiveImage source={Images.BackIconWhite} initWidth="13" initHeight="22" /> */}
                 <Icon name="angle-left" size={30} color="white" />
               </View>
             </TouchableOpacity>
@@ -3663,17 +3254,20 @@ reDirect = () => {
               <Text
                 numberOfLines={1}
                 style={{
-                  fontSize: 15,
+                  fontSize: 14,
                   color: 'white',
                   fontFamily: 'OpenSans-Regular',
                 }}>
                 {this.state.breadCrumbText}
               </Text>
             </View>
+            {/* <View style={{width:Window.width,height:20,position:'absolute',backgroundColor:'yellow'}}>
 
+            </View> */}
             <View style={styles.headerDiv}>
+              {/* <ImageBackground source={Images.headerBG} style={styles.backgroundImage}></ImageBackground> */}
               <TouchableOpacity
-                style={{paddingHorizontal: 10}}
+                style={{ paddingHorizontal: 10 }}
                 onPress={() =>
                   this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)
                 }>
@@ -3682,13 +3276,28 @@ reDirect = () => {
             </View>
           </View>
         </ImageBackground>
-      
-        {this.state.uploadSpeed && (
-  <Text style={{ fontSize: 14, color: 'green', marginVertical: 4 }}>
-    🔼 Upload Speed: {this.state.uploadSpeed}
-  </Text>
-)}
 
+        {/* <View style={styles.secondDiv}>
+          <View style={styles.checktBox}>
+            <View style={{top:0,marginBottom: 5}}>
+              <Text style={{color:'#A0A0A0',fontSize: Fonts.size.h5}}>Online Form</Text>
+            </View>
+            <TouchableOpacity
+            onPress={
+              (this.state.isLoaderVisible === false) ? 
+              this.onCheckPress.bind(this) :
+              () => {console.log('please wait')}
+            }>
+              <LinearGradient start={{x: 0, y: 0}} end={{x: 1, y: 0}} 
+              colors={['#14D0AE', '#1FBFD0', '#2EA4E2']} 
+              style={styles.CheckButton}>
+                <Text style={styles.buttonText}>
+                  Check List
+                </Text>
+              </LinearGradient>
+            </TouchableOpacity>
+          </View>
+        </View> */}
 
         {this.state.isLoaderVisible === false ? (
           <View style={styles.auditPageBody}>
@@ -3719,7 +3328,7 @@ reDirect = () => {
                 tabLabel={strings.Online}
                 style={styles.scrollViewBody}>
                 {this.state.OnlineList.length > 0 ? (
-                  <View style={{marginTop: 60}}>
+                  <View style={{ marginTop: 60 }}>
                     {this.state.OnlineList.map((item, key) => (
                       <View key={key} style={styles.secondDiv}>
                         {console.log(this.state.OnlineList, 'onlinelist==>')}
@@ -3728,15 +3337,39 @@ reDirect = () => {
                             this.state.isLoaderVisible === false
                               ? this.onCheckPress.bind(this, item)
                               : () => {
-                                  console.log('please wait');
-                                }
+                                console.log('please wait');
+                              }
                           }>
                           <LinearGradient
-                            start={{x: 0, y: 0}}
-                            end={{x: 1, y: 0}}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 0 }}
                             colors={['#14D0AE', '#1FBFD0', '#2EA4E2']}
                             style={styles.CheckButton}>
-                            <View style={{width: '95%', height: null}}>
+                            {/* <View style={styles.madatecircleDiv}>
+                              {this.checkMandateCount(item) == 0 ? null : (
+                                <View style={styles.mandatecircle}>
+                                  <Text
+                                    style={{
+                                      color: '#14D0AE',
+                                      fontSize: 20,
+                                      fontFamily: 'OpenSans-Regular',
+                                    }}>
+                                    {this.checkMandateCount(item)}
+                                  </Text>
+                                </View>
+                              )}
+                            </View> */}
+                            {/* <View style={styles.mandatecircle}>
+                                  <Text
+                                    style={{
+                                      color: '#14D0AE',
+                                      fontSize: 20,
+                                      fontFamily: 'OpenSans-Regular',
+                                    }}>
+                                    {this.checkMandateCount(item)}
+                                  </Text>
+                                </View> */}
+                            <View style={{ width: '95%', height: null }}>
                               <Text style={styles.buttonText}>
                                 {item.FormName.length > 30
                                   ? item.FormName.slice(0, 30) + '...'
@@ -3749,31 +3382,19 @@ reDirect = () => {
                     ))}
                   </View>
                 ) : (
-                  <View style={{marginTop: '20%'}}>
-                    <View
+                  <View style={{ marginTop: 55 }}>
+                    <Text
                       style={{
-                        flexDirection: 'row',
-                        justifyContent: 'center',
+                        width: width(90),
+                        textAlign: 'center',
+                        marginTop: 45,
+                        fontSize: Fonts.size.h5,
+                        paddingTop: 40,
+                        color: 'grey',
+                        fontFamily: 'OpenSans-Regular',
                       }}>
-                      <Image
-                        source={Images.emptybox}
-                        style={{height: 50, resizeMode: 'contain'}}
-                      />
-                    </View>
-                    <View style={{}}>
-                      <Text
-                        style={{
-                          // width: width(90),
-                          textAlign: 'center',
-                          marginTop: 5,
-                          fontSize: Fonts.size.h5,
-                          // paddingTop: 40,
-                          color: 'grey',
-                          fontFamily: 'OpenSans-Regular',
-                        }}>
-                        {strings.No_online_form_found}
-                      </Text>
-                    </View>
+                      {strings.No_online_form_found}
+                    </Text>
                   </View>
                 )}
               </ScrollView>
@@ -3781,7 +3402,7 @@ reDirect = () => {
                 tabLabel={strings.Templates}
                 style={styles.scrollViewBody}>
                 {this.state.TempList.length > 0 ? (
-                  <View style={{marginTop: 60}}>
+                  <View style={{ marginTop: 60 }}>
                     {this.state.TempList.map((item, key) => (
                       <View key={key} style={styles.cardBox}>
                         <View style={styles.sectionTop}>
@@ -3813,19 +3434,19 @@ reDirect = () => {
                                   {item.Attachmenttype == 1
                                     ? '-'
                                     : item.AttachedDocument == ''
-                                    ? ' - '
-                                    : item.AttachedDocument}
+                                      ? ' - '
+                                      : item.AttachedDocument}
                                 </Text>
                               </TouchableOpacity>
-                              {item.AttachedDocument &&
-                              item.Attachmenttype == 0 ? (
+                              {/* {item.AttachedDocument &&
+                                item.Attachmenttype == 0 ? (
                                 <TouchableOpacity
                                   onPress={() =>
                                     this.deleteAttachments(item, 'temp')
                                   }>
                                   <Icon name="trash" size={20} color="red" />
                                 </TouchableOpacity>
-                              ) : null}
+                              ) : null} */}
                               {item.Attachmenttype == 0 ? (
                                 <TouchableOpacity
                                   onPress={() => {
@@ -3846,6 +3467,8 @@ reDirect = () => {
                                           );
 
                                           if (res) {
+                                            // console.log('Form item', item)
+                                            // console.log('Form item', this.state.formDetails)
                                             var formDetailsOrg =
                                               this.state.formDetails;
                                             var formDetails = [];
@@ -3907,7 +3530,7 @@ reDirect = () => {
                                               }
                                             }
                                             this.setState(
-                                              {formDetails: formDetails},
+                                              { formDetails: formDetails },
                                               () => {
                                                 console.log(
                                                   'formDetails',
@@ -4089,12 +3712,21 @@ reDirect = () => {
                                         },
                                       );
                                     }
+                                    // iPad
+                                    /*const {pageX, pageY} = event.nativeEvent;
+                              DocumentPicker.show({
+                              top: pageY,
+                              left: pageX,
+                              filetype: ['public.image'],
+                              }, (error, url) => {
+                                alert(url);
+                              });*/
                                   }}>
-                                  <ResponsiveImage
+                                  {/* <ResponsiveImage
                                     source={Images.AttachIcon}
                                     initWidth="24"
                                     initHeight="22"
-                                  />
+                                  /> */}
                                 </TouchableOpacity>
                               ) : null}
                             </View>
@@ -4104,7 +3736,7 @@ reDirect = () => {
                           <View style={styles.sectionContent}>
                             {/* <Text numberOfLines={1} style={styles.boxHeader}>{strings.Attach_Files}</Text> */}
                           </View>
-                          <View style={{width: '100%', height: null}}>
+                          <View style={{ width: '100%', height: null }}>
                             <Dropdown
                               data={attachmentType2}
                               label={strings.attachmenttype}
@@ -4124,8 +3756,8 @@ reDirect = () => {
                               textColor="#000"
                               itemColor="#000"
                               itemPadding={5}
-                              dropdownOffset={{top: 10, left: 0}}
-                              itemTextStyle={{fontFamily: 'OpenSans-Regular'}}
+                              dropdownOffset={{ top: 10, left: 0 }}
+                              itemTextStyle={{ fontFamily: 'OpenSans-Regular' }}
                               onChange={value => {
                                 var TempList = [];
 
@@ -4157,11 +3789,11 @@ reDirect = () => {
                             <View
                               style={[
                                 styles.sectionContent,
-                                {width: '100%', flexDirection: 'column'},
+                                { width: '100%', flexDirection: 'column' },
                               ]}>
-                              <View style={{width: '100%', height: null}}>
+                              <View style={{ width: '100%', height: null }}>
                                 {this.state.TempList[key].AttachedDocument !=
-                                '' ? (
+                                  '' ? (
                                   <Text
                                     style={{
                                       color: 'grey',
@@ -4172,7 +3804,7 @@ reDirect = () => {
                                   </Text>
                                 ) : null}
                               </View>
-                              <View style={{width: '100%', height: null}}>
+                              <View style={{ width: '100%', height: null }}>
                                 <TextInput
                                   multiline={true}
                                   value={
@@ -4281,31 +3913,24 @@ reDirect = () => {
                     ))}
                   </View>
                 ) : (
-                  <View style={{marginTop: '20%'}}>
-                    <View
+                  <View
+                    style={{
+                      marginTop: 55,
+                      justifyContent: 'center',
+                      alignContent: 'center',
+                    }}>
+                    <Text
                       style={{
-                        flexDirection: 'row',
-                        justifyContent: 'center',
+                        // width: width(90),
+                        textAlign: 'center',
+                        marginTop: 45,
+                        fontSize: Fonts.size.h5,
+                        paddingTop: 40,
+                        color: 'grey',
+                        fontFamily: 'OpenSans-Regular',
                       }}>
-                      <Image
-                        source={Images.emptybox}
-                        style={{height: 50, resizeMode: 'contain'}}
-                      />
-                    </View>
-                    <View style={{}}>
-                      <Text
-                        style={{
-                          // width: width(90),
-                          textAlign: 'center',
-                          marginTop: 5,
-                          fontSize: Fonts.size.h5,
-                          // paddingTop: 40,
-                          color: 'grey',
-                          fontFamily: 'OpenSans-Regular',
-                        }}>
-                        {strings.No_templates_found}
-                      </Text>
-                    </View>
+                      {strings.No_templates_found}
+                    </Text>
                   </View>
                 )}
               </ScrollView>
@@ -4314,7 +3939,7 @@ reDirect = () => {
                 tabLabel={strings.References}
                 style={styles.scrollViewBody}>
                 {this.state.RefList.length > 0 ? (
-                  <View style={{marginTop: 60}}>
+                  <View style={{ marginTop: 60 }}>
                     {this.state.RefList.map((item, key) => (
                       <View key={key} style={styles.cardBox}>
                         <View style={styles.sectionTop}>
@@ -4337,7 +3962,7 @@ reDirect = () => {
                               </Text>
                             </View>
                             <View style={styles.sectionContent}>
-                              <View style={{flexDirection: 'row'}}>
+                              <View style={{ flexDirection: 'row' }}>
                                 <TouchableOpacity
                                   onPress={() => this.FilePress(item)}
                                   style={styles.AttBox}>
@@ -4347,12 +3972,12 @@ reDirect = () => {
                                     {item.Attachmenttype == 1
                                       ? '-'
                                       : item.AttachedDocument == ''
-                                      ? ' - '
-                                      : item.AttachedDocument}
+                                        ? ' - '
+                                        : item.AttachedDocument}
                                   </Text>
                                 </TouchableOpacity>
                                 {item.AttachedDocument &&
-                                item.Attachmenttype == 0 ? (
+                                  item.Attachmenttype == 0 ? (
                                   <TouchableOpacity
                                     onPress={() =>
                                       this.deleteAttachments(item, 'ref')
@@ -4447,7 +4072,7 @@ reDirect = () => {
                                               }
                                             }
                                             this.setState(
-                                              {formDetails: formDetails},
+                                              { formDetails: formDetails },
                                               () => {
                                                 console.log(
                                                   'formDetails',
@@ -4610,8 +4235,10 @@ reDirect = () => {
                           </View>
                         ) : null}
                         <View style={styles.sectionBottom}>
-                          <View style={styles.sectionContent}></View>
-                          <View style={{width: '100%', height: null}}>
+                          <View style={styles.sectionContent}>
+                            {/* <Text numberOfLines={1} style={styles.boxHeader}>{strings.Attach_Files}</Text> */}
+                          </View>
+                          <View style={{ width: '100%', height: null }}>
                             <Dropdown
                               data={attachmentType}
                               label={strings.attachmenttype}
@@ -4631,8 +4258,8 @@ reDirect = () => {
                               textColor="#000"
                               itemColor="#000"
                               itemPadding={5}
-                              dropdownOffset={{top: 10, left: 0}}
-                              itemTextStyle={{fontFamily: 'OpenSans-Regular'}}
+                              dropdownOffset={{ top: 10, left: 0 }}
+                              itemTextStyle={{ fontFamily: 'OpenSans-Regular' }}
                               onChange={value => {
                                 var RefList = [];
 
@@ -4664,11 +4291,11 @@ reDirect = () => {
                             <View
                               style={[
                                 styles.sectionContent,
-                                {width: '100%', flexDirection: 'column'},
+                                { width: '100%', flexDirection: 'column' },
                               ]}>
-                              <View style={{width: '100%', height: null}}>
+                              <View style={{ width: '100%', height: null }}>
                                 {this.state.RefList[key].AttachedDocument !=
-                                '' ? (
+                                  '' ? (
                                   <Text
                                     style={{
                                       color: 'grey',
@@ -4679,7 +4306,7 @@ reDirect = () => {
                                   </Text>
                                 ) : null}
                               </View>
-                              <View style={{width: '100%', height: null}}>
+                              <View style={{ width: '100%', height: null }}>
                                 <TextInput
                                   multiline={true}
                                   value={
@@ -4732,6 +4359,11 @@ reDirect = () => {
                                         this.state.formDetails[i].FormId ==
                                         this.state.RefList[key].FormId
                                       ) {
+                                        // console.log('into for loop--->',this.state.RefList[key].AttachedDocument)
+                                        // console.log('this.state.formDetails[i] before',formDetails[i])
+                                        // formDetails[i].AttachedDocument = this.state.RefList[key].AttachedDocument
+                                        // formDetails[i].Attachmenttype = this.state.RefList[key].Attachmenttype
+                                        // console.log('this.state.formDetails[i] after',formDetails[i])
                                         formDetails.push({
                                           AttachedDocument:
                                             this.state.RefList[
@@ -4789,29 +4421,24 @@ reDirect = () => {
                     ))}
                   </View>
                 ) : (
-                  <View style={{marginTop: '20%'}}>
-                    <View
+                  <View
+                    style={{
+                      marginTop: 55,
+                      justifyContent: 'center',
+                      alignContent: 'center',
+                    }}>
+                    <Text
                       style={{
-                        flexDirection: 'row',
-                        justifyContent: 'center',
+                        // width: width(90),
+                        textAlign: 'center',
+                        marginTop: 45,
+                        fontSize: Fonts.size.h5,
+                        paddingTop: 40,
+                        color: 'grey',
+                        fontFamily: 'OpenSans-Regular',
                       }}>
-                      <Image
-                        source={Images.emptybox}
-                        style={{height: 50, resizeMode: 'contain'}}
-                      />
-                    </View>
-                    <View style={{}}>
-                      <Text
-                        style={{
-                          textAlign: 'center',
-                          marginTop: 5,
-                          fontSize: Fonts.size.h5,
-                          color: 'grey',
-                          fontFamily: 'OpenSans-Regular',
-                        }}>
-                        {strings.No_references_found}
-                      </Text>
-                    </View>
+                      {strings.No_references_found}
+                    </Text>
                   </View>
                 )}
               </ScrollView>
@@ -4831,45 +4458,31 @@ reDirect = () => {
           </View>
         ) : (
           <View style={styles.auditPageBody}>
-            <View style={{alignItems: 'center', marginTop: middle}}>
-              {this.state.syncMode === 2 ? (
-                <Icon name="check-circle" color="red" size={50} />
-              ) : this.state.syncMode === 0 || this.state.syncMode === 1 ? (
-                <Bars size={20} color="#1CB8CA" />
-              ) : this.state.syncMode === 4 ? (
-                <Icon name="check-circle" color="green" size={50} />
-              ) : null}
-              <Text
-                style={{textAlign: 'center', fontFamily: 'OpenSans-Regular'}}>
-                {this.state.syncStatusLabel === ''
-                  ? strings.Syncing_Audits
-                  : this.state.syncStatusLabel}
-              </Text>
-            </View>
             <View
               style={{
                 alignItems: 'center',
-                paddingTop: 20,
-                height: attachmentHeight,
               }}>
-              {this.state.AuditAttachments.length > 0 &&
-                this.renderFileUploadStatus()}
+              <Bars size={20} color="#1CB8CA" />
+              <Text
+                style={{ textAlign: 'center', fontFamily: 'OpenSans-Regular' }}>
+                {strings.Syncing_Audits}
+              </Text>
             </View>
           </View>
         )}
+
         <View style={styles.footer}>
-          <ImageBackground
-            source={Images.Footer}
-            style={{
-              resizeMode: 'stretch',
-              width: '100%',
-              height: 65,
-            }}>
+            {/* <Image source={Images.Footer}/> */}
             <View style={styles.footerDiv}>
+            <LinearGradient
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 0 }}
+                            colors={['#14D0AE', '#1FBFD0', '#2EA4E2']}
+                            style={styles.CheckButton}>
               {!this.state.isSyncing ? (
                 <TouchableOpacity onPress={() => this.checkoffline()}>
-                  {this.state.redDotID === 'true' ? (
-                    <View style={{left: 0, top: 2}}>
+                  {this.state.notifyRed === true ? (
+                    <View style={{ left: 0, top: 2 }}>
                       <Icon name="circle" size={10} color="red" />
                     </View>
                   ) : (
@@ -4883,13 +4496,13 @@ reDirect = () => {
                     }}>
                     <ResponsiveImage
                       source={Images.uploadToServerIcon}
-                      initWidth="50"
-                      initHeight="40"
+                      initWidth="30"
+                      initHeight="20"
                     />
                     <Text
                       style={{
                         color: 'white',
-                        fontSize: Fonts.size.h5,
+                        fontSize: Fonts.size.regular,
                         marginLeft: 5,
                         fontFamily: 'OpenSans-Regular',
                       }}>
@@ -4897,81 +4510,53 @@ reDirect = () => {
                     </Text>
                   </View>
                 </TouchableOpacity>
-              ) : this.state.syncMode !== 4 ? (
+              ) : (
                 <View
                   style={{
                     paddingVertical: 20,
                     borderTopWidth: 1,
                     borderColor: '#CED0CE',
-                    justifyContent: 'center',
-                    alignItems: 'center',
                   }}>
-                  <ActivityIndicator size={20} color="#1CAFF6" />
-                </View>
-              ) : (
-                <View
-                  style={{
-                    borderColor: '#CED0CE',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}>
-                  <TouchableOpacity
-                    style={{alignItems: 'center'}}
-                    onPress={() => this.syncResponseHandle()}>
-                    <Icon name="check-square-o" size={35} color="white" />
-                    <Text
-                      style={{
-                        color: 'white',
-                        fontSize: Fonts.size.medium,
-                        //marginLeft: 5,
-                        fontFamily: 'OpenSans-Regular',
-                      }}>
-                      {'Proceed'}
-                    </Text>
-                  </TouchableOpacity>
+                  <ActivityIndicator size={20} color="#fff" />
                 </View>
               )}
+                </LinearGradient>
             </View>
-          </ImageBackground>
+       
         </View>
 
         <Toast
           ref="toast"
-          style={{backgroundColor: 'black', margin: 20}}
+          style={{ backgroundColor: 'black', margin: 20 }}
           position="top"
           positionValue={200}
           fadeInDuration={750}
           fadeOutDuration={1000}
           opacity={0.8}
-          textStyle={{color: 'white'}}
+          textStyle={{ color: 'white' }}
         />
 
         <ConfirmDialog
           title={strings.Sync_title}
           message={strings.Sync_message}
-          titleStyle={{fontFamily: 'OpenSans-SemiBold'}}
-          messageStyle={{fontFamily: 'OpenSans-Regular'}}
+          titleStyle={{ fontFamily: 'OpenSans-SemiBold' }}
+          messageStyle={{ fontFamily: 'OpenSans-Regular' }}
           visible={this.state.dialogVisible}
-          onTouchOutside={() => this.setState({dialogVisible: false})}
-          supportedOrientations={[
-            'portrait',
-            'portrait-upside-down',
-            'landscape',
-            'landscape-left',
-            'landscape-right',
-          ]}
+          onTouchOutside={() => this.setState({ dialogVisible: false })}
           positiveButton={{
             title: strings.yes,
             onPress: this.StartSyncProcess.bind(this),
+            //   onPress: () =>
+            //     this.setState({confirmpwd: true, dialogVisible: false}),
           }}
           negativeButton={{
             title: strings.no,
-            onPress: () => this.setState({dialogVisible: false}),
+            onPress: () => this.setState({ dialogVisible: false }),
           }}
         />
         <Modal
           isVisible={this.state.confirmpwd}
-          onBackdropPress={() => this.setState({confirmpwd: false})}>
+          onBackdropPress={() => this.setState({ confirmpwd: false })}>
           <View
             style={{
               width: '100%',
@@ -4981,10 +4566,10 @@ reDirect = () => {
               padding: 10,
             }}>
             <TouchableOpacity
-              onPress={() => this.setState({confirmpwd: false})}>
+              onPress={() => this.setState({ confirmpwd: false })}>
               <Icon
                 name="times-circle"
-                style={{alignSelf: 'flex-end'}}
+                style={{ alignSelf: 'flex-end' }}
                 size={30}
                 color="#2EA4E2"
               />
@@ -5056,7 +4641,7 @@ reDirect = () => {
                   }}
                   secureTextEntry={true}
                   onChangeText={text =>
-                    this.setState({pwdentry: text, isEmptyPwd: undefined})
+                    this.setState({ pwdentry: text, isEmptyPwd: undefined })
                   }
                 />
                 {this.state.isEmptyPwd ? (
@@ -5131,7 +4716,7 @@ reDirect = () => {
                   <View key={i} style={styles.carddivMissing}>
                     <View style={styles.cardContMissing}>
                       <View style={styles.cardSecMissing}>
-                        <Text style={{fontFamily: 'OpenSans-Regular'}}>
+                        <Text style={{ fontFamily: 'OpenSans-Regular' }}>
                           {strings.Type}
                         </Text>
                         <Text
@@ -5146,12 +4731,12 @@ reDirect = () => {
                         </Text>
                       </View>
                       <View style={styles.cardsec2Missing}>
-                        <Text style={{fontFamily: 'OpenSans-Regular'}}>
+                        <Text style={{ fontFamily: 'OpenSans-Regular' }}>
                           {strings.Name}
                         </Text>
                         <Text
                           style={{
-                            fontSize: Fonts.size.mediump,
+                            fontSize: 18,
                             color: '#070F6E',
                             fontFamily: 'OpenSans-Regular',
                           }}>
@@ -5187,7 +4772,7 @@ reDirect = () => {
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() =>
-                  this.setState({isMissingFindings: false}, () => {
+                  this.setState({ isMissingFindings: false }, () => {
                     this.syncAuditsToServer();
                   })
                 }
