@@ -216,16 +216,6 @@ const SupervisorSchedule = () => {
                     <Text style={[styles.bottomText, { color: COLORS.white }]}>{masterData?.length}</Text>
                 </View>
             </View>
-            <View style={[styles.btnContainer]}>
-                <ButtonComponent
-                    textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}
-                    style={{ height: 40 }}
-                    onPress={() => {
-                        navigation.navigate(ROUTES.COMPLETED_INSPECTION);
-                    }}>
-                    Completed Inspections
-                </ButtonComponent>
-            </View>
             <Modal visible={showFilterList} onDismiss={hideModal} contentContainerStyle={[styles.modalConatiner]}>
                 <View style={[styles.modalcontainer]}>
                     <View style={[styles.modalBoxOne]}>

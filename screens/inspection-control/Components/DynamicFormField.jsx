@@ -1,6 +1,6 @@
 import { COLORS } from 'constants/theme-constants';
 import React from 'react';
-import { StyleSheet, Text, TextInput, View } from 'react-native';
+import { StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
 import SingleDropDown from './SingleDropDown';
 import DataPickerWithIcon from './DataPickerWithIcon';
 import moment from 'moment';
@@ -16,6 +16,7 @@ const DynamicFormField = ({
     isEditable = true,
     title = '',
 }) => {
+    const { width } = useWindowDimensions();
     switch (fieldType) {
         case 'textinput':
         case 'text':
@@ -23,9 +24,9 @@ const DynamicFormField = ({
             return (
                 <TextInput
                     value={value || ''}
-                    style={[styles.inputBox, { backgroundColor: isEditable ? COLORS.inputBG : COLORS.whiteGrey}]}
+                    style={[styles.inputBox, { backgroundColor: isEditable ? COLORS.inputBG : COLORS.whiteGrey }]}
                     onChangeText={val => {
-                        if(isEditable){
+                        if (isEditable) {
                             handleChange(val);
                         }
                     }}
@@ -52,7 +53,7 @@ const DynamicFormField = ({
                     editable={isEditable}
                     containerStyle={{
                         elevation: 10,
-                        width:220
+                        width: width / 2.2,
                     }}
                 />
             );
@@ -110,10 +111,10 @@ const DynamicFormField = ({
         default:
             return (
                 <TextInput
-                   value={value || ''}
-                    style={[styles.inputBox, { backgroundColor: isEditable ? COLORS.inputBG : COLORS.whiteGrey}]}
+                    value={value || ''}
+                    style={[styles.inputBox, { backgroundColor: isEditable ? COLORS.inputBG : COLORS.whiteGrey }]}
                     onChangeText={val => {
-                        if(isEditable){
+                        if (isEditable) {
                             handleChange(val);
                         }
                     }}

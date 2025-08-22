@@ -3,7 +3,6 @@ import { COLORS } from 'constants/theme-constants';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import { Divider, HelperText, Modal } from 'react-native-paper';
-import { RFPercentage } from 'react-native-responsive-fontsize';
 import SingleDropDown from '../SingleDropDown';
 import DynamicDropDown from '../DynamicDropDown';
 import { useSelector } from 'react-redux';
@@ -562,7 +561,7 @@ const styles = StyleSheet.create({
     },
     headertext: {
         fontFamily: 'OpenSans-SemiBold',
-        fontSize: RFPercentage(2),
+        fontSize: 20,
         paddingBottom: 12,
         color: '#000',
     },
@@ -589,7 +588,7 @@ const styles = StyleSheet.create({
     btnStyle: {
         color: COLORS.apptheme,
         fontFamily: 'OpenSans-Bold',
-        fontSize: RFPercentage(1.8),
+        fontSize: 16,
     },
     rquired: {
         color: COLORS.ERROR,

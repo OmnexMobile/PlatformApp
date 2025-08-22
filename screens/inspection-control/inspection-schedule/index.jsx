@@ -191,7 +191,6 @@ const InspectionSchedule = () => {
 
     useEffect(() => {
         if (icUserData && isFocused) {
-            console.log('icUserData', icUserData);
             handleListFetch(null, true, filterData.type);
         }
         return () => {
@@ -358,7 +357,6 @@ const InspectionSchedule = () => {
         setMasterData(updatedArray);
         setShowBubble(false);
     };
-    console.log(masterData.length, 'masterData');
     return (
         <CustomHeader
             title="Inspection Schedule"

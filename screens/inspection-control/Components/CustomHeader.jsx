@@ -1,6 +1,6 @@
 import { useNavigation } from '@react-navigation/native';
 import { COLORS, FONT_SIZE } from 'constants/theme-constants';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Animated, FlatList, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import Icon from 'react-native-vector-icons/AntDesign';
 import IconF from 'react-native-vector-icons/FontAwesome';
@@ -50,6 +50,8 @@ const footerList = [
     //     routeName: ROUTES.SUPERVISOR_SCHEDULE,
     // },
 ];
+const footerListWithoutSearch = footerList.filter(item => item.title !== 'Search\nInspection');
+const footerListWithoutSchedule = footerList.filter(item => item.title !== 'Inspection\nSchedule');
 const CustomHeader = ({
     children,
     title = '',
@@ -72,18 +74,15 @@ const CustomHeader = ({
     const navigation = useNavigation();
     const [isExpanded, setIsExpanded] = useState(false);
     const [visible, setVisible] = useState(false);
-    const [bottomTabList, setBottomTabList] = useState([]);
+    // const [bottomTabList, setBottomTabList] = useState([]);
     const openMenu = () => setVisible(true);
     const closeMenu = () => setVisible(false);
     const { sites } = useAppContext();
     const widthAnim = useRef(new Animated.Value(0)).current;
-    useEffect(() => {
-        if (icSettings.searchInspection) {
-            setBottomTabList(footerList.filter(item => item.title !== 'Inspection\nSchedule'));
-        } else {
-            setBottomTabList(footerList.filter(item => item.title !== 'Search\nInspection'));
-        }
-    }, [footerList, icSettings.searchInspection]);
+
+    const bottomTabList = useMemo(() => {
+        return icSettings.searchInspection ? footerListWithoutSchedule : footerListWithoutSearch;
+    }, [icSettings.searchInspection]);
     useEffect(() => {
         if (searchValue?.length) {
             setIsExpanded(true);
