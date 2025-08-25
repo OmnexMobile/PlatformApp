@@ -44,7 +44,6 @@ const TabsCard = ({ countDetails, tabIndex, noTab, navigation }) => {
         if (settingsRes.Success) {
             const settings = {
                 ...settingsRes?.Data[0],
-                searchInspection: false,
             };
             dispatch({ type: 'IC_SETTINGS', icSettings: settings || {} });
         }
@@ -117,8 +116,8 @@ const TabsCard = ({ countDetails, tabIndex, noTab, navigation }) => {
                         : [],
             },
         ];
-        // Step 2: Modify only if searchInspection is TRUE
-        if (icSettings.searchInspection && tabIndex === 0) {
+        // Step 2: Modify only if SearchInspectionNeeded is TRUE
+        if (icSettings?.SearchInspectionNeeded && tabIndex === 0) {
             const inspectionIndex = data.findIndex(item => item.id === 5);
             if (inspectionIndex !== -1) {
                 data[inspectionIndex].detail = data[inspectionIndex].detail.map(detailItem =>
@@ -134,7 +133,7 @@ const TabsCard = ({ countDetails, tabIndex, noTab, navigation }) => {
             }
         }
         setTabList([...data]);
-    }, [tabIndex, icSettings.searchInspection]);
+    }, [tabIndex, icSettings?.SearchInspectionNeeded]);
 
     const redirectToPage = (title, status, category) => {
         status > 0 && title === strings.auditPro

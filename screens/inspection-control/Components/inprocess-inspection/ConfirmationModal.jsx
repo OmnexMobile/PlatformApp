@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
     deleteHeader: {
         color: COLORS.black,
         fontFamily: 'OpenSans-SemiBold',
-        fontSize: RFPercentage(2.3),
+        fontSize: 22,
         padding: 10,
     },
     contentContainer: {
@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
     contentText: {
         color: COLORS.black,
         fontFamily: 'OpenSans-SemiBold',
-        fontSize: RFPercentage(1.9),
+        fontSize: 19,
         paddingVertical: 15,
     },
     btnStyle: {

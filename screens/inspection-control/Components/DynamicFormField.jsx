@@ -21,6 +21,7 @@ const DynamicFormField = ({
         case 'textinput':
         case 'text':
         case 'Integer':
+        case 'Text':
             return (
                 <TextInput
                     value={value || ''}
@@ -35,6 +36,7 @@ const DynamicFormField = ({
                 />
             );
         case 'singleDropDown':
+        case 'Dropdown':
             return (
                 <SingleDropDown
                     data={dropDownData}

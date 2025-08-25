@@ -197,6 +197,21 @@ const CompletedInspection = () => {
     };
     const convertSampleList = (templist, type = 'number') => {
         let characteristicDetails = templist.map(item => {
+            let charInfoObj = {};
+            if (item.charInfo) {
+                // charInfoObj = item.charInfo.reduce((acc, curr) => {
+                //     acc[curr.PropertyName] = curr.Value;
+                //     return acc;
+                // }, {});
+                item.charInfo.map(item => {
+                    charInfoObj[item.PropertyName] = item?.Value?.value ? item.Value.value : item.Value;
+                });
+            }
+            Object.entries(charInfoObj).forEach(([key, value]) => {
+                item[key] = value; // update if exists, add if not
+            });
+
+            console.log(item, '***************************templist*************************');
             const samples = item.Samples || [];
             let actualValue = null;
             if (type === 'number') {
@@ -221,9 +236,11 @@ const CompletedInspection = () => {
                     }
                 }
             }
+
             return {
                 ...item,
                 Samples: undefined,
+                charInfo:undefined,
                 ActualValue: actualValue !== Infinity ? String(actualValue) : '',
                 ID: String(item.ID || ''),
                 ...(item?.DefectsValue &&
@@ -295,7 +312,7 @@ const CompletedInspection = () => {
         const response = await postAPI(selectedValue.intInspectionTypeID == '2' ? ApiUrl.IC_INPROCESS_SINGLE_SYNC : ApiUrl.IC_SINGLE_SYNC, payLoad);
         if (response?.insertedCount) {
             setSyncModal(false);
-            const flag = await deleteInspectionByUniqueId(selectedValue.uniqueId);
+            // const flag = await deleteInspectionByUniqueId(selectedValue.uniqueId);
             showMessage({
                 message:'Inspection synced successfully',
                 backgroundColor: COLORS.SUCCESS,
@@ -306,9 +323,9 @@ const CompletedInspection = () => {
                 position: 'right',
                 style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
             });
-            if (flag) {
-                getAllCompletedData(true);
-            }
+            // if (flag) {
+            //     getAllCompletedData(true);
+            // }
         } else {
             showMessage({
                 message: 'Something went wrong',

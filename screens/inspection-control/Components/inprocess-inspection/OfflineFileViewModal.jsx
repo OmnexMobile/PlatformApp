@@ -215,7 +215,7 @@ const styles = StyleSheet.create({
     btnStyle: {
         color: COLORS.apptheme,
         fontFamily: 'OpenSans-Bold',
-        fontSize: RFPercentage(1.8),
+        fontSize: 18,
     },
     iconConatiner: {
         backgroundColor: COLORS.apptheme,
@@ -233,7 +233,7 @@ const styles = StyleSheet.create({
     },
     fileText: {
         fontFamily: 'OpenSans-SemiBold',
-        fontSize: RFPercentage(1.7),
+        fontSize: 16,
         color: COLORS.ictextBlack,
     },
     loaderStyle: {

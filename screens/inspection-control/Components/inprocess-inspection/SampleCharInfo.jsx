@@ -86,12 +86,12 @@ const SampleCharInfo = ({
             }
         }
     };
-    console.log(userUpdateValue, 'userUpdateValue');
     const handleInputChange = (key, val) => {
         let temp = JSON.parse(JSON.stringify(selectedData.charInfo));
         let updatedtemp = temp.map(item => (item.PropertyName === key ? { ...item, Value: val } : item));
         setSelectedData(pre => ({ ...pre, [key]: val, charInfo: updatedtemp }));
     };
+    console.log(selectedData,'***************************selectedData');
     const handleGetUserUpadedValue = item => {
         if (item?.PropertyName === 'CHighValue' || item?.RefData === '##HighToleranceValue##') {
             return userUpdateValue.CHighValue?.toString();
@@ -99,7 +99,7 @@ const SampleCharInfo = ({
             return userUpdateValue.CLowValue?.toString();
         } else if (item?.PropertyName === 'CTolerance' || item?.RefData === '##ATTorVAR##') {
             return userUpdateValue.CTolerance?.toString();
-        } else if (item?.PropertyName === 'CSampleSize' || item?.RefData === '##CSampleSize##' || item.PropertyName.includes('SampleSize')) {
+        } else if (item?.PropertyName === 'CSampleSize' || item?.RefData === '##SampleSize##' || item.PropertyName.includes('SampleSize')) {
             return userUpdateValue.CSampleSize?.toString();
         } else {
             return item?.Value;
@@ -128,7 +128,8 @@ const SampleCharInfo = ({
                                     title={item.DisplayName}
                                     fieldType={item.FieldType}
                                     value={handleGetUserUpadedValue(item) || ''}
-                                    isEditable={!Boolean(item?.IsEditable)}
+                                    // isEditable={!Boolean(item?.IsEditable)}
+                                    dropDownData={item.List?.length ? item.List : []}
                                     handleChange={val => {
                                         if (item.PropertyName == 'CHighValue' || item.RefData == '##HighToleranceValue##') {
                                             handleUserInputChange(item.PropertyName, val, 'highvalue', selectedData.CHighValue, 'CHighValue');
@@ -136,7 +137,7 @@ const SampleCharInfo = ({
                                             handleUserInputChange(item.PropertyName, val, 'lowvalue', selectedData.CLowValue, 'CLowValue');
                                         } else if (item.PropertyName == 'CTolerance' || item.RefData == '##ATTorVAR##') {
                                             handleUserInputChange(item.PropertyName, val, 'spec', selectedData.CTolerance, 'CTolerance');
-                                        } else if (item.PropertyName == 'CSampleSize' || item.RefData == '##CSampleSize##' || item.PropertyName.includes('SampleSize')) {
+                                        } else if (item.PropertyName == 'CSampleSize' || item.RefData == '##SampleSize##' || item.PropertyName.includes('SampleSize')) {
                                             handleUserInputChange('CSampleSize', val, 'samplesize', null, 'CSampleSize');
                                         } else {
                                             handleInputChange(item.PropertyName, val);

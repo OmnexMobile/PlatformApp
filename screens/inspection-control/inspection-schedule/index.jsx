@@ -109,7 +109,6 @@ const InspectionSchedule = () => {
         if (settingsRes.Success) {
             const settings = {
                 ...settingsRes?.Data[0],
-                searchInspection: false,
             };
             dispatch({ type: 'IC_SETTINGS', icSettings: settings || {} });
         }

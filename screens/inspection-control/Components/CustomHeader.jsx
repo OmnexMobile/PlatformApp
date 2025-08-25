@@ -81,8 +81,8 @@ const CustomHeader = ({
     const widthAnim = useRef(new Animated.Value(0)).current;
 
     const bottomTabList = useMemo(() => {
-        return icSettings.searchInspection ? footerListWithoutSchedule : footerListWithoutSearch;
-    }, [icSettings.searchInspection]);
+        return icSettings?.SearchInspectionNeeded ? footerListWithoutSchedule : footerListWithoutSearch;
+    }, [icSettings?.SearchInspectionNeeded]);
     useEffect(() => {
         if (searchValue?.length) {
             setIsExpanded(true);

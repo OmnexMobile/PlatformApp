@@ -96,10 +96,13 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         flexWrap: 'wrap',
         justifyContent: 'space-between',
+        flex:1,
     },
     subBox: {
         width: '48%', // two columns
         marginBottom: 10,
+        flexDirection:'column',
+        justifyContent:'flex-end'
     },
     headerText: {
         fontFamily: 'OpenSans-SemiBold',

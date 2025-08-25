@@ -1,5 +1,5 @@
 import { COLORS } from 'constants/theme-constants';
-import { FlatList, Modal, TextInput, TouchableOpacity } from 'react-native';
+import { FlatList, KeyboardAvoidingView, Modal, Platform, TextInput, TouchableOpacity } from 'react-native';
 import { StyleSheet, Text, View, ScrollView } from 'react-native';
 import { Divider } from 'react-native-paper';
 import IconM from 'react-native-vector-icons/MaterialIcons';
@@ -130,7 +130,7 @@ const SwitchInspection = ({ modalVisible, setModalVisible = () => {} }) => {
         );
     };
     return (
-        <>
+       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{flex:1}}>
             <View style={styles.container}>
                 <View style={[styles.filterBox]}>
                     <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',marginHorizontal:5 }}>
@@ -280,7 +280,7 @@ const SwitchInspection = ({ modalVisible, setModalVisible = () => {} }) => {
                     </View>
                 </View>
             </Modal>
-        </>
+        </KeyboardAvoidingView>
     );
 };
 const styles = StyleSheet.create({
@@ -290,8 +290,9 @@ const styles = StyleSheet.create({
     },
     filterBox: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
+        // justifyContent: 'space-between',
         alignItems: 'center',
+        marginBottom: 5,
     },
     addBtn: {
         backgroundColor: COLORS.apptheme,

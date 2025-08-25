@@ -22,8 +22,8 @@ const ICCheckBox = ({ isChecked = false, label = 'label', onChange = () => {}, f
 
 const styles = StyleSheet.create({
     container: {
-        height: 22,
-        width: 22,
+        height: RFPercentage(2.5),
+        width: RFPercentage(2.5),
         alignItems: 'center',
         justifyContent: 'center',
     },
