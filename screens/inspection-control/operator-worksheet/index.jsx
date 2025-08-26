@@ -15,6 +15,7 @@ import ApiUrl from 'global/ApiUrl';
 import { postAPI } from 'global/api-helpers';
 import IcSkeleton from '../Components/IcSkeleton';
 import { deleteInspectionByUniqueId, getDatabaseSize, getInspectionDataByUserAndSite } from 'store/database/inspectStorage';
+import ICScrollTab from '../Components/ICScrollTab';
 
 const OperatorWorksheet = () => {
     const { icUserData } = useSelector(state => state.inspection);
@@ -149,6 +150,7 @@ const OperatorWorksheet = () => {
     };
     return (
         <CustomHeader title="Operator Worksheet" activeTabId={2}>
+            {/* <ICScrollTab /> */}
             <View style={[styles.container]}>
                 {showSkeleton ? (
                     <IcSkeleton type={PLACEHOLDERS.OPERATOR_CARD} />

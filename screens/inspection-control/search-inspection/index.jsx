@@ -1,6 +1,5 @@
-import { ButtonComponent } from 'components';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, Platform, RefreshControl, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
+import { FlatList, Platform, RefreshControl, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import CustomHeader from '../Components/CustomHeader';
 import { COLORS } from 'constants/theme-constants';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
@@ -10,7 +9,6 @@ import IconI from 'react-native-vector-icons/Ionicons';
 import IconF from 'react-native-vector-icons/Feather';
 import DataPickerWithIcon from '../Components/DataPickerWithIcon';
 import FilterWithMenu from '../Components/FilterWithMenu';
-import InputDataModal from '../Components/inspection-schedule/InputDataModal';
 import ICFileIcon from '../../../assets/images/svg/icFile.svg';
 import { useAppContext } from 'contexts/app-context';
 import moment from 'moment';
@@ -18,14 +16,13 @@ import FileViewModal from '../Components/supervisor-schedule/FileViewModal';
 import IcSkeleton from '../Components/IcSkeleton';
 import { useDispatch, useSelector } from 'react-redux';
 import { showMessage } from 'react-native-flash-message';
-import QRCodeScannerScreen from '../Components/QRCodeScannerScreen';
 import NoDataFound from '../Components/NoDataFound';
 import { postAPI } from 'global/api-helpers';
 import ApiUrl from 'global/ApiUrl';
-import { deleteAllInspectionData, getInspectionDataByUserAndSite } from 'store/database/inspectStorage';
 import { Divider, Modal } from 'react-native-paper';
 import { Bubbles } from 'react-native-loader';
 import RadioButtonComponent from '../Components/RadioButtonComponent';
+import PartDetails from '../Components/supervisor-schedule/PartDetails';
 
 const filterList = [
     {
@@ -51,11 +48,11 @@ const searchFilterList = [
         label: 'Production Item',
         isSelected: true,
     },
-    {
-        id: 2,
-        label: 'Refrence No',
-        isSelected: false,
-    },
+    // {
+    //     id: 2,
+    //     label: 'Refrence No',
+    //     isSelected: false,
+    // },
     {
         id: 3,
         isSelected: false,
@@ -66,21 +63,21 @@ const searchFilterList = [
         isSelected: false,
         label: 'Lot No',
     },
-    {
-        id: 5,
-        isSelected: false,
-        label: 'Lot Size',
-    },
-    {
-        id: 6,
-        isSelected: false,
-        label: 'Sample Frequency',
-    },
-    {
-        id: 7,
-        isSelected: false,
-        label: 'Inspector(s)',
-    },
+    // {
+    //     id: 5,
+    //     isSelected: false,
+    //     label: 'Lot Size',
+    // },
+    // {
+    //     id: 6,
+    //     isSelected: false,
+    //     label: 'Sample Frequency',
+    // },
+    // {
+    //     id: 7,
+    //     isSelected: false,
+    //     label: 'Inspector(s)',
+    // },
     {
         id: 8,
         isSelected: false,
@@ -107,7 +104,6 @@ const SearchInspection = () => {
         searchBy: 'Production Item',
         searchText: '',
     });
-    const [page, setPage] = useState(0);
     const [showFileModal, setShowFileModal] = useState(false);
     const [showSkeleton, setShowSkeleton] = useState(false);
     const [masterData, setMasterData] = useState([]);
@@ -115,12 +111,16 @@ const SearchInspection = () => {
     const [selectedData, setSelectedData] = useState({});
     const [showBubble, setShowBubble] = useState(false);
     const [searchList, setSearchList] = useState([...searchFilterList]);
-    const [loading, setLoading] = useState(false);
-    const [hasMore, setHasMore] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
+    const [showEye, setShowEye] = useState(false);
+    const handleEyePress = value => {
+        setSelectedData(value);
+        setShowEye(true);
+    };
 
     const handleFilePress = item => {
         let temp = {
-            ProductionItem: item.ProductionItem,
+            ProductionItem: item.ProductionItemName,
             OperationID: item.OperationID,
             ProductionItemId: item.ProductionItemId,
         };
@@ -129,40 +129,36 @@ const SearchInspection = () => {
     };
     useEffect(() => {
         if (isFocused && icUserData) {
-            // 🔄 reset everything for new filter
-            setPage(0);
-            setMasterData([]);
-            setHasMore(true); // ✅ allow API again
-            setLoading(false); // ✅ avoid being stuck in loading=true
-            // now call API for first page
-            handleListFetch(true, 0, true);
+            handleListFetch(true);
         }
     }, [filterData, isFocused, icUserData]);
-    const handleListFetch = async (showSktn = true, pageNumber = 0, force = false,search=null) => {
-        let leee= search!=null?search:searchFilter.searchText
-        if (!force && (loading || !hasMore)) return;
+    const handleListFetch = async (showSktn = true, notRefresh = true) => {
         showSktn && setShowSkeleton(true);
-        setLoading(true);
-        try {
-            const { startDate, endDate } = filterData;
-            let dateFlag = startDate !== '' && endDate !== '';
-            const formData = new FormData();
-            formData.append('UserID', icUserData?.userData?.UserId);
-            formData.append('SiteID', parseInt(icUserData?.userData?.Siteid));
-            formData.append('LanguageID', 1);
-            formData.append('StartDate', dateFlag ? moment(startDate).format('MM/DD/YYYY') : '');
-            formData.append('EndDate', dateFlag ? moment(endDate).format('MM/DD/YYYY') : '');
-            const response = await postAPI(`${ApiUrl.IC_GET_IS}`, formData);
-            if (response.Success && response?.Data?.InspectionSchedules?.length) {
-                setPage(pageNumber + 1);
-                setMasterData(prev => [...prev, ...response?.Data?.InspectionSchedules]);
+        const { startDate, endDate, type } = filterData;
+        let dateFlag = startDate !== '' && endDate !== '';
+        const formData = new FormData();
+        formData.append('UserId', icUserData?.userData?.UserId);
+        formData.append('siteId', parseInt(icUserData?.userData?.Siteid));
+        formData.append('InspectionType', type == 0 ? '' : type);
+        formData.append('StartDate', dateFlag ? moment(startDate).format('YYYY/MM/DD') : '');
+        formData.append('EndDate', dateFlag ? moment(endDate).format('YYYY/MM/DD') : '');
+        const response = await postAPI(`${ApiUrl.IC_GET_SEARCH_INSPECTIONLIST}`, formData);
+        if (response.Success && response?.Data?.length) {
+            if (searchFilter.searchText !== '' && notRefresh) {
+                let temp = response?.Data.filter(x =>
+                    x[getSearchKey(searchFilter.searchBy)].toLowerCase().includes(searchFilter.searchText.toLowerCase()),
+                );
+                setMasterData([...temp]);
             } else {
-                setHasMore(false); // no more data
+                setMasterData([...response?.Data]);
             }
-        } finally {
-            setShowSkeleton(false);
-            setLoading(false);
+            setOverAllData([...response?.Data]);
+        } else {
+            setMasterData([]); // no more data
+            setOverAllData([]);
         }
+        setShowSkeleton(false);
+        setRefreshing(false);
     };
 
     const handleDownloadPress = async item => {
@@ -173,12 +169,12 @@ const SearchInspection = () => {
     };
     const renderBackgroundColor = value => {
         switch (value) {
-            case '1':
-                return COLORS.apptheme;
-            case '2':
+            case 'In Progress':
                 return COLORS.ipBgColor;
-            case '3':
+            case 'Accepted':
                 return COLORS.fiBgColor;
+            case 'Rejected':
+                return COLORS.red;
             default:
                 return COLORS.apptheme;
         }
@@ -192,34 +188,70 @@ const SearchInspection = () => {
         var handler;
         if (searchFilter.searchText && searchFilter.searchBy) {
             handler = setTimeout(() => {
-                handleListFetch(true, 0, true);
+                handleSearchList(searchFilter.searchText, searchFilter.searchBy);
             }, 500);
         }
         return () => {
             clearTimeout(handler);
         };
     }, [searchFilter]);
+    const getSearchKey = (searchBy = '') => {
+        switch (searchBy) {
+            case 'Production Item':
+                return 'ProductionItemName';
+            case 'Operation':
+                return 'OperationName';
+            case 'Lot No':
+                return 'LotNo';
+            case 'Status':
+                return 'LotStatus';
+            default:
+                return 'ProductionItemName';
+        }
+    };
+    const handleSearchList = (search = '', searchBy = '') => {
+        let temp = overAllData.filter(x => x[getSearchKey(searchBy)].toLowerCase().includes(search.toLowerCase()));
+        setMasterData([...temp]);
+    };
+    const onRefresh = () => {
+        setRefreshing(true);
+        setSearchFilter({
+            searchBy: 'Production Item',
+            searchText: '',
+        });
+        handleListFetch(false, false);
+    };
+    const handleOuterRefersh=()=>{
+        handleListFetch(true);
+    }
     const renderData = ({ item }) => {
         return (
             <View style={[styles.recordConatiner]}>
-                <View style={[styles.iconBox, { backgroundColor: renderIconBgColor(item?.TypeOfInspection) }]}>
+                <View style={[styles.iconBox, { backgroundColor: renderIconBgColor(item?.InspectionType) }]}>
                     <Icon name="layers-outline" size={25} color={COLORS.white} />
                 </View>
-                <View style={{ flex: 1, paddingHorizontal: 10 }}>
-                    <Text style={[styles.cardText]}>{item?.ProductionItem}</Text>
+                <View style={{ flex: 2, paddingHorizontal: 10 }}>
+                    <Text style={[styles.cardText]}>{item?.ProductionItemName}</Text>
                     <Text style={[styles.operationText]}>
                         Operation Name : <Text style={[styles.secondText]}>{item?.OperationName}</Text>
                     </Text>
                     <Text style={[styles.operationText]}>
-                        Invoice No : <Text style={[styles.secondText]}>{item?.OrderNumber ? item?.OrderNumber : '-'}</Text>
+                        Lot No : <Text style={[styles.secondText]}>{item?.LotNo ? item?.LotNo : '-'}</Text>
                     </Text>
                     <Text style={[styles.operationText]}>
-                        Inspected Date : <Text style={[styles.secondText]}>{moment(new Date(item.ProductionStartDate)).format('DD/MM/YYYY')}</Text>
+                        Inspected Date : <Text style={[styles.secondText]}>{moment(new Date(item.EnteredDate)).format('DD/MM/YYYY')}</Text>
                     </Text>
                 </View>
                 <View style={[styles.lastBox]}>
-                    <Text style={[styles.statusText, { backgroundColor: renderBackgroundColor(item?.Status) }]}>Awaiting Approval</Text>
+                    <Text style={[styles.statusText, { backgroundColor: renderBackgroundColor(item?.LotStatus) }]}>{item?.LotStatus}</Text>
                     <View style={[styles.iconlist]}>
+                        <TouchableOpacity
+                            style={{ marginLeft: 15 }}
+                            onPress={() => {
+                                handleEyePress(item);
+                            }}>
+                            <IconI name="eye-outline" size={25} color={COLORS.grey} />
+                        </TouchableOpacity>
                         <TouchableOpacity
                             style={{ marginLeft: 15 }}
                             onPress={() => {
@@ -227,7 +259,7 @@ const SearchInspection = () => {
                             }}>
                             <ICFileIcon />
                         </TouchableOpacity>
-                        <TouchableOpacity
+                        {/* <TouchableOpacity
                             style={{ marginLeft: 15 }}
                             onPress={() => {
                                 if (item?.canDownload) {
@@ -246,7 +278,7 @@ const SearchInspection = () => {
                                 }
                             }}>
                             <IconF name="download" size={25} color={item.isDownloaded ? '#66BB6B' : '#666666'} />
-                        </TouchableOpacity>
+                        </TouchableOpacity> */}
                     </View>
                 </View>
             </View>
@@ -260,13 +292,13 @@ const SearchInspection = () => {
             handleSearch={value => {
                 setSearchFilter(pre => ({ ...pre, searchText: value }));
                 if (value?.length == 0) {
-                    handleListFetch(true, 0, true, value);
+                    handleSearchList('', searchFilter.searchBy);
                 }
             }}
-            searchValue={filterData.searchText}
+            searchValue={searchFilter.searchText}
             handleClosePress={() => {
                 setSearchFilter(pre => ({ ...pre, searchText: '' }));
-                handleListFetch(true, 0, true, '');
+                handleSearchList('', searchFilter.searchBy);
             }}
             handleFilterPress={() => {
                 setShowSearchFilter(true);
@@ -331,6 +363,15 @@ const SearchInspection = () => {
                             }}
                         />
                     </View>
+                    <View style={[styles.iconFilter]}>
+                        <TouchableOpacity
+                            style={styles.getDataBox}
+                            onPress={() => {
+                                handleOuterRefersh();
+                            }}>
+                            <IconI name="sync-sharp" size={22} color={COLORS.black} />
+                        </TouchableOpacity>
+                    </View>
                 </View>
                 {showSkeleton ? (
                     <IcSkeleton type={PLACEHOLDERS.INSPECTION_CARD} />
@@ -340,15 +381,7 @@ const SearchInspection = () => {
                         renderItem={renderData}
                         keyExtractor={(item, index) => index.toString()}
                         showsVerticalScrollIndicator={false}
-                        onEndReached={() => {
-                            if (!loading && hasMore) {
-                                handleListFetch(false, page);
-                            }
-                        }}
-                        onEndReachedThreshold={0.1} // lower threshold
-                        ListFooterComponent={
-                            loading ? <ActivityIndicator style={{ marginVertical: 10 }} size="small" color={COLORS.apptheme} /> : null
-                        }
+                        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
                     />
                 ) : (
                     <NoDataFound />
@@ -435,6 +468,15 @@ const SearchInspection = () => {
                     </View>
                 </Modal>
             )}
+            {Boolean(showEye) && (
+                <PartDetails
+                    visible={showEye}
+                    onDismiss={() => {
+                        setShowEye(false);
+                    }}
+                    selectedData={selectedData}
+                />
+            )}
         </CustomHeader>
     );
 };
@@ -480,9 +522,10 @@ const styles = StyleSheet.create({
     statusText: {
         color: COLORS.white,
         fontFamily: 'OpenSans-Regular',
-        paddingHorizontal: 5,
+        paddingHorizontal: 10,
         paddingVertical: 5,
         borderRadius: 4,
+        textAlign: 'center',
     },
     iconlist: {
         flexDirection: 'row',
@@ -490,6 +533,7 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-end',
     },
     lastBox: {
+        flex: 1,
         flexDirection: 'column',
         justifyContent: 'space-between',
     },
@@ -514,10 +558,10 @@ const styles = StyleSheet.create({
         color: COLORS.headerText,
     },
     filterBox: {
-        width: '35%',
+        width: '32%',
     },
     filterList: {
-        width: '25%',
+        width: '23%',
     },
     iconFilter: {
         width: '10%',

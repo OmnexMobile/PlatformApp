@@ -88,7 +88,7 @@ const FilterWithMenu = ({ dataList = [], type = 'IconFilter', onSelectedPress = 
                                 onMenuPress(item);
                             }}
                             title={item?.title}
-                            titleStyle={{ color: '#fff', fontFamily: 'OpenSans-SemiBold', fontSize: RFPercentage(1.6) }}
+                            titleStyle={{ color: '#fff', fontFamily: 'OpenSans-SemiBold', fontSize: 16 }}
                         />
                     </TouchableOpacity>
                 );

@@ -25,8 +25,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
     },
     radioCircle: {
-        height: RFPercentage(2.5),
-        width: RFPercentage(2.5),
+        height: 25,
+        width: 25,
         borderRadius: 100,
         borderWidth: 2,
         alignItems: 'center',
@@ -34,8 +34,8 @@ const styles = StyleSheet.create({
         marginRight: SPACING.SMALL,
     },
     selectedRb: {
-        width: RFPercentage(1.5),
-        height: RFPercentage(1.5),
+        width: 15,
+        height: 15,
         borderRadius: 50,
     },
     result: {
@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
     },
     radioText:{
         fontFamily:'OpenSans-Regular',
-        fontSize:RFPercentage(1.9),
+        fontSize:19,
         color:COLORS.ictextBlack
     }
 });

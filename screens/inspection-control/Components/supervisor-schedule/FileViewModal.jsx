@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
     },
     headerText: {
         fontFamily: 'OpenSans-SemiBold',
-        fontSize: 18,
+        fontSize: 16,
         marginBottom: 13,
         color: COLORS.ictextBlack,
     },
@@ -169,7 +169,7 @@ const styles = StyleSheet.create({
     btnStyle: {
         color: COLORS.apptheme,
         fontFamily: 'OpenSans-Bold',
-        fontSize:18,
+        fontSize:16,
     },
     iconConatiner: {
         backgroundColor: COLORS.apptheme,
@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
     },
     fileText: {
         fontFamily: 'OpenSans-SemiBold',
-        fontSize: 16,
+        fontSize: 14,
         color: COLORS.ictextBlack,
     },
     loaderStyle: {
