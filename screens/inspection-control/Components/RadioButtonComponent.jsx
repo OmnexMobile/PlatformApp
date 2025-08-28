@@ -1,32 +1,30 @@
 import { COLORS, SPACING } from 'constants/theme-constants';
 import { RFPercentage } from 'helpers/utils';
-import React from 'react'
+import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import useTheme from 'theme/useTheme';
 
-const RadioButtonComponent = ({lable='Radio Text',value='',onChange=()=>{},obj={}}) => {
+const RadioButtonComponent = ({ lable = 'Radio Text', value = '', onChange = () => {}, obj = {}, size = 25, selectedSize = 15,textSize=19 }) => {
     const { theme } = useTheme();
-  return (
-    <TouchableOpacity
-        onPress={() => onChange(obj)}
-        activeOpacity={0.8}
-        style={styles.container}
-    >
-        <View style={[styles.radioCircle, { borderColor: theme.colors.primaryThemeColor }]}>
-            {value === lable && <View style={[styles.selectedRb, { backgroundColor: theme.colors.primaryThemeColor }]} />}
-        </View>
-        <Text style={styles.radioText}>{lable}</Text>
-    </TouchableOpacity>
-  )
-}
+    return (
+        <TouchableOpacity onPress={() => onChange(obj)} activeOpacity={0.8} style={styles.container}>
+            <View style={[styles.radioCircle, { borderColor: theme.colors.primaryThemeColor, height: size, width: size }]}>
+                {value === lable && (
+                    <View
+                        style={[styles.selectedRb, { backgroundColor: theme.colors.primaryThemeColor, width: selectedSize, height: selectedSize }]}
+                    />
+                )}
+            </View>
+            <Text style={[styles.radioText, { fontSize: textSize, fontFamily: 'OpenSans-Regular' }]}>{lable}</Text>
+        </TouchableOpacity>
+    );
+};
 const styles = StyleSheet.create({
     container: {
         alignItems: 'center',
         flexDirection: 'row',
     },
     radioCircle: {
-        height: 25,
-        width: 25,
         borderRadius: 100,
         borderWidth: 2,
         alignItems: 'center',
@@ -34,8 +32,6 @@ const styles = StyleSheet.create({
         marginRight: SPACING.SMALL,
     },
     selectedRb: {
-        width: 15,
-        height: 15,
         borderRadius: 50,
     },
     result: {
@@ -44,11 +40,11 @@ const styles = StyleSheet.create({
         fontWeight: '600',
         backgroundColor: '#F3FBFE',
     },
-    radioText:{
-        fontFamily:'OpenSans-Regular',
-        fontSize:19,
-        color:COLORS.ictextBlack
-    }
+    radioText: {
+        fontFamily: 'OpenSans-Regular',
+
+        color: COLORS.ictextBlack,
+    },
 });
 
-export default RadioButtonComponent
+export default RadioButtonComponent;

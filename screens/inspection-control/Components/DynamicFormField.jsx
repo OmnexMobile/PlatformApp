@@ -6,6 +6,7 @@ import DataPickerWithIcon from './DataPickerWithIcon';
 import moment from 'moment';
 import { TouchableOpacity } from 'react-native';
 import InputFilePicker from './inprocess-inspection/InputFilePicker';
+import ListRadioButton from './inprocess-inspection/ListRadioButton';
 
 const DynamicFormField = ({
     fieldType = '',
@@ -106,13 +107,21 @@ const DynamicFormField = ({
                         title={title}
                         handleInputChange={val => {
                             if (val.length) {
-                                console.log(val[0],'val[0]')
+                                console.log(val[0], 'val[0]');
                                 handleChange(val[0]);
                             } else {
                                 handleChange('');
                             }
                         }}
                     />
+                </View>
+            );
+        case 'radioButton':
+        case 'RadioButton':
+        case 'Radio':
+            return (
+                <View style={{ marginTop: 8 }}>
+                    <ListRadioButton options={dropDownData} value={value || ''} handleChange={handleChange} />
                 </View>
             );
         default:

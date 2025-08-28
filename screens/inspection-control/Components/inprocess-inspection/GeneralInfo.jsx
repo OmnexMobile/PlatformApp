@@ -2,6 +2,7 @@ import React, { useCallback } from 'react';
 import { KeyboardAvoidingView, ScrollView, StyleSheet, Text, View, Platform } from 'react-native';
 import { COLORS } from 'constants/theme-constants';
 import DynamicFormField from '../DynamicFormField';
+import ListRadioButton from './ListRadioButton';
 
 const GeneralInfo = ({ infoData = {}, setInfoData = () => {}, intInspectionTypeID = '' }) => {
     const handleInputChange = (val, item) => {
@@ -32,7 +33,7 @@ const GeneralInfo = ({ infoData = {}, setInfoData = () => {}, intInspectionTypeI
                                         </Text>
                                         <DynamicFormField
                                             title="Supplier Name"
-                                            fieldType={item.DisplayName == 'Approver' ? 'singleDropDown' : item.DataType}
+                                            fieldType={item.FieldType}
                                             value={item.Value}
                                             isEditable={Boolean(item?.IsEditable)}
                                             dropDownData={dropList || []}
@@ -53,7 +54,7 @@ const GeneralInfo = ({ infoData = {}, setInfoData = () => {}, intInspectionTypeI
                                         <Text style={styles.headerText}>{item.DisplayName}</Text>
                                         <DynamicFormField
                                             title="Supplier Name"
-                                            fieldType={item.DisplayName == 'Approver' ? 'singleDropDown' : item.DataType}
+                                            fieldType={item.FieldType}
                                             value={item.Value}
                                             isEditable={Boolean(item?.IsEditable)}
                                             dropDownData={dropList || []}
@@ -70,7 +71,7 @@ const GeneralInfo = ({ infoData = {}, setInfoData = () => {}, intInspectionTypeI
                                     </Text>
                                     <DynamicFormField
                                         title="Supplier Name"
-                                        fieldType={item.DisplayName == 'Approver' ? 'singleDropDown' : item.DataType}
+                                        fieldType={item.FieldType}
                                         value={item.Value}
                                         isEditable={Boolean(item?.IsEditable)}
                                         dropDownData={dropList || []}
@@ -96,13 +97,13 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         flexWrap: 'wrap',
         justifyContent: 'space-between',
-        flex:1,
+        flex: 1,
     },
     subBox: {
         width: '48%', // two columns
         marginBottom: 10,
-        flexDirection:'column',
-        justifyContent:'flex-end'
+        flexDirection: 'column',
+        justifyContent: 'flex-end',
     },
     headerText: {
         fontFamily: 'OpenSans-SemiBold',
