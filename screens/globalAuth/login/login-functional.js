@@ -113,7 +113,7 @@ const LoginFunctional = ({}) => {
         const response = await postAPI(`${APIURL}${ApiUrl.IC_LOGIN}`, formData);
 
         if (response?.Success) {
-            response?.Token && setProfileCall(response?.data); // navigate to home
+            Boolean(response?.Data?.length) && response?.Data.sort((a, b) => (a.SiteName == 'Corporate' ? -1 : b.SiteName == 'Corporate' ? 1 : 0));
             let icUserData = {
                 userData: response?.Data[0] || {},
                 token: response?.Token || '',
