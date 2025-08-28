@@ -113,7 +113,7 @@ const LoginFunctional = ({}) => {
         const response = await postAPI(`${APIURL}${ApiUrl.IC_LOGIN}`, formData);
 
         if (response?.Success) {
-            response?.Token && setProfileCall(response?.data); // navigate to home
+            Boolean(response?.Data?.length) && response?.Data.sort((a, b) => (a.SiteName == 'Corporate' ? -1 : b.SiteName == 'Corporate' ? 1 : 0));
             let icUserData = {
                 userData: response?.Data[0] || {},
                 token: response?.Token || '',
@@ -122,8 +122,8 @@ const LoginFunctional = ({}) => {
             const settingsRes = await postAPI(`${APIURL}${ApiUrl.IC_SETTINGS}`);
             if (settingsRes.Success) {
                 const settings = {
-                ...settingsRes?.Data[0],
-            };
+                    ...settingsRes?.Data[0],
+                };
                 dispatch({ type: 'IC_SETTINGS', icSettings: settings || {} });
             }
             response?.Token && setProfileCall(response);
@@ -140,6 +140,7 @@ const LoginFunctional = ({}) => {
     };
 
     const setProfileCall = data => {
+        console.log(data?.Data[0],'***********data?.Data[0]')
         console.log('🚀 ~ file: login-functional.js:69 ~ setProfileCall ~ data', data);
         localStorage.storeData(LOCAL_STORAGE_VARIABLES.Token, data?.Token);
         localStorage.storeData(LOCAL_STORAGE_VARIABLES.UserId, data?.Data[0]?.UserId);
