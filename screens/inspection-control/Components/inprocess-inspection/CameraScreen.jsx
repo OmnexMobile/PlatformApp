@@ -17,9 +17,9 @@ const CameraScreen = ({ setShowCamer = () => {}, setFileList = () => {} }) => {
             const file = {
                 ...data,
                 id: uuid.v4(),
-                base64Url: data.base64,
-                fileExtension: fileExtension,
-                name:data.uri.split('/').pop()
+                Base64: data.base64,
+                FileType:fileExtension,
+                FileName:data.uri.split('/').pop()
             };
             setFileData(file);
             setPhotoUri(data.uri);

@@ -211,7 +211,6 @@ const CompletedInspection = () => {
                 item[key] = value; // update if exists, add if not
             });
 
-            console.log(item, '***************************templist*************************');
             const samples = item.Samples || [];
             let actualValue = null;
             if (type === 'number') {

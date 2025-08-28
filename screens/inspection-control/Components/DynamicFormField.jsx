@@ -101,11 +101,16 @@ const DynamicFormField = ({
                 <View style={{ marginTop: 8 }}>
                     <InputFilePicker
                         maxLimit={1}
-                        ListData={value || []}
+                        ListData={typeof value == 'object' ? [value] : value || []}
                         isEditable={isEditable}
                         title={title}
                         handleInputChange={val => {
-                            handleChange(val);
+                            if (val.length) {
+                                console.log(val[0],'val[0]')
+                                handleChange(val[0]);
+                            } else {
+                                handleChange('');
+                            }
                         }}
                     />
                 </View>

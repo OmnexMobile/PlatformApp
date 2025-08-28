@@ -91,7 +91,6 @@ const SampleCharInfo = ({
         let updatedtemp = temp.map(item => (item.PropertyName === key ? { ...item, Value: val } : item));
         setSelectedData(pre => ({ ...pre, [key]: val, charInfo: updatedtemp }));
     };
-    console.log(selectedData,'***************************selectedData');
     const handleGetUserUpadedValue = item => {
         if (item?.PropertyName === 'CHighValue' || item?.RefData === '##HighToleranceValue##') {
             return userUpdateValue.CHighValue?.toString();

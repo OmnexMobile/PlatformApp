@@ -46,8 +46,9 @@ const ModalFilePickerWithList = ({
                 const file = {
                     ...response[0],
                     id: uuid.v4(),
-                    base64Url: base64,
-                    fileExtension: fileExtension,
+                    Base64: base64,
+                    FileType: fileExtension,
+                    FileName: response[0]?.name,
                 };
                 setFileList([...fileList, file]);
                 // setSelectedData({ ...selectedData, fileList: [...fileList, file] });
@@ -128,7 +129,7 @@ const ModalFilePickerWithList = ({
                     <TouchableOpacity
                         style={[styles.iconBoxStyle]}
                         onPress={() => {
-                            openBase64File(item.base64Url, item.fileExtension, item?.name);
+                            openBase64File(item.Base64, item.FileType, item?.FileName);
                         }}>
                         <IconI name="eye-outline" size={22} color={COLORS.grey} />
                     </TouchableOpacity>

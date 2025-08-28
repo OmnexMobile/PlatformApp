@@ -45,8 +45,9 @@ const InputFilePicker = ({ ListData = [], maxLimit = 10, isEditable = false, tit
                 const file = {
                     ...response[0],
                     id: uuid.v4(),
-                    base64Url: base64,
-                    fileExtension: fileExtension,
+                    Base64: base64,
+                    FileType: fileExtension,
+                    FileName: response[0]?.name,
                 };
                 setFileList([...fileList, file]);
                 // setSelectedData({ ...selectedData, fileList: [...fileList, file] });
@@ -87,13 +88,13 @@ const InputFilePicker = ({ ListData = [], maxLimit = 10, isEditable = false, tit
                     <Text style={[styles.fileText, { marginRight: 10 }]}>{index + 1}</Text>
                 </View>
                 <View style={styles.textContainer}>
-                    <Text style={[styles.fileText]}>{item?.name}</Text>
+                    <Text style={[styles.fileText]}>{item?.FileName}</Text>
                 </View>
                 <View style={[styles.iconContainer]}>
                     <TouchableOpacity
                         style={[styles.iconBoxStyle]}
                         onPress={() => {
-                            openBase64File(item.base64Url, item.fileExtension, item?.name);
+                            openBase64File(item.Base64, item.FileType, item?.FileName);
                         }}>
                         <IconI name="eye-outline" size={22} color={COLORS.grey} />
                     </TouchableOpacity>
