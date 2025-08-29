@@ -197,16 +197,30 @@ const CompletedInspection = () => {
     };
     const convertSampleList = (templist, type = 'number') => {
         let characteristicDetails = templist.map(item => {
-            let charInfoObj = {};
-            if (item.charInfo) {
-                // charInfoObj = item.charInfo.reduce((acc, curr) => {
-                //     acc[curr.PropertyName] = curr.Value;
-                //     return acc;
-                // }, {});
-                item.charInfo.map(item => {
-                    charInfoObj[item.PropertyName] = item?.Value?.value ? item.Value.value : item.Value;
-                });
-            }
+            // let charInfoObj = {};
+            // if (item.charInfo) {
+            //     // charInfoObj = item.charInfo.reduce((acc, curr) => {
+            //     //     acc[curr.PropertyName] = curr.Value;
+            //     //     return acc;
+            //     // }, {});
+            //     item.charInfo.map(item => {
+            //         if (item.ReferenceName != null) {
+            //             charInfoObj[item.ReferenceName] = item?.Value?.value ? item.Value.value : item.Value;
+            //         } else if (item.ReferenceName == null && item.PropertyName) {
+            //             charInfoObj[item.PropertyName] = item?.Value?.value ? item.Value.value : item.Value;
+            //         }
+            //     });
+            // }
+            const array = item.charInfo;
+
+            const charInfoObj = array.reduce((acc, item) => {
+                const key = item.ReferenceName ?? item.PropertyName;
+                acc[key] = item?.Value?.value ? item.Value.value : item.Value;
+                return acc;
+            }, {});
+
+            console.log(charInfoObj,'************');
+
             Object.entries(charInfoObj).forEach(([key, value]) => {
                 item[key] = value; // update if exists, add if not
             });
@@ -239,7 +253,7 @@ const CompletedInspection = () => {
             return {
                 ...item,
                 Samples: undefined,
-                charInfo:undefined,
+                charInfo: undefined,
                 ActualValue: actualValue !== Infinity ? String(actualValue) : '',
                 ID: String(item.ID || ''),
                 ...(item?.DefectsValue &&
@@ -313,7 +327,7 @@ const CompletedInspection = () => {
             setSyncModal(false);
             // const flag = await deleteInspectionByUniqueId(selectedValue.uniqueId);
             showMessage({
-                message:'Inspection synced successfully',
+                message: 'Inspection synced successfully',
                 backgroundColor: COLORS.SUCCESS,
                 color: COLORS.white,
                 duration: 1500,
