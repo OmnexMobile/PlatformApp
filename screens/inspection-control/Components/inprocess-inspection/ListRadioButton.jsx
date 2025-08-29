@@ -5,16 +5,17 @@ import { ScrollView } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
 const isTablet = Math.min(width, height) >= 768; // threshold for tablet
-const ListRadioButton = ({ options = [], onChange,value }) => {
+const ListRadioButton = ({ options = [], onChange, value, title = '',handleRadioChange=()=>{} }) => {
     const [selected, setSelected] = useState('');
     useEffect(() => {
-        if(value!==''){
+        if (value !== '') {
             setSelected(value);
-        }else{
+        } else {
             setSelected('');
         }
-    },[value])
+    }, [value]);
     const handleChange = item => {
+        handleRadioChange(item.value);
         setSelected(item.label);
         onChange?.(item);
     };
@@ -25,19 +26,34 @@ const ListRadioButton = ({ options = [], onChange,value }) => {
             showsHorizontalScrollIndicator={false}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={[styles.container, { flexDirection: isTablet ? 'row' : 'column' }]}>
-            {options.map((item, index) => (
-                <View key={index} style={{ marginRight: isTablet ? 0 : 16, marginBottom: isTablet ? 12 : 0 }}>
-                    <RadioButtonComponent
-                        lable={item.label}
-                        value={selected}
-                        obj={item}
-                        onChange={handleChange}
-                        size={17}
-                        selectedSize={8}
-                        textSize={17}
-                    />
-                </View>
-            ))}
+            {Boolean(options.length) ? (
+                options.map((item, index) => (
+                    <View key={index} style={{ marginRight: isTablet ? 0 : 16, marginBottom: isTablet ? 12 : 0 }}>
+                        <RadioButtonComponent
+                            lable={item.label}
+                            value={selected}
+                            obj={item}
+                            onChange={handleChange}
+                            size={17}
+                            selectedSize={8}
+                            textSize={17}
+                        />
+                    </View>
+                ))
+            ) : (
+                <RadioButtonComponent
+                    lable={title}
+                    value={selected}
+                    obj={{
+                        label: title,
+                        value: title,
+                    }}
+                    onChange={handleChange}
+                    size={17}
+                    selectedSize={8}
+                    textSize={17}
+                />
+            )}
         </ScrollView>
     );
 };

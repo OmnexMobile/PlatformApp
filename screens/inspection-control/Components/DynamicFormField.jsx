@@ -16,6 +16,7 @@ const DynamicFormField = ({
     placeHolder = '',
     isEditable = true,
     title = '',
+    DisplayName = '',
 }) => {
     const { width } = useWindowDimensions();
     switch (fieldType) {
@@ -121,7 +122,7 @@ const DynamicFormField = ({
         case 'Radio':
             return (
                 <View style={{ marginTop: 8 }}>
-                    <ListRadioButton options={dropDownData} value={value || ''} handleChange={handleChange} />
+                    <ListRadioButton options={dropDownData} value={value || ''} handleRadioChange={handleChange} title={DisplayName} />
                 </View>
             );
         default:

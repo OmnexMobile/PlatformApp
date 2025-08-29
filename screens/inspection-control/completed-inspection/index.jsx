@@ -522,7 +522,7 @@ const styles = StyleSheet.create({
     },
     headertext: {
         fontFamily: 'OpenSans-SemiBold',
-        fontSize: RFPercentage(2.2),
+        fontSize: 22,
         paddingBottom: 12,
         color: COLORS.ictextBlack,
     },
@@ -540,7 +540,7 @@ const styles = StyleSheet.create({
     btnStyle: {
         color: COLORS.apptheme,
         fontFamily: 'OpenSans-SemiBold',
-        fontSize: RFPercentage(1.8),
+        fontSize: 18,
     },
     bubbleBox: {
         minHeight: 300,

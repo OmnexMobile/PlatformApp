@@ -4,7 +4,7 @@ import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
-const ICCheckBox = ({ isChecked = false, label = 'label', onChange = () => {}, fontSize = RFPercentage(2), fontFamily = 'OpenSans-Regular' }) => {
+const ICCheckBox = ({ isChecked = false, label = 'label', onChange = () => {}, fontSize = 20, fontFamily = 'OpenSans-Regular' }) => {
     return (
         <TouchableOpacity style={[styles.box]} activeOpacity={1} onPress={onChange}>
             <TouchableOpacity
@@ -22,8 +22,8 @@ const ICCheckBox = ({ isChecked = false, label = 'label', onChange = () => {}, f
 
 const styles = StyleSheet.create({
     container: {
-        height: RFPercentage(2.5),
-        width: RFPercentage(2.5),
+        height: 25,
+        width: 25,
         alignItems: 'center',
         justifyContent: 'center',
     },

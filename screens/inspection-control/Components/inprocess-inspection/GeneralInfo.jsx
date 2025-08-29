@@ -6,9 +6,11 @@ import ListRadioButton from './ListRadioButton';
 
 const GeneralInfo = ({ infoData = {}, setInfoData = () => {}, intInspectionTypeID = '' }) => {
     const handleInputChange = (val, item) => {
+        console.log('handlechange', val, item);
         const updatedData = infoData.GeneralInfo.map(i => (i.PropertyName === item.PropertyName ? { ...i, Value: val } : i));
         setInfoData(pre => ({ ...pre, GeneralInfo: updatedData }));
     };
+    // console.log(infoData.GeneralInfo, 'infoData');
 
     return (
         <KeyboardAvoidingView
@@ -38,6 +40,7 @@ const GeneralInfo = ({ infoData = {}, setInfoData = () => {}, intInspectionTypeI
                                             isEditable={Boolean(item?.IsEditable)}
                                             dropDownData={dropList || []}
                                             handleChange={val => handleInputChange(val, item)}
+                                            DisplayName={item.DisplayName}
                                         />
                                     </View>
                                 )
@@ -59,6 +62,7 @@ const GeneralInfo = ({ infoData = {}, setInfoData = () => {}, intInspectionTypeI
                                             isEditable={Boolean(item?.IsEditable)}
                                             dropDownData={dropList || []}
                                             handleChange={val => handleInputChange(val, item)}
+                                            DisplayName={item.DisplayName}
                                         />
                                     </View>
                                 )
@@ -76,6 +80,7 @@ const GeneralInfo = ({ infoData = {}, setInfoData = () => {}, intInspectionTypeI
                                         isEditable={Boolean(item?.IsEditable)}
                                         dropDownData={dropList || []}
                                         handleChange={val => handleInputChange(val, item)}
+                                        DisplayName={item.DisplayName}
                                     />
                                 </View>
                             );
