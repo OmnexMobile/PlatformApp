@@ -23,7 +23,7 @@ const SampleCharInfo = ({
     const [defectList, setDefectList] = useState([]);
 
     useEffect(() => {
-        let tempCharInfo = selectedData?.charInfo?.map(item => {
+        let tempCharInfo = Boolean(selectedData?.charInfo?.length)? selectedData?.charInfo?.map(item => {
             if (
                 item.PropertyName == 'CHighValue' ||
                 item.PropertyName == 'CLowValue' ||
@@ -34,7 +34,7 @@ const SampleCharInfo = ({
             } else {
                 return { ...item, Value: item.Value || '' };
             }
-        });
+        }):[];
         setUserUpdateValue(prev => ({
             ...prev,
             CHighValue: selectedData?.CHighValue.toString() || '',
