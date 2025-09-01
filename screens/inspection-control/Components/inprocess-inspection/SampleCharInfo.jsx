@@ -46,6 +46,7 @@ const SampleCharInfo = ({
     }, [selectedData]);
 
     const handleUserInputChange = (key, val, type, oldValue) => {
+        console.log(val !== oldValue, val,oldValue,'val !== oldValue');
         setUserUpdateValue(pre => ({ ...pre, [key]: val }));
         setTypeOfModal(type);
         if (val !== oldValue) {
@@ -235,7 +236,7 @@ const SampleCharInfo = ({
                     value={userUpdateValue?.CSampleSize || ''}
                     style={[styles.inputBox, { backgroundColor: COLORS.inputBG }]}
                     onChangeText={val => {
-                        handleUserInputChange('CSampleSize', val, 'samplesize');
+                        handleUserInputChange('CSampleSize', val, 'samplesize',selectedData.CSampleSize);
                     }}
                     placeholder={''}
                 />
