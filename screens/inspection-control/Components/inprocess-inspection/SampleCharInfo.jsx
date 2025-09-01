@@ -137,7 +137,7 @@ const SampleCharInfo = ({
                                         } else if (item.PropertyName == 'CTolerance' || item.RefData == '##ATTorVAR##') {
                                             handleUserInputChange(item.PropertyName, val, 'spec', selectedData.CTolerance, 'CTolerance');
                                         } else if (item.PropertyName == 'CSampleSize' || item.RefData == '##SampleSize##' || item.PropertyName.includes('SampleSize')) {
-                                            handleUserInputChange('CSampleSize', val, 'samplesize', null, 'CSampleSize');
+                                            handleUserInputChange('CSampleSize', val, 'samplesize', selectedData.CSampleSize, 'CSampleSize');
                                         } else {
                                             handleInputChange(item.PropertyName, val);
                                         }
