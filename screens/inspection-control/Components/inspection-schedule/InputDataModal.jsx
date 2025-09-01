@@ -523,7 +523,7 @@ const InputDataModal = ({
                                     />
                                 </View>
                             )}
-                            <View style={[styles.inputContainer, { width: isTablet ? '48%' : '100%' }]}>
+                            {/* <View style={[styles.inputContainer, { width: isTablet ? '48%' : '100%' }]}>
                                 <View style={[styles.row]}>
                                     <Text style={styles.inputText}>Inspection Mode</Text>
                                     <TouchableOpacity style={{ paddingHorizontal: 10 }} onPress={() => setShowSamplingModal(true)}>
@@ -531,7 +531,7 @@ const InputDataModal = ({
                                     </TouchableOpacity>
                                 </View>
                                 <TextInput style={[styles.inputBox]} value={'Normal'} editable={false} />
-                            </View>
+                            </View> */}
                         </View>
                     </ScrollView>
                     <Divider />
