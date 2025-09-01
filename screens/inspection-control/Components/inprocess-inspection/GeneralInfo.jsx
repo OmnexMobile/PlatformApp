@@ -22,7 +22,6 @@ const GeneralInfo = ({ infoData = {}, setInfoData = () => {}, intInspectionTypeI
             <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
                 <View style={styles.rowContainer}>
                     {(infoData.GeneralInfo || []).map((item, index) => {
-                        let dropList = item?.List?.length && item?.List.map(i => ({ value: i?.Supervisor, label: i?.Supervisor, ...i }));
                         if (intInspectionTypeID == 1) {
                             return (
                                 item.DisplayName != 'Model' &&
@@ -38,7 +37,7 @@ const GeneralInfo = ({ infoData = {}, setInfoData = () => {}, intInspectionTypeI
                                             fieldType={item.FieldType}
                                             value={item.Value}
                                             isEditable={Boolean(item?.IsEditable)}
-                                            dropDownData={dropList || []}
+                                            dropDownData={item?.List || []}
                                             handleChange={val => handleInputChange(val, item)}
                                             DisplayName={item.DisplayName}
                                         />
@@ -60,7 +59,7 @@ const GeneralInfo = ({ infoData = {}, setInfoData = () => {}, intInspectionTypeI
                                             fieldType={item.FieldType}
                                             value={item.Value}
                                             isEditable={Boolean(item?.IsEditable)}
-                                            dropDownData={dropList || []}
+                                            dropDownData={item?.List || []}
                                             handleChange={val => handleInputChange(val, item)}
                                             DisplayName={item.DisplayName}
                                         />
@@ -78,7 +77,7 @@ const GeneralInfo = ({ infoData = {}, setInfoData = () => {}, intInspectionTypeI
                                         fieldType={item.FieldType}
                                         value={item.Value}
                                         isEditable={Boolean(item?.IsEditable)}
-                                        dropDownData={dropList || []}
+                                        dropDownData={item?.List || []}
                                         handleChange={val => handleInputChange(val, item)}
                                         DisplayName={item.DisplayName}
                                     />
