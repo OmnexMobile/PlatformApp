@@ -18,6 +18,9 @@ import { ViewPropTypes, TextPropTypes } from 'deprecated-react-native-prop-types
 use this before create debug build
 npx react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res/
 
+To create aab build 
+cd android && ./gradlew clean && ./gradlew bundleRelease
+
 To create debug build
 cd android && ./gradlew clean && ./gradlew assembleDebug
 
