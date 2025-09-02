@@ -43,6 +43,7 @@ const SingleDropDown = ({
                 }}
                 disable={!editable}
                 containerStyle={containerStyle}
+                dropdownPosition='top'
             />
         </View>
     );

@@ -81,7 +81,7 @@ const CustomHeader = ({
     const widthAnim = useRef(new Animated.Value(0)).current;
 
     const bottomTabList = useMemo(() => {
-        return icSettings?.SearchInspectionNeeded ? footerListWithoutSchedule : footerListWithoutSearch;
+        return !icSettings?.SearchInspectionNeeded ? footerListWithoutSchedule : footerListWithoutSearch;
     }, [icSettings?.SearchInspectionNeeded]);
     useEffect(() => {
         if (searchValue?.length) {
@@ -302,6 +302,7 @@ const styles = StyleSheet.create({
         backgroundColor: COLORS.white,
         height: 80,
         paddingHorizontal: 15,
+        marginBottom:20
     },
     tabBox: {
         alignItems: 'center',
