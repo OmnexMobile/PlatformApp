@@ -11,10 +11,13 @@ import { Bubbles } from 'react-native-loader';
 import NoDataFound from '../NoDataFound';
 import { check, request, PERMISSIONS, RESULTS, openSettings } from 'react-native-permissions';
 import { showMessage } from 'react-native-flash-message';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const OfflineFileViewModal = ({ list = [], visible = false, onDismiss = () => {} }) => {
     const [fileList, setFileList] = useState([]);
     const [showLoader, setShowLoader] = useState(false);
+    const insets = useSafeAreaInsets();
+
     const handleFileViewPress = async (fileName, url, fileExtension) => {
         try {
             // Define the file path (change extension based on file type)
@@ -53,7 +56,7 @@ const OfflineFileViewModal = ({ list = [], visible = false, onDismiss = () => {}
                     statusBarHeight: 40,
                     icon: 'success',
                     position: 'right',
-                    style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+                    style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : { paddingTop: insets.top },
                 });
                 return filePath;
             } else {
@@ -74,7 +77,7 @@ const OfflineFileViewModal = ({ list = [], visible = false, onDismiss = () => {}
                         statusBarHeight: 40,
                         icon: 'success',
                         position: 'right',
-                        style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+                        style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : { paddingTop: insets.top },
                     });
                 }
 

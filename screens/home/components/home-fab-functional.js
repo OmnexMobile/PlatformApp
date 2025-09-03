@@ -272,7 +272,7 @@ const HomeFabFunctional = ({ countDetails }) => {
         setShowLogoutModal(false);
     };
     return (
-        <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
+        <SafeAreaView style={[styles.container]}>
             <Content noPadding>
                 {Platform.OS === 'ios' ? <View style={{ padding: 10, flexDirection: 'row' }} /> : null}
                 {/* <Header title={name} backState={true} /> */}

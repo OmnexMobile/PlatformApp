@@ -305,7 +305,7 @@ const IcSettings = () => {
         };
     }, [searchText]);
     return (
-        <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
+        <SafeAreaView style={[styles.container]}>
             <KeyboardAvoidingView style={styles.container}>
                 <View style={styles.headerBox}>
                     <View style={styles.iconBox}>

@@ -23,6 +23,7 @@ import { Divider, Modal } from 'react-native-paper';
 import { Bubbles } from 'react-native-loader';
 import RadioButtonComponent from '../Components/RadioButtonComponent';
 import PartDetails from '../Components/supervisor-schedule/PartDetails';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const filterList = [
     {
@@ -85,6 +86,7 @@ const searchFilterList = [
     },
 ];
 const SearchInspection = () => {
+    const insets = useSafeAreaInsets();
     const { height } = useWindowDimensions();
     const { icUserData } = useSelector(state => state.inspection);
     const dispatch = useDispatch();
@@ -221,9 +223,9 @@ const SearchInspection = () => {
         });
         handleListFetch(false, false);
     };
-    const handleOuterRefersh=()=>{
+    const handleOuterRefersh = () => {
         handleListFetch(true);
-    }
+    };
     const renderData = ({ item }) => {
         return (
             <View style={[styles.recordConatiner]}>
@@ -323,7 +325,7 @@ const SearchInspection = () => {
                                         statusBarHeight: 40,
                                         icon: 'danger',
                                         position: 'right',
-                                        style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+                                        style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : { paddingTop: insets.top },
                                     });
                                 }
                             }}
@@ -348,7 +350,7 @@ const SearchInspection = () => {
                                         statusBarHeight: 40,
                                         icon: 'danger',
                                         position: 'right',
-                                        style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+                                        style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : { paddingTop: insets.top },
                                     });
                                 }
                             }}

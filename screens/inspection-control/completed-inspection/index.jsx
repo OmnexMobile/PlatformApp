@@ -24,6 +24,7 @@ import { showMessage } from 'react-native-flash-message';
 import { deleteInspectionByUniqueId, getInspectionDataByUserAndSite } from 'store/database/inspectStorage';
 import { isArray } from 'underscore';
 import { showErrorMessage } from 'helpers/utils';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const optionsList = [
     {
@@ -59,6 +60,7 @@ const optionsList = [
 ];
 
 const CompletedInspection = () => {
+    const insets = useSafeAreaInsets();
     const { icUserData } = useSelector(state => state.inspection);
     const [syncModal, setSyncModal] = useState(false);
     const [syncList, setSyncList] = useState([...optionsList]);
@@ -99,9 +101,6 @@ const CompletedInspection = () => {
         }
     }, [icUserData, isFocused]);
 
-    const handleISbtnpress = () => {
-        navigation.navigate(ROUTES.INSPECTION_SCHEDULE);
-    };
     const handleSyncPress = item => {
         setSyncModal(true);
         setSelectedValue(item);
@@ -219,7 +218,7 @@ const CompletedInspection = () => {
                 return acc;
             }, {});
 
-            console.log(charInfoObj,'************');
+            console.log(charInfoObj, '************');
 
             Object.entries(charInfoObj).forEach(([key, value]) => {
                 item[key] = value; // update if exists, add if not
@@ -325,7 +324,7 @@ const CompletedInspection = () => {
         const response = await postAPI(selectedValue.intInspectionTypeID == '2' ? ApiUrl.IC_INPROCESS_SINGLE_SYNC : ApiUrl.IC_SINGLE_SYNC, payLoad);
         if (response?.insertedCount) {
             setSyncModal(false);
-            // const flag = await deleteInspectionByUniqueId(selectedValue.uniqueId);
+            const flag = await deleteInspectionByUniqueId(selectedValue.uniqueId);
             showMessage({
                 message: 'Inspection synced successfully',
                 backgroundColor: COLORS.SUCCESS,
@@ -334,11 +333,11 @@ const CompletedInspection = () => {
                 statusBarHeight: 40,
                 icon: 'success',
                 position: 'right',
-                style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+                style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : { paddingTop: insets.top },
             });
-            // if (flag) {
-            //     getAllCompletedData(true);
-            // }
+            if (flag) {
+                getAllCompletedData(true);
+            }
         } else {
             showMessage({
                 message: 'Something went wrong',
@@ -348,7 +347,7 @@ const CompletedInspection = () => {
                 statusBarHeight: 40,
                 icon: 'warning',
                 position: 'right',
-                style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+                style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : { paddingTop: insets.top },
             });
         }
         setDisableBtn(false);
@@ -379,16 +378,6 @@ const CompletedInspection = () => {
                     <NoDataFound />
                 )}
             </View>
-            {/* <View style={[styles.btnContainer]}>
-                <ButtonComponent
-                    style={{ height: 40 }}
-                    onPress={() => {
-                        handleISbtnpress();
-                    }}
-                    textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}>
-                    Inspection Schedule
-                </ButtonComponent>
-            </View> */}
             {Boolean(syncModal) && (
                 <Modal visible={syncModal} onDismiss={hideModal} contentContainerStyle={{ flexDirection: 'row', justifyContent: 'center' }}>
                     <View style={[styles.modalContainer]}>

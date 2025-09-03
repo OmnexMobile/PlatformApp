@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { showMessage } from 'react-native-flash-message';
 import InputFilePicker from './InputFilePicker';
 import SingleDropDown from '../SingleDropDown';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const SampleCharInfo = ({
     selectedData = {},
@@ -21,20 +22,22 @@ const SampleCharInfo = ({
     inspectionType = '',
 }) => {
     const [defectList, setDefectList] = useState([]);
-
+    const insets = useSafeAreaInsets();
     useEffect(() => {
-        let tempCharInfo = Boolean(selectedData?.charInfo?.length)? selectedData?.charInfo?.map(item => {
-            if (
-                item.PropertyName == 'CHighValue' ||
-                item.PropertyName == 'CLowValue' ||
-                item.PropertyName == 'CSampleSize' ||
-                item.PropertyName == 'CTolerance'
-            ) {
-                return { ...item, Value: item.Value.toString() || '' };
-            } else {
-                return { ...item, Value: item.Value || '' };
-            }
-        }):[];
+        let tempCharInfo = Boolean(selectedData?.charInfo?.length)
+            ? selectedData?.charInfo?.map(item => {
+                  if (
+                      item.PropertyName == 'CHighValue' ||
+                      item.PropertyName == 'CLowValue' ||
+                      item.PropertyName == 'CSampleSize' ||
+                      item.PropertyName == 'CTolerance'
+                  ) {
+                      return { ...item, Value: item.Value.toString() || '' };
+                  } else {
+                      return { ...item, Value: item.Value || '' };
+                  }
+              })
+            : [];
         setUserUpdateValue(prev => ({
             ...prev,
             CHighValue: selectedData?.CHighValue.toString() || '',
@@ -81,7 +84,7 @@ const SampleCharInfo = ({
                         statusBarHeight: 40,
                         icon: 'warning',
                         position: 'right',
-                        style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+                        style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : { paddingTop: insets.top },
                     });
             }
         }
@@ -136,7 +139,11 @@ const SampleCharInfo = ({
                                             handleUserInputChange(item.PropertyName, val, 'lowvalue', selectedData.CLowValue, 'CLowValue');
                                         } else if (item.PropertyName == 'CTolerance' || item.RefData == '##ATTorVAR##') {
                                             handleUserInputChange(item.PropertyName, val, 'spec', selectedData.CTolerance, 'CTolerance');
-                                        } else if (item.PropertyName == 'CSampleSize' || item.RefData == '##SampleSize##' || item.PropertyName.includes('SampleSize')) {
+                                        } else if (
+                                            item.PropertyName == 'CSampleSize' ||
+                                            item.RefData == '##SampleSize##' ||
+                                            item.PropertyName.includes('SampleSize')
+                                        ) {
                                             handleUserInputChange('CSampleSize', val, 'samplesize', selectedData.CSampleSize, 'CSampleSize');
                                         } else {
                                             handleInputChange(item.PropertyName, val);

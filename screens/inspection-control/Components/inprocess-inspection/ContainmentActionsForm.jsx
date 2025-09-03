@@ -4,10 +4,12 @@ import InputBoxWithHeader from '../InputBoxWithHeader';
 import { ButtonComponent } from 'components';
 import { COLORS } from 'constants/theme-constants';
 import { showMessage } from 'react-native-flash-message';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const ContainmentActionsForm = ({ type = '', masterData, handleSubmit = () => {}, inspectionType = '' }) => {
     const [pageData, setPageData] = useState({});
     const inputRefs = useRef({});
+    const insets = useSafeAreaInsets();
     useEffect(() => {
         setPageData(masterData);
     }, [masterData]);
@@ -60,7 +62,7 @@ const ContainmentActionsForm = ({ type = '', masterData, handleSubmit = () => {}
                 statusBarHeight: 40,
                 icon: 'warning',
                 position: 'right',
-                style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+                style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : { paddingTop: insets.top },
             });
         }
     };

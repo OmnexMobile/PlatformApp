@@ -21,6 +21,7 @@ import NoDataFound from '../Components/NoDataFound';
 import ConfirmationModal from '../Components/inprocess-inspection/ConfirmationModal';
 import { getInspectionDataByUserAndSite, updateInspectionByUniqueId } from 'store/database/inspectStorage';
 import OfflineFileViewModal from '../Components/inprocess-inspection/OfflineFileViewModal';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 const moreList = [
     {
         id: 1,
@@ -37,6 +38,7 @@ const moreList = [
 ];
 
 const InprocessInspection = ({ route }) => {
+    const insets = useSafeAreaInsets();
     const { inspectData } = route.params;
     const { icUserData, icSettings } = useSelector(state => state.inspection);
     const [inspectList, setInspectList] = useState([]);
@@ -228,7 +230,7 @@ const InprocessInspection = ({ route }) => {
                     statusBarHeight: 40,
                     icon: 'warning',
                     position: 'right',
-                    style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+                    style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : { paddingTop: insets.top },
                 });
             }
         } else {
@@ -241,7 +243,7 @@ const InprocessInspection = ({ route }) => {
                 statusBarHeight: 40,
                 icon: 'warning',
                 position: 'right',
-                style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+                style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : { paddingTop: insets.top },
             });
         }
     };
@@ -489,10 +491,12 @@ const InprocessInspection = ({ route }) => {
                     statusBarHeight: 40,
                     icon: 'warning',
                     position: 'right',
-                    style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+                    style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : { paddingTop: insets.top },
                 });
                 let temp = JSON.parse(JSON.stringify(userUpdateValue.charInfo));
-                let updatedtemp = temp.map(item => (item.PropertyName === 'CHighValue' ? { ...item, Value: selectedData.CHighValue.toString() } : item));
+                let updatedtemp = temp.map(item =>
+                    item.PropertyName === 'CHighValue' ? { ...item, Value: selectedData.CHighValue.toString() } : item,
+                );
                 setUserUpdateValue(pre => ({ ...pre, CHighValue: selectedData.CHighValue.toString(), charInfo: updatedtemp }));
             } else {
                 let temp = JSON.parse(JSON.stringify(userUpdateValue.charInfo));
@@ -519,10 +523,12 @@ const InprocessInspection = ({ route }) => {
                     statusBarHeight: 40,
                     icon: 'warning',
                     position: 'right',
-                    style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+                    style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : { paddingTop: insets.top },
                 });
                 let temp = JSON.parse(JSON.stringify(userUpdateValue.charInfo));
-                let updatedtemp = temp.map(item => (item.PropertyName === 'CLowValue' ? { ...item, Value: selectedData.CLowValue.toString() } : item));
+                let updatedtemp = temp.map(item =>
+                    item.PropertyName === 'CLowValue' ? { ...item, Value: selectedData.CLowValue.toString() } : item,
+                );
                 setUserUpdateValue(pre => ({ ...pre, CLowValue: selectedData.CLowValue.toString(), charInfo: updatedtemp }));
             }
         } else if (typeOfModal == 'spec') {

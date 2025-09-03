@@ -16,6 +16,7 @@ import uuid from 'react-native-uuid';
 import { addInspectionData } from 'store/database/inspectStorage';
 import Icon from 'react-native-vector-icons/AntDesign';
 import SamplingModal from './SamplingModal';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const errorObj = {
     shift: false,
@@ -34,6 +35,7 @@ const InputDataModal = ({
     handleSubmitPress = () => {},
     selectedSite = {},
 }) => {
+    const insets = useSafeAreaInsets();
     const { width } = useWindowDimensions();
     const isTablet = width >= 768;
     const { icSettings } = useSelector(state => state.inspection);
@@ -329,10 +331,10 @@ const InputDataModal = ({
                     backgroundColor: COLORS.SUCCESS,
                     color: COLORS.white,
                     duration: 1500,
-                    statusBarHeight: 40,
+                    statusBarHeight:40,
                     icon: 'success',
                     position: 'right',
-                    style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+                    style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {paddingTop: insets.top},
                 });
                 handleSubmitPress(selectedValue);
                 hideModal();
@@ -345,7 +347,7 @@ const InputDataModal = ({
                     statusBarHeight: 40,
                     icon: 'warning',
                     position: 'right',
-                    style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+                   style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {paddingTop: insets.top},
                 });
             }
         }

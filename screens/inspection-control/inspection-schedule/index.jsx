@@ -25,6 +25,7 @@ import ApiUrl from 'global/ApiUrl';
 import { deleteAllInspectionData, getInspectionDataByUserAndSite } from 'store/database/inspectStorage';
 import { Modal } from 'react-native-paper';
 import { Bubbles } from 'react-native-loader';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const filterList = [
     {
@@ -59,6 +60,7 @@ const moreList = [
     },
 ];
 const InspectionSchedule = () => {
+    const insets = useSafeAreaInsets();
     const { height } = useWindowDimensions();
     const { icUserData } = useSelector(state => state.inspection);
     const dispatch = useDispatch();
@@ -244,7 +246,7 @@ const InspectionSchedule = () => {
                 statusBarHeight: 40,
                 icon: 'danger',
                 position: 'right',
-                style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+                style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : { paddingTop: insets.top },
             });
         }
     };
