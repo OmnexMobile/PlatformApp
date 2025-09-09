@@ -15,6 +15,7 @@ const { Types, Creators } = createActions({
     updateInspectList: ['updateInspectList'],
     deleteAllInspectList: ['deleteAllInspectList'],
     resetToInitial: ['resetToInitial'],
+    storeLoginLogo: ['storeLoginLogo'],
 });
 
 export const InspectTypes = Types;
@@ -26,11 +27,13 @@ export const INITIAL_STATE = {
     inspectList: [],
     icUserData: {},
     icSettings: {},
+    icLoginlogo:'',
 };
 
 /* ------------- Reducers ------------- */
 
 // Set a specific count
+const storeLoginLogo=(state,{icLoginlogo})=>{return {...state,icLoginlogo:icLoginlogo}}
 const storeInspectList = (state, { inspectList }) => {
     return { ...state, inspectList: [...state.inspectList, ...inspectList] };
 };
@@ -89,6 +92,7 @@ const rawReducer = createReducer(INITIAL_STATE, {
     [Types.UPDATE_INSPECT_LIST]: updateInspectList,
     [Types.DELETE_ALL_INSPECT_LIST]: deleteAllInspectList,
     [Types.RESET_TO_INITIAL]: resetToInitial,
+    [Types.STORE_LOGIN_LOGO]: storeLoginLogo,
 });
 const persistConfig = {
     key: 'inspect', // Unique key for the reducer's data

@@ -11,10 +11,11 @@ import { postAPI } from 'global/api-helpers';
 import auth from '../../../services/Auditpro-Auth';
 import AsyncStorage from '@react-native-community/async-storage';
 import ApiUrl from 'global/ApiUrl';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 const LoginFunctional = ({}) => {
     const dispatch = useDispatch();
+    const {icLoginlogo}=useSelector(state=>state.inspection);
     const [selectLanguageModal, setSelectLanguageModal] = useState(false);
     const [loginDetails, setLoginDetails] = useState({
         // username: 'Champion1@michelin',
@@ -158,7 +159,7 @@ const LoginFunctional = ({}) => {
     };
     return (
         <LoginPresentational
-            {...{ selectLanguageModal, setSelectLanguageModal, handleInputChange, handleSubmit, loginDetails, navigation, isRegistered }}
+            {...{ selectLanguageModal, setSelectLanguageModal, handleInputChange, handleSubmit, loginDetails, navigation, isRegistered ,loginLogo:icLoginlogo}}
         />
     );
 };

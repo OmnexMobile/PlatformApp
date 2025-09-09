@@ -24,6 +24,8 @@ import { Bubbles } from 'react-native-loader';
 import RadioButtonComponent from '../Components/RadioButtonComponent';
 import PartDetails from '../Components/supervisor-schedule/PartDetails';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import uuid from 'react-native-uuid';
+import { addInspectionData, getInspectionDataByUserAndSite } from 'store/database/inspectStorage';
 
 const filterList = [
     {
@@ -134,6 +136,18 @@ const SearchInspection = () => {
             handleListFetch(true);
         }
     }, [filterData, isFocused, icUserData]);
+    const addIsDownloadKey = async temp => {
+        const inspectList = await getInspectionDataByUserAndSite(icUserData?.userData?.UserId, icUserData?.userData?.Siteid);
+        let filtered = inspectList.filter(item => item?.userType === 'SearchInspection');
+        const updatedArray = temp.map(item => {
+            const match = filtered.some(compareItem => compareItem.ID === item.ID);
+            return {
+                ...item,
+                isDownloaded: match,
+            };
+        });
+        return updatedArray;
+    };
     const handleListFetch = async (showSktn = true, notRefresh = true) => {
         showSktn && setShowSkeleton(true);
         const { startDate, endDate, type } = filterData;
@@ -146,13 +160,15 @@ const SearchInspection = () => {
         formData.append('EndDate', dateFlag ? moment(endDate).format('YYYY/MM/DD') : '');
         const response = await postAPI(`${ApiUrl.IC_GET_SEARCH_INSPECTIONLIST}`, formData);
         if (response.Success && response?.Data?.length) {
+            let temp = response?.Data || [];
+            const updatedArray = await addIsDownloadKey(temp);
             if (searchFilter.searchText !== '' && notRefresh) {
-                let temp = response?.Data.filter(x =>
+                let temp = updatedArray.filter(x =>
                     x[getSearchKey(searchFilter.searchBy)].toLowerCase().includes(searchFilter.searchText.toLowerCase()),
                 );
                 setMasterData([...temp]);
             } else {
-                setMasterData([...response?.Data]);
+                setMasterData([...updatedArray]);
             }
             setOverAllData([...response?.Data]);
         } else {
@@ -162,9 +178,196 @@ const SearchInspection = () => {
         setShowSkeleton(false);
         setRefreshing(false);
     };
+    const getItemStatus = list => {
+        const allValues = list?.length > 0 && list?.every(({ value }) => value?.trim() !== '');
+        const someValues = list?.some(({ value }) => value?.trim() !== '');
+        let status = allValues ? 'Completed' : someValues ? 'In Progress' : undefined;
+        return status;
+    };
+    const getContainmentList = (list, item) => {
+        if (Boolean(list?.length)) {
+            const highValue = item.CHighValue || '';
+            const lowValue = item.CLowValue || '';
+            const tolerance = item.CTolerance || 0;
+            let finalval = list.map((value, index) => ({
+                count: index + 1,
+                highValue: highValue,
+                id: index + 1,
+                lowValue: lowValue,
+                ContainmentValue: value.ContainmentValue,
+                actualValue: item.value,
+                tolerance: tolerance,
+                ContainmentComment: value.ContainmentComment,
+                isEditable: index + 1 == 1 ? true : false,
+                isCommentsEditable: index + 1 == 1 ? true : false,
+                showBtn: index + 1 == 1 ? true : false,
+                ContainmentID: index + 1,
+                ContainmentNumber: value.ContainmentNumber,
+                Type: value.Type,
+                BackColorForContainment: value.BackColorForContainment,
+                FontColorForContainment: value.FontColorForContainment,
+            }));
+            return finalval;
+        }
+        return [];
+    };
+    const transformInspectionData = (input, isNumericSample) => {
+        const result = [];
+        input.forEach(item => {
+            const sampleSize = parseInt(item.CSampleSize || 0);
+            const highValue = item.CHighValue || '';
+            const lowValue = item.CLowValue || '';
+            const tolerance = item.CTolerance || 0;
+            let Samples = [];
+            for (let i = 1; i <= sampleSize; i++) {
+                const sample = item.samples?.find(s => parseInt(s.SampleName) === i);
+                const data = sample?.Data;
+                Samples.push({
+                    Comments: data?.Comments || '',
+                    EnteredDate: data?.EnteredDate || '',
+                    FuncDetailsId: parseInt(data?.FuncDetailsId || 0),
+                    FunctionValue: data?.FunctionValue || '',
+                    IsApproved: parseInt(data?.IsApproved || 0),
+                    IsNumericSample: isNumericSample,
+                    IsRejected: parseInt(data?.IsRejected || 1),
+                    SerialNo: parseInt(data?.SerialNo || i),
+                    backColor: data?.BackColor || '',
+                    count: i,
+                    fontColor: data?.FontColor || '#FFFFFF',
+                    highValue: highValue,
+                    id: i,
+                    lowValue: lowValue,
+                    sampleName: i,
+                    status: parseInt(data?.Status || 1),
+                    tolerance: tolerance,
+                    value: data?.FunctionValue || '',
+                    ContainmentActions: getContainmentList(sample?.ContainmentActions, item),
+                });
+            }
+            const status = getItemStatus(Samples);
+            result.push({
+                ...item,
+                Samples: Samples,
+                status: status,
+            });
+        });
+        return result;
+    };
 
+    // Example usage:
+    const rendetBtnText = item => {
+        const combined = [...item?.VariableCharacteristics, ...item?.AttributeCharacteristics];
+        if (!combined.some(item => 'status' in item)) {
+            return {
+                status: 'launch',
+                colorCode: COLORS.apptheme,
+            };
+        }
+        let hasInprogress = false;
+        let hasCompleted = false;
+        let hasMissingStatus = false;
+
+        for (const item of combined) {
+            if ('status' in item) {
+                if (item.status === 'In Progress') {
+                    hasInprogress = true;
+                } else if (item.status === 'Completed') {
+                    hasCompleted = true;
+                }
+            } else {
+                hasMissingStatus = true;
+            }
+        }
+        if (hasInprogress) return { colorCode: COLORS.ipBgColor, status: 'In Progress' };
+        if (hasCompleted && hasMissingStatus) return { colorCode: COLORS.ipBgColor, status: 'In Progress' };
+        if (hasCompleted && !hasMissingStatus) return { colorCode: COLORS.fiBgColor, status: 'Completed' };
+
+        return {
+            status: 'launch',
+            colorCode: COLORS.apptheme,
+        };
+    };
     const handleDownloadPress = async item => {
-        setSelectedData(item);
+        if (item?.isDownloaded) {
+            setShowBubble(true);
+            const inspectList = await getInspectionDataByUserAndSite(icUserData?.userData?.UserId, icUserData?.userData?.Siteid);
+            let filtered = inspectList.filter(val => val?.ID === item?.ID);
+            navigation.navigate(ROUTES.INPROCESS_INSPECTION, { inspectData: filtered[0] || {} });
+            setShowBubble(false);
+        } else {
+            setShowBubble(true);
+            setSelectedData(item);
+            const formData = new FormData();
+            formData.append('UserId', icUserData?.userData?.UserId);
+            formData.append('siteId', parseInt(icUserData?.userData?.Siteid));
+            formData.append('inspectionID', item.ID);
+            formData.append('operationIDs', item.OperationID);
+            formData.append('ProcessId', item.InspectionType == '2' ? 1 : 0);
+            formData.append('isProcess', item.InspectionType == '2' ? 1 : 0);
+            const attachments = await getAllFiles(item);
+            const response = await postAPI(`${ApiUrl.IC_SEARCH_INSPECTION_DOWNLOAD}`, formData);
+            if (response?.GeneralInfo?.length) {
+                const VariableCharacteristicsList = transformInspectionData(response.VariableCharacteristics, 1);
+                const AttributeCharacteristicsList = transformInspectionData(response.AttributeCharacteristics, 0);
+                const getStatus = rendetBtnText({
+                    VariableCharacteristics: VariableCharacteristicsList,
+                    AttributeCharacteristics: AttributeCharacteristicsList,
+                });
+                let inspectObj = {
+                    uniqueId: uuid.v4(),
+                    ID: item?.ID,
+                    InspectionID: item.ID,
+                    InspectionEntryDetailsID: item?.ICInspectionEntryDetailsID,
+                    intInspectionTypeID: item?.InspectionType,
+                    FormId: item?.FormId,
+                    OperationID: item?.OperationID,
+                    intProductionItemID: item?.ProductionItemId,
+                    strProductionItemName: item?.ProductionItemName,
+                    intShiftID: item?.ShiftId,
+                    strShiftName: item?.Shift,
+                    strOperationName: item.OperationName,
+                    strFrequencyName: item?.SampleFrequency,
+                    intInspectionTypeID: item?.InspectionType,
+                    strInspectionType: item.InspectionType,
+                    strLotNo: item.LotNo,
+                    GeneralInfo: response.GeneralInfo,
+                    VariableCharacteristics: VariableCharacteristicsList,
+                    AttributeCharacteristics: AttributeCharacteristicsList,
+                    userType: 'SearchInspection',
+                    attachments: attachments,
+                    userId: selectedSite?.UserId,
+                    siteId: selectedSite?.Siteid,
+                    status: getStatus?.status,
+                    colorCode: getStatus?.colorCode,
+                };
+
+                await addInspectionData(selectedSite?.UserId, selectedSite?.Siteid, inspectObj.uniqueId, inspectObj);
+                handleListFetch(false, false);
+                showMessage({
+                    message: 'Form Downloaded Successfully',
+                    backgroundColor: COLORS.SUCCESS,
+                    color: COLORS.white,
+                    duration: 1500,
+                    statusBarHeight: 40,
+                    icon: 'success',
+                    position: 'right',
+                    style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : { paddingTop: insets.top },
+                });
+                setShowBubble(false);
+                navigation.navigate(ROUTES.INPROCESS_INSPECTION, { inspectData: inspectObj });
+            }
+        }
+    };
+    const getAllFiles = async item => {
+        const formData = new FormData();
+        formData.append('operationId', item?.OperationID);
+        formData.append('productionItemH', item?.ProductionItemId);
+        const response = await postAPI(ApiUrl.IC_GET_ATTACHEMENTS, formData);
+        if (response.Success) {
+            return response.Data || [];
+        } else {
+            return [];
+        }
     };
     const renderIconBgColor = value => {
         return value == '1' ? COLORS.apptheme : value == '2' ? COLORS.ipBgColor : COLORS.fiBgColor;
@@ -261,26 +464,13 @@ const SearchInspection = () => {
                             }}>
                             <ICFileIcon />
                         </TouchableOpacity>
-                        {/* <TouchableOpacity
+                        <TouchableOpacity
                             style={{ marginLeft: 15 }}
                             onPress={() => {
-                                if (item?.canDownload) {
-                                    handleDownloadPress(item);
-                                } else {
-                                    showMessage({
-                                        message: 'Template or operation mapping not done for this Production item, please do the mapping',
-                                        backgroundColor: COLORS.WARNING,
-                                        color: COLORS.white,
-                                        duration: 1500,
-                                        statusBarHeight: 45,
-                                        icon: 'danger',
-                                        position: 'right',
-                                        style: Platform.OS === 'ios' ? { height: 100, alignItems: 'flex-end' } : {},
-                                    });
-                                }
+                                handleDownloadPress(item);
                             }}>
-                            <IconF name="download" size={25} color={item.isDownloaded ? '#66BB6B' : '#666666'} />
-                        </TouchableOpacity> */}
+                            <IconF name="download" size={25} color={item?.isDownloaded ? COLORS.fiBgColor : COLORS.grey} />
+                        </TouchableOpacity>
                     </View>
                 </View>
             </View>
@@ -429,7 +619,7 @@ const SearchInspection = () => {
                         maxHeight: 500,
                     }}>
                     <View style={[styles.containerOne]}>
-                        <Text style={styles.headertext}>Choose Sync Options</Text>
+                        <Text style={styles.headertext}>Choose Filter Option</Text>
                         <Divider />
                         <View style={[styles.contentBox]}>
                             {searchList.map((item, index) => {

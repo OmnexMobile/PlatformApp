@@ -1,5 +1,5 @@
 import React from 'react';
-import { ImageBackground, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Image, ImageBackground, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { RFPercentage } from 'react-native-responsive-fontsize';
 import { IMAGES } from 'assets/images';
 import { AnimatableView, GradientButton, IconComponent, ImageComponent, KeyboardAwareScrollViewComponent, TextComponent } from 'components';
@@ -18,6 +18,7 @@ const LoginPresentational = ({
     loginDetails,
     navigation,
     isRegistered,
+    loginLogo,
 }) => {
     const { theme } = useTheme();
     return (
@@ -35,7 +36,11 @@ const LoginPresentational = ({
                     </TouchableOpacity>
                 </AnimatableView>
                 <AnimatableView animationConfig={OPACITY_TRANSLATE_Y_ANIMATION} style={styles.topArea}>
-                    <ImageComponent source={IMAGES.omnexLogo} resizeMode="contain" style={{ height: RFPercentage(10), width: '100%' }} />
+                    {loginLogo !== null ? (
+                        <Image source={{ uri: `data:image/jpeg;base64,${loginLogo}` }} style={{ height: RFPercentage(10), width: '100%' }} resizeMode="contain" />
+                    ) : (
+                        <ImageComponent source={IMAGES.omnexLogo} resizeMode="contain" style={{ height: RFPercentage(10), width: '100%' }} />
+                    )}
                 </AnimatableView>
                 <AnimatableView animationConfig={OPACITY_TRANSLATE_Y_ANIMATION} delay={500} style={{ flex: 6 }}>
                     <LoginInput {...{ placeholder: strings.Username, name: 'username', onChangeText: handleInputChange }} />
@@ -101,4 +106,8 @@ const styles = StyleSheet.create({
     },
     icon: { flex: 1, alignItems: 'center', justifyContent: 'center' },
     topArea: { flex: 4, alignItems: 'center', justifyContent: 'center' },
+    image: {
+        width: 200,
+        height: 200,
+    },
 });

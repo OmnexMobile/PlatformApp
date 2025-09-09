@@ -444,6 +444,7 @@ const CharacteristicsInfo = ({
             return value.toLowerCase() === 'ok' ? COLORS.SUCCESS : COLORS.ERROR;
         };
         const renderIcon = (value, type, list) => {
+            let itsHaveData=list?.some(item=>item?.ContainmentValue!=='');
             if (value === '') {
                 return false;
             }
@@ -451,10 +452,10 @@ const CharacteristicsInfo = ({
                 let lowValue = inspectionType == 2 ? Number(item?.tolerance) - Number(item?.lowValue) : item?.lowValue;
                 let highValue = inspectionType == 2 ? Number(item?.tolerance) + Number(item?.highValue) : item?.highValue;
                 let flag = Number(value) >= Number(lowValue) && Number(value) <= Number(highValue);
-                return flag ? (list > 0 ? true : false) : true;
+                return flag ? (itsHaveData ? true : false) : true;
             }
             let flagOk = value.toLowerCase() === 'ok';
-            return flagOk ? (list > 0 ? true : false) : true;
+            return flagOk ? (itsHaveData ? true : false) : true;
         };
         return (
             <View style={[styles.contentBox]}>
@@ -468,7 +469,7 @@ const CharacteristicsInfo = ({
                         marginRight: 5,
                     }}>
                     <Text style={[styles.headerText]}>{item.count}</Text>
-                    {renderIcon(item.value, type, item?.ContainmentActions?.length) && Boolean(icSettings?.ISContainmentAction) && (
+                    {renderIcon(item.value, type, item?.ContainmentActions) && Boolean(icSettings?.ISContainmentAction) && (
                         <TouchableOpacity
                             style={[styles.iconContainer]}
                             onPress={() => {

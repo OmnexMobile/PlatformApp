@@ -12,6 +12,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 import globalAuth from '../../../services/Auditpro-Auth';
 import { ROUTES } from 'constants/app-constant';
 import { deleteAllInspectionData } from 'store/database/inspectStorage';
+import { useDispatch } from 'react-redux';
 
 export const REGISTER_TYPES = {
     REGISTER: 1,
@@ -64,6 +65,7 @@ const RegisterFunctional = ({}) => {
     // const [state, setState] = useState({ serverUrl: appSettings?.serverUrl || 'http://1.22.172.236/ProblemSolverAPI/', deviceId: getUniqueId() });
     const navigation = useNavigation();
     const { appSettings, handleAppSetting, globalURL, handleGlobalURL, globalDeviceDetails, handleDeviceDetails } = useAppContext();
+    const dispatch = useDispatch();
 
     React.useEffect(() => {
         if (currentURL) {
@@ -138,6 +140,24 @@ const RegisterFunctional = ({}) => {
             // handleDeviceDetails(data?.Data)
             console.log('data?.Data--->', data?.Data);
             handleDeviceDetails({ ...data?.Data });
+            return data?.Data;
+        } catch (err) {
+            console.log('🚀 ~ file: DEVICE_STATUS ~ err', err);
+            return err;
+        }
+    };
+    const getLoginLogo = async url => {
+        console.log('url', url);
+        try {
+            const res = await fetch(url + `${API_URL.LOGIN_LOGO}`, {
+                method: 'POST',
+            });
+            const data = await res.json();
+            console.log(data.Success, 'Success');
+            if (data?.Success) {
+                // localStorage.storeData(LOCAL_STORAGE_VARIABLES.LOGIN_LOGO, data?.Data?.LogoBig);
+                dispatch({ type: 'STORE_LOGIN_LOGO', icLoginlogo: data?.Data?.LogoBig });
+            }
         } catch (err) {
             console.log('🚀 ~ file: DEVICE_STATUS ~ err', err);
         }
@@ -154,7 +174,7 @@ const RegisterFunctional = ({}) => {
             },
             REGISTER_TYPES.UN_REGISTER,
         )
-            .then(async(data) => {
+            .then(async data => {
                 setLoading(false);
                 if (data?.Success) {
                     await deleteAllInspectionData();
@@ -194,14 +214,15 @@ const RegisterFunctional = ({}) => {
             )
                 .then(async data => {
                     setLoading(false);
-                    console.log(data,'******************response')
-                    if (data?.Success && data?.Data!=='Invalid Url') {
+                    console.log(data, '******************response');
+                    if (data?.Success && data?.Data !== 'Invalid Url') {
                         localStorage.storeData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL, state?.globalServerURL);
                         localStorage.storeData(LOCAL_STORAGE_VARIABLES.globalRegister, state?.globalServerURL);
                         globalAuth.setServerUrl(state?.globalServerURL);
                         await AsyncStorage.setItem('storedserverrul', state?.globalServerURL);
                         navigation.goBack();
-                        getDeviceStatus();
+                        const deviceStatusURL = await getDeviceStatus();
+                        await getLoginLogo(deviceStatusURL.ICApiURL);
                         successMessage({ message: 'Success', description: 'Successfully Registered this Device' });
                     } else {
                         showErrorMessage(data?.Data || 'Something went wrong while Registering the Device');

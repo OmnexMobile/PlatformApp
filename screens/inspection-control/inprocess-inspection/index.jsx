@@ -76,7 +76,6 @@ const InprocessInspection = ({ route }) => {
     const flatListRef = useRef(null);
     const navigation = useNavigation();
     const dispatch = useDispatch();
-
     useLayoutEffect(() => {
         setInfoData(inspectData);
     }, [inspectData]);
@@ -166,23 +165,65 @@ const InprocessInspection = ({ route }) => {
         return inspectData.intInspectionTypeID !== 2 ? (list?.length ? list[0].Value !== '' : true) : true;
         // return list.length ? list[0].Value !== '':true;
     };
+    // const rendetBtnText = item => {
+    //     const combined = [...item?.VariableCharacteristics, ...item?.AttributeCharacteristics];
+    //     if (!combined.some(item => 'status' in item)) {
+    //         return {
+    //             status: 'launch',
+    //             colorCode: COLORS.apptheme,
+    //         };
+    //     }
+    //     let hasInprogress = false;
+    //     let hasCompleted = false;
+    //     let hasMissingStatus = false;
+    //     let hasLaunchStatus = false;
+
+    //     for (const item of combined) {
+    //         console.log(item.status,'ddfd')
+    //         if ('status' in item) {
+    //             if (item.status === 'Launch') {
+    //                 hasLaunchStatus = true;
+    //             } else if (item.status === 'In Progress') {
+    //                 hasInprogress = true;
+    //             } else if (item.status === 'Completed') {
+    //                 hasCompleted = true;
+    //             }
+    //         } else {
+    //             hasMissingStatus = true;
+    //         }
+    //     }
+    //     if (hasInprogress) return { colorCode: COLORS.ipBgColor, status: 'In Progress' };
+    //     if (hasCompleted && hasMissingStatus) return { colorCode: COLORS.ipBgColor, status: 'In Progress' };
+    //     if (hasCompleted && !hasMissingStatus) return { colorCode: COLORS.fiBgColor, status: 'Completed' };
+    //     if (hasLaunchStatus && hasCompleted && !hasMissingStatus) return { colorCode: COLORS.apptheme, status: 'In Progress' };
+
+    //     return {
+    //         status: 'launch',
+    //         colorCode: COLORS.apptheme,
+    //     };
+    // };
     const rendetBtnText = item => {
         const combined = [...item?.VariableCharacteristics, ...item?.AttributeCharacteristics];
-        if (!combined.some(item => 'status' in item)) {
+
+        if (!combined.some(c => 'status' in c)) {
             return {
                 status: 'launch',
                 colorCode: COLORS.apptheme,
             };
         }
+
         let hasInprogress = false;
         let hasCompleted = false;
         let hasMissingStatus = false;
+        let hasLaunchStatus = false;
 
-        for (const item of combined) {
-            if ('status' in item) {
-                if (item.status === 'In Progress') {
+        for (const c of combined) {
+            if ('status' in c) {
+                if (c.status === 'Launch') {
+                    hasLaunchStatus = true;
+                } else if (c.status === 'In Progress') {
                     hasInprogress = true;
-                } else if (item.status === 'Completed') {
+                } else if (c.status === 'Completed') {
                     hasCompleted = true;
                 }
             } else {
@@ -190,20 +231,31 @@ const InprocessInspection = ({ route }) => {
             }
         }
 
-        if (hasInprogress) return { colorCode: COLORS.ipBgColor, status: 'In Progress' };
-        if (hasCompleted && hasMissingStatus) return { colorCode: COLORS.ipBgColor, status: 'In Progress' };
-        if (hasCompleted && !hasMissingStatus) return { colorCode: COLORS.fiBgColor, status: 'Completed' };
+        // 🔑 Priority Logic
+        if (hasInprogress) {
+            return { colorCode: COLORS.ipBgColor, status: 'In Progress' };
+        }
+        if (hasCompleted && hasLaunchStatus) {
+            return { colorCode: COLORS.ipBgColor, status: 'In Progress' }; // ✅ Completed + Launch = In Progress
+        }
+        if (hasCompleted && hasMissingStatus) {
+            return { colorCode: COLORS.ipBgColor, status: 'In Progress' };
+        }
+        if (hasCompleted) {
+            return { colorCode: COLORS.fiBgColor, status: 'Completed' };
+        }
+        if (hasLaunchStatus) {
+            return { colorCode: COLORS.apptheme, status: 'Launch' };
+        }
 
-        return {
-            status: 'launch',
-            colorCode: COLORS.apptheme,
-        };
+        return { status: 'launch', colorCode: COLORS.apptheme };
     };
+
     const handleFinalSavePress = async (flag = false) => {
         const result = handleValidation(infoData);
         if (result) {
             const getStatus = rendetBtnText(infoData);
-            console.log(getStatus, 'getStatus');
+            console.log(getStatus, '******************getStatus');
             const sqlitFlag = await updateInspectionByUniqueId(infoData.uniqueId, {
                 ...infoData,
                 status: getStatus?.status,

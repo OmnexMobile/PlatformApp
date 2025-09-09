@@ -33,9 +33,13 @@ const OperatorWorksheet = () => {
     const handleGetSQliteList = async () => {
         // await getDatabaseSize()
         const list = await getInspectionDataByUserAndSite(icUserData?.userData?.UserId, icUserData?.userData?.Siteid);
+        let filtered = [];
+        if (list?.length > 0) {
+            filtered = list.filter(item => item?.userType === 'Inspector');
+        }
         setInspectionList(list);
         setShowSkeleton(false);
-    }
+    };
     const handleCIbtnpress = () => {
         navigation.navigate(ROUTES.COMPLETED_INSPECTION);
     };
@@ -71,21 +75,26 @@ const OperatorWorksheet = () => {
 
     const rendetBtnText = item => {
         const combined = [...item?.VariableCharacteristics, ...item?.AttributeCharacteristics];
-        if (!combined.some(item => 'status' in item)) {
+
+        if (!combined.some(c => 'status' in c)) {
             return {
                 status: 'launch',
                 colorCode: COLORS.apptheme,
             };
         }
+
         let hasInprogress = false;
         let hasCompleted = false;
         let hasMissingStatus = false;
+        let hasLaunchStatus = false;
 
-        for (const item of combined) {
-            if ('status' in item) {
-                if (item.status === 'In Progress') {
+        for (const c of combined) {
+            if ('status' in c) {
+                if (c.status === 'Launch') {
+                    hasLaunchStatus = true;
+                } else if (c.status === 'In Progress') {
                     hasInprogress = true;
-                } else if (item.status === 'Completed') {
+                } else if (c.status === 'Completed') {
                     hasCompleted = true;
                 }
             } else {
@@ -93,14 +102,24 @@ const OperatorWorksheet = () => {
             }
         }
 
-        if (hasInprogress) return { colorCode: COLORS.ipBgColor, status: 'In Progress' };
-        if (hasCompleted && hasMissingStatus) return { colorCode: COLORS.ipBgColor, status: 'In Progress' };
-        if (hasCompleted && !hasMissingStatus) return { colorCode: COLORS.fiBgColor, status: 'Completed' };
+        // 🔑 Priority Logic
+        if (hasInprogress) {
+            return { colorCode: COLORS.ipBgColor, status: 'In Progress' };
+        }
+        if (hasCompleted && hasLaunchStatus) {
+            return { colorCode: COLORS.ipBgColor, status: 'In Progress' }; // ✅ Completed + Launch = In Progress
+        }
+        if (hasCompleted && hasMissingStatus) {
+            return { colorCode: COLORS.ipBgColor, status: 'In Progress' };
+        }
+        if (hasCompleted) {
+            return { colorCode: COLORS.fiBgColor, status: 'Completed' };
+        }
+        if (hasLaunchStatus) {
+            return { colorCode: COLORS.apptheme, status: 'Launch' };
+        }
 
-        return {
-            status: 'launch',
-            colorCode: COLORS.apptheme,
-        };
+        return { status: 'launch', colorCode: COLORS.apptheme };
     };
     const handleSingleDeletePress = async value => {
         const flag = await deleteInspectionByUniqueId(value.uniqueId);
