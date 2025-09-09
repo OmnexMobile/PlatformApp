@@ -117,7 +117,7 @@ const TabsCard = ({ countDetails, tabIndex, noTab, navigation }) => {
             },
         ];
         // Step 2: Modify only if SearchInspectionNeeded is TRUE
-        if (!icSettings?.SearchInspectionNeeded && tabIndex === 0) {
+        if (icSettings?.SearchInspectionNeeded && tabIndex === 0) {
             const inspectionIndex = data.findIndex(item => item.id === 5);
             if (inspectionIndex !== -1) {
                 data[inspectionIndex].detail = data[inspectionIndex].detail.map(detailItem =>
