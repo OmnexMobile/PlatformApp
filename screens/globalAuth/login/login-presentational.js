@@ -36,7 +36,7 @@ const LoginPresentational = ({
                     </TouchableOpacity>
                 </AnimatableView>
                 <AnimatableView animationConfig={OPACITY_TRANSLATE_Y_ANIMATION} style={styles.topArea}>
-                    {loginLogo !== null ? (
+                    {Boolean(loginLogo?.length) ? (
                         <Image source={{ uri: `data:image/jpeg;base64,${loginLogo}` }} style={{ height: RFPercentage(10), width: '100%' }} resizeMode="contain" />
                     ) : (
                         <ImageComponent source={IMAGES.omnexLogo} resizeMode="contain" style={{ height: RFPercentage(10), width: '100%' }} />

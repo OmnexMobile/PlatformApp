@@ -186,6 +186,7 @@ const RegisterFunctional = ({}) => {
                         ...state,
                         globalServerURL: '',
                     });
+                    dispatch({ type: 'RESET_ALL' });
                     setCurrentURL('');
                     globalAuth.setServerUrl('');
                     successMessage({ message: 'Success', description: 'Successfully Unregistered this Device' });
@@ -214,7 +215,7 @@ const RegisterFunctional = ({}) => {
             )
                 .then(async data => {
                     setLoading(false);
-                    console.log(data, '******************response');
+                    console.log(data, '******************response111');
                     if (data?.Success && data?.Data !== 'Invalid Url') {
                         localStorage.storeData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL, state?.globalServerURL);
                         localStorage.storeData(LOCAL_STORAGE_VARIABLES.globalRegister, state?.globalServerURL);
@@ -229,6 +230,7 @@ const RegisterFunctional = ({}) => {
                     }
                 })
                 .catch(data => {
+                    console.log(data?.Error,'data?.Error')
                     setLoading(false);
                     showErrorMessage(data?.Error || 'Something went wrong while Registering the Device');
                 });
