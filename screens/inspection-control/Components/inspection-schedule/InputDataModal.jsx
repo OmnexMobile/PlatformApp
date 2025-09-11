@@ -212,7 +212,7 @@ const InputDataModal = ({
     const handlePopupNeed = data => {
         const updatedData = data.map(item => ({
             ...item,
-            isSamplePopup: Object.prototype.hasOwnProperty.call(item, 'ActualValues'),
+            isSamplePopup: Object.prototype.hasOwnProperty.call(item, 'ActualValue'),
         }));
         return updatedData;
     };
