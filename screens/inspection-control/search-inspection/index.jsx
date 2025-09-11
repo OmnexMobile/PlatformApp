@@ -302,6 +302,7 @@ const SearchInspection = () => {
             formData.append('UserId', icUserData?.userData?.UserId);
             formData.append('siteId', parseInt(icUserData?.userData?.Siteid));
             formData.append('inspectionID', item.ID);
+            formData.append('FormId', item.FormId);
             formData.append('operationIDs', item.OperationID);
             formData.append('ProcessId', item.InspectionType == '2' ? 1 : 0);
             formData.append('isProcess', item.InspectionType == '2' ? 1 : 0);
