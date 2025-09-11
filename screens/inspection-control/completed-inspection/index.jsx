@@ -84,7 +84,7 @@ const CompletedInspection = () => {
     const getAllCompletedData = async (showSkt = true) => {
         showSkt && setShowSkeleton(true);
         const inspectList = await getInspectionDataByUserAndSite(icUserData?.userData?.UserId, icUserData?.userData?.Siteid);
-        const completedList = inspectList?.filter(item => item?.status === 'Completed');
+        const completedList = inspectList?.filter(item => item?.status === 'Completed' || item?.status === 'In Progress');
         // const completedList = inspectList?.filter(item => item?.status === 'Completed' || item?.status === 'In Progress');
         setMasterData(completedList?.length ? completedList : []);
         setShowSkeleton(false);
@@ -322,9 +322,9 @@ const CompletedInspection = () => {
             ],
         };
         const response = await postAPI(selectedValue.intInspectionTypeID == '2' ? ApiUrl.IC_INPROCESS_SINGLE_SYNC : ApiUrl.IC_SINGLE_SYNC, payLoad);
-        if (response?.insertedCount) {
+        if (response?.insertedSamples) {
             setSyncModal(false);
-            const flag = await deleteInspectionByUniqueId(selectedValue.uniqueId);
+            // const flag = await deleteInspectionByUniqueId(selectedValue.uniqueId);
             showMessage({
                 message: 'Inspection synced successfully',
                 backgroundColor: COLORS.SUCCESS,
@@ -335,9 +335,9 @@ const CompletedInspection = () => {
                 position: 'right',
                 style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : { paddingTop: insets.top },
             });
-            if (flag) {
-                getAllCompletedData(true);
-            }
+            // if (flag) {
+            //     getAllCompletedData(true);
+            // }
         } else {
             showMessage({
                 message: 'Something went wrong',

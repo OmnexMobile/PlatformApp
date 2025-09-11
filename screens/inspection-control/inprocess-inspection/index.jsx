@@ -100,25 +100,33 @@ const InprocessInspection = ({ route }) => {
         setShowSignModal(true);
     };
     const renderBtnText = (item, type) => {
-        const list = item?.Samples || [];
         let iconFlag = false;
-        const allValues = list.length > 0 && list.every(({ value }) => value.trim() !== '');
-        const someValues = list.some(({ value }) => value.trim() !== '');
-        let status = allValues ? 'Completed' : someValues ? 'In Progress' : 'Inspect';
-        if (allValues) {
-            let temp =
-                type == 'number'
-                    ? list.filter(x =>
-                          x?.value != '' && inspectData?.intInspectionTypeID == 2
-                              ? !(
-                                    Number(x?.value) >= Number(inspectData?.intInspectionTypeID == 2 ? x?.tolerance : 0) - Number(x?.lowValue) &&
-                                    Number(x?.value) <= Number(x?.highValue) + Number(inspectData.intInspectionTypeID == 2 ? x?.tolerance : 0)
-                                )
-                              : !(Number(x?.value) >= Number(x?.lowValue) && Number(x?.value) <= Number(x?.highValue)),
-                      )
-                    : list.filter(x => x?.value?.toLowerCase() != 'ok' && x?.value !== '');
-            iconFlag = temp?.length ? true : false;
+        let status = 'Inspect';
+        if (item.isSamplePopup) {
+            const list = item?.Samples || [];
+            iconFlag = false;
+            const allValues = list.length > 0 && list.every(({ value }) => value.trim() !== '');
+            const someValues = list.some(({ value }) => value.trim() !== '');
+            status = allValues ? 'Completed' : someValues ? 'In Progress' : 'Inspect';
+            if (allValues) {
+                let temp =
+                    type == 'number'
+                        ? list.filter(x =>
+                              x?.value != '' && inspectData?.intInspectionTypeID == 2
+                                  ? !(
+                                        Number(x?.value) >= Number(inspectData?.intInspectionTypeID == 2 ? x?.tolerance : 0) - Number(x?.lowValue) &&
+                                        Number(x?.value) <= Number(x?.highValue) + Number(inspectData.intInspectionTypeID == 2 ? x?.tolerance : 0)
+                                    )
+                                  : !(Number(x?.value) >= Number(x?.lowValue) && Number(x?.value) <= Number(x?.highValue)),
+                          )
+                        : list.filter(x => x?.value?.toLowerCase() != 'ok' && x?.value !== '');
+                iconFlag = temp?.length ? true : false;
+            }
+        } else {
+            status = item?.status || 'Inspect1';
         }
+        console.log(item.isSamplePopup, status,item?.status , 'item.isSamplePopup1outside');
+
         let colorCode = COLORS.apptheme;
         if (status === 'Completed') colorCode = COLORS.fiBgColor;
         else if (status === 'In Progress') colorCode = COLORS.ipBgColor;
@@ -400,10 +408,19 @@ const InprocessInspection = ({ route }) => {
     }, [handleSaveAlert]);
     const handleSavePress = async (close = true, btnText = 'noBtn') => {
         if (showChar) {
-            const list = masterData || [];
-            const allValues = list.length > 0 && list.every(({ value }) => value.trim() !== '');
-            const someValues = list.some(({ value }) => value.trim() !== '');
-            let status = allValues ? 'Completed' : someValues ? 'In Progress' : 'Launch';
+            let status = 'Launch';
+            if (selectedData?.isSamplePopup) {
+                console.log('inside1111');
+                const list = masterData || [];
+                const allValues = list.length > 0 && list.every(({ value }) => value.trim() !== '');
+                const someValues = list.some(({ value }) => value.trim() !== '');
+                status = allValues ? 'Completed' : someValues ? 'In Progress' : 'Launch';
+                console.log(status, selectedData?.isSamplePopup, 'inside1111');
+            } else {
+                let temp = selectedData?.charInfo.filter(x => x?.Required && x?.Value == '')?.length;
+                let reqLen = selectedData?.charInfo.filter(x => x?.Required)?.length;
+                status = temp == 0 ? 'Completed' : temp == reqLen ? 'Launch' : 'In Progress';
+            }
             const updatedObj = {
                 ...selectedData,
                 Samples: masterData,
@@ -425,7 +442,6 @@ const InprocessInspection = ({ route }) => {
             }));
             setMasterData([]);
             setValueUpadted([]);
-            console.log(updatedObj, '**************************************inside1');
         } else {
             handleFinalSavePress();
 

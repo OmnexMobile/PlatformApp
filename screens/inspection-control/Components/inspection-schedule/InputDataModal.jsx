@@ -209,6 +209,13 @@ const InputDataModal = ({
             return [];
         }
     };
+    const handlePopupNeed = data => {
+        const updatedData = data.map(item => ({
+            ...item,
+            isSamplePopup: Object.prototype.hasOwnProperty.call(item, 'ActualValues'),
+        }));
+        return updatedData;
+    };
     const handleSubmitBtnPress = async () => {
         const result = handleValidation();
         if (result) {
@@ -299,6 +306,8 @@ const InputDataModal = ({
                 } else if (response.AttributeCharacteristics.length > 0) {
                     InspectionID = response.AttributeCharacteristics[0].InspectionID;
                 }
+                const updatedVar = handlePopupNeed(response.VariableCharacteristics);
+                const updatedAtt = handlePopupNeed(response.AttributeCharacteristics);
                 let inspectObj = {
                     uniqueId: uuid.v4(),
                     FormId: selectedValue?.FormId,
@@ -315,8 +324,8 @@ const InputDataModal = ({
                     intInspectionID: selectedValue?.ProductionItemId,
                     receiptNumber: receiptNumber,
                     GeneralInfo: response.GeneralInfo,
-                    VariableCharacteristics: response.VariableCharacteristics,
-                    AttributeCharacteristics: response.AttributeCharacteristics,
+                    VariableCharacteristics: updatedVar,
+                    AttributeCharacteristics: updatedAtt,
                     OrderDetailsId: selectedValue?.OrderDetailsId,
                     InspectionEntryDetailsID: response?.Data || '',
                     InspectionID: InspectionID,
@@ -331,10 +340,10 @@ const InputDataModal = ({
                     backgroundColor: COLORS.SUCCESS,
                     color: COLORS.white,
                     duration: 1500,
-                    statusBarHeight:40,
+                    statusBarHeight: 40,
                     icon: 'success',
                     position: 'right',
-                    style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {paddingTop: insets.top},
+                    style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : { paddingTop: insets.top },
                 });
                 handleSubmitPress(selectedValue);
                 hideModal();
@@ -347,7 +356,7 @@ const InputDataModal = ({
                     statusBarHeight: 40,
                     icon: 'warning',
                     position: 'right',
-                   style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {paddingTop: insets.top},
+                    style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : { paddingTop: insets.top },
                 });
             }
         }
@@ -390,7 +399,7 @@ const InputDataModal = ({
                             style={{
                                 flexDirection: isTablet ? 'row' : 'column',
                                 flexWrap: 'wrap', // important for tablet
-                                justifyContent:'space-between'
+                                justifyContent: 'space-between',
                             }}>
                             <View style={[styles.inputContainer, { width: isTablet ? '48%' : '100%' }]}>
                                 <Text style={styles.inputText}>

@@ -247,6 +247,7 @@ const SearchInspection = () => {
             const status = getItemStatus(Samples);
             result.push({
                 ...item,
+                isSamplePopup: Object.prototype.hasOwnProperty.call(item, 'ActualValue'),
                 Samples: Samples,
                 status: status,
             });
@@ -355,6 +356,19 @@ const SearchInspection = () => {
                 });
                 setShowBubble(false);
                 navigation.navigate(ROUTES.INPROCESS_INSPECTION, { inspectData: inspectObj });
+            } else {
+                console.log('response', response);
+                showMessage({
+                    message: 'Something went wrong',
+                    backgroundColor: COLORS.ERROR,
+                    color: COLORS.white,
+                    duration: 1500,
+                    statusBarHeight: 40,
+                    icon: 'warning',
+                    position: 'right',
+                    style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : { paddingTop: insets.top },
+                });
+                setShowBubble(false);
             }
         }
     };
