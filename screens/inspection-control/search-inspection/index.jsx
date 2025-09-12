@@ -247,7 +247,7 @@ const SearchInspection = () => {
             const status = getItemStatus(Samples);
             result.push({
                 ...item,
-                isSamplePopup: Object.prototype.hasOwnProperty.call(item, 'ActualValue'),
+                isSamplePopup: Array.isArray(item.charInfo) && item.charInfo.some(c => c.PropertyName === 'ActualValue'),
                 Samples: Samples,
                 status: status,
             });

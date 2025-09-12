@@ -123,7 +123,7 @@ const InprocessInspection = ({ route }) => {
                 iconFlag = temp?.length ? true : false;
             }
         } else {
-            status = item?.status || 'Inspect1';
+            status = item?.status || 'Inspect';
         }
         console.log(item.isSamplePopup, status,item?.status , 'item.isSamplePopup1outside');
 
@@ -414,12 +414,12 @@ const InprocessInspection = ({ route }) => {
                 const list = masterData || [];
                 const allValues = list.length > 0 && list.every(({ value }) => value.trim() !== '');
                 const someValues = list.some(({ value }) => value.trim() !== '');
-                status = allValues ? 'Completed' : someValues ? 'In Progress' : 'Launch';
+                status = allValues ? 'Completed' : someValues ? 'In Progress' : 'Inspect';
                 console.log(status, selectedData?.isSamplePopup, 'inside1111');
             } else {
                 let temp = selectedData?.charInfo.filter(x => x?.Required && x?.Value == '')?.length;
                 let reqLen = selectedData?.charInfo.filter(x => x?.Required)?.length;
-                status = temp == 0 ? 'Completed' : temp == reqLen ? 'Launch' : 'In Progress';
+                status = temp == 0 ? 'Completed' : temp == reqLen ? 'Inspect' : 'In Progress';
             }
             const updatedObj = {
                 ...selectedData,

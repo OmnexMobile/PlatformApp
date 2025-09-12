@@ -113,8 +113,11 @@ const SampleCharInfo = ({
                 selectedData?.charInfo
                     ?.filter(item => {
                         if (
-                            charType != 'number' &&
-                            (item.RefData == '##HighToleranceValue##' || item.RefData == '##LowToleranceValue##' || item.RefData == '##ATTorVAR##')
+                            item.PropertyName === 'ActualValue' ||
+                            (charType != 'number' &&
+                                (item.RefData == '##HighToleranceValue##' ||
+                                    item.RefData == '##LowToleranceValue##' ||
+                                    item.RefData == '##ATTorVAR##'))
                         ) {
                             return false;
                         }
@@ -124,7 +127,7 @@ const SampleCharInfo = ({
                         return (
                             <View style={styles.subBox} key={index + 1}>
                                 <Text style={styles.headerText} numberOfLines={1}>
-                                    {item.DisplayName}
+                                    {item.DisplayName} {item?.Required && <Text style={styles.isRequired}> *</Text>}
                                 </Text>
                                 <DynamicFormField
                                     title={item.DisplayName}
@@ -183,6 +186,10 @@ const styles = StyleSheet.create({
         marginTop: 8,
         color: COLORS.ictextBlack,
         paddingHorizontal: 10,
+    },
+    isRequired: {
+        color: COLORS.ERROR,
+        fontSize: 10,
     },
 });
 

@@ -210,11 +210,13 @@ const InputDataModal = ({
         }
     };
     const handlePopupNeed = data => {
-        const updatedData = data.map(item => ({
-            ...item,
-            isSamplePopup: Object.prototype.hasOwnProperty.call(item, 'ActualValue'),
-        }));
-        return updatedData;
+        return data.map(item => {
+            const hasActualValue = Array.isArray(item.charInfo) && item.charInfo.some(c => c.PropertyName === 'ActualValue');
+            return {
+                ...item,
+                isSamplePopup: hasActualValue,
+            };
+        });
     };
     const handleSubmitBtnPress = async () => {
         const result = handleValidation();
