@@ -7,7 +7,7 @@ import { Alert, FlatList, KeyboardAvoidingView, Modal, Platform, SafeAreaView, S
 import Icon from 'react-native-vector-icons/AntDesign';
 import IconI from 'react-native-vector-icons/Ionicons';
 import IconM from 'react-native-vector-icons/MaterialCommunityIcons';
-import DocumentPicker from 'react-native-document-picker';
+import DocumentPicker, { isCancel } from 'react-native-document-picker';
 import uuid from 'react-native-uuid';
 import RNFS from 'react-native-fs';
 import FileViewer from 'react-native-file-viewer';
@@ -27,13 +27,13 @@ const InputFilePicker = ({ ListData = [], maxLimit = 10, isEditable = false, tit
             setFileList([]);
         }
     }, [ListData]);
-    useLayoutEffect(()=>{
-        if(fileList?.length >= maxLimit){
-            setDisableBtn(true)
-        }else{
-            setDisableBtn(false)
+    useLayoutEffect(() => {
+        if (fileList?.length >= maxLimit) {
+            setDisableBtn(true);
+        } else {
+            setDisableBtn(false);
         }
-    },[fileList,maxLimit])
+    }, [fileList, maxLimit]);
     const handlePickFile = async () => {
         try {
             const response = await DocumentPicker.pick({
@@ -55,7 +55,11 @@ const InputFilePicker = ({ ListData = [], maxLimit = 10, isEditable = false, tit
                 Alert.alert('Error', 'File size exceeds 5MB limit.');
             }
         } catch (err) {
-            Alert.alert('Error', `${err}`);
+            if (isCancel(err)) {
+                // user cancelled, do nothing
+                return;
+            }
+            Alert.alert('Error', String(err));
         }
     };
     const openBase64File = async (base64String, fileType, name) => {

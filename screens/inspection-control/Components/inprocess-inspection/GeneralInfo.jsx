@@ -29,7 +29,7 @@ const GeneralInfo = ({ infoData = {}, setInfoData = () => {}, intInspectionTypeI
                                 item.DisplayName != 'Customer' &&
                                 item.DisplayName != 'Customer Code' && (
                                     <View style={styles.subBox} key={`${item.PropertyName}-${index}`}>
-                                        <Text style={styles.headerText}>
+                                        <Text style={styles.headerText} numberOfLines={1}>
                                             {item.DisplayName == 'ReceiptNo' && intInspectionTypeID == 1 ? 'GRN No' : item.DisplayName}
                                             {item?.Required == 0 && <Text style={styles.isRequired}> *</Text>}
                                         </Text>
@@ -54,7 +54,7 @@ const GeneralInfo = ({ infoData = {}, setInfoData = () => {}, intInspectionTypeI
                                 item.DisplayName != 'Invoice Number' &&
                                 item.DisplayName != 'Invoice Date' && (
                                     <View style={styles.subBox} key={`${item.PropertyName}-${index}`}>
-                                        <Text style={styles.headerText}>
+                                        <Text style={styles.headerText} numberOfLines={1}>
                                             {item.DisplayName} {item?.Required == 0 && <Text style={styles.isRequired}> *</Text>}
                                         </Text>
                                         <DynamicFormField
@@ -72,7 +72,7 @@ const GeneralInfo = ({ infoData = {}, setInfoData = () => {}, intInspectionTypeI
                         } else if (intInspectionTypeID == 2) {
                             return (
                                 <View style={styles.subBox} key={`${item.PropertyName}-${index}`}>
-                                    <Text style={styles.headerText}>
+                                    <Text style={styles.headerText} numberOfLines={1}>
                                         {item.DisplayName == 'UserName' && intInspectionTypeID == 2 ? 'Operator' : item.DisplayName}{item?.Required == 0 && <Text style={styles.isRequired}> *</Text>}
                                     </Text>
                                     <DynamicFormField

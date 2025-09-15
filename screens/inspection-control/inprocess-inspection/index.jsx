@@ -106,8 +106,10 @@ const InprocessInspection = ({ route }) => {
             const list = item?.Samples || [];
             iconFlag = false;
             const allValues = list.length > 0 && list.every(({ value }) => value.trim() !== '');
-            const someValues = list.some(({ value }) => value.trim() !== '');
-            status = allValues ? 'Completed' : someValues ? 'In Progress' : 'Inspect';
+            // const someValues = list.some(({ value }) => value.trim() !== '');
+            // let tempAllValue = item?.charInfo.filter(x => x?.Value != '')?.length;
+            // status = allValues ? 'Completed' : someValues || tempAllValue != 0 ? 'In Progress' : 'Inspect';
+            status = item.status || 'Inspect';
             if (allValues) {
                 let temp =
                     type == 'number'
@@ -405,7 +407,7 @@ const InprocessInspection = ({ route }) => {
 
         return () => backHandler.remove(); // cleanup on unmount
     }, [handleSaveAlert]);
-console.log(selectedData,'selectedData')
+    console.log(selectedData, 'selectedData');
     const handleSavePress = async (close = true, btnText = 'noBtn') => {
         if (showChar) {
             const { VariableCharacteristics, AttributeCharacteristics } = infoData;
@@ -415,16 +417,17 @@ console.log(selectedData,'selectedData')
                 const list = masterData || [];
                 const allValues = list.length > 0 && list.every(({ value }) => value.trim() !== '');
                 const someValues = list.some(({ value }) => value.trim() !== '');
-                status = allValues ? 'Completed' : someValues ? 'In Progress' : 'Inspect';
+                let tempAllValue = selectedData?.charInfo.filter(x => x?.Value != '')?.length;
+                status = allValues ? 'Completed' : someValues || tempAllValue != 0 ? 'In Progress' : 'Inspect';
             } else {
                 let temp = selectedData?.charInfo.filter(x => x?.Required && x?.Value == '')?.length;
                 let tempAllValue = selectedData?.charInfo.filter(x => x?.Value != '')?.length;
-                console.log(tempAllValue,'tempAllValue')
+                console.log(tempAllValue, 'tempAllValue');
                 status = temp == 0 ? 'Completed' : tempAllValue != 0 ? 'In Progress' : 'Inspect';
             }
             const updatedObj = {
                 ...selectedData,
-                Samples:selectedData?.isSamplePopup? masterData:[],
+                Samples: selectedData?.isSamplePopup ? masterData : [],
                 status: status,
             };
             const index = characteristicsList.findIndex(

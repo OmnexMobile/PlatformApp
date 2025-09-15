@@ -17,6 +17,7 @@ const DynamicFormField = ({
     isEditable = true,
     title = '',
     DisplayName = '',
+    backgroundColor=COLORS.inputBG,
 }) => {
     const { width } = useWindowDimensions();
     switch (fieldType) {
@@ -27,7 +28,7 @@ const DynamicFormField = ({
             return (
                 <TextInput
                     value={value || ''}
-                    style={[styles.inputBox, { backgroundColor: isEditable ? COLORS.inputBG : COLORS.whiteGrey }]}
+                    style={[styles.inputBox, { backgroundColor: isEditable ? backgroundColor : COLORS.whiteGrey }]}
                     onChangeText={val => {
                         if (isEditable) {
                             handleChange(val);
@@ -42,7 +43,7 @@ const DynamicFormField = ({
             return (
                 <SingleDropDown
                     data={dropDownData}
-                    backgroundColor={isEditable ? COLORS.inputBG : COLORS.whiteGrey}
+                    backgroundColor={isEditable ? backgroundColor : COLORS.whiteGrey}
                     borderWidth={1}
                     marginTop={8}
                     title=""
@@ -74,7 +75,7 @@ const DynamicFormField = ({
                         paddingVertical={9}
                         borderColor={COLORS.icBottomBox}
                         placeHolder={placeHolder}
-                        backgroundColor={isEditable ? COLORS.inputBG : COLORS.whiteGrey}
+                        backgroundColor={isEditable ? backgroundColor: COLORS.whiteGrey}
                         editable={isEditable}
                     />
                 </View>
@@ -92,7 +93,7 @@ const DynamicFormField = ({
                         borderColor={COLORS.icBottomBox}
                         placeHolder={placeHolder}
                         type="time"
-                        backgroundColor={isEditable ? COLORS.inputBG : COLORS.whiteGrey}
+                        backgroundColor={isEditable ? backgroundColor : COLORS.whiteGrey}
                         editable={isEditable}
                     />
                 </View>
@@ -129,7 +130,7 @@ const DynamicFormField = ({
             return (
                 <TextInput
                     value={value || ''}
-                    style={[styles.inputBox, { backgroundColor: isEditable ? COLORS.inputBG : COLORS.whiteGrey }]}
+                    style={[styles.inputBox, { backgroundColor: isEditable ? backgroundColor : COLORS.whiteGrey }]}
                     onChangeText={val => {
                         if (isEditable) {
                             handleChange(val);

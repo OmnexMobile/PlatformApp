@@ -23,6 +23,20 @@ const SampleCharInfo = ({
 }) => {
     const [defectList, setDefectList] = useState([]);
     const insets = useSafeAreaInsets();
+    const renderBackGroundColor = (value, type, list) => {
+        if (value === '') {
+            return COLORS.inputBG;
+        }
+        if (type === 'number') {
+            let temphighValue = list.filter(x => x?.RefData === '##HighToleranceValue##')[0]?.Value;
+            let tempLowValue = list.filter(x => x?.RefData === '##LowToleranceValue##')[0]?.Value;
+            let tempTValue = list.filter(x => x?.RefData === '##ATTorVAR##')[0]?.Value;
+            let lowValue = inspectionType == 2 ? Number(tempTValue) - Number(tempLowValue) : tempLowValue;
+            let highValue = inspectionType == 2 ? Number(tempTValue) + Number(temphighValue) : temphighValue;
+            return Number(value) >= Number(lowValue) && Number(value) <= Number(highValue) ? COLORS.SUCCESS : COLORS.ERROR;
+        }
+        return value.toLowerCase() === 'ok' ? COLORS.SUCCESS : COLORS.ERROR;
+    };
     useEffect(() => {
         let tempCharInfo = Boolean(selectedData?.charInfo?.length)
             ? selectedData?.charInfo?.map(item => {
@@ -130,6 +144,11 @@ const SampleCharInfo = ({
                                     {item.DisplayName} {item?.Required && <Text style={styles.isRequired}> *</Text>}
                                 </Text>
                                 <DynamicFormField
+                                    backgroundColor={
+                                        item.RefData == '##StaticSample##'
+                                            ? renderBackGroundColor(item?.Value, 'number', selectedData?.charInfo)
+                                            : COLORS.inputBG
+                                    }
                                     title={item.DisplayName}
                                     fieldType={item.FieldType}
                                     value={handleGetUserUpadedValue(item) || ''}
