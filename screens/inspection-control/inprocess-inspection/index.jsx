@@ -106,10 +106,10 @@ const InprocessInspection = ({ route }) => {
             const list = item?.Samples || [];
             iconFlag = false;
             const allValues = list.length > 0 && list.every(({ value }) => value.trim() !== '');
-            // const someValues = list.some(({ value }) => value.trim() !== '');
-            // let tempAllValue = item?.charInfo.filter(x => x?.Value != '')?.length;
-            // status = allValues ? 'Completed' : someValues || tempAllValue != 0 ? 'In Progress' : 'Inspect';
-            status = item.status || 'Inspect';
+            const someValues = list.some(({ value }) => value.trim() !== '');
+            let tempAllValue = item?.charInfo.filter(x => x?.Value != '')?.length;
+            let tempstatus = allValues ? 'Completed' : someValues || tempAllValue != 0 ? 'In Progress' : 'Inspect';
+            status = item?.status || tempstatus;
             if (allValues) {
                 let temp =
                     type == 'number'
@@ -125,7 +125,10 @@ const InprocessInspection = ({ route }) => {
                 iconFlag = temp?.length ? true : false;
             }
         } else {
-            status = item?.status || 'Inspect';
+            let temp = item?.charInfo.filter(x => x?.Required && x?.Value == '')?.length;
+            let tempAllValue = item?.charInfo.filter(x => x.RefData == '##StaticSample##' && x?.Value != '')?.length;
+            let tempstatus = temp == 0 ? 'Completed' : tempAllValue != 0 ? 'In Progress' : 'Inspect';
+            status = item?.status || tempstatus;
         }
 
         let colorCode = COLORS.apptheme;
