@@ -6,7 +6,7 @@ import ListRadioButton from './ListRadioButton';
 
 const GeneralInfo = ({ infoData = {}, setInfoData = () => {}, intInspectionTypeID = '' }) => {
     const handleInputChange = (val, item) => {
-        console.log('handlechange', val, item);
+        console.log('handlechange', val);
         const updatedData = infoData.GeneralInfo.map(i => (i.PropertyName === item.PropertyName ? { ...i, Value: val } : i));
         setInfoData(pre => ({ ...pre, GeneralInfo: updatedData }));
     };

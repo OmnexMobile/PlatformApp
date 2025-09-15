@@ -7,6 +7,7 @@ const { width, height } = Dimensions.get('window');
 const isTablet = Math.min(width, height) >= 768; // threshold for tablet
 const ListRadioButton = ({ options = [], onChange, value, title = '',handleRadioChange=()=>{} }) => {
     const [selected, setSelected] = useState('');
+    console.log(value,'##################value')
     useEffect(() => {
         if (value !== '') {
             setSelected(value);
@@ -15,8 +16,8 @@ const ListRadioButton = ({ options = [], onChange, value, title = '',handleRadio
         }
     }, [value]);
     const handleChange = item => {
-        handleRadioChange(item.value);
-        setSelected(item.label);
+        handleRadioChange(item);
+        setSelected(item);
         onChange?.(item);
     };
 
@@ -31,7 +32,7 @@ const ListRadioButton = ({ options = [], onChange, value, title = '',handleRadio
                     <View key={index} style={{ marginRight: isTablet ? 0 : 16, marginBottom: isTablet ? 12 : 0 }}>
                         <RadioButtonComponent
                             lable={item.label}
-                            value={selected}
+                            value={selected?.label}
                             obj={item}
                             onChange={handleChange}
                             size={17}
@@ -43,7 +44,7 @@ const ListRadioButton = ({ options = [], onChange, value, title = '',handleRadio
             ) : (
                 <RadioButtonComponent
                     lable={title}
-                    value={selected}
+                    value={selected?.label}
                     obj={{
                         label: title,
                         value: title,

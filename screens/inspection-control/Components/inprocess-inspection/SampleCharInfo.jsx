@@ -146,7 +146,7 @@ const SampleCharInfo = ({
                                 <DynamicFormField
                                     backgroundColor={
                                         item.RefData == '##StaticSample##'
-                                            ? renderBackGroundColor(item?.Value, 'number', selectedData?.charInfo)
+                                            ? renderBackGroundColor(item?.Value, charType, selectedData?.charInfo)
                                             : COLORS.inputBG
                                     }
                                     title={item.DisplayName}
