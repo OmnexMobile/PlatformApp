@@ -141,7 +141,7 @@ const SampleCharInfo = ({
                         return (
                             <View style={styles.subBox} key={index + 1}>
                                 <Text style={styles.headerText} numberOfLines={1}>
-                                    {item.DisplayName} {item?.Required && <Text style={styles.isRequired}> *</Text>}
+                                    {item?.StaticText} {item?.Required && <Text style={styles.isRequired}> *</Text>}
                                 </Text>
                                 <DynamicFormField
                                     backgroundColor={
@@ -149,7 +149,7 @@ const SampleCharInfo = ({
                                             ? renderBackGroundColor(item?.Value, charType, selectedData?.charInfo)
                                             : COLORS.inputBG
                                     }
-                                    title={item.DisplayName}
+                                    title={item.StaticText}
                                     fieldType={item.FieldType}
                                     value={handleGetUserUpadedValue(item) || ''}
                                     isEditable={Boolean(item?.IsEditable)}

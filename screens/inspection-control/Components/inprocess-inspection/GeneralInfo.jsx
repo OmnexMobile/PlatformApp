@@ -28,7 +28,7 @@ const GeneralInfo = ({ infoData = {}, setInfoData = () => {}, intInspectionTypeI
                                 item.DisplayName != 'Customer Code' && (
                                     <View style={styles.subBox} key={`${item.PropertyName}-${index}`}>
                                         <Text style={styles.headerText} numberOfLines={1}>
-                                            {item.DisplayName == 'ReceiptNo' && intInspectionTypeID == 1 ? 'GRN No' : item.DisplayName}
+                                            {item.DisplayName == 'ReceiptNo' && intInspectionTypeID == 1 ? 'GRN No' : item.StaticText}
                                             {item?.Required == 0 && <Text style={styles.isRequired}> *</Text>}
                                         </Text>
                                         <DynamicFormField
@@ -53,7 +53,7 @@ const GeneralInfo = ({ infoData = {}, setInfoData = () => {}, intInspectionTypeI
                                 item.DisplayName != 'Invoice Date' && (
                                     <View style={styles.subBox} key={`${item.PropertyName}-${index}`}>
                                         <Text style={styles.headerText} numberOfLines={1}>
-                                            {item.DisplayName} {item?.Required == 0 && <Text style={styles.isRequired}> *</Text>}
+                                            {item.StaticText} {item?.Required == 0 && <Text style={styles.isRequired}> *</Text>}
                                         </Text>
                                         <DynamicFormField
                                             title="Supplier Name"
@@ -71,7 +71,7 @@ const GeneralInfo = ({ infoData = {}, setInfoData = () => {}, intInspectionTypeI
                             return (
                                 <View style={styles.subBox} key={`${item.PropertyName}-${index}`}>
                                     <Text style={styles.headerText} numberOfLines={1}>
-                                        {item.DisplayName == 'UserName' && intInspectionTypeID == 2 ? 'Operator' : item.DisplayName}{item?.Required == 0 && <Text style={styles.isRequired}> *</Text>}
+                                        {item.DisplayName == 'UserName' && intInspectionTypeID == 2 ? 'Operator' : item.StaticText}{item?.Required == 0 && <Text style={styles.isRequired}> *</Text>}
                                     </Text>
                                     <DynamicFormField
                                         title="Supplier Name"
