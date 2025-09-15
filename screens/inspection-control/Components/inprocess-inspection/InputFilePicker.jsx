@@ -146,7 +146,9 @@ const InputFilePicker = ({ ListData = [], maxLimit = 10, isEditable = false, tit
                 style={[styles.fileBox, { backgroundColor: isEditable ? COLORS.inputBG : COLORS.whiteGrey, justifyContent: 'center' }]}
                 activeOpacity={isEditable ? 0.5 : 1}
                 onPress={() => {
-                    handleFilePress();
+                    if (isEditable) {
+                        handleFilePress();
+                    }
                 }}>
                 <View>
                     <Text style={[styles.fileText]}>{fileList.length ? `${fileList.length} Files Uploaded` : 'Upload File'}</Text>

@@ -7,7 +7,6 @@ const { width, height } = Dimensions.get('window');
 const isTablet = Math.min(width, height) >= 768; // threshold for tablet
 const ListRadioButton = ({ options = [], onChange, value, title = '',handleRadioChange=()=>{} }) => {
     const [selected, setSelected] = useState('');
-    console.log(value,'##################value')
     useEffect(() => {
         if (value !== '') {
             setSelected(value);
