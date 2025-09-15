@@ -245,10 +245,11 @@ const SearchInspection = () => {
                 });
             }
             const status = getItemStatus(Samples);
+            let isSamplePopup = Array.isArray(item.charInfo) && item.charInfo.some(c => c.PropertyName === 'ActualValue');
             result.push({
                 ...item,
-                isSamplePopup: Array.isArray(item.charInfo) && item.charInfo.some(c => c.PropertyName === 'ActualValue'),
-                Samples: Samples,
+                isSamplePopup: isSamplePopup,
+                Samples: isSamplePopup ? Samples : [],
                 status: status,
             });
         });

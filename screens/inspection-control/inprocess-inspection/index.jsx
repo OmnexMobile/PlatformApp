@@ -405,22 +405,7 @@ const InprocessInspection = ({ route }) => {
 
         return () => backHandler.remove(); // cleanup on unmount
     }, [handleSaveAlert]);
-    const hasCharInfoChanged = (oldObject, selectedData) => {
-        const oldCharInfo = oldObject?.charInfo ?? [];
-        const newCharInfo = selectedData?.charInfo ?? [];
-
-        // If length is different, definitely changed
-        if (oldCharInfo.length !== newCharInfo.length) {
-            return true;
-        }
-
-        // Compare each object deeply
-        return oldCharInfo.some((oldItem, index) => {
-            const newItem = newCharInfo[index];
-            return JSON.stringify(oldItem) !== JSON.stringify(newItem);
-        });
-    };
-
+console.log(selectedData,'selectedData')
     const handleSavePress = async (close = true, btnText = 'noBtn') => {
         if (showChar) {
             const { VariableCharacteristics, AttributeCharacteristics } = infoData;
@@ -431,19 +416,15 @@ const InprocessInspection = ({ route }) => {
                 const allValues = list.length > 0 && list.every(({ value }) => value.trim() !== '');
                 const someValues = list.some(({ value }) => value.trim() !== '');
                 status = allValues ? 'Completed' : someValues ? 'In Progress' : 'Inspect';
-                console.log(status, selectedData?.isSamplePopup, 'inside1111');
             } else {
-                let oldObject = characteristicsList.filter(
-                    obj => obj?.CCharacteristicsId === selectedData?.CCharacteristicsId && obj.FuncDetailsId == selectedData?.FuncDetailsId,
-                )[0];
-                console.log(oldObject.charInfo.length, 'oldObject');
                 let temp = selectedData?.charInfo.filter(x => x?.Required && x?.Value == '')?.length;
-                let reqLen = selectedData?.charInfo.filter(x => x?.Required)?.length;
-                status = temp == 0 ? 'Completed' : temp == reqLen ? 'Inspect' : 'In Progress';
+                let tempAllValue = selectedData?.charInfo.filter(x => x?.Value != '')?.length;
+                console.log(tempAllValue,'tempAllValue')
+                status = temp == 0 ? 'Completed' : tempAllValue != 0 ? 'In Progress' : 'Inspect';
             }
             const updatedObj = {
                 ...selectedData,
-                Samples: masterData,
+                Samples:selectedData?.isSamplePopup? masterData:[],
                 status: status,
             };
             const index = characteristicsList.findIndex(
