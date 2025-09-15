@@ -108,7 +108,7 @@ const InprocessInspection = ({ route }) => {
             const allValues = list.length > 0 && list.every(({ value }) => value.trim() !== '');
             const someValues = list.some(({ value }) => value.trim() !== '');
             let tempAllValue = item?.charInfo.filter(x => x?.Value != '')?.length;
-            let tempstatus = allValues ? 'Completed' : someValues || tempAllValue != 0 ? 'In Progress' : 'Inspect';
+            let tempstatus = allValues ? 'Completed' : someValues ? 'In Progress' : 'Inspect';
             status = item?.status || tempstatus;
             if (allValues) {
                 let temp =

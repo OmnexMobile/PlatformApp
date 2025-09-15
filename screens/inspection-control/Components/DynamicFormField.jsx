@@ -64,6 +64,7 @@ const DynamicFormField = ({
             );
         case 'datePicker':
         case 'datetime':
+        case 'DateTime':
             return (
                 <View style={{ marginTop: 8 }}>
                     <DataPickerWithIcon
@@ -81,6 +82,8 @@ const DynamicFormField = ({
                 </View>
             );
         case 'timePicker':
+        case 'TimePicker':
+        case 'Time':
             return (
                 <View style={{ marginTop: 8 }}>
                     <DataPickerWithIcon

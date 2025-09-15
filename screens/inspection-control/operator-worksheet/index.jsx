@@ -75,7 +75,10 @@ const OperatorWorksheet = () => {
 
     const rendetBtnText = item => {
         const combined = [...item?.VariableCharacteristics, ...item?.AttributeCharacteristics];
-
+        let genStatus = item?.GeneralInfo?.filter(x => x?.Required == 0 && x.Value != '')?.length;
+        let genAllStatus = item?.GeneralInfo?.filter(x => x?.Required == 0)?.length;
+        let finalGenStatus = genStatus == genAllStatus ? 'Completed' : 'In Progress';
+        console.log(finalGenStatus, '**************item.GeneralInfo');
         if (!combined.some(c => 'status' in c)) {
             return {
                 status: 'launch',
