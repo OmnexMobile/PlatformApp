@@ -18,6 +18,7 @@ const DynamicFormField = ({
     title = '',
     DisplayName = '',
     backgroundColor=COLORS.inputBG,
+    dropdownPosition='top',
 }) => {
     const { width } = useWindowDimensions();
     switch (fieldType) {
@@ -60,6 +61,7 @@ const DynamicFormField = ({
                         elevation: 10,
                         width: width / 2.2,
                     }}
+                    dropdownPosition={dropdownPosition}
                 />
             );
         case 'datePicker':

@@ -6,6 +6,7 @@ import Icon from 'react-native-vector-icons/AntDesign';
 import IconF from 'react-native-vector-icons/FontAwesome';
 import IconI from 'react-native-vector-icons/Ionicons';
 import IconO from 'react-native-vector-icons/Octicons';
+import IconM from 'react-native-vector-icons/MaterialIcons';
 import InputWithSearch from './InputWithSearch';
 import InspectionInspectionSvg from '../../../assets/images/svg/inspection-scedule.svg';
 import OperatorWorksheetSvg from '../../../assets/images/svg/operator-worksheet.svg';
@@ -67,6 +68,7 @@ const CustomHeader = ({
     handleClosePress = () => {},
     customBackHandler = false,
     customHandleGoBack = () => {},
+    handleMultiSearch=()=>{}
 }) => {
     const { icSettings } = useSelector(state => state.inspection);
     const insets = useSafeAreaInsets();
@@ -87,7 +89,7 @@ const CustomHeader = ({
         if (searchValue?.length) {
             setIsExpanded(true);
             Animated.timing(widthAnim, {
-                toValue: activeTabId !== 4 ? width / 1.5 : width / 2.2,
+                toValue: activeTabId !== 4 ? width / 1.8 : width / 2.2,
                 duration: 0,
                 useNativeDriver: false,
             }).start();
@@ -104,7 +106,7 @@ const CustomHeader = ({
         } else {
             setIsExpanded(true);
             Animated.timing(widthAnim, {
-                toValue: activeTabId !== 4 ? width / 1.5 : width / 2.2,
+                toValue: activeTabId !== 4 ? width / 1.8 : width / 2.2,
                 duration: 300,
                 useNativeDriver: false,
             }).start();
@@ -172,6 +174,11 @@ const CustomHeader = ({
                 <View style={[styles.rightIconList]}>
                     {showIcons && (
                         <>
+                            {activeTabId == 0 && (
+                                <TouchableOpacity onPress={() => handleMultiSearch()}>
+                                    <IconM name="filter-list" size={25} style={styles.iconButton} color={COLORS.white} />
+                                </TouchableOpacity>
+                            )}
                             {activeTabId == 0 && (
                                 <TouchableOpacity onPress={() => handleFilterPress()}>
                                     <Icon name="filter" size={25} style={styles.iconButton} color={COLORS.white} />
@@ -302,7 +309,7 @@ const styles = StyleSheet.create({
         backgroundColor: COLORS.white,
         height: 80,
         paddingHorizontal: 15,
-        marginBottom:20
+        marginBottom: 20,
     },
     tabBox: {
         alignItems: 'center',

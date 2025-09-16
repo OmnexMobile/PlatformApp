@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { FlatList, Platform, RefreshControl, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
+import { FlatList, Platform, RefreshControl, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View, ScrollView } from 'react-native';
 import CustomHeader from '../Components/CustomHeader';
 import { COLORS } from 'constants/theme-constants';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
@@ -26,6 +26,9 @@ import PartDetails from '../Components/supervisor-schedule/PartDetails';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import uuid from 'react-native-uuid';
 import { addInspectionData, getInspectionDataByUserAndSite } from 'store/database/inspectStorage';
+import ICCheckBox from '../Components/ICCheckBox';
+import SingleDropDown from '../Components/SingleDropDown';
+import DynamicFormField from '../Components/DynamicFormField';
 
 const filterList = [
     {
@@ -87,6 +90,50 @@ const searchFilterList = [
         label: 'Status',
     },
 ];
+const searchFilterOptions = [
+    {
+        id: 1,
+        title: 'ProductionItemName',
+        label: 'Production Item',
+        type: 'search',
+        value: 'Production Item',
+    },
+    {
+        id: 2,
+        title: 'OperationName',
+        label: 'Operation',
+        type: 'search',
+        value: 'Operation',
+    },
+    {
+        id: 3,
+        title: 'LotNo',
+        label: 'Lot No',
+        type: 'search',
+        value: 'Lot No',
+    },
+    {
+        id: 4,
+        label: 'Refrence No',
+        title: 'ReferenceNo',
+        type: 'singleDropDown',
+        value: 'Refrence No',
+    },
+    {
+        id: 5,
+        label: 'Lot Size',
+        title: 'LotSize',
+        type: 'search',
+        value: 'Lot Size',
+    },
+    {
+        id: 6,
+        label: 'Sample Frequency',
+        title: 'SampleFrequency',
+        type: 'search',
+        value: 'Sample Frequency',
+    },
+];
 const SearchInspection = () => {
     const insets = useSafeAreaInsets();
     const { height } = useWindowDimensions();
@@ -117,6 +164,17 @@ const SearchInspection = () => {
     const [searchList, setSearchList] = useState([...searchFilterList]);
     const [refreshing, setRefreshing] = useState(false);
     const [showEye, setShowEye] = useState(false);
+    const [selectedSeachOptions, setSelectedSeachOptions] = useState([
+        {
+            id: 1,
+            title: '',
+            label: '',
+            searchBy: '',
+            searchText: '',
+        },
+    ]);
+    const [showMutiSearchFilter, setShowMutiSearchFilter] = useState(false);
+
     const handleEyePress = value => {
         setSelectedData(value);
         setShowEye(true);
@@ -136,6 +194,19 @@ const SearchInspection = () => {
             handleListFetch(true);
         }
     }, [filterData, isFocused, icUserData]);
+    useEffect(() => {
+        return () => {
+            setSelectedSeachOptions([
+                {
+                    id: 1,
+                    title: '',
+                    label: '',
+                    searchBy: '',
+                    searchText: '',
+                },
+            ]);
+        };
+    }, [isFocused]);
     const addIsDownloadKey = async temp => {
         const inspectList = await getInspectionDataByUserAndSite(icUserData?.userData?.UserId, icUserData?.userData?.Siteid);
         let filtered = inspectList.filter(item => item?.userType === 'SearchInspection');
@@ -492,6 +563,70 @@ const SearchInspection = () => {
             </View>
         );
     };
+    const handleAddPress = () => {
+        let temp = [...selectedSeachOptions];
+        temp.push({
+            id: temp[temp?.length - 1]?.id ? temp[temp?.length - 1]?.id + 1 : 1,
+            title: '',
+            label: '',
+            searchBy: '',
+            searchText: '',
+        });
+        setSelectedSeachOptions([...temp]);
+    };
+    const handleDeletePress = id => {
+        let temp = [...selectedSeachOptions];
+        temp = temp.filter(item => item.id !== id);
+        setSelectedSeachOptions([...temp]);
+    };
+    const handleFetchDropdownList = val => {
+        if (val.label == 'Refrence No') {
+            let temp = [];
+            masterData.forEach((item, index) => {
+                if (item?.ReferenceNo) {
+                    temp.push({
+                        id: index + 1,
+                        label: item.ReferenceNo,
+                        value: item.ReferenceNo,
+                    });
+                }
+            });
+            return temp;
+        } else {
+            return [];
+        }
+    };
+    const handleMultiSearchFilterSubmit = () => {
+        setShowMutiSearchFilter(false);
+        let temp = [];
+        selectedSeachOptions.forEach(item => {
+            if (item.searchText && item.searchBy) {
+                temp.push({
+                    searchBy: item.searchBy.title,
+                    searchText: item?.searchText?.value ? item?.searchText?.value : item.searchText,
+                });
+            }
+        });
+        handleDoMultiFilter(temp);
+        console.log(temp, 'selectedSeachOptions');
+    };
+    const handleDoMultiFilter = (criteria = []) => {
+        if (!Array.isArray(criteria) || criteria.length === 0) {
+            setMasterData([...overAllData]); // reset if no criteria
+            return;
+        }
+
+        let temp = [...overAllData];
+
+        // Apply filters one by one (AND logic)
+        criteria.forEach(({ searchBy, searchText }) => {
+            if (searchText && searchBy) {
+                temp = temp.filter(item => item[searchBy]?.toString().toLowerCase().includes(searchText.toLowerCase()));
+            }
+        });
+
+        setMasterData([...temp]);
+    };
     return (
         <CustomHeader
             title="Search Inspection"
@@ -510,6 +645,9 @@ const SearchInspection = () => {
             }}
             handleFilterPress={() => {
                 setShowSearchFilter(true);
+            }}
+            handleMultiSearch={() => {
+                setShowMutiSearchFilter(true);
             }}>
             <View style={[styles.mainContainer]}>
                 <View style={[styles.overAllBox]}>
@@ -676,6 +814,123 @@ const SearchInspection = () => {
                     </View>
                 </Modal>
             )}
+            {Boolean(showMutiSearchFilter) && (
+                <Modal
+                    visible={showMutiSearchFilter}
+                    onDismiss={() => {
+                        setShowMutiSearchFilter(false);
+                    }}
+                    contentContainerStyle={{
+                        backgroundColor: '#fff',
+                        width: '98%',
+                        alignSelf: 'center',
+                        height: '100%',
+                    }}>
+                    <View style={{ flex: 1, padding: 10 }}>
+                        <View style={{}}>
+                            <Text style={styles.headertext}>Search Filter</Text>
+                            <Divider />
+                        </View>
+                        <ScrollView style={{ flex: 1 }}>
+                            {selectedSeachOptions.map((item, index) => {
+                                console.log('item', item);
+                                return (
+                                    <View style={styles.filterContainer} key={item.id}>
+                                        <View style={styles.filterBox1}>
+                                            <SingleDropDown
+                                                placeholder="Column Name"
+                                                data={searchFilterOptions}
+                                                dropdownPosition="bottom"
+                                                value={item.searchBy || {}}
+                                                onChange={val => {
+                                                    const updatedData = selectedSeachOptions.map(i =>
+                                                        i.id === item.id
+                                                            ? {
+                                                                  ...i,
+                                                                  searchBy: val,
+                                                                  id: item.id,
+                                                                  title: val.label,
+                                                                  label: val.label,
+                                                                  searchText: '',
+                                                                  List: handleFetchDropdownList(val),
+                                                              }
+                                                            : i,
+                                                    );
+                                                    setSelectedSeachOptions(updatedData);
+                                                }}
+                                            />
+                                        </View>
+                                        <View style={styles.filterBox2}>
+                                            <DynamicFormField
+                                                fieldType={item.searchBy.type}
+                                                value={item.searchText}
+                                                isEditable={item.searchBy !== ''}
+                                                dropDownData={item?.List || []}
+                                                handleChange={val => {
+                                                    const updatedData = selectedSeachOptions.map(i =>
+                                                        i.id === item.id ? { ...i, searchText: val } : i,
+                                                    );
+                                                    setSelectedSeachOptions(updatedData);
+                                                }}
+                                                dropdownPosition="bottom"
+                                            />
+                                        </View>
+                                        {Boolean(selectedSeachOptions?.length > 1) && (
+                                            <View style={styles.filterBox3}>
+                                                <TouchableOpacity
+                                                    style={{ backgroundColor: COLORS.apptheme, padding: 5, borderRadius: 50, marginTop: 5 }}
+                                                    onPress={() => handleDeletePress(item.id)}>
+                                                    <IconI name="close" size={20} color={COLORS.white} />
+                                                </TouchableOpacity>
+                                            </View>
+                                        )}
+                                    </View>
+                                );
+                            })}
+                        </ScrollView>
+                        <View>
+                            <View style={[styles.outerAddContainer]}>
+                                <TouchableOpacity style={[styles.addConatiner]} onPress={() => handleAddPress()}>
+                                    <IconI name="add" size={25} color={COLORS.white} />
+                                </TouchableOpacity>
+                            </View>
+                            <Divider />
+                            <View
+                                style={{
+                                    flexDirection: 'row',
+                                    justifyContent: 'space-between',
+                                    paddingVertical: 10,
+                                }}>
+                                <TouchableOpacity style={styles.cancelConatiner} onPress={() => setShowMutiSearchFilter(false)}>
+                                    <Text style={styles.btnStyle}>CANCEL</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    style={styles.cancelConatiner}
+                                    onPress={() => {
+                                        setSelectedSeachOptions([
+                                            {
+                                                id: 1,
+                                                title: '',
+                                                label: '',
+                                                searchBy: '',
+                                                searchText: '',
+                                            },
+                                        ]);
+                                    }}>
+                                    <Text style={styles.btnStyle}>CLEAR ALL</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    style={styles.cancelConatiner}
+                                    onPress={() => {
+                                        handleMultiSearchFilterSubmit();
+                                    }}>
+                                    <Text style={styles.btnStyle}>SUBMIT</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </View>
+                </Modal>
+            )}
             {Boolean(showEye) && (
                 <PartDetails
                     visible={showEye}
@@ -814,6 +1069,38 @@ const styles = StyleSheet.create({
         fontFamily: 'OpenSans-SemiBold',
         fontSize: 17,
     },
+    addText: {
+        color: COLORS.apptheme,
+        fontFamily: 'OpenSans-SemiBold',
+        fontSize: 17,
+    },
+    addConatiner: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 5,
+        backgroundColor: COLORS.apptheme,
+        borderRadius: 50,
+    },
+    outerAddContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'flex-end',
+        marginBottom: 10,
+        marginRight: 10,
+    },
+    filterContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    filterBox1: {
+        flex: 1,
+    },
+    filterBox2: {
+        flex: 1.4,
+        marginHorizontal: 5,
+    },
+    filterBox3: {},
 });
 
 export default SearchInspection;
