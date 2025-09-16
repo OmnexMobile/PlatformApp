@@ -18,7 +18,8 @@ const SingleDropDown = ({
     maxHeight=300,
     placeholder='',
     editable=true,
-    containerStyle={}
+    containerStyle={},
+    dropdownPosition='top',
 }) => {
     return (
         <View style={[styles.container]}>
@@ -43,7 +44,7 @@ const SingleDropDown = ({
                 }}
                 disable={!editable}
                 containerStyle={containerStyle}
-                dropdownPosition='top'
+                dropdownPosition={dropdownPosition}
             />
         </View>
     );
