@@ -40,6 +40,14 @@ const moreList = [
         iconFrom: 'AntDesign',
     },
 ];
+const suzlonMoreList=[
+     {
+        id: 1,
+        title: 'Next Sample',
+        iconName: 'play-skip-forward-outline',
+        iconFrom: 'Ionicons',
+    }
+]
 
 const BorderContent = ({ title = 'Title', count = 0, color = '#000' }) => {
     return (
@@ -689,7 +697,7 @@ const CharacteristicsInfo = ({
                     </ButtonComponent>
                     <View style={[styles.iconFilter]}>
                         <FilterWithMenu
-                            dataList={moreList}
+                            dataList={selectedData?.isSamplePopup?moreList:suzlonMoreList}
                             type="IconFilter"
                             onSelectedPress={value => {
                                 handleMenuPress(value);
