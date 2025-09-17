@@ -23,7 +23,7 @@ const GeneralInfo = ({ infoData = {}, setInfoData = () => {}, intInspectionTypeI
                         return (
                             <View style={styles.subBox} key={`${item.PropertyName}-${index}`}>
                                 <Text style={styles.headerText} numberOfLines={1}>
-                                    {item.DisplayName == 'UserName' && intInspectionTypeID == 2 ? 'Operator' : item.StaticText}
+                                    {item.StaticText}
                                     {item?.Required == 0 && <Text style={styles.isRequired}> *</Text>}
                                 </Text>
                                 <DynamicFormField
