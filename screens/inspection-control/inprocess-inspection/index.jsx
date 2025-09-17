@@ -713,7 +713,12 @@ const InprocessInspection = ({ route }) => {
                                 // }
                             }}>
                             <Text style={[styles.headerText]}>Characteristics Info</Text>
-                            <TouchableOpacity onPress={handleShowCharInfo}>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    if (selectedData?.isSamplePopup) {
+                                        handleShowCharInfo();
+                                    }
+                                }}>
                                 <Icon name={showCharInfo ? 'down' : 'right'} size={20} color={COLORS.moreIcon} />
                             </TouchableOpacity>
                         </View>
