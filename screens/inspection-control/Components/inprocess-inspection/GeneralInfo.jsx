@@ -24,7 +24,7 @@ const GeneralInfo = ({ infoData = {}, setInfoData = () => {}, intInspectionTypeI
                             <View style={styles.subBox} key={`${item.PropertyName}-${index}`}>
                                 <Text style={styles.headerText} numberOfLines={1}>
                                     {item.StaticText}
-                                    {item?.Required == 0 && <Text style={styles.isRequired}> *</Text>}
+                                    {item?.Required ==1 && <Text style={styles.isRequired}> *</Text>}
                                 </Text>
                                 <DynamicFormField
                                     title="Supplier Name"
