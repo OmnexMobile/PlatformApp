@@ -153,8 +153,14 @@ class ApqpPpapManagerScreen extends Component {
       selectedIndex: this.props?.route?.params?.selectedIndex || 0,
     });
   };
+
+  unsubscribe;
   componentDidMount() {
     console.log(this.props?.route?.params, "navigationparamsapqp");
+    this.unsubscribe = this.props.navigation.addListener('focus', () => {
+      console.log('Screen focused again');
+        this.getapqplistdata()
+    })
     this.setting();
     this.getData()
       .then(async(res) => {
@@ -223,6 +229,12 @@ class ApqpPpapManagerScreen extends Component {
         this.setState({ activeTab: 2 });
         this.state.selectedIndex = 2;
       }
+    }
+  }
+
+  componentWillUnmount() {
+    if (this.unsubscribe) {
+      this.unsubscribe();
     }
   }
 
@@ -319,6 +331,7 @@ class ApqpPpapManagerScreen extends Component {
       //activeTab: this.state.activeTab,
     });
   }
+
   updateRecentActionList(item) {
     var list = [];
     list.push(item);
@@ -836,7 +849,7 @@ class ApqpPpapManagerScreen extends Component {
                   }
                 }
               }
-
+              console.log("test-- sectionedList--->" + sectionedList);
               this.setState(
                 {
                   apqpList: sectionedList,
