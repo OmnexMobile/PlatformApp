@@ -20,73 +20,90 @@ const GeneralInfo = ({ infoData = {}, setInfoData = () => {}, intInspectionTypeI
             <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
                 <View style={styles.rowContainer}>
                     {(infoData.GeneralInfo || []).map((item, index) => {
-                        if (intInspectionTypeID == 1) {
-                            return (
-                                item.DisplayName != 'Model' &&
-                                item.DisplayName != 'Rev No' &&
-                                item.DisplayName != 'Customer' &&
-                                item.DisplayName != 'Customer Code' && (
-                                    <View style={styles.subBox} key={`${item.PropertyName}-${index}`}>
-                                        <Text style={styles.headerText} numberOfLines={1}>
-                                            {item.DisplayName == 'ReceiptNo' && intInspectionTypeID == 1 ? 'GRN No' : item.StaticText}
-                                            {item?.Required == 0 && <Text style={styles.isRequired}> *</Text>}
-                                        </Text>
-                                        <DynamicFormField
-                                            title="Supplier Name"
-                                            fieldType={item.FieldType}
-                                            value={item.Value}
-                                            isEditable={Boolean(item?.IsEditable)}
-                                            dropDownData={item?.List || []}
-                                            handleChange={val => handleInputChange(val, item)}
-                                            DisplayName={item.DisplayName}
-                                        />
-                                    </View>
-                                )
-                            );
-                        } else if (intInspectionTypeID == 3) {
-                            return (
-                                item.DisplayName != 'Rev No' &&
-                                item.DisplayName != 'ReceiptNo' &&
-                                item.DisplayName != 'GRN Date' &&
-                                item.DisplayName != 'Supplier Code' &&
-                                item.DisplayName != 'Invoice Number' &&
-                                item.DisplayName != 'Invoice Date' && (
-                                    <View style={styles.subBox} key={`${item.PropertyName}-${index}`}>
-                                        <Text style={styles.headerText} numberOfLines={1}>
-                                            {item.StaticText} {item?.Required == 0 && <Text style={styles.isRequired}> *</Text>}
-                                        </Text>
-                                        <DynamicFormField
-                                            title="Supplier Name"
-                                            fieldType={item.FieldType}
-                                            value={item.Value}
-                                            isEditable={Boolean(item?.IsEditable)}
-                                            dropDownData={item?.List || []}
-                                            handleChange={val => handleInputChange(val, item)}
-                                            DisplayName={item.DisplayName}
-                                        />
-                                    </View>
-                                )
-                            );
-                        } else if (intInspectionTypeID == 2) {
-                            return (
-                                <View style={styles.subBox} key={`${item.PropertyName}-${index}`}>
-                                    <Text style={styles.headerText} numberOfLines={1}>
-                                        {item.DisplayName == 'UserName' && intInspectionTypeID == 2 ? 'Operator' : item.StaticText}{item?.Required == 0 && <Text style={styles.isRequired}> *</Text>}
-                                    </Text>
-                                    <DynamicFormField
-                                        title="Supplier Name"
-                                        fieldType={item.FieldType}
-                                        value={item.Value}
-                                        isEditable={Boolean(item?.IsEditable)}
-                                        dropDownData={item?.List || []}
-                                        handleChange={val => handleInputChange(val, item)}
-                                        DisplayName={item.DisplayName}
-                                    />
-                                </View>
-                            );
-                        } else {
-                            return null;
-                        }
+                        return (
+                            <View style={styles.subBox} key={`${item.PropertyName}-${index}`}>
+                                <Text style={styles.headerText} numberOfLines={1}>
+                                    {item.DisplayName == 'UserName' && intInspectionTypeID == 2 ? 'Operator' : item.StaticText}
+                                    {item?.Required == 0 && <Text style={styles.isRequired}> *</Text>}
+                                </Text>
+                                <DynamicFormField
+                                    title="Supplier Name"
+                                    fieldType={item.FieldType}
+                                    value={item.Value}
+                                    isEditable={Boolean(item?.IsEditable)}
+                                    dropDownData={item?.List || []}
+                                    handleChange={val => handleInputChange(val, item)}
+                                    DisplayName={item.DisplayName}
+                                />
+                            </View>
+                        );
+                        // if (intInspectionTypeID == 1) {
+                        //     return (
+                        //         item.DisplayName != 'Model' &&
+                        //         item.DisplayName != 'Rev No' &&
+                        //         item.DisplayName != 'Customer' &&
+                        //         item.DisplayName != 'Customer Code' && (
+                        //             <View style={styles.subBox} key={`${item.PropertyName}-${index}`}>
+                        //                 <Text style={styles.headerText} numberOfLines={1}>
+                        //                     {item.DisplayName == 'ReceiptNo' && intInspectionTypeID == 1 ? 'GRN No' : item.StaticText}
+                        //                     {item?.Required == 0 && <Text style={styles.isRequired}> *</Text>}
+                        //                 </Text>
+                        //                 <DynamicFormField
+                        //                     title="Supplier Name"
+                        //                     fieldType={item.FieldType}
+                        //                     value={item.Value}
+                        //                     isEditable={Boolean(item?.IsEditable)}
+                        //                     dropDownData={item?.List || []}
+                        //                     handleChange={val => handleInputChange(val, item)}
+                        //                     DisplayName={item.DisplayName}
+                        //                 />
+                        //             </View>
+                        //         )
+                        //     );
+                        // } else if (intInspectionTypeID == 3) {
+                        //     return (
+                        //         item.DisplayName != 'Rev No' &&
+                        //         item.DisplayName != 'ReceiptNo' &&
+                        //         item.DisplayName != 'GRN Date' &&
+                        //         item.DisplayName != 'Supplier Code' &&
+                        //         item.DisplayName != 'Invoice Number' &&
+                        //         item.DisplayName != 'Invoice Date' && (
+                        //             <View style={styles.subBox} key={`${item.PropertyName}-${index}`}>
+                        //                 <Text style={styles.headerText} numberOfLines={1}>
+                        //                     {item.StaticText} {item?.Required == 0 && <Text style={styles.isRequired}> *</Text>}
+                        //                 </Text>
+                        //                 <DynamicFormField
+                        //                     title="Supplier Name"
+                        //                     fieldType={item.FieldType}
+                        //                     value={item.Value}
+                        //                     isEditable={Boolean(item?.IsEditable)}
+                        //                     dropDownData={item?.List || []}
+                        //                     handleChange={val => handleInputChange(val, item)}
+                        //                     DisplayName={item.DisplayName}
+                        //                 />
+                        //             </View>
+                        //         )
+                        //     );
+                        // } else if (intInspectionTypeID == 2) {
+                        //     return (
+                        //         <View style={styles.subBox} key={`${item.PropertyName}-${index}`}>
+                        //             <Text style={styles.headerText} numberOfLines={1}>
+                        //                 {item.DisplayName == 'UserName' && intInspectionTypeID == 2 ? 'Operator' : item.StaticText}{item?.Required == 0 && <Text style={styles.isRequired}> *</Text>}
+                        //             </Text>
+                        //             <DynamicFormField
+                        //                 title="Supplier Name"
+                        //                 fieldType={item.FieldType}
+                        //                 value={item.Value}
+                        //                 isEditable={Boolean(item?.IsEditable)}
+                        //                 dropDownData={item?.List || []}
+                        //                 handleChange={val => handleInputChange(val, item)}
+                        //                 DisplayName={item.DisplayName}
+                        //             />
+                        //         </View>
+                        //     );
+                        // } else {
+                        //     return null;
+                        // }
                     })}
                 </View>
             </ScrollView>
