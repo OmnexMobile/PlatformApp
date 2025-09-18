@@ -62,7 +62,8 @@ const moreList = [
 const InspectionSchedule = () => {
     const insets = useSafeAreaInsets();
     const { height } = useWindowDimensions();
-    const { icUserData } = useSelector(state => state.inspection);
+    const { icUserData, dateFormat } = useSelector(state => state.inspection);
+    const uiDateFormat = dateFormat || 'DD/MM/YYYY';
     const dispatch = useDispatch();
     const isFocused = useIsFocused();
     const {
@@ -269,7 +270,7 @@ const InspectionSchedule = () => {
                     </Text>
                 </View>
                 <View style={[styles.lastBox]}>
-                    <Text style={[styles.secondText]}>{moment(new Date(item.ProductionStartDate)).format('DD/MM/YYYY')}</Text>
+                    <Text style={[styles.secondText]}>{moment(new Date(item.ProductionStartDate)).format(uiDateFormat)}</Text>
                     <View style={[styles.iconlist]}>
                         <TouchableOpacity
                             style={{ marginLeft: 15 }}

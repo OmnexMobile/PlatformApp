@@ -17,6 +17,7 @@ const { Types, Creators } = createActions({
     resetToInitial: ['resetToInitial'],
     storeLoginLogo: ['storeLoginLogo'],
     resetAll:['resetAll'],
+    dateFormat: ['dateFormat'],
 });
 
 export const InspectTypes = Types;
@@ -29,6 +30,7 @@ export const INITIAL_STATE = {
     icUserData: {},
     icSettings: {},
     icLoginlogo: '',
+    dateFormat:'',
 };
 
 /* ------------- Reducers ------------- */
@@ -37,6 +39,9 @@ export const INITIAL_STATE = {
 const storeLoginLogo = (state, { icLoginlogo }) => {
     return { ...state, icLoginlogo: icLoginlogo };
 };
+const dateFormat = (state, { dateFormat }) => {
+    return { ...state, dateFormat: dateFormat };
+}
 const storeInspectList = (state, { inspectList }) => {
     return { ...state, inspectList: [...state.inspectList, ...inspectList] };
 };
@@ -106,6 +111,7 @@ const rawReducer = createReducer(INITIAL_STATE, {
     [Types.RESET_TO_INITIAL]: resetToInitial,
     [Types.STORE_LOGIN_LOGO]: storeLoginLogo,
     [Types.RESET_ALL]: resetAll,
+    [Types.DATE_FORMAT]: dateFormat,
 });
 const persistConfig = {
     key: 'inspect', // Unique key for the reducer's data

@@ -166,14 +166,13 @@ const InprocessInspection = ({ route }) => {
     const renderHeader = value => {
         return value == '1' ? 'Receiving Inspection' : value == '2' ? 'Inprocess Inspection' : 'Final Inspection';
     };
-
-    const MyHeader = ({ title }) => (
+     const MyHeader = ({ title }) => (
         <View style={[styles.flatHeaderContainer]}>
             <Text style={[styles.flatHeader]}>Sample Information - {title}</Text>
         </View>
     );
     const handleValidation = data => {
-        let list = [...data.GeneralInfo].filter(x => x.DisplayName == 'Approver');
+        let list = [...data.GeneralInfo].filter(x => x.StaticText == 'Approver');
         return inspectData.intInspectionTypeID !== 2 ? (list?.length ? list[0].Value !== '' : true) : true;
         // return list.length ? list[0].Value !== '':true;
     };

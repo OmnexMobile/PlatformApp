@@ -137,7 +137,8 @@ const searchFilterOptions = [
 const SearchInspection = () => {
     const insets = useSafeAreaInsets();
     const { height } = useWindowDimensions();
-    const { icUserData } = useSelector(state => state.inspection);
+    const { icUserData, dateFormat } = useSelector(state => state.inspection);
+    const uiDateFormat = dateFormat || 'DD/MM/YYYY';
     const dispatch = useDispatch();
     const isFocused = useIsFocused();
     const {
@@ -241,7 +242,7 @@ const SearchInspection = () => {
             } else {
                 setMasterData([...updatedArray]);
             }
-            setOverAllData([...response?.Data]);
+            setOverAllData([...updatedArray]);
         } else {
             setMasterData([]); // no more data
             setOverAllData([]);
@@ -380,7 +381,7 @@ const SearchInspection = () => {
             formData.append('isProcess', item.InspectionType == '2' ? 1 : 0);
             const attachments = await getAllFiles(item);
             const response = await postAPI(`${ApiUrl.IC_SEARCH_INSPECTION_DOWNLOAD}`, formData);
-            if (response?.GeneralInfo?.length) {
+            if (response?.GeneralInfo?.length || response?.VariableCharacteristics?.length || response?.AttributeCharacteristics?.length) {
                 const VariableCharacteristicsList = transformInspectionData(response.VariableCharacteristics, 1);
                 const AttributeCharacteristicsList = transformInspectionData(response.AttributeCharacteristics, 0);
                 const getStatus = rendetBtnText({
@@ -531,7 +532,7 @@ const SearchInspection = () => {
                         Lot No : <Text style={[styles.secondText]}>{item?.LotNo ? item?.LotNo : '-'}</Text>
                     </Text>
                     <Text style={[styles.operationText]}>
-                        Inspected Date : <Text style={[styles.secondText]}>{moment(new Date(item.EnteredDate)).format('DD/MM/YYYY')}</Text>
+                        Inspected Date : <Text style={[styles.secondText]}>{moment(new Date(item.EnteredDate)).format(uiDateFormat)}</Text>
                     </Text>
                 </View>
                 <View style={[styles.lastBox]}>

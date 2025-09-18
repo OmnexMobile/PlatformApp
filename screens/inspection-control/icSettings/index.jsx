@@ -17,160 +17,40 @@ import { Bubbles } from 'react-native-loader';
 import InputWithSearch from '../Components/InputWithSearch';
 import NoDataFound from '../Components/NoDataFound';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-// let sitesData = {
-//     selectedSite: {
-//         EntityNode: 'Corporate',
-//         FullName: 'Dhanapal Cwetha   ',
-//         InspectionControlAccess: 'true',
-//         IsSupervisor: false,
-//         LoginAccess: '1',
-//         SiteName: 'Corporate',
-//         Siteid: '4',
-//         UserId: 6,
-//     },
-//     siteList: [
-//         {
-//             EntityNode: 'Corporate',
-//             FullName: 'Kumar Dinesh ',
-//             InspectionControlAccess: 'true',
-//             IsSupervisor: false,
-//             LoginAccess: '1',
-//             SiteName: 'Corporate',
-//             Siteid: '1',
-//             UserId: 7,
-//         },
-//         {
-//             EntityNode: 'Corporate 1',
-//             FullName: 'Dhanapal Awetha   ',
-//             InspectionControlAccess: 'true',
-//             IsSupervisor: false,
-//             LoginAccess: '1',
-//             SiteName: 'Corporate 1',
-//             Siteid: '2',
-//             UserId: 6,
-//         },
-//         {
-//             EntityNode: 'Corporate 2',
-//             FullName: 'Dhanapal Bwetha   ',
-//             InspectionControlAccess: 'true',
-//             IsSupervisor: false,
-//             LoginAccess: '1',
-//             SiteName: 'Corporate 2',
-//             Siteid: '3',
-//             UserId: 6,
-//         },
-//         {
-//             EntityNode: 'Corporate 3',
-//             FullName: 'Dhanapal Cwetha   ',
-//             InspectionControlAccess: 'true',
-//             IsSupervisor: false,
-//             LoginAccess: '1',
-//             SiteName: 'Corporate 3',
-//             Siteid: '4',
-//             UserId: 6,
-//         },
-//         {
-//             EntityNode: 'Corporate 4',
-//             FullName: 'Dhanapal Dwetha   ',
-//             InspectionControlAccess: 'true',
-//             IsSupervisor: false,
-//             LoginAccess: '1',
-//             SiteName: 'Corporate 4',
-//             Siteid: '5',
-//             UserId: 6,
-//         },
-//         {
-//             EntityNode: 'Corporate 5',
-//             FullName: 'Dhanapal Ewetha   ',
-//             InspectionControlAccess: 'true',
-//             IsSupervisor: false,
-//             LoginAccess: '1',
-//             SiteName: 'Corporate 5',
-//             Siteid: '6',
-//             UserId: 6,
-//         },
-//         {
-//             EntityNode: 'Corporate 6',
-//             FullName: 'Dhanapal Fwetha   ',
-//             InspectionControlAccess: 'true',
-//             IsSupervisor: false,
-//             LoginAccess: '1',
-//             SiteName: 'Corporate 6',
-//             Siteid: '7',
-//             UserId: 6,
-//         },
-//         {
-//             EntityNode: 'Corporate 7',
-//             FullName: 'Dhanapal Fwetha   ',
-//             InspectionControlAccess: 'true',
-//             IsSupervisor: false,
-//             LoginAccess: '1',
-//             SiteName: 'Corporate 7',
-//             Siteid: '8',
-//             UserId: 6,
-//         },
-//         {
-//             EntityNode: 'Corporate 8',
-//             FullName: 'Dhanapal Fwetha   ',
-//             InspectionControlAccess: 'true',
-//             IsSupervisor: false,
-//             LoginAccess: '1',
-//             SiteName: 'Corporate 8',
-//             Siteid: '9',
-//             UserId: 6,
-//         },
-//         {
-//             EntityNode: 'Corporate',
-//             FullName: 'Dhanapal Fwetha   ',
-//             InspectionControlAccess: 'true',
-//             IsSupervisor: false,
-//             LoginAccess: '1',
-//             SiteName: 'Corporate 9',
-//             Siteid: '10',
-//             UserId: 6,
-//         },
-//         {
-//             EntityNode: 'Corporate',
-//             FullName: 'Dhanapal Fwetha   ',
-//             InspectionControlAccess: 'true',
-//             IsSupervisor: false,
-//             LoginAccess: '1',
-//             SiteName: 'Corporate 10',
-//             Siteid: '11',
-//             UserId: 6,
-//         },
-//         {
-//             EntityNode: 'Corporate',
-//             FullName: 'Dhanapal Fwetha   ',
-//             InspectionControlAccess: 'true',
-//             IsSupervisor: false,
-//             LoginAccess: '1',
-//             SiteName: 'Corporate 11',
-//             Siteid: '12',
-//             UserId: 6,
-//         },
-//         {
-//             EntityNode: 'Corporate',
-//             FullName: 'Dhanapal Fwetha   ',
-//             InspectionControlAccess: 'true',
-//             IsSupervisor: false,
-//             LoginAccess: '1',
-//             SiteName: 'Corporate 12',
-//             Siteid: '13',
-//             UserId: 6,
-//         },
-//         {
-//             EntityNode: 'Corporate',
-//             FullName: 'Dhanapal Fwetha   ',
-//             InspectionControlAccess: 'true',
-//             IsSupervisor: false,
-//             LoginAccess: '1',
-//             SiteName: 'Corporate last 13',
-//             Siteid: '14',
-//             UserId: 6,
-//         },
-//     ],
-// };
+
+const dateList = [
+    {
+        id: 1,
+        label: 'DD/MM/YYYY',
+        value: 'DD/MM/YYYY',
+    },
+    {
+        id: 2,
+        label: 'MM/DD/YYYY',
+        value: 'MM/DD/YYYY',
+    },
+    {
+        id: 3,
+        label: 'YYYY/MM/DD',
+        value: 'YYYY/MM/DD',
+    },
+    {
+        id: 4,
+        label: 'DD/MMM/YYYY',
+        value: 'DD/MMM/YYYY',
+    },
+    {
+        id: 5,
+        label: 'MMM/DD/YYYY',
+        value: 'MMM/DD/YYYY',
+    },
+    {
+        id: 6,
+        label: 'YYYY/MMM/DD',
+        value: 'YYYY/MMM/DD',
+    },
+];
+
 const IcSettings = () => {
     const insets = useSafeAreaInsets();
     const navigation = useNavigation();
@@ -178,12 +58,13 @@ const IcSettings = () => {
     const [showLogoutModal, setShowLogoutModal] = useState(false);
     const [showSiteList, setShowSiteList] = useState(false);
     const { sites, handleLogout, handleLogin, handleSite } = useAppContext();
-    const { icUserData } = useSelector(state => state.inspection);
-
+    const { icUserData ,dateFormat} = useSelector(state => state.inspection);
     const [siteList, setSiteList] = useState([]);
     const [filteredSite, setFilteredSite] = useState([]);
     const [searchText, setSearchText] = useState('');
+    const [showDateFormat, setShowDateFormat] = useState(false);
     const dispatch = useDispatch();
+
     useEffect(() => {
         if (sites?.siteList?.length > 0) {
             setSiteList(sites.siteList);
@@ -235,12 +116,16 @@ const IcSettings = () => {
         setProfileCall(item);
         let newIcUserData = {
             userData: item || {},
-            token: icUserData?.Token || '',
+            token: icUserData?.token || '',
         };
         dispatch({ type: 'IC_USER_DATA', icUserData: newIcUserData });
         successMessage({ message: 'Success', description: `You have successfully selected the site: ${item.SiteName}`, position: 'bottom' });
         setSearchText('');
         handleSearch('');
+    };
+    const handleDateFormat = item => {
+        dispatch({ type: 'DATE_FORMAT', dateFormat: item.value });
+        successMessage({ message: 'Success', description: `You have successfully selected the Date Format: ${item.value}`, position: 'bottom' });
     };
     const setProfileCall = async item => {
         await localStorage.storeData(LOCAL_STORAGE_VARIABLES.UserId, item?.UserId);
@@ -367,6 +252,45 @@ const IcSettings = () => {
                                 <NoDataFound />
                             </View>
                         )}
+                    </View>
+                )}
+                <TouchableOpacity
+                    style={{
+                        borderTopWidth: 1,
+                        borderTopColor: COLORS.lightGrey,
+                        paddingVertical: 10,
+                        paddingHorizontal: 5,
+                    }}
+                    onPress={() => {
+                        setShowDateFormat(!showDateFormat);
+                    }}>
+                    <View style={[styles.optionBox]}>
+                        <Text style={[styles.optiontext, { color: COLORS.black }]}>Date Format</Text>
+                        <Icon name="arrow-drop-down" size={25} color={COLORS.black} />
+                    </View>
+                </TouchableOpacity>
+                {Boolean(showDateFormat) && (
+                    <View style={[styles.siteListContainer, { marginVertical: 10, flexDirection: 'row', flexWrap: 'wrap' }]}>
+                        {dateList.map((item, index) => {
+                            return (
+                                <TouchableOpacity
+                                    style={{
+                                        borderWidth: 1,
+                                        borderColor: COLORS.lightGrey,
+                                        margin: 5,
+                                        borderRadius: 5,
+                                        alignItems: 'center',
+                                    }}
+                                    onPress={() => {
+                                        handleDateFormat(item);
+                                    }}
+                                    key={index + 1}>
+                                    <Text style={[styles.dateText, { color: item.value == dateFormat ? COLORS.apptheme : COLORS.black }]}>
+                                        {item?.label}
+                                    </Text>
+                                </TouchableOpacity>
+                            );
+                        })}
                     </View>
                 )}
                 <TouchableOpacity
@@ -517,6 +441,12 @@ const styles = StyleSheet.create({
     },
     siteListContainer: {
         maxHeight: '75%',
+    },
+    dateText: {
+        fontFamily: 'OpenSans-SemiBold',
+        fontSize: 14,
+        paddingVertical: 5,
+        paddingHorizontal: 10,
     },
 });
 export default IcSettings;

@@ -43,7 +43,6 @@ const InputFilePicker = ({ ListData = [], maxLimit = 10, isEditable = false, tit
                 const base64 = await RNFS.readFile(response[0].uri, 'base64');
                 const fileExtension = response[0]?.name?.split('.').pop();
                 const file = {
-                    ...response[0],
                     id: uuid.v4(),
                     Base64: base64,
                     FileType: fileExtension,

@@ -225,12 +225,13 @@ const RegisterFunctional = ({}) => {
                         const deviceStatusURL = await getDeviceStatus();
                         await getLoginLogo(deviceStatusURL.ICApiURL);
                         successMessage({ message: 'Success', description: 'Successfully Registered this Device' });
+                        dispatch({ type: 'DATE_FORMAT', dateFormat: 'DD/MM/YYYY' });
                     } else {
                         showErrorMessage(data?.Data || 'Something went wrong while Registering the Device');
                     }
                 })
                 .catch(data => {
-                    console.log(data?.Error,'data?.Error')
+                    console.log(data?.Error, 'data?.Error');
                     setLoading(false);
                     showErrorMessage(data?.Error || 'Something went wrong while Registering the Device');
                 });

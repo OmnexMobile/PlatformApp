@@ -4,6 +4,7 @@ import moment from 'moment';
 import React from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Divider, Modal } from 'react-native-paper';
+import { useSelector } from 'react-redux';
 
 const KeyValueList = ({ title = '', value = '' }) => {
     return (
@@ -19,6 +20,8 @@ const KeyValueList = ({ title = '', value = '' }) => {
 };
 
 const PartDetails = ({ visible = false, onDismiss = () => {},selectedData={} }) => {
+      const { dateFormat } = useSelector(state => state.inspection);
+        const uiDateFormat = dateFormat || 'DD/MM/YYYY';
     return (
         <Modal visible={visible} onDismiss={onDismiss} contentContainerStyle={[styles.modalConatiner]}>
             <View style={[styles.modalcontainer]}>
@@ -35,7 +38,7 @@ const PartDetails = ({ visible = false, onDismiss = () => {},selectedData={} }) 
                         {Boolean(selectedData?.InspectionType ==2) && <KeyValueList title="Model" value={selectedData?.ProductionLineName} />}
                         <KeyValueList title="Sample Frequency" value={selectedData?.SampleFrequency} />
                         <KeyValueList title="Inspector" value={selectedData?.Operator} />
-                        <KeyValueList title="Inspected Date" value={selectedData?.EnteredDate!==''?moment(new Date(selectedData?.EnteredDate)).format('DD/MM/YYYY hh:mm A'):''} />
+                        <KeyValueList title="Inspected Date" value={selectedData?.EnteredDate!==''?moment(new Date(selectedData?.EnteredDate)).format(`${uiDateFormat} hh:mm A`):''} />
                     </ScrollView>
                 </View>
                 <View>

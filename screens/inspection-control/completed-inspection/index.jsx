@@ -212,13 +212,29 @@ const CompletedInspection = () => {
             // }
             const array = item.charInfo;
 
+            // find the index of the target object
+            const index = array.findIndex(x => x.RefData === '##DROPDOWN:DefectPhenomenon##');
+
+            if (index !== -1) {
+                let defectObj = array[index]; // reference to the original object
+
+                if (typeof defectObj.Value === 'string' && defectObj.Value !== '') {
+                    const temp = defectObj.List.find(x => x.value === defectObj.Value);
+                    defectObj = { ...defectObj, Value: temp || '' }; // replace with new object
+                } else if (typeof defectObj.Value === 'object' && defectObj.Value !== null) {
+                    defectObj = { ...defectObj, Value: defectObj.Value };
+                } else {
+                    defectObj = { ...defectObj, Value: '' };
+                }
+
+                // replace in the array
+                array[index] = defectObj;
+            }
             const charInfoObj = array.reduce((acc, item) => {
                 const key = item.ReferenceName ?? item.PropertyName;
-                acc[key] = item?.Value?.value ? item.Value.value : item.Value;
+                acc[key] = item.RefData === '##DROPDOWN:DefectPhenomenon##' ? item.Value : item?.Value?.value ? item.Value.value : item.Value;
                 return acc;
             }, {});
-
-            console.log(charInfoObj, '************');
 
             Object.entries(charInfoObj).forEach(([key, value]) => {
                 item[key] = value; // update if exists, add if not
@@ -248,20 +264,20 @@ const CompletedInspection = () => {
                     }
                 }
             }
-
             return {
                 ...item,
                 Samples: undefined,
                 charInfo: undefined,
                 ActualValue: actualValue !== Infinity ? String(actualValue) : '',
                 ID: String(item.ID || ''),
-                ...(item?.DefectsValue &&
-                    Object.keys(item?.DefectsValue)?.length && {
+                ...(item?.DefectPhenomenon &&
+                    Object.keys(item?.DefectPhenomenon)?.length && {
                         Case: 'DEFECTPHENOMENON',
-                        StrID: item?.DefectsValue.ID,
+                        StrID: item?.DefectPhenomenon?.ID,
                         Name: type === 'number' ? 'CustomInspectionCharacteristicsV' : 'CustomInspectionCharacteristics',
                         Topic: 'DefectPhenomenon',
                     }),
+                DefectPhenomenon: item?.DefectPhenomenon ? item?.DefectPhenomenon?.value : undefined,
                 samples: samples.map(sample => ({
                     sampleName: String(sample.sampleName || ''),
                     data: {
@@ -291,7 +307,7 @@ const CompletedInspection = () => {
             ...convertSampleList(selectedValue.AttributeCharacteristics, 'char'),
         ];
         const updatedGeneralInfo = selectedValue.GeneralInfo.map(item => {
-            if ((item.DisplayName === 'Supervisor' || item.DisplayName === 'Approver') && typeof item.Value === 'object' && item.Value !== null) {
+            if ((item.DisplayName === 'Supervisor' || item.StaticText === 'Approver') && typeof item.Value === 'object' && item.Value !== null) {
                 return {
                     ...item,
                     Value: item.Value.value,
