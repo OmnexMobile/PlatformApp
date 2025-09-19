@@ -67,6 +67,7 @@ const DynamicFormField = ({
         case 'datePicker':
         case 'datetime':
         case 'DateTime':
+        case 'Date':
             return (
                 <View style={{ marginTop: 8 }}>
                     <DataPickerWithIcon
