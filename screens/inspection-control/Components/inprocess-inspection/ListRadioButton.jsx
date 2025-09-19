@@ -31,7 +31,8 @@ const ListRadioButton = ({ options = [], onChange, value, title = '',handleRadio
                     <View key={index} style={{ marginRight: isTablet ? 0 : 16, marginBottom: isTablet ? 12 : 0 }}>
                         <RadioButtonComponent
                             lable={item.label}
-                            value={selected?.label}
+                            staticValue={item.value}
+                            value={selected}
                             obj={item}
                             onChange={handleChange}
                             size={17}
@@ -43,7 +44,8 @@ const ListRadioButton = ({ options = [], onChange, value, title = '',handleRadio
             ) : (
                 <RadioButtonComponent
                     lable={title}
-                    value={selected?.label}
+                    staticValue={title}
+                    value={selected}
                     obj={{
                         label: title,
                         value: title,

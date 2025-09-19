@@ -17,8 +17,8 @@ const DynamicFormField = ({
     isEditable = true,
     title = '',
     DisplayName = '',
-    backgroundColor=COLORS.inputBG,
-    dropdownPosition='top',
+    backgroundColor = COLORS.inputBG,
+    dropdownPosition = 'top',
 }) => {
     const { width } = useWindowDimensions();
     switch (fieldType) {
@@ -78,7 +78,7 @@ const DynamicFormField = ({
                         paddingVertical={9}
                         borderColor={COLORS.icBottomBox}
                         placeHolder={placeHolder}
-                        backgroundColor={isEditable ? backgroundColor: COLORS.whiteGrey}
+                        backgroundColor={isEditable ? backgroundColor : COLORS.whiteGrey}
                         editable={isEditable}
                     />
                 </View>
@@ -128,7 +128,14 @@ const DynamicFormField = ({
         case 'Radio':
             return (
                 <View style={{ marginTop: 8 }}>
-                    <ListRadioButton options={dropDownData} value={value || ''} handleRadioChange={handleChange} title={DisplayName} />
+                    <ListRadioButton
+                        options={dropDownData}
+                        value={value}
+                        handleRadioChange={val => {
+                            handleChange(val.value);
+                        }}
+                        title={DisplayName}
+                    />
                 </View>
             );
         default:

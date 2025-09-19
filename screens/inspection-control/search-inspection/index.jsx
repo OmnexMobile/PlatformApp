@@ -250,11 +250,20 @@ const SearchInspection = () => {
         setShowSkeleton(false);
         setRefreshing(false);
     };
-    const getItemStatus = list => {
-        const allValues = list?.length > 0 && list?.every(({ value }) => value?.trim() !== '');
-        const someValues = list?.some(({ value }) => value?.trim() !== '');
-        let status = allValues ? 'Completed' : someValues ? 'In Progress' : undefined;
-        return status;
+    const getItemStatus = (list, isSamplePopup, input) => {
+        if (isSamplePopup) {
+            const allValues = list?.length > 0 && list?.every(({ value }) => value?.trim() !== '');
+            const someValues = list?.some(({ value }) => value?.trim() !== '');
+            let status = allValues ? 'Completed' : someValues ? 'In Progress' : 'Inspect';
+            return status;
+        } else {
+            console.log(input, 'input');
+            let temp = input?.filter(x => x?.Required && x?.Value == '')?.length;
+            let tempAllValue = input?.filter(x => x?.Required && x?.Value != '')?.length;
+            let tempReq = input?.filter(x => x?.Required)?.length;
+            let status = temp == 0 ? 'Completed' : tempAllValue != 0 && tempReq > tempAllValue ? 'In Progress' : 'Inspect';
+            return status;
+        }
     };
     const getContainmentList = (list, item) => {
         if (Boolean(list?.length)) {
@@ -316,8 +325,8 @@ const SearchInspection = () => {
                     ContainmentActions: getContainmentList(sample?.ContainmentActions, item),
                 });
             }
-            const status = getItemStatus(Samples);
             let isSamplePopup = Array.isArray(item.charInfo) && item.charInfo.some(c => c.PropertyName === 'ActualValue');
+            const status = getItemStatus(Samples, isSamplePopup, item.charInfo);
             result.push({
                 ...item,
                 isSamplePopup: isSamplePopup,

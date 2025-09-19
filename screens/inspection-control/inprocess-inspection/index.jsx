@@ -166,7 +166,7 @@ const InprocessInspection = ({ route }) => {
     const renderHeader = value => {
         return value == '1' ? 'Receiving Inspection' : value == '2' ? 'Inprocess Inspection' : 'Final Inspection';
     };
-     const MyHeader = ({ title }) => (
+    const MyHeader = ({ title }) => (
         <View style={[styles.flatHeaderContainer]}>
             <Text style={[styles.flatHeader]}>Sample Information - {title}</Text>
         </View>
@@ -222,6 +222,7 @@ const InprocessInspection = ({ route }) => {
                 colorCode: COLORS.apptheme,
             };
         }
+        let allCompleted = combined.every(c => c.status === 'Completed');
 
         let hasInprogress = false;
         let hasCompleted = false;
@@ -230,7 +231,7 @@ const InprocessInspection = ({ route }) => {
 
         for (const c of combined) {
             if ('status' in c) {
-                if (c.status === 'Launch') {
+                if (c.status === 'Launch' || c.status === undefined || c.status === 'Inspect') {
                     hasLaunchStatus = true;
                 } else if (c.status === 'In Progress') {
                     hasInprogress = true;
@@ -241,7 +242,7 @@ const InprocessInspection = ({ route }) => {
                 hasMissingStatus = true;
             }
         }
-
+        
         // 🔑 Priority Logic
         if (hasInprogress) {
             return { colorCode: COLORS.ipBgColor, status: 'In Progress' };
@@ -252,7 +253,7 @@ const InprocessInspection = ({ route }) => {
         if (hasCompleted && hasMissingStatus) {
             return { colorCode: COLORS.ipBgColor, status: 'In Progress' };
         }
-        if (hasCompleted) {
+        if (hasCompleted && allCompleted) {
             return { colorCode: COLORS.fiBgColor, status: 'Completed' };
         }
         if (hasLaunchStatus) {
@@ -409,7 +410,6 @@ const InprocessInspection = ({ route }) => {
 
         return () => backHandler.remove(); // cleanup on unmount
     }, [handleSaveAlert]);
-    console.log(selectedData, 'selectedData');
     const handleSavePress = async (close = true, btnText = 'noBtn') => {
         if (showChar) {
             const { VariableCharacteristics, AttributeCharacteristics } = infoData;
@@ -423,9 +423,9 @@ const InprocessInspection = ({ route }) => {
                 status = allValues ? 'Completed' : someValues || tempAllValue != 0 ? 'In Progress' : 'Inspect';
             } else {
                 let temp = selectedData?.charInfo.filter(x => x?.Required && x?.Value == '')?.length;
-                let tempAllValue = selectedData?.charInfo.filter(x => x?.Value != '')?.length;
-                console.log(tempAllValue, 'tempAllValue');
-                status = temp == 0 ? 'Completed' : tempAllValue != 0 ? 'In Progress' : 'Inspect';
+                let tempReq = selectedData?.charInfo.filter(x => x?.Required)?.length;
+                let tempAllValue = selectedData?.charInfo.filter(x => x?.Required && x?.Value != '')?.length;
+                status = temp == 0 ? 'Completed' : tempAllValue != 0 && tempReq > tempAllValue ? 'In Progress' : 'Inspect';
             }
             const updatedObj = {
                 ...selectedData,
