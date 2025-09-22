@@ -40,14 +40,48 @@ const OfflineFileViewModal = ({ list = [], visible = false, onDismiss = () => {}
             setFileList([]);
         }
     }, [list]);
-    const handleDownloadLocal = async (fileName, base64Data, fileExtension) => {
+    const getUniqueFilePath = async (dir, originalBaseName, extension) => {
+        let baseName = originalBaseName;
+        let fileName = `${baseName}.${extension}`;
+        let filePath = `${dir}/${fileName}`;
+        let counter = 1;
+
+        // Regex to detect "(n)" at end
+        const namePattern = /(.*)\((\d+)\)$/;
+
+        while (await RNFS.exists(filePath)) {
+            const match = baseName.match(namePattern);
+
+            if (match) {
+                // If already like "Checklist(2)" → bump number
+                baseName = `${match[1]}(${parseInt(match[2], 10) + 1})`;
+            } else {
+                // First duplicate → add "(1)"
+                baseName = `${originalBaseName}(${counter})`;
+            }
+
+            fileName = `${baseName}.${extension}`;
+            filePath = `${dir}/${fileName}`;
+            counter++;
+        }
+
+        return { fileName, filePath };
+    };
+
+    const handleDownloadLocal = async (fileNameValue, base64Data, fileExtension) => {
         try {
-            const fileNameText = fileName.split('.')[0];
-            const fullFileName = `${fileNameText}.${fileExtension}`;
+            const dir = Platform.OS === 'android' ? RNFS.DownloadDirectoryPath : RNFS.TemporaryDirectoryPath;
+
+            const fileNameText = fileNameValue?.split('.')[0] || 'File';
+            const ext = fileExtension || fileNameValue?.split('.').pop() || 'txt';
+
+            // Get unique name and path
+            const { fileName, filePath } = await getUniqueFilePath(dir, fileNameText, ext);
+
+            // Save file
+            await RNFS.writeFile(filePath, base64Data, 'base64');
 
             if (Platform.OS === 'android') {
-                const filePath = `${RNFS.DownloadDirectoryPath}/${fullFileName}`;
-                await RNFS.writeFile(filePath, base64Data, 'base64');
                 showMessage({
                     message: 'File saved successfully',
                     backgroundColor: COLORS.SUCCESS,
@@ -58,16 +92,13 @@ const OfflineFileViewModal = ({ list = [], visible = false, onDismiss = () => {}
                     position: 'right',
                     style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : { paddingTop: insets.top },
                 });
-                return filePath;
             } else {
-                const filePath = `${RNFS.TemporaryDirectoryPath}/${fullFileName}`;
-                await RNFS.writeFile(filePath, base64Data, 'base64');
-
                 const result = await Share.share({
                     url: 'file://' + filePath,
-                    message: `Download ${fullFileName}`,
-                    title: fullFileName,
+                    message: `Download ${fileName}`,
+                    title: fileName,
                 });
+
                 if (result.action === Share.sharedAction) {
                     showMessage({
                         message: 'File saved successfully',
@@ -80,9 +111,9 @@ const OfflineFileViewModal = ({ list = [], visible = false, onDismiss = () => {}
                         style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : { paddingTop: insets.top },
                     });
                 }
-
-                return filePath;
             }
+
+            return filePath;
         } catch (error) {
             console.error('Download error:', error);
             Alert.alert('Error', `Failed to save file: ${error.message}`);
