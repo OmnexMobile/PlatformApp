@@ -35,7 +35,7 @@ const PartDetails = ({ visible = false, onDismiss = () => {},selectedData={} }) 
                         <KeyValueList title="Lot Size" value={selectedData?.LotSize} />
                         <KeyValueList title="Shift" value={selectedData?.Shift} />
                         {/* {Boolean(selectedData?.InspectionType !==2) &&<KeyValueList title="Supplier" value={selectedData?.SupplierName} />} */}
-                        {Boolean(selectedData?.InspectionType ==2) && <KeyValueList title="Model" value={selectedData?.ProductionLineName} />}
+                        {/* {Boolean(selectedData?.InspectionType ==2) && <KeyValueList title="Model" value={selectedData?.ProductionLineName} />} */}
                         <KeyValueList title="Sample Frequency" value={selectedData?.SampleFrequency} />
                         <KeyValueList title="Inspector" value={selectedData?.Operator} />
                         <KeyValueList title="Inspected Date" value={selectedData?.EnteredDate!==''?moment(new Date(selectedData?.EnteredDate)).format(`${uiDateFormat} hh:mm A`):''} />
