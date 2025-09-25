@@ -23,6 +23,8 @@ import { PaperProvider } from 'react-native-paper';
 import { PersistGate } from 'redux-persist/integration/react';
 import { persistor } from 'store';
 import { createInspectTable  } from 'store/database/inspectStorage';
+import { checkForUpdate } from 'helpers/updateAppAlert';
+import UpdateModal from 'helpers/UpdateModal';
 
 setupInterceptors();
 
@@ -35,6 +37,18 @@ const Parent = () => {
         // backgroundColor: isDarkMode ? COLORS.white : COLORS.white,
         flex: 1,
     };
+
+    const [showUpdateModal, setShowUpdateModal] = useState(false);
+
+    // useEffect(() => {
+    //     const check = async () => {
+    //         const result = await checkForUpdate();
+    //         if (result.showModal) {
+    //             setShowUpdateModal(true);
+    //         }
+    //     };
+    //     check();
+    // }, []);
 
     const checkWarning = () => {
         if (typeof isInternetReachable === 'boolean') {
@@ -51,7 +65,6 @@ const Parent = () => {
             await createInspectTable();
         })();
     }, []);
-
     // comment this code while you are working on debug mode
     // if (isJailBroken) {
     //     RNBootSplash.hide();
@@ -97,6 +110,7 @@ const Parent = () => {
             {/* Notification Component */}
                 <FlashMessage />
             </View>
+            <UpdateModal visible={showUpdateModal} onClose={() => setShowUpdateModal(false)} />
         </GestureHandlerRootView>
     );
 };
