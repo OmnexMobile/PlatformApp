@@ -40,8 +40,9 @@ export const registerDevice = async (requestURL, request, type) => {
         RegisteredDate: today,
         UnRegisteredDate: today,
     });
+    const url = requestURL?.endsWith('/') ? `${requestURL}RegisterDevice` : `${requestURL}/RegisterDevice`;
 
-    const res = await fetch(requestURL + '/RegisterDevice', {
+    const res = await fetch(url, {
         method: 'POST',
         headers: {
             'Content-Type': 'multipart/form-data',
@@ -118,8 +119,11 @@ const RegisterFunctional = ({}) => {
         const req = formReq({
             RegisteredDeviceId: deviceId,
         });
+        const url = state?.globalServerURL?.endsWith('/')
+            ? `${state?.globalServerURL}${API_URL.DEVICE_STATUS}`
+            : `${state?.globalServerURL}/${API_URL.DEVICE_STATUS}`;
         try {
-            const res = await fetch(state?.globalServerURL + `/${API_URL.DEVICE_STATUS}`, {
+            const res = await fetch(url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'multipart/form-data',
@@ -215,7 +219,6 @@ const RegisterFunctional = ({}) => {
             )
                 .then(async data => {
                     setLoading(false);
-                    console.log(data, '******************response111');
                     if (data?.Success && data?.Data !== 'Invalid Url') {
                         localStorage.storeData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL, state?.globalServerURL);
                         localStorage.storeData(LOCAL_STORAGE_VARIABLES.globalRegister, state?.globalServerURL);
