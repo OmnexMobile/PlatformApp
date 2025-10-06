@@ -46,7 +46,7 @@ const optionsList = [
 ];
 const SupervisorSchedule = () => {
     const navigation = useNavigation();
-    const {  icUserData } = useSelector(state => state.inspection);
+    const { icUserData } = useSelector(state => state.inspection);
     const isFocused = useIsFocused();
     const [showFilterList, setShowFilterList] = useState(false);
     const [showEye, setShowEye] = useState(false);
@@ -109,13 +109,13 @@ const SupervisorSchedule = () => {
     const renderIconBgColor = value => {
         return value == '1' ? COLORS.apptheme : value == '2' ? COLORS.ipBgColor : COLORS.fiBgColor;
     };
-    const renderItem = ({ item }) => {
+    const renderItem = ({ item, index }) => {
         return (
-            <View style={[styles.recordConatiner]}>
+            <View style={[styles.recordConatiner]} key={index + 1}>
                 <View style={[styles.iconBox, { backgroundColor: renderIconBgColor(item?.InspectionType) }]}>
                     <Icon name="layers-outline" size={25} color={COLORS.white} />
                 </View>
-                <View style={{ flex: 1, paddingHorizontal: 10 }}>
+                <View style={{ flex: 2, paddingHorizontal: 10 }}>
                     <Text style={[styles.cardText]}>{item?.ProductionItemName}</Text>
                     <Text style={[styles.operationText]}>
                         Operation Name : <Text style={[styles.secondText]}>{item.OperationName}</Text>
@@ -128,19 +128,23 @@ const SupervisorSchedule = () => {
                     </Text>
                 </View>
                 <View style={[styles.lastBox]}>
-                    <TouchableOpacity style={styles.launchCard}>
-                        <Text style={[styles.launchText]}>Awaiting</Text>
-                    </TouchableOpacity>
+                    <View style={styles.launchCard}>
+                        <Text style={[styles.launchText]}>{item.LotStatus}</Text>
+                    </View>
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                         <TouchableOpacity style={{ marginRight: 10 }} onPress={() => handleEyePress(item)}>
                             <IconI name="eye-outline" size={25} color={COLORS.grey} />
                         </TouchableOpacity>
-                        <TouchableOpacity style={{ marginRight: 5 }} onPress={() => handleFilePress(item)}>
-                            <IconI name="document-attach-outline" size={25} color={COLORS.grey} />
+                        <TouchableOpacity
+                            style={{ marginRight: 5 }}
+                            onPress={() => {
+                                handleFilePress(item);
+                            }}>
+                            <ICFileIcon />
                         </TouchableOpacity>
                         <TouchableOpacity
                             onPress={() => {
-                                navigation.navigate(ROUTES.INPROCESS_INSPECTION);
+                                // navigation.navigate(ROUTES.INPROCESS_INSPECTION);
                             }}>
                             <IconM name="battery-plus-variant" size={27} color="#666666" />
                         </TouchableOpacity>
@@ -194,6 +198,11 @@ const SupervisorSchedule = () => {
                 if (!value?.length) {
                     setMasterData(overAllData);
                 }
+            }}
+            handleClosePress={() => {
+                setSearch('');
+                handleTypeFilter(filters.inspectionType.id, '');
+                // handleSearch('', filterData?.type);
             }}>
             <View style={[styles.container]}>
                 {Boolean(showSkeleton) ? (
@@ -202,7 +211,6 @@ const SupervisorSchedule = () => {
                     <FlatList
                         data={masterData}
                         renderItem={renderItem}
-                        keyExtractor={item => item.ProductionItemId}
                         showsVerticalScrollIndicator={false}
                         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
                     />
@@ -326,6 +334,7 @@ const styles = StyleSheet.create({
         fontFamily: 'OpenSans-SemiBold',
     },
     lastBox: {
+        flex: 1,
         flexDirection: 'column',
         justifyContent: 'space-between',
         alignItems: 'flex-end',
