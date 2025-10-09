@@ -200,7 +200,8 @@ const SupervisorSchedule = () => {
                 }
             }}
             handleClosePress={() => {
-                setSearch('');
+                // setSearch('');
+                setFilters(pre => ({ ...pre, search: '' }));
                 handleTypeFilter(filters.inspectionType.id, '');
                 // handleSearch('', filterData?.type);
             }}>
