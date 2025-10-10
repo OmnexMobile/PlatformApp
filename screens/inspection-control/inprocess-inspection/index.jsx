@@ -433,7 +433,7 @@ const InprocessInspection = ({ route }) => {
                 status: status,
             };
             const index = characteristicsList.findIndex(
-                obj => obj?.CCharacteristicsId === selectedData?.CCharacteristicsId && obj.FuncDetailsId == selectedData?.FuncDetailsId,
+                obj => obj?.CCharacteristicsId === selectedData?.CCharacteristicsId && obj.FuncDetailsId == selectedData?.FuncDetailsId && obj.ID == selectedData?.ID,
             );
             const newCharacteristicsList = [...characteristicsList];
             if (index !== -1) {
