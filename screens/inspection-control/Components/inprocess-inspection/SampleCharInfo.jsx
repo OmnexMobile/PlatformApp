@@ -128,10 +128,7 @@ const SampleCharInfo = ({
                     ?.filter(item => {
                         if (
                             item.PropertyName === 'ActualValue' ||
-                            (charType != 'number' &&
-                                (item.RefData == '##HighToleranceValue##' ||
-                                    item.RefData == '##LowToleranceValue##' ||
-                                    item.RefData == '##ATTorVAR##'))
+                            (charType != 'number' && (item.RefData == '##HighToleranceValue##' || item.RefData == '##LowToleranceValue##'))
                         ) {
                             return false;
                         }
