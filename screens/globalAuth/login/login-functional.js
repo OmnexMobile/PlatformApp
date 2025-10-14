@@ -125,7 +125,7 @@ const LoginFunctional = ({}) => {
 						handleServerURL(data?.data);
 					} else {
 						handleInputChange('loggingIn', false);
-						showErrorMessage('User data not found!' || data?.Message || strings?.InvalidCred);
+						showErrorMessage('Please enter valid username and password!' || data?.Message || strings?.InvalidCred);
 					}
 					handleInputChange('loggingIn', false);
 				}
@@ -153,11 +153,11 @@ const LoginFunctional = ({}) => {
 		handleSiteList(data?.Data);
         handleSite(data?.Data)
 		setCurrentToken(data?.Token);
-		 let icUserData = {
-                userData: data?.Data[0] || {},
-                token: data?.Token || '',
-            };
-            dispatch({ type: 'IC_USER_DATA', icUserData: icUserData });
+		let icUserData = {
+			userData: data?.Data[0] || {},
+			token: data?.Token || '',
+		};
+		dispatch({ type: 'IC_USER_DATA', icUserData: icUserData });
 	};
 
 	return (

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, ActivityIndicator, Platform, Keyboard } from 'react-native';
+import { View, ActivityIndicator, Platform } from 'react-native';
 import Ripple from 'react-native-material-ripple';
 import Feather from 'react-native-vector-icons/Feather';
 import { COLORS, SPACING } from 'constants/theme-constants';
@@ -7,7 +7,7 @@ import { FONT_TYPE } from 'constants/app-constant';
 import TextComponent from './text';
 import { RFPercentage } from 'helpers/utils';
 import useTheme from 'theme/useTheme';
-
+ 
 const ButtonComponent = props => {
     const {
         children,
@@ -25,20 +25,13 @@ const ButtonComponent = props => {
         textStyle = {},
     } = props;
     const { theme } = useTheme();
-
-    const handlePress = () => {
-        if (!loading) {
-            Keyboard.dismiss();
-            onPress?.();
-        }
-    };
     return (
         <Ripple
             {...{ disabled }}
             rippleContainerBorderRadius={borderRadius}
             rippleColor={loading ? COLORS.transparent : COLORS.white}
             rippleSize={180}
-            onPress={handlePress}
+            onPress={!loading && onPress}
             style={[
                 {
                     backgroundColor:
@@ -48,7 +41,7 @@ const ButtonComponent = props => {
                     borderRadius: borderRadius,
                     paddingHorizontal: RFPercentage(2),
                     borderColor: loading || disabled ? COLORS.accordionBorderColor : theme.colors.primaryThemeColor,
-                    // borderWidth: 2,
+                    borderWidth: 2,
                     // alignSelf: 'center',
                     // height: (style && style.height) || RFPercentage(Platform.OS === 'android' ? 6 : 6),
                     height: 50,
@@ -57,7 +50,7 @@ const ButtonComponent = props => {
                     ...style,
                     ...(outline && { backgroundColor: COLORS.white, borderColor: theme.colors.primaryThemeColor, ...style }),
                     ...(danger && { backgroundColor: COLORS.red, borderColor: COLORS.red }),
-                    ...(success && { backgroundColor: COLORS.success, borderColor: COLORS.success }),
+                    ...(success && { backgroundColor: COLORS.SUCCESS, borderColor: COLORS.SUCCESS }),
                 },
             ]}>
             <View
@@ -91,7 +84,7 @@ const ButtonComponent = props => {
                             {children}
                         </TextComponent>
                     </View>
-
+ 
                     {!loading && icon && <Feather style={{ fontSize: 25 }} name="arrow-right" />}
                 </View>
                 <View style={{ flex: 1 }}>
@@ -101,5 +94,5 @@ const ButtonComponent = props => {
         </Ripple>
     );
 };
-
+ 
 export default ButtonComponent;

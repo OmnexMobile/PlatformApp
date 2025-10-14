@@ -1,20 +1,31 @@
 import { useNavigation } from '@react-navigation/native';
 import { COLORS, FONT_SIZE } from 'constants/theme-constants';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Animated, FlatList, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import Icon from 'react-native-vector-icons/AntDesign';
 import IconF from 'react-native-vector-icons/FontAwesome';
 import IconI from 'react-native-vector-icons/Ionicons';
 import IconO from 'react-native-vector-icons/Octicons';
+import IconM from 'react-native-vector-icons/MaterialIcons';
 import InputWithSearch from './InputWithSearch';
 import InspectionInspectionSvg from '../../../assets/images/svg/inspection-scedule.svg';
 import OperatorWorksheetSvg from '../../../assets/images/svg/operator-worksheet.svg';
 import CompletedInspectionnSvg from '../../../assets/images/svg/completed-inspection.svg';
 import SupervisorScheduleSvg from '../../../assets/images/svg/supervisor-schedule.svg';
+import SearchInspectionSvg from '../../../assets/images/svg/search-inspection.svg';
 import { ROUTES } from 'constants/app-constant';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { IconButton, Menu, Tooltip } from 'react-native-paper';
+import { useAppContext } from 'contexts/app-context';
+import { useSelector } from 'react-redux';
 
 const footerList = [
+    {
+        id: 0,
+        title: 'Search\nInspection',
+        svg: SearchInspectionSvg,
+        routeName: ROUTES.SEARCH_INSPECTION,
+    },
     {
         id: 1,
         title: 'Inspection\nSchedule',
@@ -40,7 +51,8 @@ const footerList = [
     //     routeName: ROUTES.SUPERVISOR_SCHEDULE,
     // },
 ];
-
+const footerListWithoutSearch = footerList.filter(item => item.title !== 'Search\nInspection');
+const footerListWithoutSchedule = footerList.filter(item => item.title !== 'Inspection\nSchedule');
 const CustomHeader = ({
     children,
     title = '',
@@ -53,15 +65,26 @@ const CustomHeader = ({
     handleFileIconPress = () => {},
     handleSearch = () => {},
     searchValue = '',
-    handleClosePress=()=>{},
-    customBackHandler=false,
-    customHandleGoBack=()=>{},
+    handleClosePress = () => {},
+    customBackHandler = false,
+    customHandleGoBack = () => {},
+    handleMultiSearch=()=>{}
 }) => {
-    const insets= useSafeAreaInsets()
+    const { icSettings } = useSelector(state => state.inspection);
+    const insets = useSafeAreaInsets();
     const { width } = useWindowDimensions();
     const navigation = useNavigation();
     const [isExpanded, setIsExpanded] = useState(false);
+    const [visible, setVisible] = useState(false);
+    // const [bottomTabList, setBottomTabList] = useState([]);
+    const openMenu = () => setVisible(true);
+    const closeMenu = () => setVisible(false);
+    const { sites } = useAppContext();
     const widthAnim = useRef(new Animated.Value(0)).current;
+
+    const bottomTabList = useMemo(() => {
+        return icSettings?.SearchInspectionNeeded ? footerListWithoutSchedule : footerListWithoutSearch;
+    }, [icSettings?.SearchInspectionNeeded]);
     useEffect(() => {
         if (searchValue?.length) {
             setIsExpanded(true);
@@ -121,7 +144,7 @@ const CustomHeader = ({
         }
     };
     return (
-        <SafeAreaView style={[styles.container,{paddingTop:insets.top}]}>
+        <SafeAreaView style={[styles.container]}>
             <View style={[styles.headerBox]}>
                 <TouchableOpacity
                     onPress={() => {
@@ -131,7 +154,9 @@ const CustomHeader = ({
                 </TouchableOpacity>
                 <View style={{ flex: 1, marginLeft: 10 }}>
                     {!isExpanded ? (
-                        <Text style={[styles.headerText]}>{title}</Text>
+                        <Text style={[styles.headerText]} numberOfLines={1}>
+                            {title} <Text style={{ fontSize: 15 }}>{`(${sites?.selectedSite.SiteName})`}</Text>
+                        </Text>
                     ) : (
                         <Animated.View style={[{ width: widthAnim }]}>
                             <InputWithSearch
@@ -149,12 +174,22 @@ const CustomHeader = ({
                 <View style={[styles.rightIconList]}>
                     {showIcons && (
                         <>
-                            {(activeTabId == 1 || activeTabId == 4) && (
+                            {activeTabId == 0 && (
+                                <TouchableOpacity onPress={() => handleMultiSearch()}>
+                                    <IconM name="filter-list" size={25} style={styles.iconButton} color={COLORS.white} />
+                                </TouchableOpacity>
+                            )}
+                            {activeTabId == 0 && (
+                                <TouchableOpacity onPress={() => handleFilterPress()}>
+                                    <Icon name="filter" size={25} style={styles.iconButton} color={COLORS.white} />
+                                </TouchableOpacity>
+                            )}
+                            {(activeTabId == 1 || activeTabId == 4 || activeTabId == 0) && (
                                 <TouchableOpacity
                                     onPress={() => {
                                         toggleSearchBar();
-                                        if(isExpanded){
-                                            handleClosePress()
+                                        if (isExpanded) {
+                                            handleClosePress();
                                         }
                                     }}>
                                     <Icon name={!isExpanded ? 'search1' : 'close'} size={25} style={styles.iconButton} color={COLORS.white} />
@@ -189,7 +224,7 @@ const CustomHeader = ({
                                     <IconO name="sync" size={25} style={styles.iconButton} color={COLORS.white} />
                                 </TouchableOpacity>
                             )} */}
-                            <TouchableOpacity
+                            {/* <TouchableOpacity
                                 onPress={() => {
                                     // navigation.goBack();
                                     navigation.reset({
@@ -198,7 +233,26 @@ const CustomHeader = ({
                                     });
                                 }}>
                                 <IconI name="exit-outline" size={31} style={styles.iconButton} color={COLORS.white} />
-                            </TouchableOpacity>
+                            </TouchableOpacity> */}
+                            {/* <Tooltip title="Selected Camera" enterTouchDelay={0} leaveTouchDelay={2000}>
+                                <IconI name="information-circle-outline" size={28} style={styles.iconButton} color={COLORS.white} />
+                            </Tooltip> */}
+                            {/* <Menu
+                                visible={visible}
+                                onDismiss={closeMenu}
+                                anchor={
+                                    <TouchableOpacity onPress={openMenu}>
+                                        <IconI name="information-circle-outline" size={28} style={styles.iconButton} color={COLORS.white} />
+                                    </TouchableOpacity>
+                                }
+                                contentStyle={{
+                                    backgroundColor: '#000',
+                                    borderRadius: 5,
+                                    paddingHorizontal: 10,
+                                }}
+                                anchorPosition="bottom">
+                                <Text style={{ color: COLORS.white }}>Site : {sites?.selectedSite?.SiteName}</Text>
+                            </Menu> */}
                         </>
                     )}
                     {showFileIcon && (
@@ -214,7 +268,7 @@ const CustomHeader = ({
             <View style={styles.contentContainer}>{children}</View>
             <View style={[styles.footerBox]}>
                 <FlatList
-                    data={footerList}
+                    data={bottomTabList}
                     renderItem={renderTab}
                     keyExtractor={item => item.id}
                     contentContainerStyle={{ flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 10, paddingTop: 10 }}
@@ -249,12 +303,13 @@ const styles = StyleSheet.create({
     },
     headerText: {
         color: COLORS.white,
-        fontSize:20,
+        fontSize: 20,
     },
     footerBox: {
         backgroundColor: COLORS.white,
         height: 80,
         paddingHorizontal: 15,
+        marginBottom: 20,
     },
     tabBox: {
         alignItems: 'center',
@@ -270,10 +325,10 @@ const styles = StyleSheet.create({
     animatedContainer: {
         flex: 1,
     },
-    inputBox:{
-        color:COLORS.white,
-        fontFamily:'OpenSans-SemiBold',
-        fontSize:16,
-    }
+    inputBox: {
+        color: COLORS.white,
+        fontFamily: 'OpenSans-SemiBold',
+        fontSize: 16,
+    },
 });
 export default CustomHeader;

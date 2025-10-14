@@ -50,6 +50,7 @@ target 'IntegratedApp' do
     'Camera',
     'Microphone',
     'LocationWhenInUse',
+    'PhotoLibraryAddOnly',
     # Add more permissions as needed...
   ])
   target 'IntegratedAppTests' do

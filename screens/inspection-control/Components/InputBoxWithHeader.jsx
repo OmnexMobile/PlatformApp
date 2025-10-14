@@ -15,6 +15,7 @@ const InputBoxWithHeader = ({
     backgroundColor=COLORS.inputBG,
     color= '#000',
     onFocus=()=>{},
+    onSubmitEditing=()=>{},
 }) => {
     return (
         <View style={[styles.container]}>
@@ -28,7 +29,7 @@ const InputBoxWithHeader = ({
                 multiline={multiline}
                 textAlignVertical={textAlignVertical}
                 onFocus={onFocus}
-                
+                onSubmitEditing={onSubmitEditing}
             />
         </View>
     );

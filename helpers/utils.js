@@ -5,7 +5,9 @@ import JailMonkey from 'jail-monkey';
 import moment from 'moment';
 import { COLORS, SPACING } from 'constants/theme-constants';
 import useTheme from 'theme/useTheme';
-import { DATE_FORMAT, IMAGE_UPLOAD_STATUS, INPUTS_CONSTANTS, TOAST_STATUS } from 'constants/app-constant';
+import { DATE_FORMAT, IMAGE_UPLOAD_STATUS, INPUTS_CONSTANTS, LOCAL_STORAGE_VARIABLES, TOAST_STATUS } from 'constants/app-constant';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { check, request, openSettings, PERMISSIONS, RESULTS } from 'react-native-permissions';
 import InAppBrowser from 'react-native-inappbrowser-reborn';
 
 LogBox.ignoreLogs(['Require cycle:']);
@@ -49,7 +51,7 @@ export const objToQs = params =>
         .map(key => key + '=' + params[key])
         .join('&');
 
-export const successMessage = ({ message = 'Success', description = 'Successfully Saved', type = 'success' }) =>
+export const successMessage = ({ message = 'Success', description = 'Successfully Saved', type = 'success', position = 'top' }) =>
     showMessage({
         message,
         description,
@@ -57,18 +59,34 @@ export const successMessage = ({ message = 'Success', description = 'Successfull
         backgroundColor: COLORS.success,
         color: COLORS.white,
         duration: 1500,
-        position: 'bottom',
+        // problem Solver
+        position: position ? position : 'bottom',
+        // style: {
+        //     borderRadius: SPACING.NORMAL,
+        //     margin: SPACING.SMALL,
+        // },
+    });
+
+export const showErrorMessage = (message,position='bottom') =>
+    showMessage({
+        message: 'Error',
+        description: message,
+        type: 'danger',
+        backgroundColor: FlashMessage.ColorTheme.danger,
+        color: COLORS.white,
+        duration: 1500,
+        position: position ? position : 'bottom',
         style: {
             borderRadius: SPACING.NORMAL,
             margin: SPACING.SMALL,
         },
     });
 
-export const showErrorMessage = message =>
+export const showWarningMessage = message =>
     showMessage({
-        message: 'Error',
-        description: message?.toString(),
-        type: 'danger',
+        message: 'Warning',
+        description: message,
+        type: 'Warning',
         backgroundColor: FlashMessage.ColorTheme.danger,
         color: COLORS.white,
         duration: 1500,
@@ -79,21 +97,7 @@ export const showErrorMessage = message =>
         },
     });
 
-    // export const showWarningMessage = message =>
-    //     showMessage({
-    //         message: 'Warning',
-    //         description: message,
-    //         type: 'Warning',
-    //         backgroundColor: FlashMessage.ColorTheme.danger,
-    //         color: COLORS.white,
-    //         duration: 1500,
-    //         position: 'bottom',
-    //         style: {
-    //             borderRadius: SPACING.NORMAL,
-    //             margin: SPACING.SMALL,
-    //         },
-    //     });
-
+// problem solver
 export const toast = (title = 'Success', desc = 'Successfully Saved', type = TOAST_STATUS.SUCCESS, duration = 1500) => {
     const message = title ? title : type === TOAST_STATUS.SUCCESS ? 'Success' : 'Error';
     return showMessage({
@@ -138,7 +142,7 @@ export const getElevation = () => {
     return {
         shadowColor: '#000',
         shadowOffset: {
-            width: 0,
+            width: 5,
             height: 2,
         },
         shadowOpacity: 0.25,
@@ -153,6 +157,54 @@ export const formReq = request => {
     const transformedData = Object.entries(request).map(([key, value]) => ({ key, value }));
     transformedData.map(({ key, value }) => formData.append(key, value));
     return formData;
+};
+
+export const requestAllPermissionsOnce = async () => {
+    const alreadyAsked = await AsyncStorage.getItem('permissionsAskedOnce');
+    if (alreadyAsked === 'true') return;
+
+    const androidPermissions = [];
+
+    // Check Android version
+    const sdkVersion = parseInt(Platform.Version, 10);
+
+    if (sdkVersion < 30) {
+        androidPermissions.push(PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE);
+    }
+
+    androidPermissions.push(PERMISSIONS.ANDROID.CAMERA, PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION);
+
+    const permissionsToRequest = Platform.select({
+        ios: [PERMISSIONS.IOS.PHOTO_LIBRARY_ADD_ONLY, PERMISSIONS.IOS.CAMERA, PERMISSIONS.IOS.LOCATION_WHEN_IN_USE],
+        android: androidPermissions,
+    });
+
+    let allGranted = true;
+
+    for (const permission of permissionsToRequest) {
+        const status = await check(permission);
+
+        if (status === RESULTS.GRANTED) continue;
+
+        if (status === RESULTS.BLOCKED) {
+            Alert.alert('Permission Blocked', 'Some permissions are blocked. Please enable them in device Settings.', [
+                { text: 'Cancel', style: 'cancel' },
+                { text: 'Open Settings', onPress: () => openSettings() },
+            ]);
+            allGranted = false;
+            continue;
+        }
+
+        const result = await request(permission);
+
+        if (result !== RESULTS.GRANTED) {
+            Alert.alert('Permission Denied', `App needs permission: ${permission.split('.').pop()} to function properly.`);
+            allGranted = false;
+        }
+    }
+    if (allGranted) {
+        await AsyncStorage.setItem('permissionsAskedOnce', 'true');
+    }
 };
 
 export function convertStringToHTML(htmlString) {

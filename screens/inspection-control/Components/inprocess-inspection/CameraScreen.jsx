@@ -15,11 +15,10 @@ const CameraScreen = ({ setShowCamer = () => {}, setFileList = () => {} }) => {
             const data = await cameraRef.current.takePictureAsync(options);
             const fileExtension = data?.uri.split('.').pop().split('?')[0];
             const file = {
-                ...data,
                 id: uuid.v4(),
-                base64Url: data.base64,
-                fileExtension: fileExtension,
-                name:data.uri.split('/').pop()
+                Base64: data.base64,
+                FileType:fileExtension,
+                FileName:data.uri.split('/').pop()
             };
             setFileData(file);
             setPhotoUri(data.uri);

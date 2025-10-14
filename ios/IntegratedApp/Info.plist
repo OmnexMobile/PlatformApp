@@ -47,6 +47,8 @@
 	<string>We need your location to show relevant data</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Please allow the app to access the Microphone.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>App needs access to save files to your photo library</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Please allow the app to acces the gallery. It will be used to upload the images</string>
 	<key>NSSpeechRecognitionUsageDescription</key>

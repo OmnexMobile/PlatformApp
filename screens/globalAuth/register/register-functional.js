@@ -12,6 +12,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 import globalAuth from '../../../services/Auditpro-Auth';
 import { Keyboard } from 'react-native';
 import { GLOBALSERVER_URL } from 'screens/globalConstant/globalURL';
+import { deleteAllInspectionData } from 'store/database/inspectStorage';
 
 export const REGISTER_TYPES = {
     REGISTER: 1,
@@ -223,10 +224,11 @@ const RegisterFunctional = ({}) => {
             },
             REGISTER_TYPES.UN_REGISTER,
         )
-            .then(data => {
+            .then(async(data) => {
                 setLoading(false);
                 console.log('🚀 ~ file: register-functional.js:92 ~ handleUnRegister ~ data:', data?.Success);
                 if (data?.Success) {
+                    await deleteAllInspectionData();
                     localStorage.removeItem(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL);
                     handleAppSetting('serverUrl', '');
                     handleGlobalURL('serverUrl', '')

@@ -1,12 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import { FlatList, StyleSheet, View } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { FlatList, StyleSheet, Text, TextInput, View } from 'react-native';
 import InputBoxWithHeader from '../InputBoxWithHeader';
 import { ButtonComponent } from 'components';
 import { COLORS } from 'constants/theme-constants';
 import { showMessage } from 'react-native-flash-message';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const ContainmentActionsForm = ({ type = '', masterData, handleSubmit = () => {}, inspectionType = '' }) => {
     const [pageData, setPageData] = useState({});
+    const inputRefs = useRef({});
+    const insets = useSafeAreaInsets();
     useEffect(() => {
         setPageData(masterData);
     }, [masterData]);
@@ -59,7 +62,7 @@ const ContainmentActionsForm = ({ type = '', masterData, handleSubmit = () => {}
                 statusBarHeight: 40,
                 icon: 'warning',
                 position: 'right',
-                style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+                style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : { paddingTop: insets.top },
             });
         }
     };
@@ -106,15 +109,28 @@ const ContainmentActionsForm = ({ type = '', masterData, handleSubmit = () => {}
                         <InputBoxWithHeader title="No" value={`${index + 1}`} editable={false} />
                     </View>
                     <View style={[styles.subBox]}>
-                        <InputBoxWithHeader
-                            backgroundColor={renderBackGroundColor(item.ContainmentValue, type)}
-                            value={item.ContainmentValue}
-                            title="Value"
+                        <Text style={[styles.headerText]}>Value</Text>
+                        <TextInput
+                            ref={ref => {
+                                inputRefs.current[item?.id] = ref;
+                            }}
+                            style={[
+                                styles.inputBox,
+                                {
+                                    height: 40,
+                                    padding: 0,
+                                    backgroundColor: renderBackGroundColor(item.ContainmentValue, type),
+                                    color: '#fff',
+                                },
+                            ]}
                             onChangeText={val => {
                                 let cleaned = val;
                                 if (type === 'number') {
-                                    // 1. Remove invalid characters (allow digits and one dot)
-                                    cleaned = val.replace(/[^0-9.]/g, '');
+                                    cleaned = val
+                                        .replace(/[^0-9.-]/g, '') // Remove invalid characters
+                                        .replace(/(?!^)-/g, '') // Remove all '-' except at the start
+                                        .replace(/(\..*)\./g, '$1'); // Allow only the first dot
+
                                     // 2. Allow only one dot
                                     const parts = cleaned.split('.');
                                     if (parts.length > 2) {
@@ -133,9 +149,15 @@ const ContainmentActionsForm = ({ type = '', masterData, handleSubmit = () => {}
                                 }
                                 handleInputChage(cleaned, item?.id, 'ContainmentValue');
                             }}
-                            color="#fff"
-                            onFocus={() => handleInputBlur(item?.id)}
+                            value={item.ContainmentValue}
                             editable={item?.isEditable}
+                            numberOfLines={1}
+                            multiline={false}
+                            textAlignVertical={'center'}
+                            onFocus={() => handleInputBlur(item?.id)}
+                            onSubmitEditing={() => {
+                                inputRefs.current[item?.id]?.blur();
+                            }}
                         />
                     </View>
                 </View>
@@ -171,7 +193,7 @@ const ContainmentActionsForm = ({ type = '', masterData, handleSubmit = () => {}
     };
     return (
         <View style={[styles.container]}>
-            <FlatList data={pageData} renderItem={renderItem} keyExtractor={item => item.id} showsVerticalScrollIndicator={false} />
+            <FlatList data={pageData} renderItem={renderItem} keyExtractor={(item, index) => index + 1} showsVerticalScrollIndicator={false} />
         </View>
     );
 };
@@ -191,6 +213,21 @@ const styles = StyleSheet.create({
     subBox: {
         flex: 1,
         marginHorizontal: 5,
+    },
+    headerText: {
+        fontFamily: 'OpenSans-Regular',
+        fontSize: 14,
+        color: COLORS.headerText,
+    },
+    inputBox: {
+        borderWidth: StyleSheet.hairlineWidth,
+        borderRadius: 5,
+        borderColor: COLORS.inputBorder,
+        padding: 0,
+        paddingHorizontal: 10,
+        marginTop: 8,
+        fontFamily: 'OpenSans-SemiBold',
+        fontSize: 14,
     },
 });
 export default ContainmentActionsForm;

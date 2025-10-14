@@ -1,11 +1,12 @@
 import { ButtonComponent } from 'components';
-import React, { useEffect, useRef, useState } from 'react';
-import { FlatList, Platform, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { FlatList, Platform, RefreshControl, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import CustomHeader from '../Components/CustomHeader';
 import { COLORS } from 'constants/theme-constants';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { PLACEHOLDERS, ROUTES } from 'constants/app-constant';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import IconI from 'react-native-vector-icons/Ionicons';
 import IconF from 'react-native-vector-icons/Feather';
 import DataPickerWithIcon from '../Components/DataPickerWithIcon';
 import FilterWithMenu from '../Components/FilterWithMenu';
@@ -21,6 +22,10 @@ import QRCodeScannerScreen from '../Components/QRCodeScannerScreen';
 import NoDataFound from '../Components/NoDataFound';
 import { postAPI } from 'global/api-helpers';
 import ApiUrl from 'global/ApiUrl';
+import { deleteAllInspectionData, getInspectionDataByUserAndSite } from 'store/database/inspectStorage';
+import { Modal } from 'react-native-paper';
+import { Bubbles } from 'react-native-loader';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const filterList = [
     {
@@ -55,8 +60,10 @@ const moreList = [
     },
 ];
 const InspectionSchedule = () => {
-    const { inspectList, icUserData } = useSelector(state => state.inspection);
-    const inspectionRef = useRef(inspectList);
+    const insets = useSafeAreaInsets();
+    const { height } = useWindowDimensions();
+    const { icUserData, dateFormat } = useSelector(state => state.inspection);
+    const uiDateFormat = dateFormat || 'DD/MM/YYYY';
     const dispatch = useDispatch();
     const isFocused = useIsFocused();
     const {
@@ -83,12 +90,7 @@ const InspectionSchedule = () => {
         frequencyList: [],
         personList: [],
     });
-
-    // Keep it updated
-    useEffect(() => {
-        inspectionRef.current = inspectList;
-    }, [inspectList]);
-
+    const [showBubble, setShowBubble] = useState(false);
     const handleFilePress = item => {
         let temp = {
             ProductionItem: item.ProductionItem,
@@ -98,13 +100,25 @@ const InspectionSchedule = () => {
         setSelectedData(temp);
         setShowFileModal(true);
     };
+    // useEffect(() => {
+    //     getSQliteList()
+    // }, [isFocused]);
+    // const getSQliteList = async () => {
+    //     const list = await getAllInspectionData();
+    //     console.log(list, '*********************************************list.length');
+    // };
     const getOverAllSettings = async () => {
         const settingsRes = await postAPI(`${ApiUrl.IC_SETTINGS}`);
         if (settingsRes.Success) {
-            dispatch({ type: 'IC_SETTINGS', icSettings: settingsRes?.Data[0] || {} });
+            const settings = {
+                ...settingsRes?.Data[0],
+            };
+            dispatch({ type: 'IC_SETTINGS', icSettings: settings || {} });
         }
     };
     const handleListFetch = async (inspect = null, showSktn = true, filterType = '') => {
+        // await deleteAllInspectionData();
+        const inspectList = await getInspectionDataByUserAndSite(icUserData?.userData?.UserId, icUserData?.userData?.Siteid);
         showSktn && setShowSkeleton(true);
         const { startDate, endDate, type } = filterData;
         let dateFlag = startDate !== '' && endDate !== '';
@@ -176,6 +190,7 @@ const InspectionSchedule = () => {
         }
         setMasterData(tempSearch);
     };
+
     useEffect(() => {
         if (icUserData && isFocused) {
             handleListFetch(null, true, filterData.type);
@@ -192,29 +207,48 @@ const InspectionSchedule = () => {
         await getOverAllSettings();
         setShowModal(true);
     };
-    const handleMenuPress = value => {
-        if (value.id == 2) {
-            navigation.navigate(ROUTES.OPERATOR_WORKSHEET);
-            return null;
-        }
-        if (value.id == 1) {
-            const { startDate, endDate } = filterData;
-            const tempStart = moment(startDate);
-            const tempEnd = moment(endDate);
-            if (tempStart.isBefore(tempEnd)) {
-                handleListFetch(null, true, filterData.type);
-            } else {
-                showMessage({
-                    message: 'Start Date must be less than End Date',
-                    backgroundColor: COLORS.ERROR,
-                    color: COLORS.white,
-                    duration: 1500,
-                    statusBarHeight: 40,
-                    icon: 'danger',
-                    position: 'right',
-                    style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
-                });
-            }
+    // const handleMenuPress = value => {
+    //     if (value.id == 2) {
+    //         navigation.navigate(ROUTES.OPERATOR_WORKSHEET);
+    //         return null;
+    //     }
+    //     if (value.id == 1) {
+    //         const { startDate, endDate } = filterData;
+    //         const tempStart = moment(startDate);
+    //         const tempEnd = moment(endDate);
+    //         if (tempStart.isBefore(tempEnd)) {
+    //             handleListFetch(null, true, filterData.type);
+    //         } else {
+    //             showMessage({
+    //                 message: 'Start Date must be less than End Date',
+    //                 backgroundColor: COLORS.ERROR,
+    //                 color: COLORS.white,
+    //                 duration: 1500,
+    //                 statusBarHeight: 40,
+    //                 icon: 'danger',
+    //                 position: 'right',
+    //                 style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+    //             });
+    //         }
+    //     }
+    // };
+    const handleMenuPress = () => {
+        const { startDate, endDate } = filterData;
+        const tempStart = moment(startDate);
+        const tempEnd = moment(endDate);
+        if (tempStart.isBefore(tempEnd)) {
+            handleListFetch(null, true, filterData.type);
+        } else {
+            showMessage({
+                message: 'Start Date must be less than End Date',
+                backgroundColor: COLORS.ERROR,
+                color: COLORS.white,
+                duration: 1500,
+                statusBarHeight: 40,
+                icon: 'danger',
+                position: 'right',
+                style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : { paddingTop: insets.top },
+            });
         }
     };
     const renderIconBgColor = value => {
@@ -236,7 +270,7 @@ const InspectionSchedule = () => {
                     </Text>
                 </View>
                 <View style={[styles.lastBox]}>
-                    <Text style={[styles.secondText]}>{moment(new Date(item.ProductionStartDate)).format('DD/MM/YYYY')}</Text>
+                    <Text style={[styles.secondText]}>{moment(new Date(item.ProductionStartDate)).format(uiDateFormat)}</Text>
                     <View style={[styles.iconlist]}>
                         <TouchableOpacity
                             style={{ marginLeft: 15 }}
@@ -275,23 +309,29 @@ const InspectionSchedule = () => {
         setSearch('');
         handleListFetch(null, false, filterData.type);
     };
-    const handleSearch = value => {
+    const handleSearch = (value, filterType) => {
         let temp = JSON.parse(JSON.stringify(overAllData));
+        let tempList = [];
+        if (filterType !== '') {
+            tempList = temp.filter(item => item.TypeOfInspection == filterType);
+        } else {
+            tempList = temp;
+        }
         if (value?.length) {
-            const tempSearch = temp.filter(
+            const tempSearch = tempList.filter(
                 item =>
                     item.ProductionItem.toLowerCase().includes(value.toLowerCase()) || item.OperationName.toLowerCase().includes(value.toLowerCase()),
             );
             setMasterData(tempSearch);
         } else {
-            setMasterData(overAllData);
+            setMasterData(tempList);
         }
     };
     useEffect(() => {
         var handler;
         if (search.length && isFocused) {
             handler = setTimeout(() => {
-                handleSearch(search);
+                handleSearch(search, filterData?.type);
             }, 500);
         }
         return () => {
@@ -299,8 +339,9 @@ const InspectionSchedule = () => {
         };
     }, [search, isFocused]);
     const handleSubmitBtnPress = async val => {
-        const latestInspection = inspectionRef.current;
-        const apiData = await handleListFetch(null, true, filterData.type);
+        setShowBubble(true);
+        const latestInspection = await getInspectionDataByUserAndSite(icUserData?.userData?.UserId, icUserData?.userData?.Siteid);
+        const apiData = await handleListFetch(null, false, filterData.type);
         let filterTemp = filterData.type !== '' ? apiData.filter(item => item.TypeOfInspection == filterData.type) : apiData;
         let temp = [...filterTemp] || [];
         const updatedArray = temp.map(item => {
@@ -316,6 +357,7 @@ const InspectionSchedule = () => {
             };
         });
         setMasterData(updatedArray);
+        setShowBubble(false);
     };
     return (
         <CustomHeader
@@ -328,13 +370,13 @@ const InspectionSchedule = () => {
             handleSearch={value => {
                 setSearch(value);
                 if (!value?.length) {
-                    handleSearch('');
+                    handleSearch('', filterData?.type);
                 }
             }}
             searchValue={search}
             handleClosePress={() => {
                 setSearch('');
-                handleSearch('');
+                handleSearch('', filterData?.type);
             }}>
             <View style={[styles.mainContainer]}>
                 <View style={[styles.overAllBox]}>
@@ -368,13 +410,20 @@ const InspectionSchedule = () => {
                         />
                     </View>
                     <View style={[styles.iconFilter]}>
-                        <FilterWithMenu
+                        <TouchableOpacity
+                            style={styles.getDataBox}
+                            onPress={() => {
+                                handleMenuPress();
+                            }}>
+                            <IconI name="sync-sharp" size={22} color={COLORS.black} />
+                        </TouchableOpacity>
+                        {/* <FilterWithMenu
                             dataList={moreList}
                             type="IconFilter"
                             onSelectedPress={value => {
                                 handleMenuPress(value);
                             }}
-                        />
+                        /> */}
                     </View>
                 </View>
                 {showSkeleton ? (
@@ -397,7 +446,7 @@ const InspectionSchedule = () => {
                     </View>
                 </View>
             </View>
-            <View style={[styles.btnContainer]}>
+            {/* <View style={[styles.btnContainer]}>
                 <ButtonComponent
                     textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}
                     style={{ height: 40 }}
@@ -406,7 +455,7 @@ const InspectionSchedule = () => {
                     }}>
                     Completed Inspections
                 </ButtonComponent>
-            </View>
+            </View> */}
             {Boolean(showModal) && (
                 <InputDataModal
                     selectedValue={selectedData}
@@ -419,6 +468,7 @@ const InspectionSchedule = () => {
                     }}
                     shiftData={formList.shiftList}
                     userData={icUserData?.userData}
+                    selectedSite={selectedSite}
                 />
             )}
             {Boolean(showFileModal) && (
@@ -428,6 +478,7 @@ const InspectionSchedule = () => {
                     onDismiss={() => {
                         setShowFileModal(false);
                     }}
+                    userData={icUserData?.userData}
                 />
             )}
             {Boolean(showQR) && (
@@ -440,6 +491,23 @@ const InspectionSchedule = () => {
                         handleSearch(val);
                     }}
                 />
+            )}
+            {Boolean(showBubble) && (
+                <Modal
+                    transparent={true}
+                    animationType={'none'}
+                    visible={showBubble}
+                    onRequestClose={() => {
+                        console.log('close modal');
+                    }}
+                    contentContainerStyle={{
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flex: 1,
+                        height: '100%',
+                    }}>
+                    <Bubbles size={10} color="#12C0CF" />
+                </Modal>
             )}
         </CustomHeader>
     );
@@ -520,12 +588,21 @@ const styles = StyleSheet.create({
     },
     iconFilter: {
         width: '10%',
+        alignItems: 'center',
     },
     overAllBox: {
         padding: 10,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
+    },
+    getDataBox: {
+        height: 35,
+        width: 35,
+        backgroundColor: COLORS.inputBorder,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 40,
     },
 });
 

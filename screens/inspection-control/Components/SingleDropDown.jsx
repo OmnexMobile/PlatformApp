@@ -17,7 +17,9 @@ const SingleDropDown = ({
     showSearch=true,
     maxHeight=300,
     placeholder='',
-    editable=true
+    editable=true,
+    containerStyle={},
+    dropdownPosition='top',
 }) => {
     return (
         <View style={[styles.container]}>
@@ -41,6 +43,8 @@ const SingleDropDown = ({
                     onChange(item);
                 }}
                 disable={!editable}
+                containerStyle={containerStyle}
+                dropdownPosition={dropdownPosition}
             />
         </View>
     );

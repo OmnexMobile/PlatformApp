@@ -19,6 +19,9 @@ import { ROUTES } from 'constants/app-constant';
 import { Modal } from 'react-native-paper';
 import NoDataFound from '../Components/NoDataFound';
 import ConfirmationModal from '../Components/inprocess-inspection/ConfirmationModal';
+import { getInspectionDataByUserAndSite, updateInspectionByUniqueId } from 'store/database/inspectStorage';
+import OfflineFileViewModal from '../Components/inprocess-inspection/OfflineFileViewModal';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 const moreList = [
     {
         id: 1,
@@ -35,8 +38,10 @@ const moreList = [
 ];
 
 const InprocessInspection = ({ route }) => {
+    const insets = useSafeAreaInsets();
     const { inspectData } = route.params;
-    const { inspectList, icSettings } = useSelector(state => state.inspection);
+    const { icUserData, icSettings } = useSelector(state => state.inspection);
+    const [inspectList, setInspectList] = useState([]);
     const [showGeneral, setShowGeneral] = useState(false);
     const [showChar, setShowChar] = useState(false);
     const [showSignModal, setShowSignModal] = useState(false);
@@ -64,13 +69,23 @@ const InprocessInspection = ({ route }) => {
         CLowValue: '',
         CSampleSize: '',
         CTolerance: '',
+        charInfo: [],
     });
+    const [finalConfirmation, setFinalConfirmation] = useState(false);
+    const [showFileModal, setShowFileModal] = useState(false);
     const flatListRef = useRef(null);
     const navigation = useNavigation();
     const dispatch = useDispatch();
     useLayoutEffect(() => {
         setInfoData(inspectData);
     }, [inspectData]);
+    const handleGetSQliteInspectionList = async () => {
+        const inspectLists = await getInspectionDataByUserAndSite(icUserData?.userData?.UserId, icUserData?.userData?.Siteid);
+        setInspectList(inspectLists);
+    };
+    useLayoutEffect(() => {
+        handleGetSQliteInspectionList();
+    }, [icUserData]);
 
     const handleGenOpen = () => {
         setShowGeneral(!showGeneral);
@@ -85,25 +100,37 @@ const InprocessInspection = ({ route }) => {
         setShowSignModal(true);
     };
     const renderBtnText = (item, type) => {
-        const list = item?.Samples || [];
         let iconFlag = false;
-        const allValues = list.length > 0 && list.every(({ value }) => value.trim() !== '');
-        const someValues = list.some(({ value }) => value.trim() !== '');
-        let status = allValues ? 'Completed' : someValues ? 'In Progress' : 'Inspect';
-        if (allValues) {
-            let temp =
-                type == 'number'
-                    ? list.filter(x =>
-                          x?.value != '' && inspectData?.intInspectionTypeID == 2
-                              ? !(
-                                    Number(x?.value) >= Number(inspectData?.intInspectionTypeID == 2 ? x?.tolerance : 0) - Number(x?.lowValue) &&
-                                    Number(x?.value) <= Number(x?.highValue) + Number(inspectData.intInspectionTypeID == 2 ? x?.tolerance : 0)
-                                )
-                              : !(Number(x?.value) >= Number(x?.lowValue) && Number(x?.value) <= Number(x?.highValue)),
-                      )
-                    : list.filter(x => x?.value?.toLowerCase() != 'ok' && x?.value !== '');
-            iconFlag = temp?.length ? true : false;
+        let status = 'Inspect';
+        if (item.isSamplePopup) {
+            const list = item?.Samples || [];
+            iconFlag = false;
+            const allValues = list.length > 0 && list.every(({ value }) => value.trim() !== '');
+            const someValues = list.some(({ value }) => value.trim() !== '');
+            let tempAllValue = item?.charInfo.filter(x => x?.Value != '')?.length;
+            let tempstatus = allValues ? 'Completed' : someValues ? 'In Progress' : 'Inspect';
+            status = item?.status || tempstatus;
+            if (allValues) {
+                let temp =
+                    type == 'number'
+                        ? list.filter(x =>
+                              x?.value != '' && inspectData?.intInspectionTypeID == 2
+                                  ? !(
+                                        Number(x?.value) >= Number(inspectData?.intInspectionTypeID == 2 ? x?.tolerance : 0) - Number(x?.lowValue) &&
+                                        Number(x?.value) <= Number(x?.highValue) + Number(inspectData.intInspectionTypeID == 2 ? x?.tolerance : 0)
+                                    )
+                                  : !(Number(x?.value) >= Number(x?.lowValue) && Number(x?.value) <= Number(x?.highValue)),
+                          )
+                        : list.filter(x => x?.value?.toLowerCase() != 'ok' && x?.value !== '');
+                iconFlag = temp?.length ? true : false;
+            }
+        } else {
+            let temp = item?.charInfo.filter(x => x?.Required && x?.Value == '')?.length;
+            let tempAllValue = item?.charInfo.filter(x => x.RefData == '##StaticSample##' && x?.Value != '')?.length;
+            let tempstatus = temp == 0 ? 'Completed' : tempAllValue != 0 ? 'In Progress' : 'Inspect';
+            status = item?.status || tempstatus;
         }
+
         let colorCode = COLORS.apptheme;
         if (status === 'Completed') colorCode = COLORS.fiBgColor;
         else if (status === 'In Progress') colorCode = COLORS.ipBgColor;
@@ -139,35 +166,137 @@ const InprocessInspection = ({ route }) => {
     const renderHeader = value => {
         return value == '1' ? 'Receiving Inspection' : value == '2' ? 'Inprocess Inspection' : 'Final Inspection';
     };
-
     const MyHeader = ({ title }) => (
         <View style={[styles.flatHeaderContainer]}>
             <Text style={[styles.flatHeader]}>Sample Information - {title}</Text>
         </View>
     );
     const handleValidation = data => {
-        let list = [...data.GeneralInfo].filter(x => x.DisplayName == 'Approver');
+        let list = [...data.GeneralInfo].filter(x => x.StaticText == 'Approver');
         return inspectData.intInspectionTypeID !== 2 ? (list?.length ? list[0].Value !== '' : true) : true;
         // return list.length ? list[0].Value !== '':true;
     };
-    const handleFinalSavePress = (flag = false) => {
+    // const rendetBtnText = item => {
+    //     const combined = [...item?.VariableCharacteristics, ...item?.AttributeCharacteristics];
+    //     if (!combined.some(item => 'status' in item)) {
+    //         return {
+    //             status: 'launch',
+    //             colorCode: COLORS.apptheme,
+    //         };
+    //     }
+    //     let hasInprogress = false;
+    //     let hasCompleted = false;
+    //     let hasMissingStatus = false;
+    //     let hasLaunchStatus = false;
+
+    //     for (const item of combined) {
+    //         console.log(item.status,'ddfd')
+    //         if ('status' in item) {
+    //             if (item.status === 'Launch') {
+    //                 hasLaunchStatus = true;
+    //             } else if (item.status === 'In Progress') {
+    //                 hasInprogress = true;
+    //             } else if (item.status === 'Completed') {
+    //                 hasCompleted = true;
+    //             }
+    //         } else {
+    //             hasMissingStatus = true;
+    //         }
+    //     }
+    //     if (hasInprogress) return { colorCode: COLORS.ipBgColor, status: 'In Progress' };
+    //     if (hasCompleted && hasMissingStatus) return { colorCode: COLORS.ipBgColor, status: 'In Progress' };
+    //     if (hasCompleted && !hasMissingStatus) return { colorCode: COLORS.fiBgColor, status: 'Completed' };
+    //     if (hasLaunchStatus && hasCompleted && !hasMissingStatus) return { colorCode: COLORS.apptheme, status: 'In Progress' };
+
+    //     return {
+    //         status: 'launch',
+    //         colorCode: COLORS.apptheme,
+    //     };
+    // };
+    const rendetBtnText = item => {
+        const combined = [...item?.VariableCharacteristics, ...item?.AttributeCharacteristics];
+
+        if (!combined.some(c => 'status' in c)) {
+            return {
+                status: 'launch',
+                colorCode: COLORS.apptheme,
+            };
+        }
+        let allCompleted = combined.every(c => c.status === 'Completed');
+
+        let hasInprogress = false;
+        let hasCompleted = false;
+        let hasMissingStatus = false;
+        let hasLaunchStatus = false;
+
+        for (const c of combined) {
+            if ('status' in c) {
+                if (c.status === 'Launch' || c.status === undefined || c.status === 'Inspect') {
+                    hasLaunchStatus = true;
+                } else if (c.status === 'In Progress') {
+                    hasInprogress = true;
+                } else if (c.status === 'Completed') {
+                    hasCompleted = true;
+                }
+            } else {
+                hasMissingStatus = true;
+            }
+        }
+        
+        // 🔑 Priority Logic
+        if (hasInprogress) {
+            return { colorCode: COLORS.ipBgColor, status: 'In Progress' };
+        }
+        if (hasCompleted && hasLaunchStatus) {
+            return { colorCode: COLORS.ipBgColor, status: 'In Progress' }; // ✅ Completed + Launch = In Progress
+        }
+        if (hasCompleted && hasMissingStatus) {
+            return { colorCode: COLORS.ipBgColor, status: 'In Progress' };
+        }
+        if (hasCompleted && allCompleted) {
+            return { colorCode: COLORS.fiBgColor, status: 'Completed' };
+        }
+        if (hasLaunchStatus) {
+            return { colorCode: COLORS.apptheme, status: 'Launch' };
+        }
+
+        return { status: 'launch', colorCode: COLORS.apptheme };
+    };
+
+    const handleFinalSavePress = async (flag = false) => {
         const result = handleValidation(infoData);
         if (result) {
-            dispatch({
-                type: 'UPDATE_INSPECT_LIST',
-                updatedData: infoData,
+            const getStatus = rendetBtnText(infoData);
+            console.log(getStatus, '******************getStatus');
+            const sqlitFlag = await updateInspectionByUniqueId(infoData.uniqueId, {
+                ...infoData,
+                status: getStatus?.status,
+                colorCode: getStatus?.colorCode,
             });
-            if (!showChar && !flag) {
-                if (navigation.canGoBack()) {
-                    navigation.goBack();
-                } else {
-                    navigation.reset({
-                        index: 0,
-                        routes: [{ name: ROUTES.HOME_FAB_VIEW }],
-                    });
+            if (sqlitFlag) {
+                if (!showChar && !flag) {
+                    if (navigation.canGoBack()) {
+                        navigation.goBack();
+                    } else {
+                        navigation.reset({
+                            index: 0,
+                            routes: [{ name: ROUTES.HOME_FAB_VIEW }],
+                        });
+                    }
                 }
+                Boolean(flag) && navigation.goBack();
+            } else {
+                showMessage({
+                    message: 'Error updating inspection',
+                    backgroundColor: COLORS.ERROR,
+                    color: COLORS.white,
+                    duration: 1500,
+                    statusBarHeight: 40,
+                    icon: 'warning',
+                    position: 'right',
+                    style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : { paddingTop: insets.top },
+                });
             }
-            Boolean(flag) && navigation.goBack();
         } else {
             setShowAlart(false);
             showMessage({
@@ -178,35 +307,39 @@ const InprocessInspection = ({ route }) => {
                 statusBarHeight: 40,
                 icon: 'warning',
                 position: 'right',
-                style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+                style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : { paddingTop: insets.top },
             });
         }
     };
     const handleBackPress = () => {
         if (!showConfirmModal) {
             if (!showCamer) {
-                if (!showFilePage) {
-                    if (!showGeneral) {
-                        if (!showChar) {
-                            if (navigation.canGoBack()) {
-                                navigation.goBack();
+                if (!showFileModal) {
+                    if (!showFilePage) {
+                        if (!showGeneral) {
+                            if (!showChar) {
+                                if (navigation.canGoBack()) {
+                                    navigation.goBack();
+                                } else {
+                                    navigation.reset({
+                                        index: 0,
+                                        routes: [{ name: ROUTES.HOME_FAB_VIEW }],
+                                    });
+                                }
                             } else {
-                                navigation.reset({
-                                    index: 0,
-                                    routes: [{ name: ROUTES.HOME_FAB_VIEW }],
-                                });
+                                setShowChar(false);
+                                setSelectedData({});
+                                setMasterData([]);
+                                setValueUpadted([]);
                             }
                         } else {
-                            setShowChar(false);
-                            setSelectedData({});
-                            setMasterData([]);
-                            setValueUpadted([]);
+                            setShowGeneral(false);
                         }
                     } else {
-                        setShowGeneral(false);
+                        setShowFilePage(false);
                     }
                 } else {
-                    setShowFilePage(false);
+                    setShowFileModal(false);
                 }
             } else {
                 setShowCamer(false);
@@ -279,21 +412,29 @@ const InprocessInspection = ({ route }) => {
     }, [handleSaveAlert]);
     const handleSavePress = async (close = true, btnText = 'noBtn') => {
         if (showChar) {
-            const list = masterData || [];
-            const allValues = list.length > 0 && list.every(({ value }) => value.trim() !== '');
-            const someValues = list.some(({ value }) => value.trim() !== '');
-            let status = allValues ? 'Completed' : someValues ? 'In Progress' : 'Launch';
-            const updatedObj = {
-                ...selectedData,
-                Samples: masterData,
-                status: status,
-            };
             const { VariableCharacteristics, AttributeCharacteristics } = infoData;
             const characteristicsList = formType === 'number' ? VariableCharacteristics : AttributeCharacteristics;
+            let status = 'Launch';
+            if (selectedData?.isSamplePopup) {
+                const list = masterData || [];
+                const allValues = list.length > 0 && list.every(({ value }) => value.trim() !== '');
+                const someValues = list.some(({ value }) => value.trim() !== '');
+                let tempAllValue = selectedData?.charInfo.filter(x => x?.Value != '')?.length;
+                status = allValues ? 'Completed' : someValues || tempAllValue != 0 ? 'In Progress' : 'Inspect';
+            } else {
+                let temp = selectedData?.charInfo.filter(x => x?.Required && x?.Value == '')?.length;
+                let tempReq = selectedData?.charInfo.filter(x => x?.Required)?.length;
+                let tempAllValue = selectedData?.charInfo.filter(x => x?.Required && x?.Value != '')?.length;
+                status = temp == 0 ? 'Completed' : tempAllValue != 0 && tempReq > tempAllValue ? 'In Progress' : 'Inspect';
+            }
+            const updatedObj = {
+                ...selectedData,
+                Samples: selectedData?.isSamplePopup ? masterData : [],
+                status: status,
+            };
             const index = characteristicsList.findIndex(
                 obj => obj?.CCharacteristicsId === selectedData?.CCharacteristicsId && obj.FuncDetailsId == selectedData?.FuncDetailsId,
             );
-            console.log(characteristicsList.filter(obj => obj?.CCharacteristicsId === selectedData?.CCharacteristicsId).length, 'lrnh');
             const newCharacteristicsList = [...characteristicsList];
             if (index !== -1) {
                 newCharacteristicsList[index] = updatedObj;
@@ -305,11 +446,10 @@ const InprocessInspection = ({ route }) => {
             }));
             setMasterData([]);
             setValueUpadted([]);
-            console.log('inside1');
         } else {
             handleFinalSavePress();
 
-            console.log('inside2', showChar);
+            console.log('inside2', infoData);
         }
         if (close && showChar) {
             setShowChar(false);
@@ -380,26 +520,34 @@ const InprocessInspection = ({ route }) => {
     const handleShowCharInfo = () => {
         setShowCharInfo(!showCharInfo);
     };
+    const handleFinalConfirmYesPress = () => {
+        setSelectedData(pre => ({ ...pre, CSampleSize: userUpdateValue.CSampleSize }));
+        setFinalConfirmation(false);
+        setTypeOfModal('');
+    };
 
     const handleConfirmYesPress = () => {
         if (typeOfModal == 'samplesize') {
             let sampleEnterdSize = masterData.filter(x => x?.value != '')?.length;
             if (userUpdateValue.CSampleSize < sampleEnterdSize) {
                 setShowConfirmModal(false);
-                setTypeOfModal('');
-                showMessage({
-                    message: 'Something went wrong',
-                    backgroundColor: COLORS.ERROR,
-                    color: COLORS.white,
-                    duration: 1500,
-                    statusBarHeight: 40,
-                    icon: 'warning',
-                    position: 'right',
-                    style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
-                });
-                setUserUpdateValue(pre => ({ ...pre, CSampleSize: selectedData.CSampleSize.toString() }));
+                setFinalConfirmation(true);
+                // setTypeOfModal('');
+                // showMessage({
+                //     message: 'Something went wrong',
+                //     backgroundColor: COLORS.ERROR,
+                //     color: COLORS.white,
+                //     duration: 1500,
+                //     statusBarHeight: 40,
+                //     icon: 'warning',
+                //     position: 'right',
+                //     style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+                // });
+                // setUserUpdateValue(pre => ({ ...pre, CSampleSize: selectedData.CSampleSize.toString() }));
             } else {
-                setSelectedData(pre => ({ ...pre, CSampleSize: userUpdateValue.CSampleSize }));
+                let temp = JSON.parse(JSON.stringify(userUpdateValue.charInfo));
+                let updatedtemp = temp.map(item => (item.PropertyName === 'CSampleSize' ? { ...item, Value: userUpdateValue.CSampleSize } : item));
+                setSelectedData(pre => ({ ...pre, CSampleSize: userUpdateValue.CSampleSize, charInfo: updatedtemp }));
                 setShowConfirmModal(false);
                 setTypeOfModal('');
             }
@@ -415,17 +563,25 @@ const InprocessInspection = ({ route }) => {
                     statusBarHeight: 40,
                     icon: 'warning',
                     position: 'right',
-                    style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+                    style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : { paddingTop: insets.top },
                 });
-                setUserUpdateValue(pre => ({ ...pre, CHighValue: selectedData.CHighValue.toString() }));
+                let temp = JSON.parse(JSON.stringify(userUpdateValue.charInfo));
+                let updatedtemp = temp.map(item =>
+                    item.PropertyName === 'CHighValue' ? { ...item, Value: selectedData.CHighValue.toString() } : item,
+                );
+                setUserUpdateValue(pre => ({ ...pre, CHighValue: selectedData.CHighValue.toString(), charInfo: updatedtemp }));
             } else {
-                setSelectedData(pre => ({ ...pre, CHighValue: userUpdateValue.CHighValue }));
+                let temp = JSON.parse(JSON.stringify(userUpdateValue.charInfo));
+                let updatedtemp = temp.map(item => (item.PropertyName === 'CHighValue' ? { ...item, Value: userUpdateValue.CHighValue } : item));
+                setSelectedData(pre => ({ ...pre, CHighValue: userUpdateValue.CHighValue, charInfo: updatedtemp }));
                 setShowConfirmModal(false);
                 setTypeOfModal('');
             }
         } else if (typeOfModal == 'lowvalue') {
             if (Number(selectedData.CHighValue) >= Number(userUpdateValue.CLowValue)) {
-                setSelectedData(pre => ({ ...pre, CLowValue: userUpdateValue.CLowValue }));
+                let temp = JSON.parse(JSON.stringify(userUpdateValue.charInfo));
+                let updatedtemp = temp.map(item => (item.PropertyName === 'CLowValue' ? { ...item, Value: userUpdateValue.CLowValue } : item));
+                setSelectedData(pre => ({ ...pre, CLowValue: userUpdateValue.CLowValue, charInfo: updatedtemp }));
                 setShowConfirmModal(false);
                 setTypeOfModal('');
             } else {
@@ -439,24 +595,32 @@ const InprocessInspection = ({ route }) => {
                     statusBarHeight: 40,
                     icon: 'warning',
                     position: 'right',
-                    style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+                    style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : { paddingTop: insets.top },
                 });
-                setUserUpdateValue(pre => ({ ...pre, CLowValue: selectedData.CLowValue.toString() }));
+                let temp = JSON.parse(JSON.stringify(userUpdateValue.charInfo));
+                let updatedtemp = temp.map(item =>
+                    item.PropertyName === 'CLowValue' ? { ...item, Value: selectedData.CLowValue.toString() } : item,
+                );
+                setUserUpdateValue(pre => ({ ...pre, CLowValue: selectedData.CLowValue.toString(), charInfo: updatedtemp }));
             }
         } else if (typeOfModal == 'spec') {
-            setSelectedData(pre => ({ ...pre, CTolerance: userUpdateValue.CTolerance }));
+            let temp = JSON.parse(JSON.stringify(userUpdateValue.charInfo));
+            let updatedtemp = temp.map(item => (item.PropertyName === 'CTolerance' ? { ...item, Value: userUpdateValue.CTolerance } : item));
+            setSelectedData(pre => ({ ...pre, CTolerance: userUpdateValue.CTolerance, charInfo: updatedtemp }));
             setShowConfirmModal(false);
             setTypeOfModal('');
         }
     };
+    console.log(masterData.filter(x => x?.value != '')?.length, 'masterData');
     return (
         <CustomHeader
             title={renderHeader(inspectData.intInspectionTypeID)}
             activeTabId={2}
             showIcons={false}
-            showFileIcon={false}
+            showFileIcon={true}
             handleFileIconPress={() => {
-                setShowFilePage(true);
+                // setShowFilePage(true);
+                setShowFileModal(true);
             }}
             customBackHandler={true}
             customHandleGoBack={() => {
@@ -548,7 +712,12 @@ const InprocessInspection = ({ route }) => {
                                 // }
                             }}>
                             <Text style={[styles.headerText]}>Characteristics Info</Text>
-                            <TouchableOpacity onPress={handleShowCharInfo}>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    if (selectedData?.isSamplePopup) {
+                                        handleShowCharInfo();
+                                    }
+                                }}>
                                 <Icon name={showCharInfo ? 'down' : 'right'} size={20} color={COLORS.moreIcon} />
                             </TouchableOpacity>
                         </View>
@@ -621,7 +790,28 @@ const InprocessInspection = ({ route }) => {
                         <View>
                             <Text style={[styles.modalText]}>There are unsaved changes. Do you want to save them?</Text>
                         </View>
-                        <View style={[styles.modalBtnContainer]}>
+                        <View style={[styles.btnStyle]}>
+                            <ButtonComponent
+                                danger={true}
+                                style={{ height: 30, width: 100, marginRight: 20 }}
+                                onPress={() => {
+                                    nextSave ? handleBackPress() : handleNextItem();
+                                }}
+                                textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}>
+                                No
+                            </ButtonComponent>
+                            <ButtonComponent
+                                success={true}
+                                style={{ height: 30, width: 100 }}
+                                onPress={async () => {
+                                    await handleSavePress(nextSave);
+                                }}
+                                textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}>
+                                {' '}
+                                Yes
+                            </ButtonComponent>
+                        </View>
+                        {/* <View style={[styles.modalBtnContainer]}>
                             <View style={[styles.modalBtn]}>
                                 <ButtonComponent
                                 textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}
@@ -640,7 +830,7 @@ const InprocessInspection = ({ route }) => {
                                     yes
                                 </ButtonComponent>
                             </View>
-                        </View>
+                        </View> */}
                     </View>
                 </Modal>
             )}
@@ -654,14 +844,93 @@ const InprocessInspection = ({ route }) => {
                             CHighValue: selectedData.CHighValue,
                             CLowValue: selectedData.CLowValue,
                             CTolerance: selectedData.CTolerance,
+                            charInfo: selectedData.charInfo,
                         }));
                         setShowConfirmModal(false);
                         setTypeOfModal('');
+                        // setSelectedData((pre) => ({ ...pre, CSampleSize: userUpdateValue.CSampleSize }));
                     }}
                     handleYesPress={() => {
                         handleConfirmYesPress();
                     }}
                     typeOfModal={typeOfModal}
+                />
+            )}
+            {Boolean(showFileModal) && (
+                <OfflineFileViewModal
+                    visible={showFileModal}
+                    list={inspectData?.attachments || []}
+                    onDismiss={() => {
+                        setShowFileModal(false);
+                    }}
+                />
+            )}
+            {Boolean(finalConfirmation) && (
+                <ConfirmationModal
+                    visible={finalConfirmation}
+                    handleClose={() => {
+                        setUserUpdateValue(pre => ({
+                            ...pre,
+                            CSampleSize: selectedData.CSampleSize,
+                            CHighValue: selectedData.CHighValue,
+                            CLowValue: selectedData.CLowValue,
+                            CTolerance: selectedData.CTolerance,
+                            charInfo: selectedData.charInfo,
+                        }));
+                        setFinalConfirmation(false);
+                        setTypeOfModal('');
+                    }}
+                    content={`You've already entered ${
+                        masterData.filter(x => x?.value != '')?.length || ''
+                    } samples value. Do you want to continue and change it`}
+                    handleYesPress={() => {
+                        handleFinalConfirmYesPress();
+                    }}
+                    typeOfModal={typeOfModal}
+                    showType={false}
+                />
+            )}
+            {Boolean(showFileModal) && (
+                <OfflineFileViewModal
+                    visible={showFileModal}
+                    list={inspectData?.attachments || []}
+                    onDismiss={() => {
+                        setShowFileModal(false);
+                    }}
+                />
+            )}
+            {Boolean(finalConfirmation) && (
+                <ConfirmationModal
+                    visible={finalConfirmation}
+                    handleClose={() => {
+                        setUserUpdateValue(pre => ({
+                            ...pre,
+                            CSampleSize: selectedData.CSampleSize,
+                            CHighValue: selectedData.CHighValue,
+                            CLowValue: selectedData.CLowValue,
+                            CTolerance: selectedData.CTolerance,
+                            charInfo: selectedData.charInfo,
+                        }));
+                        setFinalConfirmation(false);
+                        setTypeOfModal('');
+                    }}
+                    content={`You've already entered ${
+                        masterData.filter(x => x?.value != '')?.length || ''
+                    } samples value. Do you want to continue and change it`}
+                    handleYesPress={() => {
+                        handleFinalConfirmYesPress();
+                    }}
+                    typeOfModal={typeOfModal}
+                    showType={false}
+                />
+            )}
+            {Boolean(showFileModal) && (
+                <OfflineFileViewModal
+                    visible={showFileModal}
+                    list={inspectData?.attachments || []}
+                    onDismiss={() => {
+                        setShowFileModal(false);
+                    }}
                 />
             )}
         </CustomHeader>
@@ -790,6 +1059,11 @@ const styles = StyleSheet.create({
         flex: 1,
         flexDirection: 'column',
         justifyContent: 'flex-end',
+    },
+    btnStyle: {
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
+        padding: 10,
     },
 });
 

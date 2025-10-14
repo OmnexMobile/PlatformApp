@@ -5,7 +5,14 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Divider, Modal } from 'react-native-paper';
 
-const ConfirmationModal = ({ visible = false, handleClose = () => {}, handleYesPress = () => {}, typeOfModal = '' }) => {
+const ConfirmationModal = ({
+    visible = false,
+    handleClose = () => {},
+    handleYesPress = () => {},
+    typeOfModal = '',
+    content = 'Do you want to Update the',
+    showType = true,
+}) => {
     const retunText = text => {
         switch (typeOfModal) {
             case 'samplesize':
@@ -32,10 +39,13 @@ const ConfirmationModal = ({ visible = false, handleClose = () => {}, handleYesP
                 <Text style={[styles.deleteHeader]}>Confirm</Text>
                 <View style={[styles.contentContainer]}>
                     <Divider />
-                    <Text style={[styles.contentText]}>Do you want to Update the {retunText(typeOfModal)} ?</Text>
+                    <Text style={[styles.contentText]}>
+                        {content} {showType && retunText(typeOfModal)} ?
+                    </Text>
                 </View>
                 <View style={[styles.btnStyle]}>
                     <ButtonComponent
+                        danger={true}
                         textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}
                         style={{ height: 30, width: RFPercentage(10), marginRight: 10 }}
                         onPress={() => {
@@ -44,6 +54,7 @@ const ConfirmationModal = ({ visible = false, handleClose = () => {}, handleYesP
                         No
                     </ButtonComponent>
                     <ButtonComponent
+                        success={true}
                         textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}
                         style={{ height: 30, width: RFPercentage(10) }}
                         onPress={() => {
@@ -70,7 +81,7 @@ const styles = StyleSheet.create({
     deleteHeader: {
         color: COLORS.black,
         fontFamily: 'OpenSans-SemiBold',
-        fontSize: RFPercentage(2.3),
+        fontSize: 22,
         padding: 10,
     },
     contentContainer: {
@@ -79,7 +90,7 @@ const styles = StyleSheet.create({
     contentText: {
         color: COLORS.black,
         fontFamily: 'OpenSans-SemiBold',
-        fontSize: RFPercentage(1.9),
+        fontSize: 19,
         paddingVertical: 15,
     },
     btnStyle: {

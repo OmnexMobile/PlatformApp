@@ -22,6 +22,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { PaperProvider } from 'react-native-paper';
 import { PersistGate } from 'redux-persist/integration/react';
 import { persistor } from 'store';
+import { createInspectTable  } from 'store/database/inspectStorage';
 
 setupInterceptors();
 
@@ -42,6 +43,13 @@ const Parent = () => {
             });
         }
     };
+
+    useEffect(() => {
+        (async () => {
+            await createInspectTable();
+        })();
+    }, []);
+    
     useEffect(() => {
         checkWarning();
     }, [isInternetReachable]);

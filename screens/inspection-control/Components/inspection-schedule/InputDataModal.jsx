@@ -1,12 +1,11 @@
 import { RadioButton } from 'components';
 import { COLORS } from 'constants/theme-constants';
 import React, { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import { Divider, HelperText, Modal } from 'react-native-paper';
-import { RFPercentage } from 'react-native-responsive-fontsize';
 import SingleDropDown from '../SingleDropDown';
 import DynamicDropDown from '../DynamicDropDown';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { Bubbles } from 'react-native-loader';
 import { showMessage } from 'react-native-flash-message';
 import { postAPI } from 'global/api-helpers';
@@ -14,7 +13,10 @@ import ApiUrl from 'global/ApiUrl';
 import AsyncStorage from '@react-native-community/async-storage';
 import moment from 'moment';
 import uuid from 'react-native-uuid';
-import { isArray } from 'underscore';
+import { addInspectionData } from 'store/database/inspectStorage';
+import Icon from 'react-native-vector-icons/AntDesign';
+import SamplingModal from './SamplingModal';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const errorObj = {
     shift: false,
@@ -31,10 +33,11 @@ const InputDataModal = ({
     shiftData = [],
     userData = {},
     handleSubmitPress = () => {},
+    selectedSite = {},
 }) => {
-    console.log(shiftData, 'shiftData');
-    const dispatch = useDispatch();
-
+    const insets = useSafeAreaInsets();
+    const { width } = useWindowDimensions();
+    const isTablet = width >= 768;
     const { icSettings } = useSelector(state => state.inspection);
     const [formFields, setFormFields] = useState({
         shift: null,
@@ -51,13 +54,18 @@ const InputDataModal = ({
     const [isEditableField, setIsEditableField] = useState({
         lotNo: true,
     });
+    const [btndisabled, setBtnDisabled] = useState(false);
+    console.log(formFields.shift, 'ecev');
+    // this State is for the Sampling pages fields
+    const [showSamplingModal, setShowSamplingModal] = useState(false);
+
     useEffect(() => {
-      const currentShift =  getCurrentShift(shiftData)
-      if(currentShift){
-        setFormFields({...formFields, shift: currentShift})
-      } 
+        const currentShift = getCurrentShift(shiftData);
+        if (currentShift) {
+            setFormFields({ ...formFields, shift: currentShift });
+        }
     }, [shiftData]);
-    const getCurrentShift = (shifts) => {
+    const getCurrentShift = shifts => {
         const now = moment(); // current time
 
         return shifts.find(shift => {
@@ -80,6 +88,7 @@ const InputDataModal = ({
         formData.append('strId', selectedValue?.ProductionItemId);
         formData.append('strOperationId', selectedValue?.OperationID);
         formData.append('intUserID', userData?.UserId);
+        formData.append('SiteId', userData?.Siteid);
         const response = await postAPI(`${ApiUrl.IC_FRQ_FORM}`, formData);
         if (response.Success) {
             if (response?.Data?.length) {
@@ -100,12 +109,14 @@ const InputDataModal = ({
         }
         return true;
     };
-    const getResponsibleList = async () => {
+    const getResponsibleList = async freq => {
+        setBtnDisabled(true);
         const formData = new FormData();
         formData.append('strUserID', userData?.UserId);
         formData.append('strOperationID', selectedValue?.OperationID);
         formData.append('strProductionitemID', selectedValue?.ProductionItemId);
-        formData.append('strFrequencyID', '');
+        formData.append('strFrequencyID', freq.FrequencyId);
+        formData.append('SiteId', userData?.Siteid);
         const response = await postAPI(`${ApiUrl.IC_RESPONSIBLE_PERSON}`, formData);
         if (response.length) {
             let temp = [];
@@ -113,23 +124,43 @@ const InputDataModal = ({
                 temp.push({
                     label: item?.Name,
                     value: item?.Code,
+                    isChecked: false,
                     ...item,
                 });
             });
             setResList(temp);
+            if (temp?.length) {
+                if (icSettings?.IsRespPartyMultiSelect) {
+                    let updateisChecked = temp.map(item => ({ ...item, isChecked: true }));
+                    setFormFields({ ...formFields, frequency: freq, responsible: [...updateisChecked] });
+                    setResList(updateisChecked);
+                } else {
+                    let updateisChecked = temp.map((item, index) => ({
+                        ...item,
+                        isChecked: index == 0 ? true : false,
+                    }));
+                    setFormFields({ ...formFields, frequency: freq, responsible: [updateisChecked[0]] });
+                    setResList(updateisChecked);
+                }
+            }
         } else {
             setResList([]);
         }
+        setBtnDisabled(false);
         return true;
     };
     const getPageApi = async () => {
         await getFrequencyList();
-        await getResponsibleList();
+        // await getResponsibleList();
         setShowLoader(false);
     };
     useEffect(() => {
         if (Object.keys(selectedValue).length && Object.keys(userData).length) {
-            setFormFields(pre => ({ ...pre, lotNumber: selectedValue?.LotNo, lotQty: selectedValue?.ProductionQty?.toString() }));
+            setFormFields(pre => ({
+                ...pre,
+                lotNumber: selectedValue?.LotNo,
+                lotQty: selectedValue?.LotSize == 0 ? '1' : selectedValue?.LotSize?.toString(),
+            }));
             if (selectedValue?.LotNo) {
                 setIsEditableField(pre => ({ ...pre, lotNo: false }));
             }
@@ -137,6 +168,7 @@ const InputDataModal = ({
         }
     }, [selectedValue, userData]);
     const handleInputChange = (key, value) => {
+        console.log('called');
         setFormFields(pre => ({ ...pre, [key]: value }));
     };
     const handleValidation = () => {
@@ -166,9 +198,30 @@ const InputDataModal = ({
         setErrorList(errorobj);
         return Object.values(errorobj).every(item => item == false);
     };
+    const getAllFiles = async () => {
+        const formData = new FormData();
+        formData.append('operationId', selectedValue?.OperationID);
+        formData.append('productionItemH', selectedValue?.ProductionItemId);
+        const response = await postAPI(ApiUrl.IC_GET_ATTACHEMENTS, formData);
+        if (response.Success) {
+            return response.Data || [];
+        } else {
+            return [];
+        }
+    };
+    const handlePopupNeed = data => {
+        return data.map(item => {
+            const hasActualValue = Array.isArray(item.charInfo) && item.charInfo.some(c => c.PropertyName === 'ActualValue');
+            return {
+                ...item,
+                isSamplePopup: hasActualValue,
+            };
+        });
+    };
     const handleSubmitBtnPress = async () => {
         const result = handleValidation();
         if (result) {
+            setShowLoader(true);
             const deviceId = await AsyncStorage.getItem('deviceid');
             const formData = new FormData();
             formData.append('OrderDetailsId', selectedValue?.OrderDetailsId);
@@ -233,7 +286,7 @@ const InputDataModal = ({
             formData.append('Shift', formFields?.shift?.ShiftName || '');
             formData.append('FrequencyID', formFields?.frequency?.FrequencyId || '');
             formData.append('SampleFrequency', formFields?.frequency?.SampleFrequency || '');
-            formData.append('ProductionQty', selectedValue?.ProductionQty || '');
+            formData.append('ProductionQty', selectedValue?.LotSize || '');
 
             formData.append('Executor', formFields.responsible.length > 0 ? formFields.responsible.map(item => item.Name).join(';') : ''); // responsible party
             // need to update asper API change
@@ -247,6 +300,7 @@ const InputDataModal = ({
 
             const response = await postAPI(ApiUrl.IC_FORM_SUBMIT, formData);
             if (response.Success) {
+                const attachments = await getAllFiles();
                 const { shift, lotNumber, lotQty, frequency, receiptNumber } = formFields;
                 let InspectionID = '';
                 if (response.VariableCharacteristics.length > 0) {
@@ -254,34 +308,35 @@ const InputDataModal = ({
                 } else if (response.AttributeCharacteristics.length > 0) {
                     InspectionID = response.AttributeCharacteristics[0].InspectionID;
                 }
-
-                dispatch({
-                    type: 'INSPECT_LIST',
-                    inspectList: [
-                        {
-                            uniqueId: uuid.v4(),
-                            FormId: selectedValue?.FormId,
-                            OperationID: selectedValue?.OperationID,
-                            intProductionItemID: selectedValue?.ProductionItemId,
-                            strProductionItemName: selectedValue?.ProductionItem,
-                            intShiftID: shift?.ShiftID,
-                            strShiftName: shift?.ShiftName,
-                            strOperationName: selectedValue.OperationName,
-                            strFrequencyName: frequency?.SampleFrequency,
-                            intInspectionTypeID: selectedValue?.TypeOfInspection,
-                            strInspectionType: selectedValue.InspectionType,
-                            strLotNo: lotNumber,
-                            intInspectionID: selectedValue?.ProductionItemId,
-                            receiptNumber: receiptNumber,
-                            GeneralInfo: response.GeneralInfo,
-                            VariableCharacteristics: response.VariableCharacteristics,
-                            AttributeCharacteristics: response.AttributeCharacteristics,
-                            OrderDetailsId: selectedValue?.OrderDetailsId,
-                            InspectionEntryDetailsID: response?.Data || '',
-                            InspectionID: InspectionID,
-                        },
-                    ],
-                });
+                const updatedVar = handlePopupNeed(response.VariableCharacteristics);
+                const updatedAtt = handlePopupNeed(response.AttributeCharacteristics);
+                let inspectObj = {
+                    uniqueId: uuid.v4(),
+                    FormId: selectedValue?.FormId,
+                    OperationID: selectedValue?.OperationID,
+                    intProductionItemID: selectedValue?.ProductionItemId,
+                    strProductionItemName: selectedValue?.ProductionItem,
+                    intShiftID: shift?.ShiftID,
+                    strShiftName: shift?.ShiftName,
+                    strOperationName: selectedValue.OperationName,
+                    strFrequencyName: frequency?.SampleFrequency,
+                    intInspectionTypeID: selectedValue?.TypeOfInspection,
+                    strInspectionType: selectedValue.InspectionType,
+                    strLotNo: lotNumber,
+                    intInspectionID: selectedValue?.ProductionItemId,
+                    receiptNumber: receiptNumber,
+                    GeneralInfo: response.GeneralInfo,
+                    VariableCharacteristics: updatedVar,
+                    AttributeCharacteristics: updatedAtt,
+                    OrderDetailsId: selectedValue?.OrderDetailsId,
+                    InspectionEntryDetailsID: response?.Data || '',
+                    InspectionID: InspectionID,
+                    userType: 'Inspector',
+                    attachments: attachments,
+                    userId: selectedSite?.UserId,
+                    siteId: selectedSite?.Siteid,
+                };
+                await addInspectionData(selectedSite?.UserId, selectedSite?.Siteid, inspectObj.uniqueId, inspectObj);
                 showMessage({
                     message: 'Form Downloaded Successfully',
                     backgroundColor: COLORS.SUCCESS,
@@ -290,7 +345,7 @@ const InputDataModal = ({
                     statusBarHeight: 40,
                     icon: 'success',
                     position: 'right',
-                    style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+                    style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : { paddingTop: insets.top },
                 });
                 handleSubmitPress(selectedValue);
                 hideModal();
@@ -303,10 +358,11 @@ const InputDataModal = ({
                     statusBarHeight: 40,
                     icon: 'warning',
                     position: 'right',
-                    style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+                    style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : { paddingTop: insets.top },
                 });
             }
         }
+        setShowLoader(false);
     };
     return (
         <>
@@ -341,8 +397,13 @@ const InputDataModal = ({
                     <Text style={styles.headertext}>Form Input Data</Text>
                     <Divider />
                     <ScrollView style={[styles.container]} nestedScrollEnabled showsVerticalScrollIndicator={false}>
-                        <View style={[]}>
-                            <View style={[styles.inputContainer]}>
+                        <View
+                            style={{
+                                flexDirection: isTablet ? 'row' : 'column',
+                                flexWrap: 'wrap', // important for tablet
+                                justifyContent: 'space-between',
+                            }}>
+                            <View style={[styles.inputContainer, { width: isTablet ? '48%' : '100%' }]}>
                                 <Text style={styles.inputText}>
                                     Shift <Text style={[styles.rquired]}>*</Text>
                                 </Text>
@@ -367,7 +428,7 @@ const InputDataModal = ({
                                     </HelperText>
                                 )}
                             </View>
-                            <View style={[styles.inputContainer]}>
+                            <View style={[styles.inputContainer, { width: isTablet ? '48%' : '100%' }]}>
                                 <Text style={styles.inputText}>
                                     Lot Number <Text style={[styles.rquired]}>*</Text>
                                 </Text>
@@ -385,7 +446,7 @@ const InputDataModal = ({
                                     </HelperText>
                                 )}
                             </View>
-                            <View style={[styles.inputContainer]}>
+                            <View style={[styles.inputContainer, { width: isTablet ? '48%' : '100%' }]}>
                                 <Text style={styles.inputText}>
                                     Lot Size <Text style={[styles.rquired]}>*</Text>
                                 </Text>
@@ -404,7 +465,7 @@ const InputDataModal = ({
                                 )}
                             </View>
                             {Boolean(icSettings?.IsRefNo) && (
-                                <View style={[styles.inputContainer]}>
+                                <View style={[styles.inputContainer, { width: isTablet ? '48%' : '100%' }]}>
                                     <Text style={styles.inputText}>Serial Number</Text>
                                     <TextInput
                                         style={[styles.inputBox, { backgroundColor: COLORS.icborder }]}
@@ -414,7 +475,7 @@ const InputDataModal = ({
                                 </View>
                             )}
                             {Boolean(selectedValue.TypeOfInspection == 1) && (
-                                <View style={[styles.inputContainer]}>
+                                <View style={[styles.inputContainer, { width: isTablet ? '48%' : '100%' }]}>
                                     <Text style={styles.inputText}>
                                         Receipt Number <Text style={[styles.rquired]}>*</Text>
                                     </Text>
@@ -432,7 +493,7 @@ const InputDataModal = ({
                                     )}
                                 </View>
                             )}
-                            <View style={[styles.inputContainer]}>
+                            <View style={[styles.inputContainer, { width: isTablet ? '48%' : '100%' }]}>
                                 <Text style={styles.inputText}>
                                     Choose Frequency {Boolean(selectedValue.TypeOfInspection == 2) && <Text style={[styles.rquired]}>*</Text>}
                                 </Text>
@@ -446,8 +507,11 @@ const InputDataModal = ({
                                     borderColor={COLORS.icBottomBox}
                                     showSearch={false}
                                     maxHeight={200}
-                                    onChange={val => {
+                                    onChange={async val => {
                                         handleInputChange('frequency', val);
+                                        if (Boolean(selectedValue.TypeOfInspection == 2)) {
+                                            await getResponsibleList(val);
+                                        }
                                     }}
                                 />
                                 {Boolean(errorList.frequency) && (
@@ -456,9 +520,12 @@ const InputDataModal = ({
                                     </HelperText>
                                 )}
                             </View>
-                            {Boolean(icSettings.IsRespPartyBasedOnTeam) && Boolean(selectedValue.TypeOfInspection == 2) && (
-                                <View style={[styles.inputContainer]}>
-                                    <Text style={styles.inputText}>Responsible Person</Text>
+                            {Boolean(selectedValue.TypeOfInspection == 2) && (
+                                <View style={[styles.inputContainer, { width: isTablet ? '48%' : '100%' }]}>
+                                    <View style={{ flexDirection: 'row' }}>
+                                        <Text style={styles.inputText}>Responsible Person</Text>
+                                        {Boolean(btndisabled) && <ActivityIndicator style={{ marginLeft: 5 }} size="small" color={COLORS.apptheme} />}
+                                    </View>
                                     <DynamicDropDown
                                         isMultiSelect={icSettings?.IsRespPartyMultiSelect}
                                         list={resList || []}
@@ -469,14 +536,24 @@ const InputDataModal = ({
                                     />
                                 </View>
                             )}
+                            {/* <View style={[styles.inputContainer, { width: isTablet ? '48%' : '100%' }]}>
+                                <View style={[styles.row]}>
+                                    <Text style={styles.inputText}>Inspection Mode</Text>
+                                    <TouchableOpacity style={{ paddingHorizontal: 10 }} onPress={() => setShowSamplingModal(true)}>
+                                        <Icon name="edit" size={20} color={COLORS.apptheme} />
+                                    </TouchableOpacity>
+                                </View>
+                                <TextInput style={[styles.inputBox]} value={'Normal'} editable={false} />
+                            </View> */}
                         </View>
                     </ScrollView>
                     <Divider />
                     <View style={styles.btnConatiner}>
-                        <TouchableOpacity style={styles.cancelConatiner} onPress={hideModal}>
+                        <TouchableOpacity disabled={btndisabled} style={styles.cancelConatiner} onPress={hideModal}>
                             <Text style={styles.btnStyle}>CANCEL</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
+                            disabled={btndisabled}
                             style={styles.cancelConatiner}
                             onPress={() => {
                                 handleSubmitBtnPress();
@@ -486,6 +563,7 @@ const InputDataModal = ({
                     </View>
                 </Modal>
             )}
+            {Boolean(showSamplingModal) && <SamplingModal visible={showSamplingModal} handleClose={() => setShowSamplingModal(false)} />}
         </>
     );
 };
@@ -496,7 +574,7 @@ const styles = StyleSheet.create({
     },
     headertext: {
         fontFamily: 'OpenSans-SemiBold',
-        fontSize: RFPercentage(2),
+        fontSize: 20,
         paddingBottom: 12,
         color: '#000',
     },
@@ -523,7 +601,7 @@ const styles = StyleSheet.create({
     btnStyle: {
         color: COLORS.apptheme,
         fontFamily: 'OpenSans-Bold',
-        fontSize: RFPercentage(1.8),
+        fontSize: 16,
     },
     rquired: {
         color: COLORS.ERROR,
@@ -535,6 +613,10 @@ const styles = StyleSheet.create({
     errorStyle: {
         color: COLORS.ERROR,
         marginBottom: -5,
+    },
+    row: {
+        flexDirection: 'row',
+        alignItems: 'center',
     },
 });
 

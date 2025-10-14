@@ -1,5 +1,5 @@
 import { ButtonComponent, CheckBox, RadioButton, TextComponent } from 'components';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import CustomHeader from '../Components/CustomHeader';
 import { FlatList, Platform, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { COLORS } from 'constants/theme-constants';
@@ -15,12 +15,16 @@ import ICCheckBox from '../Components/ICCheckBox';
 import DeleteModal from '../Components/DeleteModal';
 import IcSkeleton from '../Components/IcSkeleton';
 import NoDataFound from '../Components/NoDataFound';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import moment from 'moment';
 import ApiUrl from 'global/ApiUrl';
 import { postAPI } from 'global/api-helpers';
 import { Bubbles } from 'react-native-loader';
 import { showMessage } from 'react-native-flash-message';
+import { deleteInspectionByUniqueId, getInspectionDataByUserAndSite } from 'store/database/inspectStorage';
+import { isArray } from 'underscore';
+import { showErrorMessage } from 'helpers/utils';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const optionsList = [
     {
@@ -56,9 +60,10 @@ const optionsList = [
 ];
 
 const CompletedInspection = () => {
-    const { icUserData, inspectList } = useSelector(state => state.inspection);
-    const inspectionRef = useRef(inspectList);
+    const insets = useSafeAreaInsets();
+    const { icUserData } = useSelector(state => state.inspection);
     const [syncModal, setSyncModal] = useState(false);
+    const [syncList, setSyncList] = useState([...optionsList]);
     const [selectedRadio, setSelectedRadio] = useState({
         id: 1,
         value: 'Sync',
@@ -75,42 +80,42 @@ const CompletedInspection = () => {
     const [disableBtn, setDisableBtn] = useState(false);
 
     const isFocused = useIsFocused();
-    const dispatch = useDispatch();
 
-    // Keep it updated
-    useEffect(() => {
-        inspectionRef.current = inspectList;
-    }, [inspectList, isFocused]);
     const getAllCompletedData = async (showSkt = true) => {
         showSkt && setShowSkeleton(true);
-        const completedList = inspectionRef?.current?.filter(item => item?.status === 'Completed');
+        const inspectList = await getInspectionDataByUserAndSite(icUserData?.userData?.UserId, icUserData?.userData?.Siteid);
+        const completedList = inspectList?.filter(item => item?.status === 'Completed' || item?.status === 'In Progress');
+        // const completedList = inspectList?.filter(item => item?.status === 'Completed' || item?.status === 'In Progress');
         setMasterData(completedList?.length ? completedList : []);
         setShowSkeleton(false);
         setRefreshing(false);
     };
+
     const onRefresh = () => {
         setRefreshing(true);
         getAllCompletedData(false);
     };
-    useEffect(() => {
-        getAllCompletedData();
-    }, [inspectList]);
+    useLayoutEffect(() => {
+        if (isFocused) {
+            getAllCompletedData();
+        }
+    }, [icUserData, isFocused]);
 
-    const handleISbtnpress = () => {
-        navigation.navigate(ROUTES.INSPECTION_SCHEDULE);
-    };
     const handleSyncPress = item => {
         setSyncModal(true);
         setSelectedValue(item);
     };
     const hideModal = () => {
-        setSelectedRadio({
-            id: 1,
-            value: 'Sync',
-            label: 'Sync',
-            Mode: 1,
-        });
-        setSyncModal(false);
+        if (!disableBtn) {
+            setSelectedRadio({
+                id: 1,
+                value: 'Sync',
+                label: 'Sync',
+                Mode: 1,
+            });
+            setSyncModal(false);
+        }
+        setCheckBox(false);
     };
     const handleDeletePress = item => {
         setSelectedValue(item);
@@ -142,7 +147,7 @@ const CompletedInspection = () => {
                 </View>
                 <View style={[styles.lastBox]}>
                     <TouchableOpacity
-                        style={styles.launchCard}
+                        style={[styles.launchCard, { backgroundColor: item.colorCode }]}
                         onPress={() => {
                             handleCompletedPress(item);
                         }}>
@@ -152,6 +157,11 @@ const CompletedInspection = () => {
                         <TouchableOpacity
                             style={{ marginRight: 10 }}
                             onPress={() => {
+                                if (item?.status == 'In Progress') {
+                                    setSyncList([...optionsList.slice(0, 1)]);
+                                } else {
+                                    setSyncList([...optionsList]);
+                                }
                                 setSelectedValue(item);
                                 handleSyncPress(item);
                             }}>
@@ -177,7 +187,7 @@ const CompletedInspection = () => {
                         ContainmentComment: item?.ContainmentComment,
                         Type: 'Value',
                         BackColorForContainment: item?.BackColorForContainment,
-                        FontColorForContainment: '#FFFFFF',
+                        FontColorForContainment: '#000000',
                     });
                 }
             });
@@ -186,24 +196,70 @@ const CompletedInspection = () => {
     };
     const convertSampleList = (templist, type = 'number') => {
         let characteristicDetails = templist.map(item => {
+            // let charInfoObj = {};
+            // if (item.charInfo) {
+            //     // charInfoObj = item.charInfo.reduce((acc, curr) => {
+            //     //     acc[curr.PropertyName] = curr.Value;
+            //     //     return acc;
+            //     // }, {});
+            //     item.charInfo.map(item => {
+            //         if (item.ReferenceName != null) {
+            //             charInfoObj[item.ReferenceName] = item?.Value?.value ? item.Value.value : item.Value;
+            //         } else if (item.ReferenceName == null && item.PropertyName) {
+            //             charInfoObj[item.PropertyName] = item?.Value?.value ? item.Value.value : item.Value;
+            //         }
+            //     });
+            // }
+            const array = item.charInfo;
+
+            // find the index of the target object
+            const index = array.findIndex(x => x.RefData === '##DROPDOWN:DefectPhenomenon##');
+
+            if (index !== -1) {
+                let defectObj = array[index]; // reference to the original object
+
+                if (typeof defectObj.Value === 'string' && defectObj.Value !== '') {
+                    const temp = defectObj.List.find(x => x.value === defectObj.Value);
+                    defectObj = { ...defectObj, Value: temp || '' }; // replace with new object
+                } else if (typeof defectObj.Value === 'object' && defectObj.Value !== null) {
+                    defectObj = { ...defectObj, Value: defectObj.Value };
+                } else {
+                    defectObj = { ...defectObj, Value: '' };
+                }
+
+                // replace in the array
+                array[index] = defectObj;
+            }
+            const charInfoObj = array.reduce((acc, item) => {
+                const key = item.ReferenceName ?? item.PropertyName;
+                acc[key] = item.RefData === '##DROPDOWN:DefectPhenomenon##' ? item.Value : item?.Value?.value ? item.Value.value : item.Value;
+                return acc;
+            }, {});
+
+            Object.entries(charInfoObj).forEach(([key, value]) => {
+                item[key] = value; // update if exists, add if not
+            });
+
             const samples = item.Samples || [];
             let actualValue = null;
             if (type === 'number') {
                 // Filter only valid numeric values
                 // const numericValues = samples.map(s => parseFloat(s.FunctionValue)).filter(val => !isNaN(val));
                 const notOkSample = samples.filter(x => x?.backColor == '#FF0100');
-                const finalNotOkaySample = notOkSample?.length
-                    ? notOkSample[notOkSample.length - 1].FunctionValue
-                    : samples[samples.length - 1].FunctionValue;
+                const finalNotOkaySample = notOkSample.length
+                    ? notOkSample[notOkSample.length - 1]?.FunctionValue
+                    : samples?.length
+                    ? samples[samples.length - 1]?.FunctionValue
+                    : '';
                 // Use Math.min only if numericValues has at least one number
                 actualValue = finalNotOkaySample;
             } else {
                 // For string values: return first non-"ok" FunctionValue
                 actualValue = 'ok';
                 for (const sample of samples) {
-                    const val = sample.FunctionValue?.toLowerCase();
+                    const val = sample?.FunctionValue?.toLowerCase();
                     if (val && val !== 'ok') {
-                        actualValue = sample.FunctionValue;
+                        actualValue = sample?.FunctionValue;
                         break;
                     }
                 }
@@ -211,15 +267,17 @@ const CompletedInspection = () => {
             return {
                 ...item,
                 Samples: undefined,
+                charInfo: undefined,
                 ActualValue: actualValue !== Infinity ? String(actualValue) : '',
                 ID: String(item.ID || ''),
-                ...(item?.DefectsValue &&
-                    Object.keys(item?.DefectsValue)?.length && {
+                ...(item?.DefectPhenomenon &&
+                    Object.keys(item?.DefectPhenomenon)?.length && {
                         Case: 'DEFECTPHENOMENON',
-                        StrID: item?.DefectsValue.ID,
-                        Name: 'CustomInspectionCharacteristicsV',
+                        StrID: item?.DefectPhenomenon?.ID,
+                        Name: type === 'number' ? 'CustomInspectionCharacteristicsV' : 'CustomInspectionCharacteristics',
                         Topic: 'DefectPhenomenon',
                     }),
+                DefectPhenomenon: item?.DefectPhenomenon ? item?.DefectPhenomenon?.value : undefined,
                 samples: samples.map(sample => ({
                     sampleName: String(sample.sampleName || ''),
                     data: {
@@ -232,7 +290,7 @@ const CompletedInspection = () => {
                         EnteredDate: sample.EnteredDate,
                         IsApproved: sample.IsApproved,
                         IsNumericSample: sample.IsNumericSample,
-                        IsRejected: sample.IsRejected,
+                        IsRejected: sample.backColor === '#00FF00' ? 0 : 1,
                         Comments: sample.Comments,
                         ...(sample?.ContainmentActions &&
                             sample?.ContainmentActions?.length > 0 && { ContainmentActions: createConatinmentList(sample?.ContainmentActions) }),
@@ -249,7 +307,7 @@ const CompletedInspection = () => {
             ...convertSampleList(selectedValue.AttributeCharacteristics, 'char'),
         ];
         const updatedGeneralInfo = selectedValue.GeneralInfo.map(item => {
-            if (item.DisplayName === 'Approver' && typeof item.Value === 'object' && item.Value !== null) {
+            if ((item.DisplayName === 'Supervisor' || item.StaticText === 'Approver') && typeof item.Value === 'object' && item.Value !== null) {
                 return {
                     ...item,
                     Value: item.Value.value,
@@ -257,6 +315,16 @@ const CompletedInspection = () => {
                     StrID: item.Value.ID,
                     Name: 'CustomInspection',
                     Topic: 'Supervisor',
+                };
+            } else if (
+                item.DisplayName !== 'Supervisor' &&
+                item.DisplayName !== 'Approver' &&
+                typeof item.Value === 'object' &&
+                item.Value === null
+            ) {
+                return {
+                    ...item,
+                    Value: item.Value.value,
                 };
             }
             return item;
@@ -266,6 +334,7 @@ const CompletedInspection = () => {
             InspectedDate: moment(new Date()).format('MM/DD/YYYY hh:mm:ss A'),
             characteristicDetails: templist,
             GeneralInfo: updatedGeneralInfo,
+            SiteId: icUserData?.userData?.Siteid,
             Status: [
                 {
                     UserId: icUserData?.userData?.UserId,
@@ -279,13 +348,22 @@ const CompletedInspection = () => {
             ],
         };
         const response = await postAPI(selectedValue.intInspectionTypeID == '2' ? ApiUrl.IC_INPROCESS_SINGLE_SYNC : ApiUrl.IC_SINGLE_SYNC, payLoad);
-        if (response?.insertedCount) {
+        if (response?.insertedSamples) {
             setSyncModal(false);
-            dispatch({
-                type: 'REMOVE_INSPECT_LIST',
-                inspectionToRemove: selectedValue,
+            const flag = await deleteInspectionByUniqueId(selectedValue.uniqueId);
+            showMessage({
+                message: 'Inspection synced successfully',
+                backgroundColor: COLORS.SUCCESS,
+                color: COLORS.white,
+                duration: 1500,
+                statusBarHeight: 40,
+                icon: 'success',
+                position: 'right',
+                style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : { paddingTop: insets.top },
             });
-            getAllCompletedData(true);
+            if (flag) {
+                getAllCompletedData(true);
+            }
         } else {
             showMessage({
                 message: 'Something went wrong',
@@ -295,10 +373,19 @@ const CompletedInspection = () => {
                 statusBarHeight: 40,
                 icon: 'warning',
                 position: 'right',
-                style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+                style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : { paddingTop: insets.top },
             });
         }
         setDisableBtn(false);
+    };
+    const handleSingleDeletePress = async () => {
+        const flag = await deleteInspectionByUniqueId(selectedValue.uniqueId);
+        if (flag) {
+            setShowDelete(false);
+            getAllCompletedData(false);
+        } else {
+            showErrorMessage('Error deleting inspection');
+        }
     };
     return (
         <CustomHeader title="Completed Inspection" activeTabId={3} handleSyncPress={handleSyncPress}>
@@ -317,16 +404,6 @@ const CompletedInspection = () => {
                     <NoDataFound />
                 )}
             </View>
-            <View style={[styles.btnContainer]}>
-                <ButtonComponent
-                    style={{ height: 40 }}
-                    onPress={() => {
-                        handleISbtnpress();
-                    }}
-                    textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}>
-                    Inspection Schedule
-                </ButtonComponent>
-            </View>
             {Boolean(syncModal) && (
                 <Modal visible={syncModal} onDismiss={hideModal} contentContainerStyle={{ flexDirection: 'row', justifyContent: 'center' }}>
                     <View style={[styles.modalContainer]}>
@@ -339,7 +416,7 @@ const CompletedInspection = () => {
                                 <Text style={styles.headertext}>Choose Sync Options</Text>
                                 <Divider />
                                 <View style={[styles.contentBox]}>
-                                    {optionsList.map(item => {
+                                    {syncList.map(item => {
                                         return (
                                             <View style={{ marginVertical: 10 }} key={item.id}>
                                                 <RadioButtonComponent
@@ -354,15 +431,17 @@ const CompletedInspection = () => {
                                         );
                                     })}
                                 </View>
-                                <View>
-                                    <ICCheckBox
-                                        isChecked={checkBox}
-                                        label="Supervisor Approved"
-                                        onChange={() => {
-                                            setCheckBox(!checkBox);
-                                        }}
-                                    />
-                                </View>
+                                {Boolean(syncList.length > 1) && (
+                                    <View>
+                                        <ICCheckBox
+                                            isChecked={checkBox}
+                                            label="Supervisor Approved"
+                                            onChange={() => {
+                                                setCheckBox(!checkBox);
+                                            }}
+                                        />
+                                    </View>
+                                )}
                             </View>
                         )}
                         <View>
@@ -390,12 +469,7 @@ const CompletedInspection = () => {
                     setShowDelete(false);
                 }}
                 handleYesPress={() => {
-                    dispatch({
-                        type: 'REMOVE_INSPECT_LIST',
-                        inspectionToRemove: selectedValue,
-                    });
-                    setShowDelete(false);
-                    getAllCompletedData(false);
+                    handleSingleDeletePress();
                 }}
             />
         </CustomHeader>
@@ -437,7 +511,6 @@ const styles = StyleSheet.create({
         fontFamily: 'OpenSans-Regular',
     },
     launchCard: {
-        backgroundColor: COLORS.fiBgColor,
         paddingHorizontal: 13,
         paddingVertical: 4,
         borderRadius: 5,
@@ -464,7 +537,7 @@ const styles = StyleSheet.create({
     },
     headertext: {
         fontFamily: 'OpenSans-SemiBold',
-        fontSize: RFPercentage(2.2),
+        fontSize: 22,
         paddingBottom: 12,
         color: COLORS.ictextBlack,
     },
@@ -482,7 +555,7 @@ const styles = StyleSheet.create({
     btnStyle: {
         color: COLORS.apptheme,
         fontFamily: 'OpenSans-SemiBold',
-        fontSize: RFPercentage(1.8),
+        fontSize: 18,
     },
     bubbleBox: {
         minHeight: 300,

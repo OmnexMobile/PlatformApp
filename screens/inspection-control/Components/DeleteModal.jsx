@@ -22,7 +22,8 @@ const DeleteModal = ({ visible = false, handleClose = () => {}, handleYesPress =
                 </View>
                 <View style={[styles.btnStyle]}>
                     <ButtonComponent
-                        style={{ height: 30, width: RFPercentage(10), marginRight: 10 }}
+                        danger={true}
+                        style={{ height: 30, width: 100, marginRight: 10 }}
                         onPress={() => {
                             handleClose();
                         }}
@@ -30,7 +31,8 @@ const DeleteModal = ({ visible = false, handleClose = () => {}, handleYesPress =
                         No
                     </ButtonComponent>
                     <ButtonComponent
-                        style={{ height: 30, width: RFPercentage(10) }}
+                        success={true}
+                        style={{ height: 30, width: 100}}
                         onPress={() => {
                             handleYesPress();
                         }}
@@ -55,7 +57,7 @@ const styles = StyleSheet.create({
     deleteHeader: {
         color: COLORS.black,
         fontFamily: 'OpenSans-SemiBold',
-        fontSize: RFPercentage(2.3),
+        fontSize: 24,
         padding: 10,
     },
     contentContainer: {
@@ -64,7 +66,7 @@ const styles = StyleSheet.create({
     contentText: {
         color: COLORS.black,
         fontFamily: 'OpenSans-SemiBold',
-        fontSize: RFPercentage(1.9),
+        fontSize: 18,
         paddingVertical: 15,
     },
     btnStyle: {

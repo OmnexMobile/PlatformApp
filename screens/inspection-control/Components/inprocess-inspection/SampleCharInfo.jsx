@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { showMessage } from 'react-native-flash-message';
 import InputFilePicker from './InputFilePicker';
 import SingleDropDown from '../SingleDropDown';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const SampleCharInfo = ({
     selectedData = {},
@@ -21,14 +22,43 @@ const SampleCharInfo = ({
     inspectionType = '',
 }) => {
     const [defectList, setDefectList] = useState([]);
-
+    const insets = useSafeAreaInsets();
+    const renderBackGroundColor = (value, type, list) => {
+        if (value === '') {
+            return COLORS.inputBG;
+        }
+        if (type === 'number') {
+            let temphighValue = list.filter(x => x?.RefData === '##HighToleranceValue##')[0]?.Value;
+            let tempLowValue = list.filter(x => x?.RefData === '##LowToleranceValue##')[0]?.Value;
+            let tempTValue = list.filter(x => x?.RefData === '##ATTorVAR##')[0]?.Value;
+            let lowValue = inspectionType == 2 ? Number(tempTValue) - Number(tempLowValue) : tempLowValue;
+            let highValue = inspectionType == 2 ? Number(tempTValue) + Number(temphighValue) : temphighValue;
+            return Number(value) >= Number(lowValue) && Number(value) <= Number(highValue) ? COLORS.SUCCESS : COLORS.ERROR;
+        }
+        return value.toLowerCase() === 'ok' ? COLORS.SUCCESS : COLORS.ERROR;
+    };
     useEffect(() => {
+        let tempCharInfo = Boolean(selectedData?.charInfo?.length)
+            ? selectedData?.charInfo?.map(item => {
+                  if (
+                      item.PropertyName == 'CHighValue' ||
+                      item.PropertyName == 'CLowValue' ||
+                      item.PropertyName == 'CSampleSize' ||
+                      item.PropertyName == 'CTolerance'
+                  ) {
+                      return { ...item, Value: item.Value.toString() || '' };
+                  } else {
+                      return { ...item, Value: item.Value || '' };
+                  }
+              })
+            : [];
         setUserUpdateValue(prev => ({
             ...prev,
             CHighValue: selectedData?.CHighValue.toString() || '',
             CLowValue: selectedData?.CLowValue.toString() || '',
             CSampleSize: selectedData?.CSampleSize.toString() || '',
             CTolerance: selectedData?.CTolerance || '',
+            charInfo: JSON.parse(JSON.stringify(tempCharInfo)) || [],
         }));
         if (selectedData?.DefectPhenomenonList?.length) {
             let temp = [];
@@ -45,8 +75,10 @@ const SampleCharInfo = ({
         }
     }, [selectedData]);
 
-    const handleUserInputChange = (key, val, type, oldValue) => {
-        setUserUpdateValue(pre => ({ ...pre, [key]: val }));
+    const handleUserInputChange = (key, val, type, oldValue, staticKey) => {
+        let temp = JSON.parse(JSON.stringify(userUpdateValue.charInfo));
+        let updatedtemp = temp.map(item => (item.PropertyName === key ? { ...item, Value: val } : item));
+        setUserUpdateValue(pre => ({ ...pre, [staticKey]: val, charInfo: updatedtemp }));
         setTypeOfModal(type);
         if (val !== oldValue) {
             if (val.length && Number(val) > 0) {
@@ -66,232 +98,83 @@ const SampleCharInfo = ({
                         statusBarHeight: 40,
                         icon: 'warning',
                         position: 'right',
-                        style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+                        style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : { paddingTop: insets.top },
                     });
             }
         }
     };
     const handleInputChange = (key, val) => {
-        setSelectedData(pre => ({ ...pre, [key]: val }));
+        let temp = JSON.parse(JSON.stringify(selectedData.charInfo));
+        let updatedtemp = temp.map(item => (item.PropertyName === key ? { ...item, Value: val } : item));
+        setSelectedData(pre => ({ ...pre, [key]: val, charInfo: updatedtemp }));
+    };
+    const handleGetUserUpadedValue = item => {
+        if (item?.PropertyName === 'CHighValue' || item?.RefData === '##HighToleranceValue##') {
+            return userUpdateValue.CHighValue?.toString();
+        } else if (item?.PropertyName === 'CLowValue' || item?.RefData === '##LowToleranceValue##') {
+            return userUpdateValue.CLowValue?.toString();
+        } else if (item?.PropertyName === 'CTolerance' || item?.RefData === '##ATTorVAR##') {
+            return userUpdateValue.CTolerance?.toString();
+        } else if (item?.PropertyName === 'CSampleSize' || item?.RefData === '##SampleSize##' || item.PropertyName.includes('SampleSize')) {
+            return userUpdateValue.CSampleSize?.toString();
+        } else {
+            return item?.Value;
+        }
     };
     return (
         <View style={styles.rowContainer}>
-            <View style={styles.subBox}>
-                <Text style={styles.headerText}>Characteristics No</Text>
-                <TextInput
-                    value={selectedData?.CharacteristicsNumber || ''}
-                    style={[styles.inputBox, { backgroundColor: COLORS.inputBG }]}
-                    onChangeText={val => {
-                        handleInputChange('CharacteristicsNumber', val);
-                    }}
-                    placeholder={''}
-                />
-            </View>
-            <View style={styles.subBox}>
-                <Text style={styles.headerText} numberOfLines={1}>
-                    Characteristic Description
-                </Text>
-                <TextInput
-                    value={selectedData?.CCharacteristicsDescription || ''}
-                    style={[styles.inputBox, { backgroundColor: COLORS.inputBG }]}
-                    onChangeText={val => {
-                        handleInputChange('CCharacteristicsDescription', val);
-                    }}
-                    placeholder={''}
-                />
-            </View>
-            <View style={styles.subBox}>
-                <Text style={styles.headerText} numberOfLines={1}>
-                    Characteristic Class
-                </Text>
-                <TextInput
-                    value={selectedData?.CCharacteristicsClass || ''}
-                    style={[styles.inputBox, { backgroundColor: COLORS.inputBG }]}
-                    onChangeText={val => {
-                        handleInputChange('CCharacteristicsClass', val);
-                    }}
-                    placeholder={''}
-                />
-            </View>
-            {Boolean(inspectionType == 1) && (
-                <View style={styles.subBox}>
-                    <Text style={styles.headerText}>UOM</Text>
-                    <TextInput
-                        value={selectedData?.UOM || ''}
-                        style={[styles.inputBox, { backgroundColor: COLORS.inputBG }]}
-                        onChangeText={val => {
-                            handleInputChange('UOM', val);
-                        }}
-                        placeholder={''}
-                    />
-                </View>
-            )}
-            {charType === 'number' && (
-                <View style={styles.subBox}>
-                    <Text style={styles.headerText}>Specification</Text>
-                    <TextInput
-                        value={userUpdateValue?.CTolerance || ''}
-                        style={[styles.inputBox, { backgroundColor: COLORS.inputBG }]}
-                        onChangeText={val => {
-                            handleUserInputChange('CTolerance', val, 'spec', selectedData.CTolerance);
-                        }}
-                        placeholder={''}
-                    />
-                </View>
-            )}
-            {charType != 'number' && (
-                <View style={styles.subBox}>
-                    <Text style={styles.headerText}>Specification</Text>
-                    <TextInput
-                        value={userUpdateValue?.CTolerance || ''}
-                        style={[styles.inputBox, { backgroundColor: COLORS.inputBG }]}
-                        onChangeText={val => {
-                            handleInputChange('CTolerance', val);
-                        }}
-                        placeholder={''}
-                    />
-                </View>
-            )}
-            {charType === 'number' && (
-                <View style={styles.subBox}>
-                    <Text style={styles.headerText}>High value</Text>
-                    <TextInput
-                        value={userUpdateValue?.CHighValue || ''}
-                        style={[styles.inputBox, { backgroundColor: COLORS.inputBG }]}
-                        onChangeText={val => {
-                            handleUserInputChange('CHighValue', val, 'highvalue', selectedData.CHighValue);
-                        }}
-                        placeholder={''}
-                    />
-                </View>
-            )}
-            {charType === 'number' && (
-                <View style={styles.subBox}>
-                    <Text style={styles.headerText}>Low value</Text>
-                    <TextInput
-                        value={userUpdateValue?.CLowValue || ''}
-                        style={[styles.inputBox, { backgroundColor: COLORS.inputBG }]}
-                        onChangeText={val => {
-                            handleUserInputChange('CLowValue', val, 'lowvalue', selectedData.CLowValue);
-                        }}
-                        placeholder={''}
-                    />
-                </View>
-            )}
-            {Boolean(inspectionType == 2) && (
-                <View style={styles.subBox}>
-                    <Text style={styles.headerText}>Eval Tech</Text>
-                    <TextInput
-                        value={selectedData?.GageNo || ''}
-                        style={[styles.inputBox, { backgroundColor: COLORS.inputBG }]}
-                        onChangeText={val => {
-                            handleInputChange('GageNo', val);
-                        }}
-                        placeholder={''}
-                    />
-                </View>
-            )}
-            {/* need to ask about this */}
-            {Boolean(inspectionType != 2) && (
-                <View style={styles.subBox}>
-                    <Text style={styles.headerText}>Inspection method</Text>
-                    <TextInput
-                        value={''}
-                        style={[styles.inputBox, { backgroundColor: COLORS.inputBG }]}
-                        onChangeText={val => {
-                            handleInputChange('', val);
-                        }}
-                        placeholder={''}
-                    />
-                </View>
-            )}
-            {Boolean(inspectionType != 2) && (
-                <View style={styles.subBox}>
-                    <Text style={styles.headerText}>Gage or Instrument</Text>
-                    <TextInput
-                        value={selectedData?.GageName || ''}
-                        style={[styles.inputBox, { backgroundColor: COLORS.inputBG }]}
-                        onChangeText={val => {
-                            handleInputChange('GageName', val);
-                        }}
-                        placeholder={''}
-                    />
-                </View>
-            )}
-            <View style={styles.subBox}>
-                <Text style={styles.headerText}>Sample frequency</Text>
-                <TextInput
-                    value={selectedData?.CSampleFrequency || ''}
-                    style={[styles.inputBox, { backgroundColor: COLORS.inputBG }]}
-                    onChangeText={val => {
-                        handleInputChange('CSampleFrequency', val);
-                    }}
-                    placeholder={''}
-                />
-            </View>
-            <View style={styles.subBox}>
-                <Text style={styles.headerText}>Sample size</Text>
-                <TextInput
-                    value={userUpdateValue?.CSampleSize || ''}
-                    style={[styles.inputBox, { backgroundColor: COLORS.inputBG }]}
-                    onChangeText={val => {
-                        handleUserInputChange('CSampleSize', val, 'samplesize');
-                    }}
-                    placeholder={''}
-                />
-            </View>
-            {Boolean(inspectionType != 2) && (
-                <View style={styles.subBox}>
-                    <Text style={styles.headerText}>Defect</Text>
-                    <SingleDropDown
-                        data={defectList || []}
-                        // backgroundColor={isEditable ? COLORS.inputBG : COLORS.whiteGrey}
-                        borderWidth={1}
-                        marginTop={8}
-                        title=""
-                        borderRadius={4}
-                        borderColor={COLORS.icBottomBox}
-                        showSearch={false}
-                        maxHeight={200}
-                        value={selectedData?.DefectsValue || {}}
-                        onChange={val => {
-                            handleInputChange('DefectsValue', val);
-                        }}
-                        // editable={isEditable}
-                    />
-                </View>
-            )}
-            <View style={styles.subBox}>
-                <Text style={styles.headerText}>Remarks</Text>
-                <TextInput
-                    value={selectedData?.Remarks || ''}
-                    style={[styles.inputBox, { backgroundColor: COLORS.inputBG }]}
-                    onChangeText={val => {
-                        handleInputChange('Remarks', val);
-                    }}
-                    placeholder={''}
-                />
-            </View>
-            {/* <View style={styles.subBox}>
-                <Text style={styles.headerText}>Evidence 1</Text>
-                <DynamicFormField
-                    title="Evidence1"
-                    fieldType={'filepicker'}
-                    value={selectedData?.Evidence1 || []}
-                    isEditable={true}
-                    handleChange={val => handleInputChange('Evidence1', val)}
-                />
-            </View>
-            <View style={styles.subBox}>
-                <Text style={styles.headerText}>Evidence1</Text>
-                <DynamicFormField
-                    title="Evidence2"
-                    fieldType={'filepicker'}
-                    value={selectedData?.Evidence2 || []}
-                    isEditable={true}
-                    handleChange={val => handleInputChange('Evidence2', val)}
-                />
-            </View> */}
+            {Boolean(selectedData?.charInfo?.length) &&
+                selectedData?.charInfo
+                    ?.filter(item => {
+                        if (
+                            item.PropertyName === 'ActualValue' ||
+                            (charType != 'number' &&
+                                (item.RefData == '##HighToleranceValue##' ||
+                                    item.RefData == '##LowToleranceValue##' ||
+                                    item.RefData == '##ATTorVAR##'))
+                        ) {
+                            return false;
+                        }
+                        return true;
+                    })
+                    .map((item, index) => {
+                        return (
+                            <View style={styles.subBox} key={index + 1}>
+                                <Text style={styles.headerText} numberOfLines={1}>
+                                    {item?.StaticText} {item?.Required && <Text style={styles.isRequired}> *</Text>}
+                                </Text>
+                                <DynamicFormField
+                                    backgroundColor={
+                                        item.RefData == '##StaticSample##'
+                                            ? renderBackGroundColor(item?.Value, charType, selectedData?.charInfo)
+                                            : COLORS.inputBG
+                                    }
+                                    title={item.StaticText}
+                                    fieldType={item.FieldType}
+                                    value={handleGetUserUpadedValue(item) || ''}
+                                    isEditable={Boolean(item?.IsEditable)}
+                                    dropDownData={item.List?.length ? item.List : []}
+                                    handleChange={val => {
+                                        if (item?.PropertyName == 'CHighValue' || item?.RefData == '##HighToleranceValue##') {
+                                            handleUserInputChange(item?.PropertyName, val, 'highvalue', selectedData?.CHighValue, 'CHighValue');
+                                        } else if (item?.PropertyName == 'CLowValue' || item?.RefData == '##LowToleranceValue##') {
+                                            handleUserInputChange(item?.PropertyName, val, 'lowvalue', selectedData?.CLowValue, 'CLowValue');
+                                        } else if (item?.PropertyName == 'CTolerance' || item?.RefData == '##ATTorVAR##') {
+                                            handleUserInputChange(item?.PropertyName, val, 'spec', selectedData?.CTolerance, 'CTolerance');
+                                        } else if (
+                                            item?.PropertyName == 'CSampleSize' ||
+                                            item?.RefData == '##SampleSize##' ||
+                                            item?.PropertyName.includes('SampleSize')
+                                        ) {
+                                            handleUserInputChange('CSampleSize', val, 'samplesize', selectedData?.CSampleSize, 'CSampleSize');
+                                        } else {
+                                            handleInputChange(item?.PropertyName, val);
+                                        }
+                                    }}
+                                />
+                            </View>
+                        );
+                    })}
         </View>
     );
 };
@@ -322,6 +205,10 @@ const styles = StyleSheet.create({
         marginTop: 8,
         color: COLORS.ictextBlack,
         paddingHorizontal: 10,
+    },
+    isRequired: {
+        color: COLORS.ERROR,
+        fontSize: 10,
     },
 });
 

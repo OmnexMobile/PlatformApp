@@ -7,16 +7,19 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { PLACEHOLDERS, ROUTES } from 'constants/app-constant';
 import { Divider, Modal } from 'react-native-paper';
-import { RFPercentage } from 'helpers/utils';
+import { RFPercentage, showErrorMessage } from 'helpers/utils';
 import DeleteModal from '../Components/DeleteModal';
 import NoDataFound from '../Components/NoDataFound';
 import { useDispatch, useSelector } from 'react-redux';
 import ApiUrl from 'global/ApiUrl';
 import { postAPI } from 'global/api-helpers';
 import IcSkeleton from '../Components/IcSkeleton';
+import { deleteInspectionByUniqueId, getDatabaseSize, getInspectionDataByUserAndSite } from 'store/database/inspectStorage';
+import ICScrollTab from '../Components/ICScrollTab';
 
 const OperatorWorksheet = () => {
-    const { inspectList, icUserData, icSettings } = useSelector(state => state.inspection);
+    const { icUserData } = useSelector(state => state.inspection);
+    const [inspectList, setInspectionList] = useState([]);
     const [showDelete, setShowDelete] = useState(false);
     const navigation = useNavigation();
     const [masterData, setMasterData] = useState([]);
@@ -26,35 +29,27 @@ const OperatorWorksheet = () => {
     const isFocused = useIsFocused();
     const dispatch = useDispatch();
 
-    // const getOperatorListData = async (showSkt = true) => {
-    //     showSkt && setShowSkeleton(true);
-    //     const formData = new FormData();
-    //     formData.append('UserID', icUserData?.userData?.UserId);
-    //     formData.append('StartDate', '2025-3-20');
-    //     formData.append('EndDate', '2025-3-27');
-    //     formData.append('SiteID', '1');
-    //     formData.append('LanguageID', '1');
-    //     const response = await postAPI(`${ApiUrl.IC_OPERATOR_LIST}`, formData);
-    //     if (response.Success) {
-    //         setMasterData(response?.Data || []);
-    //     } else {
-    //         setMasterData([]);
-    //     }
-    //     setShowSkeleton(false);
-    //     setRefreshing(false);
-    // };
-    // const onRefresh = () => {
-    //     setRefreshing(true);
-    //     getOperatorListData(false);
-    // };
-    // useEffect(() => {
-    //     if (icUserData && isFocused) {
-    //         // getOperatorListData();
-    //     }
-    // }, [icUserData, isFocused]);
+    // getting a data from SQLite
+    const handleGetSQliteList = async () => {
+        // await getDatabaseSize()
+        const list = await getInspectionDataByUserAndSite(icUserData?.userData?.UserId, icUserData?.userData?.Siteid);
+        let filtered = [];
+        if (list?.length > 0) {
+            filtered = list.filter(item => item?.userType === 'Inspector');
+        }
+        setInspectionList(list);
+        setShowSkeleton(false);
+    };
     const handleCIbtnpress = () => {
         navigation.navigate(ROUTES.COMPLETED_INSPECTION);
     };
+    useEffect(() => {
+        if (isFocused) {
+            setShowSkeleton(true);
+            handleGetSQliteList();
+        }
+    }, [icUserData, isFocused]);
+
     const handleLaunchPress = item => {
         navigation.navigate(ROUTES.INPROCESS_INSPECTION, { inspectData: item });
     };
@@ -64,7 +59,10 @@ const OperatorWorksheet = () => {
     const getOverAllSettings = async () => {
         const settingsRes = await postAPI(`${ApiUrl.IC_SETTINGS}`);
         if (settingsRes?.Success) {
-            dispatch({ type: 'IC_SETTINGS', icSettings: settingsRes?.Data[0] || {} });
+            const settings = {
+                ...settingsRes?.Data[0],
+            };
+            dispatch({ type: 'IC_SETTINGS', icSettings: settings || {} });
         }
     };
     const handleDeletePress = item => {
@@ -77,36 +75,61 @@ const OperatorWorksheet = () => {
 
     const rendetBtnText = item => {
         const combined = [...item?.VariableCharacteristics, ...item?.AttributeCharacteristics];
-        if (!combined.some(item => 'status' in item)) {
+
+        if (!combined.some(c => 'status' in c)) {
             return {
                 status: 'launch',
                 colorCode: COLORS.apptheme,
             };
         }
+        let allCompleted = combined.every(c => c.status === 'Completed');
+
         let hasInprogress = false;
         let hasCompleted = false;
         let hasMissingStatus = false;
+        let hasLaunchStatus = false;
 
-        for (const item of combined) {
-            if ('status' in item) {
-                if (item.status === 'In Progress') {
+        for (const c of combined) {
+            if ('status' in c) {
+                if (c.status === 'Launch' || c.status === undefined || c.status === 'Inspect') {
+                    hasLaunchStatus = true;
+                } else if (c.status === 'In Progress') {
                     hasInprogress = true;
-                } else if (item.status === 'Completed') {
+                } else if (c.status === 'Completed') {
                     hasCompleted = true;
                 }
             } else {
                 hasMissingStatus = true;
             }
         }
+       
+        // 🔑 Priority Logic
+        if (hasInprogress) {
+            return { colorCode: COLORS.ipBgColor, status: 'In Progress' };
+        }
+        if (hasCompleted && hasLaunchStatus) {
+            return { colorCode: COLORS.ipBgColor, status: 'In Progress' }; // ✅ Completed + Launch = In Progress
+        }
+        if (hasCompleted && hasMissingStatus) {
+            return { colorCode: COLORS.ipBgColor, status: 'In Progress' };
+        }
+        if (hasCompleted && allCompleted) {
+            return { colorCode: COLORS.fiBgColor, status: 'Completed' };
+        }
+        if (hasLaunchStatus) {
+            return { colorCode: COLORS.apptheme, status: 'Launch' };
+        }
 
-        if (hasInprogress) return { colorCode: COLORS.ipBgColor, status: 'In Progress' };
-        if (hasCompleted && hasMissingStatus) return { colorCode: COLORS.ipBgColor, status: 'In Progress' };
-        if (hasCompleted && !hasMissingStatus) return { colorCode: COLORS.fiBgColor, status: 'Completed' };
-
-        return {
-            status: 'launch',
-            colorCode: COLORS.apptheme,
-        };
+        return { status: 'launch', colorCode: COLORS.apptheme };
+    };
+    const handleSingleDeletePress = async value => {
+        const flag = await deleteInspectionByUniqueId(value.uniqueId);
+        if (flag) {
+            handleGetSQliteList();
+            setShowDelete(false);
+        } else {
+            showErrorMessage('Error deleting inspection');
+        }
     };
     const renderItem = ({ item }) => {
         const { status, colorCode } = rendetBtnText(item);
@@ -147,8 +170,11 @@ const OperatorWorksheet = () => {
     };
     return (
         <CustomHeader title="Operator Worksheet" activeTabId={2}>
+            {/* <ICScrollTab /> */}
             <View style={[styles.container]}>
-                {Boolean(inspectList?.length) ? (
+                {showSkeleton ? (
+                    <IcSkeleton type={PLACEHOLDERS.OPERATOR_CARD} />
+                ) : Boolean(inspectList?.length) ? (
                     <FlatList
                         data={inspectList}
                         renderItem={renderItem}
@@ -160,7 +186,7 @@ const OperatorWorksheet = () => {
                     <NoDataFound />
                 )}
             </View>
-            <View style={[styles.btnContainer]}>
+            {/* <View style={[styles.btnContainer]}>
                 <ButtonComponent
                     textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}
                     style={{ height: 40 }}
@@ -169,18 +195,19 @@ const OperatorWorksheet = () => {
                     }}>
                     Completed Inspections
                 </ButtonComponent>
-            </View>
+            </View> */}
             <DeleteModal
                 visible={showDelete}
                 handleClose={() => {
                     setShowDelete(false);
                 }}
                 handleYesPress={() => {
-                    dispatch({
-                        type: 'REMOVE_INSPECT_LIST',
-                        inspectionToRemove: selectedValue,
-                    });
-                    setShowDelete(false);
+                    handleSingleDeletePress(selectedValue);
+                    // dispatch({
+                    //     type: 'REMOVE_INSPECT_LIST',
+                    //     inspectionToRemove: selectedValue,
+                    // });
+                    // setShowDelete(false);
                 }}
             />
         </CustomHeader>
