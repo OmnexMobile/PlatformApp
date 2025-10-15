@@ -27,7 +27,7 @@ const LoginInput = ({ placeholder = '', name = '', onChangeText, editable = true
                     editable,
                     placeholder,
                     onChangeText,
-                    autoCapitalize: false,
+                    autoCapitalize: 'none',
                     ...(isPassword && { secureTextEntry: !showPassword }),
                     style: styles.input,
                     onFocus: () => setIsFocused(true),
