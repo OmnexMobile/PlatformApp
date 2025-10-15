@@ -15,7 +15,7 @@ import {
   ActivityIndicator,
   LogBox,
 } from 'react-native';
-import Voice from '@react-native-community/voice';
+import Voice from '@react-native-voice/voice';
 import {Images} from '../Themes';
 import styles from '../styles/CreateAttachStyle';
 import {width} from 'react-native-dimension';

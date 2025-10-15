@@ -29,6 +29,9 @@
 
   // Set your React Native module name (same as in index.js -> AppRegistry.registerComponent)
   self.moduleName = @"IntegratedApp";
+    // You can add your custom initial props in the dictionary below.
+  // They will be passed down to the ViewController used by React Native.
+  self.initialProps = @{};
 
   // Call super implementation
   BOOL result = [super application:application didFinishLaunchingWithOptions:launchOptions];
@@ -48,10 +51,5 @@
 #endif
 }
 
-/// Enables React 18 concurrent root (Fabric)
-- (BOOL)concurrentRootEnabled
-{
-  return true;
-}
 
 @end

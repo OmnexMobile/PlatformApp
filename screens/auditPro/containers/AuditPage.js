@@ -31,7 +31,7 @@ import constant from '../constants/AppConstants';
 import Conformacy from './Conformacy';
 
 // Voice packages
-import Voice from '@react-native-community/voice';
+import Voice from '@react-native-voice/voice';
 import Tts from 'react-native-tts';
 import AsyncStorage from '@react-native-community/async-storage';
 import RNFetchBlob from 'react-native-fetch-blob';

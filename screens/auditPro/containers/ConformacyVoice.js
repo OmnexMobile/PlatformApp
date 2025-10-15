@@ -18,7 +18,7 @@ import {strings} from '../language/Language'
 import {debounce, once} from 'underscore';
 
 // Voice packages
-import Voice from '@react-native-community/voice';
+import Voice from '@react-native-voice/voice';
 import Tts from 'react-native-tts';
 // Moment
 import Moment from 'moment';

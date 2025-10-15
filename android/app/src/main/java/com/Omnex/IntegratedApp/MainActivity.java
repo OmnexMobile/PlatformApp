@@ -40,10 +40,8 @@ public class MainActivity extends ReactActivity {
     return new DefaultReactActivityDelegate(
         this,
         getMainComponentName(),
-        // Enables Fabric if opted-in
-        DefaultNewArchitectureEntryPoint.getFabricEnabled(),
-        // Enables Concurrent React (React 18)
-        DefaultNewArchitectureEntryPoint.getConcurrentReactEnabled()
+       // If you opted-in for the New Architecture, we enable the Fabric Renderer.
+        DefaultNewArchitectureEntryPoint.getFabricEnabled()
     );
   }
 }

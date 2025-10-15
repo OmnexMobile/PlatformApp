@@ -68,7 +68,7 @@
 
 import React, { Component } from "react";
 import { Text, View, Button } from 'react-native';
-import Voice from "@react-native-community/voice";
+import Voice from '@react-native-voice/voice';
 
 class VoiceAssist extends Component {
   constructor(props) {

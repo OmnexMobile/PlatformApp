@@ -1,7 +1,6 @@
 apply plugin: "com.android.application"
 apply plugin: "com.facebook.react"
 
-import com.android.build.OutputFile
 
 react {
     /* RN build config */
@@ -12,10 +11,6 @@ react {
     // entryFile = file("../index.js")
 }
 
-/**
- * Split per architecture (optional)
- */
-def enableSeparateBuildPerCPUArchitecture = false
 
 /**
  * Enable Proguard for release builds
@@ -27,13 +22,6 @@ def enableProguardInReleaseBuilds = false
  */
 def jscFlavor = 'org.webkit:android-jsc:+'
 
-/**
- * Get supported architectures
- */
-def reactNativeArchitectures() {
-    def value = project.getProperties().get("reactNativeArchitectures")
-    return value ? value.split(",") : ["armeabi-v7a", "x86", "x86_64", "arm64-v8a"]
-}
 
 android {
     namespace "com.Omnex.IntegratedApp"
@@ -49,15 +37,6 @@ android {
         multiDexEnabled true
         missingDimensionStrategy 'react-native-camera', 'general'
         manifestPlaceholders = [appAuthRedirectScheme: 'com.omnex.auditpro']
-    }
-
-    splits {
-        abi {
-            reset()
-            enable enableSeparateBuildPerCPUArchitecture
-            universalApk false
-            include (*reactNativeArchitectures())
-        }
     }
 
     signingConfigs {
@@ -88,34 +67,27 @@ android {
         }
     }
 
-    applicationVariants.all { variant ->
-        variant.outputs.each { output ->
-            def versionCodes = ["armeabi-v7a": 1, "x86": 2, "arm64-v8a": 3, "x86_64": 4]
-            def abi = output.getFilter(OutputFile.ABI)
-            if (abi != null) {
-                output.versionCodeOverride =
-                    defaultConfig.versionCode * 1000 + versionCodes.get(abi)
-            }
-        }
+}
+// FIX for react-native-vector-icons Gradle 8.x implicit dependency issue
+gradle.projectsEvaluated {
+    def lintTask = tasks.findByName('lintVitalAnalyzeRelease')
+    def copyTask = tasks.findByName('copyReactNativeVectorIconFonts')
+
+    if (lintTask != null && copyTask != null) {
+        lintTask.dependsOn(copyTask)
     }
 }
-
 dependencies {
     // Core React Native dependency (handled by new Gradle plugin)
     implementation("com.facebook.react:react-android")
-   implementation 'com.github.eventtus:photo-editor-android:v1.0'
-
+    implementation 'com.github.eventtus:photo-editor-android:v1.0'
+    implementation project(':react-native-bootsplash')
     // Splash screen support
     implementation "androidx.core:core-splashscreen:1.0.0"
 
-    // Swipe refresh layout
-    implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
 
     // Multidex
     implementation 'androidx.multidex:multidex:2.0.1'
-
-    // Optional: your voice module
-    implementation project(':@react-native-community_voice')
 
     // Annotations
     implementation 'org.jetbrains:annotations:16.0.2'

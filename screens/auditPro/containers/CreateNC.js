@@ -47,7 +47,7 @@ import RadioForm, {
 } from 'react-native-simple-radio-button';
 import {debounce, once} from 'underscore';
 // Voice packages
-import Voice from '@react-native-community/voice';
+import Voice from '@react-native-voice/voice';
 import Tts from 'react-native-tts';
 // import AsyncStorage from '@react-native-async-storage/async-storage';
 import AsyncStorage from '@react-native-community/async-storage';
