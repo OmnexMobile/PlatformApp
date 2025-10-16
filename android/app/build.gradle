@@ -1,4 +1,5 @@
 apply plugin: "com.android.application"
+apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
 
 
@@ -26,7 +27,8 @@ def jscFlavor = 'org.webkit:android-jsc:+'
 android {
     namespace "com.Omnex.IntegratedApp"
     ndkVersion rootProject.ext.ndkVersion
-    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+    compileSdk rootProject.ext.compileSdkVersion
 
     defaultConfig {
         applicationId "com.Omnex.IntegratedApp"
@@ -92,16 +94,7 @@ dependencies {
     // Annotations
     implementation 'org.jetbrains:annotations:16.0.2'
     // Debugging (Flipper)
-    debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}") {
-        exclude group:'com.facebook.fbjni'
-    }
-    debugImplementation("com.facebook.flipper:flipper-network-plugin:${FLIPPER_VERSION}") {
-        exclude group:'com.facebook.flipper'
-        exclude group:'com.squareup.okhttp3', module:'okhttp'
-    }
-    debugImplementation("com.facebook.flipper:flipper-fresco-plugin:${FLIPPER_VERSION}") {
-        exclude group:'com.facebook.flipper'
-    }
+   implementation("com.facebook.react:flipper-integration")
 
     // JSC instead of Hermes
     if (hermesEnabled.toBoolean()) {

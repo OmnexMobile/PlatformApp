@@ -32,13 +32,9 @@ target 'IntegratedApp' do
   # Add react-native-fetch-blob (legacy lib)
   pod 'react-native-fetch-blob', :path => '../node_modules/react-native-fetch-blob'
 
-  # Flags (hermes/fabric)
-  flags = get_default_flags()
 
   use_react_native!(
     :path => config[:reactNativePath],
-    :hermes_enabled => flags[:hermes_enabled],
-    :fabric_enabled => flags[:fabric_enabled],
     :flipper_configuration => flipper_config,
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
@@ -65,8 +61,6 @@ target 'IntegratedApp' do
       :mac_catalyst_enabled => false
     )
 
-    # Optional: Keep this for older M1/Xcode 12.5 issues
-    __apply_Xcode_12_5_M1_post_install_workaround(installer)
 
     # --- Custom Post-Install tweaks ---
     installer.generated_projects.each do |project|
