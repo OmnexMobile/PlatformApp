@@ -566,7 +566,7 @@ export const ProjectStack = () => (
     </Stack.Navigator>
 );
 
-export function AppStack() {
+const AppStack = () => {
     const { theme } = useTheme();
     return (
         <Stack.Navigator
@@ -592,3 +592,4 @@ export function AppStack() {
         </Stack.Navigator>
     );
 }
+export default AppStack;

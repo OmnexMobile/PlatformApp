@@ -94,7 +94,7 @@ dependencies {
     // Annotations
     implementation 'org.jetbrains:annotations:16.0.2'
     // Debugging (Flipper)
-   implementation("com.facebook.react:flipper-integration")
+//    implementation("com.facebook.react:flipper-integration")
 
     // JSC instead of Hermes
     if (hermesEnabled.toBoolean()) {

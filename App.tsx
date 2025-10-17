@@ -9,7 +9,7 @@ import { PersistGate } from 'redux-persist/integration/react';
 import RNBootSplash from 'react-native-bootsplash';
 
 import { store, persistor } from './store';
-import { AppStack } from './navigations/stack';
+// import { AppStack } from './navigations/stack';
 import { createInspectTable } from './store/database/inspectStorage';
 import { useInternetReachable } from './hooks';
 import { AppProvider } from './contexts/app-context';
@@ -21,6 +21,7 @@ import UpdateModal from './helpers/UpdateModal';
 // import { isJailBroken } from 'helpers/utils';
 // import JailBroken from 'components/jailbroken';
 import setupInterceptors from './global/interceptor';
+import AppStack from './navigations/stack';
 
 // initialize interceptors globally
 setupInterceptors();
