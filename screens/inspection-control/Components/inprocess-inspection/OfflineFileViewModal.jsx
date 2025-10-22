@@ -95,7 +95,6 @@ const OfflineFileViewModal = ({ list = [], visible = false, onDismiss = () => {}
             } else {
                 const result = await Share.share({
                     url: 'file://' + filePath,
-                    message: `Download ${fileName}`,
                     title: fileName,
                 });
 
