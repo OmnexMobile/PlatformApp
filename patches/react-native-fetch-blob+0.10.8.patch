@@ -1,0 +1,819 @@
+diff --git a/node_modules/react-native-fetch-blob/android/build.gradle b/node_modules/react-native-fetch-blob/android/build.gradle
+index 919e64a..09ff787 100644
+--- a/node_modules/react-native-fetch-blob/android/build.gradle
++++ b/node_modules/react-native-fetch-blob/android/build.gradle
+@@ -6,15 +6,16 @@ repositories {
+ 
+ buildscript {
+     repositories {
+-        jcenter()
++        google() // <-- ADD THIS LINE
++        mavenCentral()
+     }
+     dependencies {
+-        classpath 'com.android.tools.build:gradle:2.2.3'
++        classpath 'com.android.tools.build:gradle:4.2.2'
+     }
+ }
+ 
+ android {
+-    compileSdkVersion 23
++    compileSdkVersion 34
+     buildToolsVersion "23.0.1"
+     defaultConfig {
+         minSdkVersion 16
+@@ -33,6 +34,6 @@ android {
+ }
+ 
+ dependencies {
+-    compile 'com.facebook.react:react-native:+'
++    implementation 'com.facebook.react:react-native:+'
+     //{RNFetchBlob_PRE_0.28_DEPDENDENCY}
+ }
+diff --git a/node_modules/react-native-fetch-blob/android/build/.transforms/b0da8026f6398cf8ffc7ad482a85a95e/results.bin b/node_modules/react-native-fetch-blob/android/build/.transforms/b0da8026f6398cf8ffc7ad482a85a95e/results.bin
+new file mode 100644
+index 0000000..0d259dd
+--- /dev/null
++++ b/node_modules/react-native-fetch-blob/android/build/.transforms/b0da8026f6398cf8ffc7ad482a85a95e/results.bin
+@@ -0,0 +1 @@
++o/classes
+diff --git a/node_modules/react-native-fetch-blob/android/build/.transforms/b0da8026f6398cf8ffc7ad482a85a95e/transformed/classes/classes_dex/classes.dex b/node_modules/react-native-fetch-blob/android/build/.transforms/b0da8026f6398cf8ffc7ad482a85a95e/transformed/classes/classes_dex/classes.dex
+new file mode 100644
+index 0000000..16574e4
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/.transforms/b0da8026f6398cf8ffc7ad482a85a95e/transformed/classes/classes_dex/classes.dex differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/results.bin b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/results.bin
+new file mode 100644
+index 0000000..7ed749e
+--- /dev/null
++++ b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/results.bin
+@@ -0,0 +1 @@
++o/bundleLibRuntimeToDirDebug
+diff --git a/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/BuildConfig.dex b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/BuildConfig.dex
+new file mode 100644
+index 0000000..0d92b2f
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/BuildConfig.dex differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlob$1.dex b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlob$1.dex
+new file mode 100644
+index 0000000..5d9d202
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlob$1.dex differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlob$10.dex b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlob$10.dex
+new file mode 100644
+index 0000000..f8784d7
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlob$10.dex differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlob$11.dex b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlob$11.dex
+new file mode 100644
+index 0000000..0826746
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlob$11.dex differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlob$2.dex b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlob$2.dex
+new file mode 100644
+index 0000000..cca9df2
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlob$2.dex differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlob$3.dex b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlob$3.dex
+new file mode 100644
+index 0000000..935f7cb
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlob$3.dex differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlob$4.dex b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlob$4.dex
+new file mode 100644
+index 0000000..0d0eb48
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlob$4.dex differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlob$5.dex b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlob$5.dex
+new file mode 100644
+index 0000000..89d7df0
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlob$5.dex differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlob$6.dex b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlob$6.dex
+new file mode 100644
+index 0000000..b8c5b15
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlob$6.dex differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlob$7.dex b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlob$7.dex
+new file mode 100644
+index 0000000..7419554
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlob$7.dex differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlob$8.dex b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlob$8.dex
+new file mode 100644
+index 0000000..aa35d95
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlob$8.dex differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlob$9.dex b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlob$9.dex
+new file mode 100644
+index 0000000..7f02404
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlob$9.dex differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlob.dex b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlob.dex
+new file mode 100644
+index 0000000..782bb70
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlob.dex differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobBody$1.dex b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobBody$1.dex
+new file mode 100644
+index 0000000..c1663f9
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobBody$1.dex differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobBody$FormField.dex b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobBody$FormField.dex
+new file mode 100644
+index 0000000..afe0c1f
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobBody$FormField.dex differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobBody.dex b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobBody.dex
+new file mode 100644
+index 0000000..c641367
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobBody.dex differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobConfig.dex b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobConfig.dex
+new file mode 100644
+index 0000000..1dc28fd
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobConfig.dex differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobConst.dex b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobConst.dex
+new file mode 100644
+index 0000000..cf3136e
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobConst.dex differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobFS$1.dex b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobFS$1.dex
+new file mode 100644
+index 0000000..1750fa5
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobFS$1.dex differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobFS$2.dex b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobFS$2.dex
+new file mode 100644
+index 0000000..2f244f1
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobFS$2.dex differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobFS$3.dex b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobFS$3.dex
+new file mode 100644
+index 0000000..ddba08d
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobFS$3.dex differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobFS.dex b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobFS.dex
+new file mode 100644
+index 0000000..12eede1
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobFS.dex differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobPackage.dex b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobPackage.dex
+new file mode 100644
+index 0000000..c4b15b9
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobPackage.dex differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobProgressConfig$ReportType.dex b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobProgressConfig$ReportType.dex
+new file mode 100644
+index 0000000..6b1ebc0
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobProgressConfig$ReportType.dex differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobProgressConfig.dex b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobProgressConfig.dex
+new file mode 100644
+index 0000000..a05041e
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobProgressConfig.dex differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobReq$1.dex b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobReq$1.dex
+new file mode 100644
+index 0000000..3e54eeb
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobReq$1.dex differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobReq$2.dex b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobReq$2.dex
+new file mode 100644
+index 0000000..7a18037
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobReq$2.dex differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobReq$3.dex b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobReq$3.dex
+new file mode 100644
+index 0000000..acda254
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobReq$3.dex differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobReq$4.dex b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobReq$4.dex
+new file mode 100644
+index 0000000..83487d2
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobReq$4.dex differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobReq$RequestType.dex b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobReq$RequestType.dex
+new file mode 100644
+index 0000000..4f87f1f
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobReq$RequestType.dex differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobReq$ResponseFormat.dex b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobReq$ResponseFormat.dex
+new file mode 100644
+index 0000000..82e9b05
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobReq$ResponseFormat.dex differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobReq$ResponseType.dex b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobReq$ResponseType.dex
+new file mode 100644
+index 0000000..ef45e3b
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobReq$ResponseType.dex differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobReq.dex b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobReq.dex
+new file mode 100644
+index 0000000..867bb5a
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobReq.dex differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobUtils$1.dex b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobUtils$1.dex
+new file mode 100644
+index 0000000..13e6ede
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobUtils$1.dex differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobUtils$2.dex b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobUtils$2.dex
+new file mode 100644
+index 0000000..9ec2296
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobUtils$2.dex differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobUtils.dex b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobUtils.dex
+new file mode 100644
+index 0000000..838ae73
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/RNFetchBlobUtils.dex differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/Response/RNFetchBlobDefaultResp$ProgressReportingSource.dex b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/Response/RNFetchBlobDefaultResp$ProgressReportingSource.dex
+new file mode 100644
+index 0000000..f1c1970
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/Response/RNFetchBlobDefaultResp$ProgressReportingSource.dex differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/Response/RNFetchBlobDefaultResp.dex b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/Response/RNFetchBlobDefaultResp.dex
+new file mode 100644
+index 0000000..8a5656d
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/Response/RNFetchBlobDefaultResp.dex differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/Response/RNFetchBlobFileResp$ProgressReportingSource.dex b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/Response/RNFetchBlobFileResp$ProgressReportingSource.dex
+new file mode 100644
+index 0000000..465c9b0
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/Response/RNFetchBlobFileResp$ProgressReportingSource.dex differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/Response/RNFetchBlobFileResp.dex b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/Response/RNFetchBlobFileResp.dex
+new file mode 100644
+index 0000000..25e35d3
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/Response/RNFetchBlobFileResp.dex differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/Utils/PathResolver.dex b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/Utils/PathResolver.dex
+new file mode 100644
+index 0000000..3e34717
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/RNFetchBlob/Utils/PathResolver.dex differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/desugar_graph.bin b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/desugar_graph.bin
+new file mode 100644
+index 0000000..ae0890e
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/.transforms/fe717deae1d5ae582754fe6ef222d70d/transformed/bundleLibRuntimeToDirDebug/desugar_graph.bin differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/generated/source/buildConfig/debug/com/RNFetchBlob/BuildConfig.java b/node_modules/react-native-fetch-blob/android/build/generated/source/buildConfig/debug/com/RNFetchBlob/BuildConfig.java
+new file mode 100644
+index 0000000..af19780
+--- /dev/null
++++ b/node_modules/react-native-fetch-blob/android/build/generated/source/buildConfig/debug/com/RNFetchBlob/BuildConfig.java
+@@ -0,0 +1,10 @@
++/**
++ * Automatically generated file. DO NOT MODIFY
++ */
++package com.RNFetchBlob;
++
++public final class BuildConfig {
++  public static final boolean DEBUG = Boolean.parseBoolean("true");
++  public static final String LIBRARY_PACKAGE_NAME = "com.RNFetchBlob";
++  public static final String BUILD_TYPE = "debug";
++}
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/AndroidManifest.xml b/node_modules/react-native-fetch-blob/android/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/AndroidManifest.xml
+new file mode 100644
+index 0000000..0ffb43a
+--- /dev/null
++++ b/node_modules/react-native-fetch-blob/android/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/AndroidManifest.xml
+@@ -0,0 +1,10 @@
++<?xml version="1.0" encoding="utf-8"?>
++<manifest xmlns:android="http://schemas.android.com/apk/res/android"
++    package="com.RNFetchBlob" >
++
++    <uses-sdk android:minSdkVersion="16" />
++
++    <application android:label="@string/app_name" >
++    </application>
++
++</manifest>
+\ No newline at end of file
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/output-metadata.json b/node_modules/react-native-fetch-blob/android/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/output-metadata.json
+new file mode 100644
+index 0000000..faf009b
+--- /dev/null
++++ b/node_modules/react-native-fetch-blob/android/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/output-metadata.json
+@@ -0,0 +1,18 @@
++{
++  "version": 3,
++  "artifactType": {
++    "type": "AAPT_FRIENDLY_MERGED_MANIFESTS",
++    "kind": "Directory"
++  },
++  "applicationId": "com.RNFetchBlob",
++  "variantName": "debug",
++  "elements": [
++    {
++      "type": "SINGLE",
++      "filters": [],
++      "attributes": [],
++      "outputFile": "AndroidManifest.xml"
++    }
++  ],
++  "elementType": "File"
++}
+\ No newline at end of file
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/aar_metadata/debug/writeDebugAarMetadata/aar-metadata.properties b/node_modules/react-native-fetch-blob/android/build/intermediates/aar_metadata/debug/writeDebugAarMetadata/aar-metadata.properties
+new file mode 100644
+index 0000000..1211b1e
+--- /dev/null
++++ b/node_modules/react-native-fetch-blob/android/build/intermediates/aar_metadata/debug/writeDebugAarMetadata/aar-metadata.properties
+@@ -0,0 +1,6 @@
++aarFormatVersion=1.0
++aarMetadataVersion=1.0
++minCompileSdk=1
++minCompileSdkExtension=0
++minAndroidGradlePluginVersion=1.0.0
++coreLibraryDesugaringEnabled=false
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/annotation_processor_list/debug/javaPreCompileDebug/annotationProcessors.json b/node_modules/react-native-fetch-blob/android/build/intermediates/annotation_processor_list/debug/javaPreCompileDebug/annotationProcessors.json
+new file mode 100644
+index 0000000..9e26dfe
+--- /dev/null
++++ b/node_modules/react-native-fetch-blob/android/build/intermediates/annotation_processor_list/debug/javaPreCompileDebug/annotationProcessors.json
+@@ -0,0 +1 @@
++{}
+\ No newline at end of file
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/compile_library_classes_jar/debug/bundleLibCompileToJarDebug/classes.jar b/node_modules/react-native-fetch-blob/android/build/intermediates/compile_library_classes_jar/debug/bundleLibCompileToJarDebug/classes.jar
+new file mode 100644
+index 0000000..c057abe
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/compile_library_classes_jar/debug/bundleLibCompileToJarDebug/classes.jar differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/compile_r_class_jar/debug/generateDebugRFile/R.jar b/node_modules/react-native-fetch-blob/android/build/intermediates/compile_r_class_jar/debug/generateDebugRFile/R.jar
+new file mode 100644
+index 0000000..8aa8505
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/compile_r_class_jar/debug/generateDebugRFile/R.jar differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/compile_symbol_list/debug/generateDebugRFile/R.txt b/node_modules/react-native-fetch-blob/android/build/intermediates/compile_symbol_list/debug/generateDebugRFile/R.txt
+new file mode 100644
+index 0000000..a9551e5
+--- /dev/null
++++ b/node_modules/react-native-fetch-blob/android/build/intermediates/compile_symbol_list/debug/generateDebugRFile/R.txt
+@@ -0,0 +1 @@
++int string app_name 0x0
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties b/node_modules/react-native-fetch-blob/android/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties
+new file mode 100644
+index 0000000..0f3236e
+--- /dev/null
++++ b/node_modules/react-native-fetch-blob/android/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties
+@@ -0,0 +1 @@
++#Thu Oct 23 13:07:00 IST 2025
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/incremental/debug/packageDebugResources/merged.dir/values/values.xml b/node_modules/react-native-fetch-blob/android/build/intermediates/incremental/debug/packageDebugResources/merged.dir/values/values.xml
+new file mode 100644
+index 0000000..f85374f
+--- /dev/null
++++ b/node_modules/react-native-fetch-blob/android/build/intermediates/incremental/debug/packageDebugResources/merged.dir/values/values.xml
+@@ -0,0 +1,4 @@
++<?xml version="1.0" encoding="utf-8"?>
++<resources>
++    <string name="app_name">react-native-fetch-blob</string>
++</resources>
+\ No newline at end of file
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/incremental/debug/packageDebugResources/merger.xml b/node_modules/react-native-fetch-blob/android/build/intermediates/incremental/debug/packageDebugResources/merger.xml
+new file mode 100644
+index 0000000..a422f80
+--- /dev/null
++++ b/node_modules/react-native-fetch-blob/android/build/intermediates/incremental/debug/packageDebugResources/merger.xml
+@@ -0,0 +1,2 @@
++<?xml version="1.0" encoding="utf-8"?>
++<merger version="3"><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="main$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/admin/Desktop/PlatformAppPatch/node_modules/react-native-fetch-blob/android/src/main/res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="main" generated-set="main$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/admin/Desktop/PlatformAppPatch/node_modules/react-native-fetch-blob/android/src/main/res"><file path="/Users/admin/Desktop/PlatformAppPatch/node_modules/react-native-fetch-blob/android/src/main/res/values/strings.xml" qualifiers=""><string name="app_name">react-native-fetch-blob</string></file></source></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="debug$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/admin/Desktop/PlatformAppPatch/node_modules/react-native-fetch-blob/android/src/debug/res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="debug" generated-set="debug$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/admin/Desktop/PlatformAppPatch/node_modules/react-native-fetch-blob/android/src/debug/res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="generated$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/admin/Desktop/PlatformAppPatch/node_modules/react-native-fetch-blob/android/build/generated/res/resValues/debug"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="generated" generated-set="generated$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/admin/Desktop/PlatformAppPatch/node_modules/react-native-fetch-blob/android/build/generated/res/resValues/debug"/></dataSet><mergedItems/></merger>
+\ No newline at end of file
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/incremental/mergeDebugJniLibFolders/merger.xml b/node_modules/react-native-fetch-blob/android/build/intermediates/incremental/mergeDebugJniLibFolders/merger.xml
+new file mode 100644
+index 0000000..ced2081
+--- /dev/null
++++ b/node_modules/react-native-fetch-blob/android/build/intermediates/incremental/mergeDebugJniLibFolders/merger.xml
+@@ -0,0 +1,2 @@
++<?xml version="1.0" encoding="utf-8"?>
++<merger version="3"><dataSet config="main" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/admin/Desktop/PlatformAppPatch/node_modules/react-native-fetch-blob/android/src/main/jniLibs"/></dataSet><dataSet config="debug" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/admin/Desktop/PlatformAppPatch/node_modules/react-native-fetch-blob/android/src/debug/jniLibs"/></dataSet></merger>
+\ No newline at end of file
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/incremental/mergeDebugShaders/merger.xml b/node_modules/react-native-fetch-blob/android/build/intermediates/incremental/mergeDebugShaders/merger.xml
+new file mode 100644
+index 0000000..d156c52
+--- /dev/null
++++ b/node_modules/react-native-fetch-blob/android/build/intermediates/incremental/mergeDebugShaders/merger.xml
+@@ -0,0 +1,2 @@
++<?xml version="1.0" encoding="utf-8"?>
++<merger version="3"><dataSet config="main" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/admin/Desktop/PlatformAppPatch/node_modules/react-native-fetch-blob/android/src/main/shaders"/></dataSet><dataSet config="debug" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/admin/Desktop/PlatformAppPatch/node_modules/react-native-fetch-blob/android/src/debug/shaders"/></dataSet></merger>
+\ No newline at end of file
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/incremental/packageDebugAssets/merger.xml b/node_modules/react-native-fetch-blob/android/build/intermediates/incremental/packageDebugAssets/merger.xml
+new file mode 100644
+index 0000000..323640e
+--- /dev/null
++++ b/node_modules/react-native-fetch-blob/android/build/intermediates/incremental/packageDebugAssets/merger.xml
+@@ -0,0 +1,2 @@
++<?xml version="1.0" encoding="utf-8"?>
++<merger version="3"><dataSet config="main" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/admin/Desktop/PlatformAppPatch/node_modules/react-native-fetch-blob/android/src/main/assets"/></dataSet><dataSet config="debug" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/admin/Desktop/PlatformAppPatch/node_modules/react-native-fetch-blob/android/src/debug/assets"/></dataSet><dataSet config="generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/admin/Desktop/PlatformAppPatch/node_modules/react-native-fetch-blob/android/build/intermediates/shader_assets/debug/compileDebugShaders/out"/></dataSet></merger>
+\ No newline at end of file
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/BuildConfig.class b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/BuildConfig.class
+new file mode 100644
+index 0000000..79bf4c1
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/BuildConfig.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlob$1.class b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlob$1.class
+new file mode 100644
+index 0000000..a46fd0a
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlob$1.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlob$10.class b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlob$10.class
+new file mode 100644
+index 0000000..a7794fa
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlob$10.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlob$11.class b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlob$11.class
+new file mode 100644
+index 0000000..e92341b
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlob$11.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlob$2.class b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlob$2.class
+new file mode 100644
+index 0000000..89c35b0
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlob$2.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlob$3.class b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlob$3.class
+new file mode 100644
+index 0000000..944c1e7
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlob$3.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlob$4.class b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlob$4.class
+new file mode 100644
+index 0000000..e79be83
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlob$4.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlob$5.class b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlob$5.class
+new file mode 100644
+index 0000000..1c13648
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlob$5.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlob$6.class b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlob$6.class
+new file mode 100644
+index 0000000..b749134
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlob$6.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlob$7.class b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlob$7.class
+new file mode 100644
+index 0000000..8a2133e
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlob$7.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlob$8.class b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlob$8.class
+new file mode 100644
+index 0000000..2ee145a
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlob$8.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlob$9.class b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlob$9.class
+new file mode 100644
+index 0000000..948b188
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlob$9.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlob.class b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlob.class
+new file mode 100644
+index 0000000..691e8fd
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlob.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobBody$1.class b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobBody$1.class
+new file mode 100644
+index 0000000..d60260c
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobBody$1.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobBody$FormField.class b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobBody$FormField.class
+new file mode 100644
+index 0000000..a312c41
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobBody$FormField.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobBody.class b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobBody.class
+new file mode 100644
+index 0000000..2e3afd8
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobBody.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobConfig.class b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobConfig.class
+new file mode 100644
+index 0000000..35b994c
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobConfig.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobConst.class b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobConst.class
+new file mode 100644
+index 0000000..deaeaa3
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobConst.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobFS$1.class b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobFS$1.class
+new file mode 100644
+index 0000000..c29a7a1
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobFS$1.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobFS$2.class b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobFS$2.class
+new file mode 100644
+index 0000000..fcf69fc
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobFS$2.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobFS$3.class b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobFS$3.class
+new file mode 100644
+index 0000000..606072d
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobFS$3.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobFS.class b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobFS.class
+new file mode 100644
+index 0000000..3bf34b7
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobFS.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobPackage.class b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobPackage.class
+new file mode 100644
+index 0000000..4f57390
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobPackage.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobProgressConfig$ReportType.class b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobProgressConfig$ReportType.class
+new file mode 100644
+index 0000000..60a670f
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobProgressConfig$ReportType.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobProgressConfig.class b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobProgressConfig.class
+new file mode 100644
+index 0000000..ce0b7d8
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobProgressConfig.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobReq$1.class b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobReq$1.class
+new file mode 100644
+index 0000000..c3011c4
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobReq$1.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobReq$2.class b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobReq$2.class
+new file mode 100644
+index 0000000..2b339a4
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobReq$2.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobReq$3.class b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobReq$3.class
+new file mode 100644
+index 0000000..d2f2c31
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobReq$3.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobReq$4.class b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobReq$4.class
+new file mode 100644
+index 0000000..42af518
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobReq$4.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobReq$RequestType.class b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobReq$RequestType.class
+new file mode 100644
+index 0000000..c275316
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobReq$RequestType.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobReq$ResponseFormat.class b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobReq$ResponseFormat.class
+new file mode 100644
+index 0000000..6cdd2ea
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobReq$ResponseFormat.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobReq$ResponseType.class b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobReq$ResponseType.class
+new file mode 100644
+index 0000000..64bcd10
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobReq$ResponseType.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobReq.class b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobReq.class
+new file mode 100644
+index 0000000..f329440
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobReq.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobUtils$1.class b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobUtils$1.class
+new file mode 100644
+index 0000000..090184b
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobUtils$1.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobUtils$2.class b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobUtils$2.class
+new file mode 100644
+index 0000000..227ddf5
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobUtils$2.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobUtils.class b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobUtils.class
+new file mode 100644
+index 0000000..7195862
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/RNFetchBlobUtils.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/Response/RNFetchBlobDefaultResp$ProgressReportingSource.class b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/Response/RNFetchBlobDefaultResp$ProgressReportingSource.class
+new file mode 100644
+index 0000000..f7b52aa
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/Response/RNFetchBlobDefaultResp$ProgressReportingSource.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/Response/RNFetchBlobDefaultResp.class b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/Response/RNFetchBlobDefaultResp.class
+new file mode 100644
+index 0000000..a37c6c5
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/Response/RNFetchBlobDefaultResp.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/Response/RNFetchBlobFileResp$ProgressReportingSource.class b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/Response/RNFetchBlobFileResp$ProgressReportingSource.class
+new file mode 100644
+index 0000000..1facb4e
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/Response/RNFetchBlobFileResp$ProgressReportingSource.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/Response/RNFetchBlobFileResp.class b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/Response/RNFetchBlobFileResp.class
+new file mode 100644
+index 0000000..a266176
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/Response/RNFetchBlobFileResp.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/Utils/PathResolver.class b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/Utils/PathResolver.class
+new file mode 100644
+index 0000000..f51d412
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/RNFetchBlob/Utils/PathResolver.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/local_only_symbol_list/debug/parseDebugLocalResources/R-def.txt b/node_modules/react-native-fetch-blob/android/build/intermediates/local_only_symbol_list/debug/parseDebugLocalResources/R-def.txt
+new file mode 100644
+index 0000000..34ca0ec
+--- /dev/null
++++ b/node_modules/react-native-fetch-blob/android/build/intermediates/local_only_symbol_list/debug/parseDebugLocalResources/R-def.txt
+@@ -0,0 +1,3 @@
++R_DEF: Internal format may change without notice
++local
++string app_name
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/manifest_merge_blame_file/debug/processDebugManifest/manifest-merger-blame-debug-report.txt b/node_modules/react-native-fetch-blob/android/build/intermediates/manifest_merge_blame_file/debug/processDebugManifest/manifest-merger-blame-debug-report.txt
+new file mode 100644
+index 0000000..0381524
+--- /dev/null
++++ b/node_modules/react-native-fetch-blob/android/build/intermediates/manifest_merge_blame_file/debug/processDebugManifest/manifest-merger-blame-debug-report.txt
+@@ -0,0 +1,12 @@
++1<?xml version="1.0" encoding="utf-8"?>
++2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
++3    package="com.RNFetchBlob" >
++4
++5    <uses-sdk android:minSdkVersion="16" />
++6
++7    <application android:label="@string/app_name" >
++7-->/Users/admin/Desktop/PlatformAppPatch/node_modules/react-native-fetch-blob/android/src/main/AndroidManifest.xml:4:5-7:19
++7-->/Users/admin/Desktop/PlatformAppPatch/node_modules/react-native-fetch-blob/android/src/main/AndroidManifest.xml:5:9-41
++8    </application>
++9
++10</manifest>
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml b/node_modules/react-native-fetch-blob/android/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml
+new file mode 100644
+index 0000000..0ffb43a
+--- /dev/null
++++ b/node_modules/react-native-fetch-blob/android/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml
+@@ -0,0 +1,10 @@
++<?xml version="1.0" encoding="utf-8"?>
++<manifest xmlns:android="http://schemas.android.com/apk/res/android"
++    package="com.RNFetchBlob" >
++
++    <uses-sdk android:minSdkVersion="16" />
++
++    <application android:label="@string/app_name" >
++    </application>
++
++</manifest>
+\ No newline at end of file
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/navigation_json/debug/extractDeepLinksDebug/navigation.json b/node_modules/react-native-fetch-blob/android/build/intermediates/navigation_json/debug/extractDeepLinksDebug/navigation.json
+new file mode 100644
+index 0000000..0637a08
+--- /dev/null
++++ b/node_modules/react-native-fetch-blob/android/build/intermediates/navigation_json/debug/extractDeepLinksDebug/navigation.json
+@@ -0,0 +1 @@
++[]
+\ No newline at end of file
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/nested_resources_validation_report/debug/generateDebugResources/nestedResourcesValidationReport.txt b/node_modules/react-native-fetch-blob/android/build/intermediates/nested_resources_validation_report/debug/generateDebugResources/nestedResourcesValidationReport.txt
+new file mode 100644
+index 0000000..08f4ebe
+--- /dev/null
++++ b/node_modules/react-native-fetch-blob/android/build/intermediates/nested_resources_validation_report/debug/generateDebugResources/nestedResourcesValidationReport.txt
+@@ -0,0 +1 @@
++0 Warning/Error
+\ No newline at end of file
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/packaged_res/debug/packageDebugResources/values/values.xml b/node_modules/react-native-fetch-blob/android/build/intermediates/packaged_res/debug/packageDebugResources/values/values.xml
+new file mode 100644
+index 0000000..f85374f
+--- /dev/null
++++ b/node_modules/react-native-fetch-blob/android/build/intermediates/packaged_res/debug/packageDebugResources/values/values.xml
+@@ -0,0 +1,4 @@
++<?xml version="1.0" encoding="utf-8"?>
++<resources>
++    <string name="app_name">react-native-fetch-blob</string>
++</resources>
+\ No newline at end of file
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/BuildConfig.class b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/BuildConfig.class
+new file mode 100644
+index 0000000..79bf4c1
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/BuildConfig.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlob$1.class b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlob$1.class
+new file mode 100644
+index 0000000..a46fd0a
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlob$1.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlob$10.class b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlob$10.class
+new file mode 100644
+index 0000000..a7794fa
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlob$10.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlob$11.class b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlob$11.class
+new file mode 100644
+index 0000000..e92341b
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlob$11.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlob$2.class b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlob$2.class
+new file mode 100644
+index 0000000..89c35b0
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlob$2.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlob$3.class b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlob$3.class
+new file mode 100644
+index 0000000..944c1e7
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlob$3.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlob$4.class b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlob$4.class
+new file mode 100644
+index 0000000..e79be83
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlob$4.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlob$5.class b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlob$5.class
+new file mode 100644
+index 0000000..1c13648
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlob$5.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlob$6.class b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlob$6.class
+new file mode 100644
+index 0000000..b749134
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlob$6.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlob$7.class b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlob$7.class
+new file mode 100644
+index 0000000..8a2133e
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlob$7.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlob$8.class b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlob$8.class
+new file mode 100644
+index 0000000..2ee145a
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlob$8.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlob$9.class b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlob$9.class
+new file mode 100644
+index 0000000..948b188
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlob$9.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlob.class b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlob.class
+new file mode 100644
+index 0000000..691e8fd
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlob.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobBody$1.class b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobBody$1.class
+new file mode 100644
+index 0000000..d60260c
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobBody$1.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobBody$FormField.class b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobBody$FormField.class
+new file mode 100644
+index 0000000..a312c41
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobBody$FormField.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobBody.class b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobBody.class
+new file mode 100644
+index 0000000..2e3afd8
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobBody.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobConfig.class b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobConfig.class
+new file mode 100644
+index 0000000..35b994c
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobConfig.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobConst.class b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobConst.class
+new file mode 100644
+index 0000000..deaeaa3
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobConst.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobFS$1.class b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobFS$1.class
+new file mode 100644
+index 0000000..c29a7a1
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobFS$1.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobFS$2.class b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobFS$2.class
+new file mode 100644
+index 0000000..fcf69fc
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobFS$2.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobFS$3.class b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobFS$3.class
+new file mode 100644
+index 0000000..606072d
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobFS$3.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobFS.class b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobFS.class
+new file mode 100644
+index 0000000..3bf34b7
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobFS.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobPackage.class b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobPackage.class
+new file mode 100644
+index 0000000..4f57390
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobPackage.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobProgressConfig$ReportType.class b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobProgressConfig$ReportType.class
+new file mode 100644
+index 0000000..60a670f
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobProgressConfig$ReportType.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobProgressConfig.class b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobProgressConfig.class
+new file mode 100644
+index 0000000..ce0b7d8
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobProgressConfig.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobReq$1.class b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobReq$1.class
+new file mode 100644
+index 0000000..c3011c4
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobReq$1.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobReq$2.class b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobReq$2.class
+new file mode 100644
+index 0000000..2b339a4
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobReq$2.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobReq$3.class b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobReq$3.class
+new file mode 100644
+index 0000000..d2f2c31
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobReq$3.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobReq$4.class b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobReq$4.class
+new file mode 100644
+index 0000000..42af518
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobReq$4.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobReq$RequestType.class b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobReq$RequestType.class
+new file mode 100644
+index 0000000..c275316
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobReq$RequestType.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobReq$ResponseFormat.class b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobReq$ResponseFormat.class
+new file mode 100644
+index 0000000..6cdd2ea
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobReq$ResponseFormat.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobReq$ResponseType.class b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobReq$ResponseType.class
+new file mode 100644
+index 0000000..64bcd10
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobReq$ResponseType.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobReq.class b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobReq.class
+new file mode 100644
+index 0000000..f329440
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobReq.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobUtils$1.class b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobUtils$1.class
+new file mode 100644
+index 0000000..090184b
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobUtils$1.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobUtils$2.class b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobUtils$2.class
+new file mode 100644
+index 0000000..227ddf5
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobUtils$2.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobUtils.class b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobUtils.class
+new file mode 100644
+index 0000000..7195862
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/RNFetchBlobUtils.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/Response/RNFetchBlobDefaultResp$ProgressReportingSource.class b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/Response/RNFetchBlobDefaultResp$ProgressReportingSource.class
+new file mode 100644
+index 0000000..f7b52aa
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/Response/RNFetchBlobDefaultResp$ProgressReportingSource.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/Response/RNFetchBlobDefaultResp.class b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/Response/RNFetchBlobDefaultResp.class
+new file mode 100644
+index 0000000..a37c6c5
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/Response/RNFetchBlobDefaultResp.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/Response/RNFetchBlobFileResp$ProgressReportingSource.class b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/Response/RNFetchBlobFileResp$ProgressReportingSource.class
+new file mode 100644
+index 0000000..1facb4e
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/Response/RNFetchBlobFileResp$ProgressReportingSource.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/Response/RNFetchBlobFileResp.class b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/Response/RNFetchBlobFileResp.class
+new file mode 100644
+index 0000000..a266176
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/Response/RNFetchBlobFileResp.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/Utils/PathResolver.class b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/Utils/PathResolver.class
+new file mode 100644
+index 0000000..f51d412
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/RNFetchBlob/Utils/PathResolver.class differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_jar/debug/bundleLibRuntimeToJarDebug/classes.jar b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_jar/debug/bundleLibRuntimeToJarDebug/classes.jar
+new file mode 100644
+index 0000000..d49c14b
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/intermediates/runtime_library_classes_jar/debug/bundleLibRuntimeToJarDebug/classes.jar differ
+diff --git a/node_modules/react-native-fetch-blob/android/build/intermediates/symbol_list_with_package_name/debug/generateDebugRFile/package-aware-r.txt b/node_modules/react-native-fetch-blob/android/build/intermediates/symbol_list_with_package_name/debug/generateDebugRFile/package-aware-r.txt
+new file mode 100644
+index 0000000..fb17256
+--- /dev/null
++++ b/node_modules/react-native-fetch-blob/android/build/intermediates/symbol_list_with_package_name/debug/generateDebugRFile/package-aware-r.txt
+@@ -0,0 +1,2 @@
++com.RNFetchBlob
++string app_name
+diff --git a/node_modules/react-native-fetch-blob/android/build/outputs/logs/manifest-merger-debug-report.txt b/node_modules/react-native-fetch-blob/android/build/outputs/logs/manifest-merger-debug-report.txt
+new file mode 100644
+index 0000000..213ab09
+--- /dev/null
++++ b/node_modules/react-native-fetch-blob/android/build/outputs/logs/manifest-merger-debug-report.txt
+@@ -0,0 +1,21 @@
++-- Merging decision tree log ---
++manifest
++ADDED from /Users/admin/Desktop/PlatformAppPatch/node_modules/react-native-fetch-blob/android/src/main/AndroidManifest.xml:1:1-9:12
++INJECTED from /Users/admin/Desktop/PlatformAppPatch/node_modules/react-native-fetch-blob/android/src/main/AndroidManifest.xml:1:1-9:12
++	package
++		ADDED from /Users/admin/Desktop/PlatformAppPatch/node_modules/react-native-fetch-blob/android/src/main/AndroidManifest.xml:2:5-30
++		INJECTED from /Users/admin/Desktop/PlatformAppPatch/node_modules/react-native-fetch-blob/android/src/main/AndroidManifest.xml
++	xmlns:android
++		ADDED from /Users/admin/Desktop/PlatformAppPatch/node_modules/react-native-fetch-blob/android/src/main/AndroidManifest.xml:1:11-69
++application
++ADDED from /Users/admin/Desktop/PlatformAppPatch/node_modules/react-native-fetch-blob/android/src/main/AndroidManifest.xml:4:5-7:19
++	android:label
++		ADDED from /Users/admin/Desktop/PlatformAppPatch/node_modules/react-native-fetch-blob/android/src/main/AndroidManifest.xml:5:9-41
++uses-sdk
++INJECTED from /Users/admin/Desktop/PlatformAppPatch/node_modules/react-native-fetch-blob/android/src/main/AndroidManifest.xml reason: use-sdk injection requested
++INJECTED from /Users/admin/Desktop/PlatformAppPatch/node_modules/react-native-fetch-blob/android/src/main/AndroidManifest.xml
++INJECTED from /Users/admin/Desktop/PlatformAppPatch/node_modules/react-native-fetch-blob/android/src/main/AndroidManifest.xml
++	android:targetSdkVersion
++		INJECTED from /Users/admin/Desktop/PlatformAppPatch/node_modules/react-native-fetch-blob/android/src/main/AndroidManifest.xml
++	android:minSdkVersion
++		INJECTED from /Users/admin/Desktop/PlatformAppPatch/node_modules/react-native-fetch-blob/android/src/main/AndroidManifest.xml
+diff --git a/node_modules/react-native-fetch-blob/android/build/tmp/compileDebugJavaWithJavac/previous-compilation-data.bin b/node_modules/react-native-fetch-blob/android/build/tmp/compileDebugJavaWithJavac/previous-compilation-data.bin
+new file mode 100644
+index 0000000..c1c90d6
+Binary files /dev/null and b/node_modules/react-native-fetch-blob/android/build/tmp/compileDebugJavaWithJavac/previous-compilation-data.bin differ
+diff --git a/node_modules/react-native-fetch-blob/react-native-fetch-blob.podspec b/node_modules/react-native-fetch-blob/react-native-fetch-blob.podspec
+index f702d28..a1d70ec 100644
+--- a/node_modules/react-native-fetch-blob/react-native-fetch-blob.podspec
++++ b/node_modules/react-native-fetch-blob/react-native-fetch-blob.podspec
+@@ -9,5 +9,6 @@ Pod::Spec.new do |s|
+   s.source       = { :git => "https://github.com/wkh237/react-native-fetch-blob", :tag => 'v0.10.6'}
+   s.source_files = 'ios/**/*.{h,m}'
+   s.platform     = :ios, "7.0"
+-  s.dependency 'React/Core'
++  s.dependency 'React-Core'
++  s.dependency 'React-RCTBlob'
+ end

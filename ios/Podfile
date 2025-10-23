@@ -1,72 +1,63 @@
 require_relative '../node_modules/react-native/scripts/react_native_pods'
 require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
 
-platform :ios, '13.0'
+platform :ios, '15.1'
 prepare_react_native_project!
 
-# Handle Flipper configuration
-flipper_config = ENV['NO_FLIPPER'] == "1" ? FlipperConfiguration.disabled : FlipperConfiguration.enabled
-
-linkage = ENV['USE_FRAMEWORKS']
-if linkage != nil
-  Pod::UI.puts "Configuring Pod with #{linkage}ally linked Frameworks".green
-  use_frameworks! :linkage => linkage.to_sym
+# Flipper setup
+begin
+  require 'flipper/configuration'
+  flipper_config = ENV['NO_FLIPPER'] == "1" ? FlipperConfiguration.disabled : FlipperConfiguration.enabled
+rescue LoadError
+  puts "Flipper is not available, disabling..."
+  flipper_config = nil
 end
+
+# Optional: use_frameworks
+linkage = ENV['USE_FRAMEWORKS']
+use_frameworks! :linkage => linkage.to_sym if linkage
 
 target 'IntegratedApp' do
   config = use_native_modules!
 
-  # Custom helper for node-based requires (for hoisted modules)
-  def node_require(script)
-    require Pod::Executable.execute_command('node', ['-p',
-      "require.resolve(
-        '#{script}',
-        {paths: [process.argv[1]]},
-      )", __dir__]).strip
-  end
-
   # Include React Native & react-native-permissions scripts
-  node_require('react-native/scripts/react_native_pods.rb')
-  node_require('react-native-permissions/scripts/setup.rb')
-
-  # Add react-native-fetch-blob (legacy lib)
-  pod 'react-native-fetch-blob', :path => '../node_modules/react-native-fetch-blob'
-
-
   use_react_native!(
     :path => config[:reactNativePath],
-    :flipper_configuration => flipper_config,
+    :hermes_enabled => true,
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
 
-  # Setup permissions (from react-native-permissions)
+  # Legacy lib
+  pod 'react-native-fetch-blob', :path => '../node_modules/react-native-fetch-blob' do
+  podspec = '../node_modules/react-native/React.podspec'
+  pod 'React-Core', :path => podspec
+  pod 'React-RCTBlob', :path => podspec
+  pod 'React-bridging', :path => podspec
+end
+
+  # Setup react-native-permissions
+  node_require = lambda do |script|
+    require Pod::Executable.execute_command('node', ['-p', "require.resolve('#{script}', {paths: [process.argv[1]]})", __dir__]).strip
+  end
+  node_require.call('react-native-permissions/scripts/setup.rb')
   setup_permissions([
     'Camera',
     'Microphone',
     'LocationWhenInUse',
     'PhotoLibraryAddOnly',
-    # Add more as needed...
+    # Add more if needed
   ])
 
-
   post_install do |installer|
-    # Use the new React Native 0.72 post_install helper
-    react_native_post_install(
-      installer,
-      config[:reactNativePath],
-      :mac_catalyst_enabled => false,
-      # :ccache_enabled => true
-    )
-
+    react_native_post_install(installer, config[:reactNativePath], :mac_catalyst_enabled => false)
 
     # --- Custom Post-Install tweaks ---
     installer.generated_projects.each do |project|
       project.targets.each do |target|
         target.build_configurations.each do |config|
-          # Set minimum iOS deployment target
-          config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '12.4'
-
-          # Vision Camera / ReactCommon headers
+          # Force iOS deployment target
+          config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.1'
+          # Header search paths
           config.build_settings['HEADER_SEARCH_PATHS'] ||= '$(inherited) '
           config.build_settings['HEADER_SEARCH_PATHS'] << '"${PODS_ROOT}/../../node_modules/react-native/ReactCommon" '
         end
