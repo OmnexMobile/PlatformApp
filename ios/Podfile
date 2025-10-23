@@ -48,10 +48,6 @@ target 'IntegratedApp' do
     # Add more as needed...
   ])
 
-  target 'IntegratedAppTests' do
-    inherit! :complete
-    # Pods for testing
-  end
 
   post_install do |installer|
     # Use the new React Native 0.72 post_install helper

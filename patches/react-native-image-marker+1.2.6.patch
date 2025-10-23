@@ -1,0 +1,1343 @@
+diff --git a/node_modules/react-native-image-marker/android/build/generated/source/buildConfig/debug/com/jimmydaddy/imagemarker/BuildConfig.java b/node_modules/react-native-image-marker/android/build/generated/source/buildConfig/debug/com/jimmydaddy/imagemarker/BuildConfig.java
+new file mode 100644
+index 0000000..fd3c0b4
+--- /dev/null
++++ b/node_modules/react-native-image-marker/android/build/generated/source/buildConfig/debug/com/jimmydaddy/imagemarker/BuildConfig.java
+@@ -0,0 +1,12 @@
++/**
++ * Automatically generated file. DO NOT MODIFY
++ */
++package com.jimmydaddy.imagemarker;
++
++public final class BuildConfig {
++  public static final boolean DEBUG = Boolean.parseBoolean("true");
++  public static final String LIBRARY_PACKAGE_NAME = "com.jimmydaddy.imagemarker";
++  public static final String BUILD_TYPE = "debug";
++  // Field from default config.
++  public static final boolean IS_NEW_ARCHITECTURE_ENABLED = false;
++}
+diff --git a/node_modules/react-native-image-marker/android/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/AndroidManifest.xml b/node_modules/react-native-image-marker/android/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/AndroidManifest.xml
+new file mode 100644
+index 0000000..2dd08c7
+--- /dev/null
++++ b/node_modules/react-native-image-marker/android/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/AndroidManifest.xml
+@@ -0,0 +1,7 @@
++<?xml version="1.0" encoding="utf-8"?>
++<manifest xmlns:android="http://schemas.android.com/apk/res/android"
++    package="com.jimmydaddy.imagemarker" >
++
++    <uses-sdk android:minSdkVersion="24" />
++
++</manifest>
+\ No newline at end of file
+diff --git a/node_modules/react-native-image-marker/android/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/output-metadata.json b/node_modules/react-native-image-marker/android/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/output-metadata.json
+new file mode 100644
+index 0000000..25aac93
+--- /dev/null
++++ b/node_modules/react-native-image-marker/android/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/output-metadata.json
+@@ -0,0 +1,18 @@
++{
++  "version": 3,
++  "artifactType": {
++    "type": "AAPT_FRIENDLY_MERGED_MANIFESTS",
++    "kind": "Directory"
++  },
++  "applicationId": "com.jimmydaddy.imagemarker",
++  "variantName": "debug",
++  "elements": [
++    {
++      "type": "SINGLE",
++      "filters": [],
++      "attributes": [],
++      "outputFile": "AndroidManifest.xml"
++    }
++  ],
++  "elementType": "File"
++}
+\ No newline at end of file
+diff --git a/node_modules/react-native-image-marker/android/build/intermediates/aar_metadata/debug/writeDebugAarMetadata/aar-metadata.properties b/node_modules/react-native-image-marker/android/build/intermediates/aar_metadata/debug/writeDebugAarMetadata/aar-metadata.properties
+new file mode 100644
+index 0000000..1211b1e
+--- /dev/null
++++ b/node_modules/react-native-image-marker/android/build/intermediates/aar_metadata/debug/writeDebugAarMetadata/aar-metadata.properties
+@@ -0,0 +1,6 @@
++aarFormatVersion=1.0
++aarMetadataVersion=1.0
++minCompileSdk=1
++minCompileSdkExtension=0
++minAndroidGradlePluginVersion=1.0.0
++coreLibraryDesugaringEnabled=false
+diff --git a/node_modules/react-native-image-marker/android/build/intermediates/annotation_processor_list/debug/javaPreCompileDebug/annotationProcessors.json b/node_modules/react-native-image-marker/android/build/intermediates/annotation_processor_list/debug/javaPreCompileDebug/annotationProcessors.json
+new file mode 100644
+index 0000000..9e26dfe
+--- /dev/null
++++ b/node_modules/react-native-image-marker/android/build/intermediates/annotation_processor_list/debug/javaPreCompileDebug/annotationProcessors.json
+@@ -0,0 +1 @@
++{}
+\ No newline at end of file
+diff --git a/node_modules/react-native-image-marker/android/build/intermediates/compile_library_classes_jar/debug/bundleLibCompileToJarDebug/classes.jar b/node_modules/react-native-image-marker/android/build/intermediates/compile_library_classes_jar/debug/bundleLibCompileToJarDebug/classes.jar
+new file mode 100644
+index 0000000..c3dcc5b
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/intermediates/compile_library_classes_jar/debug/bundleLibCompileToJarDebug/classes.jar differ
+diff --git a/node_modules/react-native-image-marker/android/build/intermediates/compile_r_class_jar/debug/generateDebugRFile/R.jar b/node_modules/react-native-image-marker/android/build/intermediates/compile_r_class_jar/debug/generateDebugRFile/R.jar
+new file mode 100644
+index 0000000..8c8c9ee
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/intermediates/compile_r_class_jar/debug/generateDebugRFile/R.jar differ
+diff --git a/node_modules/react-native-image-marker/android/build/intermediates/compile_symbol_list/debug/generateDebugRFile/R.txt b/node_modules/react-native-image-marker/android/build/intermediates/compile_symbol_list/debug/generateDebugRFile/R.txt
+new file mode 100644
+index 0000000..e69de29
+diff --git a/node_modules/react-native-image-marker/android/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties b/node_modules/react-native-image-marker/android/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties
+new file mode 100644
+index 0000000..a4c968c
+--- /dev/null
++++ b/node_modules/react-native-image-marker/android/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties
+@@ -0,0 +1 @@
++#Thu Oct 23 10:18:15 IST 2025
+diff --git a/node_modules/react-native-image-marker/android/build/intermediates/incremental/debug/packageDebugResources/merger.xml b/node_modules/react-native-image-marker/android/build/intermediates/incremental/debug/packageDebugResources/merger.xml
+new file mode 100644
+index 0000000..4ae5aa2
+--- /dev/null
++++ b/node_modules/react-native-image-marker/android/build/intermediates/incremental/debug/packageDebugResources/merger.xml
+@@ -0,0 +1,2 @@
++<?xml version="1.0" encoding="utf-8"?>
++<merger version="3"><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="main$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/admin/Desktop/PlatformAppPatch/node_modules/react-native-image-marker/android/src/main/res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="main" generated-set="main$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/admin/Desktop/PlatformAppPatch/node_modules/react-native-image-marker/android/src/main/res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="debug$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/admin/Desktop/PlatformAppPatch/node_modules/react-native-image-marker/android/src/debug/res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="debug" generated-set="debug$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/admin/Desktop/PlatformAppPatch/node_modules/react-native-image-marker/android/src/debug/res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="generated$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/admin/Desktop/PlatformAppPatch/node_modules/react-native-image-marker/android/build/generated/res/resValues/debug"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="generated" generated-set="generated$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/admin/Desktop/PlatformAppPatch/node_modules/react-native-image-marker/android/build/generated/res/resValues/debug"/></dataSet><mergedItems/></merger>
+\ No newline at end of file
+diff --git a/node_modules/react-native-image-marker/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/jimmydaddy/imagemarker/BuildConfig.class b/node_modules/react-native-image-marker/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/jimmydaddy/imagemarker/BuildConfig.class
+new file mode 100644
+index 0000000..dc6040f
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/jimmydaddy/imagemarker/BuildConfig.class differ
+diff --git a/node_modules/react-native-image-marker/android/build/intermediates/local_only_symbol_list/debug/parseDebugLocalResources/R-def.txt b/node_modules/react-native-image-marker/android/build/intermediates/local_only_symbol_list/debug/parseDebugLocalResources/R-def.txt
+new file mode 100644
+index 0000000..78ac5b8
+--- /dev/null
++++ b/node_modules/react-native-image-marker/android/build/intermediates/local_only_symbol_list/debug/parseDebugLocalResources/R-def.txt
+@@ -0,0 +1,2 @@
++R_DEF: Internal format may change without notice
++local
+diff --git a/node_modules/react-native-image-marker/android/build/intermediates/manifest_merge_blame_file/debug/processDebugManifest/manifest-merger-blame-debug-report.txt b/node_modules/react-native-image-marker/android/build/intermediates/manifest_merge_blame_file/debug/processDebugManifest/manifest-merger-blame-debug-report.txt
+new file mode 100644
+index 0000000..d8a2049
+--- /dev/null
++++ b/node_modules/react-native-image-marker/android/build/intermediates/manifest_merge_blame_file/debug/processDebugManifest/manifest-merger-blame-debug-report.txt
+@@ -0,0 +1,7 @@
++1<?xml version="1.0" encoding="utf-8"?>
++2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
++3    package="com.jimmydaddy.imagemarker" >
++4
++5    <uses-sdk android:minSdkVersion="24" />
++6
++7</manifest>
+diff --git a/node_modules/react-native-image-marker/android/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml b/node_modules/react-native-image-marker/android/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml
+new file mode 100644
+index 0000000..2dd08c7
+--- /dev/null
++++ b/node_modules/react-native-image-marker/android/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml
+@@ -0,0 +1,7 @@
++<?xml version="1.0" encoding="utf-8"?>
++<manifest xmlns:android="http://schemas.android.com/apk/res/android"
++    package="com.jimmydaddy.imagemarker" >
++
++    <uses-sdk android:minSdkVersion="24" />
++
++</manifest>
+\ No newline at end of file
+diff --git a/node_modules/react-native-image-marker/android/build/intermediates/navigation_json/debug/extractDeepLinksDebug/navigation.json b/node_modules/react-native-image-marker/android/build/intermediates/navigation_json/debug/extractDeepLinksDebug/navigation.json
+new file mode 100644
+index 0000000..0637a08
+--- /dev/null
++++ b/node_modules/react-native-image-marker/android/build/intermediates/navigation_json/debug/extractDeepLinksDebug/navigation.json
+@@ -0,0 +1 @@
++[]
+\ No newline at end of file
+diff --git a/node_modules/react-native-image-marker/android/build/intermediates/nested_resources_validation_report/debug/generateDebugResources/nestedResourcesValidationReport.txt b/node_modules/react-native-image-marker/android/build/intermediates/nested_resources_validation_report/debug/generateDebugResources/nestedResourcesValidationReport.txt
+new file mode 100644
+index 0000000..08f4ebe
+--- /dev/null
++++ b/node_modules/react-native-image-marker/android/build/intermediates/nested_resources_validation_report/debug/generateDebugResources/nestedResourcesValidationReport.txt
+@@ -0,0 +1 @@
++0 Warning/Error
+\ No newline at end of file
+diff --git a/node_modules/react-native-image-marker/android/build/intermediates/symbol_list_with_package_name/debug/generateDebugRFile/package-aware-r.txt b/node_modules/react-native-image-marker/android/build/intermediates/symbol_list_with_package_name/debug/generateDebugRFile/package-aware-r.txt
+new file mode 100644
+index 0000000..f3bd051
+--- /dev/null
++++ b/node_modules/react-native-image-marker/android/build/intermediates/symbol_list_with_package_name/debug/generateDebugRFile/package-aware-r.txt
+@@ -0,0 +1 @@
++com.jimmydaddy.imagemarker
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab
+new file mode 100644
+index 0000000..38f8edd
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream
+new file mode 100644
+index 0000000..82e9b66
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream.len b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream.len
+new file mode 100644
+index 0000000..d085945
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream.len differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.len b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.len
+new file mode 100644
+index 0000000..42df8b9
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.len differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.values.at b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.values.at
+new file mode 100644
+index 0000000..362b960
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.values.at differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i
+new file mode 100644
+index 0000000..c1502d4
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i.len b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i.len
+new file mode 100644
+index 0000000..131e265
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i.len differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab
+new file mode 100644
+index 0000000..9d4deb5
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream
+new file mode 100644
+index 0000000..9f90a77
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream.len b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream.len
+new file mode 100644
+index 0000000..adc2018
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream.len differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.len b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.len
+new file mode 100644
+index 0000000..c580238
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.len differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.values.at b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.values.at
+new file mode 100644
+index 0000000..28f1de1
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.values.at differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i
+new file mode 100644
+index 0000000..766c2d1
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i.len b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i.len
+new file mode 100644
+index 0000000..131e265
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i.len differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab
+new file mode 100644
+index 0000000..f142af7
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream
+new file mode 100644
+index 0000000..9f90a77
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream.len b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream.len
+new file mode 100644
+index 0000000..adc2018
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream.len differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.len b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.len
+new file mode 100644
+index 0000000..c580238
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.len differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.values.at b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.values.at
+new file mode 100644
+index 0000000..0110063
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.values.at differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i
+new file mode 100644
+index 0000000..766c2d1
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i.len b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i.len
+new file mode 100644
+index 0000000..131e265
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i.len differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab
+new file mode 100644
+index 0000000..6536f9f
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab.keystream b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab.keystream
+new file mode 100644
+index 0000000..c020296
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab.keystream differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab.keystream.len b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab.keystream.len
+new file mode 100644
+index 0000000..f2e7ac9
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab.keystream.len differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab.len b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab.len
+new file mode 100644
+index 0000000..93a595b
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab.len differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab.values.at b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab.values.at
+new file mode 100644
+index 0000000..3b9bf71
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab.values.at differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab_i b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab_i
+new file mode 100644
+index 0000000..f92b5e7
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab_i differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab_i.len b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab_i.len
+new file mode 100644
+index 0000000..131e265
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab_i.len differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab
+new file mode 100644
+index 0000000..f08727b
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream
+new file mode 100644
+index 0000000..50f73ba
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream.len b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream.len
+new file mode 100644
+index 0000000..e80b044
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream.len differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.len b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.len
+new file mode 100644
+index 0000000..41d6c24
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.len differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.values.at b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.values.at
+new file mode 100644
+index 0000000..dd1eff5
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.values.at differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i
+new file mode 100644
+index 0000000..c1fa52d
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i.len b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i.len
+new file mode 100644
+index 0000000..131e265
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i.len differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab
+new file mode 100644
+index 0000000..997b35f
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream
+new file mode 100644
+index 0000000..e86f13e
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream.len b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream.len
+new file mode 100644
+index 0000000..a358e30
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream.len differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.len b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.len
+new file mode 100644
+index 0000000..6ed8337
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.len differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.values.at b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.values.at
+new file mode 100644
+index 0000000..5d343a5
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.values.at differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i
+new file mode 100644
+index 0000000..58f0742
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i.len b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i.len
+new file mode 100644
+index 0000000..131e265
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i.len differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab
+new file mode 100644
+index 0000000..328e315
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream
+new file mode 100644
+index 0000000..82e9b66
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream.len b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream.len
+new file mode 100644
+index 0000000..d085945
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream.len differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.len b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.len
+new file mode 100644
+index 0000000..42df8b9
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.len differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.values.at b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.values.at
+new file mode 100644
+index 0000000..0b57eb8
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.values.at differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i
+new file mode 100644
+index 0000000..c1502d4
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i.len b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i.len
+new file mode 100644
+index 0000000..131e265
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i.len differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab
+new file mode 100644
+index 0000000..351560b
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab.keystream b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab.keystream
+new file mode 100644
+index 0000000..fd40ff1
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab.keystream differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab.keystream.len b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab.keystream.len
+new file mode 100644
+index 0000000..28d2ac7
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab.keystream.len differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab.len b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab.len
+new file mode 100644
+index 0000000..9e27f73
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab.len differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab.values.at b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab.values.at
+new file mode 100644
+index 0000000..fbeb67e
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab.values.at differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab_i b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab_i
+new file mode 100644
+index 0000000..f9e5204
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab_i differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab_i.len b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab_i.len
+new file mode 100644
+index 0000000..131e265
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab_i.len differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab
+new file mode 100644
+index 0000000..4a64ba9
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab.keystream b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab.keystream
+new file mode 100644
+index 0000000..e0df05d
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab.keystream differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab.keystream.len b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab.keystream.len
+new file mode 100644
+index 0000000..6fdc033
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab.keystream.len differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab.len b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab.len
+new file mode 100644
+index 0000000..eb0b8a0
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab.len differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab.values.at b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab.values.at
+new file mode 100644
+index 0000000..291fc03
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab.values.at differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab_i b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab_i
+new file mode 100644
+index 0000000..d52be0a
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab_i differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab_i.len b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab_i.len
+new file mode 100644
+index 0000000..131e265
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab_i.len differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/counters.tab b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/counters.tab
+new file mode 100644
+index 0000000..1911a39
+--- /dev/null
++++ b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/counters.tab
+@@ -0,0 +1,2 @@
++25
++0
+\ No newline at end of file
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab
+new file mode 100644
+index 0000000..3a91420
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream
+new file mode 100644
+index 0000000..82e9b66
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream.len b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream.len
+new file mode 100644
+index 0000000..d085945
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream.len differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.len b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.len
+new file mode 100644
+index 0000000..42df8b9
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.len differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.values.at b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.values.at
+new file mode 100644
+index 0000000..ae69ecd
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.values.at differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i
+new file mode 100644
+index 0000000..c1502d4
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i.len b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i.len
+new file mode 100644
+index 0000000..131e265
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i.len differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab
+new file mode 100644
+index 0000000..27458ac
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream
+new file mode 100644
+index 0000000..9a50599
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream.len b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream.len
+new file mode 100644
+index 0000000..1df5122
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream.len differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.len b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.len
+new file mode 100644
+index 0000000..42df8b9
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.len differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.values.at b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.values.at
+new file mode 100644
+index 0000000..713801f
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.values.at differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab_i b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab_i
+new file mode 100644
+index 0000000..ea39692
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab_i differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab_i.len b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab_i.len
+new file mode 100644
+index 0000000..131e265
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab_i.len differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab
+new file mode 100644
+index 0000000..ced6e7b
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream
+new file mode 100644
+index 0000000..7e037fd
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream.len b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream.len
+new file mode 100644
+index 0000000..20839ab
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream.len differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.len b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.len
+new file mode 100644
+index 0000000..1ee789c
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.len differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.values.at b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.values.at
+new file mode 100644
+index 0000000..9f85f57
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.values.at differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i
+new file mode 100644
+index 0000000..3ac5c7b
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i.len b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i.len
+new file mode 100644
+index 0000000..131e265
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i.len differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/last-build.bin b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/last-build.bin
+new file mode 100644
+index 0000000..38d4727
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/cacheable/last-build.bin differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/classpath-snapshot/shrunk-classpath-snapshot.bin b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/classpath-snapshot/shrunk-classpath-snapshot.bin
+new file mode 100644
+index 0000000..24f7a8a
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/classpath-snapshot/shrunk-classpath-snapshot.bin differ
+diff --git a/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/local-state/build-history.bin b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/local-state/build-history.bin
+new file mode 100644
+index 0000000..1fd7a52
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/kotlin/compileDebugKotlin/local-state/build-history.bin differ
+diff --git a/node_modules/react-native-image-marker/android/build/outputs/logs/manifest-merger-debug-report.txt b/node_modules/react-native-image-marker/android/build/outputs/logs/manifest-merger-debug-report.txt
+new file mode 100644
+index 0000000..6c4b4f5
+--- /dev/null
++++ b/node_modules/react-native-image-marker/android/build/outputs/logs/manifest-merger-debug-report.txt
+@@ -0,0 +1,17 @@
++-- Merging decision tree log ---
++manifest
++ADDED from /Users/admin/Desktop/PlatformAppPatch/node_modules/react-native-image-marker/android/src/main/AndroidManifest.xml:1:1-3:12
++INJECTED from /Users/admin/Desktop/PlatformAppPatch/node_modules/react-native-image-marker/android/src/main/AndroidManifest.xml:1:1-3:12
++	package
++		ADDED from /Users/admin/Desktop/PlatformAppPatch/node_modules/react-native-image-marker/android/src/main/AndroidManifest.xml:2:3-39
++		INJECTED from /Users/admin/Desktop/PlatformAppPatch/node_modules/react-native-image-marker/android/src/main/AndroidManifest.xml
++	xmlns:android
++		ADDED from /Users/admin/Desktop/PlatformAppPatch/node_modules/react-native-image-marker/android/src/main/AndroidManifest.xml:1:11-69
++uses-sdk
++INJECTED from /Users/admin/Desktop/PlatformAppPatch/node_modules/react-native-image-marker/android/src/main/AndroidManifest.xml reason: use-sdk injection requested
++INJECTED from /Users/admin/Desktop/PlatformAppPatch/node_modules/react-native-image-marker/android/src/main/AndroidManifest.xml
++INJECTED from /Users/admin/Desktop/PlatformAppPatch/node_modules/react-native-image-marker/android/src/main/AndroidManifest.xml
++	android:targetSdkVersion
++		INJECTED from /Users/admin/Desktop/PlatformAppPatch/node_modules/react-native-image-marker/android/src/main/AndroidManifest.xml
++	android:minSdkVersion
++		INJECTED from /Users/admin/Desktop/PlatformAppPatch/node_modules/react-native-image-marker/android/src/main/AndroidManifest.xml
+diff --git a/node_modules/react-native-image-marker/android/build/tmp/compileDebugJavaWithJavac/previous-compilation-data.bin b/node_modules/react-native-image-marker/android/build/tmp/compileDebugJavaWithJavac/previous-compilation-data.bin
+new file mode 100644
+index 0000000..f982cc1
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/tmp/compileDebugJavaWithJavac/previous-compilation-data.bin differ
+diff --git a/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/META-INF/react-native-image-marker_debug.kotlin_module b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/META-INF/react-native-image-marker_debug.kotlin_module
+new file mode 100644
+index 0000000..c998a4c
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/META-INF/react-native-image-marker_debug.kotlin_module differ
+diff --git a/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/ImageMarkerManager$Companion.class b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/ImageMarkerManager$Companion.class
+new file mode 100644
+index 0000000..ce4235a
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/ImageMarkerManager$Companion.class differ
+diff --git a/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/ImageMarkerManager$markWithImage$1.class b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/ImageMarkerManager$markWithImage$1.class
+new file mode 100644
+index 0000000..ce2b95c
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/ImageMarkerManager$markWithImage$1.class differ
+diff --git a/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/ImageMarkerManager$markWithText$1.class b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/ImageMarkerManager$markWithText$1.class
+new file mode 100644
+index 0000000..af22a07
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/ImageMarkerManager$markWithText$1.class differ
+diff --git a/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/ImageMarkerManager.class b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/ImageMarkerManager.class
+new file mode 100644
+index 0000000..800af7a
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/ImageMarkerManager.class differ
+diff --git a/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/ImageMarkerPackage.class b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/ImageMarkerPackage.class
+new file mode 100644
+index 0000000..86bfde7
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/ImageMarkerPackage.class differ
+diff --git a/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/ImageProcess$Companion.class b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/ImageProcess$Companion.class
+new file mode 100644
+index 0000000..767fbd1
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/ImageProcess$Companion.class differ
+diff --git a/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/ImageProcess.class b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/ImageProcess.class
+new file mode 100644
+index 0000000..3243b61
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/ImageProcess.class differ
+diff --git a/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/MarkerImageLoader$loadImages$2$deferredList$1$1$invokeSuspend$$inlined$target$1.class b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/MarkerImageLoader$loadImages$2$deferredList$1$1$invokeSuspend$$inlined$target$1.class
+new file mode 100644
+index 0000000..4f68a24
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/MarkerImageLoader$loadImages$2$deferredList$1$1$invokeSuspend$$inlined$target$1.class differ
+diff --git a/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/MarkerImageLoader$loadImages$2$deferredList$1$1.class b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/MarkerImageLoader$loadImages$2$deferredList$1$1.class
+new file mode 100644
+index 0000000..25dd779
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/MarkerImageLoader$loadImages$2$deferredList$1$1.class differ
+diff --git a/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/MarkerImageLoader$loadImages$2.class b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/MarkerImageLoader$loadImages$2.class
+new file mode 100644
+index 0000000..9ce69cd
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/MarkerImageLoader$loadImages$2.class differ
+diff --git a/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/MarkerImageLoader.class b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/MarkerImageLoader.class
+new file mode 100644
+index 0000000..1747b65
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/MarkerImageLoader.class differ
+diff --git a/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/Constants.class b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/Constants.class
+new file mode 100644
+index 0000000..adc65af
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/Constants.class differ
+diff --git a/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/CornerRadius.class b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/CornerRadius.class
+new file mode 100644
+index 0000000..e6546bc
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/CornerRadius.class differ
+diff --git a/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/ErrorCode.class b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/ErrorCode.class
+new file mode 100644
+index 0000000..d316426
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/ErrorCode.class differ
+diff --git a/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/ImageOptions$Companion.class b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/ImageOptions$Companion.class
+new file mode 100644
+index 0000000..238b97d
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/ImageOptions$Companion.class differ
+diff --git a/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/ImageOptions.class b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/ImageOptions.class
+new file mode 100644
+index 0000000..1d8b0d3
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/ImageOptions.class differ
+diff --git a/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/MarkImageOptions$Companion.class b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/MarkImageOptions$Companion.class
+new file mode 100644
+index 0000000..10f5781
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/MarkImageOptions$Companion.class differ
+diff --git a/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/MarkImageOptions.class b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/MarkImageOptions.class
+new file mode 100644
+index 0000000..e4987b0
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/MarkImageOptions.class differ
+diff --git a/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/MarkTextOptions$Companion.class b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/MarkTextOptions$Companion.class
+new file mode 100644
+index 0000000..351d55b
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/MarkTextOptions$Companion.class differ
+diff --git a/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/MarkTextOptions.class b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/MarkTextOptions.class
+new file mode 100644
+index 0000000..83d418b
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/MarkTextOptions.class differ
+diff --git a/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/MarkerError.class b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/MarkerError.class
+new file mode 100644
+index 0000000..4df47b3
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/MarkerError.class differ
+diff --git a/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/MarkerInsets.class b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/MarkerInsets.class
+new file mode 100644
+index 0000000..8f7bc5f
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/MarkerInsets.class differ
+diff --git a/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/Options$Companion.class b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/Options$Companion.class
+new file mode 100644
+index 0000000..7a259ab
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/Options$Companion.class differ
+diff --git a/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/Options.class b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/Options.class
+new file mode 100644
+index 0000000..18983c6
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/Options.class differ
+diff --git a/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/Padding.class b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/Padding.class
+new file mode 100644
+index 0000000..6fb22db
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/Padding.class differ
+diff --git a/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/Position$Companion$WhenMappings.class b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/Position$Companion$WhenMappings.class
+new file mode 100644
+index 0000000..e127e93
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/Position$Companion$WhenMappings.class differ
+diff --git a/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/Position$Companion.class b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/Position$Companion.class
+new file mode 100644
+index 0000000..2903d02
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/Position$Companion.class differ
+diff --git a/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/Position.class b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/Position.class
+new file mode 100644
+index 0000000..71ffb22
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/Position.class differ
+diff --git a/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/PositionEnum$Companion.class b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/PositionEnum$Companion.class
+new file mode 100644
+index 0000000..a5e2208
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/PositionEnum$Companion.class differ
+diff --git a/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/PositionEnum.class b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/PositionEnum.class
+new file mode 100644
+index 0000000..b645ede
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/PositionEnum.class differ
+diff --git a/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/RNImageSRC.class b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/RNImageSRC.class
+new file mode 100644
+index 0000000..f0b881b
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/RNImageSRC.class differ
+diff --git a/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/Radius.class b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/Radius.class
+new file mode 100644
+index 0000000..915cea2
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/Radius.class differ
+diff --git a/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/SaveFormat$Companion.class b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/SaveFormat$Companion.class
+new file mode 100644
+index 0000000..fd3b06a
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/SaveFormat$Companion.class differ
+diff --git a/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/SaveFormat.class b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/SaveFormat.class
+new file mode 100644
+index 0000000..a3868d8
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/SaveFormat.class differ
+diff --git a/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/ShadowLayerStyle.class b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/ShadowLayerStyle.class
+new file mode 100644
+index 0000000..77e037b
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/ShadowLayerStyle.class differ
+diff --git a/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/TextBackgroundStyle.class b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/TextBackgroundStyle.class
+new file mode 100644
+index 0000000..1ec6a73
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/TextBackgroundStyle.class differ
+diff --git a/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/TextOptions$WhenMappings.class b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/TextOptions$WhenMappings.class
+new file mode 100644
+index 0000000..0cd74dd
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/TextOptions$WhenMappings.class differ
+diff --git a/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/TextOptions.class b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/TextOptions.class
+new file mode 100644
+index 0000000..b37f19f
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/TextOptions.class differ
+diff --git a/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/TextStyle.class b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/TextStyle.class
+new file mode 100644
+index 0000000..0c98389
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/TextStyle.class differ
+diff --git a/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/Utils$Companion$WhenMappings.class b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/Utils$Companion$WhenMappings.class
+new file mode 100644
+index 0000000..754fbcf
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/Utils$Companion$WhenMappings.class differ
+diff --git a/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/Utils$Companion.class b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/Utils$Companion.class
+new file mode 100644
+index 0000000..f10271c
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/Utils$Companion.class differ
+diff --git a/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/Utils.class b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/Utils.class
+new file mode 100644
+index 0000000..7493497
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/Utils.class differ
+diff --git a/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/WatermarkImageOptions$Companion.class b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/WatermarkImageOptions$Companion.class
+new file mode 100644
+index 0000000..a7b6754
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/WatermarkImageOptions$Companion.class differ
+diff --git a/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/WatermarkImageOptions.class b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/WatermarkImageOptions.class
+new file mode 100644
+index 0000000..7e7396a
+Binary files /dev/null and b/node_modules/react-native-image-marker/android/build/tmp/kotlin-classes/debug/com/jimmydaddy/imagemarker/base/WatermarkImageOptions.class differ
+diff --git a/node_modules/react-native-image-marker/android/src/main/java/com/jimmydaddy/imagemarker/ImageMarkerManager.kt b/node_modules/react-native-image-marker/android/src/main/java/com/jimmydaddy/imagemarker/ImageMarkerManager.kt
+index 8cef531..ee9320b 100644
+--- a/node_modules/react-native-image-marker/android/src/main/java/com/jimmydaddy/imagemarker/ImageMarkerManager.kt
++++ b/node_modules/react-native-image-marker/android/src/main/java/com/jimmydaddy/imagemarker/ImageMarkerManager.kt
+@@ -34,262 +34,305 @@ import java.util.UUID
+  * Created by jimmydaddy on 2017/3/6.
+  */
+ class ImageMarkerManager(private val context: ReactApplicationContext) : ReactContextBaseJavaModule(
+-  context
++    context
+ ) {
+-  override fun getName(): String {
+-    return NAME
+-  }
++    override fun getName(): String {
++        return NAME
++    }
+ 
+-  private fun getSaveFormat(saveFormat: SaveFormat?): CompressFormat {
+-    return if (saveFormat != null && saveFormat === SaveFormat.PNG) CompressFormat.PNG else CompressFormat.JPEG
+-  }
++    private fun getSaveFormat(saveFormat: SaveFormat?): CompressFormat {
++        return if (saveFormat != null && saveFormat === SaveFormat.PNG) CompressFormat.PNG else CompressFormat.JPEG
++    }
+ 
+-  private fun markImageByBitmap(
+-    bg: Bitmap?,
+-    markers: List<Bitmap?>,
+-    dest: String,
+-    opts: MarkImageOptions,
+-    promise: Promise
+-  ) {
+-    var bos: BufferedOutputStream? = null
+-    var icon: Bitmap? = null
+-    try {
++    private fun markImageByBitmap(
++        bg: Bitmap?,
++        markers: List<Bitmap?>,
++        dest: String,
++        opts: MarkImageOptions,
++        promise: Promise
++    ) {
++        var bos: BufferedOutputStream? = null
++        var icon: Bitmap? = null
++        try {
++            // Null check for the background bitmap
++            if (bg == null) {
++                promise.reject("error", "Background image is null")
++                return
++            }
+ 
+-      // 原图生成 - start
+-      val height = bg!!.height
+-      val width = bg.width
+-      icon = getBlankBitmap(width, height)
+-      val canvas = Canvas(icon!!)
+-      canvas.save()
+-      canvas.drawBitmap(bg, 0f, 0f, opts.backgroundImage.applyStyle())
+-      canvas.restore()
+-      // 原图生成 - end
+-      for (i in opts.watermarkImages.indices) {
+-        canvas.save()
+-        val markOpts = opts.watermarkImages[i]
+-        var markerBitmap = markers[i]
+-        if (markOpts.imageOption.rotate != 0f) {
+-          markerBitmap = ImageProcess.rotate(markerBitmap!!, markOpts.imageOption.rotate)
+-        }
+-        if (markOpts.positionEnum != null) {
+-          val pos = getImageRectFromPosition(
+-            markOpts.positionEnum,
+-            markerBitmap!!.width,
+-            markerBitmap.height,
+-            width,
+-            height
+-          )
+-          canvas.drawBitmap(markerBitmap, pos.x, pos.y, markOpts.imageOption.applyStyle())
+-        } else {
+-          canvas.drawBitmap(
+-            markerBitmap!!,
+-            Utils.parseSpreadValue(markOpts.x, width.toFloat()),
+-            Utils.parseSpreadValue(markOpts.y, height.toFloat()),
+-            markOpts.imageOption.applyStyle()
+-          )
+-        }
+-        canvas.restore()
++            // 原图生成 - start
++            val height = bg.height
++            val width = bg.width
++            icon = getBlankBitmap(width, height)
++            val canvas = Canvas(icon!!)
++            canvas.save()
++            canvas.drawBitmap(bg, 0f, 0f, opts.backgroundImage.applyStyle())
++            canvas.restore()
++            // 原图生成 - end
++            for (i in opts.watermarkImages.indices) {
++                canvas.save()
++                val markOpts = opts.watermarkImages[i]
++                var markerBitmap = markers[i]
+ 
+-        if (!markerBitmap.isRecycled) {
+-          markerBitmap.recycle()
+-          System.gc()
+-        }
+-      }
++                // Ensure markerBitmap is not null before processing
++                if (markerBitmap == null) continue
+ 
+-      // 保存
+-      // canvas.save(Canvas.ALL_SAVE_FLAG);
+-      if (!bg.isRecycled) {
+-        bg.recycle()
+-        System.gc()
+-      }
++                if (markOpts.imageOption.rotate != 0f) {
++                    markerBitmap = ImageProcess.rotate(markerBitmap, markOpts.imageOption.rotate)
++                }
++                if (markOpts.positionEnum != null) {
++                    val pos = getImageRectFromPosition(
++                        markOpts.positionEnum,
++                        markerBitmap.width,
++                        markerBitmap.height,
++                        width,
++                        height
++                    )
++                    canvas.drawBitmap(markerBitmap, pos.x, pos.y, markOpts.imageOption.applyStyle())
++                } else {
++                    canvas.drawBitmap(
++                        markerBitmap,
++                        Utils.parseSpreadValue(markOpts.x, width.toFloat()),
++                        Utils.parseSpreadValue(markOpts.y, height.toFloat()),
++                        markOpts.imageOption.applyStyle()
++                    )
++                }
++                canvas.restore()
+ 
+-      if (opts.backgroundImage.rotate != 0f) {
+-        icon = ImageProcess.rotate(icon, opts.backgroundImage.rotate)
+-      }
+-      // export base64
+-      if (dest == BASE64) {
+-        val base64Stream = ByteArrayOutputStream()
+-        icon.compress(CompressFormat.PNG, opts.quality, base64Stream)
+-        base64Stream.flush()
+-        base64Stream.close()
+-        val bitmapBytes = base64Stream.toByteArray()
+-        val result = Base64.encodeToString(bitmapBytes, Base64.DEFAULT)
+-        promise.resolve("data:image/png;base64,$result")
+-      } else {
+-        bos = BufferedOutputStream(FileOutputStream(dest))
+-        icon.compress(getSaveFormat(opts.saveFormat), opts.quality, bos)
+-        bos.flush()
+-        bos.close()
+-        //保存成功的
+-        promise.resolve(dest)
+-      }
+-    } catch (e: Exception) {
+-      e.printStackTrace()
+-      promise.reject("error", e.message, e)
+-    } finally {
+-      if (bos != null) {
+-        try {
+-          bos.close()
+-        } catch (e: IOException) {
+-          e.printStackTrace()
++                if (!markerBitmap.isRecycled) {
++                    markerBitmap.recycle()
++                    System.gc()
++                }
++            }
++
++            // 保存
++            if (!bg.isRecycled) {
++                bg.recycle()
++                System.gc()
++            }
++
++            if (opts.backgroundImage.rotate != 0f) {
++                icon = ImageProcess.rotate(icon, opts.backgroundImage.rotate)
++            }
++            // export base64
++            if (dest == BASE64) {
++                val base64Stream = ByteArrayOutputStream()
++                icon.compress(CompressFormat.PNG, opts.quality, base64Stream)
++                base64Stream.flush()
++                base64Stream.close()
++                val bitmapBytes = base64Stream.toByteArray()
++                val result = Base64.encodeToString(bitmapBytes, Base64.DEFAULT)
++                promise.resolve("data:image/png;base64,$result")
++            } else {
++                bos = BufferedOutputStream(FileOutputStream(dest))
++                icon.compress(getSaveFormat(opts.saveFormat), opts.quality, bos)
++                bos.flush()
++                bos.close()
++                //保存成功的
++                promise.resolve(dest)
++            }
++        } catch (e: Exception) {
++            e.printStackTrace()
++            promise.reject("error", e.message, e)
++        } finally {
++            if (bos != null) {
++                try {
++                    bos.close()
++                } catch (e: IOException) {
++                    e.printStackTrace()
++                }
++            }
++            if (icon != null && !icon.isRecycled) {
++                icon.recycle()
++                System.gc()
++            }
+         }
+-      }
+-      if (icon != null && !icon.isRecycled) {
+-        icon.recycle()
+-        System.gc()
+-      }
+     }
+-  }
+-
+-  /**
+-   * @param bg
+-   * @param dest
+-   * @param opts
+-   * @param promise
+-   */
+-  private fun markImageByText(
+-    bg: Bitmap?,
+-    dest: String,
+-    opts: MarkTextOptions,
+-    promise: Promise
+-  ) {
+-    var bos: BufferedOutputStream? = null
+-    var icon: Bitmap? = null
+-    try {
+-      val height = bg!!.height
+-      val width = bg.width
+-      icon = getBlankBitmap(width, height)
+-      //初始化画布 绘制的图像到icon上
+-      val canvas = Canvas(icon!!)
+-      canvas.save()
+-      canvas.drawBitmap(bg, 0f, 0f, opts.backgroundImage.applyStyle())
+-      canvas.restore()
+-      if (!bg.isRecycled) {
+-        bg.recycle()
+-        System.gc()
+-      }
+-      for (text in opts.watermarkTexts) {
+-        //建立画笔
+-        text!!.applyStyle(this.reactApplicationContext, canvas, width, height)
+-      }
+ 
+-      if (opts.backgroundImage.rotate != 0f) {
+-        icon = ImageProcess.rotate(icon, opts.backgroundImage.rotate)
+-      }
+-      if (dest == BASE64) {
+-        val base64Stream = ByteArrayOutputStream()
+-        icon.compress(CompressFormat.PNG, opts.quality, base64Stream)
+-        base64Stream.flush()
+-        base64Stream.close()
+-        val bitmapBytes = base64Stream.toByteArray()
+-        val result = Base64.encodeToString(bitmapBytes, Base64.DEFAULT)
+-        promise.resolve("data:image/png;base64,$result")
+-      } else {
+-        bos = BufferedOutputStream(FileOutputStream(dest))
+-        icon.compress(getSaveFormat(opts.saveFormat), opts.quality, bos)
+-        bos.flush()
+-        bos.close()
+-        //保存成功的
+-        promise.resolve(dest)
+-      }
+-    } catch (e: Exception) {
+-      e.printStackTrace()
+-      promise.reject("error", e.message, e)
+-    } finally {
+-      if (bos != null) {
++    /**
++     * @param bg
++     * @param dest
++     * @param opts
++     * @param promise
++     */
++    private fun markImageByText(
++        bg: Bitmap?,
++        dest: String,
++        opts: MarkTextOptions,
++        promise: Promise
++    ) {
++        var bos: BufferedOutputStream? = null
++        var icon: Bitmap? = null
+         try {
+-          bos.close()
+-        } catch (e: IOException) {
+-          e.printStackTrace()
++            // Null check for the background bitmap
++            if (bg == null) {
++                promise.reject("error", "Background image is null")
++                return
++            }
++
++            val height = bg.height
++            val width = bg.width
++            icon = getBlankBitmap(width, height)
++            //初始化画布 绘制的图像到icon上
++            val canvas = Canvas(icon!!)
++            canvas.save()
++            canvas.drawBitmap(bg, 0f, 0f, opts.backgroundImage.applyStyle())
++            canvas.restore()
++            if (!bg.isRecycled) {
++                bg.recycle()
++                System.gc()
++            }
++
++            // FIX: Safely iterate over the nullable watermarkTexts array
++            opts.watermarkTexts?.forEach { textOpt ->
++                // Ensure individual TextOptions object is not null
++                textOpt?.applyStyle(this.reactApplicationContext, canvas, width, height)
++            }
++
++            if (opts.backgroundImage.rotate != 0f) {
++                icon = ImageProcess.rotate(icon, opts.backgroundImage.rotate)
++            }
++            if (dest == BASE64) {
++                val base64Stream = ByteArrayOutputStream()
++                icon.compress(CompressFormat.PNG, opts.quality, base64Stream)
++                base64Stream.flush()
++                base64Stream.close()
++                val bitmapBytes = base64Stream.toByteArray()
++                val result = Base64.encodeToString(bitmapBytes, Base64.DEFAULT)
++                promise.resolve("data:image/png;base64,$result")
++            } else {
++                bos = BufferedOutputStream(FileOutputStream(dest))
++                icon.compress(getSaveFormat(opts.saveFormat), opts.quality, bos)
++                bos.flush()
++                bos.close()
++                //保存成功的
++                promise.resolve(dest)
++            }
++        } catch (e: Exception) {
++            e.printStackTrace()
++            promise.reject("error", e.message, e)
++        } finally {
++            if (bos != null) {
++                try {
++                    bos.close()
++                } catch (e: IOException) {
++                    e.printStackTrace()
++                }
++            }
++            if (icon != null && !icon.isRecycled) {
++                icon.recycle()
++                System.gc()
++            }
+         }
+-      }
+-      if (icon != null && !icon.isRecycled) {
+-        icon.recycle()
+-        System.gc()
+-      }
+     }
+-  }
+ 
+-  /**
+-   * @param opts
+-   * @param promise
+-   */
+-  @OptIn(DelicateCoroutinesApi::class)
+-  @RequiresApi(Build.VERSION_CODES.N)
+-  @ReactMethod
+-  fun markWithText(
++    /**
++     * @param opts
++     * @param promise
++     */
++@OptIn(DelicateCoroutinesApi::class)
++@RequiresApi(Build.VERSION_CODES.N)
++@ReactMethod
++fun markWithText(
+     opts: ReadableMap?,
+     promise: Promise
+-  ) {
+-    val markOpts = MarkTextOptions.checkParams(opts!!, promise) ?: return
+-    Log.d(IMAGE_MARKER_TAG, "uri: " + markOpts.backgroundImage.uri)
+-    Log.d(IMAGE_MARKER_TAG, "src: " + markOpts.backgroundImage.src.toString())
+-    GlobalScope.launch(Dispatchers.Main) {
+-      try {
+-        val bitmaps = MarkerImageLoader(context, markOpts.maxSize).loadImages(
+-          listOf(
+-            markOpts.backgroundImage,
+-          )
+-        )
+-        val bg = bitmaps[0]
+-        val dest = generateCacheFilePathForMarker(markOpts.filename, markOpts.saveFormat)
+-        markImageByText(bg, dest, markOpts, promise)
+-      } catch (e: Exception) {
+-        Log.d(IMAGE_MARKER_TAG, "error：" + e.message)
+-        e.printStackTrace()
+-        promise.reject("error", e.message, e)
+-      }
+-    }
+-  }
++) {
++    try {
++        // MarkTextOptions.checkParams should handle null opts and reject the promise if necessary
++        val markOpts = MarkTextOptions.checkParams(opts, promise)
+ 
+-  @OptIn(DelicateCoroutinesApi::class)
+-  @RequiresApi(Build.VERSION_CODES.N)
+-  @ReactMethod
+-  fun markWithImage(
+-    opts: ReadableMap?,
+-    promise: Promise
+-  ) {
+-    val markOpts = MarkImageOptions.checkParams(opts!!, promise) ?: return
+-    GlobalScope.launch(Dispatchers.Main) {
+-      try {
+-        val markers = markOpts.watermarkImages.map { it.imageOption }
+-        val concatenatedArray = listOf(
+-          markOpts.backgroundImage,
+-        ).plus(markers)
+-        val bitmaps = MarkerImageLoader(context, markOpts.maxSize).loadImages(
+-          concatenatedArray
+-        )
+-        val bg = bitmaps[0]
+-        val markerBitmaps = bitmaps.subList(1, bitmaps.lastIndex + 1)
+-        val dest = generateCacheFilePathForMarker(markOpts.filename, markOpts.saveFormat)
+-        markImageByBitmap(bg, markerBitmaps, dest, markOpts, promise)
+-      } catch (e: Exception) {
+-        Log.d(IMAGE_MARKER_TAG, "error：" + e.message)
+-        e.printStackTrace()
+-        promise.reject("error", e.message, e)
+-      }
++        if (markOpts == null) {
++            promise.reject("E_MARK_TEXT_OPTIONS", "MarkTextOptions is null or invalid")
++            return
++        }
++
++        Log.d(IMAGE_MARKER_TAG, "uri: ${markOpts.backgroundImage.uri}")
++        Log.d(IMAGE_MARKER_TAG, "src: ${markOpts.backgroundImage.src}")
++
++        // Run image operations on IO thread
++        GlobalScope.launch(Dispatchers.IO) {
++            try {
++                val bitmaps = MarkerImageLoader(context, markOpts.maxSize)
++                    .loadImages(listOf(markOpts.backgroundImage))
++
++                val bg = bitmaps.firstOrNull()
++                if (bg == null) {
++                    promise.reject("E_BITMAP_NULL", "Background image could not be loaded")
++                    return@launch
++                }
++
++                val dest = generateCacheFilePathForMarker(markOpts.filename, markOpts.saveFormat)
++                markImageByText(bg, dest, markOpts, promise)
++            } catch (e: Exception) {
++                Log.e(IMAGE_MARKER_TAG, "Error in markWithText (IO thread): ${e.message}", e)
++                promise.reject("E_MARK_TEXT", e.message, e)
++            }
++        }
++    } catch (e: Exception) {
++        Log.e(IMAGE_MARKER_TAG, "Error in markWithText: ${e.message}", e)
++        promise.reject("E_MARK_TEXT_OUTER", e.message, e)
+     }
+-  }
++}
+ 
+-  private fun generateCacheFilePathForMarker(
+-    filename: String?,
+-    saveFormat: SaveFormat?
+-  ): String {
+-    val cacheDir = this.reactApplicationContext.cacheDir.absolutePath
+-    if (saveFormat != null && saveFormat === SaveFormat.BASE64) {
+-      return BASE64
++    @OptIn(DelicateCoroutinesApi::class)
++    @RequiresApi(Build.VERSION_CODES.N)
++    @ReactMethod
++    fun markWithImage(
++        opts: ReadableMap?, // This is ReadableMap?
++        promise: Promise
++    ) {
++        // FIX: The original error was likely due to passing 'opts' (which is ReadableMap?)
++        // directly where a non-nullable ReadableMap was expected within checkParams, 
++        // or using 'opts!!' on a potentially null value.
++        // The safest approach is to ensure checkParams handles the nullable input 
++        // and returns null if validation fails, which is handled here with '? : return'
++       // FIX: If checkParams expects ReadableMap (non-nullable), assert non-null
++        // This is the simplest fix for the compilation error at line 289.
++        val nonNullableOpts: ReadableMap = opts!!
++        val markOpts = MarkImageOptions.checkParams(nonNullableOpts, promise) ?: return
++        
++        // FIX: Switched to Dispatchers.IO for I/O bound tasks like image loading/processing
++        GlobalScope.launch(Dispatchers.IO) { 
++            try {
++                val markers = markOpts.watermarkImages.map { it.imageOption }
++                val concatenatedArray = listOf(
++                    markOpts.backgroundImage,
++                ).plus(markers)
++                val bitmaps = MarkerImageLoader(context, markOpts.maxSize).loadImages(
++                    concatenatedArray
++                )
++                val bg = bitmaps[0]
++                // FIX: Use subList safely with size check
++                val markerBitmaps = bitmaps.subList(1, bitmaps.size) 
++                val dest = generateCacheFilePathForMarker(markOpts.filename, markOpts.saveFormat)
++                markImageByBitmap(bg, markerBitmaps, dest, markOpts, promise)
++            } catch (e: Exception) {
++                Log.d(IMAGE_MARKER_TAG, "error：" + e.message)
++                e.printStackTrace()
++                promise.reject("error", e.message, e)
++            }
++        }
+     }
+-    val ext =
+-      if (saveFormat != null && (saveFormat === SaveFormat.PNG)) ".png" else ".jpg"
+-    return if (null != filename) {
+-      if (filename.endsWith(".jpg") || filename.endsWith(".png")) "$cacheDir/$filename" else "$cacheDir/$filename$ext"
+-    } else {
+-      val name = UUID.randomUUID().toString() + "_image_marker"
+-      "$cacheDir/$name$ext"
++
++    private fun generateCacheFilePathForMarker(
++        filename: String?,
++        saveFormat: SaveFormat?
++    ): String {
++        val cacheDir = this.reactApplicationContext.cacheDir.absolutePath
++        if (saveFormat != null && saveFormat === SaveFormat.BASE64) {
++            return BASE64
++        }
++        val ext =
++            if (saveFormat != null && (saveFormat === SaveFormat.PNG)) ".png" else ".jpg"
++        return if (null != filename) {
++            if (filename.endsWith(".jpg") || filename.endsWith(".png")) "$cacheDir/$filename" else "$cacheDir/$filename$ext"
++        } else {
++            val name = UUID.randomUUID().toString() + "_image_marker"
++            "$cacheDir/$name$ext"
++        }
+     }
+-  }
+ 
+-  companion object {
+-    const val NAME = "ImageMarker"
+-  }
++    companion object {
++        const val NAME = "ImageMarker"
++    }
+ }
+\ No newline at end of file
+diff --git a/node_modules/react-native-image-marker/android/src/main/java/com/jimmydaddy/imagemarker/base/MarkTextOptions.kt b/node_modules/react-native-image-marker/android/src/main/java/com/jimmydaddy/imagemarker/base/MarkTextOptions.kt
+index 31b3043..59968fe 100644
+--- a/node_modules/react-native-image-marker/android/src/main/java/com/jimmydaddy/imagemarker/base/MarkTextOptions.kt
++++ b/node_modules/react-native-image-marker/android/src/main/java/com/jimmydaddy/imagemarker/base/MarkTextOptions.kt
+@@ -1,31 +1,39 @@
+ package com.jimmydaddy.imagemarker.base
+ 
+ import com.facebook.react.bridge.Promise
++import com.facebook.react.bridge.ReadableArray
+ import com.facebook.react.bridge.ReadableMap
++import com.facebook.react.bridge.WritableNativeMap // Needed for empty map
+ 
+-class MarkTextOptions(options: ReadableMap) : Options(options) {
+-  lateinit var watermarkTexts: Array<TextOptions?>
++class MarkTextOptions(options: ReadableMap?) : Options(options ?: WritableNativeMap()) { 
++    var watermarkTexts: Array<TextOptions?>? = null
+ 
+-  init {
+-    val waterMarkTextsMap = options.getArray("watermarkTexts")
+-    if (waterMarkTextsMap!!.size() > 0) {
+-      watermarkTexts = arrayOfNulls(waterMarkTextsMap.size())
+-      for (i in 0 until waterMarkTextsMap.size()) {
+-        val textMap = waterMarkTextsMap.getMap(i)
+-        watermarkTexts[i] = TextOptions(textMap)
+-      }
++    init {
++        // ... the rest of the init block (which you fixed for null checks)
++        val waterMarkTextsMap: ReadableArray? = options?.getArray("watermarkTexts")
++
++        if (waterMarkTextsMap != null && waterMarkTextsMap.size() > 0) {
++            watermarkTexts = arrayOfNulls(waterMarkTextsMap.size())
++            for (i in 0 until waterMarkTextsMap.size()) {
++                val textMap = waterMarkTextsMap.getMap(i)
++
++                if (textMap != null) {
++                    watermarkTexts!![i] = TextOptions(textMap)
++                }
++            }
++        }
+     }
+-  }
+ 
+-  companion object {
+-    @JvmStatic
+-    fun checkParams(opts: ReadableMap, promise: Promise): MarkTextOptions? {
+-      try {
+-        return MarkTextOptions(opts)
+-      } catch (e: MarkerError) {
+-        promise.reject(e.getErrorCode(), e.getErrMsg())
+-      }
+-      return null
++    companion object {
++        @JvmStatic
++        fun checkParams(opts: ReadableMap?, promise: Promise): MarkTextOptions? {
++            return try {
++                // The constructor now handles nullable opts correctly
++                if (opts != null) MarkTextOptions(opts) else null
++            } catch (e: MarkerError) {
++                promise.reject(e.getErrorCode(), e.getErrMsg())
++                null
++            }
++        }
+     }
+-  }
+ }
+\ No newline at end of file
