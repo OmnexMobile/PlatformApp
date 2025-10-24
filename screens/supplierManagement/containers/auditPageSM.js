@@ -3350,7 +3350,10 @@ console.log('checkvalues0000',SiteID,UserId,SearchCondition,TOKEN,iAuditId,iAudP
                     <Icon name="trash" size={25} color="white" />
                   </TouchableOpacity>
                 ) : null}
-                {!this.state.isLoading &&
+
+                {/* Refresh button removed as per new design */}
+
+                {/* {!this.state.isLoading &&
                 !this.state.isDownloading &&
                 this.state.isDownloaded ? (
                   <TouchableOpacity
@@ -3359,9 +3362,11 @@ console.log('checkvalues0000',SiteID,UserId,SearchCondition,TOKEN,iAuditId,iAudP
                       this.setState({dialogVisibleRefresh: true, webToMob: true, downloadAsync: true });
                     }}>
                   {/* <ResponsiveImage initWidth='25' initHeight='25' source={Images.deleteIcon}/> */}
-                    <Icon name="refresh" size={25} color="white" />
-                  </TouchableOpacity>
-                ) : null}
+                    {/* <Icon name="refresh" size={25} color="white" /> */}
+                  {/* </TouchableOpacity> */}
+                {/* ) : null} */} 
+                {/* Refresh button removed as per new design endddd*/}
+
                 {!this.state.isLoading && !this.state.isDownloading ? (
                   <TouchableOpacity
                     style={{paddingRight: 10}}
