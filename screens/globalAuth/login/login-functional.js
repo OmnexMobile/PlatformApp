@@ -120,6 +120,7 @@ const LoginFunctional = ({}) => {
 					console.log('global loginUser---->', data, res);
 					if (data?.data?.Success == true) {
 						console.log('checking global loginResponse---->', data?.data);
+						AsyncStorage.setItem('userDetails', JSON.stringify(data?.data));
 						data?.data?.Token && setProfileCall(data?.data); // navigate to home
 						handleGlobalLogin(data?.data);
 						handleServerURL(data?.data);

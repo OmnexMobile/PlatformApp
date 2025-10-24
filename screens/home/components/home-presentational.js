@@ -284,7 +284,7 @@ const HomePresentational = ({
                 </View>
             </Modalize>
             <ExitModal {...{ exitModalVisible, setExitModalVisible }} />
-            <FAB onPress={() => navigation.navigate(ROUTES.HOME_FAB_VIEW)} />
+            <FAB {...{ countDetails }} onPress={() => navigation.navigate(ROUTES.HOME_FAB_VIEW)} />
         </Content>
     );
 };

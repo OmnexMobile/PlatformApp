@@ -12,26 +12,41 @@ import IconComponent from './icon-component';
 import TextComponent from './text';
 import { IMAGES } from 'assets/images';
 import ImageComponent from './image-component';
+import { strings } from 'screens/apqp/language/Language';
 // import Tag from './tag';
 
-const ListCardLogo = ({ item = {} }) => {
+const ListCardLogoApqp = ({ item = {}, statusCode }) => {
+    console.log('item in list card logo apqp', item, statusCode);
     const { sites, handleRecentActivity, timeSettings } = useAppContext();
     const { theme } = useTheme();
     const elevation = getElevation();
     const navigation = useNavigation();
-    console.log('item ps-->', item);
+    console.log('item apqp', item?.Description);
 
     const handleClickCard = item => {
-        // navigation.navigate(ROUTES.CONCERN_SCREEN, { ConcernID: item?.ConcernID });
-        console.log('item?.Status', item?.Status);
-        navigation.navigate(item?.Status === STATUS.CREATED ? ROUTES.CONCERN_INITIAL_EVALUATION : ROUTES.VIEW_CONCERN_PS, {
-            ConcernID: item?.ConcernID,
-            ...(item?.StatusID === STATUS_CODES.IN_PROGRESS.toString() && { FormTypeID: 3 }),
-        });
+        console.log('Clicked Item1:', item);
+        // statusCode === STATUS_CODES.TODAY_CONCERN ?
+        // navigation.navigate(ROUTES.APQP_PPAP_MANAGER_SCREEN, {
+        //     filterId: 2,
+        //     title: strings.projects,
+        //     todayn: 2,
+        // }) :
+        // navigation.navigate(ROUTES.TODAYS_TASK, {
+        //     isFilterApplied: false,
+        // }) 
+        navigation.navigate(ROUTES.PERIODIC_UPDATE_SCREEN, {
+                      itemData: item,
+                      RouteParam: "Project",
+                      ProjectId: item.ProjectID,
+                      TaskID: item.ActionId,
+                      //activeTab: this.state.activeTab,
+                    });
+        // console.log('TODAYS_TASK navigation is commented', statusCode)
         handleRecentActivity?.(item);
     };
     return (
         <View style={{ paddingHorizontal: SPACING.NORMAL }}>
+        {item?.Description || item?.TaskDescription ? (
             <TouchableOpacity
                 activeOpacity={1}
                 onPress={() => handleClickCard?.(item)}
@@ -50,10 +65,15 @@ const ListCardLogo = ({ item = {} }) => {
                 <Ripple
                     rippleContainerBorderRadius={SPACING.SMALL}
                     onPress={() =>
-                        navigation.navigate(ROUTES.EDIT_CONCERN, {
-                                ConcernID: item?.ConcernID,
-                                FormTypeID: 3,
-                        })
+                        statusCode === STATUS_CODES.TODAYS_TASK ?
+                        navigation.navigate(ROUTES.APQP_PPAP_MANAGER_SCREEN, {
+                            filterId: 2,
+                            title: strings.projects,
+                            todayn: 2,
+                        }) :
+                        navigation.navigate(ROUTES.TODAYS_TASK, {
+                            isFilterApplied: false,
+                        }) 
                     }
                     activeOpacity={1}
                     style={{
@@ -70,17 +90,23 @@ const ListCardLogo = ({ item = {} }) => {
                     }}>
                     <ImageComponent
                         resizeMode="contain"
-                        source={IMAGES.ps_logo_round}
-                        // source={IMAGES.apqpModuleIcon}
+                        // source={IMAGES.ps_logo_round}
+                        source={IMAGES.apqp_logo}
+                        // style={{ width: '80%', height: '80%' }}
                     />
                 </Ripple>  
-                <Ripple
+                {/* <Ripple
                 rippleContainerBorderRadius={SPACING.SMALL}
                 onPress={() =>
-                    navigation.navigate(ROUTES.EDIT_CONCERN, {
-                        ConcernID: item?.ConcernID,
-                        FormTypeID: 3,
-                    })
+                    statusCode === STATUS_CODES.TODAYS_TASK ?
+                    navigation.navigate(ROUTES.APQP_PPAP_MANAGER_SCREEN, {
+                        filterId: 2,
+                        title: strings.projects,
+                        todayn: 2,
+                    }) :
+                    navigation.navigate(ROUTES.TODAYS_TASK, {
+                        isFilterApplied: false,
+                    }) 
                 }
                 activeOpacity={1}
                 style={{
@@ -96,7 +122,7 @@ const ListCardLogo = ({ item = {} }) => {
                     zIndex: 100,
                 }}>
                 <IconComponent name="edit" size={FONT_SIZE.LARGE} type={ICON_TYPE.AntDesign} color={COLORS.white} />
-                </Ripple>
+                </Ripple> */}
             </>
                 )}
                 <View style={[styles.cardOuterView]}>
@@ -113,25 +139,29 @@ const ListCardLogo = ({ item = {} }) => {
                                     style={{
                                         color: theme.colors.primaryThemeColor,
                                     }}>
-                                    {item?.Title}
+                                    {/* {item?.Actions} */}
+                                    {statusCode === STATUS_CODES.TODAY_CONCERN ? item?.ProjectDescription : item?.Actions}
                                 </TextComponent>
                             </View>
                         </View>
-                        {item?.Type ? (
+                        {item?.Description || item?.TaskDescription ? (
                             <View style={{ width: '100%', paddingBottom: SPACING.SMALL }}>
-                                <TextComponent numberOfLines={1}>Type: {item?.Type}</TextComponent>
+                                <TextComponent numberOfLines={1}>
+                                    {/* {item?.Description} */}
+                                    {statusCode === STATUS_CODES.TODAY_CONCERN ? item?.TaskDescription : item?.Description}
+                                    </TextComponent>
                             </View>
                         ) : null}
-                        {item?.ConcernNo ? (<View style={{ width: '100%', paddingBottom: SPACING.SMALL }}>
+                        {/* <View style={{ width: '100%', paddingBottom: SPACING.SMALL }}>
                             <TextComponent numberOfLines={1}>Concern No: {item?.ConcernNo}</TextComponent>
-                        </View>) : null}
+                        </View> */}
                         {/* <View style={{ width: '100%', paddingBottom: SPACING.SMALL }}>
                             <TextComponent numberOfLines={1}>Status: {item?.Status}</TextComponent>
                             <Tag text="open" />
                         </View> */}
                         <View style={{ flexDirection: 'row', paddingBottom: SPACING.SMALL }}>
                             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                {item?.CreatedDate? (<View
+                                <View
                                     style={{
                                         width: RFPercentage(2.5),
                                         height: RFPercentage(2.5),
@@ -142,21 +172,24 @@ const ListCardLogo = ({ item = {} }) => {
                                         marginRight: SPACING.X_SMALL,
                                     }}>
                                     <IconComponent name="calendar" color={COLORS.white} type={ICON_TYPE.AntDesign} size={FONT_SIZE.X_SMALL} />
-                                </View>) : null}
-                                {item?.CreatedDate? (<TextComponent type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.SMALL}>
-                                    {moment(item?.CreatedDate).format(DATE_FORMAT[timeSettings || "DD_MM_YYYY"])} -{' '}
-                                </TextComponent>) : null}
+                                </View>
+                                <TextComponent type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.SMALL}>
+                                    {moment(item?.StartDate).format(DATE_FORMAT[timeSettings || "DD_MM_YYYY"])} -{' '}
+                                </TextComponent>
                             </View>
                             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                {item?.DueDate? (<TextComponent type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.SMALL}>
-                                    {moment(item?.DueDate).format(DATE_FORMAT[timeSettings || "DD_MM_YYYY"])}
-                                    {/* {moment(item?.DueDate).format(DATE_FORMAT.DD_MM_YYYY)} */}
-                                </TextComponent>) : null}
+                                <TextComponent type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.SMALL}>
+                                    {/* {moment(item?.DueDate).format(DATE_FORMAT[timeSettings || "DD_MM_YYYY"])} */}
+                                    
+                                    {statusCode === STATUS_CODES.TODAY_CONCERN 
+                                    ? moment(item?.FinishDate).format(DATE_FORMAT[timeSettings || "DD_MM_YYYY"])
+                                    : moment(item?.DueDate).format(DATE_FORMAT[timeSettings || "DD_MM_YYYY"])}
+                                </TextComponent>
                             </View>
                         </View>
-                        <TextComponent style={{ paddingLeft: SPACING.X_SMALL }} numberOfLines={1}>
-                            Due by days: <TextComponent type={FONT_TYPE.BOLD}>{item?.DuebyDays}</TextComponent>
-                        </TextComponent>
+                        {item?.Description ? (<TextComponent style={{ paddingLeft: SPACING.X_SMALL }} numberOfLines={1}>
+                            Due by days: <TextComponent type={FONT_TYPE.BOLD}>{item?.DueByDays}</TextComponent>
+                        </TextComponent>) : null}
                         {/* <TextComponent
                             style={{ color: COLORS.searchText, paddingLeft: SPACING.X_SMALL, paddingTop: SPACING.X_SMALL }}
                             fontSize={FONT_SIZE.X_SMALL}
@@ -173,11 +206,12 @@ const ListCardLogo = ({ item = {} }) => {
                     </View>
                 </View>
             </TouchableOpacity>
+         ) : null}
         </View>
     );
 };
 
-export default ListCardLogo;
+export default ListCardLogoApqp;
 
 const styles = StyleSheet.create({
     cardOuterView: {

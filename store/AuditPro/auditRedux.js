@@ -108,7 +108,7 @@ export const storeNcofiRecords = (state, {ncofiRecords}) => {
 };
 
 export const updateRecentAuditList = (state, {recentAudits}) => {
-  // console.log('reducer updateRecentAuditList',recentAudits)
+  console.log('reducer updateRecentAuditList',recentAudits)
   state = ensureImmutable(state);
   return state.merge({recentAudits: recentAudits});
 };

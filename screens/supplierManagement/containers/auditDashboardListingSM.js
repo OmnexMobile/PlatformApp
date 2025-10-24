@@ -31,6 +31,7 @@ import {strings} from '../../auditPro/language/Language';
 import constant from '../../../constants/SupplierMgnt/AppConstants';
 import { SPACING } from 'constants/theme-constants';
 import { ROUTES } from 'constants/app-constant';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const {whitneyBook_18} = Fonts.style;
 const {blackGrey} = Fonts.colors;
@@ -40,10 +41,12 @@ class AuditDashboardListing extends Component {
     super(props);
     console.log('get props---->', props)
     this.pageSize = 10;
-    this.pageNo = 1;
+    this.pageNo = 1;    
     this.onEndReachedCalledDuringMomentum = false;
     // this.filterId = this.props.navigation.getParam('filterId');
-    this.filterId = this.props?.route?.params?.filterId
+        this.currentUserData = this.props?.route?.params?.currentUserData;
+    console.log("Received User Data --->", this.props);
+
     this.state = {
       listEndReached: false,
       loader: true,
@@ -51,11 +54,18 @@ class AuditDashboardListing extends Component {
       subLoader: false,
       auditList: [],
       auditListAll: [],
+      filterID: 0,
+      SM: 0
     };
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     LogBox.ignoreLogs(["componentWillReceiveProps has been renamed"])
+        // this.currentUserData = this.props?.route?.params?.currentUserData;
+    console.log('checkfilterID--------------------',this.props?.route?.params?.filterId);
+    var filterIDasync = await AsyncStorage.getItem('FILTERIDLIST'); 
+    var SMDATA = await AsyncStorage.getItem('supplierIndex'); 
+   
     if (this.props.data.audits.language === 'Chinese') {
       this.setState({ChineseScript: true}, () => {
         strings.setLanguage('zh');
@@ -70,7 +80,13 @@ class AuditDashboardListing extends Component {
         this.setState({});
       });
     }
-    // this.getAudits();
+     this.setState({
+      filterID: filterIDasync,
+      SM: SMDATA
+    },()=>{
+      console.log('FILTERIDCHECK*****************',this.state.filterID,this.state.SM);
+    this.getAudits();
+    }) 
     this.focusListener = this.props.navigation.addListener('focus', () => {
         console.log('AuditDashboardListing focused');
         // this.checkUser();
@@ -240,21 +256,20 @@ class AuditDashboardListing extends Component {
           Default = 1;
         let filterStr = '';
 
-        if (this.filterId === 2) {
+        if (this.state.filterID === '2') {
           filterStr = 'AuditStatus IN (2)';
-        } else if (this.filterId === 3) {
+        } else if (this.state.filterID === '3') {
           filterStr = 'AuditStatus IN (3)';
-        } else if (this.filterId === 4) {
+        } else if (this.state.filterID === '4') {
           filterStr = 'AuditStatus IN (4)';
-        } else if (this.filterId === 5) {
+        } else if (this.state.filterID === '5') {
           filterStr = 'AuditStatus IN (5)';
         }
-
         console.log('tret', auth.getauditlist);
-        auth.getauditlist(
-          token,
-          userId,
-          siteId,
+        console.log('paramcheckkkk', 
+          this.currentUserData.accessToken,
+          this.currentUserData.userId,
+          this.currentUserData.siteId,
           this.pageNo,
           this.pageSize,
           filterStr,
@@ -263,7 +278,21 @@ class AuditDashboardListing extends Component {
           EndDate,
           SortBy,
           SortOrder,
-          SM,
+          this.state.SM,);
+        
+        auth.getauditlist(
+          this.currentUserData.accessToken,
+          this.currentUserData.userId,
+          this.currentUserData.siteId,
+          this.pageNo,
+          this.pageSize,
+          filterStr,
+          GlobalFilter,
+          StartDate,
+          EndDate,
+          SortBy,
+          SortOrder,
+          this.state.SM,
           Default,
           (response, data) => {
             console.log('get audit list', data);

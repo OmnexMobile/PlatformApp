@@ -697,6 +697,7 @@ export let strings = new LocalizedStrings({
     projects: "Projects",
     risks: "Risks",
     meetings: "Meetings",
+    Confirm_refresh: "Any unsynced changes in the app will be lost. Do you want to continue?",
   },
 
   zh: {

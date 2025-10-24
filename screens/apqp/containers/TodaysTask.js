@@ -146,11 +146,16 @@ class ActionTabInterface extends Component {
       cFilterVal: 0,
       default: 1, // existing workf
       // default: 0 // existing workf
+      // recent_activity: this.props?.data?.projects?.recentActivity
+      //   ? this.props?.data?.projects?.recentActivity.length > 0
+      //     ? this.props?.data?.projects?.recentActivity.asMutable().reverse()
+      //     : []
+      //   : [],
       recent_activity: this.props?.data?.projects?.recentActivity
-        ? this.props?.data?.projects?.recentActivity.length > 0
-          ? this.props?.data?.projects?.recentActivity.asMutable().reverse()
-          : []
-        : [],
+      ? this.props?.data?.projects?.recentActivity.length > 0
+        ? [...this.props.data.projects.recentActivity].reverse()
+        : []
+      : [],
       filterArrSplit: [],
       activeTab: 0,
       // default for SORT
@@ -693,15 +698,15 @@ class ActionTabInterface extends Component {
       : ActionItem.Modules === "Projects"
       ? this.props.navigation.navigate(ROUTES.PERIODIC_UPDATE_SCREEN, {
           itemData: ActionItem,
-          ProjectId: ActionItem.Project_id,
-          TaskID: ActionItem.TaskID,
+          ProjectId: ActionItem.Actions,
+          TaskID: ActionItem.ActionType,
           RouteParam: "Project",
           //activeTab: this.state.activeTab,
         })
       : this.props.navigation.navigate(ROUTES.PERIODIC_UPDATE_SCREEN, {
           itemData: ActionItem,
-          ProjectId: ActionItem.Project_id,
-          TaskID: ActionItem.TaskID,
+          ProjectId: ActionItem.Actions,
+          TaskID: ActionItem.ActionType,
           RouteParam: "Project",
           //activeTab: this.state.activeTab,
         });

@@ -32,16 +32,21 @@ import CryptoJS from 'react-native-crypto-js';
 import { postAPI } from 'global/api-helpers';
 import ApiUrl from 'global/ApiUrl';
 import { Bubbles } from 'react-native-loader';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { showMessage } from 'react-native-flash-message';
 import { Images } from 'theme/Apqp';
-import { APQP_URL, AUDITPRO_URL, GLOBAL_BASE_URL, PROBLEMSOLVING_URL } from 'screens/globalConstant/globalURL';
+import { APQP_URL, AUDITPRO_URL, GLOBAL_BASE_URL, PROBLEMSOLVING_URL, IC_URL } from 'screens/globalConstant/globalURL';
+import LinearGradient from 'react-native-linear-gradient';
 
 const screenWidth = Dimensions.get("window").width;
+const SECTION_HORIZONTAL_PADDING = 16;
+const CARD_GAP = 12;
+const CARD_WIDTH = (screenWidth - (SECTION_HORIZONTAL_PADDING * 2) - (CARD_GAP * 2)) / 3;
 
 const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
   // console.log('tabIndex--------', tabIndex, '--', currentUser, '--', isSupplier)
   // console.log('CURRENT_PAGE---->', 'home-tab-card')
+  // console.log('countDetails home-tab-card---->', countDetails)
   const navigations = useNavigation();
   const [currentUserData, setCurrentUserData] = useState([]);
   // This hook returns `true` if the screen is focused, `false` otherwise
@@ -49,18 +54,24 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
   const [isRegister, setIsRegister] = useState(null);
   const [loading, setLoading] = useState(false);
   const [opacity, setOpacity] = useState(1);
+  const [isPSCount, setIsPSCount] = useState(null);
+  const [apqpCount, setApqpCount] = useState(null);
   const { handleGlobalURL, globalDeviceDetails } = useAppContext();
-  const dispatch = useDispatch();
+  const [assessmentStats, setAssessmentStats] = useState(null);
+  const [routineStats, setRoutineStats] = useState(null);
+  const [detail, setDetail] = useState([]);
 
+  const psCounts = useSelector (state => state?.homeRedux?.dashboardConcernCounts?.countDetails ?? null);
+  // console.log('PS Counts:', psCounts);
   const data = [
     {
       id: 1,
       title: tabIndex === 0 ? strings.ppapProjects : strings.apqp_ppapManager,
       detail: [
         { images: tabIndex === 0 ? IMAGES.actions : null, category: tabIndex === 0 ? strings.Actions : null, status: 0 },
-        { images: IMAGES.projects, category: tabIndex === 0 ? strings.projects : strings.apap_ppap, status: 0 },
-        { images: tabIndex === 0 ? null : IMAGES.risk, category: tabIndex === 0 ? null : strings.risk, status: 0 },
-        { images: tabIndex === 0 ? null : IMAGES.meeting, category: tabIndex === 0 ? null : strings.meeting, status: 0 },
+        { images: IMAGES.projects, category: tabIndex === 0 ? strings.projects : strings.apap_ppap, status: tabIndex === 0 ? 0 : apqpCount?.APQPPPAP ? apqpCount?.APQPPPAP : 0},
+        { images: tabIndex === 0 ? null : IMAGES.risk, category: tabIndex === 0 ? null : strings.risk, status: tabIndex === 0 ? 0 : apqpCount?.Risk ? apqpCount?.Risk : 0 },
+        { images: tabIndex === 0 ? null : IMAGES.meeting, category: tabIndex === 0 ? null : strings.meeting, status: tabIndex === 0 ? 0 : apqpCount?.Meetings ? apqpCount?.Meetings : 0 },
         { images: tabIndex === 0 ? IMAGES.todayTask : null, category: tabIndex === 0 ? strings.todayTask : null, status: 0 },
         { images: tabIndex === 0 ? IMAGES.dailyTask : null, category: tabIndex === 0 ? strings.dailyTask : null, status: 0 },
       ]
@@ -80,9 +91,9 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
       title: tabIndex === 0 ? strings.problemSolver : null,
       detail: tabIndex === 0 ? [
         // { images: tabIndex === 0 ? IMAGES.supplierConcerns : IMAGES.concerns, category: tabIndex === 0 ? strings.supplierConcerns : strings.concerns, status: 0 },
-        { images: IMAGES.supplierConcerns, category: strings.supplierConcerns, status: 0 },
-        { images: IMAGES.openConcerns, category: strings.openConcerns, status: 0 },
-        { images: IMAGES.inProgressConcerns, category: strings.inProgressConcerns, status: 0 }
+        { images: IMAGES.concerns, category: strings.concerns, status: psCounts?.TotalConcern ? psCounts?.TotalConcern : 0 },
+        { images: IMAGES.openConcerns, category: strings.openConcerns, status: psCounts?.OpenConcern ? psCounts?.OpenConcern : 0 },
+        { images: IMAGES.inProgressConcerns, category: strings.inProgressConcerns, status: psCounts?.InprogressConcern ? psCounts?.InprogressConcern : 0 },
       ] : [],
     },
     {
@@ -104,15 +115,44 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
       //   { images: IMAGES.ICSS, category: strings.supervisorSchedule, status: 4, routeName: ROUTES.SUPERVISOR_SCHEDULE },
       ] : [],
     },
+    // {
+    //   id: 6,
+    //   title: tabIndex === 0 ? null : strings.supplierMgnt,
+    //   detail: tabIndex === 0 ? [] : 
+    //   [
+    //     { images: IMAGES.scheduledAudit, category: strings.supplierInitialAssessment, status: 20 },
+    //     { images: IMAGES.completedAudit, category: strings.supplierRoutineAudit, status: 15 },
+    //   ]
+    // },
     {
       id: 6,
       title: tabIndex === 0 ? null : strings.supplierMgnt,
-      detail: tabIndex === 0 ? [] : 
-      [
-        { images: IMAGES.scheduledAudit, category: strings.supplierInitialAssessment, status: 0 },
-        { images: IMAGES.completedAudit, category: strings.supplierRoutineAudit, status: 0 },
-      ]
-    },
+      detail: tabIndex === 0 ? []
+      : [
+          {
+            groupTitle: strings.supplierInitialAssessment, // Supplier Assessment Audits
+            audits: [
+              { images: IMAGES.scheduledAudit, category: strings.scheduledAudit, status: assessmentStats?.Scheduled },
+              { images: IMAGES.completedAudit, category: strings.completedAudit, status: assessmentStats?.Completed },
+              { images: IMAGES.deadlineViolated, category: strings.deadlineViolated, status: assessmentStats?.DeadlineViolated },
+              { images: IMAGES.closedOut, category: strings.closedOut, status: assessmentStats?.CompletedDeadlineViolated },
+            ],
+          },
+          {
+            groupTitle: strings.supplierRoutineAudit, // Supplier Routine Audits
+            audits: [
+              { images: IMAGES.scheduledAudit, category: strings.scheduledAudit, status: routineStats?.Scheduled || 0 },
+              { images: IMAGES.completedAudit, category: strings.completedAudit, status: routineStats?.Completed || 0 },
+              {
+                  images: IMAGES.deadlineViolated,
+                  category: strings.deadlineViolated,
+                  status: routineStats?.DeadlineViolated || 0,
+              },
+              { images: IMAGES.closedOut, category: strings.closedOut, status: routineStats?.CompletedDeadlineViolated || 0 },
+            ],
+          },
+        ],
+      },
   ];
 
   const finalUser = currentUser.replace(/\s+/g, '');
@@ -140,6 +180,7 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
         const stringifiedUserDetails = await AsyncStorage.getItem('userDetails');
         const value = JSON.parse(stringifiedUserDetails);
         // console.log('current userdata--->', value)
+        getAuditStatusDetails(value);
         if (value !== null) {
           // console.log('current token2 Auditpro--->', value?.accessToken)
           setCurrentUserData(value)
@@ -154,6 +195,31 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
     }
     getUserDetails();
   }, [currentUserData?.siteId, isFocused]);
+
+  useEffect(() => {
+    if (assessmentStats && routineStats) {
+      setDetail([
+        {
+          groupTitle: 'Supplier Assessment Audits',
+          audits: [
+            { category: 'Scheduled Audit', value: assessmentStats.Scheduled },
+            { category: 'Completed Audit', value: assessmentStats.Completed },
+            { category: 'Deadline Violated', value: assessmentStats.DeadlineViolated },
+            { category: 'Closed Out', value: assessmentStats.CompletedDeadlineViolated },
+          ],
+        },
+        {
+          groupTitle: 'Supplier Routine Audits',
+          audits: [
+            { category: 'Scheduled Audit', value: routineStats.Scheduled },
+            { category: 'Completed Audit', value: routineStats.Completed },
+            { category: 'Deadline Violated', value: routineStats.DeadlineViolated },
+            { category: 'Closed Out', value: routineStats.CompletedDeadlineViolated },
+          ],
+        },
+      ]);
+    }
+  }, [assessmentStats, routineStats]);
 
   useEffect(() => {
     async function getdeviceRegisterStatus() {
@@ -172,6 +238,69 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
     getdeviceRegisterStatus()
   }, [isRegister, isFocused])
 
+  useEffect(() => {
+    const loadCountData = async () => {
+      const countPS = await AsyncStorage.getItem('countPS');
+      if (countPS) {
+        const parsedData = JSON.parse(countPS);
+        console.log('countPS parsedData------------', parsedData);
+        setIsPSCount(parsedData);
+      }
+      const countAPQP = await AsyncStorage.getItem('countAPQP');
+      if (countAPQP) {
+        const parsedData = JSON.parse(countAPQP);
+        console.log('countAPQP parsedData------------', parsedData);
+        setApqpCount(parsedData);
+      }
+    };
+    loadCountData();
+  }, []);
+
+  const getAuditStatusDetails = async value => {
+    console.log('checkgetuserDetailsss------', value);
+    supplierAuth.getStat(
+      value?.accessToken,
+      value?.userId,
+      value?.siteId,
+      2, // Assessment
+      (response, data) => {
+        console.log('inside1', response, data);
+        if (data?.data?.Data) {
+          const auditsCount = {
+            Scheduled: Number(data.data.Data.Scheduled ?? 0),
+            Completed: Number(data.data.Data.Completed ?? 0),
+            DeadlineViolated: Number(data.data.Data.DeadlineViolated ?? 0),
+            CompletedDeadlineViolated: Number(data.data.Data.CompletedDeadlineViolated ?? 0),
+          };
+          setAssessmentStats(auditsCount);
+          console.log('Assessment Stats Stored:', auditsCount);
+        }
+      },
+    );
+
+    supplierAuth.getStat(
+      value?.accessToken,
+      value?.userId,
+      value?.siteId,
+      3, // Routine
+      (response2, data2) => {
+        console.log('inside2');
+        if (data2?.data?.Data) {
+          const auditsCount = {
+            Scheduled: Number(data2.data.Data.Scheduled ?? 0),
+            Completed: Number(data2.data.Data.Completed ?? 0),
+            DeadlineViolated: Number(data2.data.Data.DeadlineViolated ?? 0),
+            CompletedDeadlineViolated: Number(data2.data.Data.CompletedDeadlineViolated ?? 0),
+          };
+          setRoutineStats(auditsCount);
+          console.log('✅ Routine Stats Stored:', auditsCount);
+        }
+      },
+    );
+  };
+
+  // console.log('TotalConcern', isPSCount?.TotalConcern, 'OpenConcern', isPSCount?.OpenConcern, 'InprogressConcern', isPSCount?.InprogressConcern);
+
   const storeUrl = async (url, recentApp) => {
     console.log("reach storeUrl--->", url, 'recentApp', recentApp);
     localStorage.storeData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL, url);
@@ -180,11 +309,12 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
     localStorage.storeData('CurrentApp', recentApp);
   };
 
-  const handleNavigation = async (title, status, category, auditTitle, routeName) => {
+  const handleNavigation = async (title, status, category, auditTitle, routeName, index, subTitle,) => {
     console.log('handleNavigation currentUserData?.accessToken--->', currentUserData, globalDeviceDetails?.deviceDetails, 'token', currentUserData?.accessToken)
     let currentGlobalURL;
     // AUDITPRO //
     if(currentUserData?.accessToken?.length && currentUserData?.accessToken) {
+      console.log('handleNavigation reach here1', title)
       if(title === strings.auditPro) {
         currentGlobalURL = globalDeviceDetails?.deviceDetails?.AuditProURL ? globalDeviceDetails?.deviceDetails?.AuditProURL: AUDITPRO_URL;
         auditproAuth.setServerUrl(currentGlobalURL);
@@ -213,46 +343,67 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
         globalAPQPLogin(category, title, currentGlobalURL)
       // SUPPLIER MANAGEMENT //
       } else if (title === strings.supplierMgnt) {
-        console.log('sm_ current click--->', strings.supplierMgnt)
-        console.log('sm_ current category--->', category )
+        console.log('sm_ current click--->', strings.supplierMgnt);
+        console.log('sm_ current category--->', category);
         let supplierIndex;
-        if(category == strings.supplierInitialAssessment){
-          supplierIndex = 2
+        if (subTitle == 'Supplier Initial Assessment') {
+          supplierIndex = 2;
+          if (category == 'Scheduled\nAudit') {
+              await AsyncStorage.setItem('FILTERIDLIST', JSON.stringify(2));
+          } else if (category == 'Completed\nAudit') {
+              await AsyncStorage.setItem('FILTERIDLIST', JSON.stringify(3));
+          } else if (category == 'Deadline\nViolated') {
+              await AsyncStorage.setItem('FILTERIDLIST', JSON.stringify(4));
+          } else if (category == 'Closed\nOut') {
+              await AsyncStorage.setItem('FILTERIDLIST', JSON.stringify(5));
+          }
         } else {
-          supplierIndex = 3
+          supplierIndex = 3;
+          if (category == 'Scheduled\nAudit') {
+              await AsyncStorage.setItem('FILTERIDLIST', JSON.stringify(2));
+          } else if (category == 'Completed\nAudit') {
+              await AsyncStorage.setItem('FILTERIDLIST', JSON.stringify(3));
+          } else if (category == 'Deadline\nViolated') {
+              await AsyncStorage.setItem('FILTERIDLIST', JSON.stringify(4));
+          } else if (category == 'Closed\nOut') {
+              await AsyncStorage.setItem('FILTERIDLIST', JSON.stringify(5));
+          }
         }
         await AsyncStorage.setItem('supplierIndex', JSON.stringify(supplierIndex));
-        // localStorage.storeData('CurrentApp', strings.supplierMgnt);
-        currentGlobalURL = globalDeviceDetails?.deviceDetails?.AuditProURL ? globalDeviceDetails?.deviceDetails?.AuditProURL: AUDITPRO_URL;
+        currentGlobalURL = globalDeviceDetails?.deviceDetails?.AuditProURL ? globalDeviceDetails?.deviceDetails?.AuditProURL : AUDITPRO_URL;
         supplierAuth.setServerUrl(currentGlobalURL);
         auditproAuth.setServerUrl(currentGlobalURL);
         storeUrl(currentGlobalURL, strings.supplierMgnt);
-        navigations.navigate(ROUTES.ALLTABAUDITLIST_SM)
+        navigations.navigate(ROUTES.AUDIT_DASHBOARD_LISTING_SM, {
+          currentUserData: currentUserData, // pass the array here
+        });
       // DOCUMENT PRO //
-      } else if (title === strings.documentPro) {
+      }  else if (title === strings.documentPro) {
         if (category == 'Document\nLevels') {
-            navigations.navigate(ROUTES.DOCPRO_DOCUMENTFOLDER);
+          navigations.navigate(ROUTES.DOCPRO_DOCUMENTFOLDER);
         } else if (category == 'Actions\nList') {
-            navigations.navigate(ROUTES.DOCPRO_ACTION);
+          navigations.navigate(ROUTES.DOCPRO_ACTION);
         }
       // INSPECTION CONTROL //
       } else if (title === strings.inspectionControl) {
-            localStorage.storeData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL, globalDeviceDetails?.deviceDetails?.ICApiURL);
-            setLoading(true);
-            navigations.navigate(routeName);
-            setLoading(false);
+        console.log('IC API URL--->', globalDeviceDetails?.deviceDetails?.ICApiURL, IC_URL)
+        currentGlobalURL = globalDeviceDetails?.deviceDetails?.ICApiURL ? globalDeviceDetails?.deviceDetails?.ICApiURL: IC_URL;
+        storeUrl(currentGlobalURL, strings.inspectionControl);
+        setLoading(true);
+        navigations.navigate(routeName);
+        setLoading(false);
       } else {
         // console.log('current click--->')
       }
     } else {
       // Reach ELSE when Token is null or empty
-        if(isRegister === 'yes') {
-          console.log('else handleNavigation 2--->', currentUserData?.accessToken)
-          navigations.navigate(ROUTES.GLOBAL_LOGIN)
-        } else {
-          console.log('else handleNavigation 3--->', currentUserData?.accessToken)
-          navigations.navigate(ROUTES.GLOBAL_REGISTER)
-        }
+      if(isRegister === 'yes') {
+        console.log('else handleNavigation 2--->', currentUserData?.accessToken)
+        navigations.navigate(ROUTES.GLOBAL_LOGIN)
+      } else {
+        console.log('else handleNavigation 3--->', currentUserData?.accessToken)
+        navigations.navigate(ROUTES.GLOBAL_REGISTER)
+      }
     }
   }
 
@@ -426,43 +577,118 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
 //     setLoading(false);
 // };
 
-  const Item = ({ title, detail, images }) => (
-    <>
-    <ScrollView style={{ flex: 1 }} contentContainerStyle={{ flexGrow: 1 }}>
-      <View style={styles.titleHeader}>
-        <Text style={styles.headerTitle}>{title}</Text>
-      </View>
-      <View style={styles.card}>
+  const Item = ({ title, detail }) => (
+    <ScrollView style={styles.sectionWrapper}>
+      <Text style={styles.sectionTitle}>{title}</Text>
+      {/* Normal sections */}
+      {title !== strings.supplierMgnt && (
         <View style={styles.cardContainer}>
           {detail.map((items, index) => (
-          items.category?.length && 
-          <TouchableOpacity
-            activeOpacity={0.8}
-            style={styles.cardContent}
-            key={index} 
-            onPress={() => {
-            setOpacity(0.5),
-            handleNavigation(title, items?.status, items?.category, items?.auditTitle, items?.routeName),
-            setOpacity(1)}}
-          >
-            <ImageComponent style={styles.imageView} source={items.images} resizeMode={FastImage.resizeMode.contain} />
-            <TextComponent style={styles.cardTitle}>
-              {items.category}
-            </TextComponent>
-            <TextComponent type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.SMALL}>
-                {0}
-            </TextComponent>
-          </TouchableOpacity>))}
+            items.category?.length ? (
+              <TouchableOpacity
+                activeOpacity={0.85}
+                style={[styles.cardContent, { marginBottom: CARD_GAP }]}
+                key={`${title}-${index}`}
+                onPress={() => handleNavigation(title, items?.status, items?.category, items?.auditTitle, items?.routeName)}
+              >
+                {!!items.images && (
+                  <LinearGradient
+                    colors={items.iconColors || ['#E9F6FF', '#D9EEFF']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.iconWrapper}
+                  >
+                    <ImageComponent style={styles.imageView} source={items.images} resizeMode={FastImage.resizeMode.contain} />
+                  </LinearGradient>
+                )}
+                <TextComponent style={styles.cardTitle}>
+                  {items.category}
+                </TextComponent>
+                <TextComponent type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.X_LARGE} style={styles.countText}>
+                  {items?.status ?? 0}
+                </TextComponent>
+              </TouchableOpacity>
+            ) : null
+          ))}
         </View>
+      )}
+
+      {title === strings.supplierMgnt && (
+      <View style={styles.cardContainer}>
+        {(() => {
+          console.log('🔍 Full detail:', detail);
+
+          const filtered = detail?.filter(group => {
+            const cleanTitle = group.groupTitle?.replace(/\n/g, ' ').trim();
+            return ['Supplier Initial Assessment', 'Supplier Routine Audit'].includes(cleanTitle);
+          });
+
+          console.log('✅ Filtered list:', filtered);
+
+          if (!filtered || filtered.length === 0) {
+            console.log('❌ No matching groups found');
+            return null;
+          }
+
+          return filtered.map((group, idx) => (
+            <View key={idx} style={{ width: '100%', marginTop: 12 }}>
+              {console.log('UI 2 detail--->', group, 'groupTitle--->', group.groupTitle, 'audits--->', group.audits)}
+
+              {group.groupTitle && (
+                <Text
+                  style={[styles.headerTitleGroup, { marginLeft: 0, marginBottom: 6 }]}
+                  numberOfLines={1}
+                >
+                  {group.groupTitle.replace(/\n/g, ' ')}
+                </Text>
+              )}
+              <View style={styles.cardContainer}>
+                {(group.audits || []).map((audit, index) => (
+                  <TouchableOpacity
+                    activeOpacity={0.85}
+                    style={[styles.cardContent, { marginBottom: CARD_GAP }]}
+                    key={`${title}-${index}`}
+                    onPress={() =>
+                      handleNavigation(
+                        title,
+                        audit?.status,
+                        audit?.category,
+                        audit?.auditTitle,
+                        audit?.routeName,
+                        index,
+                        group?.groupTitle,
+                      )
+                    }>
+                   
+                    <LinearGradient
+                      colors={audit.iconColors || ['#E9F6FF', '#D9EEFF']}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 1 }}
+                      style={styles.iconWrapper}
+                    >
+                      <ImageComponent style={styles.imageView} source={audit.images} resizeMode={FastImage.resizeMode.contain} />
+                    </LinearGradient>
+                   
+                    <TextComponent style={styles.cardTitle}>
+                      {audit.category}
+                    </TextComponent>
+                    <TextComponent type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.X_LARGE} style={styles.countText}>
+                      {audit?.status ?? 0}
+                    </TextComponent>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+          ));
+        })()}
       </View>
-      </ScrollView>
-    </>
+    )}
+
+    </ScrollView>
   )
 
-  // console.log('dataSet--1--->', dataSet, 'data--->', data?.length, data)
-
   return (
-    <SafeAreaView>
+     <SafeAreaView style={styles.safeArea}>
       {loading ? (
         <Modal
           transparent={true}
@@ -479,8 +705,9 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
       {dataSet?.length > 0 && (
         <FlatList
           data={dataSet}
-          renderItem={({ item }) => item?.title === null ?  null :  <Item detail={item?.detail} title={item?.title} images={item?.images} />}
-          keyExtractor={item => item?.id}
+          renderItem={({ item }) => item?.title === null ?  null :  <Item detail={item?.detail} title={item?.title} />}
+          keyExtractor={item => String(item?.id)}
+          contentContainerStyle={styles.listContentContainer}
         />
       )}
     </SafeAreaView>
@@ -488,85 +715,64 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
 }
 
 const styles = StyleSheet.create({
-  item: {
-    backgroundColor: '#F1F9FE',
-    paddingBottom: 20,
-    marginTop: 0,
-    marginBottom: 15,
-    borderBottomLeftRadius: 10,
-    borderBottomRightRadius: 10,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'flex-start',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.5,
-    shadowRadius: 2,
-    elevation: 2,
+  safeArea: {
+    flex: 1,
+    backgroundColor: COLORS.white,
   },
-  headerTitle: {
+  sectionWrapper: {
+    marginHorizontal: SECTION_HORIZONTAL_PADDING,
+    marginBottom: SPACING.NORMAL,
+  },
+  sectionTitle: {
+    fontFamily: 'ProximaNova-Bold',
+    fontSize: FONT_SIZE.X_LARGE,
+    color: COLORS.black,
+    marginBottom: SPACING.SMALL,
+  },
+  headerTitleGroup: {
     fontFamily: 'ProximaNova-Bold',
     fontSize: FONT_SIZE.NORMAL,
     color: COLORS.black,
     paddingVertical: SPACING.SMALL,
-    marginHorizontal: 16,
+    // marginHorizontal: 16,
     marginBottom: 0,
-    width: '85%',
-  },
-  card: {
-    paddingBottom: SPACING.SMALL,
-    borderBottomWidth: 2,
-    borderColor: COLORS.whiteGrey,
-    borderBottomLeftRadius: 10,
-    borderBottomRightRadius: 10,
-    backgroundColor: '#F1F9FE',
-    paddingBottom: 20,
-    marginTop: 0,
-    marginBottom: 15,
+    width: '90%',
   },
   cardContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    paddingVertical: SPACING.SMALL,
-    paddingHorizontal: SPACING.SMALL
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
   },
   cardContent: {
-    alignItems: 'center', 
-    justifyContent: 'center', 
-    backgroundColor: COLORS.white,
-    width: RFPercentage(8.2),
-    elevation: 10,
-    borderBottomLeftRadius: 10,
-    borderBottomRightRadius: 10,
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10,
-    marginTop: RFPercentage(2),
-    marginHorizontal: screenWidth * 0.03,
-    shadowColor: '#000',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: "#F0FAF8",
+    width: CARD_WIDTH,
+    minHeight: 150,
+    paddingVertical: SPACING.NORMAL,
+    paddingHorizontal: SPACING.SMALL,
+    borderRadius: 18,
+    shadowColor: '#11111133',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.5,
-    shadowRadius: 2,
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 4,
   },
   cardTitle: {
-    fontSize: FONT_SIZE.XXXX_SMALL,
+    fontSize: FONT_SIZE.SMALL,
     fontWeight: 'bold',
     textAlign: 'center',
     color: COLORS.black,
+    marginTop: SPACING.SMALL,
   },
-  titleHeader: {
-    backgroundColor: '#F1F9FE',
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10,
-    paddingTop: 15,
-    flexDirection: 'row',
+  countText: {
+    marginTop: SPACING.SMALL,
+    color: COLORS.black,
   },
   imageView: {
-    height: 20,
-    width: 18,
-    marginVertical: 8,
-    marginHorizontal: 16,
+    height: 24,
+    width: 24,
   },
   modalBackground: {
     flex: 1,
@@ -574,6 +780,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: 'rgba(0,0,0,0.7)',
     height: '50%'
+  },
+  iconWrapper: {
+    width: 48,
+    height: 48,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  listContentContainer: {
+    paddingTop: SPACING.SMALL,
+    paddingBottom: SPACING.X_LARGE,
   },
 });
 

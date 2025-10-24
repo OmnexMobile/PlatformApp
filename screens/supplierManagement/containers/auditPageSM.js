@@ -163,10 +163,10 @@ class AuditPage extends Component {
     });
   }
 
-  componentDidMount() {
+   componentDidMount() {
     Dimensions.addEventListener('change', this.handleDimensionChange);
 
-    console.log('auditprops', this.props.data);
+    console.log('auditprops', this.props);
     console.log(
       'navigationparamsauditpage',
       // this.props.navigation.state.params,
@@ -488,7 +488,7 @@ class AuditPage extends Component {
       console.log('Audit summary page focussed!');
       console.log('--AuditPage-PROPS-->', props);
       console.log('--AuditPage-this.PROPS-->', this.props, 'cstatus', this.props?.route?.params?.datapass?.cStatus);
-        AsyncStorage.setItem('CSTATUS',this.props?.route?.params?.datapass?.cStatus);
+        // AsyncStorage.setItem('CSTATUS',this.props?.route?.params?.datapass?.cStatus);
       this.InitVoice();
       var Data = props.data.audits.audits;
       for (var i = 0; i < Data.length; i++) {
@@ -507,8 +507,8 @@ class AuditPage extends Component {
           }
         }
       }
-    const Audit_Status = await AsyncStorage.getItem('CSTATUS');
-console.log('90900000000',Audit_Status);
+    // const Audit_Status = await AsyncStorage.getItem('CSTATUS');
+// console.log('90900000000',Audit_Status);
 
       this.setState(
         {
@@ -1275,14 +1275,18 @@ console.log('90900000000',Audit_Status);
     }
   };
 
-  getSessionValues = isDownloaded => {
+  getSessionValues = async isDownloaded => {
     console.log('isdownloaddedddd------',isDownloaded);
-    
     try {
+         const userDetailsString = await AsyncStorage.getItem('userDetails');
+        const userDetails = userDetailsString ? JSON.parse(userDetailsString) : null;
+    var userid_val = userDetails.userId;
+    var token_val = userDetails.accessToken;
+    
       const TOKEN = this.props.data.audits.token;
       const USER_ID = this.props.data.audits.userId;
 
-      this.setState({token: TOKEN, userId: USER_ID}, () => {
+      this.setState({token: token_val, userId: userid_val}, () => {
         console.log('this.state.token', this.state.token);
         console.log('this.state.userId', this.state.userId);
         console.log(
@@ -1291,19 +1295,30 @@ console.log('90900000000',Audit_Status);
         );
 
         if (this.props.data.audits.isOfflineMode || isDownloaded) {
-          var auditRecords = this.props.data.audits.auditRecords;
+          var auditRecords = this.props.route.params.datapass;
           var auditDetailList = null;
           var auditNumber = '';
           var auditStatus = '';
-console.log('checkk838838383',this.props.data.audits);
+              console.log('checkk838838383',this.props.route.params.datapass);
 
-          for (var i = 0; i < auditRecords.length; i++) {
-            if (auditRecords[i].AuditId == this.state.AuditProp.ActualAuditId) {
-              auditDetailList = auditRecords[i];
-              console.log('checkinngggg-------',auditRecords[i]);
+          // for (var i = 0; i < auditRecords.length; i++) {
+          //     console.log('checkinngggg-------insidelooppppp');
+
+          //   if (auditRecords[i].AuditId == this.state.AuditProp.ActualAuditId) {
+          //     auditDetailList = auditRecords[i];
+          //     console.log('checkinngggg-------',auditRecords[i]);
               
-            }
-          }
+          //   }
+          // }
+    console.log('auditRecords.AuditId', auditRecords.AuditId);
+    console.log('this.state.AuditProp.ActualAuditId', this.state.AuditProp.ActualAuditId);
+
+
+    if (auditRecords.ActualAuditId == this.state.AuditProp.ActualAuditId) {
+      auditDetailList = auditRecords;
+      console.log('✅ Found:', auditDetailList);
+    
+} 
           console.log('auditDetailList*****', auditDetailList);
 
           if (auditDetailList) {
@@ -1555,8 +1570,6 @@ console.log('checkk838838383',this.props.data.audits);
 }
   checkUser  = async() =>{
     console.log('user id', this.props.data.audits.userId);
-    var userid = this.props.data.audits.userId;
-    var token = this.props.data.audits.token;
     var UserStatus = '';
     var serverUrl = this.props.data.audits.serverUrl;
     var ID = this.props.data.audits.userId;
@@ -1565,6 +1578,12 @@ console.log('checkk838838383',this.props.data.audits);
     // var RegisterDevice = this.props.data.audits.deviceid;
     // const deviceId = await AsyncStorage.getItem('loginDeviceId');
     const deviceId = await AsyncStorage.getItem('deviceid')
+
+        const userDetailsString = await AsyncStorage.getItem('userDetails');
+        const userDetails = userDetailsString ? JSON.parse(userDetailsString) : null;
+        console.log('userDetails--->---------', userDetails)
+    var userid = userDetails.userId;
+    var token = userDetails.accessToken;
 
     console.log(userid, token, deviceId, 'checkUser');
 
@@ -1592,7 +1611,7 @@ console.log('checkk838838383',this.props.data.audits);
         if (UserStatus == 2) {
           console.log('User active /// bhuvi');
           // this.syncAuditsToServerMethod()
-          this.checkFilePath();
+          // this.checkFilePath();
         } else if (UserStatus == 1) {
 
           console.log('deleting user details');
@@ -1714,6 +1733,7 @@ console.log('checkk838838383',this.props.data.audits);
     const UserId = this.state.userId;
     const SearchCondition =
       'and KeyProcessId in (' + this.state.AuditProp.ProcessId + ')';
+console.log('checkvalues0000',SiteID,UserId,SearchCondition,TOKEN,iAuditId,iAudProgId);
 
     auth.getAuditProcessList(
       SiteID,
@@ -1758,15 +1778,16 @@ console.log('checkk838838383',this.props.data.audits);
     if (this.state.AUDITPROG_ID == -1) {
       strFunction = 'LPACheckList';
     }
+    console.log('checkprops from new dashboard.........',this.props);
 
     console.log(
       'Audit form request',
       SiteID,
       strSortBy,
       iAuditId,
-      iAudProgId,
+      iAudProgId,//*
       iAudProgOrder,
-      iAudTypeOrder,
+      iAudTypeOrder,//*
       iAudTypeId,
       strFunction,
     );
@@ -3279,9 +3300,9 @@ console.log('checkk838838383',this.props.data.audits);
       {id: strings.sugesstion7},
     ];
 
-    const Audit_Status = this.displayStatusNew(
-      this.props?.route?.params?.datapass?.cStatus,
-    )
+    // const Audit_Status = this.displayStatusNew(
+    //   this.props?.route?.params?.datapass?.cStatus,
+    // )
     
     return (
       <View style={styles.wrapper}>

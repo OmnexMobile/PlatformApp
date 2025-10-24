@@ -906,6 +906,7 @@ class AllTabAuditList extends Component {
       token,
       userId,
       siteId,
+          this.props?.data?.audits
     )
     /** First request skipped because we have initially zero */
     auth.getAuditNotification(

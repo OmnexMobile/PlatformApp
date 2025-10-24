@@ -10,7 +10,7 @@ import ListCardLogo from 'components/ListCard-logo';
 import ListCardLogoSM from 'components/ListCard-logoSM';
 import ListCardLogoApqp from 'components/ListCard-logo-apqp';
 
-export const HomeListComponent = ({ title, data, loading, statusCode, hideSeeAll, currentName }) => {
+export const HomeListComponentApqp = ({ title, data, loading, statusCode, hideSeeAll, currentName }) => {
     const { theme } = useTheme();
     const { handleRecentActivity } = useAppContext();
     const navigation = useNavigation();
@@ -58,13 +58,14 @@ export const HomeListComponent = ({ title, data, loading, statusCode, hideSeeAll
             ) : data?.length > 0 ? (
                 <>
                     {data.map((item, index) =>
-                        ['AuditPro', 'Supplier Initial Assessment', 'Supplier Routine Audit'].includes(item.Module_name) ? (
-                            <ListCardLogoSM key={index} item={item} handleRecentActivity={handleRecentActivity} />
-                        ) :
+                        // ['AuditPro', 'Supplier Initial Assessment', 'Supplier Routine Audit'].includes(item.Module_name) ? (
+                        //     <ListCardLogoSM key={index} item={item} handleRecentActivity={handleRecentActivity} />
+                        // ) :
+                       
                         currentName === 'Azhalle Anna   ' ? (
                             <ListCardLogoApqp key={index} item={item} handleRecentActivity={handleRecentActivity} statusCode={statusCode} />
-                        ) : currentName !== 'Azhalle Anna   ' ? (
-                            <ListCardLogo key={index} item={item} handleRecentActivity={handleRecentActivity} statusCode={statusCode} />
+                        // ) : currentName !== 'Azhalle Anna   ' ? (
+                        //     <ListCardLogo key={index} item={item} handleRecentActivity={handleRecentActivity} statusCode={statusCode} />
                         ) : null
 
                     )}

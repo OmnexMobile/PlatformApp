@@ -72,6 +72,7 @@ import FilteredConcernListScreen from 'screens/problemSolver/containers/filtered
 import ConcernListScreen from 'screens/problemSolver/containers/concerns/concern-list-screen';
 import ViewConcern from 'screens/problemSolver/containers/concerns/view-concern';
 import HomeListCard from '../screens/globalDashboard/home-listcard';
+import HomeListCardAPQP from '../screens/globalDashboard/home-listcard-apqp';
 import { BottomTabPS } from './bottom-tab-ps';
 import SplashScreenPS from '../screens/problemSolver/containers/splash-screen';
 import ProjectListScreen from 'screens/problemSolver/containers/projects/project-list-screen';
@@ -135,6 +136,7 @@ import InprocessInspection from 'screens/inspection-control/inprocess-inspection
 import ContainmentActions from 'screens/inspection-control/containmentActions';
 import IcSettings from 'screens/inspection-control/icSettings';
 import SearchInspection from 'screens/inspection-control/search-inspection';
+import HomeListCardApqp from '../screens/globalDashboard/home-listcard-apqp';
 
 const Stack = createStackNavigator();
 
@@ -477,6 +479,11 @@ export const AppStackData = [
      {
         name: ROUTES.HOME_LIST_PS,
         component: HomeListCard,
+        cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
+     },
+     {
+        name: ROUTES.HOME_LIST_APQP,
+        component: HomeListCardApqp,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
      },
      {

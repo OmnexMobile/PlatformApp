@@ -14,6 +14,9 @@ export const IMAGES = {
     emptyIcon: require('./empty-box.png'),
     ps_logo: require('./ps_logo.png'),
     ps_logo_round: require('./ps_logo_round.png'),
+    auditpro_logo: require('./auditpro_logo.png'),
+    supplier_logo: require('./supplier_logo.png'),
+    apqp_logo: require('./apqp_logo.png'),
 
     // flags
     china: require('./flags/china.png'),

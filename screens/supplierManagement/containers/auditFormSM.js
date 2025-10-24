@@ -161,7 +161,9 @@ class AuditForm extends Component {
 
   componentDidMount() {
     // this.getParamsDetails();
-    const AuditID = this.props.navigation.state.params.AuditID;  
+    console.log('dhfjdhfksfksfksfjsn dfnsd f',this.props);
+    
+    const AuditID = this.props.route.params.AuditID;  
     let Files =
       '/' +
       RNFetchBlob.fs.dirs.DocumentDir +
@@ -205,7 +207,7 @@ class AuditForm extends Component {
       });
     }
   
-    if (this.props.navigation.state.params.ChecklistBtn === true) {
+    if (this.props.route.params.ChecklistBtn === true) {
       this.setState({ CheckListbtn: true }, () => {});
     }
   
@@ -213,8 +215,8 @@ class AuditForm extends Component {
       {
         token: this.props.data.audits.token,
         AuditID: AuditID,
-        Checkpointpass: this.props.navigation.state.params.CreateNCdataBundle,
-        breadCrumbText: this.props.navigation.state.params.CreateNCdataBundle.breadCrumb,
+        Checkpointpass: this.props.route.params.CreateNCdataBundle,
+        breadCrumbText: this.props.route.params.CreateNCdataBundle.breadCrumb,
       },
       () => {
         console.log('AuditForm>-Checkpointpass', this.state.Checkpointpass);
@@ -371,7 +373,7 @@ class AuditForm extends Component {
     }
      if (
       this.props.data.audits.isAuditing === true &&
-      this.state.AuditID === this.props.navigation.state.params.AuditID
+      this.state.AuditID === this.props.route.params.AuditID
     ) {
       this.setState({ notifyRed: true });
     }
@@ -765,7 +767,7 @@ class AuditForm extends Component {
                 auditRecords.push({
                   // FormId: audits[i].FormId == '' ? 0 : parseInt(audits[i].FormId),
                   FormId: parseInt(FormIds[kk]), //parseInt(audits[i].Listdata[j].FormId),
-                  //FormId:this.props.navigation.state.params.ChecklistHeading.FormId,
+                  //FormId:this.props.route.params.ChecklistHeading.FormId,
                   AuditId: parseInt(audits[i].AuditId),
                   AuditProgramId: this.props.data.audits.smdata == 2 ? -2 : parseInt(audits[i].AuditTemplateId),
                   AuditTypeId: parseInt(audits[i].AuditTypeId),
@@ -1792,7 +1794,7 @@ reDirect = () => {
                  dataArr[i].Pending[j].auditstatus === ''
                    ? 0
                    : isNaN(parseInt(dataArr[i].Pending[j].auditstatus))
-                   ? this.props.navigation.state.params.datapass
+                   ? this.props.route.params.datapass
                    : parseInt(dataArr[i].Pending[j].auditstatus),
                NonConformity: dataArr[i].Pending[j].NonConfirmity,
                RequestedBy: dataArr[i].Pending[j].requestDrop
@@ -1868,7 +1870,7 @@ reDirect = () => {
                  dataArr[i].Pending[j].auditstatus === ''
                    ? 0
                    : isNaN(parseInt(dataArr[i].Pending[j].auditstatus))
-                   ? this.props.navigation.state.params.datapass
+                   ? this.props.route.params.datapass
                    : parseInt(dataArr[i].Pending[j].auditstatus),
                RequestedBy: dataArr[i].Pending[j].requestDrop
                  ? dataArr[i].Pending[j].requestDrop.id
@@ -2204,7 +2206,7 @@ reDirect = () => {
         AuditProgramId:this.props.data.audits.smdata == 2 ? -2 : auditListOrg[i].AuditTemplateId,
         AuditProgramName: auditListOrg[i].AuditProgramName,
         // AuditStatus: auditListOrg[i].AuditStatus,
-        AuditStatus: this.props.navigation.state.params.datapassParam.AuditStatus,
+        AuditStatus: this.props.route.params.datapassParam.AuditStatus,
         AuditTemplateId: auditListOrg[i].AuditTemplateId,
         AuditTypeId: auditListOrg[i].AuditTypeId,
         AuditTypeName: auditListOrg[i].AuditTypeName,
@@ -2477,14 +2479,14 @@ reDirect = () => {
     this.props.storeAuditRecords(auditRecords);
   }
   // async getParamsDetails() {
-  //   console.log('this.props.navigation.state.params.datapass.SiteId)',this.props.navigation.state.params.datapass.SiteId);
+  //   console.log('this.props.route.params.datapass.SiteId)',this.props.route.params.datapass.SiteId);
     
-  //   const vall = AsyncStorage.setItem('AUDITYPE_ORDER',this.props.navigation.state.params.datapass.ActualAuditOrderNo);
+  //   const vall = AsyncStorage.setItem('AUDITYPE_ORDER',this.props.route.params.datapass.ActualAuditOrderNo);
   //   this.setState({
   //     AuditTypeOrdersync: vall
   //   })
     // AsyncStorage.setItem('AUDIT_SITE_ID',this.state.AUDIT_SITE_ID);
-    // AsyncStorage.setItem('AUDIT_STATUS',this.props.navigation.state.params.datapass.AuditStatus);
+    // AsyncStorage.setItem('AUDIT_STATUS',this.props.route.params.datapass.AuditStatus);
 // }
    syncAuditFormsToServer = () => {
     var documentList = [];
@@ -2822,7 +2824,7 @@ reDirect = () => {
               AuditProgramId: this.props.data.audits.smdata == 2 ? -2 : auditListOrg[i].AuditTemplateId,
               AuditProgramName: auditListOrg[i].AuditProgramName,
               // AuditStatus: auditListOrg[i].AuditStatus,
-              AuditStatus: this.props.navigation.state.params.datapassParam.AuditStatus,
+              AuditStatus: this.props.route.params.datapassParam.AuditStatus,
               AuditTemplateId: auditListOrg[i].AuditTemplateId,
               AuditTypeId: auditListOrg[i].AuditTypeId,
               AuditTypeName: auditListOrg[i].AuditTypeName,

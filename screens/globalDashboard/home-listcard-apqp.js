@@ -13,36 +13,40 @@ import TextComponent from '../../components/text';
 import { IMAGES } from 'assets/images';
 import ImageComponent from '../../components/image-component';
 import { Content, Header, NoRecordFound } from 'components';
+import strings from 'config/localization';
 // import Tag from './tag';
 
-const HomeListCard = ({ item = {}, route }) => {
+const HomeListCardApqp = ({ item = {}, route }) => {
     const { sites, handleRecentActivity, timeSettings } = useAppContext();
     const { theme } = useTheme();
     const elevation = getElevation();
     const navigation = useNavigation();
     console.log('item in home list card', item);
-    const { title, data } = route.params;
-    // const statusCode = route.params[APP_VARIABLES.DASHBOARD_CONCERNS];
+    const { statusCode, title, data } = route.params;
 
-    console.log('Title:', title);
+    console.log('Title:', title, statusCode);
     console.log('Data:', data);
-    // console.log('StatusCode:', statusCode);
 
     const handleClickCard = item => {
-        if (['AuditPro', 'Supplier Initial Assessment', 'Supplier Routine Audit'].includes(item.Module_name)) {
-            navigation.navigate(ROUTES.AUDIT_PAGE_SM, {
-                screenFrom: 'Dashboard',
-                datapass: item,
+        console.log('Clicked Item:TaskId-->', item.TaskId,'item.ActionId---',item.ActionId, 'item-->', item);
+        // navigation.navigate(ROUTES.CONCERN_SCREEN, { ConcernID: item?.ConcernID });
+        statusCode === STATUS_CODES.TODAY_CONCERN ?
+            navigation.navigate(ROUTES.PERIODIC_UPDATE_SCREEN, {
+                itemData: item,
+                RouteParam: "Project",
+                ProjectId: item.ProjectID,
+                TaskID: item.TaskId,
+                //activeTab: this.state.activeTab,
+            }) :
+            navigation.navigate(ROUTES.PERIODIC_UPDATE_SCREEN, {
+                itemData: item,
+                RouteParam: "Project",
+                ProjectId: item.ProjectID,
+                TaskID: item.ActionId,
+                //activeTab: this.state.activeTab,
             });
-        } else {
-            navigation.navigate(item?.Status === STATUS.CREATED ? ROUTES.CONCERN_INITIAL_EVALUATION : ROUTES.VIEW_CONCERN_PS, {
-                ConcernID: item?.ConcernID,
-                ...(item?.StatusID === STATUS_CODES.IN_PROGRESS.toString() && { FormTypeID: 3 }),
-        });
-            handleRecentActivity?.(item);
-        }
+        handleRecentActivity?.(item);
     };
-
     console.log('item in home list card', item);
 
     return (
@@ -89,36 +93,11 @@ const HomeListCard = ({ item = {}, route }) => {
                                     }}>
                                     <ImageComponent
                                         resizeMode="contain"
-                                        source={['AuditPro', 'Supplier Initial Assessment', 'Supplier Routine Audit'].includes(item.Module_name) ? IMAGES.supplier_logo : IMAGES.ps_logo_round}
                                         // source={IMAGES.ps_logo_round}
-                                    // source={IMAGES.apqpModuleIcon}
+                                        source={IMAGES.apqpModuleIcon}
+                                        style={{ width: '80%', height: '80%' }}
                                     />
                                 </Ripple>
-                                {['AuditPro', 'Supplier Initial Assessment', 'Supplier Routine Audit'].includes(item.Module_name) ? null :
-                                <Ripple
-                                    rippleContainerBorderRadius={SPACING.SMALL}
-                                    onPress={() =>
-                                        navigation.navigate(ROUTES.EDIT_CONCERN, {
-                                            ConcernID: item?.ConcernID,
-                                            FormTypeID: 3,
-                                        })
-                                    }
-                                    activeOpacity={1}
-                                    style={{
-                                        position: 'absolute',
-                                        right: SPACING.SMALL,
-                                        bottom: SPACING.SMALL,
-                                        width: RFPercentage(5),
-                                        height: RFPercentage(5),
-                                        backgroundColor: theme.colors.primaryThemeColor,
-                                        borderRadius: SPACING.SMALL,
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        zIndex: 100,
-                                    }}>
-
-                                    <IconComponent name="edit" size={FONT_SIZE.LARGE} type={ICON_TYPE.AntDesign} color={COLORS.white} />
-                                </Ripple>}
                             </>
                         )}
                         <View style={[styles.cardOuterView]}>
@@ -130,9 +109,8 @@ const HomeListCard = ({ item = {}, route }) => {
                                         style={{
                                             color: theme.colors.primaryThemeColor,
                                         }}>
-                                        {/* {item?.Title} */}
-                                        {['AuditPro', 'Supplier Initial Assessment', 'Supplier Routine Audit'].includes(item.Module_name) ? sites?.selectedSite?.SiteName : item?.Title}
-                                        {console.log('item?.Title', item?.Title)}
+                                        {item?.ProjectDescription}
+                                        {/* {console.log('item?.Title', item?.Title)} */}
                                     </TextComponent>
                                 </View>
                                 {item?.Type ? (
@@ -140,19 +118,13 @@ const HomeListCard = ({ item = {}, route }) => {
                                         <TextComponent numberOfLines={1}>Type: {item?.Type}</TextComponent>
                                     </View>
                                 ) : null}
-                               {item?.ConcernNo && <View style={{ width: '100%', paddingBottom: SPACING.SMALL }}>
-                                    <TextComponent numberOfLines={1}>Concern No: {item?.ConcernNo}</TextComponent>
-                                </View>}
-                                {item?.AuditTypeName && 
                                 <View style={{ width: '100%', paddingBottom: SPACING.SMALL }}>
-                                    <TextComponent numberOfLines={1}>
-                                        {item?.AuditTypeName}
-                                    </TextComponent>
-                                </View>}
-                                {/* <View style={{ width: '100%', paddingBottom: SPACING.SMALL }}>
-                            <TextComponent numberOfLines={1}>Status: {item?.Status}</TextComponent>
-                            <Tag text="open" />
-                        </View> */}
+                                    <TextComponent numberOfLines={1}>{item?.TaskDescription}</TextComponent>
+                                </View>
+                                <View style={{ width: '100%', paddingBottom: SPACING.SMALL }}>
+                                    {/* <TextComponent numberOfLines={1}>Status: {item?.Status}</TextComponent> */}
+                                    {/* <Tag text="open" /> */}
+                                </View>
                                 <View style={{ flexDirection: 'row', paddingBottom: SPACING.SMALL }}>
                                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                         <View
@@ -168,28 +140,19 @@ const HomeListCard = ({ item = {}, route }) => {
                                             <IconComponent name="calendar" color={COLORS.white} type={ICON_TYPE.AntDesign} size={FONT_SIZE.X_SMALL} />
                                         </View>
                                         <TextComponent type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.SMALL}>
-                                            {['AuditPro', 'Supplier Initial Assessment', 'Supplier Routine Audit'].includes(item.Module_name)
-                                            ? `${moment(item?.StartDate).format(DATE_FORMAT[timeSettings || "DD_MM_YYYY"])} - `
-                                            : `${moment(item?.CreatedDate).format(DATE_FORMAT[timeSettings || "DD_MM_YYYY"])} - `}
-                                            {/* {moment(item?.CreatedDate).format(DATE_FORMAT[timeSettings || "DD_MM_YYYY"])} -{' '} */}
+                                            {moment(item?.StartDate).format(DATE_FORMAT[timeSettings || "DD_MM_YYYY"])} -{' '}
                                         </TextComponent>
                                     </View>
                                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                         <TextComponent type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.SMALL}>
-                                            {['AuditPro', 'Supplier Initial Assessment', 'Supplier Routine Audit'].includes(item.Module_name)
-                                                ? moment(item?.EndDate).format(DATE_FORMAT[timeSettings || "DD_MM_YYYY"])
-                                                : moment(item?.DueDate).format(DATE_FORMAT[timeSettings || "DD_MM_YYYY"])
-                                            }
-                                            {/* {moment(item?.DueDate).format(DATE_FORMAT[timeSettings || "DD_MM_YYYY"])} */}
+                                            {moment(item?.FinishDate).format(DATE_FORMAT[timeSettings || "DD_MM_YYYY"])}
                                             {/* {moment(item?.DueDate).format(DATE_FORMAT.DD_MM_YYYY)} */}
                                         </TextComponent>
                                     </View>
                                 </View>
-                                {item?.AuditNumber && <TextComponent style={{ paddingLeft: SPACING.X_SMALL }} numberOfLines={1}> <TextComponent type={FONT_TYPE.BOLD}>{item?.AuditNumber}</TextComponent>
-                                </TextComponent>}
-                               {item?.DuebyDays && <TextComponent style={{ paddingLeft: SPACING.X_SMALL }} numberOfLines={1}>
+                                {item?.DueByDays ? (<TextComponent style={{ paddingLeft: SPACING.X_SMALL }} numberOfLines={1}>
                                     Due by days: <TextComponent type={FONT_TYPE.BOLD}>{item?.DuebyDays}</TextComponent>
-                                </TextComponent>}
+                                </TextComponent>) : null}
                                 {/* <TextComponent
                             style={{ color: COLORS.searchText, paddingLeft: SPACING.X_SMALL, paddingTop: SPACING.X_SMALL }}
                             fontSize={FONT_SIZE.X_SMALL}
@@ -206,12 +169,12 @@ const HomeListCard = ({ item = {}, route }) => {
                             </View>
                         </View>
                     </TouchableOpacity>
-                )) : <NoRecordFound/>}
+                )) : <NoRecordFound />}
         </Content>
     );
 };
 
-export default HomeListCard;
+export default HomeListCardApqp;
 
 const styles = StyleSheet.create({
     cardOuterView: {

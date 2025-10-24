@@ -61,25 +61,42 @@ const TabsView = ({ countDetails, currentName }) => {
   });
 
   const renderLabel = ({ route, focused }) => {
-    return <TextComponent
-    style={{
-      fontFamily: 'ProximaNova-Bold',
-      fontSize: FONT_SIZE.NORMAL,
-      color: COLORS.white,
-      paddingVertical: SPACING.SMALL,
-      width: '100%'
-    }}>
-      {route.title}
-    </TextComponent>
-  }
+    return (
+      <TextComponent
+        type={focused ? FONT_TYPE.REGULAR: FONT_TYPE.REGULAR}
+        style={{
+          fontSize: FONT_SIZE.LARGE,
+          color: focused ? "#000" : COLORS.grey,
+          paddingVertical: SPACING.SMALL,
+         // paddingHorizontal: SPACING.SMALL,
+          textAlign: 'center',
+        }}
+      >
+        {route.title}
+      </TextComponent>
+    );
+  };
 
   const renderTabBar = props => (
     <TabBar
       {...props}
-      indicatorStyle={{ backgroundColor: '#10A5B2', height: '100%', borderBottomColor: 'white', borderBottomWidth: 2 }}
-      // style={{  backgroundColor: '#10A5B2' }}
-      style={{  backgroundColor: '#12C0CF' }}
-      labelStyle = {{ textTransform: 'capitalize' }}
+      indicatorStyle={{
+        backgroundColor: COLORS.primaryThemeColor,
+        height: 3,
+        borderRadius: 2,
+      }}
+      style={{
+        backgroundColor: COLORS.white,
+        elevation: 0,
+        shadowOpacity: 0,
+        borderBottomColor: COLORS.dividerColor,
+        borderBottomWidth: 1,
+      }}
+      tabStyle={{
+        minHeight: undefined,
+        paddingVertical: SPACING.SMALL,
+      }}
+      labelStyle={{ textTransform: 'capitalize' }}
       renderLabel={renderLabel}
     />
   );
