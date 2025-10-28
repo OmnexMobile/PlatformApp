@@ -15,7 +15,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import Fonts from '../Themes/Fonts';
 import {strings} from '../language/Language';
 import Moment from 'moment';
-import ProgressCircle from 'react-native-progress-circle';
+// import ProgressCircle from 'react-native-progress-circle';
 
 import {connect} from 'react-redux';
 import NetInfo from '@react-native-community/netinfo';

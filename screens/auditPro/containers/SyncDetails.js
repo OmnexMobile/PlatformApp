@@ -10,7 +10,7 @@ import Modal from "react-native-modal"
 import CalendarPicker from 'react-native-calendar-picker'
 import { width, height } from 'react-native-dimension'
 import Moment from 'moment';
-import ProgressCircle from 'react-native-progress-circle'
+// import ProgressCircle from 'react-native-progress-circle'
 import { extendMoment } from 'moment-range';
 
 import { connect } from "react-redux";

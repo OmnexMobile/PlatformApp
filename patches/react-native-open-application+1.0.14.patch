@@ -1,0 +1,48 @@
+diff --git a/node_modules/react-native-open-application/android/build.gradle b/node_modules/react-native-open-application/android/build.gradle
+index a28f0dd..2a009e0 100644
+--- a/node_modules/react-native-open-application/android/build.gradle
++++ b/node_modules/react-native-open-application/android/build.gradle
+@@ -12,15 +12,19 @@ buildscript {
+ apply plugin: 'com.android.library'
+ 
+ android {
+-    compileSdkVersion 23
++    compileSdkVersion 34
+     buildToolsVersion "23.0.1"
+ 
+     defaultConfig {
+-        minSdkVersion 16
+-        targetSdkVersion 22
++        minSdkVersion 24
++        targetSdkVersion 34
+         versionCode 1
+         versionName "1.0"
+     }
++    compileOptions {
++        sourceCompatibility JavaVersion.VERSION_11 // Set to Java 11 or higher
++        targetCompatibility JavaVersion.VERSION_11
++    }
+     lintOptions {
+         abortOnError false
+     }
+@@ -31,6 +35,6 @@ repositories {
+ }
+ 
+ dependencies {
+-    compile 'com.facebook.react:react-native:+'
++    implementation 'com.facebook.react:react-native:+'
+ }
+   
+\ No newline at end of file
+diff --git a/node_modules/react-native-open-application/android/build/intermediates/aar_metadata/debug/writeDebugAarMetadata/aar-metadata.properties b/node_modules/react-native-open-application/android/build/intermediates/aar_metadata/debug/writeDebugAarMetadata/aar-metadata.properties
+new file mode 100644
+index 0000000..1211b1e
+--- /dev/null
++++ b/node_modules/react-native-open-application/android/build/intermediates/aar_metadata/debug/writeDebugAarMetadata/aar-metadata.properties
+@@ -0,0 +1,6 @@
++aarFormatVersion=1.0
++aarMetadataVersion=1.0
++minCompileSdk=1
++minCompileSdkExtension=0
++minAndroidGradlePluginVersion=1.0.0
++coreLibraryDesugaringEnabled=false

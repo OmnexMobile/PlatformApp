@@ -9,7 +9,6 @@ import { PersistGate } from 'redux-persist/integration/react';
 import RNBootSplash from 'react-native-bootsplash';
 
 import { store, persistor } from './store';
-// import { AppStack } from './navigations/stack';
 import { createInspectTable } from './store/database/inspectStorage';
 import { useInternetReachable } from './hooks';
 import { AppProvider } from './contexts/app-context';

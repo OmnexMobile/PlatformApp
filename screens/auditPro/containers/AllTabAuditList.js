@@ -23,7 +23,7 @@ import Toast, {DURATION} from 'react-native-easy-toast';
 import Moment from 'moment';
 import {extendMoment} from 'moment-range';
 import {width, height} from 'react-native-dimension';
-import ProgressCircle from 'react-native-progress-circle';
+// import ProgressCircle from 'react-native-progress-circle';
 import ResponsiveImage from 'react-native-responsive-image';
 import Fonts from '../Themes/Fonts';
 import {strings} from '../language/Language';
