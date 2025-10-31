@@ -1,6 +1,6 @@
 import { ButtonComponent, TextComponent } from 'components';
 import React, { useEffect } from 'react';
-import { FlatList, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { FlatList, Platform, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import CustomHeader from '../Components/CustomHeader';
 import { useState } from 'react';
 import { Divider, Modal } from 'react-native-paper';
@@ -21,6 +21,12 @@ import { useSelector } from 'react-redux';
 import { postAPI } from 'global/api-helpers';
 import ApiUrl from 'global/ApiUrl';
 import moment from 'moment';
+import { addInspectionData, getInspectionDataByUserAndSite } from 'store/database/inspectStorage';
+import { showMessage } from 'react-native-flash-message';
+import { Bubbles } from 'react-native-loader';
+import uuid from 'react-native-uuid';
+import { useAppContext } from 'contexts/app-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const optionsList = [
     {
@@ -64,6 +70,12 @@ const SupervisorSchedule = () => {
         },
     });
     const [selectedData, setSelectedData] = useState({});
+    const [showBubble, setShowBubble] = useState(false);
+    const {
+        profile,
+        sites: { selectedSite },
+    } = useAppContext();
+    const insets = useSafeAreaInsets();
 
     const onRefresh = () => {
         setRefreshing(true);
@@ -100,6 +112,7 @@ const SupervisorSchedule = () => {
         }
         setShowSkeleton(false);
         setRefreshing(false);
+        return [];
     };
     useEffect(() => {
         if (icUserData) {
@@ -108,6 +121,222 @@ const SupervisorSchedule = () => {
     }, [icUserData]);
     const renderIconBgColor = value => {
         return value == '1' ? COLORS.apptheme : value == '2' ? COLORS.ipBgColor : COLORS.fiBgColor;
+    };
+    const getItemStatus = (list, isSamplePopup, input) => {
+        if (isSamplePopup) {
+            const allValues = list?.length > 0 && list?.every(({ value }) => value?.trim() !== '');
+            const someValues = list?.some(({ value }) => value?.trim() !== '');
+            let status = allValues ? 'Completed' : someValues ? 'In Progress' : 'Inspect';
+            return status;
+        } else {
+            console.log(input, 'input');
+            let temp = input?.filter(x => x?.Required && x?.Value == '')?.length;
+            let tempAllValue = input?.filter(x => x?.Required && x?.Value != '')?.length;
+            let tempReq = input?.filter(x => x?.Required)?.length;
+            let status = temp == 0 ? 'Completed' : tempAllValue != 0 && tempReq > tempAllValue ? 'In Progress' : 'Inspect';
+            return status;
+        }
+    };
+    const getContainmentList = (list, item) => {
+        if (Boolean(list?.length)) {
+            const highValue = item.CHighValue || '';
+            const lowValue = item.CLowValue || '';
+            const tolerance = item.CTolerance || 0;
+            let finalval = list.map((value, index) => ({
+                count: index + 1,
+                highValue: highValue,
+                id: index + 1,
+                lowValue: lowValue,
+                ContainmentValue: value.ContainmentValue,
+                actualValue: item.value,
+                tolerance: tolerance,
+                ContainmentComment: value.ContainmentComment,
+                isEditable: index + 1 == 1 ? true : false,
+                isCommentsEditable: index + 1 == 1 ? true : false,
+                showBtn: index + 1 == 1 ? true : false,
+                ContainmentID: index + 1,
+                ContainmentNumber: value.ContainmentNumber,
+                Type: value.Type,
+                BackColorForContainment: value.BackColorForContainment,
+                FontColorForContainment: value.FontColorForContainment,
+            }));
+            return finalval;
+        }
+        return [];
+    };
+    const transformInspectionData = (input, isNumericSample) => {
+        const result = [];
+        input.forEach(item => {
+            const sampleSize = parseInt(item.CSampleSize || 0);
+            const highValue = item.CHighValue || '';
+            const lowValue = item.CLowValue || '';
+            const tolerance = item.CTolerance || 0;
+            let Samples = [];
+            for (let i = 1; i <= sampleSize; i++) {
+                const sample = item.samples?.find(s => parseInt(s.SampleName) === i);
+                const data = sample?.Data;
+                Samples.push({
+                    Comments: data?.Comments || '',
+                    EnteredDate: data?.EnteredDate || '',
+                    FuncDetailsId: parseInt(data?.FuncDetailsId || 0),
+                    FunctionValue: data?.FunctionValue || '',
+                    IsApproved: parseInt(data?.IsApproved || 0),
+                    IsNumericSample: isNumericSample,
+                    IsRejected: parseInt(data?.IsRejected || 1),
+                    SerialNo: parseInt(data?.SerialNo || i),
+                    backColor: data?.BackColor || '',
+                    count: i,
+                    fontColor: data?.FontColor || '#FFFFFF',
+                    highValue: highValue,
+                    id: i,
+                    lowValue: lowValue,
+                    sampleName: i,
+                    status: parseInt(data?.Status || 1),
+                    tolerance: tolerance,
+                    value: data?.FunctionValue || '',
+                    ContainmentActions: getContainmentList(sample?.ContainmentActions, item),
+                });
+            }
+            let isSamplePopup = Array.isArray(item.charInfo) && item.charInfo.some(c => c.PropertyName === 'ActualValue');
+            const status = getItemStatus(Samples, isSamplePopup, item.charInfo);
+            result.push({
+                ...item,
+                isSamplePopup: isSamplePopup,
+                Samples: isSamplePopup ? Samples : [],
+                status: status,
+            });
+        });
+        return result;
+    };
+    // Example usage:
+    const rendetBtnText = item => {
+        const combined = [...item?.VariableCharacteristics, ...item?.AttributeCharacteristics];
+        if (!combined.some(item => 'status' in item)) {
+            return {
+                status: 'launch',
+                colorCode: COLORS.apptheme,
+            };
+        }
+        let hasInprogress = false;
+        let hasCompleted = false;
+        let hasMissingStatus = false;
+
+        for (const item of combined) {
+            if ('status' in item) {
+                if (item.status === 'In Progress') {
+                    hasInprogress = true;
+                } else if (item.status === 'Completed') {
+                    hasCompleted = true;
+                }
+            } else {
+                hasMissingStatus = true;
+            }
+        }
+        if (hasInprogress) return { colorCode: COLORS.ipBgColor, status: 'In Progress' };
+        if (hasCompleted && hasMissingStatus) return { colorCode: COLORS.ipBgColor, status: 'In Progress' };
+        if (hasCompleted && !hasMissingStatus) return { colorCode: COLORS.fiBgColor, status: 'Completed' };
+
+        return {
+            status: 'launch',
+            colorCode: COLORS.apptheme,
+        };
+    };
+    const getAllFiles = async item => {
+        const formData = new FormData();
+        formData.append('operationId', item?.OperationID);
+        formData.append('productionItemH', item?.ProductionItemId);
+        const response = await postAPI(ApiUrl.IC_GET_ATTACHEMENTS, formData);
+        if (response.Success) {
+            return response.Data || [];
+        } else {
+            return [];
+        }
+    };
+    const handleDownloadPress = async item => {
+        if (item?.isDownloaded) {
+            setShowBubble(true);
+            const inspectList = await getInspectionDataByUserAndSite(icUserData?.userData?.UserId, icUserData?.userData?.Siteid);
+            let filtered = inspectList.filter(val => val?.ID === item?.ID);
+            navigation.navigate(ROUTES.INPROCESS_INSPECTION, { inspectData: filtered[0] || {} });
+            setShowBubble(false);
+        } else {
+            setShowBubble(true);
+            setSelectedData(item);
+            const formData = new FormData();
+            formData.append('UserId', icUserData?.userData?.UserId);
+            formData.append('siteId', parseInt(icUserData?.userData?.Siteid));
+            formData.append('inspectionID', item?.ID);
+            formData.append('FormId', item?.FormId);
+            formData.append('FormName', item?.FormName);
+            formData.append('operationIDs', item?.OperationID);
+            formData.append('ProcessId', item?.InspectionType == '2' ? 1 : 0);
+            formData.append('isProcess', item?.InspectionType == '2' ? 1 : 0);
+            const attachments = await getAllFiles(item);
+            const response = await postAPI(`${ApiUrl.IC_SEARCH_INSPECTION_DOWNLOAD}`, formData);
+            if (response?.GeneralInfo?.length || response?.VariableCharacteristics?.length || response?.AttributeCharacteristics?.length) {
+                const VariableCharacteristicsList = transformInspectionData(response.VariableCharacteristics, 1);
+                const AttributeCharacteristicsList = transformInspectionData(response.AttributeCharacteristics, 0);
+                const getStatus = rendetBtnText({
+                    VariableCharacteristics: VariableCharacteristicsList,
+                    AttributeCharacteristics: AttributeCharacteristicsList,
+                });
+                let inspectObj = {
+                    uniqueId: uuid.v4(),
+                    ID: item?.ID,
+                    InspectionID: item?.ID,
+                    InspectionEntryDetailsID: item?.ICInspectionEntryDetailsID,
+                    intInspectionTypeID: item?.InspectionType,
+                    FormId: item?.FormId,
+                    OperationID: item?.OperationID,
+                    intProductionItemID: item?.ProductionItemId,
+                    strProductionItemName: item?.ProductionItemName,
+                    intShiftID: item?.ShiftId,
+                    strShiftName: item?.Shift,
+                    strOperationName: item.OperationName,
+                    strFrequencyName: item?.SampleFrequency,
+                    intInspectionTypeID: item?.InspectionType,
+                    strInspectionType: item.InspectionType,
+                    strLotNo: item.LotNo,
+                    GeneralInfo: response.GeneralInfo,
+                    VariableCharacteristics: VariableCharacteristicsList,
+                    AttributeCharacteristics: AttributeCharacteristicsList,
+                    userType: 'SupervisorSchedule',
+                    attachments: attachments,
+                    userId: selectedSite?.UserId,
+                    siteId: selectedSite?.Siteid,
+                    status: getStatus?.status,
+                    colorCode: getStatus?.colorCode,
+                };
+
+                await addInspectionData(selectedSite?.UserId, selectedSite?.Siteid, inspectObj.uniqueId, inspectObj);
+                handleGetAllData(false, false);
+                showMessage({
+                    message: 'Form Downloaded Successfully',
+                    backgroundColor: COLORS.SUCCESS,
+                    color: COLORS.white,
+                    duration: 1500,
+                    statusBarHeight: 40,
+                    icon: 'success',
+                    position: 'right',
+                    style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : { paddingTop: insets.top },
+                });
+                setShowBubble(false);
+                navigation.navigate(ROUTES.INPROCESS_INSPECTION, { inspectData: inspectObj });
+            } else {
+                console.log('response', response);
+                showMessage({
+                    message: 'Something went wrong',
+                    backgroundColor: COLORS.ERROR,
+                    color: COLORS.white,
+                    duration: 1500,
+                    statusBarHeight: 40,
+                    icon: 'warning',
+                    position: 'right',
+                    style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : { paddingTop: insets.top },
+                });
+                setShowBubble(false);
+            }
+        }
     };
     const renderItem = ({ item, index }) => {
         return (
@@ -144,7 +373,7 @@ const SupervisorSchedule = () => {
                         </TouchableOpacity>
                         <TouchableOpacity
                             onPress={() => {
-                                // navigation.navigate(ROUTES.INPROCESS_INSPECTION);
+                                handleDownloadPress(item);
                             }}>
                             <IconM name="battery-plus-variant" size={27} color="#666666" />
                         </TouchableOpacity>
@@ -281,6 +510,23 @@ const SupervisorSchedule = () => {
                 }}
                 userData={icUserData?.userData}
             />
+            {Boolean(showBubble) && (
+                <Modal
+                    transparent={true}
+                    animationType={'none'}
+                    visible={showBubble}
+                    onRequestClose={() => {
+                        console.log('close modal');
+                    }}
+                    contentContainerStyle={{
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flex: 1,
+                        height: '100%',
+                    }}>
+                    <Bubbles size={10} color="#12C0CF" />
+                </Modal>
+            )}
         </CustomHeader>
     );
 };
