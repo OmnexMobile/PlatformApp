@@ -19,7 +19,6 @@ const GeneralInfo = ({ infoData = {}, setInfoData = () => {}, intInspectionTypeI
             <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
                 <View style={styles.rowContainer}>
                     {(infoData.GeneralInfo || []).map((item, index) => {
-                        console.log(item.DisplayName == 'Approver' ? item:[], '**********************SupervisorList**************');
                         let dropList = item?.List?.length && item?.List.map(i => ({ value: i?.Supervisor, label: i?.Supervisor, ...i }));
                         if (intInspectionTypeID == 1) {
                             return (
