@@ -47,4 +47,5 @@ module.exports = {
     IC_SUPERVISOR_DOWNLOAD:'GetSupervisorForm',
     IC_OPERATION_LIST:'GetOperations',
     IC_BULK_SYNC:'BulkSync'
+
 };

@@ -485,6 +485,7 @@ const SupervisorSchedule = () => {
             navigation.navigate(ROUTES.INPROCESS_INSPECTION, { inspectData: filtered[0] || {} });
             setShowBubble(false);
         } else {
+            console.log(item, 'item');
             setShowBubble(true);
             setSelectedData(item);
             const formData = new FormData();
