@@ -27,6 +27,8 @@ import { Bubbles } from 'react-native-loader';
 import uuid from 'react-native-uuid';
 import { useAppContext } from 'contexts/app-context';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import IconF from 'react-native-vector-icons/Feather';
+
 
 const optionsList = [
     {
@@ -63,6 +65,7 @@ const SupervisorSchedule = () => {
     const [refreshing, setRefreshing] = useState(false);
     const [filters, setFilters] = useState({
         search: '',
+        searchBy: 'Production Item',
         inspectionType: {
             id: 0,
             value: 'All',
@@ -98,14 +101,47 @@ const SupervisorSchedule = () => {
         setSelectedData(temp);
         setShowFileModal(true);
     };
+    const addIsDownloadKey = async temp => {
+        const inspectList = await getInspectionDataByUserAndSite(icUserData?.userData?.UserId, icUserData?.userData?.Siteid);
+        let filtered = inspectList.filter(item => item?.userType === 'SupervisorSchedule');
+        const updatedArray = temp.map(item => {
+            const match = filtered.some(compareItem => compareItem.ID === item.ID);
+            return {
+                ...item,
+                isDownloaded: match,
+            };
+        });
+        return updatedArray;
+    };
+    const getSearchKey = (searchBy = '') => {
+        switch (searchBy) {
+            case 'Production Item':
+                return 'ProductionItemName';
+            case 'Operation':
+                return 'OperationName';
+            case 'Lot No':
+                return 'LotNo';
+            case 'Status':
+                return 'LotStatus';
+            default:
+                return 'ProductionItemName';
+        }
+    };
     const handleGetAllData = async (showSKT = true) => {
         showSKT && setShowSkeleton(true);
         const formData = new FormData();
         formData.append('UserID', icUserData?.userData?.UserId);
         const response = await postAPI(ApiUrl.IC_SUPERVISOR_LIST, formData);
         if (response.Success) {
-            setMasterData(response?.Data || []);
-            setOverAllData(response?.Data || []);
+            let temp = response?.Data || [];
+            const updatedArray = await addIsDownloadKey(temp);
+            if (filters.search !== '') {
+                let temp = updatedArray.filter(x => x[getSearchKey(filters.searchBy)].toLowerCase().includes(filters?.search?.toLowerCase()));
+                setMasterData([...temp]);
+            } else {
+                setMasterData([...updatedArray]);
+            }
+            setOverAllData([...updatedArray]);
         } else {
             setMasterData([]);
             setOverAllData([]);
@@ -115,10 +151,10 @@ const SupervisorSchedule = () => {
         return [];
     };
     useEffect(() => {
-        if (icUserData) {
+        if (icUserData && isFocused) {
             handleGetAllData();
         }
-    }, [icUserData]);
+    }, [icUserData,isFocused]);
     const renderIconBgColor = value => {
         return value == '1' ? COLORS.apptheme : value == '2' ? COLORS.ipBgColor : COLORS.fiBgColor;
     };
@@ -260,6 +296,7 @@ const SupervisorSchedule = () => {
             navigation.navigate(ROUTES.INPROCESS_INSPECTION, { inspectData: filtered[0] || {} });
             setShowBubble(false);
         } else {
+            console.log(item, 'item');
             setShowBubble(true);
             setSelectedData(item);
             const formData = new FormData();
@@ -271,8 +308,18 @@ const SupervisorSchedule = () => {
             formData.append('operationIDs', item?.OperationID);
             formData.append('ProcessId', item?.InspectionType == '2' ? 1 : 0);
             formData.append('isProcess', item?.InspectionType == '2' ? 1 : 0);
+
+            console.log('formData.UserId', icUserData?.userData?.UserId);
+            console.log('formData.siteId', parseInt(icUserData?.userData?.Siteid));
+            console.log('formData.inspectionID', item?.ID);
+            console.log('formData.FormId', item?.FormId);
+            console.log('formData.FormName', item?.FormName);
+            console.log('formData.operationIDs', item?.OperationID);    
+            console.log('formData.ProcessId', item?.InspectionType == '2' ? 1 : 0);
+            console.log('formData.isProcess', item?.InspectionType == '2' ? 1 : 0);
+
             const attachments = await getAllFiles(item);
-            const response = await postAPI(`${ApiUrl.IC_SEARCH_INSPECTION_DOWNLOAD}`, formData);
+            const response = await postAPI(`${ApiUrl.IC_SUPERVISOR_DOWNLOAD}`, formData);
             if (response?.GeneralInfo?.length || response?.VariableCharacteristics?.length || response?.AttributeCharacteristics?.length) {
                 const VariableCharacteristicsList = transformInspectionData(response.VariableCharacteristics, 1);
                 const AttributeCharacteristicsList = transformInspectionData(response.AttributeCharacteristics, 0);
@@ -290,13 +337,13 @@ const SupervisorSchedule = () => {
                     OperationID: item?.OperationID,
                     intProductionItemID: item?.ProductionItemId,
                     strProductionItemName: item?.ProductionItemName,
-                    intShiftID: item?.ShiftId,
+                    intShiftID: item?.ShiftId, // missing in response
                     strShiftName: item?.Shift,
                     strOperationName: item.OperationName,
                     strFrequencyName: item?.SampleFrequency,
                     intInspectionTypeID: item?.InspectionType,
                     strInspectionType: item.InspectionType,
-                    strLotNo: item.LotNo,
+                    strLotNo: item?.LotNo,
                     GeneralInfo: response.GeneralInfo,
                     VariableCharacteristics: VariableCharacteristicsList,
                     AttributeCharacteristics: AttributeCharacteristicsList,
@@ -323,7 +370,6 @@ const SupervisorSchedule = () => {
                 setShowBubble(false);
                 navigation.navigate(ROUTES.INPROCESS_INSPECTION, { inspectData: inspectObj });
             } else {
-                console.log('response', response);
                 showMessage({
                     message: 'Something went wrong',
                     backgroundColor: COLORS.ERROR,
@@ -374,8 +420,10 @@ const SupervisorSchedule = () => {
                         <TouchableOpacity
                             onPress={() => {
                                 handleDownloadPress(item);
-                            }}>
-                            <IconM name="battery-plus-variant" size={27} color="#666666" />
+                            }}
+                            style={{marginLeft:5}}
+                            >
+                           <IconF name="download" size={23} color={item?.isDownloaded ? COLORS.fiBgColor : COLORS.grey} />
                         </TouchableOpacity>
                     </View>
                 </View>
