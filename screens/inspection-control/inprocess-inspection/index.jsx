@@ -159,7 +159,7 @@ const InprocessInspection = ({ route }) => {
         </View>
     );
     const handleValidation = data => {
-        let list = [...data.GeneralInfo].filter(x => x.DisplayName == 'Approver');
+        let list = [...data.GeneralInfo].filter(x => x?.DisplayName == 'Approver' || x?.DisplayName == 'Supervisor');
         return inspectData.intInspectionTypeID !== 2 ? (list?.length ? list[0].Value !== '' : true) : true;
         // return list.length ? list[0].Value !== '':true;
     };

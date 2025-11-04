@@ -114,7 +114,7 @@ const SampleCharInfo = ({
                     placeholder={''}
                 />
             </View>
-            {Boolean(inspectionType == 1) && (
+            {Boolean(inspectionType != 2) && (
                 <View style={styles.subBox}>
                     <Text style={styles.headerText}>UOM</Text>
                     <TextInput
@@ -183,10 +183,10 @@ const SampleCharInfo = ({
                 <View style={styles.subBox}>
                     <Text style={styles.headerText}>Eval Tech</Text>
                     <TextInput
-                        value={selectedData?.GageNo || ''}
+                        value={selectedData?.GageName || ''}
                         style={[styles.inputBox, { backgroundColor: COLORS.inputBG }]}
                         onChangeText={val => {
-                            handleInputChange('GageNo', val);
+                            handleInputChange('GageName', val);
                         }}
                         placeholder={''}
                     />

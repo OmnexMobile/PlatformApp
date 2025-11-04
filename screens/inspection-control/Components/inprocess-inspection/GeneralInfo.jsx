@@ -26,10 +26,15 @@ const GeneralInfo = ({ infoData = {}, setInfoData = () => {}, intInspectionTypeI
                                 item.DisplayName != 'Rev No' &&
                                 item.DisplayName != 'Customer' &&
                                 item.DisplayName != 'Criteria' &&
+                                item.DisplayName != 'Serial No' &&
                                 item.DisplayName != 'Customer Code' && (
                                     <View style={styles.subBox} key={`${item.PropertyName}-${index}`}>
                                         <Text style={styles.headerText}>
-                                            {item.DisplayName == 'ReceiptNo' && intInspectionTypeID == 1 ? 'GRN No' : item.DisplayName}
+                                            {item.DisplayName == 'ReceiptNo' && intInspectionTypeID == 1
+                                                ? 'GRN No'
+                                                : item?.DisplayName == 'Receipt Date'
+                                                ? 'GRN Date'
+                                                : item.DisplayName}
                                         </Text>
                                         <DynamicFormField
                                             title="Supplier Name"
@@ -52,6 +57,7 @@ const GeneralInfo = ({ infoData = {}, setInfoData = () => {}, intInspectionTypeI
                                 item.DisplayName != 'Criteria' &&
                                 item.DisplayName != 'Supplier Code' &&
                                 item.DisplayName != 'Invoice Number' &&
+                                item.DisplayName != 'Serial No' &&
                                 item.DisplayName != 'Invoice Date' && (
                                     <View style={styles.subBox} key={`${item.PropertyName}-${index}`}>
                                         <Text style={styles.headerText}>{item.DisplayName}</Text>
