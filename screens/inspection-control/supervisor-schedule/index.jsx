@@ -1,6 +1,6 @@
 import { ButtonComponent, TextComponent } from 'components';
 import React, { useEffect } from 'react';
-import { FlatList, Platform, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { FlatList, Platform, RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import CustomHeader from '../Components/CustomHeader';
 import { useState } from 'react';
 import { Divider, Modal } from 'react-native-paper';
@@ -28,7 +28,8 @@ import uuid from 'react-native-uuid';
 import { useAppContext } from 'contexts/app-context';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import IconF from 'react-native-vector-icons/Feather';
-
+import SingleDropDown from '../Components/SingleDropDown';
+import DynamicFormField from '../Components/DynamicFormField';
 
 const optionsList = [
     {
@@ -50,6 +51,72 @@ const optionsList = [
         id: 3,
         value: 'Final Inspections',
         label: 'Final Inspections',
+    },
+];
+const searchFilterOptions = [
+    {
+        id: 1,
+        title: 'ProductionItemName',
+        label: 'Production Item',
+        type: 'search',
+        value: 'Production Item',
+    },
+    {
+        id: 2,
+        title: 'OperationName',
+        label: 'Operation',
+        type: 'search',
+        value: 'Operation',
+    },
+    {
+        id: 3,
+        title: 'LotNo',
+        label: 'Lot No',
+        type: 'search',
+        value: 'Lot No',
+    },
+    {
+        id: 4,
+        label: 'Refrence No',
+        title: 'ReferenceNo',
+        type: 'singleDropDown',
+        value: 'Refrence No',
+    },
+    {
+        id: 5,
+        label: 'Lot Size',
+        title: 'LotSize',
+        type: 'search',
+        value: 'Lot Size',
+    },
+    {
+        id: 6,
+        label: 'Sample Frequency',
+        title: 'SampleFrequency',
+        type: 'search',
+        value: 'Sample Frequency',
+    },
+];
+const searchFilterList = [
+    {
+        id: 1,
+        label: 'Production Item',
+        isSelected: true,
+    },
+    {
+        id: 2,
+        isSelected: false,
+        label: 'Operation',
+    },
+    {
+        id: 4,
+        isSelected: false,
+        label: 'Lot No',
+    },
+    {
+        id: 8,
+        isSelected: false,
+        label: 'Status',
     },
 ];
 const SupervisorSchedule = () => {
@@ -74,12 +141,36 @@ const SupervisorSchedule = () => {
     });
     const [selectedData, setSelectedData] = useState({});
     const [showBubble, setShowBubble] = useState(false);
+    const [selectedSeachOptions, setSelectedSeachOptions] = useState([
+        {
+            id: 1,
+            title: '',
+            label: '',
+            searchBy: '',
+            searchText: '',
+        },
+    ]);
+    const [showMutiSearchFilter, setShowMutiSearchFilter] = useState(false);
+        const [searchList, setSearchList] = useState([...searchFilterList]);
+    
     const {
         profile,
         sites: { selectedSite },
     } = useAppContext();
     const insets = useSafeAreaInsets();
-
+    useEffect(() => {
+        return () => {
+            setSelectedSeachOptions([
+                {
+                    id: 1,
+                    title: '',
+                    label: '',
+                    searchBy: '',
+                    searchText: '',
+                },
+            ]);
+        };
+    }, [isFocused]);
     const onRefresh = () => {
         setRefreshing(true);
         handleGetAllData(false);
@@ -154,7 +245,7 @@ const SupervisorSchedule = () => {
         if (icUserData && isFocused) {
             handleGetAllData();
         }
-    }, [icUserData,isFocused]);
+    }, [icUserData, isFocused]);
     const renderIconBgColor = value => {
         return value == '1' ? COLORS.apptheme : value == '2' ? COLORS.ipBgColor : COLORS.fiBgColor;
     };
@@ -314,7 +405,7 @@ const SupervisorSchedule = () => {
             console.log('formData.inspectionID', item?.ID);
             console.log('formData.FormId', item?.FormId);
             console.log('formData.FormName', item?.FormName);
-            console.log('formData.operationIDs', item?.OperationID);    
+            console.log('formData.operationIDs', item?.OperationID);
             console.log('formData.ProcessId', item?.InspectionType == '2' ? 1 : 0);
             console.log('formData.isProcess', item?.InspectionType == '2' ? 1 : 0);
 
@@ -421,9 +512,8 @@ const SupervisorSchedule = () => {
                             onPress={() => {
                                 handleDownloadPress(item);
                             }}
-                            style={{marginLeft:5}}
-                            >
-                           <IconF name="download" size={23} color={item?.isDownloaded ? COLORS.fiBgColor : COLORS.grey} />
+                            style={{ marginLeft: 5 }}>
+                            <IconF name="download" size={23} color={item?.isDownloaded ? COLORS.fiBgColor : COLORS.grey} />
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -460,7 +550,70 @@ const SupervisorSchedule = () => {
         setMasterData(tempSearch);
         hideModal();
     };
+    const handleAddPress = () => {
+        let temp = [...selectedSeachOptions];
+        temp.push({
+            id: temp[temp?.length - 1]?.id ? temp[temp?.length - 1]?.id + 1 : 1,
+            title: '',
+            label: '',
+            searchBy: '',
+            searchText: '',
+        });
+        setSelectedSeachOptions([...temp]);
+    };
+    const handleDeletePress = id => {
+        let temp = [...selectedSeachOptions];
+        temp = temp.filter(item => item.id !== id);
+        setSelectedSeachOptions([...temp]);
+    };
+    const handleFetchDropdownList = val => {
+        if (val.label == 'Refrence No') {
+            let temp = [];
+            masterData.forEach((item, index) => {
+                if (item?.ReferenceNo) {
+                    temp.push({
+                        id: index + 1,
+                        label: item.ReferenceNo,
+                        value: item.ReferenceNo,
+                    });
+                }
+            });
+            return temp;
+        } else {
+            return [];
+        }
+    };
+    const handleMultiSearchFilterSubmit = () => {
+        setShowMutiSearchFilter(false);
+        let temp = [];
+        selectedSeachOptions.forEach(item => {
+            if (item.searchText && item.searchBy) {
+                temp.push({
+                    searchBy: item.searchBy.title,
+                    searchText: item?.searchText?.value ? item?.searchText?.value : item.searchText,
+                });
+            }
+        });
+        handleDoMultiFilter(temp);
+        console.log(temp, 'selectedSeachOptions');
+    };
+    const handleDoMultiFilter = (criteria = []) => {
+        if (!Array.isArray(criteria) || criteria.length === 0) {
+            setMasterData([...overAllData]); // reset if no criteria
+            return;
+        }
 
+        let temp = [...overAllData];
+
+        // Apply filters one by one (AND logic)
+        criteria.forEach(({ searchBy, searchText }) => {
+            if (searchText && searchBy) {
+                temp = temp.filter(item => item[searchBy]?.toString().toLowerCase().includes(searchText.toLowerCase()));
+            }
+        });
+
+        setMasterData([...temp]);
+    };
     return (
         <CustomHeader
             title="Supervisor Schedule"
@@ -481,6 +634,9 @@ const SupervisorSchedule = () => {
                 setFilters(pre => ({ ...pre, search: '' }));
                 handleTypeFilter(filters.inspectionType.id, '');
                 // handleSearch('', filterData?.type);
+            }}
+            handleMultiSearch={() => {
+                setShowMutiSearchFilter(true);
             }}>
             <View style={[styles.container]}>
                 {Boolean(showSkeleton) ? (
@@ -573,6 +729,122 @@ const SupervisorSchedule = () => {
                         height: '100%',
                     }}>
                     <Bubbles size={10} color="#12C0CF" />
+                </Modal>
+            )}
+            {Boolean(showMutiSearchFilter) && (
+                <Modal
+                    visible={showMutiSearchFilter}
+                    onDismiss={() => {
+                        setShowMutiSearchFilter(false);
+                    }}
+                    contentContainerStyle={{
+                        backgroundColor: '#fff',
+                        width: '98%',
+                        alignSelf: 'center',
+                        height: '100%',
+                    }}>
+                    <View style={{ flex: 1, padding: 10 }}>
+                        <View style={{}}>
+                            <Text style={styles.headertext}>Search Filter</Text>
+                            <Divider />
+                        </View>
+                        <ScrollView style={{ flex: 1 }}>
+                            {selectedSeachOptions.map((item, index) => {
+                                return (
+                                    <View style={styles.filterContainer} key={item.id}>
+                                        <View style={styles.filterBox1}>
+                                            <SingleDropDown
+                                                placeholder="Column Name"
+                                                data={searchFilterOptions}
+                                                dropdownPosition="bottom"
+                                                value={item.searchBy || {}}
+                                                onChange={val => {
+                                                    const updatedData = selectedSeachOptions.map(i =>
+                                                        i.id === item.id
+                                                            ? {
+                                                                  ...i,
+                                                                  searchBy: val,
+                                                                  id: item.id,
+                                                                  title: val.label,
+                                                                  label: val.label,
+                                                                  searchText: '',
+                                                                  List: handleFetchDropdownList(val),
+                                                              }
+                                                            : i,
+                                                    );
+                                                    setSelectedSeachOptions(updatedData);
+                                                }}
+                                            />
+                                        </View>
+                                        <View style={styles.filterBox2}>
+                                            <DynamicFormField
+                                                fieldType={item.searchBy.type}
+                                                value={item.searchText}
+                                                isEditable={item.searchBy !== ''}
+                                                dropDownData={item?.List || []}
+                                                handleChange={val => {
+                                                    const updatedData = selectedSeachOptions.map(i =>
+                                                        i.id === item.id ? { ...i, searchText: val } : i,
+                                                    );
+                                                    setSelectedSeachOptions(updatedData);
+                                                }}
+                                                dropdownPosition="bottom"
+                                            />
+                                        </View>
+                                        {Boolean(selectedSeachOptions?.length > 1) && (
+                                            <View>
+                                                <TouchableOpacity
+                                                    style={{ backgroundColor: COLORS.apptheme, padding: 5, borderRadius: 50, marginTop: 5 }}
+                                                    onPress={() => handleDeletePress(item.id)}>
+                                                    <IconI name="close" size={20} color={COLORS.white} />
+                                                </TouchableOpacity>
+                                            </View>
+                                        )}
+                                    </View>
+                                );
+                            })}
+                        </ScrollView>
+                        <View>
+                            <View style={[styles.outerAddContainer]}>
+                                <TouchableOpacity style={[styles.addConatiner]} onPress={() => handleAddPress()}>
+                                    <IconI name="add" size={25} color={COLORS.white} />
+                                </TouchableOpacity>
+                            </View>
+                            <Divider />
+                            <View
+                                style={{
+                                    flexDirection: 'row',
+                                    justifyContent: 'space-between',
+                                    paddingVertical: 10,
+                                }}>
+                                <TouchableOpacity style={styles.cancelConatiner} onPress={() => setShowMutiSearchFilter(false)}>
+                                    <Text style={styles.btnStyle}>CANCEL</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    style={styles.cancelConatiner}
+                                    onPress={() => {
+                                        setSelectedSeachOptions([
+                                            {
+                                                id: 1,
+                                                title: '',
+                                                label: '',
+                                                searchBy: '',
+                                                searchText: '',
+                                            },
+                                        ]);
+                                    }}>
+                                    <Text style={styles.btnStyle}>CLEAR ALL</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    style={styles.cancelConatiner}
+                                    onPress={() => {
+                                        handleMultiSearchFilterSubmit();
+                                    }}>
+                                    <Text style={styles.btnStyle}>SUBMIT</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </View>
                 </Modal>
             )}
         </CustomHeader>
@@ -677,15 +949,52 @@ const styles = StyleSheet.create({
     cancelConatiner: {
         marginRight: 20,
     },
-    btnStyle: {
-        color: COLORS.apptheme,
-        fontFamily: 'OpenSans-SemiBold',
-        fontSize: RFPercentage(1.8),
-    },
     btnConatiner: {
         flexDirection: 'row',
         justifyContent: 'flex-end',
         paddingVertical: 15,
+    },
+    headertext: {
+        fontFamily: 'OpenSans-SemiBold',
+        fontSize: 20,
+        paddingBottom: 12,
+        color: COLORS.ictextBlack,
+    },
+    btnStyle: {
+        color: COLORS.apptheme,
+        fontFamily: 'OpenSans-SemiBold',
+        fontSize: 17,
+    },
+    addText: {
+        color: COLORS.apptheme,
+        fontFamily: 'OpenSans-SemiBold',
+        fontSize: 17,
+    },
+    addConatiner: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 5,
+        backgroundColor: COLORS.apptheme,
+        borderRadius: 50,
+    },
+    outerAddContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'flex-end',
+        marginBottom: 10,
+        marginRight: 10,
+    },
+    filterContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    filterBox1: {
+        flex: 1,
+    },
+    filterBox2: {
+        flex: 1.4,
+        marginHorizontal: 5,
     },
 });
 

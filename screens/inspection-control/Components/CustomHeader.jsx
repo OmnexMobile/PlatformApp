@@ -68,7 +68,7 @@ const CustomHeader = ({
     handleClosePress = () => {},
     customBackHandler = false,
     customHandleGoBack = () => {},
-    handleMultiSearch=()=>{}
+    handleMultiSearch = () => {},
 }) => {
     const { icSettings } = useSelector(state => state.inspection);
     const insets = useSafeAreaInsets();
@@ -174,7 +174,7 @@ const CustomHeader = ({
                 <View style={[styles.rightIconList]}>
                     {showIcons && (
                         <>
-                            {activeTabId == 0 && (
+                            {(activeTabId == 0 || activeTabId == 4) && (
                                 <TouchableOpacity onPress={() => handleMultiSearch()}>
                                     <IconM name="filter-list" size={25} style={styles.iconButton} color={COLORS.white} />
                                 </TouchableOpacity>
