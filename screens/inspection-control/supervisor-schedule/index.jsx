@@ -387,7 +387,6 @@ const SupervisorSchedule = () => {
             navigation.navigate(ROUTES.INPROCESS_INSPECTION, { inspectData: filtered[0] || {} });
             setShowBubble(false);
         } else {
-            console.log(item, 'item');
             setShowBubble(true);
             setSelectedData(item);
             const formData = new FormData();
@@ -399,15 +398,6 @@ const SupervisorSchedule = () => {
             formData.append('operationIDs', item?.OperationID);
             formData.append('ProcessId', item?.InspectionType == '2' ? 1 : 0);
             formData.append('isProcess', item?.InspectionType == '2' ? 1 : 0);
-
-            console.log('formData.UserId', icUserData?.userData?.UserId);
-            console.log('formData.siteId', parseInt(icUserData?.userData?.Siteid));
-            console.log('formData.inspectionID', item?.ID);
-            console.log('formData.FormId', item?.FormId);
-            console.log('formData.FormName', item?.FormName);
-            console.log('formData.operationIDs', item?.OperationID);
-            console.log('formData.ProcessId', item?.InspectionType == '2' ? 1 : 0);
-            console.log('formData.isProcess', item?.InspectionType == '2' ? 1 : 0);
 
             const attachments = await getAllFiles(item);
             const response = await postAPI(`${ApiUrl.IC_SUPERVISOR_DOWNLOAD}`, formData);
