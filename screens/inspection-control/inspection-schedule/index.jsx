@@ -115,6 +115,7 @@ const InspectionSchedule = () => {
             };
             dispatch({ type: 'IC_SETTINGS', icSettings: settings || {} });
         }
+        return settingsRes;
     };
     const handleListFetch = async (inspect = null, showSktn = true, filterType = '') => {
         // await deleteAllInspectionData();
