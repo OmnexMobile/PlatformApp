@@ -216,14 +216,14 @@ const CustomHeader = ({
                                     <Icon name="filter" size={25} style={styles.iconButton} color={COLORS.white} />
                                 </TouchableOpacity>
                             )}
-                            {/* {(activeTabId == 3 || activeTabId == 4) && (
+                            {activeTabId == 3 && (
                                 <TouchableOpacity
                                     onPress={() => {
                                         handleSyncPress();
                                     }}>
                                     <IconO name="sync" size={25} style={styles.iconButton} color={COLORS.white} />
                                 </TouchableOpacity>
-                            )} */}
+                            )}
                             {/* <TouchableOpacity
                                 onPress={() => {
                                     // navigation.goBack();

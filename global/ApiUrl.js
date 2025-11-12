@@ -45,5 +45,6 @@ module.exports = {
     IC_SEARCH_INSPECTION_DOWNLOAD:'SearchInspectionFormDownload',
     LOGIN_LOGO:'GetCompanyLogo',
     IC_SUPERVISOR_DOWNLOAD:'GetSupervisorForm',
-    IC_OPERATION_LIST:'GetOperations'
+    IC_OPERATION_LIST:'GetOperations',
+    IC_BULK_SYNC:'BulkSync'
 };

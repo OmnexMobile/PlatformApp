@@ -375,7 +375,7 @@ const InprocessInspection = ({ route }) => {
                     if (selectedData?.Samples?.length !== undefined && selectedData?.Samples?.length !== masterData?.length) {
                         isChanged = true;
                     }
-                    let arrayList = [...finalData.VariableCharacteristics, ...finalData.AttributeCharacteristics];
+                    let arrayList = [...finalData?.VariableCharacteristics, ...finalData?.AttributeCharacteristics];
                     let selectedFinal = arrayList.filter(item => item?.CCharacteristicsId == selectedData?.CCharacteristicsId);
                     const hasChanges = selectedFinal.length ? JSON.stringify(selectedFinal[0]) !== JSON.stringify(selectedData) : false;
                     if (isChanged || hasChanges) {

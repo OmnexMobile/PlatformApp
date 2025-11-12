@@ -34,10 +34,16 @@ const OperatorWorksheet = () => {
         // await getDatabaseSize()
         const list = await getInspectionDataByUserAndSite(icUserData?.userData?.UserId, icUserData?.userData?.Siteid);
         let filtered = [];
+        let superVisorData = [];
         if (list?.length > 0) {
-            filtered = list.filter(item => item?.userType === 'Inspector');
+            filtered = list
+                .filter(item => item?.userType != 'SupervisorSchedule')
+                .sort((a, b) => new Date(b.downloadedDate) - new Date(a.downloadedDate));
+            superVisorData = list
+                .filter(item => item?.userType === 'SupervisorSchedule')
+                .sort((a, b) => new Date(b.downloadedDate) - new Date(a.downloadedDate));
         }
-        setInspectionList(list);
+        setInspectionList([...filtered, ...superVisorData]);
         setShowSkeleton(false);
     };
     const handleCIbtnpress = () => {
@@ -102,7 +108,7 @@ const OperatorWorksheet = () => {
                 hasMissingStatus = true;
             }
         }
-       
+
         // 🔑 Priority Logic
         if (hasInprogress) {
             return { colorCode: COLORS.ipBgColor, status: 'In Progress' };
@@ -134,7 +140,7 @@ const OperatorWorksheet = () => {
     const renderItem = ({ item }) => {
         const { status, colorCode } = rendetBtnText(item);
         return (
-            <View style={[styles.recordConatiner]}>
+            <View style={[styles.recordConatiner, { backgroundColor: item?.backgroundColor ? item?.backgroundColor : '#fff' }]}>
                 <View style={[styles.iconBox, { backgroundColor: renderIconBgColor(item?.intInspectionTypeID) }]}>
                     <Icon name="layers-outline" size={25} color={COLORS.white} />
                 </View>
@@ -221,7 +227,6 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 15,
         flexDirection: 'row',
-        backgroundColor: '#fff',
         marginBottom: 10,
         borderRadius: 10,
     },

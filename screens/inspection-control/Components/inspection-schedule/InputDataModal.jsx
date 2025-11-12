@@ -370,6 +370,8 @@ const InputDataModal = ({
                     attachments: attachments,
                     userId: selectedSite?.UserId,
                     siteId: selectedSite?.Siteid,
+                    backgroundColor:'#fff',
+                    downloadedDate: new Date().toISOString(),
                 };
                 await addInspectionData(selectedSite?.UserId, selectedSite?.Siteid, inspectObj.uniqueId, inspectObj);
                 showMessage({

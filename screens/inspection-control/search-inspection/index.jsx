@@ -323,37 +323,86 @@ const SearchInspection = () => {
     };
 
     // Example usage:
+    // const rendetBtnText = item => {
+    //     const combined = [...item?.VariableCharacteristics, ...item?.AttributeCharacteristics];
+    //     if (!combined.some(item => 'status' in item)) {
+    //         return {
+    //             status: 'launch',
+    //             colorCode: COLORS.apptheme,
+    //         };
+    //     }
+    //     let hasInprogress = false;
+    //     let hasCompleted = false;
+    //     let hasMissingStatus = false;
+
+    //     for (const item of combined) {
+    //         if ('status' in item) {
+    //             if (item.status === 'In Progress') {
+    //                 hasInprogress = true;
+    //             } else if (item.status === 'Completed') {
+    //                 hasCompleted = true;
+    //             }
+    //         } else {
+    //             hasMissingStatus = true;
+    //         }
+    //     }
+    //     if (hasInprogress) return { colorCode: COLORS.ipBgColor, status: 'In Progress' };
+    //     if (hasCompleted && hasMissingStatus) return { colorCode: COLORS.ipBgColor, status: 'In Progress' };
+    //     if (hasCompleted && !hasMissingStatus) return { colorCode: COLORS.fiBgColor, status: 'Completed' };
+
+    //     return {
+    //         status: 'launch',
+    //         colorCode: COLORS.apptheme,
+    //     };
+    // };
     const rendetBtnText = item => {
         const combined = [...item?.VariableCharacteristics, ...item?.AttributeCharacteristics];
-        if (!combined.some(item => 'status' in item)) {
+
+        if (!combined.some(c => 'status' in c)) {
             return {
                 status: 'launch',
                 colorCode: COLORS.apptheme,
             };
         }
+        let allCompleted = combined.every(c => c.status === 'Completed');
+
         let hasInprogress = false;
         let hasCompleted = false;
         let hasMissingStatus = false;
+        let hasLaunchStatus = false;
 
-        for (const item of combined) {
-            if ('status' in item) {
-                if (item.status === 'In Progress') {
+        for (const c of combined) {
+            if ('status' in c) {
+                if (c.status == 'Launch' || c.status === undefined || c.status == 'Inspect') {
+                    hasLaunchStatus = true;
+                } else if (c.status === 'In Progress') {
                     hasInprogress = true;
-                } else if (item.status === 'Completed') {
+                } else if (c.status === 'Completed') {
                     hasCompleted = true;
                 }
             } else {
                 hasMissingStatus = true;
             }
         }
-        if (hasInprogress) return { colorCode: COLORS.ipBgColor, status: 'In Progress' };
-        if (hasCompleted && hasMissingStatus) return { colorCode: COLORS.ipBgColor, status: 'In Progress' };
-        if (hasCompleted && !hasMissingStatus) return { colorCode: COLORS.fiBgColor, status: 'Completed' };
 
-        return {
-            status: 'launch',
-            colorCode: COLORS.apptheme,
-        };
+        // 🔑 Priority Logic
+        if (hasInprogress) {
+            return { colorCode: COLORS.ipBgColor, status: 'In Progress' };
+        }
+        if (hasCompleted && hasLaunchStatus) {
+            return { colorCode: COLORS.ipBgColor, status: 'In Progress' }; // ✅ Completed + Launch = In Progress
+        }
+        if (hasCompleted && hasMissingStatus) {
+            return { colorCode: COLORS.ipBgColor, status: 'In Progress' };
+        }
+        if (hasCompleted && allCompleted) {
+            return { colorCode: COLORS.fiBgColor, status: 'Completed' };
+        }
+        if (hasLaunchStatus) {
+            return { colorCode: COLORS.apptheme, status: 'Launch' };
+        }
+
+        return { status: 'launch', colorCode: COLORS.apptheme };
     };
     const handleDownloadPress = async item => {
         if (item?.isDownloaded) {
@@ -409,6 +458,8 @@ const SearchInspection = () => {
                     siteId: selectedSite?.Siteid,
                     status: getStatus?.status,
                     colorCode: getStatus?.colorCode,
+                    backgroundColor: '#fff',
+                    downloadedDate: new Date().toISOString(),
                 };
 
                 await addInspectionData(selectedSite?.UserId, selectedSite?.Siteid, inspectObj.uniqueId, inspectObj);
@@ -623,7 +674,7 @@ const SearchInspection = () => {
 
         setMasterData([...temp]);
     };
-    console.log(searchList,'searchList')
+    console.log(searchList, 'searchList');
     return (
         <CustomHeader
             title="Search Inspection"
