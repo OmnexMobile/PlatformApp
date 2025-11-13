@@ -30,27 +30,33 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import IconF from 'react-native-vector-icons/Feather';
 import SingleDropDown from '../Components/SingleDropDown';
 import DynamicFormField from '../Components/DynamicFormField';
+import DataPickerWithIcon from '../Components/DataPickerWithIcon';
+import FilterWithMenu from '../Components/FilterWithMenu';
 
 const optionsList = [
     {
         id: 0,
         value: 'All',
         label: 'All',
+        title: 'All',
     },
     {
         id: 1,
         value: 'Recieving Inspections',
         label: 'Recieving Inspections',
+        title: 'Recieving Inspection',
     },
     {
         id: 2,
         value: 'In-process Inspections',
         label: 'In-process Inspections',
+        title: 'In-process Inspection',
     },
     {
         id: 3,
         value: 'Final Inspections',
         label: 'Final Inspections',
+        title: 'Final Inspection',
     },
 ];
 const searchFilterOptions = [
@@ -121,7 +127,8 @@ const searchFilterList = [
 ];
 const SupervisorSchedule = () => {
     const navigation = useNavigation();
-    const { icUserData } = useSelector(state => state.inspection);
+    const { icUserData, dateFormat } = useSelector(state => state.inspection);
+    const uiDateFormat = dateFormat || 'DD/MM/YYYY';
     const isFocused = useIsFocused();
     const [showFilterList, setShowFilterList] = useState(false);
     const [showEye, setShowEye] = useState(false);
@@ -138,6 +145,10 @@ const SupervisorSchedule = () => {
             value: 'All',
             label: 'All',
         },
+    });
+    const [filterData, setFilterData] = useState({
+        startDate: moment().subtract(7, 'days').toDate(),
+        endDate: new Date(),
     });
     const [selectedData, setSelectedData] = useState({});
     const [showBubble, setShowBubble] = useState(false);
@@ -220,17 +231,34 @@ const SupervisorSchedule = () => {
     };
     const handleGetAllData = async (showSKT = true) => {
         showSKT && setShowSkeleton(true);
+        const { startDate, endDate } = filterData;
+        let dateFlag = startDate !== '' && endDate !== '';
         const formData = new FormData();
         formData.append('UserID', icUserData?.userData?.UserId);
+        formData.append('siteId', parseInt(icUserData?.userData?.Siteid));
+        formData.append('StartDate', dateFlag ? moment(startDate).format('YYYY/MM/DD') : '');
+        formData.append('EndDate', dateFlag ? moment(endDate).format('YYYY/MM/DD') : '');
         const response = await postAPI(ApiUrl.IC_SUPERVISOR_LIST, formData);
         if (response.Success) {
             let temp = response?.Data || [];
             const updatedArray = await addIsDownloadKey(temp);
             if (filters.search !== '') {
-                let temp = updatedArray.filter(x => x[getSearchKey(filters.searchBy)].toLowerCase().includes(filters?.search?.toLowerCase()));
+                let typeArray = [];
+                if (filters.inspectionType.id != 0) {
+                    typeArray = updatedArray.filter(item => item.InspectionType == filters.inspectionType.id);
+                } else {
+                    typeArray = updatedArray;
+                }
+                let temp = typeArray.filter(x => x[getSearchKey(filters.searchBy)].toLowerCase().includes(filters?.search?.toLowerCase()));
                 setMasterData([...temp]);
             } else {
-                setMasterData([...updatedArray]);
+                let typeArray = [];
+                if (filters.inspectionType.id != 0) {
+                    typeArray = updatedArray.filter(item => item.InspectionType == filters.inspectionType.id);
+                } else {
+                    typeArray = updatedArray;
+                }
+                setMasterData([...typeArray]);
             }
             setOverAllData([...updatedArray]);
         } else {
@@ -245,7 +273,7 @@ const SupervisorSchedule = () => {
         if (icUserData && isFocused) {
             handleGetAllData();
         }
-    }, [icUserData, isFocused]);
+    }, [icUserData,filterData, isFocused]);
     const renderIconBgColor = value => {
         return value == '1' ? COLORS.apptheme : value == '2' ? COLORS.ipBgColor : COLORS.fiBgColor;
     };
@@ -324,12 +352,13 @@ const SupervisorSchedule = () => {
                 });
             }
             let isSamplePopup = Array.isArray(item.charInfo) && item.charInfo.some(c => c.PropertyName === 'ActualValue');
-            const status = getItemStatus(Samples, isSamplePopup, item.charInfo);
+            // const status = getItemStatus(Samples, isSamplePopup, item.charInfo);
             result.push({
                 ...item,
                 isSamplePopup: isSamplePopup,
                 Samples: isSamplePopup ? Samples : [],
-                status: status,
+                // status: status,
+                status: 'Inspect',
             });
         });
         return result;
@@ -527,7 +556,7 @@ const SupervisorSchedule = () => {
                         Operation Name : <Text style={[styles.secondText]}>{item.OperationName}</Text>
                     </Text>
                     <Text style={[styles.operationText]}>
-                        Inspection Date : <Text style={[styles.secondText]}>{moment(item.EnteredDate).format('DD/MM/YYYY')}</Text>
+                        Inspection Date : <Text style={[styles.secondText]}>{moment(item.EnteredDate).format(uiDateFormat)}</Text>
                     </Text>
                     <Text style={[styles.operationText]}>
                         Lot Number : <Text style={[styles.secondText]}>{item.LotNo}</Text>
@@ -581,11 +610,7 @@ const SupervisorSchedule = () => {
             tempSearch = temp;
         }
         if (search?.length) {
-            tempSearch = tempSearch.filter(
-                item =>
-                    item.ProductionItemName.toLowerCase().includes(search.toLowerCase()) ||
-                    item.OperationName.toLowerCase().includes(search.toLowerCase()),
-            );
+            tempSearch = tempSearch.filter(x => x[getSearchKey(filters.searchBy)].toLowerCase().includes(filters?.search?.toLowerCase()));
         }
         setMasterData(tempSearch);
         hideModal();
@@ -654,6 +679,14 @@ const SupervisorSchedule = () => {
 
         setMasterData([...temp]);
     };
+    const handleOuterRefersh = () => {
+        handleGetAllData(true);
+    };
+    const handleSearchFilterSubmit = () => {
+        setShowFilterList(false);
+        const tempFilter = searchList.filter(x => x.isSelected)[0];
+        setFilters(pre => ({ ...pre, searchBy: tempFilter?.label }));
+    };
     return (
         <CustomHeader
             title="Supervisor Schedule"
@@ -679,6 +712,76 @@ const SupervisorSchedule = () => {
                 setShowMutiSearchFilter(true);
             }}>
             <View style={[styles.container]}>
+                <View style={[styles.overAllBox]}>
+                    <View style={[styles.filterBox]}>
+                        <DataPickerWithIcon
+                            value={filterData?.startDate || null}
+                            onSelectedDate={val => {
+                                const { endDate } = filterData;
+                                const tempStart = moment(val);
+                                const tempEnd = moment(endDate);
+                                if (tempStart.isBefore(tempEnd)) {
+                                    setFilterData(pre => ({ ...pre, startDate: val }));
+                                } else {
+                                    showMessage({
+                                        message: 'Start Date must be less than End Date',
+                                        backgroundColor: COLORS.ERROR,
+                                        color: COLORS.white,
+                                        duration: 1500,
+                                        statusBarHeight: 40,
+                                        icon: 'danger',
+                                        position: 'right',
+                                        style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : { paddingTop: insets.top },
+                                    });
+                                }
+                            }}
+                        />
+                    </View>
+                    <View style={[styles.filterBox]}>
+                        <DataPickerWithIcon
+                            value={filterData?.endDate || null}
+                            placeHolder="End Date"
+                            onSelectedDate={val => {
+                                const { startDate } = filterData;
+                                const tempStart = moment(startDate);
+                                const tempEnd = moment(val);
+                                if (tempStart.isBefore(tempEnd)) {
+                                    setFilterData(pre => ({ ...pre, endDate: val }));
+                                } else {
+                                    showMessage({
+                                        message: 'Start Date must be less than End Date',
+                                        backgroundColor: COLORS.ERROR,
+                                        color: COLORS.white,
+                                        duration: 1500,
+                                        statusBarHeight: 40,
+                                        icon: 'danger',
+                                        position: 'right',
+                                        style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : { paddingTop: insets.top },
+                                    });
+                                }
+                            }}
+                        />
+                    </View>
+                    <View style={[styles.filterList]}>
+                        <FilterWithMenu
+                            dataList={optionsList}
+                            type="BtnFilter"
+                            onSelectedPress={val => {
+                                setFilters(pre => ({ ...pre, inspectionType: val }));
+                                handleTypeFilter(val.id, filters.search);
+                            }}
+                        />
+                    </View>
+                    <View style={[styles.iconFilter]}>
+                        <TouchableOpacity
+                            style={styles.getDataBox}
+                            onPress={() => {
+                                handleOuterRefersh();
+                            }}>
+                            <IconI name="sync-sharp" size={22} color={COLORS.black} />
+                        </TouchableOpacity>
+                    </View>
+                </View>
                 {Boolean(showSkeleton) ? (
                     <IcSkeleton type={PLACEHOLDERS.SUPERVISOR_CARD} />
                 ) : Boolean(masterData?.length) ? (
@@ -704,14 +807,20 @@ const SupervisorSchedule = () => {
                         <Text style={[styles.headerText]}>Supervisor Schedule</Text>
                         <Divider />
                         <View style={[styles.contentBox]}>
-                            {optionsList.map(item => {
+                            {searchList.map((item, index) => {
                                 return (
                                     <View style={{ marginVertical: 10 }} key={item.id}>
                                         <RadioButtonComponent
                                             lable={item.label}
-                                            value={filters.inspectionType.label}
+                                            staticValue={item.label}
+                                            value={item.isSelected ? item.label : ''}
                                             onChange={val => {
-                                                setFilters(pre => ({ ...pre, inspectionType: val }));
+                                                setSearchList(pre => {
+                                                    let temp = pre.map(item =>
+                                                        item.id == val.id ? { ...item, isSelected: true } : { ...item, isSelected: false },
+                                                    );
+                                                    return temp;
+                                                });
                                             }}
                                             obj={item}
                                         />
@@ -729,7 +838,7 @@ const SupervisorSchedule = () => {
                             <TouchableOpacity
                                 style={styles.cancelConatiner}
                                 onPress={() => {
-                                    handleTypeFilter(filters.inspectionType.id, filters.search);
+                                    handleSearchFilterSubmit()
                                 }}>
                                 <Text style={styles.btnStyle}>SUBMIT</Text>
                             </TouchableOpacity>
@@ -1035,6 +1144,33 @@ const styles = StyleSheet.create({
     filterBox2: {
         flex: 1.4,
         marginHorizontal: 5,
+    },
+    iconFilter: {
+        width: '10%',
+        alignItems: 'center',
+    },
+    filterBox: {
+        width: '32%',
+    },
+    filterList: {
+        width: '23%',
+    },
+    overAllBox: {
+        padding: 10,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        backgroundColor: '#fff',
+        marginBottom: 10,
+        borderRadius: 10,
+    },
+    getDataBox: {
+        height: 35,
+        width: 35,
+        backgroundColor: COLORS.inputBorder,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 40,
     },
 });
 

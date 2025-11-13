@@ -781,6 +781,12 @@ const SearchInspection = () => {
                     <NoDataFound />
                 )}
             </View>
+            <View style={[styles.bottombox]}>
+                <Text style={[styles.bottomText]}>Total Inspections </Text>
+                <View style={[styles.totalBox]}>
+                    <Text style={[styles.bottomText, { color: COLORS.white }]}>{masterData?.length}</Text>
+                </View>
+            </View>
             {Boolean(showFileModal) && (
                 <FileViewModal
                     selectedValue={selectedData}

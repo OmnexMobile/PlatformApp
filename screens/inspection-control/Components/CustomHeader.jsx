@@ -179,7 +179,7 @@ const CustomHeader = ({
                                     <IconM name="filter-list" size={25} style={styles.iconButton} color={COLORS.white} />
                                 </TouchableOpacity>
                             )}
-                            {activeTabId == 0 && (
+                            {(activeTabId == 0 || activeTabId == 4) && (
                                 <TouchableOpacity onPress={() => handleFilterPress()}>
                                     <Icon name="filter" size={25} style={styles.iconButton} color={COLORS.white} />
                                 </TouchableOpacity>
@@ -208,14 +208,14 @@ const CustomHeader = ({
                                     <IconI name="settings-outline" size={25} style={styles.iconButton} color={COLORS.white} />
                                 </TouchableOpacity>
                             )} */}
-                            {activeTabId == 4 && (
+                            {/* {activeTabId == 4 && (
                                 <TouchableOpacity
                                     onPress={() => {
                                         handleFilterPress();
                                     }}>
                                     <Icon name="filter" size={25} style={styles.iconButton} color={COLORS.white} />
                                 </TouchableOpacity>
-                            )}
+                            )} */}
                             {activeTabId == 3 && (
                                 <TouchableOpacity
                                     onPress={() => {
