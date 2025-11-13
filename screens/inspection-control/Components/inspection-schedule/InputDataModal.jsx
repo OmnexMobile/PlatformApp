@@ -24,7 +24,7 @@ const errorObj = {
     lotQty: false,
     receiptNumber: false,
     frequency: false,
-    operation: false,
+    // operation: false,
 };
 
 const InputDataModal = ({
@@ -47,7 +47,7 @@ const InputDataModal = ({
         frequency: null,
         responsible: [],
         receiptNumber: '',
-        operation: [],
+        // operation: [],
     });
     const [frqList, setFrqList] = useState([]);
     const [operationList, setOperationList] = useState([]);
@@ -135,7 +135,6 @@ const InputDataModal = ({
         }
         return true;
     };
-    console.log(formFields.operation, 'formFields.operation');
     const getResponsibleList = async freq => {
         setBtnDisabled(true);
         const formData = new FormData();
@@ -199,14 +198,14 @@ const InputDataModal = ({
         setFormFields(pre => ({ ...pre, [key]: value }));
     };
     const handleValidation = () => {
-        const { shift, lotNumber, lotQty, frequency, receiptNumber, operation } = formFields;
+        const { shift, lotNumber, lotQty, frequency, receiptNumber } = formFields;
         const errorobj = {
             shift: false,
             lotNumber: false,
             lotQty: false,
             frequency: false,
             receiptNumber: false,
-            operation: false,
+            // operation: false,
         };
         if (shift == null) {
             errorobj.shift = true;
@@ -217,9 +216,9 @@ const InputDataModal = ({
         if (lotQty == '') {
             errorobj.lotQty = true;
         }
-        if (operation.length == 0) {
-            errorobj.operation = true;
-        }
+        // if (operation.length == 0) {
+        //     errorobj.operation = true;
+        // }
         if (frequency == null && selectedValue.TypeOfInspection == 2) {
             errorobj.frequency = true;
         }
@@ -268,10 +267,10 @@ const InputDataModal = ({
             formData.append('Description', selectedValue?.Description || '');
             formData.append('PIDHierarchy', selectedValue?.PIHierarchy || '');
 
-            // formData.append('OperationIds', selectedValue?.OperationID || '');
-            // formData.append('OperationName', selectedValue?.OperationName || '');
-            formData.append('OperationName', formFields.operation.length > 0 ? formFields.operation.map(item => item.OperationName).join(';') : '');
-            formData.append('OperationIds', formFields.operation.length > 0 ? formFields.operation.map(item => item.OperationId).join(';') : '');
+            formData.append('OperationIds', selectedValue?.OperationID || '');
+            formData.append('OperationName', selectedValue?.OperationName || '');
+            // formData.append('OperationName', formFields.operation.length > 0 ? formFields.operation.map(item => item.OperationName).join(';') : '');
+            // formData.append('OperationIds', formFields.operation.length > 0 ? formFields.operation.map(item => item.OperationId).join(';') : '');
 
             formData.append('OperationHierarchy', selectedValue?.OperationHierarchy || '');
             formData.append('SupplierId', selectedValue.SupplierId || '');
@@ -440,7 +439,7 @@ const InputDataModal = ({
                                 flexWrap: 'wrap', // important for tablet
                                 justifyContent: 'space-between',
                             }}>
-                            <View style={[styles.inputContainer, { width: isTablet ? '48%' : '100%' }]}>
+                            {/* <View style={[styles.inputContainer, { width: isTablet ? '48%' : '100%' }]}>
                                 <Text style={styles.inputText}>
                                     Operation <Text style={[styles.rquired]}>*</Text>
                                 </Text>
@@ -459,7 +458,7 @@ const InputDataModal = ({
                                         This field is required
                                     </HelperText>
                                 )}
-                            </View>
+                            </View> */}
                             <View style={[styles.inputContainer, { width: isTablet ? '48%' : '100%' }]}>
                                 <Text style={styles.inputText}>
                                     Shift <Text style={[styles.rquired]}>*</Text>
