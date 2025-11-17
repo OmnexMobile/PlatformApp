@@ -111,7 +111,7 @@ const InspectionSchedule = () => {
         const formDate=new FormData();
         formDate.append('UserID', parseInt(icUserData?.userData?.UserId));
         formDate.append('SiteID', parseInt(icUserData?.userData?.Siteid));
-        const settingsRes = await postAPI(`${ApiUrl.IC_SETTINGS}`);
+        const settingsRes = await postAPI(`${ApiUrl.IC_SETTINGS}`,formDate);
         if (settingsRes.Success) {
             const settings = {
                 ...settingsRes?.Data[0],
@@ -196,7 +196,7 @@ const InspectionSchedule = () => {
     };
 
     useEffect(() => {
-        if (icUserData && isFocused) {
+        if (icUserData.userData && isFocused) {
             handleListFetch(null, true, filterData.type);
         }
         return () => {

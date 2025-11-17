@@ -53,6 +53,11 @@ const footerList = [
 ];
 const footerListWithoutSearch = footerList.filter(item => item.title !== 'Search\nInspection');
 const footerListWithoutSchedule = footerList.filter(item => item.title !== 'Inspection\nSchedule');
+const footerListWithoutSuperVisorandSearch = footerList.filter(item => item.title !== 'Supervisor\nSchedule' && item.title !== 'Search\nInspection');
+const footerListWithoutSuperVisorWithSearch = footerList.filter(
+    item => item.title !== 'Supervisor\nSchedule' && item.title !== 'Inspection\nSchedule',
+);
+
 const CustomHeader = ({
     children,
     title = '',
@@ -83,8 +88,22 @@ const CustomHeader = ({
     const widthAnim = useRef(new Animated.Value(0)).current;
 
     const bottomTabList = useMemo(() => {
-        return icSettings?.SearchInspectionNeeded ? footerListWithoutSchedule : footerListWithoutSearch;
-    }, [icSettings?.SearchInspectionNeeded]);
+        let showSuperVisorPage =
+            icSettings?.TabReceivingSupervisorNeeded || icSettings?.TabInprocessSupervisorNeeded || icSettings?.TabFinalSupervisorNeeded;
+        if (icSettings?.SearchInspectionNeeded && icSettings?.TabSearchInspectionNeeded) {
+            if (showSuperVisorPage) {
+                return footerListWithoutSchedule;
+            }
+            return footerListWithoutSuperVisorWithSearch;
+        } else {
+            if (showSuperVisorPage) {
+                return footerListWithoutSearch;
+            }
+            return footerListWithoutSuperVisorandSearch;
+        }
+        // return icSettings?.SearchInspectionNeeded && icSettings?.TabSearchInspectionNeeded ? footerListWithoutSchedule : footerListWithoutSearch;
+    }, [icSettings]);
+
     useEffect(() => {
         if (searchValue?.length) {
             setIsExpanded(true);
@@ -166,9 +185,6 @@ const CustomHeader = ({
                                 searchValue={searchValue}
                             />
                         </Animated.View>
-                        // <View>
-                        //     <TextInput onChangeText={()=>{}} placeholder='Search......'  placeholderTextColor={COLORS.white} style={styles.inputBox}/>
-                        // </View>
                     )}
                 </View>
                 <View style={[styles.rightIconList]}>
@@ -195,27 +211,6 @@ const CustomHeader = ({
                                     <Icon name={!isExpanded ? 'search1' : 'close'} size={25} style={styles.iconButton} color={COLORS.white} />
                                 </TouchableOpacity>
                             )}
-                            {/* {activeTabId == 1 && (
-                                <TouchableOpacity
-                                    onPress={() => {
-                                        handleQRPress();
-                                    }}>
-                                    <IconF name="qrcode" size={25} style={styles.iconButton} color={COLORS.white} />
-                                </TouchableOpacity>
-                            )} */}
-                            {/* {activeTabId == 2 && (
-                                <TouchableOpacity>
-                                    <IconI name="settings-outline" size={25} style={styles.iconButton} color={COLORS.white} />
-                                </TouchableOpacity>
-                            )} */}
-                            {/* {activeTabId == 4 && (
-                                <TouchableOpacity
-                                    onPress={() => {
-                                        handleFilterPress();
-                                    }}>
-                                    <Icon name="filter" size={25} style={styles.iconButton} color={COLORS.white} />
-                                </TouchableOpacity>
-                            )} */}
                             {activeTabId == 3 && (
                                 <TouchableOpacity
                                     onPress={() => {
@@ -224,35 +219,6 @@ const CustomHeader = ({
                                     <IconO name="sync" size={25} style={styles.iconButton} color={COLORS.white} />
                                 </TouchableOpacity>
                             )}
-                            {/* <TouchableOpacity
-                                onPress={() => {
-                                    // navigation.goBack();
-                                    navigation.reset({
-                                        index: 0,
-                                        routes: [{ name: ROUTES.HOME_FAB_VIEW }],
-                                    });
-                                }}>
-                                <IconI name="exit-outline" size={31} style={styles.iconButton} color={COLORS.white} />
-                            </TouchableOpacity> */}
-                            {/* <Tooltip title="Selected Camera" enterTouchDelay={0} leaveTouchDelay={2000}>
-                                <IconI name="information-circle-outline" size={28} style={styles.iconButton} color={COLORS.white} />
-                            </Tooltip> */}
-                            {/* <Menu
-                                visible={visible}
-                                onDismiss={closeMenu}
-                                anchor={
-                                    <TouchableOpacity onPress={openMenu}>
-                                        <IconI name="information-circle-outline" size={28} style={styles.iconButton} color={COLORS.white} />
-                                    </TouchableOpacity>
-                                }
-                                contentStyle={{
-                                    backgroundColor: '#000',
-                                    borderRadius: 5,
-                                    paddingHorizontal: 10,
-                                }}
-                                anchorPosition="bottom">
-                                <Text style={{ color: COLORS.white }}>Site : {sites?.selectedSite?.SiteName}</Text>
-                            </Menu> */}
                         </>
                     )}
                     {showFileIcon && (

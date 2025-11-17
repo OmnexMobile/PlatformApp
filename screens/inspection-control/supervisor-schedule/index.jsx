@@ -17,7 +17,7 @@ import PartDetails from '../Components/supervisor-schedule/PartDetails';
 import FileViewModal from '../Components/supervisor-schedule/FileViewModal';
 import IcSkeleton from '../Components/IcSkeleton';
 import NoDataFound from '../Components/NoDataFound';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { postAPI } from 'global/api-helpers';
 import ApiUrl from 'global/ApiUrl';
 import moment from 'moment';
@@ -127,7 +127,7 @@ const searchFilterList = [
 ];
 const SupervisorSchedule = () => {
     const navigation = useNavigation();
-    const { icUserData, dateFormat } = useSelector(state => state.inspection);
+    const { icUserData, icSettings, dateFormat } = useSelector(state => state.inspection);
     const uiDateFormat = dateFormat || 'DD/MM/YYYY';
     const isFocused = useIsFocused();
     const [showFilterList, setShowFilterList] = useState(false);
@@ -163,6 +163,7 @@ const SupervisorSchedule = () => {
     ]);
     const [showMutiSearchFilter, setShowMutiSearchFilter] = useState(false);
     const [searchList, setSearchList] = useState([...searchFilterList]);
+    const dispatch = useDispatch();
 
     const {
         profile,
@@ -182,8 +183,22 @@ const SupervisorSchedule = () => {
             ]);
         };
     }, [isFocused]);
-    const onRefresh = () => {
+    const getOverAllSettings = async () => {
+        const formDate = new FormData();
+        formDate.append('UserID', parseInt(icUserData?.userData?.UserId));
+        formDate.append('SiteID', parseInt(icUserData?.userData?.Siteid));
+        const settingsRes = await postAPI(`${ApiUrl.IC_SETTINGS}`, formDate);
+        if (settingsRes.Success) {
+            const settings = {
+                ...settingsRes?.Data[0],
+            };
+            dispatch({ type: 'IC_SETTINGS', icSettings: settings || {} });
+        }
+        return settingsRes;
+    };
+    const onRefresh = async () => {
         setRefreshing(true);
+        await getOverAllSettings();
         handleGetAllData(false);
     };
 
@@ -241,7 +256,12 @@ const SupervisorSchedule = () => {
         const response = await postAPI(ApiUrl.IC_SUPERVISOR_LIST, formData);
         if (response.Success) {
             let temp = response?.Data || [];
-            const updatedArray = await addIsDownloadKey(temp);
+            let updatedArray = await addIsDownloadKey(temp);
+            const allowedTypes = [];
+            if (icSettings.TabReceivingSupervisorNeeded) allowedTypes.push('1');
+            if (icSettings.TabInprocessSupervisorNeeded) allowedTypes.push('2');
+            if (icSettings.TabFinalSupervisorNeeded) allowedTypes.push('3');
+            updatedArray = allowedTypes.length === 0 ? [] : updatedArray.filter(item => allowedTypes.includes(item.InspectionType));
             if (filters.search !== '') {
                 let typeArray = [];
                 if (filters.inspectionType.id != 0) {
@@ -271,9 +291,10 @@ const SupervisorSchedule = () => {
     };
     useEffect(() => {
         if (icUserData && isFocused) {
+            getOverAllSettings();
             handleGetAllData();
         }
-    }, [icUserData,filterData, isFocused]);
+    }, [icUserData, filterData, isFocused]);
     const renderIconBgColor = value => {
         return value == '1' ? COLORS.apptheme : value == '2' ? COLORS.ipBgColor : COLORS.fiBgColor;
     };
@@ -838,7 +859,7 @@ const SupervisorSchedule = () => {
                             <TouchableOpacity
                                 style={styles.cancelConatiner}
                                 onPress={() => {
-                                    handleSearchFilterSubmit()
+                                    handleSearchFilterSubmit();
                                 }}>
                                 <Text style={styles.btnStyle}>SUBMIT</Text>
                             </TouchableOpacity>

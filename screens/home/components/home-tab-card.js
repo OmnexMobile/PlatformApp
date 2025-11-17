@@ -43,7 +43,7 @@ const TabsCard = ({ countDetails, tabIndex, noTab, navigation }) => {
         const formData = new FormData();
         formData.append('UserID', icUserData?.userData?.UserId);
         formData.append('SiteID', parseInt(icUserData?.userData?.Siteid));
-        const settingsRes = await postAPI(`${ApiUrl.IC_SETTINGS}`,formData);
+        const settingsRes = await postAPI(`${ApiUrl.IC_SETTINGS}`, formData);
         if (settingsRes.Success) {
             const settings = {
                 ...settingsRes?.Data[0],
@@ -68,12 +68,18 @@ const TabsCard = ({ countDetails, tabIndex, noTab, navigation }) => {
                               { images: IMAGES.ICOS, category: strings.operatorWorksheet, status: 2, routeName: ROUTES.OPERATOR_WORKSHEET },
                               { images: IMAGES.ICCI, category: strings.completedInspection, status: 3, routeName: ROUTES.COMPLETED_INSPECTION },
                               { images: IMAGES.ICSS, category: strings.supervisorSchedule, status: 4, routeName: ROUTES.SUPERVISOR_SCHEDULE },
-                          ]
+                          ].filter(
+                              item =>
+                                  icSettings?.TabReceivingSupervisorNeeded ||
+                                  icSettings?.TabInprocessSupervisorNeeded ||
+                                  icSettings?.TabFinalSupervisorNeeded ||
+                                  item.status !== 4,
+                          )
                         : [],
             },
         ];
         // Step 2: Modify only if SearchInspectionNeeded is TRUE
-        if (icSettings?.SearchInspectionNeeded && tabIndex === 0) {
+        if (icSettings?.SearchInspectionNeeded && icSettings?.TabSearchInspectionNeeded && tabIndex === 0) {
             const inspectionIndex = data.findIndex(item => item.id === 5);
             if (inspectionIndex !== -1) {
                 data[inspectionIndex].detail = data[inspectionIndex].detail.map(detailItem =>
@@ -88,6 +94,7 @@ const TabsCard = ({ countDetails, tabIndex, noTab, navigation }) => {
                 );
             }
         }
+
         setTabList([...data]);
     }, [tabIndex, icSettings?.SearchInspectionNeeded]);
 
