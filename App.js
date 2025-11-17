@@ -78,7 +78,7 @@ const Parent = () => {
 
     return (
         <GestureHandlerRootView style={{ flex: 1 }}>
-            <View style={[backgroundStyle, { backgroundColor: theme.mode.backgroundColor }]}>
+            <SafeAreaView style={[backgroundStyle, { backgroundColor: theme.mode.backgroundColor }]}>
                 <Provider store={store}>
                     <PersistGate loading={null} persistor={persistor}>
                         <AppProvider>
@@ -109,7 +109,7 @@ const Parent = () => {
 
             {/* Notification Component */}
                 <FlashMessage />
-            </View>
+            </SafeAreaView>
             <UpdateModal visible={showUpdateModal} onClose={() => setShowUpdateModal(false)} />
         </GestureHandlerRootView>
     );

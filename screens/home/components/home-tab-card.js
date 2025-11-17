@@ -25,7 +25,7 @@ import { showMessage } from 'react-native-flash-message';
 const screenWidth = Dimensions.get('window').width;
 const TabsCard = ({ countDetails, tabIndex, noTab, navigation }) => {
     console.log('tabIndex--------', tabIndex, noTab);
-    const { icSettings } = useSelector(state => state.inspection);
+    const { icUserData, icSettings } = useSelector(state => state.inspection);
 
     // console.log('CURRENT_PAGE---->', 'home-tab-card')
     const navigations = useNavigation();
@@ -40,7 +40,10 @@ const TabsCard = ({ countDetails, tabIndex, noTab, navigation }) => {
     const [tabList, setTabList] = useState([]);
     const dispatch = useDispatch();
     const getICsettings = async () => {
-        const settingsRes = await postAPI(`${ApiUrl.IC_SETTINGS}`);
+        const formData = new FormData();
+        formData.append('UserID', icUserData?.userData?.UserId);
+        formData.append('SiteID', parseInt(icUserData?.userData?.Siteid));
+        const settingsRes = await postAPI(`${ApiUrl.IC_SETTINGS}`,formData);
         if (settingsRes.Success) {
             const settings = {
                 ...settingsRes?.Data[0],
@@ -49,59 +52,12 @@ const TabsCard = ({ countDetails, tabIndex, noTab, navigation }) => {
         }
     };
     useLayoutEffect(() => {
-        if(isFocused){
-        getICsettings();
+        if (icUserData?.userData && isFocused) {
+            getICsettings();
         }
-    }, [isFocused]);
+    }, [icUserData, isFocused]);
     useEffect(() => {
         const data = [
-            // {
-            //     id: 1,
-            //     title: tabIndex === 0 ? strings.ppapProjects : strings.apqp_ppapManager,
-            //     detail: [
-            //         { images: IMAGES.actions, category: strings.Actions, status: 0 },
-            //         { images: IMAGES.projects, category: strings.projects, status: 0 },
-            //         { images: tabIndex === 0 ? null : IMAGES.risk, category: tabIndex === 0 ? null : strings.risk, status: 0 },
-            //         { images: tabIndex === 0 ? null : IMAGES.meeting, category: tabIndex === 0 ? null : strings.meeting, status: 0 },
-            //         { images: IMAGES.todayTask, category: strings.todayTask, status: 0 },
-            //         { images: IMAGES.dailyTask, category: strings.dailyTask, status: 0 },
-            //     ],
-            // },
-            // {
-            //     id: 2,
-            //     title: strings.auditPro,
-            //     detail: [
-            //         { images: IMAGES.scheduledAudit, category: strings.scheduledAudit, status: 2, auditTitle: strings.scheduled },
-            //         { images: IMAGES.completedAudit, category: strings.completedAudit, status: 3, auditTitle: strings.completed },
-            //         { images: IMAGES.deadlineViolated, category: strings.deadlineViolated, status: 4, auditTitle: strings.deadlineviolated },
-            //         { images: IMAGES.closedOut, category: strings.closedOut, status: 5, auditTitle: strings.abb_deadlineviolatedandcompleted },
-            //     ],
-            // },
-            // {
-            //     id: 3,
-            //     title: strings.problemSolver,
-            //     detail: [
-            //         {
-            //             images: tabIndex === 0 ? IMAGES.supplierConcerns : IMAGES.concerns,
-            //             category: tabIndex === 0 ? strings.supplierConcerns : strings.concerns,
-            //             status: 0,
-            //         },
-            //         { images: IMAGES.openConcerns, category: strings.openConcerns, status: 0 },
-            //         { images: IMAGES.inProgressConcerns, category: strings.inProgressConcerns, status: 0 },
-            //     ],
-            // },
-            // {
-            //     id: 4,
-            //     title: tabIndex === 0 ? strings.documentPro : null,
-            //     detail:
-            //         tabIndex === 0
-            //             ? [
-            //                   { images: IMAGES.docproIcon, category: strings.documentLevels, status: 0 },
-            //                   { images: IMAGES.docAction, category: strings.actionList, status: 0 },
-            //                   //   { images: IMAGES.inProgressConcerns, category: strings.adminActions, status: 0 },
-            //               ]
-            //             : [],
-            // },
             {
                 id: 5,
                 title: tabIndex === 0 ? strings.inspectionControl : null,
@@ -111,7 +67,7 @@ const TabsCard = ({ countDetails, tabIndex, noTab, navigation }) => {
                               { images: IMAGES.ICIS, category: strings.inspectionSchedule, status: 1, routeName: ROUTES.INSPECTION_SCHEDULE },
                               { images: IMAGES.ICOS, category: strings.operatorWorksheet, status: 2, routeName: ROUTES.OPERATOR_WORKSHEET },
                               { images: IMAGES.ICCI, category: strings.completedInspection, status: 3, routeName: ROUTES.COMPLETED_INSPECTION },
-                                { images: IMAGES.ICSS, category: strings.supervisorSchedule, status: 4, routeName: ROUTES.SUPERVISOR_SCHEDULE },
+                              { images: IMAGES.ICSS, category: strings.supervisorSchedule, status: 4, routeName: ROUTES.SUPERVISOR_SCHEDULE },
                           ]
                         : [],
             },

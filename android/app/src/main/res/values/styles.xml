@@ -2,14 +2,18 @@
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
-        <!-- Customize your theme here. -->
+        <!-- Transparent system bars for edge-to-edge -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+
+        <!-- Keep your existing customizations -->
         <item name="android:editTextBackground">@drawable/rn_edit_text_material</item>
     </style>
-    <style name="BootTheme" parent="Theme.SplashScreen">
-    <item name="windowSplashScreenBackground">@color/bootsplash_background</item>
-    <item name="windowSplashScreenAnimatedIcon">@mipmap/bootsplash_logo</item>
-    <item name="postSplashScreenTheme">@style/AppTheme</item>
-  </style>
 
+    <style name="BootTheme" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/bootsplash_background</item>
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/bootsplash_logo</item>
+        <item name="postSplashScreenTheme">@style/AppTheme</item>
+    </style>
 
 </resources>

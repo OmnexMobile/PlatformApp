@@ -108,6 +108,9 @@ const InspectionSchedule = () => {
     //     console.log(list, '*********************************************list.length');
     // };
     const getOverAllSettings = async () => {
+        const formDate=new FormData();
+        formDate.append('UserID', parseInt(icUserData?.userData?.UserId));
+        formDate.append('SiteID', parseInt(icUserData?.userData?.Siteid));
         const settingsRes = await postAPI(`${ApiUrl.IC_SETTINGS}`);
         if (settingsRes.Success) {
             const settings = {

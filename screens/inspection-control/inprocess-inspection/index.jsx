@@ -351,7 +351,7 @@ const InprocessInspection = ({ route }) => {
         setShowAlart(false);
     };
     const handleSaveAlert = useCallback(
-        (movenext = '', typeid = '') => {
+        (movenext = '', typeid = '', userFormType = '') => {
             let isChanged = false;
             const filterdData = inspectList.filter(
                 item =>
@@ -377,12 +377,12 @@ const InprocessInspection = ({ route }) => {
                     }
                     let arrayList = [...finalData?.VariableCharacteristics, ...finalData?.AttributeCharacteristics];
                     let selectedFinal = arrayList.filter(item => item?.CCharacteristicsId == selectedData?.CCharacteristicsId);
-                    const hasChanges = selectedFinal.length ? JSON.stringify(selectedFinal[0]) !== JSON.stringify(selectedData) : false;
+                    const hasChanges = selectedFinal.length ? JSON.stringify(selectedFinal[0]?.charInfo) != JSON.stringify(selectedData?.charInfo) : false;
                     if (isChanged || hasChanges) {
                         setShowAlart(true);
                     } else {
                         if (movenext == 'nextSample') {
-                            handleNextItem(typeid);
+                            handleNextItem(typeid, userFormType);
                         } else {
                             handleBackPress();
                         }
@@ -433,7 +433,10 @@ const InprocessInspection = ({ route }) => {
                 status: status,
             };
             const index = characteristicsList.findIndex(
-                obj => obj?.CCharacteristicsId === selectedData?.CCharacteristicsId && obj.FuncDetailsId == selectedData?.FuncDetailsId && obj.ID == selectedData?.ID,
+                obj =>
+                    obj?.CCharacteristicsId === selectedData?.CCharacteristicsId &&
+                    obj.FuncDetailsId == selectedData?.FuncDetailsId &&
+                    obj.ID == selectedData?.ID,
             );
             const newCharacteristicsList = [...characteristicsList];
             if (index !== -1) {
@@ -465,15 +468,15 @@ const InprocessInspection = ({ route }) => {
             let tempData = formType == 'number' ? infoData?.VariableCharacteristics : infoData.AttributeCharacteristics;
             if (currentIndex.index < tempData?.length - 1) {
                 setNextSave(false);
-                handleSaveAlert('nextSample');
+                handleSaveAlert('nextSample', '', infoData.userType);
                 Keyboard.dismiss();
                 // setShowCharInfo(false);
             } else {
                 Alert.alert(`End of ${formType == 'number' ? 'variable' : 'attribute'} sample list`, 'You have reached the last sample.');
             }
         } else {
-        //    let tempData = formType == 'number' ? infoData?.VariableCharacteristics : infoData.AttributeCharacteristics;
-        //     console.log(currentIndex, tempData?.length - 1, 'tempData?.length - 1');
+            //    let tempData = formType == 'number' ? infoData?.VariableCharacteristics : infoData.AttributeCharacteristics;
+            //     console.log(currentIndex, tempData?.length - 1, 'tempData?.length - 1');
             let tempData = [
                 ...(infoData?.VariableCharacteristics?.map((item, index) => ({
                     ...item,
@@ -492,9 +495,9 @@ const InprocessInspection = ({ route }) => {
                 setNextSave(false);
                 if (currentFormType == 'char') {
                     setMixedList('2');
-                    handleSaveAlert('nextSample', infoData.intInspectionTypeID);
+                    handleSaveAlert('nextSample', infoData.intInspectionTypeID,infoData.userType);
                 } else {
-                    handleSaveAlert('nextSample');
+                    handleSaveAlert('nextSample','',infoData.userType);
                 }
                 Keyboard.dismiss();
             } else if (currentIndex.index == tempData?.length - 1) {
@@ -502,7 +505,7 @@ const InprocessInspection = ({ route }) => {
             }
         }
     };
-    const handleNextItem = (id = mixedList) => {
+    const handleNextItem = async (id = mixedList, userFormType = '') => {
         if (infoData.intInspectionTypeID == 2) {
             if (id == '' || id == undefined) {
                 let tempData = [];
@@ -521,6 +524,9 @@ const InprocessInspection = ({ route }) => {
                     ].sort((a, b) => Number(b.OperationID || 0) - Number(a.OperationID || 0));
                 } else {
                     tempData = formType == 'number' ? infoData?.VariableCharacteristics : infoData.AttributeCharacteristics;
+                }
+                if (userFormType == 'SupervisorSchedule') {
+                    await handleSavePress(false);
                 }
                 const nextIndex = currentIndex.index + 1;
                 setFormType(tempData[nextIndex]?.type);
@@ -569,6 +575,9 @@ const InprocessInspection = ({ route }) => {
         } else {
             if (id == '' || id == undefined) {
                 let tempData = formType == 'number' ? infoData?.VariableCharacteristics : infoData.AttributeCharacteristics;
+                if (userFormType == 'SupervisorSchedule') {
+                    await handleSavePress(false);
+                }
                 const nextIndex = currentIndex.index + 1;
                 setCurrentIndex({ index: nextIndex, type: formType });
                 setMasterData([]);
@@ -806,7 +815,7 @@ const InprocessInspection = ({ route }) => {
                                 // }
                             }}>
                             <Text style={[styles.headerText]}>Characteristics Info</Text>
-                           <TouchableOpacity
+                            <TouchableOpacity
                                 onPress={() => {
                                     if (selectedData?.isSamplePopup) {
                                         handleShowCharInfo();
@@ -889,6 +898,7 @@ const InprocessInspection = ({ route }) => {
                                 danger={true}
                                 style={{ height: 30, width: 100, marginRight: 20 }}
                                 onPress={() => {
+                                    console.log('nextSave', nextSave);
                                     nextSave ? handleBackPress() : handleNextItem();
                                 }}
                                 textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}>
@@ -1162,3 +1172,4 @@ const styles = StyleSheet.create({
 });
 
 export default InprocessInspection;
+

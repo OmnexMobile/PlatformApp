@@ -60,10 +60,13 @@ const OperatorWorksheet = () => {
         navigation.navigate(ROUTES.INPROCESS_INSPECTION, { inspectData: item });
     };
     useEffect(() => {
-        getOverAllSettings();
-    }, []);
+        icUserData.userData && getOverAllSettings();
+    }, [icUserData]);
     const getOverAllSettings = async () => {
-        const settingsRes = await postAPI(`${ApiUrl.IC_SETTINGS}`);
+        const formDate = new FormData();
+        formDate.append('UserID', parseInt(icUserData?.userData?.UserId));
+        formDate.append('SiteID', parseInt(icUserData?.userData?.Siteid));
+        const settingsRes = await postAPI(`${ApiUrl.IC_SETTINGS}`,formDate);
         if (settingsRes?.Success) {
             const settings = {
                 ...settingsRes?.Data[0],

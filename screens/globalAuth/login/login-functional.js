@@ -120,7 +120,10 @@ const LoginFunctional = ({}) => {
                 token: response?.Token || '',
             };
             dispatch({ type: 'IC_USER_DATA', icUserData: icUserData });
-            const settingsRes = await postAPI(`${APIURL}${ApiUrl.IC_SETTINGS}`);
+            const newFormData = new FormData();
+            newFormData.append('UserID', icUserData?.userData?.UserId);
+            newFormData.append('SiteID', icUserData?.userData?.Siteid);
+            const settingsRes = await postAPI(`${APIURL}${ApiUrl.IC_SETTINGS}`,newFormData);
             if (settingsRes.Success) {
                 const settings = {
                     ...settingsRes?.Data[0],
