@@ -1,5 +1,5 @@
 import React, { useEffect, useLayoutEffect, useState } from 'react';
-import { TouchableOpacity, SafeAreaView, View, FlatList, StyleSheet, Text, Linking, Dimensions, Modal, Platform } from 'react-native';
+import { TouchableOpacity, SafeAreaView, View, FlatList, StyleSheet, Text, Linking, Dimensions, Modal, Platform, RefreshControl } from 'react-native';
 import { Card, IconButton } from 'react-native-paper';
 import { COLORS, FONT_SIZE, SPACING } from 'constants/theme-constants';
 import strings from 'config/localization';
@@ -39,6 +39,8 @@ const TabsCard = ({ countDetails, tabIndex, noTab, navigation }) => {
     const [loading, setLoading] = useState(false);
     const [tabList, setTabList] = useState([]);
     const dispatch = useDispatch();
+    const [refreshing, setRefreshing] = useState(false);
+    
     const getICsettings = async () => {
         const formData = new FormData();
         formData.append('UserID', icUserData?.userData?.UserId);
@@ -50,6 +52,7 @@ const TabsCard = ({ countDetails, tabIndex, noTab, navigation }) => {
             };
             dispatch({ type: 'IC_SETTINGS', icSettings: settings || {} });
         }
+        setRefreshing(false);
     };
     useLayoutEffect(() => {
         if (icUserData?.userData && isFocused) {
@@ -57,6 +60,27 @@ const TabsCard = ({ countDetails, tabIndex, noTab, navigation }) => {
         }
     }, [icUserData, isFocused]);
     useEffect(() => {
+        // const data = [
+        //     {
+        //         id: 5,
+        //         title: tabIndex === 0 ? strings.inspectionControl : null,
+        //         detail:
+        //             tabIndex === 0
+        //                 ? [
+        //                       { images: IMAGES.ICIS, category: strings.inspectionSchedule, status: 1, routeName: ROUTES.INSPECTION_SCHEDULE },
+        //                       { images: IMAGES.ICOS, category: strings.operatorWorksheet, status: 2, routeName: ROUTES.OPERATOR_WORKSHEET },
+        //                       { images: IMAGES.ICCI, category: strings.completedInspection, status: 3, routeName: ROUTES.COMPLETED_INSPECTION },
+        //                       { images: IMAGES.ICSS, category: strings.supervisorSchedule, status: 4, routeName: ROUTES.SUPERVISOR_SCHEDULE },
+        //                   ].filter(
+        //                       item =>
+        //                           icSettings?.TabReceivingSupervisorNeeded ||
+        //                           icSettings?.TabInprocessSupervisorNeeded ||
+        //                           icSettings?.TabFinalSupervisorNeeded ||
+        //                           item.status !== 4,
+        //                   )
+        //                 : [],
+        //     },
+        // ];
         const data = [
             {
                 id: 5,
@@ -68,35 +92,60 @@ const TabsCard = ({ countDetails, tabIndex, noTab, navigation }) => {
                               { images: IMAGES.ICOS, category: strings.operatorWorksheet, status: 2, routeName: ROUTES.OPERATOR_WORKSHEET },
                               { images: IMAGES.ICCI, category: strings.completedInspection, status: 3, routeName: ROUTES.COMPLETED_INSPECTION },
                               { images: IMAGES.ICSS, category: strings.supervisorSchedule, status: 4, routeName: ROUTES.SUPERVISOR_SCHEDULE },
-                          ].filter(
-                              item =>
-                                  icSettings?.TabReceivingSupervisorNeeded ||
-                                  icSettings?.TabInprocessSupervisorNeeded ||
-                                  icSettings?.TabFinalSupervisorNeeded ||
-                                  item.status !== 4,
-                          )
+                          ].filter(item => {
+                              // Hide Supervisor Schedule if all supervisor flags false
+                              if (
+                                  item.status === 4 &&
+                                  !icSettings?.TabReceivingSupervisorNeeded &&
+                                  !icSettings?.TabInprocessSupervisorNeeded &&
+                                  !icSettings?.TabFinalSupervisorNeeded
+                              ) {
+                                  return false;
+                              }
+
+                              // Hide Inspection Schedule if receiving/inprocess both false
+                                if (
+                                    item.status === 1 &&
+                                    !icSettings?.TabReceivingLotScheduleNeeded &&
+                                    !icSettings?.TabInprocessLotScheduleNeeded &&
+                                    !icSettings?.TabFinalLotScheduleNeeded
+                                ) {
+                                    return false;
+                                }
+                              return true;
+                          })
                         : [],
             },
         ];
+
         // Step 2: Modify only if SearchInspectionNeeded is TRUE
         if (icSettings?.SearchInspectionNeeded && icSettings?.TabSearchInspectionNeeded && tabIndex === 0) {
             const inspectionIndex = data.findIndex(item => item.id === 5);
+
             if (inspectionIndex !== -1) {
-                data[inspectionIndex].detail = data[inspectionIndex].detail.map(detailItem =>
-                    detailItem.category === strings.inspectionSchedule
-                        ? {
-                              images: IMAGES.ICIS,
-                              category: strings.searchInspection,
-                              status: 1,
-                              routeName: ROUTES.SEARCH_INSPECTION,
-                          }
-                        : detailItem,
-                );
+                const detail = data[inspectionIndex].detail;
+
+                const indexOfStatus1 = detail.findIndex(d => d.status === 1 || d.category === strings.inspectionSchedule);
+
+                const newItem = {
+                    images: IMAGES.ICIS,
+                    category: strings.searchInspection,
+                    status: 1,
+                    routeName: ROUTES.SEARCH_INSPECTION,
+                };
+
+                if (indexOfStatus1 !== -1) {
+                    // Replace existing inspectionSchedule
+                    detail[indexOfStatus1] = newItem;
+                } else {
+                    // Add searchInspection if not present
+                    detail.unshift(newItem); // add at the top
+                }
             }
         }
 
         setTabList([...data]);
-    }, [tabIndex, icSettings?.SearchInspectionNeeded]);
+    }, [tabIndex, icSettings]);
 
     const redirectToPage = (title, status, category) => {
         status > 0 && title === strings.auditPro
@@ -276,7 +325,10 @@ const TabsCard = ({ countDetails, tabIndex, noTab, navigation }) => {
             // console.log('current click--->')
         }
     };
-
+    const onRefresh = () => {
+        setRefreshing(true);
+        getICsettings();
+    };
     const Item = ({ title, detail, images }) => (
         <View style={styles.eachItemStyle}>
             <View style={styles.titleHeader}>
@@ -322,6 +374,7 @@ const TabsCard = ({ countDetails, tabIndex, noTab, navigation }) => {
                 data={tabList}
                 renderItem={({ item }) => (item.title === null ? null : <Item detail={item.detail} title={item.title} images={item.images} />)}
                 keyExtractor={item => item.id}
+                refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
             />
         </SafeAreaView>
     );

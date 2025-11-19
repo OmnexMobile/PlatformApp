@@ -57,6 +57,10 @@ const footerListWithoutSuperVisorandSearch = footerList.filter(item => item.titl
 const footerListWithoutSuperVisorWithSearch = footerList.filter(
     item => item.title !== 'Supervisor\nSchedule' && item.title !== 'Inspection\nSchedule',
 );
+const footerListWithoutSearchAndSchedule = footerList.filter(item => item.title !== 'Search\nInspection' && item.title !== 'Inspection\nSchedule');
+const footerListWithoutSuperVisorandSearchandInspection = footerList.filter(
+    item => item.title !== 'Supervisor\nSchedule' && item.title !== 'Inspection\nSchedule' && item.title !== 'Search\nInspection',
+);
 
 const CustomHeader = ({
     children,
@@ -90,14 +94,23 @@ const CustomHeader = ({
     const bottomTabList = useMemo(() => {
         let showSuperVisorPage =
             icSettings?.TabReceivingSupervisorNeeded || icSettings?.TabInprocessSupervisorNeeded || icSettings?.TabFinalSupervisorNeeded;
+        let showInspectionPage =
+            icSettings?.TabReceivingLotScheduleNeeded || icSettings?.TabInprocessLotScheduleNeeded || icSettings?.TabFinalLotScheduleNeeded;
+
         if (icSettings?.SearchInspectionNeeded && icSettings?.TabSearchInspectionNeeded) {
             if (showSuperVisorPage) {
                 return footerListWithoutSchedule;
             }
             return footerListWithoutSuperVisorWithSearch;
         } else {
-            if (showSuperVisorPage) {
+            if (showSuperVisorPage && showInspectionPage) {
                 return footerListWithoutSearch;
+            } else if (showInspectionPage && !showSuperVisorPage) {
+                return footerListWithoutSuperVisorandSearch;
+            } else if (!showInspectionPage && showSuperVisorPage) {
+                return footerListWithoutSearchAndSchedule;
+            } else if (!showInspectionPage && !showSuperVisorPage) {
+                return footerListWithoutSuperVisorandSearchandInspection;
             }
             return footerListWithoutSuperVisorandSearch;
         }

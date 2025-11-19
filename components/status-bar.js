@@ -10,10 +10,10 @@ const StatusBarAndroidIOS = ({ backgroundColor = null, animated = true }) => {
     const insets = useSafeAreaInsets();
 
     return (
-        <View style={[Platform.OS === 'ios' ? { height: getStatusBarHeight() }:{paddingTop: insets.top,backgroundColor:'#a09f9f'}]}>
+        <View style={[Platform.OS === 'ios' ? { height: getStatusBarHeight() }:{paddingTop: insets.top}]}>
             <StatusBar
                 backgroundColor={backgroundColor || theme.mode.backgroundColor}
-                barStyle={theme.selectedMode === Modes.light ? 'light-content':'dark-content' }
+                barStyle={theme.selectedMode === Modes.light ?'dark-content': 'light-content' }
                 animated={animated}
             />
         </View>
