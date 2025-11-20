@@ -30,7 +30,7 @@ const TabViewComponent = ({ tabs = [] }) => {
     const renderLabel = ({ route }) => (
         <TextComponent
             style={{
-                fontFamily: 'ProximaNova-Bold',
+                fontFamily: 'OpenSans-Bold',
                 color: theme.mode.textColor,
                 // fontSize: FONT_SIZE.SMALL,
                 // paddingVertical: SPACING.SMALL,

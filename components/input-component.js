@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
     },
     input: {
-        fontFamily: 'ProximaNova-Regular',
+        fontFamily: 'OpenSans-Regular',
         fontSize: FONT_SIZE.LARGE,
         width: '100%',
         color: COLORS.themeBlack,

@@ -74,7 +74,7 @@ const TabsView = ({ countDetails }) => {
   const renderLabel = ({ route, focused }) => {
     return <TextComponent
     style={{
-      fontFamily: 'ProximaNova-Bold',
+      fontFamily: 'OpenSans-Bold',
       fontSize: FONT_SIZE.NORMAL,
       color: COLORS.white,
       paddingVertical: SPACING.SMALL,

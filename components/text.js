@@ -18,15 +18,15 @@ const TextComponent = ({ color = null, fontSize = FONT_SIZE.REGULAR, type, numbe
     const getFontFamily = type => {
         switch (type) {
             case FONT_TYPE.REGULAR:
-                return 'ProximaNova-Regular';
+                return 'OpenSans-Regular';
             case FONT_TYPE.LIGHT:
-                return 'ProximaNova-Light';
+                return 'OpenSans-Light';
             case FONT_TYPE.SEMIBOLD:
-                return 'ProximaNova-Extrabld';
+                return 'OpenSans-SemiBold';
             case FONT_TYPE.BOLD:
-                return 'ProximaNova-Bold';
+                return 'OpenSans-Bold';
             default:
-                return 'ProximaNova-Light';
+                return 'OpenSans-Light';
         }
     };
     const TextComponent = animate ? MotiText : Text;
