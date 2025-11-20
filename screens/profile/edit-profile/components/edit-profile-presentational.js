@@ -34,7 +34,7 @@ const EditProfilePresentational = ({ buttonLoading, handleUpdate, loading, input
                                     key: index,
                                     inputStyle: {
                                         fontSize: FONT_SIZE.X_LARGE,
-                                        fontFamily: 'ProximaNova-Bold',
+                                        fontFamily: 'OpenSans-Bold',
                                     },
                                 }}
                             />

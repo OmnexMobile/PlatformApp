@@ -17,7 +17,7 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.3</string>
+	<string>1.4</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
@@ -71,9 +71,6 @@
 		<string>Octicons.ttf</string>
 		<string>SimpleLineIcons.ttf</string>
 		<string>Zocial.ttf</string>
-		<string>ProximaNova-Bold.otf</string>
-		<string>ProximaNova-Extrabld.otf</string>
-		<string>ProximaNova-Regular.otf</string>
 		<string>OpenSans-Bold.ttf</string>
 		<string>OpenSans-Extrabld.ttf</string>
 		<string>OpenSans-Regular.ttf</string>

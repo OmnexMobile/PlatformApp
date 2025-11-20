@@ -120,7 +120,7 @@ const styles = StyleSheet.create({
 	drawerItem: { marginVertical: 0, flex: 1, height: 60, alignItems: 'center' },
 	drawerLabel: {
 		color: Colors.themeBlack,
-		fontFamily: 'ProximaNova-Regular',
+		fontFamily: 'OpenSans-Regular',
 		fontSize: 25,
 	},
 	drawerContent: {

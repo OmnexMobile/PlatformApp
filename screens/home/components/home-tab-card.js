@@ -421,7 +421,7 @@ const styles = StyleSheet.create({
         // paddingLeft: 5,
     },
     headerTitle: {
-        fontFamily: 'ProximaNova-Bold',
+        fontFamily: 'OpenSans-Bold',
         fontSize: FONT_SIZE.NORMAL,
         color: COLORS.black,
         paddingVertical: SPACING.SMALL,

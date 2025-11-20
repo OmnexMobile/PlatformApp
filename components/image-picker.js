@@ -150,12 +150,12 @@ const styles = StyleSheet.create({
     },
     placeholderStyle: {
         fontSize: FONT_SIZE.LARGE,
-        fontFamily: 'ProximaNova-Regular',
+        fontFamily: 'OpenSans-Regular',
         color: COLORS.black,
     },
     selectedTextStyle: {
         fontSize: FONT_SIZE.LARGE,
-        fontFamily: 'ProximaNova-Regular',
+        fontFamily: 'OpenSans-Regular',
         color: COLORS.black,
     },
     iconStyle: {
