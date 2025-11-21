@@ -25,7 +25,7 @@ const FilterWithMenu = ({ dataList = [], type = 'IconFilter', onSelectedPress = 
                 <Text numberOfLines={1} style={[styles.textStyle]}>
                     {filterText == '' ? 'Filter' : filterText}
                 </Text>
-                <Icon name="filter" size={20} color={COLORS.moreIcon}/>
+                <Icon name="filter" size={20} color={COLORS.moreIcon} />
             </TouchableOpacity>
         );
     };
@@ -75,7 +75,10 @@ const FilterWithMenu = ({ dataList = [], type = 'IconFilter', onSelectedPress = 
             {dataList?.map((item, index) => {
                 return (
                     <TouchableOpacity
-                        key={index+1}
+                        onPress={() => {
+                            onMenuPress(item);
+                        }}
+                        key={index + 1}
                         style={{
                             flexDirection: 'row',
                             alignItems: item?.iconName ? 'center' : 'baseline',
@@ -108,10 +111,10 @@ const styles = StyleSheet.create({
         paddingHorizontal: 5,
     },
     textStyle: {
-        fontSize:15,
+        fontSize: 15,
         fontFamily: 'OpenSans-Regular',
         flex: 1,
-        color:'#000'
+        color: '#000',
     },
     containerIconBox: {
         flexDirection: 'row',
