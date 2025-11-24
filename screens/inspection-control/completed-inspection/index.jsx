@@ -116,6 +116,7 @@ const CompletedInspection = () => {
         setSelectedValue(item);
     };
     const hideModal = () => {
+        setIsBulkSync(false);
         if (!disableBtn) {
             setSelectedRadio({
                 id: 1,
@@ -568,6 +569,7 @@ const CompletedInspection = () => {
                                         if (isBulkSync) {
                                             handleBulkFormSync();
                                         } else {
+                                            setIsBulkSync(false);
                                             handleSingleFormSync();
                                         }
                                     }}
