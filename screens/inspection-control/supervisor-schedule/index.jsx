@@ -711,7 +711,7 @@ const SupervisorSchedule = () => {
     };
     return (
         <CustomHeader
-            title="Supervisor Schedule"
+            title="Supervisor Approval"
             activeTabId={4}
             handleFilterPress={() => {
                 setShowFilterList(true);

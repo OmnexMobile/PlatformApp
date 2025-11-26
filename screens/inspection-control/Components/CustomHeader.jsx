@@ -46,20 +46,20 @@ const footerList = [
     },
     {
         id: 4,
-        title: 'Supervisor\nSchedule',
+        title: 'Supervisor\nApproval',
         svg: SupervisorScheduleSvg,
         routeName: ROUTES.SUPERVISOR_SCHEDULE,
     },
 ];
 const footerListWithoutSearch = footerList.filter(item => item.title !== 'Search\nInspection');
 const footerListWithoutSchedule = footerList.filter(item => item.title !== 'Inspection\nSchedule');
-const footerListWithoutSuperVisorandSearch = footerList.filter(item => item.title !== 'Supervisor\nSchedule' && item.title !== 'Search\nInspection');
+const footerListWithoutSuperVisorandSearch = footerList.filter(item => item.title !== 'Supervisor\nApproval' && item.title !== 'Search\nInspection');
 const footerListWithoutSuperVisorWithSearch = footerList.filter(
-    item => item.title !== 'Supervisor\nSchedule' && item.title !== 'Inspection\nSchedule',
+    item => item.title !== 'Supervisor\nApproval' && item.title !== 'Inspection\nSchedule',
 );
 const footerListWithoutSearchAndSchedule = footerList.filter(item => item.title !== 'Search\nInspection' && item.title !== 'Inspection\nSchedule');
 const footerListWithoutSuperVisorandSearchandInspection = footerList.filter(
-    item => item.title !== 'Supervisor\nSchedule' && item.title !== 'Inspection\nSchedule' && item.title !== 'Search\nInspection',
+    item => item.title !== 'Supervisor\nApproval' && item.title !== 'Inspection\nSchedule' && item.title !== 'Search\nInspection',
 );
 
 const CustomHeader = ({
