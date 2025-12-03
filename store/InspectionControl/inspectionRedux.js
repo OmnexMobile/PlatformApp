@@ -15,6 +15,9 @@ const { Types, Creators } = createActions({
     updateInspectList: ['updateInspectList'],
     deleteAllInspectList: ['deleteAllInspectList'],
     resetToInitial: ['resetToInitial'],
+    storeLoginLogo: ['storeLoginLogo'],
+    resetAll:['resetAll'],
+    dateFormat: ['dateFormat'],
 });
 
 export const InspectTypes = Types;
@@ -26,17 +29,25 @@ export const INITIAL_STATE = {
     inspectList: [],
     icUserData: {},
     icSettings: {},
+    icLoginlogo: '',
+    dateFormat:'',
 };
 
 /* ------------- Reducers ------------- */
 
 // Set a specific count
+const storeLoginLogo = (state, { icLoginlogo }) => {
+    return { ...state, icLoginlogo: icLoginlogo };
+};
+const dateFormat = (state, { dateFormat }) => {
+    return { ...state, dateFormat: dateFormat };
+}
 const storeInspectList = (state, { inspectList }) => {
     return { ...state, inspectList: [...state.inspectList, ...inspectList] };
 };
 const deleteAllInspectList = (state, { inspectList }) => {
     return { ...state, inspectList: [] };
-}
+};
 const removeInspectList = (state, { inspectionToRemove }) => {
     //  inspection.intProductionItemID == inspectionToRemove.intProductionItemID &&
     //         inspection.OperationID == inspectionToRemove.OperationID &&
@@ -59,10 +70,10 @@ const storeIcSettings = (state, { icSettings }) => {
 const getStatus = updatedData => {
     const ststusBoolean = (updatedData?.VariableCharacteristics || [])
         .concat(updatedData?.AttributeCharacteristics || [])
-        .every(item => item?.status =='Completed');
+        .every(item => item?.status == 'Completed');
     const someValues = (updatedData?.VariableCharacteristics || [])
         .concat(updatedData?.AttributeCharacteristics || [])
-        .some(item => item?.status =='Completed');
+        .some(item => item?.status == 'Completed');
     return {
         status: ststusBoolean ? 'Completed' : someValues ? 'In Progress' : 'Launch',
     };
@@ -77,9 +88,18 @@ const updateInspectList = (state, { updatedData }) => {
     });
     return { ...state, inspectList: updatedArray };
 };
-const resetToInitial = () => {
+const resetToInitial = state => {
+    return {
+        ...state,
+        inspectList: [],
+        icUserData: {},
+        icSettings: {},
+    };
+};
+const resetAll = () => {
     return INITIAL_STATE;
-}
+};
+
 /* ------------- Hookup Reducers To Types ------------- */
 const rawReducer = createReducer(INITIAL_STATE, {
     [Types.INSPECT_LIST]: storeInspectList,
@@ -89,6 +109,9 @@ const rawReducer = createReducer(INITIAL_STATE, {
     [Types.UPDATE_INSPECT_LIST]: updateInspectList,
     [Types.DELETE_ALL_INSPECT_LIST]: deleteAllInspectList,
     [Types.RESET_TO_INITIAL]: resetToInitial,
+    [Types.STORE_LOGIN_LOGO]: storeLoginLogo,
+    [Types.RESET_ALL]: resetAll,
+    [Types.DATE_FORMAT]: dateFormat,
 });
 const persistConfig = {
     key: 'inspect', // Unique key for the reducer's data

@@ -69,21 +69,6 @@ const searchFilterList = [
         isSelected: false,
         label: 'Lot No',
     },
-    // {
-    //     id: 5,
-    //     isSelected: false,
-    //     label: 'Lot Size',
-    // },
-    // {
-    //     id: 6,
-    //     isSelected: false,
-    //     label: 'Sample Frequency',
-    // },
-    // {
-    //     id: 7,
-    //     isSelected: false,
-    //     label: 'Inspector(s)',
-    // },
     {
         id: 8,
         isSelected: false,
@@ -385,6 +370,7 @@ const SearchInspection = () => {
             formData.append('siteId', parseInt(icUserData?.userData?.Siteid));
             formData.append('inspectionID', item.ID);
             formData.append('FormId', item.FormId);
+            formData.append('FormName', item?.FormName);
             formData.append('operationIDs', item.OperationID);
             formData.append('ProcessId', item.InspectionType == '2' ? 1 : 0);
             formData.append('isProcess', item.InspectionType == '2' ? 1 : 0);
@@ -637,6 +623,7 @@ const SearchInspection = () => {
 
         setMasterData([...temp]);
     };
+    console.log(searchList,'searchList')
     return (
         <CustomHeader
             title="Search Inspection"
@@ -791,11 +778,12 @@ const SearchInspection = () => {
                                     <View style={{ marginVertical: 10 }} key={item.id}>
                                         <RadioButtonComponent
                                             lable={item.label}
+                                            staticValue={item.label}
                                             value={item.isSelected ? item.label : ''}
                                             onChange={val => {
                                                 setSearchList(pre => {
                                                     let temp = pre.map(item =>
-                                                        item.id === val.id ? { ...item, isSelected: true } : { ...item, isSelected: false },
+                                                        item.id == val.id ? { ...item, isSelected: true } : { ...item, isSelected: false },
                                                     );
                                                     return temp;
                                                 });
