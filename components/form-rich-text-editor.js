@@ -8,7 +8,7 @@ import TextComponent from './text';
 
 const FontFamilyStylesheet = `
 @font-face {
-    font-family: 'ProximaNova-Regular';
+    font-family: 'OpenSans-Regular';
     font-weight: normal;
 }
 `;
@@ -68,7 +68,7 @@ const FormRichTextEditor = ({
                             // padding: 0,
                             // paddingVertical: SPACING.SMALL,
                             fontSize: FONT_SIZE.LARGE,
-                            fontFamily: 'ProximaNova-Regular',
+                            fontFamily: 'OpenSans-Regular',
                             color: theme.mode.textColor,
                             // ...inputStyle,
                             ...(!editable && { backgroundColor: theme.mode.disabledBackgroundColor }),
@@ -77,7 +77,7 @@ const FormRichTextEditor = ({
                             placeholderColor: COLORS.searchText,
                             ...(!editable && { backgroundColor: theme.mode.disabledBackgroundColor }),
                             initialCSSText: `${FontFamilyStylesheet}`,
-                            contentCSSText: `font-family: ProximaNova-Regular`,
+                            contentCSSText: `font-family: OpenSans-Regular`,
                             // backgroundColor: 'red',
                         }}
                         // multiline={multiline}

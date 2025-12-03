@@ -24,6 +24,8 @@ cd android && ./gradlew clean && ./gradlew assembleDebug
 To create Apk
 cd android && ./gradlew clean && ./gradlew assembleRelease
 
+To create aab build 
+cd android && ./gradlew clean && ./gradlew bundleRelease
 
 npx react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/build/intermediates/res/merged/release/
 

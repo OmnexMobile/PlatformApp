@@ -28,7 +28,7 @@ const TaskStatus = ({ params }) => {
     const renderLabel = ({ route }) => (
         <TextComponent
             style={{
-                fontFamily: 'ProximaNova-Bold',
+                fontFamily: 'OpenSans-Bold',
                 fontSize: FONT_SIZE.SMALL,
                 color: theme.mode.textColor,
                 paddingVertical: SPACING.SMALL,

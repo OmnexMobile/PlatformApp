@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>IntegratedApp</string>
+	<string>EwQIMS Platform</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -71,9 +71,6 @@
 		<string>Octicons.ttf</string>
 		<string>SimpleLineIcons.ttf</string>
 		<string>Zocial.ttf</string>
-		<string>ProximaNova-Bold.otf</string>
-		<string>ProximaNova-Extrabld.otf</string>
-		<string>ProximaNova-Regular.otf</string>
 		<string>OpenSans-Bold.ttf</string>
 		<string>OpenSans-Extrabld.ttf</string>
 		<string>OpenSans-Regular.ttf</string>

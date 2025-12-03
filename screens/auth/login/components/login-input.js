@@ -59,8 +59,8 @@ const styles = StyleSheet.create({
         height: 50,
     },
     input: {
-        fontFamily: 'ProximaNova-Regular',
-        fontSize: FONT_SIZE.LARGE,
+        fontFamily: 'OpenSans-Regular',
+        fontSize: 20,
         flex: 1,
         color: COLORS.themeBlack,
     },

@@ -116,5 +116,5 @@ export default {
     inspectionSchedule:'Inspection\nSchedule',
     operatorWorksheet:'Operator\nWorksheet',
     completedInspection:'Completed\nInspection',
-    supervisorSchedule:'Supervisor\nSchedule'
+    searchInspection:'Search\nInspection',
 };

@@ -24,6 +24,7 @@ const LoginInput = ({ placeholder = '', name = '', onChangeText, editable = true
             <TextInput
                 {...{
                     editable,
+                    placeholderTextColor: COLORS.grey,
                     placeholder,
                     onChangeText,
                     autoCapitalize: false,
@@ -52,15 +53,15 @@ const styles = StyleSheet.create({
     inputContainer: {
         marginBottom: SPACING.NORMAL,
         backgroundColor: COLORS.whiteGrey,
-        paddingHorizontal: SPACING.NORMAL,
+        paddingHorizontal: 10,
         borderRadius: SPACING.SMALL,
         borderWidth: 1.5,
         flexDirection: 'row',
         height: 50,
     },
     input: {
-        fontFamily: 'ProximaNova-Regular',
-        fontSize: FONT_SIZE.LARGE,
+        fontFamily: 'OpenSans-Regular',
+        fontSize: 20,
         flex: 1,
         color: COLORS.themeBlack,
     },

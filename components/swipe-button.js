@@ -170,7 +170,7 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         fontSize: RFValue(12),
         zIndex: 2,
-        fontFamily: 'ProximaNova-Bold',
+        fontFamily: 'OpenSans-Bold',
     },
 });
 

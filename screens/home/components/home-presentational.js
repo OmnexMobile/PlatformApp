@@ -234,7 +234,7 @@ const HomePresentational = ({
                 //                 <TextInput
                 //                     value={searchKey}
                 //                     onChangeText={searchKey => setSearchKey(searchKey)}
-                //                     style={{ fontFamily: 'ProximaNova-Regular', fontSize: FONT_SIZE.LARGE }}
+                //                     style={{ fontFamily: 'OpenSans-Regular', fontSize: FONT_SIZE.LARGE }}
                 //                     placeholder="search site"
                 //                 />
                 //             </View>
