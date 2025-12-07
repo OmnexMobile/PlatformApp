@@ -2861,10 +2861,9 @@ reDirect = () => {
             //     // isDownloaded : false
             //   });
             // }
-           
               this.props.navigation.navigate(ROUTES.AUDIT_PAGE_SM, {
-                  isSubmitted: this.state.notifyRed,
-                // isDownloaded : false
+                isSubmitted: this.state.notifyRed,
+                datapass: this.props.route?.params?.datapassParam,
               });
             
             } else if (!this.isDocsAvail) {

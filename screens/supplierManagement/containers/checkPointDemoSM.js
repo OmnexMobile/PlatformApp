@@ -3693,6 +3693,7 @@ updatecheckpointvalues_new = () => {
     var isNCOFIExists = false;
     var isUploaded = false;
     var data = null;
+    var ResponsibilityId = null;
     const selectedChecklist = this.state.selectedindex;
     console.log('selecteddncvaluescheckkkkkkk',NCrecords);
     console.log(
@@ -3797,6 +3798,7 @@ updatecheckpointvalues_new = () => {
 
         for (var i = 0; i < auditRecords.length; i++) {
           if (this.state.ncofiPassAuditId == auditRecords?.[i]?.AuditId) {
+          ResponsibilityId = uploadedData.ResponsibilityId;
             var dropdowns = auditRecords?.[i]?.DropDownProps;
             // Requirements
             for (var j = 0; j < dropdowns.ClauseList.length; j++) {
@@ -3887,7 +3889,7 @@ updatecheckpointvalues_new = () => {
           NonConfirmity: uploadedData.NonConfirmity,
           uniqueNCkey: Moment().unix(),
           selectedItems: selectedItems,
-          ResponsibilityUser:userObj,
+          ResponsibilityUser:ResponsibilityId,
           selectedItemsProcess: selectedProcess,
           ChecklistTemplateId: uploadedData.ChecklistTemplateId,
           ncIdentifier: uploadedData.NCIdentifier,
@@ -3920,7 +3922,7 @@ updatecheckpointvalues_new = () => {
             ChecklistID: this.state.checklistID,
             AUDIT_NO: this.state.raiseID.AUDIT_NO,
             breadCrumb: this.state.Auditee,
-            ResponsibilityUser: this.state.ResponsibilityUser,
+            ResponsibilityUser: ResponsibilityId,
             SiteId: this.state.raiseID.SiteID,
             RequestedBy: '',
             FailureCategoryId: '',

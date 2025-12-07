@@ -141,7 +141,8 @@ class AuditPage extends Component {
       SITEIDSync: '',
       AUDITPROGORDERSync: '',
       AUDIT_SITE_IDSync: '',
-      statusCheck: ''
+      statusCheck: '',
+      smData: null,
     };
 
     Voice.onSpeechStart = this.onSpeechStart;
@@ -286,8 +287,11 @@ class AuditPage extends Component {
           );
         }
       },
-    );
+      );
     this.checkUser();
+    this.loadSupplierIndex();
+    this.focusListener = this.props.navigation.addListener('focus', this.loadSupplierIndex);
+    this.blurListener = this.props.navigation.addListener('blur', this.loadSupplierIndex);
 
   }
 
@@ -386,6 +390,12 @@ class AuditPage extends Component {
   }
   componentWillUnmount() {
     Dimensions.removeEventListener('change', this.handleDimensionChange);
+    if (this.focusListener) {
+      this.focusListener();
+    }
+    if (this.blurListener) {
+      this.blurListener();
+    }
   }
 
   updateRecentAuditList(AuditId, status) {
@@ -420,6 +430,21 @@ class AuditPage extends Component {
 
     this.props.updateRecentAuditList(recentAudits);
   }
+
+  loadSupplierIndex = async () => {
+    try {
+      const smIndexRaw = await AsyncStorage.getItem('supplierIndex');
+      const smIndex = smIndexRaw ? JSON.parse(smIndexRaw) : null;
+
+      console.log('Loaded supplierIndex:', smIndex);
+      this.setState({smData: smIndex});
+      if (this.props.storeSupplierData && smIndex) {
+        this.props.storeSupplierData(smIndex);
+      }
+    } catch (error) {
+      console.log('Error loading supplierIndex', error);
+    }
+  };
 
   InitVoice() {
     Voice.onSpeechStart = this.onSpeechStart;
@@ -1295,11 +1320,24 @@ class AuditPage extends Component {
         );
 
         if (this.props.data.audits.isOfflineMode || isDownloaded) {
-          var auditRecords = this.props.route.params.datapass;
+          const auditRecords = this.props.route?.params?.datapass;
+          const auditProp = this.state.AuditProp || auditRecords;
+          const targetAuditId = auditProp?.ActualAuditId;
+
+          if (!auditRecords || !targetAuditId) {
+            console.log(
+              'Audit data missing while loading session values',
+              auditRecords,
+              auditProp,
+            );
+            this.setState({isLoading: false});
+            return;
+          }
+
           var auditDetailList = null;
           var auditNumber = '';
           var auditStatus = '';
-              console.log('checkk838838383',this.props.route.params.datapass);
+              console.log('checkk838838383', this.props.route?.params?.datapass);
 
           // for (var i = 0; i < auditRecords.length; i++) {
           //     console.log('checkinngggg-------insidelooppppp');
@@ -1310,14 +1348,14 @@ class AuditPage extends Component {
               
           //   }
           // }
-    console.log('auditRecords.AuditId', auditRecords.AuditId);
-    console.log('this.state.AuditProp.ActualAuditId', this.state.AuditProp.ActualAuditId);
+    console.log('auditRecords.AuditId', auditRecords?.AuditId);
+    console.log('this.state.AuditProp.ActualAuditId', targetAuditId);
 
 
-    if (auditRecords.ActualAuditId == this.state.AuditProp.ActualAuditId) {
+    if (auditRecords.ActualAuditId == targetAuditId) {
       auditDetailList = auditRecords;
       console.log('✅ Found:', auditDetailList);
-    
+
 } 
           console.log('auditDetailList*****', auditDetailList);
 
@@ -1459,7 +1497,7 @@ class AuditPage extends Component {
  async _getLocalValues(data) {
     if (this.props.data.audits.isOfflineMode) {
       console.log('_getLocalValues', data);
-      const AUDIT_ID = data.AuditId;
+      const AUDIT_ID = data.AuditId || data.ActualAuditId;
       const AUDITPROG_ID = data.AuditProgramId;
       const AUDITYPE_ORDER = data.AuditTypeOrder;
       const AUDITYPE_ID = data.AuditTypeId;
@@ -1522,7 +1560,7 @@ class AuditPage extends Component {
           },
         );
       }else{
-          const AUDIT_ID = data.AuditId;
+          const AUDIT_ID = data.AuditId || data.ActualAuditId;
           const AUDITPROG_ID = data.AuditProgId;
           const AUDITYPE_ORDER = data.AuditTypeOrderId; // data.AuditTypeOrder;
           const AUDITYPE_ID = data.AuditTypeId;
@@ -1965,8 +2003,8 @@ console.log('checkvalues0000',SiteID,UserId,SearchCondition,TOKEN,iAuditId,iAudP
     const iParentId = parentID;
     const ISiteID = this.state.SITEID;
     const TOKEN = this.state.token;
-    const SM = this.props.data.audits.smdata;
-    console.log('download:sm==>', this.props.data.audits.smdata);
+    const SM = this.state.smData;
+    console.log('download:sm==>', this.state.smData);
     auth.getCheckRadio(
       IFormID,
       IAuditID,
@@ -2163,7 +2201,7 @@ console.log('checkvalues0000',SiteID,UserId,SearchCondition,TOKEN,iAuditId,iAudP
     } else if (id === 3) {
       console.log('this.state.AUDITYPE_ORDER', this.state.AUDITYPE_ORDER);
       console.log('this.state.auditstatus', this.state.auditstatus);
-      this.props.navigation.navigate(ROUTES.NC_OFI_PAGE, {
+      this.props.navigation.navigate(ROUTES.NC_OFI_PAGE_SM, {
         // DropDownVal : this.state.DropDownProps,
         // NCdetails: this.state.NCdetailsprops,
         CreateNCdataBundle: {
@@ -2803,7 +2841,7 @@ console.log('checkvalues0000',SiteID,UserId,SearchCondition,TOKEN,iAuditId,iAudP
         //Delete Audit Attachments
         var listDataArr = [];
         var deleteAudit = auditRecordsOrg.filter(
-          item => item.AuditId === this.state.AUDIT_ID,
+          item => parseInt(item.AuditId) === parseInt(this.state.AUDIT_ID),
         );
         let Files =
           '/' +
@@ -3353,7 +3391,7 @@ console.log('checkvalues0000',SiteID,UserId,SearchCondition,TOKEN,iAuditId,iAudP
 
                 {/* Refresh button removed as per new design */}
 
-                {/* {!this.state.isLoading &&
+                {!this.state.isLoading &&
                 !this.state.isDownloading &&
                 this.state.isDownloaded ? (
                   <TouchableOpacity
@@ -3362,9 +3400,9 @@ console.log('checkvalues0000',SiteID,UserId,SearchCondition,TOKEN,iAuditId,iAudP
                       this.setState({dialogVisibleRefresh: true, webToMob: true, downloadAsync: true });
                     }}>
                   {/* <ResponsiveImage initWidth='25' initHeight='25' source={Images.deleteIcon}/> */}
-                    {/* <Icon name="refresh" size={25} color="white" /> */}
-                  {/* </TouchableOpacity> */}
-                {/* ) : null} */} 
+                    <Icon name="refresh" size={25} color="white" />
+                  </TouchableOpacity>
+                ) : null} 
                 {/* Refresh button removed as per new design endddd*/}
 
                 {!this.state.isLoading && !this.state.isDownloading ? (
@@ -3388,8 +3426,8 @@ console.log('checkvalues0000',SiteID,UserId,SearchCondition,TOKEN,iAuditId,iAudP
                 <View style={styles.detailsCard}>
                   <View style={styles.card1}>
                     <View style={styles.boxCard1}>
-                      {this.props.data.audits.smdata != 2 &&
-                      this.props.data.audits.smdata != 3 ? (
+                      {this.state.smData != 2 &&
+                      this.state.smData != 3 ? (
                         <Text style={styles.detailTitle}>
                           {' '}
                           {strings.Auditee}
@@ -3404,11 +3442,11 @@ console.log('checkvalues0000',SiteID,UserId,SearchCondition,TOKEN,iAuditId,iAudP
                       </Text>
                     </View>
                   </View>
-                  {this.props.data.audits.smdata != 2 ? (
+                  {this.state.smData != 2 ? (
                     <View style={styles.card}>
                       <View style={styles.boxCard1}>
-                        {this.props.data.audits.smdata != 2 &&
-                        this.props.data.audits.smdata != 3 ? (
+                        {this.state.smData != 2 &&
+                        this.state.smData != 3 ? (
                           <Text style={styles.detailTitle}>
                             {strings.Audit_contact_person}
                           </Text>
@@ -3485,8 +3523,8 @@ console.log('checkvalues0000',SiteID,UserId,SearchCondition,TOKEN,iAuditId,iAudP
                     </View>
                   </View>
                   {this.state.auditDetailList.AuditProgramName !== 'LPA' &&
-                  this.props.data.audits.smdata !== 2 &&
-                  this.props.data.audits.smdata !== 3 ? (
+                  this.state.smData !== 2 &&
+                  this.state.smData !== 3 ? (
                     <View style={styles.card1}>
                       <View style={styles.boxCard1}>
                         <Text style={styles.detailTitle}>
@@ -3527,7 +3565,7 @@ console.log('checkvalues0000',SiteID,UserId,SearchCondition,TOKEN,iAuditId,iAudP
                     </View>
                   </View>
                   {/* edited for supplier management "Starts"*/}
-                  {this.props.data.audits.smdata == 3 ? (
+                  {this.state.smData == 3 ? (
                     <View style={styles.card1}>
                       <View style={styles.boxCard1}>
                         <Text style={styles.detailTitle}>
@@ -3541,8 +3579,8 @@ console.log('checkvalues0000',SiteID,UserId,SearchCondition,TOKEN,iAuditId,iAudP
                       </View>
                     </View>
                   ) : null}
-                  {this.props.data.audits.smdata != 2 &&
-                  this.props.data.audits.smdata != 3 ? (
+                  {this.state.smData != 2 &&
+                  this.state.smData != 3 ? (
                     <View style={styles.card}>
                       <View style={styles.boxCard1}>
                         <Text style={styles.detailTitle}>
@@ -3559,7 +3597,7 @@ console.log('checkvalues0000',SiteID,UserId,SearchCondition,TOKEN,iAuditId,iAudP
                     </View>
                   ) : null}
                   
-                  {this.props.data.audits.smdata == 3 ? (
+                  {this.state.smData == 3 ? (
                     <View style={styles.card}>
                       <View style={styles.boxCard1}>
                         <Text style={styles.detailTitle}>
@@ -3586,7 +3624,7 @@ console.log('checkvalues0000',SiteID,UserId,SearchCondition,TOKEN,iAuditId,iAudP
           </View>*/}
 
                   {this.state.auditDetailList.AuditProgramName !== 'LPA' &&
-                  this.props.data.audits.smdata === 3 ? (
+                  this.state.smData === 3 ? (
                     <View style={styles.lastCard}>
                       <View style={styles.boxCard1}>
                         <Text style={styles.detailTitle}>
@@ -3603,8 +3641,8 @@ console.log('checkvalues0000',SiteID,UserId,SearchCondition,TOKEN,iAuditId,iAudP
                     </View>
                   ) : null}
                   {(this.state.auditDetailList.AuditProgramName !== 'LPA' &&
-                    this.props.data.audits.smdata === 2) ||
-                  this.props.data.audits.smdata === 3 ? (
+                    this.state.smData === 2) ||
+                  this.state.smData === 3 ? (
                     <View style={styles.lastCard}>
                       <View style={styles.boxCard1}>
                         <Text style={styles.detailTitle}>Plant</Text>
@@ -3620,8 +3658,8 @@ console.log('checkvalues0000',SiteID,UserId,SearchCondition,TOKEN,iAuditId,iAudP
                     </View>
                   ) : null}
                   {(this.state.auditDetailList.AuditProgramName !== 'LPA' &&
-                    this.props.data.audits.smdata === 2) ||
-                  this.props.data.audits.smdata === 3 ? (
+                    this.state.smData === 2) ||
+                  this.state.smData === 3 ? (
                     <View style={styles.lastCard}>
                       <View style={styles.boxCard1}>
                         <Text style={styles.detailTitle}>Part</Text>
@@ -3638,8 +3676,8 @@ console.log('checkvalues0000',SiteID,UserId,SearchCondition,TOKEN,iAuditId,iAudP
                   ) : null}
 
                   {this.state.auditDetailList.AuditProgramName !== 'LPA' &&
-                  this.props.data.audits.smdata != 2 &&
-                  this.props.data.audits.smdata != 3 ? (
+                  this.state.smData != 2 &&
+                  this.state.smData != 3 ? (
                     <View style={styles.lastCard}>
                       <View style={styles.boxCard1}>
                         <Text style={styles.detailTitle}>Trainee Auditor</Text>
@@ -3654,8 +3692,8 @@ console.log('checkvalues0000',SiteID,UserId,SearchCondition,TOKEN,iAuditId,iAudP
                     </View>
                   ) : null}
                   {this.state.auditDetailList.AuditProgramName !== 'LPA' &&
-                  this.props.data.audits.smdata != 2 &&
-                  this.props.data.audits.smdata != 3 ? (
+                  this.state.smData != 2 &&
+                  this.state.smData != 3 ? (
                     <View style={styles.lastCard}>
                       <View style={styles.boxCard1}>
                         <Text style={styles.detailTitle}>
@@ -3671,8 +3709,8 @@ console.log('checkvalues0000',SiteID,UserId,SearchCondition,TOKEN,iAuditId,iAudP
                       </View>
                     </View>
                   ) : null}
-                  {this.props.data.audits.smdata != 2 &&
-                  this.props.data.audits.smdata != 3 &&
+                  {this.state.smData != 2 &&
+                  this.state.smData != 3 &&
                   this.state.AuditProp.ReportId != 10 &&
                   this.state.auditDetailList.AuditProgramName !== 'LPA' ? (
                     <View style={styles.lastCard}>
@@ -4147,6 +4185,8 @@ const mapDispatchToProps = dispatch => {
       dispatch({type: 'STORE_NCOFI_RECORDS', ncofiRecords}),
     updateRecentAuditList: recentAudits =>
       dispatch({type: 'UPDATE_RECENT_AUDIT_LIST', recentAudits}),
+    storeSupplierData: smdata =>
+      dispatch({type: 'STORE_SUPPLIER_DATA', smdata}),
   };
 };
 

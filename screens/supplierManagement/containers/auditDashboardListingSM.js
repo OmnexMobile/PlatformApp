@@ -63,8 +63,12 @@ class AuditDashboardListing extends Component {
     LogBox.ignoreLogs(["componentWillReceiveProps has been renamed"])
         // this.currentUserData = this.props?.route?.params?.currentUserData;
     console.log('checkfilterID--------------------',this.props?.route?.params?.filterId);
+    console.log('checkfilterID--------------------smmdata',this.props);
+
     var filterIDasync = await AsyncStorage.getItem('FILTERIDLIST'); 
-    var SMDATA = await AsyncStorage.getItem('supplierIndex'); 
+    var SMDATAraw = await AsyncStorage.getItem('supplierIndex'); 
+    var SMDATA = SMDATAraw ? JSON.parse(SMDATAraw) : null;
+    console.log('checkingsmdatvalllll', SMDATA);
    
     if (this.props.data.audits.language === 'Chinese') {
       this.setState({ChineseScript: true}, () => {
@@ -208,6 +212,7 @@ class AuditDashboardListing extends Component {
             index={index}
             length={this.state.auditList.length + 1}
             naviData={this.props.navigation}
+            smData={this.state.SM}
           />
         
         )}
@@ -403,6 +408,8 @@ class AuditDashboardListing extends Component {
       auditInfo['color'] = '#1081de';
       auditInfo['cStatus'] = constant.StatusScheduled;
       auditInfo['key'] = this.keyVal + 1;
+      // ensure downstream screens receive consistent id shape
+      auditInfo['AuditId'] = audits[i]?.ActualAuditId || audits[i]?.AuditId;
 
       // Set Audit Status
 

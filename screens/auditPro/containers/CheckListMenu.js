@@ -63,6 +63,10 @@ class CheckListMenu extends Component {
           this.LongTask();
         }
       );
+
+    const currentSupplier = this.props.data.audits.smdata;
+
+    console.log('consolenavigationparamscheccklistmemu', currentSupplier);
   }
 
   componentWillReceiveProps() {

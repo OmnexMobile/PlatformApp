@@ -11,6 +11,7 @@ const LoginInput = ({ placeholder = '', name = '', onChangeText, editable = true
     const [isFocused, setIsFocused] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const isPassword = type === 'password';
+    const [value, setValue] = useState('');
 
     return (
         <View
@@ -26,12 +27,18 @@ const LoginInput = ({ placeholder = '', name = '', onChangeText, editable = true
                     editable,
                     placeholder,
                     onChangeText,
+                    placeholderTextColor: COLORS.grey,
+                    selectionColor: COLORS.black,
+                    keyboardAppearance: 'light',
                     autoCapitalize: false,
                     ...(isPassword && { secureTextEntry: !showPassword }),
-                    style: styles.input,
+                    style: [styles.input, value ? styles.inputFilled : null],
                     onFocus: () => setIsFocused(true),
                     onBlur: () => setIsFocused(false),
-                    onChangeText: text => onChangeText?.(name, text),
+                    onChangeText: text => {
+                        setValue(text);
+                        onChangeText?.(name, text);
+                    },
                     ...rest,
                 }}
             />
@@ -62,6 +69,11 @@ const styles = StyleSheet.create({
         fontFamily: 'ProximaNova-Regular',
         fontSize: FONT_SIZE.LARGE,
         flex: 1,
-        color: COLORS.themeBlack,
+        color: COLORS.black,
+        fontWeight: '400',
+    },
+    inputFilled: {
+        fontFamily: 'ProximaNova-Semibold',
+        fontWeight: '600',
     },
 });
