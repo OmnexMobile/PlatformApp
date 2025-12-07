@@ -758,13 +758,13 @@ const styles = StyleSheet.create({
         marginBottom: SPACING.NORMAL,
     },
     sectionTitle: {
-        fontFamily: 'ProximaNova-Bold',
+        fontFamily: 'OpenSans-Bold',
         fontSize: FONT_SIZE.X_LARGE,
         color: COLORS.black,
         marginBottom: SPACING.SMALL,
     },
     headerTitleGroup: {
-        fontFamily: 'ProximaNova-Bold',
+        fontFamily: 'OpenSens-Bold',
         fontSize: FONT_SIZE.NORMAL,
         color: COLORS.black,
         paddingVertical: SPACING.SMALL,

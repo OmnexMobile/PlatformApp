@@ -1294,6 +1294,7 @@ class AuditForm extends Component {
       },
       () => {
         console.log('Document Successfully Sequence Completed');
+        this.props.navigation.goBack();
       },
     );
   }
@@ -1816,10 +1817,11 @@ reDirect = () => {
                // ElementID: dataArr[i].Pending[j].selectedItems
                //   ? dataArr[i].Pending[j].selectedItems.join(',')
                //   : 0,
-               ResponsibilityUser: dataArr[i].Pending[j].userDrop.id,
-               // dataArr[i].Pending[j].userDrop
-               //   ? dataArr[i].Pending[j].userDrop.id
-               //   : 0,
+               ResponsibilityUser:
+                 dataArr[i].Pending[j].userDrop &&
+                 dataArr[i].Pending[j].userDrop.id
+                   ? dataArr[i].Pending[j].userDrop.id
+                   : 0,
                NCIdentifier:
                  dataArr[i].Pending[j].ncIdentifier === undefined
                    ? ''

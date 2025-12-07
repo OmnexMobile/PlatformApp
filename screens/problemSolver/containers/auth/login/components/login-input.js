@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
         fontWeight: '400',
     },
     inputFilled: {
-        fontFamily: 'ProximaNova-Semibold',
+        fontFamily: 'OpenSens-Semibold',
         fontWeight: '600',
     },
 });

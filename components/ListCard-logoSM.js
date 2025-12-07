@@ -12,6 +12,7 @@ import IconComponent from './icon-component';
 import TextComponent from './text';
 import { IMAGES } from 'assets/images';
 import ImageComponent from './image-component';
+import AsyncStorage from '@react-native-async-storage/async-storage';  
 // import Tag from './tag';
 
 const ListCardLogoSM = ({ item = {} }) => {
@@ -21,9 +22,21 @@ const ListCardLogoSM = ({ item = {} }) => {
     const navigation = useNavigation();
     console.log('ListCardLogoSMitem in list card logo------->>>', item);
 
-    const handleClickCard = item => {
-        if (['AuditPro', 'Supplier Initial Assessment', 'Supplier Routine Audit'].includes(item.Module_name)) {
-            navigation.navigate(ROUTES.AUDIT_PAGE_SM, {
+    const handleClickCard = async item => {
+        console.log('checckitemmmmm',item);
+
+        if(item?.Module_name==='Supplier Initial Assessment' || item?.Module_name==='Supplier Routine Audit'){
+            if(item?.Module_name==='Supplier Initial Assessment'){
+            await AsyncStorage.setItem('supplierIndex', JSON.stringify(2));
+            }else if(item?.Module_name==='Supplier Routine Audit'){
+            await AsyncStorage.setItem('supplierIndex', JSON.stringify(3));
+            }
+             navigation.navigate(ROUTES.AUDIT_PAGE_SM, {
+                screenFrom: 'Dashboard',
+                datapass: item,
+            });
+        }else if(item?.Module_name === 'Audit Pro') {
+            navigation.navigate(ROUTES.AUDIT_PAGE, {
                 screenFrom: 'Dashboard',
                 datapass: item,
             });

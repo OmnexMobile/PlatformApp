@@ -1479,6 +1479,8 @@ class AuditPage extends Component {
                 },
                 () => {
                   this._getLocalValues(this.state.auditDetailList);
+                  console.log('auditdetails......',this.state.auditDetailList);
+                  
                 },
               );
             }
@@ -3548,7 +3550,8 @@ console.log('checkvalues0000',SiteID,UserId,SearchCondition,TOKEN,iAuditId,iAudP
                       </Text>
                     </View>
                     <View style={styles.boxCard2}>
-                    {this.displayStatusNew(this.props.route.params.datapass?.cStatus)}                                         
+                    {this.props.route.params.screenFrom == "Dashboard" ? this.displayStatusNew(this.props.route.params.datapass?.AuditStatus) :
+                    this.displayStatusNew(this.props.route.params.datapass?.cStatus)}                                         
                     </View>
                   </View>
 

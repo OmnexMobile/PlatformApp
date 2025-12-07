@@ -66,7 +66,7 @@ class CheckListMenu extends Component {
 
     const currentSupplier = this.props.data.audits.smdata;
 
-    console.log('consolenavigationparamscheccklistmemu', currentSupplier);
+    console.log('consolenavigationparamscheccklistmemu', this.props);
   }
 
   componentWillReceiveProps() {

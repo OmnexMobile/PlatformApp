@@ -58,9 +58,9 @@ export const HomeListComponentApqp = ({ title, data, loading, statusCode, hideSe
             ) : data?.length > 0 ? (
                 <>
                     {data.map((item, index) =>
-                        // ['AuditPro', 'Supplier Initial Assessment', 'Supplier Routine Audit'].includes(item.Module_name) ? (
-                        //     <ListCardLogoSM key={index} item={item} handleRecentActivity={handleRecentActivity} />
-                        // ) :
+                        ['AuditPro', 'Supplier Initial Assessment', 'Supplier Routine Audit'].includes(item.Module_name) ? (
+                            <ListCardLogoSM key={index} item={item} handleRecentActivity={handleRecentActivity} />
+                        ) :
                        
                         currentName === 'Azhalle Anna   ' ? (
                             <ListCardLogoApqp key={index} item={item} handleRecentActivity={handleRecentActivity} statusCode={statusCode} />
