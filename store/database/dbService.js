@@ -1,8 +1,8 @@
 import { successMessage } from 'helpers/utils';
 import SQLite from 'react-native-sqlite-storage';
- 
+
 SQLite.enablePromise(true);
- 
+
 export const getDBConnection = async () => {
     try {
         const db = await SQLite.openDatabase({
@@ -16,4 +16,3 @@ export const getDBConnection = async () => {
         throw Error('SQLite DB connection failed');
     }
 };
- 

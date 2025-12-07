@@ -7,6 +7,7 @@ import moment from 'moment';
 import { TouchableOpacity } from 'react-native';
 import InputFilePicker from './inprocess-inspection/InputFilePicker';
 import ListRadioButton from './inprocess-inspection/ListRadioButton';
+import AutoSizingTextInput from './AutoSizingTextInput';
 
 const DynamicFormField = ({
     fieldType = '',
@@ -137,6 +138,14 @@ const DynamicFormField = ({
                         }}
                         title={DisplayName}
                     />
+                </View>
+            );
+        case 'textarea':
+        case 'Textarea':
+        case 'TextArea':
+            return (
+                <View style={{ marginTop: 8 }}>
+                    <AutoSizingTextInput isEditable={isEditable} value={value || ''} handleChange={val => handleChange(val)} placeholder={placeHolder}/>
                 </View>
             );
         default:

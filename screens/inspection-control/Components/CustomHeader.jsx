@@ -68,7 +68,7 @@ const CustomHeader = ({
     handleClosePress = () => {},
     customBackHandler = false,
     customHandleGoBack = () => {},
-    handleMultiSearch=()=>{}
+    handleMultiSearch = () => {},
 }) => {
     const { icSettings } = useSelector(state => state.inspection);
     const insets = useSafeAreaInsets();
@@ -145,6 +145,11 @@ const CustomHeader = ({
     };
     return (
         <SafeAreaView style={[styles.container]}>
+            <View
+                style={{
+                    paddingTop: insets.top, // status bar height
+                }}
+            />
             <View style={[styles.headerBox]}>
                 <TouchableOpacity
                     onPress={() => {

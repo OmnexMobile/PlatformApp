@@ -59,7 +59,7 @@ const TextAreaWithLabel = ({
                         style: {
                             padding: SPACING.SMALL,
                             fontSize: FONT_SIZE.LARGE,
-                            fontFamily: 'ProximaNova-Regular',
+                            fontFamily: 'OpenSans-Regular',
                             color: theme.mode.textColor,
                             height: numberOfLines * 20, // Adjust height based on number of lines
                             textAlignVertical: 'top', // Start text from the top for textarea look

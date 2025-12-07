@@ -10,6 +10,7 @@ import { getUniqueId } from 'react-native-device-info';
 import localStorage from 'global/localStorage';
 import AsyncStorage from '@react-native-community/async-storage';
 import { GLOBALSERVER_URL } from 'screens/globalConstant/globalURL';
+import { useDispatch } from 'react-redux';
 
 const menus = [];
 const versionDetails = {
@@ -19,6 +20,7 @@ const versionDetails = {
 };
 
 const LogoutFunctional = () => {
+    const dispatch = useDispatch();
     console.log('reach ProfileHomeFunctional')
     const [loading, setLoading] = useState(false);
     const [isActive, setIsActive] = useState(false);
@@ -51,6 +53,7 @@ const LogoutFunctional = () => {
     const handleLogoutFun = async () => {
       setLoading(true);
 			handleLogout();
+			dispatch({ type: 'RESET_TO_INITIAL' });
 			successMessage({ message: 'Success', description: 'Successfully Logged Out' });
 			localStorage.storeData('appLogged', false);
 			await AsyncStorage.removeItem('userDetails');

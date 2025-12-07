@@ -64,7 +64,7 @@ const NumberInputWithLabel = ({
                             padding: 0,
                             paddingVertical: SPACING.SMALL,
                             fontSize: FONT_SIZE.LARGE,
-                            fontFamily: 'ProximaNova-Regular',
+                            fontFamily: 'OpenSans-Regular',
                             color: theme.mode.textColor,
                             ...inputStyle,
                         },

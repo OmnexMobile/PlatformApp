@@ -88,12 +88,12 @@ const styles = StyleSheet.create({
     },
     placeholderStyle: {
         fontSize: FONT_SIZE.LARGE,
-        fontFamily: 'ProximaNova-Regular',
+        fontFamily: 'OpenSans-Regular',
         color: COLORS.searchText,
     },
     selectedTextStyle: {
         fontSize: FONT_SIZE.LARGE,
-        fontFamily: 'ProximaNova-Regular',
+        fontFamily: 'OpenSans-Regular',
         // color: COLORS.themeBlack,
     },
     iconStyle: {

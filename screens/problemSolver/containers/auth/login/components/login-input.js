@@ -66,7 +66,7 @@ const styles = StyleSheet.create({
         height: 50,
     },
     input: {
-        fontFamily: 'ProximaNova-Regular',
+        fontFamily: 'OpenSans-Regular',
         fontSize: FONT_SIZE.LARGE,
         flex: 1,
         color: COLORS.black,

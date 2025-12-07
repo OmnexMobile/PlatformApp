@@ -284,7 +284,7 @@ const WrapperDropDown = ({ input, onChange, dropdownData, setSelectedData, selec
                             value={newValue}
                             style={{
                                 fontSize: FONT_SIZE.LARGE,
-                                fontFamily: 'ProximaNova-Regular',
+                                fontFamily: 'OpenSans-Regular',
                                 color: theme.mode.textColor,
                                 borderWidth: 1,
                                 borderColor: theme.mode.borderColor,
@@ -342,7 +342,7 @@ const WrapperDropDown = ({ input, onChange, dropdownData, setSelectedData, selec
                             value={newValue}
                             style={{
                                 fontSize: FONT_SIZE.LARGE,
-                                fontFamily: 'ProximaNova-Regular',
+                                fontFamily: 'OpenSans-Regular',
                                 color: theme.mode.textColor,
                                 borderWidth: 1,
                                 borderColor: theme.mode.borderColor,

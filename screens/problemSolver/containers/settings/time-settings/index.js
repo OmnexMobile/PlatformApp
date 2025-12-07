@@ -5,12 +5,15 @@ import useTheme from 'theme/useTheme';
 import { SPACING } from 'constants/theme-constants';
 import { successMessage } from 'helpers/utils';
 import { useAppContext } from 'contexts/app-context';
+import { useDispatch } from 'react-redux';
 
 const TimeSettings = ({ }) => {
   const { theme } = useTheme();
   const { handleAppSetting, timeSettings } = useAppContext();
+    const dispatch = useDispatch();
 
   const handleFormatSelection = (format) => {
+    dispatch({ type: 'DATE_FORMAT', dateFormat: format });
     handleAppSetting('timeSettings', format);
     successMessage({ message: 'Success', description: 'Time format updated successfully' });
   };
