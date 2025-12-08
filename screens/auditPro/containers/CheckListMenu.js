@@ -63,10 +63,6 @@ class CheckListMenu extends Component {
           this.LongTask();
         }
       );
-
-    const currentSupplier = this.props.data.audits.smdata;
-
-    console.log('consolenavigationparamscheccklistmemu', this.props);
   }
 
   componentWillReceiveProps() {
@@ -92,9 +88,12 @@ class CheckListMenu extends Component {
       });
     }
 
-    var allData = this.props.data.audits.auditRecords;
+    var allData = this.props.data.audits.auditRecords || [];
     console.log('alDataConsole', allData);
-    var AuditID = this.props?.route?.params?.AuditID;
+    var AuditID =
+      this.props?.route?.params?.AuditID ||
+      this.props?.route?.params?.Checkpass?.AuditID ||
+      this.props?.route?.params?.Checkpass?.AuditId;
     var PropsData = [];
     var checklistData = [];
     var parentData = [];
@@ -106,9 +105,9 @@ class CheckListMenu extends Component {
     var AuditProgramId = undefined;
     console.log('CheckListMenu>-AuditID', AuditID);
     var ListData = undefined;
-    if (allData) {
+    if (allData && allData.length) {
       for (var i = 0; i < allData.length; i++) {
-        if (AuditID === allData[i].AuditId) {
+        if (String(AuditID) == String(allData[i].AuditId)) {
           console.log('CheckListMenu>-allData[i]', AuditID, allData[i]);
           PropsData = [...allData[i].CheckListPropData];
           ListData = allData[i].Listdata;
@@ -117,7 +116,15 @@ class CheckListMenu extends Component {
         }
       }
     }
-    this.countStatistics(ListData);
+    if (ListData) {
+      this.countStatistics(ListData);
+    } else {
+      this.setState({
+        mandatoryCheck: 0,
+        totalCheck: 0,
+        optionalCheck: 0,
+      });
+    }
 
     if (PropsData.length > 0) {
       for (var i = 0; i < PropsData.length; i++) {
@@ -149,6 +156,20 @@ class CheckListMenu extends Component {
         displayData.push(checklistData[j]);
       }
     }
+
+    // Fallback: if nothing matched, try all checklist entries for this formId
+    if (displayData.length === 0 && PropsData.length > 0) {
+      console.log(
+        '[CheckListMenu] No checklist data matched filters, using fallback for form',
+        formId,
+      );
+      const fallback = PropsData.filter(
+        item =>
+          item?.FormId && parseInt(item.FormId) === parseInt(formId),
+      );
+      displayData = fallback.length > 0 ? fallback : PropsData;
+    }
+
     console.log(displayData, 'DisplayData===>');
     this.setState(
       {
@@ -166,6 +187,7 @@ class CheckListMenu extends Component {
         pageLoader: false,
         AuditOrder: AuditOrder,
         AuditProgramId: AuditProgramId,
+        TemplateID: displayData?.[0]?.TemplateID,
       },
       () => {
         console.log('display data', this.state.CheckpointP);
@@ -178,7 +200,7 @@ class CheckListMenu extends Component {
     console.log('current app--->', CurrentApp)
     if(CurrentApp == 'Supplier Management') {
       console.log('Reach if case--->')
-      this.props.navigation.navigate(ROUTES.CHECKPOINT_DEMO_SM, {
+      this.props.navigation.navigate(ROUTES.CHECKPOINT_DEMO, {
         AuditID: this.state.AuditID,
         ChecklistTemplateId: ChecklistTemplateId,
         Check: this.state.CheckpointP,
@@ -187,7 +209,7 @@ class CheckListMenu extends Component {
         breadCrumbText: this.state.breadCrumbText,
         AuditOrder: this.state.AuditOrder,
         AuditProgramId: this.state.AuditProgramId,
-        TemplateID: this.state.displayData[0].TemplateID,
+        TemplateID: this.state.displayData?.[0]?.TemplateID,
         FormIdNavigate:
           this.props?.route?.params?.ChecklistHeading?.FormId,
         notifyRed: this.props?.route?.params?.notifyRed,
@@ -203,7 +225,7 @@ class CheckListMenu extends Component {
         breadCrumbText: this.state.breadCrumbText,
         AuditOrder: this.state.AuditOrder,
         AuditProgramId: this.state.AuditProgramId,
-        TemplateID: this.state.displayData[0].TemplateID,
+        TemplateID: this.state.displayData?.[0]?.TemplateID,
         FormIdNavigate:
           this.props?.route?.params?.ChecklistHeading?.FormId,
         notifyRed: this.props?.route?.params?.notifyRed,

@@ -175,7 +175,7 @@ class NCOFIPage extends Component {
         console.log('Chinese script off', this.state.ChineseScript);
       });
     }
-    console.log('Redux store...audtipro', this.props.data.audits);
+    console.log('Redux store...', this.props.data.audits);
     console.log('NCOFI mounted', this.props?.route?.params);
     this.setState(
       {

@@ -32,6 +32,7 @@ import AuditLaunchScreen from 'screens/auditPro/containers/LaunchScreen';
 import AuditCard from 'screens/auditPro/components/AuditCard'
 // import CameraCapture from 'screens/auditPro/containers/CameraCaptureIos';
 // import VideoCapture from 'screens/auditPro/containers/VideoCapture';
+import CheckListMenuSM from 'screens/auditPro/containers/CheckListMenuSM';
 import CheckListMenu from 'screens/auditPro/containers/CheckListMenu';
 import CheckPointDemo from 'screens/auditPro/containers/CheckPointDemo'
 import AuditStatus from 'screens/auditPro/containers/AuditStatus';
@@ -326,6 +327,11 @@ export const AppStackData = [
     {
         name: ROUTES.USER_PREFERENCE,
         component: UserPreference,
+        cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
+    },
+    {
+        name: ROUTES.CHECKLIST_MENU_SM,
+        component: CheckListMenuSM,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {

@@ -1,44 +1,40 @@
-import React from 'react';
-import { 
-  Platform,
-  KeyboardAvoidingView,
-  ScrollView,
-  StyleSheet
-} from 'react-native';
-import Fonts from '../Themes/Fonts';
-import { RichEditor} from 'react-native-pell-rich-editor';
+import React, { useMemo } from 'react';
+import { View, useWindowDimensions } from 'react-native';
+import RenderHtml from 'react-native-render-html';
 
+const RichText = ({ content }) => {
+  const { width } = useWindowDimensions();
 
-const RichText = ({content,height}) => {
-console.log('RichText', content , 'height', height) 
+  const cleaned = useMemo(() => {
+    const html = content || '';
+    return html
+      .replace(/<p>(\s|&nbsp;)*<\/p>/gi, '')
+      .replace(/(<br\s*\/?>)+$/gi, '')
+      .replace(/\s+$/, '');
+  }, [content]);
 
-const rtf = React.useRef();
-  return <ScrollView>
-          {/* <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            style={{flex: 1}}> */}
-            <RichEditor
-              ref={rtf}             
-              initialContentHTML={content}
-              initialHeight={height == undefined ? 200 : height}
-              disabled={true}       
-              style={styles.quesText}    
-              useContainer={true}  
-            />
-          {/* </KeyboardAvoidingView> */}
-        </ScrollView>
+  const tagsStyles = useMemo(
+    () => ({
+      body: { fontSize: 14,fontcolor: '#000' },
+      p: { marginTop: 0, marginBottom: 8 },
+      ul: { marginTop: 4, marginBottom: 8, paddingLeft: 18 },
+      li: { marginBottom: 6 },
+      strong: { fontWeight: '700' },
+      u: { textDecorationLine: 'underline' },
+    }),
+    []
+  );
+
+  return (
+    <View style={{ width: '100%', paddingHorizontal: 5 }}>
+      <RenderHtml
+        contentWidth={width}
+        source={{ html: cleaned }}
+        tagsStyles={tagsStyles}
+        defaultTextProps={{ selectable: false }}
+        />
+      </View>
+  );
 };
 
 export default RichText;
-
-const styles = StyleSheet.create({
-  quesText: {
-    fontSize: Fonts.size.mediump,
-    width: '100%',
-    color: 'black',
-    fontFamily:'OpenSans-Regular',
-    padding: 5,
-    marginTop: 5
-    // backgroundColor:'yellow',
-  },
-})

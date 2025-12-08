@@ -25,7 +25,7 @@ export const HomeListComponentApqp = ({ title, data, loading, statusCode, hideSe
                 {data?.length && !hideSeeAll ? (
                     <TouchableOpacity
                         onPress={() => {
-                            if (currentName === 'Dhanapal Swetha   ') {
+                            if (currentName === 'Dhanapal Swetha   ' || 'One Auditor  ') {
                                 navigation.navigate(ROUTES.HOME_LIST_PS, {
                                     [APP_VARIABLES.DASHBOARD_CONCERNS]: statusCode,
                                     title,

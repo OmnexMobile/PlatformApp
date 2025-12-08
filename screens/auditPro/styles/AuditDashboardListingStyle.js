@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native'
 import { width } from 'react-native-dimension'
-import { Fonts } from '../Themes'
+import {Fonts, Metrics, Colors} from '../Themes/Fonts'
 
 export default StyleSheet.create({
     wrapper: {
@@ -35,11 +35,10 @@ export default StyleSheet.create({
     backlogo:{
         flexDirection: 'row',
         backgroundColor:'transparent',
-        width: width(10),
+        width: width(15),
         height: 65,
         justifyContent: 'center', 
-        alignItems:'center',
-        paddingRight: 10,
+        alignItems:'center'
     },
     heading:{
         flexDirection: 'column',
@@ -49,7 +48,7 @@ export default StyleSheet.create({
         height: 65
     },
     headingText:{
-        fontSize: Fonts.size.h6,
+        fontSize: 18,
         color: '#fff',
         textAlign: 'center',
         // fontWeight:'bold'

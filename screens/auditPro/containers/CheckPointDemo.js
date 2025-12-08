@@ -16,6 +16,7 @@ import {
   LogBox,
   SafeAreaView,
   Button,
+  DeviceEventEmitter
 } from 'react-native';
 import styles from '../styles/CheckPointScreenPOCStyles';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -31,13 +32,13 @@ import RadioForm, {
   RadioButtonLabel,
 } from 'react-native-simple-radio-button';
 import {connect} from 'react-redux';
-import auth from '../../../services/Auditpro-Auth';
 import DocumentPicker from 'react-native-document-picker';
 import RNFetchBlob from 'react-native-fetch-blob';
 import {Dropdown} from 'react-native-material-dropdown';
 import Toast, {DURATION} from 'react-native-easy-toast';
 import {Bubbles, DoubleBounce, Bars, Pulse} from 'react-native-loader';
 import ResponsiveImage from 'react-native-responsive-image';
+import { persistAuditSummarySnapshot } from '../../../services/AuditSummarySnapshot';
 import Modal from 'react-native-modal';
 import {ConfirmDialog} from 'react-native-simple-dialogs';
 // import Slider from 'react-native-slider'
@@ -53,8 +54,6 @@ import {forEach, slice} from 'lodash';
 import moment from 'moment';
 import Video from 'react-native-video';
 import FileViewer from 'react-native-file-viewer';
-import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
-import RichText from '../components/RichText';
 import {
   Image as compressImage,
   Video as compressVideo,
@@ -68,7 +67,7 @@ import { RichEditor} from 'react-native-pell-rich-editor';
 import { ROUTES } from 'constants/app-constant';
 import { SPACING } from 'constants/theme-constants';
 import { RFPercentage } from 'helpers/utils';
-
+import RichText from '../components/RichText';
 const Width = Dimensions.get('window').width;
 const Colors = {
   0: 'red',
@@ -91,10 +90,12 @@ const toastConfig = {
   ),
 };
 
+
+
 class CheckPointDemo extends Component {
+  // Sets initial state for checkpoint flow and UI flags
   constructor(props) {
     super(props);
-    console.log('get this.props--->', props)
     this.state = {
       radiovalue: [],
       checkpointList: [],
@@ -145,6 +146,8 @@ class CheckPointDemo extends Component {
       cAttachType: '',
       ncRemovalTemplateId: 0,
       scorevalue: 1,
+      radioResetKey: 0,
+      checkpointRevision: 0,
       ActiveId: 0,
       go_home: false,
       AuditOrder: undefined,
@@ -187,19 +190,136 @@ class CheckPointDemo extends Component {
       selectedItem: '',
       failureloaded: false,
       radiovalueloaded: false,
-      ReportId:'',
-      currentUserData: [],
+      ReportId: '',
+      screenWidth: Dimensions.get('window').width,
+      isPickingAttachment: false,
+      activeSlide: 0,
+
     };
   }
 
+  // Tracks how many checkpoints have been processed at each stage
+  ncofiBaseline = [];
+  logTotalCount = (stage, details) => {
+    try {
+      if (details === undefined) {
+        console.log(`[CheckPointDemo] ${stage}`);
+      } else {
+        console.log(`[CheckPointDemo] ${stage}`, details);
+      }
+    } catch (error) {
+      console.log('[CheckPointDemo] log error', error);
+    }
+  };
+
+  summarizeNcRecords = records => {
+    if (!Array.isArray(records)) {
+      return { totalRecords: 0, uploadedItems: 0, pendingItems: 0 };
+    }
+    let uploadedItems = 0;
+    let pendingItems = 0;
+    records.forEach(record => {
+      uploadedItems += Array.isArray(record?.Uploaded)
+        ? record.Uploaded.length
+        : 0;
+      pendingItems += Array.isArray(record?.Pending)
+        ? record.Pending.length
+        : 0;
+    });
+    return {
+      totalRecords: records.length,
+      uploadedItems,
+      pendingItems,
+    };
+  };
+
+  cloneNcofiRecords = records => {
+    if (!records) return [];
+    try {
+      return JSON.parse(JSON.stringify(records));
+    } catch (error) {
+      console.log('CheckPointDemo clone error', error);
+      return [];
+    }
+  };
+
+  captureNcofiBaseline = async (auditIdOverride = null) => {
+    const records = this.cloneNcofiRecords(
+      this.props?.data?.audits?.ncofiRecords,
+    );
+    this.ncofiBaseline = records;
+    const targetAuditId =
+      auditIdOverride ??
+      this.state.auditId ??
+      this.props?.navigation?.state?.params?.AuditID;
+    if (targetAuditId) {
+      this.logTotalCount('captureBaseline:persist:start', {
+        auditId: targetAuditId,
+        summary: this.summarizeNcRecords(records),
+      });
+      await persistAuditSummarySnapshot(records, targetAuditId);
+      this.logTotalCount('captureBaseline:persist:complete', {
+        auditId: targetAuditId,
+        summary: this.summarizeNcRecords(records),
+      });
+    }
+  };
+
+  restoreBaselineNCOFI = async () => {
+    if (!Array.isArray(this.ncofiBaseline)) {
+      return;
+    }
+    const baseline = this.cloneNcofiRecords(this.ncofiBaseline);
+    this.props.storeNCRecords(baseline);
+    this.ncofiBaseline = this.cloneNcofiRecords(baseline);
+    if (this.state.auditId) {
+      this.logTotalCount('restoreBaseline:persist:start', {
+        auditId: this.state.auditId,
+        summary: this.summarizeNcRecords(baseline),
+      });
+      await persistAuditSummarySnapshot(baseline, this.state.auditId);
+      this.logTotalCount('restoreBaseline:persist:complete', {
+        auditId: this.state.auditId,
+        summary: this.summarizeNcRecords(baseline),
+      });
+    }
+  };
+
+  handleDiscardUnsavedChanges = async navigateHome => {
+    if (this.state.isUnsavedData) {
+      try {
+        await this.restoreBaselineNCOFI();
+      } catch (error) {
+        console.log('CheckPointDemo discard error', error);
+      }
+    }
+    this.setState(
+      {
+        dialogVisible: false,
+        dialogVisibleNC: false,
+        isUnsavedData: false,
+        go_home: false,
+      },
+      () => {
+        if (navigateHome) {
+          this.props.navigation.navigate('AuditDashboard');
+        } else {
+          this.props.navigation.goBack();
+        }
+      },
+    );
+  };
+
+  // Loads initial data and wiring once the screen mounts
   componentDidMount() {
+    Dimensions.addEventListener('change', this.handleOrientationChange);
     let Files =
       '/' +
       RNFetchBlob.fs.dirs.DocumentDir +
       '/' +
       (Platform.OS == 'ios' ? 'IosFiles' : 'AuditFiles');
     //console.log('Attachment:Ios-Android-Path', Files);
-    
+
     RNFetchBlob.fs.exists(Files).then(exist => {
       if (!exist || exist == '') {
         RNFetchBlob.fs
@@ -230,43 +350,58 @@ class CheckPointDemo extends Component {
     }
     this.LongTask();
     this.fetchData();
+    this.captureNcofiBaseline(
+      this.props?.navigation?.state?.params?.AuditID,
+    ).catch(error => console.log('capture baseline error', error));
     //console.log(this.state.checkPointsDetails, 'lostArr');
   }
 
-  async getAccessToken(){
-    try {
-      const stringifiedUserDetails = await AsyncStorage.getItem('userDetails');
-      const value = JSON.parse(stringifiedUserDetails);
-      console.log('current userdata--->', value)
-      if (value !== null) {
-        // value previously stored
-        console.log('current token2--->', value.accessToken)
-        this.setState({ currentUserData: value },()=>{
-          console.log('Token set')
-        })
-      }
-    } catch (e) {
-      // error reading value
-      console.log('error--->', e)
+  // Handles prop/state changes that need follow-up work
+  componentDidUpdate(prevProps, prevState) {
+    const prevRecords =
+      prevProps &&
+      prevProps.data &&
+      prevProps.data.audits &&
+      prevProps.data.audits.ncofiRecords;
+    const currentRecords =
+      this.props &&
+      this.props.data &&
+      this.props.data.audits &&
+      this.props.data.audits.ncofiRecords;
+
+    if (prevState.isUnsavedData && !this.state.isUnsavedData) {
+      this.captureNcofiBaseline().catch(error =>
+        console.log('capture baseline error', error),
+      );
+    } else if (!this.state.isUnsavedData && prevRecords !== currentRecords) {
+      this.captureNcofiBaseline().catch(error =>
+        console.log('capture baseline error', error),
+      );
     }
-  };
+  }
 
   fetchData = async () => {
     try {
       const ncofisettingvalue = await AsyncStorage.getItem('NCSettingValue');
-      //console.log(ncofisettingvalue, 'ncvalues');
       const ReportID = await AsyncStorage.getItem('ReportID');
 
       console.log(ReportID, 'ReportID123');
-      this.setState({
-        ncofisettingvalue: ncofisettingvalue,
-        ReportId:ReportID,
-        }, () => {console.log(ReportID, 'ReportID123')});
-      } catch {}
+
+      //console.log(ncofisettingvalue, 'ncvalues');
+      this.setState(
+        {
+          ncofisettingvalue: ncofisettingvalue,
+          ReportId: ReportID,
+        },
+        () => {
+          console.log(ReportID, 'ReportID123');
+        },
+      );
+    } catch {}
   };
 
-  async LongTask() {
-    await this.getAccessToken()
+  // Defers heavy work until after interactions are finished
+  LongTask() {
     console.log('Load: AuditRecords', this.props.data.audits.auditRecords);
     //console.log('consolenavigationparams', this.props.navigation.state.params);
     console.log(
@@ -293,16 +428,30 @@ class CheckPointDemo extends Component {
     this.props.storeCameraCapture(cameraCapture);
 
     //console.log('Loading checkpoints...', this.props.navigation.state.params);
+    const auditIdParam =
+      this.props?.route?.params?.AuditID ||
+      this.props?.route?.params?.Check?.AuditID ||
+      this.props?.data?.audits?.auditRecords?.[0]?.AuditId;
+    const templateIdParam =
+      this.props?.route?.params?.ChecklistTemplateId ??
+      this.props?.route?.params?.ChecklistHeading?.ChecklistTemplateId ??
+      this.props?.route?.params?.CheckPointname?.[0]?.ChecklistTemplateId;
+    const formIdNavigate =
+      this.props?.route?.params?.FormIdNavigate ??
+      this.props?.route?.params?.FormId ??
+      this.props?.route?.params?.ChecklistHeading?.FormId;
+
     this.setState(
       {
         isContentLoaded: true,
-        ChecklistTemplateId: this.props?.route?.params?.ChecklistTemplateId,
-        auditId: this.props?.route?.params?.AuditID,
+        ChecklistTemplateId: templateIdParam,
+        auditId: auditIdParam,
         clauseRecords: this.props.data.audits.auditRecords,
         displayData: this.props?.route?.params?.CheckPointname,
         // displayData: this.props?.route?.params?.CheckPointname.length > 30 ? this.props?.route?.params?.CheckPointname.slice(0, 20) + '...' : this.props?.route?.params?.CheckPointname,
         // breadCrumbText: this.props?.route?.params?.breadCrumbText.length > 30 ? this.props?.route?.params?.breadCrumbText.slice(0, 30) + '...' : this.props?.route?.params?.breadCrumbText
         breadCrumbText: this.props?.route?.params?.breadCrumbText,
+        FormIdNavigate: formIdNavigate,
       },
       () => {
         //console.log('Please wait...', this.state.breadCrumbText);
@@ -325,7 +474,7 @@ class CheckPointDemo extends Component {
         // console.log(
         //   'CheckPointDemo1>AuditRecords:Screen',
         //   auditRecords,
-        //   this.props?.route?.params?.FormIdNavigate,
+        //   this.props.navigation.state.params.Formid,
         // );
         // getting the particular checkpoint related to the checklist
 
@@ -339,12 +488,14 @@ class CheckPointDemo extends Component {
                 auditRecords?.[i]?.Listdata?.[j]?.ParentId,
                 auditRecords?.[i]?.Listdata?.[j]?.FormId,
               );
-              if (
-                this.state.ChecklistTemplateId ==
-                  auditRecords?.[i]?.Listdata?.[j]?.ParentId &&
-                this.props?.route?.params?.FormIdNavigate ==
-                  auditRecords?.[i]?.Listdata?.[j]?.FormId
-              ) {
+              const parentId = auditRecords?.[i]?.Listdata?.[j]?.ParentId;
+              const formId = auditRecords?.[i]?.Listdata?.[j]?.FormId;
+              const matchesTemplate =
+                String(this.state.ChecklistTemplateId) === String(parentId);
+              const matchesForm =
+                !this.state.FormIdNavigate ||
+                String(this.state.FormIdNavigate) === String(formId);
+              if (matchesTemplate && matchesForm) {
                 RelatedCheckpoints.push(auditRecords?.[i]?.Listdata[j]);
               }
             }
@@ -381,6 +532,34 @@ class CheckPointDemo extends Component {
         // );
         var dropdata = [];
         var lpaList = getLPA;
+
+        if (!checkPoints || checkPoints.length === 0) {
+          console.log('[CheckPointDemo] No checkpoints found for selection', {
+            auditId: this.state.auditId,
+            checklistTemplateId: this.state.ChecklistTemplateId,
+            formIdNavigate: this.state.FormIdNavigate,
+            listdataCount: auditRecords?.[0]?.Listdata?.length,
+          });
+          // Fallback: try all checkpoints with matching template id regardless of form id
+          const fallbackCheckpoints =
+            auditRecords
+              ?.find(ar => ar.AuditId == this.state.auditId)
+              ?.Listdata?.filter(
+                item =>
+                  String(item?.ParentId) ===
+                  String(this.state.ChecklistTemplateId),
+              ) || [];
+          if (fallbackCheckpoints.length > 0) {
+            checkPoints = fallbackCheckpoints;
+          } else {
+            this.setState({
+              checkpointList: [],
+              checkPointsDetails: [],
+              isContentLoaded: false,
+            });
+            return;
+          }
+        }
 
         if (lpaList) {
           for (var i = 0; i < lpaList.length; i++) {
@@ -476,8 +655,6 @@ class CheckPointDemo extends Component {
                 immediateAction: data[i].immediateAction.toString(),
                 Score: AuditCheckpointDetail?.[i]?.Score,
                 Scoretext: AuditCheckpointDetail?.[i]?.Scoretext,
-                // ScoreType : AuditCheckpointDetail?.[i]?.ScoreType,
-                // Status : AuditCheckpointDetail?.[i]?.Status,
                 IsComplete: AuditCheckpointDetail?.[i]?.IsComplete,
                 LPAValidation: data[i].LPAValidation,
                 Values: data[i].Values,
@@ -646,15 +823,14 @@ class CheckPointDemo extends Component {
                           MandatoryCount: checkPointList?.[j]?.MandatoryCount,
                           LPAValidation: checkPointList?.[j]?.LPAValidation,
                           Values: checkPointList?.[j]?.Values,
+                          Status: checkPointList?.[j]?.Status,
                           immediateAction: checkPointList?.[j]?.immediateAction,
                           ParentId: checkPoints?.[i]?.ParentId,
                           Score:
                             checkPoints?.[i]?.Score == 'N/A'
                               ? -1
                               : checkPoints?.[i]?.Score,
-                            Scoretext: checkPoints?.[i]?.Scoretext,
-                            // Score_Type: checkPoints?.[i]?.ScoreType,
-                            // AnsStatus: checkPointList?.[j]?.Status,
+                          Scoretext: checkPointList?.[j]?.Scoretext,
                           IsComplete: checkPoints?.[j].IsComplete,
                           // scoreTypesData: item.scoreTypesData,
                           // Score: checkPointList?.[j]?.scoreType == 1? parseInt(checkPointList?.[j]?.minScore) :((checkPoints[i].Score < 0) ? -1 :checkPoints?.[i]?.Score),
@@ -707,6 +883,7 @@ class CheckPointDemo extends Component {
                           MandatoryCount: checkPointList?.[j]?.MandatoryCount,
                           LPAValidation: checkPointList?.[j]?.LPAValidation,
                           Values: checkPointList?.[j]?.Values,
+                          Status: checkPointList?.[j]?.Status,
                           immediateAction: checkPointList?.[j]?.immediateAction,
                           ParentId: checkPoints?.[i]?.ParentId,
                           Score:
@@ -767,6 +944,7 @@ class CheckPointDemo extends Component {
                           MandatoryCount: checkPointList?.[j]?.MandatoryCount,
                           LPAValidation: checkPointList?.[j]?.LPAValidation,
                           Values: checkPointList?.[j]?.Values,
+                          Status: checkPointList?.[j]?.Status,
                           immediateAction: checkPointList?.[j]?.immediateAction,
                           ParentId: checkPoints?.[i]?.ParentId,
                           IsComplete: checkPoints?.[i].IsComplete,
@@ -830,6 +1008,7 @@ class CheckPointDemo extends Component {
                           MandatoryCount: checkPointList?.[j]?.MandatoryCount,
                           LPAValidation: checkPointList?.[j]?.LPAValidation,
                           Values: checkPointList?.[j]?.Values,
+                          Status: checkPointList?.[j]?.Status,
                           immediateAction: checkPointList?.[j]?.immediateAction,
                           ParentId: checkPoints?.[i]?.ParentId,
                           Score:
@@ -887,6 +1066,7 @@ class CheckPointDemo extends Component {
                           IsComplete: checkPointList?.[i].IsComplete,
                           LPAValidation: checkPointList?.[j]?.LPAValidation,
                           Values: checkPointList?.[j]?.Values,
+                          Status: checkPointList?.[j]?.Status,
                           immediateAction: checkPointList?.[j]?.immediateAction,
                           ParentId: checkPoints?.[i]?.ParentId,
                           Score:
@@ -942,6 +1122,7 @@ class CheckPointDemo extends Component {
                         IsComplete: checkPoints?.[i].IsComplete,
                         LPAValidation: checkPointList?.[j]?.LPAValidation,
                         Values: checkPointList?.[j]?.Values,
+                        Status: checkPointList?.[j]?.Status,
                         immediateAction: checkPointList?.[j]?.immediateAction,
                         ParentId: checkPoints?.[i]?.ParentId,
                         Score:
@@ -998,6 +1179,7 @@ class CheckPointDemo extends Component {
                           MandatoryCount: checkPointList?.[j]?.MandatoryCount,
                           LPAValidation: checkPointList?.[j]?.LPAValidation,
                           Values: checkPointList?.[j]?.Values,
+                          Status: checkPointList?.[j]?.Status,
                           immediateAction: checkPointList?.[j]?.immediateAction,
                           ParentId: checkPoints?.[i]?.ParentId,
                           Score:
@@ -1053,6 +1235,7 @@ class CheckPointDemo extends Component {
                           MandatoryCount: checkPointList?.[j]?.MandatoryCount,
                           LPAValidation: checkPointList?.[j]?.LPAValidation,
                           Values: checkPointList?.[j]?.Values,
+                          Status: checkPointList?.[j]?.Status,
                           immediateAction: checkPointList?.[j]?.immediateAction,
                           ParentId: checkPoints?.[i]?.ParentId,
                           Score:
@@ -1108,6 +1291,7 @@ class CheckPointDemo extends Component {
                           MandatoryCount: checkPointList?.[j]?.MandatoryCount,
                           LPAValidation: checkPointList?.[j]?.LPAValidation,
                           Values: checkPointList?.[j]?.Values,
+                          Status: checkPointList?.[j]?.Status,
                           immediateAction: checkPointList?.[j]?.immediateAction,
                           ParentId: checkPoints?.[i]?.ParentId,
                           Score:
@@ -1161,6 +1345,7 @@ class CheckPointDemo extends Component {
                           MandatoryCount: checkPointList?.[j]?.MandatoryCount,
                           LPAValidation: checkPointList?.[j]?.LPAValidation,
                           Values: checkPointList?.[j]?.Values,
+                          Status: checkPointList?.[j]?.Status,
                           immediateAction: checkPointList?.[j]?.immediateAction,
                           ParentId: checkPoints?.[i]?.ParentId,
                           Score:
@@ -1216,6 +1401,7 @@ class CheckPointDemo extends Component {
                           MandatoryCount: checkPointList?.[j]?.MandatoryCount,
                           LPAValidation: checkPointList?.[j]?.LPAValidation,
                           Values: checkPointList?.[j]?.Values,
+                          Status: checkPointList?.[j]?.Status,
                           immediateAction: checkPointList?.[j]?.immediateAction,
                           ParentId: checkPoints?.[i]?.ParentId,
                           Score:
@@ -1270,6 +1456,7 @@ class CheckPointDemo extends Component {
                         MandatoryCount: checkPointList?.[j]?.MandatoryCount,
                         LPAValidation: checkPointList?.[j]?.LPAValidation,
                         Values: checkPointList?.[j]?.Values,
+                        Status: checkPointList?.[j]?.Status,
                         immediateAction: checkPointList?.[j]?.immediateAction,
                         ParentId: checkPoints?.[i]?.ParentId,
                         Score:
@@ -1334,6 +1521,7 @@ class CheckPointDemo extends Component {
                           MandatoryCount: checkPointList?.[j]?.MandatoryCount,
                           LPAValidation: checkPointList?.[j]?.LPAValidation,
                           Values: checkPointList?.[j]?.Values,
+                          Status: checkPointList?.[j]?.Status,
                           immediateAction: checkPointList?.[j]?.immediateAction,
                           ParentId: checkPoints?.[i]?.ParentId,
                           Score:
@@ -1394,6 +1582,7 @@ class CheckPointDemo extends Component {
                           MandatoryCount: checkPointList?.[j]?.MandatoryCount,
                           LPAValidation: checkPointList?.[j]?.LPAValidation,
                           Values: checkPointList?.[j]?.Values,
+                          Status: checkPointList?.[j]?.Status,
                           immediateAction: checkPointList?.[j]?.immediateAction,
                           ParentId: checkPoints?.[i]?.ParentId,
                           Score:
@@ -1454,6 +1643,7 @@ class CheckPointDemo extends Component {
                           MandatoryCount: checkPointList?.[j]?.MandatoryCount,
                           LPAValidation: checkPointList?.[j]?.LPAValidation,
                           Values: checkPointList?.[j]?.Values,
+                          Status: checkPointList?.[j]?.Status,
                           immediateAction: checkPointList?.[j]?.immediateAction,
                           ParentId: checkPoints?.[i]?.ParentId,
                           Score:
@@ -1514,6 +1704,7 @@ class CheckPointDemo extends Component {
                           MandatoryCount: checkPointList?.[j]?.MandatoryCount,
                           LPAValidation: checkPointList?.[j]?.LPAValidation,
                           Values: checkPointList?.[j]?.Values,
+                          Status: checkPointList?.[j]?.Status,
                           immediateAction: checkPointList?.[j]?.immediateAction,
                           ParentId: checkPoints?.[i]?.ParentId,
                           Score:
@@ -1568,6 +1759,7 @@ class CheckPointDemo extends Component {
                           MandatoryCount: checkPointList?.[j]?.MandatoryCount,
                           LPAValidation: checkPointList?.[j]?.LPAValidation,
                           Values: checkPointList?.[j]?.Values,
+                          Status: checkPointList?.[j]?.Status,
                           immediateAction: checkPointList?.[j]?.immediateAction,
                           ParentId: checkPoints?.[i]?.ParentId,
                           Score:
@@ -1622,6 +1814,7 @@ class CheckPointDemo extends Component {
                         MandatoryCount: checkPointList?.[j]?.MandatoryCount,
                         LPAValidation: checkPointList?.[j]?.LPAValidation,
                         Values: checkPointList?.[j]?.Values,
+                        Status: checkPointList?.[j]?.Status,
                         immediateAction: checkPointList?.[j]?.immediateAction,
                         ParentId: checkPoints?.[i]?.ParentId,
                         IsComplete: checkPoints?.[i].IsComplete,
@@ -1680,6 +1873,7 @@ class CheckPointDemo extends Component {
                           MandatoryCount: checkPointList?.[j]?.MandatoryCount,
                           LPAValidation: checkPointList?.[j]?.LPAValidation,
                           Values: checkPointList?.[j]?.Values,
+                          Status: checkPointList?.[j]?.Status,
                           immediateAction: checkPointList?.[j]?.immediateAction,
                           ParentId: checkPoints?.[i]?.ParentId,
                           Score:
@@ -1736,6 +1930,7 @@ class CheckPointDemo extends Component {
                           MandatoryCount: checkPointList?.[j]?.MandatoryCount,
                           LPAValidation: checkPointList?.[j]?.LPAValidation,
                           Values: checkPointList?.[j]?.Values,
+                          Status: checkPointList?.[j]?.Status,
                           immediateAction: checkPointList?.[j]?.immediateAction,
                           ParentId: checkPoints?.[i]?.ParentId,
                           Score:
@@ -1792,6 +1987,7 @@ class CheckPointDemo extends Component {
                           MandatoryCount: checkPointList?.[j]?.MandatoryCount,
                           LPAValidation: checkPointList?.[j]?.LPAValidation,
                           Values: checkPointList?.[j]?.Values,
+                          Status: checkPointList?.[j]?.Status,
                           immediateAction: checkPointList?.[j]?.immediateAction,
                           ParentId: checkPoints?.[i]?.ParentId,
                           Score:
@@ -1846,6 +2042,7 @@ class CheckPointDemo extends Component {
                           MandatoryCount: checkPointList?.[j]?.MandatoryCount,
                           LPAValidation: checkPointList?.[j]?.LPAValidation,
                           Values: checkPointList?.[j]?.Values,
+                          Status: checkPointList?.[j]?.Status,
                           immediateAction: checkPointList?.[j]?.immediateAction,
                           ParentId: checkPoints?.[i]?.ParentId,
                           Score:
@@ -1902,6 +2099,7 @@ class CheckPointDemo extends Component {
                           MandatoryCount: checkPointList?.[j]?.MandatoryCount,
                           LPAValidation: checkPointList?.[j]?.LPAValidation,
                           Values: checkPointList?.[j]?.Values,
+                          Status: checkPointList?.[j]?.Status,
                           immediateAction: checkPointList?.[j]?.immediateAction,
                           ParentId: checkPoints?.[i]?.ParentId,
                           Scoretext: checkPoints?.[i]?.Scoretext,
@@ -1956,6 +2154,7 @@ class CheckPointDemo extends Component {
                         MandatoryCount: checkPointList?.[j]?.MandatoryCount,
                         LPAValidation: checkPointList?.[j]?.LPAValidation,
                         Values: checkPointList?.[j]?.Values,
+                        Status: checkPointList?.[j]?.Status,
                         immediateAction: checkPointList?.[j]?.immediateAction,
                         ParentId: checkPoints?.[i]?.ParentId,
                         Score:
@@ -2013,6 +2212,7 @@ class CheckPointDemo extends Component {
                           MandatoryCount: checkPointList?.[j]?.MandatoryCount,
                           LPAValidation: checkPointList?.[j]?.LPAValidation,
                           Values: checkPointList?.[j]?.Values,
+                          Status: checkPointList?.[j]?.Status,
                           immediateAction: checkPointList?.[j]?.immediateAction,
                           ParentId: checkPoints?.[i]?.ParentId,
                           Score:
@@ -2069,6 +2269,7 @@ class CheckPointDemo extends Component {
                           MandatoryCount: checkPointList?.[j]?.MandatoryCount,
                           LPAValidation: checkPointList?.[j]?.LPAValidation,
                           Values: checkPointList?.[j]?.Values,
+                          Status: checkPointList?.[j]?.Status,
                           immediateAction: checkPointList?.[j]?.immediateAction,
                           ParentId: checkPoints?.[i]?.ParentId,
                           Score:
@@ -2125,6 +2326,7 @@ class CheckPointDemo extends Component {
                           MandatoryCount: checkPointList?.[j]?.MandatoryCount,
                           LPAValidation: checkPointList?.[j]?.LPAValidation,
                           Values: checkPointList?.[j]?.Values,
+                          Status: checkPointList?.[j]?.Status,
                           immediateAction: checkPointList?.[j]?.immediateAction,
                           ParentId: checkPoints?.[i]?.ParentId,
                           Score:
@@ -2179,6 +2381,7 @@ class CheckPointDemo extends Component {
                           MandatoryCount: checkPointList?.[j]?.MandatoryCount,
                           LPAValidation: checkPointList?.[j]?.LPAValidation,
                           Values: checkPointList?.[j]?.Values,
+                          Status: checkPointList?.[j]?.Status,
                           immediateAction: checkPointList?.[j]?.immediateAction,
                           ParentId: checkPoints?.[i]?.ParentId,
                           Score:
@@ -2235,6 +2438,7 @@ class CheckPointDemo extends Component {
                           MandatoryCount: checkPointList?.[j]?.MandatoryCount,
                           LPAValidation: checkPointList?.[j]?.LPAValidation,
                           Values: checkPointList?.[j]?.Values,
+                          Status: checkPointList?.[j]?.Status,
                           immediateAction: checkPointList?.[j]?.immediateAction,
                           ParentId: checkPoints?.[i]?.ParentId,
                           Score:
@@ -2289,6 +2493,7 @@ class CheckPointDemo extends Component {
                         MandatoryCount: checkPointList?.[j]?.MandatoryCount,
                         LPAValidation: checkPointList?.[j]?.LPAValidation,
                         Values: checkPointList?.[j]?.Values,
+                        Status: checkPointList?.[j]?.Status,
                         immediateAction: checkPointList?.[j]?.immediateAction,
                         ParentId: checkPoints?.[i]?.ParentId,
                         Score:
@@ -2358,6 +2563,7 @@ class CheckPointDemo extends Component {
                 MandatoryCount: checkPointList?.[j]?.MandatoryCount,
                 LPAValidation: checkPointList?.[j]?.LPAValidation,
                 Values: checkPointList?.[j]?.Values,
+                Status: checkPointList?.[j]?.Status,
                 SerialNo: checkPointList?.[j]?.SerialNo,
                 immediateAction: checkPointList?.[i]?.immediateAction,
                 ParentId: checkPointList?.[i]?.ParentId,
@@ -2421,6 +2627,7 @@ class CheckPointDemo extends Component {
               MandatoryCount: checkPointList?.[j]?.MandatoryCount,
               LPAValidation: checkPointList?.[j]?.LPAValidation,
               Values: checkPointList?.[j]?.Values,
+              Status: checkPointList?.[j]?.Status,
               immediateAction: checkPointList?.[j]?.immediateAction,
               ParentId: checkPointList?.[i]?.ParentId,
               Score: '',
@@ -2515,6 +2722,9 @@ class CheckPointDemo extends Component {
               temppp,
               this.state.checkpointList,
             );
+            this.captureNcofiBaseline().catch(error =>
+              console.log('capture baseline error', error),
+            );
           },
         );
         // }
@@ -2522,6 +2732,7 @@ class CheckPointDemo extends Component {
     );
   }
 
+  // Updates radio selection for a checkpoint option
   radioValue = (value, i) => {
     //  //console.log('value', value)
     //  //console.log('pos', i)
@@ -2529,24 +2740,27 @@ class CheckPointDemo extends Component {
       //  //console.log('RadioValue',this.state.radiovalue)
     });
   };
+  // Forces navigation back to checklist without saving unsaved changes
   forceGoBackToChecklist = () => {
-    this.setState(
-      {
-        dialogVisible: false,
-        dialogVisibleNC: false,
-      },
-      () => {
-        //console.log('goBack1');
-        this.props.navigation.goBack();
-      },
-    );
+    this.handleDiscardUnsavedChanges(false);
   };
+  // Removes listeners and restores baseline data if needed
+  componentWillUnmount() {
+  //  Dimensions.removeEventListener('change', this.handleOrientationChange);
+    if (this.state.isUnsavedData) {
+      this.restoreBaselineNCOFI().catch(error =>
+        console.log('CheckPointDemo unmount restore error', error),
+      );
+    }
+  }
 
+  // Reacts to prop updates for navigation-driven data changes
   componentWillReceiveProps(props) {
-    var getCurrentPage = [];
-    // getCurrentPage = this.props.data.nav.routes;
-    // var CurrentPage = getCurrentPage[getCurrentPage.length - 1].routeName;
-    var CurrentPage = this.props.route.name
+    const navRoutes = this.props?.data?.nav?.routes || [];
+    const CurrentPage =
+      navRoutes.length > 0
+        ? navRoutes[navRoutes.length - 1]?.routeName
+        : this.props?.route?.name;
     console.log('--CurrentPage--->', CurrentPage);
 
     if (CurrentPage == ROUTES.CHECKPOINT_DEMO) {
@@ -2556,7 +2770,7 @@ class CheckPointDemo extends Component {
 
       if (this.state.attachSelectedItem) {
         var cameraCapture = props.data.audits.cameraCapture;
-        var checkPointsDetails = this.state.checkPointsDetails;
+        var checkPointsDetails = this.state.checkPointsDetails || [];
         var templateId = this.state.attachSelectedItem.ChecklistTemplateId;
 
         if (cameraCapture.length > 0 && checkPointsDetails.length > 0) {
@@ -2596,15 +2810,18 @@ class CheckPointDemo extends Component {
               isUnsavedData: true,
               isAttachmentLoaded: true,
             },
-            () => {
+            async () => {
               console.log(
                 'Checkpoint page - checkPointsDetails',
                 this.state.checkPointsDetails,
                 cameraCapture,
               );
               this.countStatistics(this.state.checkPointsDetails);
+          
+              await this.markAuditEdited(); // <-- THIS IS THE NEW LINE
             },
           );
+          
           this.props.storeCameraCapture([]);
         } else {
           this.setState(
@@ -2624,51 +2841,71 @@ class CheckPointDemo extends Component {
     //nc -ofi --if new nc/ofi raised then showed circles in templaes...
 
     if (this.props.data.audits.ncofiRecords) {
-      var ncofi_details = props.data.audits.ncofiRecords;
-   //   //console.log('ncofi_details', ncofi_details);
-      
-      var checkPointsDetails = this.state.checkPointsDetails;
-   //   //console.log(checkPointsDetails, 'checkPointsDetailsve');
-      
-      if (ncofi_details.length > 0 && checkPointsDetails.length > 0) {
-        for (var i = 0; i < checkPointsDetails.length; i++) {
-          for (var j = 0; j < ncofi_details.length; j++) {
-        //    //console.log(ncofi_details.length, 'ncofi_details.length');
-            
-            if (ncofi_details[j].AuditID == checkPointsDetails[i].AuditId) {
-              //pending
-              var pending_ncofi = ncofi_details[j].Pending;
-              for (var k = 0; k < pending_ncofi.length; k++) {
+      const ncofi_details = props.data.audits.ncofiRecords;
+      const originalCheckPoints = this.state.checkPointsDetails || [];
+      const originalCheckpointList = this.state.checkpointList || [];
+
+      if (ncofi_details.length > 0 && originalCheckPoints.length > 0) {
+        const updatedCheckPointDetails = originalCheckPoints.map(item => ({
+          ...item,
+        }));
+        const updatedCheckpointList = originalCheckpointList.map(item => ({
+          ...item,
+        }));
+
+        const checkpointListIndexByTemplate = {};
+        for (let idx = 0; idx < updatedCheckpointList.length; idx++) {
+          const templateId = updatedCheckpointList[idx].ChecklistTemplateId;
+          if (templateId !== undefined && templateId !== null) {
+            checkpointListIndexByTemplate[templateId] = idx;
+          }
+        }
+
+        for (let i = 0; i < updatedCheckPointDetails.length; i++) {
+          const checkpointDetail = updatedCheckPointDetails[i];
+
+          for (let j = 0; j < ncofi_details.length; j++) {
+            if (ncofi_details[j].AuditID == checkpointDetail.AuditId) {
+              const templateId = checkpointDetail.ChecklistTemplateId;
+              const checkpointListIndex = checkpointListIndexByTemplate[templateId];
+
+              const setAvailability = category => {
+                if (category === 'NC') {
+                  checkpointDetail.nc_available_status = true;
+                  if (typeof checkpointListIndex !== 'undefined') {
+                    updatedCheckpointList[checkpointListIndex].nc_available_status = true;
+                  }
+                } else if (category === 'OFI') {
+                  checkpointDetail.ofi_avialable_status = true;
+                  if (typeof checkpointListIndex !== 'undefined') {
+                    updatedCheckpointList[checkpointListIndex].ofi_avialable_status = true;
+                  }
+                }
+              };
+
+              const pending_ncofi = ncofi_details[j].Pending || [];
+              for (let k = 0; k < pending_ncofi.length; k++) {
                 if (
-                  pending_ncofi[k].AuditID == checkPointsDetails[i].AuditId &&
-                  pending_ncofi[k].ChecklistTemplateId ==
-                    checkPointsDetails[i].ChecklistTemplateId
+                  pending_ncofi[k].AuditID == checkpointDetail.AuditId &&
+                  pending_ncofi[k].ChecklistTemplateId == templateId
                 ) {
                   if (pending_ncofi[k].Category == 'NC') {
-                    checkPointsDetails[i].nc_available_status = true;
+                    setAvailability('NC');
                   }
                   if (pending_ncofi[k].Category == 'OFI') {
-                    checkPointsDetails[i].ofi_avialable_status = true;
+                    setAvailability('OFI');
                   }
                 }
               }
-              //uploaded
-              var Uploaded_ncofi = ncofi_details[j].Uploaded;
-              console.log(
-                'NC_AVAILABLE_STATUS',
-                checkPointsDetails[i].nc_available_status,
-              );
-              for (var k = 0; k < Uploaded_ncofi.length; k++) {
-                if (
-                  //Uploaded_ncofi[k].AuditID == checkPointsDetails[i].AuditId &&
-                  Uploaded_ncofi[k].ChecklistTemplateId ==
-                  checkPointsDetails[i].ChecklistTemplateId
-                ) {
-                  if (Uploaded_ncofi[k].Category == 'NC') {
-                    checkPointsDetails[i].nc_available_status = true;
+
+              const uploaded_ncofi = ncofi_details[j].Uploaded || [];
+              for (let k = 0; k < uploaded_ncofi.length; k++) {
+                if (uploaded_ncofi[k].ChecklistTemplateId == templateId) {
+                  if (uploaded_ncofi[k].Category == 'NC') {
+                    setAvailability('NC');
                   }
-                  if (Uploaded_ncofi[k].Category == 'OFI') {
-                    checkPointsDetails[i].ofi_avialable_status = true;
+                  if (uploaded_ncofi[k].Category == 'OFI') {
+                    setAvailability('OFI');
                   }
                 }
               }
@@ -2677,7 +2914,11 @@ class CheckPointDemo extends Component {
         }
 
         this.setState(
-          {checkPointsDetails: checkPointsDetails, isUnsavedData: true},
+          {
+            checkPointsDetails: updatedCheckPointDetails,
+            checkpointList: updatedCheckpointList,
+            isUnsavedData: true,
+          },
           () => {
             console.log(
               'Checkpoint page - checkPointsDetails --nc/ofi',
@@ -2694,102 +2935,39 @@ class CheckPointDemo extends Component {
     ////console.log("reset count statistics")
     // //console.log('***',this.state.checkPointsDetails)
     //console.log('Sathish==>', checkPointsDetails);
-    var data = checkPointsDetails;
+    const data = Array.isArray(checkPointsDetails) ? checkPointsDetails : [];
     var pendingCheck = [];
     var completed = [];
     var mandatoryCheck = 0;
 
     for (var i = 0; i < data.length; i++) {
-      if (data[i].RemarkforNc == 1 && data[i].AttachforNc == 1) {
-        //console.log('mqn1');
-        mandatoryCheck = mandatoryCheck + 1;
-        if (
-          checkPointsDetails[i].Remark == '' &&
-          checkPointsDetails[i].Attachment == ''
-        ) {
-          pendingCheck.push(data[i]);
-        } else if (
-          checkPointsDetails[i].Remark == '' ||
-          checkPointsDetails[i].Attachment == ''
-        ) {
-          pendingCheck.push(data[i]);
-        } else {
-          completed.push(data[i]);
-        }
-      } else if (data[i].RemarkforOfi === 1 && data[i].AttachforOfi === 1) {
-        //console.log('mqn2');
+      const checkpoint = data[i];
+      const requiresRemark = this.isRemarkMandatory(checkpoint);
+      const requiresAttachmentBase = this.isAttachmentMandatory(checkpoint);
+      const requiresAttachment =
+        requiresAttachmentBase ||
+        this.isFlagEnabled(this.state.checkpointList?.[i]?.IsVeto);
+      const isMandatory = requiresRemark || requiresAttachment;
+      const hasStaticAsterisk = this.hasBaseAsteriskRequirement(checkpoint);
+      const serverFlag = this.isServerMandatory(checkpoint, i);
 
+      if (hasStaticAsterisk || serverFlag) {
         mandatoryCheck = mandatoryCheck + 1;
-        if (
-          checkPointsDetails[i].Remark === '' &&
-          checkPointsDetails[i].Attachment === ''
-        ) {
-          pendingCheck.push(data[i]);
-        } else if (
-          checkPointsDetails[i].Remark === '' ||
-          checkPointsDetails[i].Attachment === ''
-        ) {
-          pendingCheck.push(data[i]);
-        } else {
-          completed.push(data[i]);
-        }
-      } else if (data[i].RemarkforOfi === 1) {
-        //console.log('mqn3');
+      }
 
-        mandatoryCheck = mandatoryCheck + 1;
-        if (checkPointsDetails[i].Remark === '') {
-          pendingCheck.push(data[i]);
-        } else {
-          completed.push(data[i]);
-        }
-      } else if (data[i].RemarkforNc == 1) {
-        //console.log('mqn4');
+      if (isMandatory) {
+        const hasRemark = this.hasRemarkValue(checkPointsDetails[i]);
+        const hasAttachment = this.hasAttachmentValue(checkPointsDetails[i]);
+        const remarkMissing = requiresRemark && !hasRemark;
+        const attachmentMissing = requiresAttachment && !hasAttachment;
 
-        mandatoryCheck = mandatoryCheck + 1;
-        if (checkPointsDetails[i].Remark == '') {
-          pendingCheck.push(data[i]);
+        if (remarkMissing || attachmentMissing) {
+          pendingCheck.push(checkpoint);
         } else {
-          completed.push(data[i]);
-        }
-      } else if (data[i].AttachforNc == 1) {
-        //console.log('mqn5');
-
-        mandatoryCheck = mandatoryCheck + 1;
-        if (checkPointsDetails[i].Attachment == '') {
-          pendingCheck.push(data[i]);
-        } else {
-          completed.push(data[i]);
-        }
-      } else if (data[i].AttachforOfi == 1) {
-        //console.log('mqn6');
-
-        mandatoryCheck = mandatoryCheck + 1;
-        if (checkPointsDetails[i].Attachment == '') {
-          pendingCheck.push(data[i]);
-        } else {
-          completed.push(data[i]);
-        }
-      } else if (data[i].IsVeto == 1) {
-        //console.log('mqn7');
-
-        mandatoryCheck = mandatoryCheck + 1;
-        if (checkPointsDetails[i].Attachment == '') {
-          pendingCheck.push(data[i]);
-        } else {
-          completed.push(data[i]);
+          completed.push(checkpoint);
         }
       } else {
-        console.log(
-          'mqn8',
-          data[i].IsVeto,
-          mandatoryCheck,
-          this.state.checkpointList,
-          this.state.checkPointsDetails,
-        );
-        if (this.state.checkpointList[i]?.IsVeto == 1) {
-          mandatoryCheck = mandatoryCheck + 1;
-        }
-        completed.push(data[i]);
+        completed.push(checkpoint);
       }
     }
 
@@ -2804,7 +2982,7 @@ class CheckPointDemo extends Component {
         checkPointsDetails: this.state.checkPointsDetails,
         mandateCheckpoints: pendingCheck.length,
         totalfilled: completed.length,
-        optionalCheck: data.length - mandatoryCheck,
+        optionalCheck: Math.max(data.length - mandatoryCheck, 0),
         totalCheck: data.length,
         mandatoryCheck: mandatoryCheck,
         isCaroselLoaded: true,
@@ -2817,6 +2995,7 @@ class CheckPointDemo extends Component {
     );
   };
 
+  // Handles exit to dashboard, prompting if there are unsaved changes
   goHome = () => {
     if (this.state.isUnsavedData == true) {
       this.setState({
@@ -2830,11 +3009,13 @@ class CheckPointDemo extends Component {
     }
   };
 
+  // Navigates back to the checklist flow, respecting unsaved change prompts
   goBackToChecklist = () => {
     if (this.state.isUnsavedData == true) {
       this.setState({
         dialogVisible: true,
         dialogVisibleNC: false,
+        go_home: false,
       });
     } else {
       //console.log('goBack2');
@@ -2842,11 +3023,19 @@ class CheckPointDemo extends Component {
     }
   };
 
+  // Displays current displayData via toast
   ShowToast = () => {
     this.refs.toast.show(this.state.displayData, 6000);
   };
 
-  updateCheckPointsValues = () => {
+  // Validates checkpoint completion thresholds and triggers save/update flows
+  updateCheckPointsValues = async () => {
+    await AsyncStorage.setItem('redDotActive', 'true');
+
+    // Mark this specific audit as edited (per-audit flag)
+    if (typeof this.markAuditEdited === 'function') {
+      await this.markAuditEdited();
+    }
     //console.log('updateCheckPointsValues executed');
     let bcontinue = false;
     //  this.updatecheckpointvalues_new();
@@ -2860,30 +3049,75 @@ class CheckPointDemo extends Component {
     );
 
     const filledCount = filledData.length;
+    const filledPercentage = ((filledCount / totalCheckPoint) * 100).toFixed(2);
+    console.log('filledCount', filledCount);
+    console.log(filledData, 'filledData');
+    console.log(totalCheckPoint, 'filledtotalCheckPoint');
+    console.log('filledPercentage:', filledPercentage + '%');
 
-  if (filledCount > 0) {
-    const filledMin = (filledCount / totalCheckPoint).toFixed(2);
-    if (filledMin >= allowedMinimum) {
+    if (filledPercentage >= 50) {
       bcontinue = true;
     }
-  }
-  if (this.state.ischeckLPA !== 'true') {
-    if (!bcontinue && this.state.ReportId == 5 || !bcontinue && this.state.ReportId == 11) {
-      ToastNew.show({
-        type: 'error',
-        text1: 'Minimum number of Questions is not answered',
-      });
-    } else {
-      //return;
-      //this.updatecheckpointvalues_new();
-    } //else {
-    this.updatecheckpointvalues_new();
-  }
-  //}
-};
+    console.log('Can continue:', bcontinue);
 
+    if (filledCount > 0) {
+      const filledMin = (filledCount / totalCheckPoint).toFixed(2);
+      if (filledMin >= allowedMinimum) {
+        bcontinue = true;
+      }
+    }
+    if (this.state.ischeckLPA !== 'true') {
+      if (
+        (!bcontinue && this.state.ReportId == 5) ||
+        (!bcontinue && this.state.ReportId == 11)
+      ) {
+        ToastNew.show({
+          type: 'error',
+          text1: 'Minimum number of Questions is not answered',
+        });
+      } else {
+        //return;
+        //this.updatecheckpointvalues_new();
+      } //else {
+        console.log('[CheckPointDemo] User made changes — setting isAuditing true');
+        this.props.changeAuditState(true);
+        
+      this.updatecheckpointvalues_new();
+    }
+    //}
+  };
+
+  // Revalidates checkpoints and updates counts/state after edits
   updatecheckpointvalues_new = () => {
     //console.log('save button pressed');
+    const checkPointsDetailsSnapshot = this.state.checkPointsDetails || [];
+    let firstIssue = null;
+
+    const checkpointsToValidate = checkPointsDetailsSnapshot
+      .map((checkpoint, index) => ({checkpoint, index}))
+      .filter(({checkpoint, index}) =>
+        this.shouldValidateCheckpointOnSave(checkpoint, index),
+      );
+
+    for (let i = 0; i < checkpointsToValidate.length; i++) {
+      const {checkpoint, index} = checkpointsToValidate[i];
+      const result = this.validateCheckpointRequirements(checkpoint);
+      if (!result.valid) {
+        firstIssue = {index, missing: result.missing};
+        break;
+      }
+    }
+
+    if (firstIssue) {
+      this.blockRequirement(firstIssue.index, firstIssue.missing, {
+        dialogVisible: false,
+        isContentLoaded: false,
+        checkMandate: false,
+        isSaving: false,
+      });
+      return;
+    }
+
     this.setState(
       {
         isContentLoaded: true,
@@ -2893,65 +3127,8 @@ class CheckPointDemo extends Component {
         var m = 0;
 
         var checkPointsDetails = this.state.checkPointsDetails;
-        //console.log(this.state.checkPointsDetails, 'hellodataone');
-        this.setState({checkMandate: true});
-        var arr = [];
 
-        for (var i = 0; i < checkPointsDetails.length; i++) {
-          if (
-            checkPointsDetails[i].RemarkforNc == 1 ||
-            checkPointsDetails[i].RemarkforOfi == 1
-          ) {
-            if (checkPointsDetails[i].Remark == '') {
-              this.setState({checkMandate: false}, () => {
-                //console.log('Please save remark manadatory fields.');
-              });
-            }
-          } else if (
-            checkPointsDetails[i].AttachforNc == 1 ||
-            checkPointsDetails[i].AttachforOfi == 1
-          ) {
-            if (checkPointsDetails[i].AttachmentList.length == 0) {
-              this.setState({checkMandate: false}, () => {
-                //console.log('Please save attach manadatory fields.');
-              });
-            }
-          } else if (
-            checkPointsDetails[i].AttachforNc == 1 &&
-            checkPointsDetails[i].RemarkforNc == 1
-          ) {
-            if (
-              checkPointsDetails[i].AttachmentList.length == 0 &&
-              checkPointsDetails[i].Remark == ''
-            ) {
-              this.setState({checkMandate: false}, () => {
-                //console.log('Please save attach manadatory fields.');
-              });
-            }
-          } else if (
-            checkPointsDetails[i].AttachforOfi == 1 &&
-            checkPointsDetails[i].RemarkforOfi == 1
-          ) {
-            if (
-              checkPointsDetails[i].AttachmentList.length == 0 &&
-              checkPointsDetails[i].RemarkforOfi == ''
-            ) {
-              this.setState({checkMandate: false}, () => {
-                //console.log('Please save attach manadatory fields.');
-              });
-            }
-          } else if (
-            checkPointsDetails[i].Remark == '' &&
-            checkPointsDetails[i].Values !== checkPointsDetails[i].RadioValue &&
-            this.state.checkPointsDetails[i].Remark
-          ) {
-            this.setState({checkMandate: false}, () => {
-              //console.log('Please enter remarks.');
-            });
-            //console.log('checkpoint details:::' + checkPointsDetails[i]);
-            alert('Please enter remarks');
-          }
-        }
+        this.setState({checkMandate: true});
         var isFormValid = true;
         var index = 0;
 
@@ -3009,15 +3186,18 @@ class CheckPointDemo extends Component {
                           ParentId: auditRecordsOrg[p].Listdata[q].ParentId,
                           FormId: auditRecordsOrg[p].Listdata[q].FormId,
                           Attachment: auditRecordsOrg[p].Listdata[q].Attachment,
-                          AttachmentList: auditRecordsOrg[p].Listdata[q].AttachmentList,
+                          AttachmentList:
+                            auditRecordsOrg[p].Listdata[q].AttachmentList,
                           File: auditRecordsOrg[p].Listdata[q].File,
                           FileName: auditRecordsOrg[p].Listdata[q].FileName,
                           FileType: auditRecordsOrg[p].Listdata[q].FileType,
                           Remark: auditRecordsOrg[p].Listdata[q].Remark,
                           ParamMode: auditRecordsOrg[p].Listdata[q].ParamMode,
-                          IsNCAllowed:auditRecordsOrg[p].Listdata[q].IsNCAllowed,
+                          IsNCAllowed:
+                            auditRecordsOrg[p].Listdata[q].IsNCAllowed,
                           IsCorrect: auditRecordsOrg[p].Listdata[q].IsCorrect,
-                          IsComplete: auditRecordsOrg[p]?.Listdata[q]?.IsComplete,
+                          IsComplete:
+                            auditRecordsOrg[p]?.Listdata[q]?.IsComplete,
                           RadioValue: auditRecordsOrg[p].Listdata[q].RadioValue,
                           Correction:
                             auditRecordsOrg[p].Listdata[q].Correction == ''
@@ -3138,7 +3318,8 @@ class CheckPointDemo extends Component {
                           FailureReasonId:
                             checkPointsDetails[j].FailureReasonId,
                           // FileContent:checkPointsDetails[j].FileContent
-                          deleteallattachment : listDataArr[i]?.deleteallattachment,
+                          deleteallattachment:
+                            listDataArr[i]?.deleteallattachment,
                         };
                       }
                     }
@@ -3177,6 +3358,7 @@ class CheckPointDemo extends Component {
                   this.setState({
                     newArrayState: newArray,
                   });
+
                   const filteredArr = listDataArr.reduce((acc, current) => {
                     const x = acc.find(
                       item =>
@@ -3395,10 +3577,15 @@ class CheckPointDemo extends Component {
 
               var cameraCapture = [];
               this.props.storeCameraCapture(cameraCapture);
+              console.log('[CheckPointDemo] Save successful — setting isAuditing true');
+this.props.changeAuditState(true);
+this.props.navigation.setParams({ auditUpdated: true });
+
+
               this.refs.toast.show(strings.CheckpointSave, 7000);
 
               setTimeout(() => {
-                //  //console.log('AuditDashBody Props After Props Changing...', this.props)
+                this.props.changeAuditState(false); 
                 var auditRecords = this.props.data.audits.auditRecords;
                 var checkPoints = null;
                 for (var i = 0; i < auditRecords.length; i++) {
@@ -3417,14 +3604,21 @@ class CheckPointDemo extends Component {
                     isSaving: false,
                     isUnsavedData: false,
                     isContentLoaded: false,
+                    go_home: false,
                   },
                   () => {
+                    this.captureNcofiBaseline().catch(error =>
+                      console.log('capture baseline error', error),
+                    );
                     // this.refs.toast.show(strings.CheckpointSave, 5000);
                     if (this.state.go_home) {
+                      this.props.changeAuditState(false); // 🔴 Reset red dot flag on save
+
                       this.props.navigation.navigate(ROUTES.AUDIT_DASHBOARD_LISTING);
                       this.getTotalNCStatus();
                     } else {
                       //console.log('goBack3');
+                      this.props.changeAuditState(false); // 🔴 Reset red dot flag on save
                       this.props.navigation.goBack();
                       this.getTotalNCStatus();
                     }
@@ -3433,6 +3627,8 @@ class CheckPointDemo extends Component {
                 //console.log('enteringtoast');
                 // alert('saved');
               }, 200);
+             // this.props.changeAuditState(false); 
+
               this.setState({isSaving: false}, () => {
                 //console.log('Loader off');
               });
@@ -3451,8 +3647,12 @@ class CheckPointDemo extends Component {
 
   async getTotalNCStatus() {
     //console.log('enteringtotalnc');
+    // Computes total pending NCs across records and stores the count
     var checkNC = this.props.data.audits.ncofiRecords;
     var TotalNCValue = 0;
+    this.logTotalCount('getTotalNCStatus:start', {
+      summary: this.summarizeNcRecords(checkNC),
+    });
 
     for (var i = 0; i < checkNC.length; i++) {
       for (var j = 0; j < checkNC[i].Uploaded.length; j++) {
@@ -3467,9 +3667,23 @@ class CheckPointDemo extends Component {
       }
     }
     ////console.log(TotalNCValue, 'TotalNCValuelocal');
-    await AsyncStorage.setItem('TotalNCValues', JSON.stringify(TotalNCValue));
+    this.logTotalCount('getTotalNCStatus:computed', {
+      totalNC: TotalNCValue,
+    });
+    try {
+      await AsyncStorage.setItem('TotalNCValues', JSON.stringyfy(TotalNCValue));
+      this.logTotalCount('getTotalNCStatus:stored', {
+        storageKey: 'TotalNCValues',
+        storedValue: TotalNCValue,
+      });
+    } catch (error) {
+      this.logTotalCount('getTotalNCStatus:storageError', {
+        message: error?.message,
+      });
+    }
   }
 
+  // Opens NC/OFI modal for a checkpoint based on its score and status
   popupModal(checkPointDetail) {
     //console.log('detailsfornc/ofi', checkPointDetail);
     //console.log('nc ofi status:' + checkPointDetail?.show_nc_ofi_status);
@@ -3515,6 +3729,7 @@ class CheckPointDemo extends Component {
     );
   }
 
+  // Opens image attachments in viewer
   openAttachmentImage = (item, index) => {
     //console.log(index, 'indexvalue');
     //console.log(item, 'cattachdata');
@@ -3532,6 +3747,7 @@ class CheckPointDemo extends Component {
     );
   };
 
+  // Plays video attachments
   openAttachmentVideo = (item, index) => {
     //console.log(index, 'indexvalue');
     //console.log(item, 'cattachdata');
@@ -3549,6 +3765,7 @@ class CheckPointDemo extends Component {
     );
   };
 
+  // Opens document attachments
   openAttachmentFile = (item, index) => {
     //console.log(index, 'indexvalue');
     //console.log(item, 'cattachdata');
@@ -3580,6 +3797,7 @@ class CheckPointDemo extends Component {
     }
   };
 
+  // Removes an attachment from a checkpoint
   removeAttachment = (index, attach, cpIndex) => {
     //** Delete file from ios  files folder */
 
@@ -3644,12 +3862,16 @@ class CheckPointDemo extends Component {
     }
   };
 
-  chooseCameraOption = (item, index) => {
+  chooseCameraOption = async (item, index) => {
     const checkpoint = this.state.checkPointsDetails[index];
     const attachment = checkpoint.AttachmentList.filter(
       checks => checks.Attachment === 'EMPTY',
     );
 
+    // Start loading state
+    this.setState({isPickingAttachment: true});
+
+    // Download empty attachment if any
     if (attachment.length > 0) {
       this.downloadFile(attachment[0]);
       this.refs.toast.show(
@@ -3657,17 +3879,25 @@ class CheckPointDemo extends Component {
         DURATION.LENGTH_LONG,
       );
     }
-    this.setState(
-      {
-        dialogVisibleCamera: true,
-        attachSelectedItem: item,
-      },
-      () => {
-        //console.log('attachSelectedItem', item);
-      },
-    );
+
+    // Set dialog and selected item for UI
+    this.setState({
+      dialogVisibleCamera: true,
+      attachSelectedItem: item,
+    });
+
+    // Pick image
+    try {
+      await this.pickImage(item, index);
+    } catch (error) {
+      console.warn('Image picking failed:', error);
+    }
+
+    // End loading state
+    this.setState({isPickingAttachment: false});
   };
 
+  // Routes to screens based on footer tab selection
   navigateTo(id) {
     //console.log('navigation route', id);
     //console.log('ncofiRecords ---->', this.props.data.audits.ncofiRecords);
@@ -3677,16 +3907,59 @@ class CheckPointDemo extends Component {
     var isNCOFIExists = false;
     var isUploaded = false;
     var data = null;
-    const selectedChecklist = this.state.selectedindex;
+    const selectedChecklist =
+      this.state.selectedindex ||
+      this.state.checkPointsDetails?.[this.state.ActiveId];
     console.log(
       'selectedindexnnamecheckkkkkkkkk',
       selectedChecklist,
-      this.state.selectedindex.ChecklistName,
-      this.state.selectedindex.ChecklistTemplateId,
-      this.state.selectedindex.ActualIndex,
-      this.state.selectedindex.AuditId,
-      this.state.selectedindex.FormID
+      this.state.selectedindex?.ChecklistName,
+      this.state.selectedindex?.ChecklistTemplateId,
+      this.state.selectedindex?.ActualIndex,
+      this.state.selectedindex?.AuditId,
+      this.state.selectedindex?.FormID,
     );
+
+    const templateId = selectedChecklist?.ChecklistTemplateId;
+    if (templateId && (id === 'NC' || id === 'OFI')) {
+      const availabilityUpdates =
+        id === 'NC'
+          ? {nc_available_status: true}
+          : {ofi_avialable_status: true};
+
+      const checkPointsDetails = this.state.checkPointsDetails.map(item => {
+        if (item.ChecklistTemplateId === templateId) {
+          return {
+            ...item,
+            ...availabilityUpdates,
+            Modified: true,
+          };
+        }
+        return item;
+      });
+
+      const checkpointList = this.state.checkpointList.map(item =>
+        item.ChecklistTemplateId === templateId
+          ? {
+              ...item,
+              ...availabilityUpdates,
+            }
+          : item,
+      );
+
+      this.setState(
+        {
+          checkPointsDetails,
+          checkpointList,
+          isUnsavedData: true,
+        },
+        async () => {
+          if (typeof this.markAuditEdited === 'function') {
+            await this.markAuditEdited();
+          }
+        },
+      );
+    }
 
     // const selectedChecklist =
     //   this.props.data.audits.auditRecords[0].CheckListPropData[this.state.selectedindex].ChecklistName
@@ -3695,7 +3968,7 @@ class CheckPointDemo extends Component {
     // //console.log(this.props.data.audiselectedcheckts.auditRecords[0].CheckListPropData,"selectedcheck1");
 
     this.setState({
-      selectedChecklistName: selectedChecklist.ChecklistName,
+      selectedChecklistName: selectedChecklist?.ChecklistName,
     });
 
     for (var i = 0; i < NCrecords.length; i++) {
@@ -3789,6 +4062,7 @@ class CheckPointDemo extends Component {
               }
             }
             // Category
+            // ── Category ─────────────────────────────
             if (uploadedData.CategoryId) {
               for (var j = 0; j < dropdowns.Category.length; j++) {
                 if (
@@ -3802,6 +4076,18 @@ class CheckPointDemo extends Component {
                 }
               }
             }
+            // Fallback: if user never edited, default to first dropdown item
+            if (!categoryObj && dropdowns.Category?.length > 0) {
+              const first = dropdowns.Category[0];
+              categoryObj = {
+                id: first.CategoryId,
+                value: first.CategoryName,
+              };
+            }
+            // ───────────────────────────────────────────
+
+            // … now categoryObj is always defined …
+
             // User - Responsibility
             if (uploadedData.RequestedByID) {
               for (var j = 0; j < dropdowns.Users.length; j++) {
@@ -3863,12 +4149,12 @@ class CheckPointDemo extends Component {
           SiteID: this.state.raiseID.SiteID,
           auditstatus: this.state.raiseID.auditstatus,
           title: this.state.raiseID.title,
-          NCNumber: this.state.raiseID.AUDIT_NO,
+          NCNumber: this.state.raiseID.AUDIT_NO + '-' + id + '-' + maxOrder,
           Category: id,
           NonConfirmity: uploadedData.NonConfirmity,
           uniqueNCkey: Moment().unix(),
           selectedItems: selectedItems,
-          ResponsibilityUser:userObj,
+          ResponsibilityUser: userObj,
           selectedItemsProcess: selectedProcess,
           ChecklistTemplateId: uploadedData.ChecklistTemplateId,
           ncIdentifier: uploadedData.NCIdentifier,
@@ -3876,88 +4162,90 @@ class CheckPointDemo extends Component {
           recommAction: uploadedData.RecommendedAction,
         };
       }
+      if (maxOrder == 0) {
+        AsyncStorage.setItem('ncNumberUpdate', this.state.raiseID.AUDIT_NO);
+      } else {
+        AsyncStorage.setItem(
+          'ncNumberUpdate',
+          this.state.raiseID.AUDIT_NO + '-' + id + '-' + maxOrder,
+        );
+      }
     }
-    //console.log('CheckPoint2>Odata', data);
     if (isNCOFIExists) {
-      //console.log('Venkat Entering NC 1');
       if (id == 'NC') {
-        this.setState({dialogVisibleNC: false});
-        this.props.navigation.navigate(ROUTES.CREATE_NC, {
-          CheckpointRoute: 'NC',
-          AuditID: this.state.auditId,
-          name: 1,
-          NCOFIDetails: {
+        this.setState({dialogVisibleNC: false}, () => {
+          this.props.navigation.navigate('CreatencLPA', {
+            CheckpointRoute: 'NC',
             AuditID: this.state.auditId,
-            AuditOrder: this.state.AUDITYPE_ORDER,
-            Title: 'order by FormName asc',
-            auditstatus: this.state.raiseID.auditstatus,
-            SiteID: this.state.raiseID.SiteID,
+            name: 1,
+            NCOFIDetails: {
+              AuditID: this.state.auditId,
+              AuditOrder: this.state.AUDITYPE_ORDER,
+              Title: 'order by FormName asc',
+              auditstatus: this.state.raiseID.auditstatus,
+              SiteID: this.state.raiseID.SiteID,
+              Formid: this.state.ncFormID,
+              ChecklistID: this.state.checklistID,
+              AUDIT_NO: this.state.raiseID.AUDIT_NO,
+              breadCrumb: this.state.Auditee,
+              ResponsibilityUser: this.state.ResponsibilityUser,
+              SiteId: this.state.raiseID.SiteID,
+              RequestedBy: '',
+              FailureCategoryId: '',
+              DocumentRef: '',
+              ProcessID: '',
+              Conformance: '',
+              navigationfrom: 'checkpointDemo',
+            },
             Formid: this.state.ncFormID,
-            ChecklistID: this.state.checklistID,
-            AUDIT_NO: this.state.raiseID.AUDIT_NO,
-            breadCrumb: this.state.Auditee,
-            ResponsibilityUser: this.state.ResponsibilityUser,
-            SiteId: this.state.raiseID.SiteID,
-            RequestedBy: '',
-            FailureCategoryId: '',
-            DocumentRef: '',
-            ProcessID: '',
-            Conformance: '',
             navigationfrom: 'checkpointDemo',
-          },
-          Formid: this.state.ncFormID,
-          navigationfrom: 'checkpointDemo',
-          templateId: this.state.ncofiPassTemplateId,
-          radiovalue: this.state.radiovalue_ncofi,
-          checklistName: selectedChecklist.ChecklistName,
-          type: 'EDIT',
-          data: data,
-          isUploaded: isUploaded,
+            templateId: this.state.ncofiPassTemplateId,
+            radiovalue: this.state.radiovalue_ncofi,
+            checklistName: selectedChecklist.ChecklistName,
+            type: 'EDIT',
+            data: data,
+            isUploaded: isUploaded,
+          });
         });
       }
       if (id == 'OFI') {
-        //console.log('Venkat Entering NC 2');
-
-        this.setState({dialogVisibleNC: false});
-        // this.props.navigation.navigate('CreatencLPA', {
-          this.props.navigation.navigate(ROUTES.CREATE_NCLPA, {
-          CheckpointRoute: 'OFI',
-          name: 2,
-          AuditID: this.state.raiseID.AUDIT_NO,
-          NCOFIDetails: this.state.raiseID,
-          templateId: this.state.ncofiPassTemplateId,
-          type: 'EDIT',
-          data: data,
-          isUploaded: isUploaded,
-          Formid: this.state.ncFormID,
-          radiovalue: this.state.radiovalue_ncofi,
-          checklistName: selectedChecklist.ChecklistName,
-          navigationfrom: 'checkpointDemo',
+        this.setState({dialogVisibleNC: false}, () => {
+          this.props.navigation.navigate('CreatencLPA', {
+            CheckpointRoute: 'OFI',
+            name: 2,
+            AuditID: this.state.raiseID.AUDIT_NO,
+            NCOFIDetails: this.state.raiseID,
+            templateId: this.state.ncofiPassTemplateId,
+            type: 'EDIT',
+            data: data,
+            isUploaded: isUploaded,
+            Formid: this.state.ncFormID,
+            radiovalue: this.state.radiovalue_ncofi,
+            checklistName: selectedChecklist.ChecklistName,
+            navigationfrom: 'checkpointDemo',
+          });
         });
       }
     } else {
       if (id == 'NC') {
-        //console.log('Venkat Entering NC 3', this.state.raiseID);
-
-        this.setState({dialogVisibleNC: false});
-        // this.props.navigation.navigate('CreatencLPA', {
-          this.props.navigation.navigate(ROUTES.CREATE_NCLPA, {
-          CheckpointRoute: 'NC',
-          NCOFIDetails: this.state.raiseID,
-          name: 3,
-          AuditID: this.state.auditId,
-          templateId: this.state.ncofiPassTemplateId,
-          type: 'ADD',
-          data: null,
-          isUploaded: isUploaded,
-          Formid: this.state.ncFormID,
-          radiovalue: this.state.radiovalue_ncofi,
-          checklistName: selectedChecklist.ChecklistName,
-          navigationfrom: 'checkpointDemo',
+        this.setState({dialogVisibleNC: false}, () => {
+          this.props.navigation.navigate('CreatencLPA', {
+            CheckpointRoute: 'NC',
+            NCOFIDetails: this.state.raiseID,
+            name: 3,
+            AuditID: this.state.auditId,
+            templateId: this.state.ncofiPassTemplateId,
+            type: 'ADD',
+            data: null,
+            isUploaded: isUploaded,
+            Formid: this.state.ncFormID,
+            radiovalue: this.state.radiovalue_ncofi,
+            checklistName: selectedChecklist.ChecklistName,
+            navigationfrom: 'checkpointDemo',
+          });
         });
       }
       if (id == 'OFI') {
-        //console.log('Venkat Entering NC 4');
         console.log(
           this.state.auditId,
           this.state.raiseID,
@@ -3966,27 +4254,679 @@ class CheckPointDemo extends Component {
           this.state.ofiAvailable_OFI,
           'AuditID in entering 4',
         );
-        this.setState({dialogVisibleNC: false});
-        // this.props.navigation.navigate('CreatencLPA', {
-          this.props.navigation.navigate(ROUTES.CREATE_NCLPA, {
-          CheckpointRoute: 'OFI',
-          NCOFIDetails: this.state.raiseID,
-          name: 4,
-          AuditID: this.state.auditId,
-          templateId: this.state.ncofiPassTemplateId,
-          type: 'ADD',
-          data: null,
-          isUploaded: isUploaded,
-          Formid: this.state.ncFormID,
-          radiovalue: this.state.radiovalue_ncofi,
-          navigationfrom: 'checkpointDemo',
+        this.setState({dialogVisibleNC: false}, () => {
+          this.props.navigation.navigate('CreatencLPA', {
+            CheckpointRoute: 'OFI',
+            NCOFIDetails: this.state.raiseID,
+            name: 4,
+            AuditID: this.state.auditId,
+            templateId: this.state.ncofiPassTemplateId,
+            type: 'ADD',
+            data: null,
+            isUploaded: isUploaded,
+            Formid: this.state.ncFormID,
+            radiovalue: this.state.radiovalue_ncofi,
+            navigationfrom: 'checkpointDemo',
+          });
         });
       }
     }
   }
 
+  // Normalizes truthy flags coming from server/state
+  isFlagEnabled(value) {
+    return (
+      value === 1 ||
+      value === '1' ||
+      value === true ||
+      value === 'true' ||
+      value === 'TRUE'
+    );
+  }
+
+  // Returns true if a checkpoint has a radio value selected
+  hasRadioSelection(checkpoint) {
+    if (!checkpoint) {
+      return false;
+    }
+
+    const rawValue = checkpoint.RadioValue;
+    const numericValue =
+      typeof rawValue === 'number'
+        ? rawValue
+        : parseInt(rawValue, 10);
+
+    if (Number.isNaN(numericValue)) {
+      return false;
+    }
+
+    return numericValue !== 0 && numericValue !== -1;
+  }
+
+  // Derives the selection text/score label for a checkpoint
+  getRadioSelectionType(checkpoint) {
+    if (!checkpoint) {
+      return 'UNKNOWN';
+    }
+
+    const rawValue = checkpoint.RadioValue;
+    const numericValue =
+      typeof rawValue === 'number'
+        ? rawValue
+        : parseInt(rawValue, 10);
+
+    if (Number.isNaN(numericValue)) {
+      return 'UNKNOWN';
+    }
+
+    switch (numericValue) {
+      case 9:
+        return 'YES';
+      case 10:
+        return 'NO';
+      case 11:
+        return 'NA';
+      case 12:
+        return 'TRUE';
+      case 13:
+        return 'FALSE';
+      case 14:
+        return 'OK';
+      case 15:
+        return 'NOTOK';
+      default:
+        return 'UNKNOWN';
+    }
+  }
+
+  // Checks if NC remark is required for this checkpoint
+  requiresNcRemark(checkpoint) {
+    if (!checkpoint) {
+      return false;
+    }
+
+    const selection = this.getRadioSelectionType(checkpoint);
+
+    if (['NO', 'NOTOK', 'FALSE'].includes(selection)) {
+      return this.isFlagEnabled(checkpoint?.RemarkforNc);
+    }
+
+    if (selection === 'UNKNOWN') {
+      return (
+        this.hasRadioSelection(checkpoint) &&
+        this.isFlagEnabled(checkpoint?.RemarkforNc)
+      );
+    }
+
+    return false;
+  }
+
+  // Checks if NC attachment is required for this checkpoint
+  requiresNcAttachment(checkpoint) {
+    if (!checkpoint) {
+      return false;
+    }
+
+    const selection = this.getRadioSelectionType(checkpoint);
+
+    if (['NO', 'NOTOK', 'FALSE'].includes(selection)) {
+      return this.isFlagEnabled(checkpoint?.AttachforNc);
+    }
+
+    if (selection === 'UNKNOWN') {
+      return (
+        this.hasRadioSelection(checkpoint) &&
+        this.isFlagEnabled(checkpoint?.AttachforNc)
+      );
+    }
+
+    return false;
+  }
+
+  // Checks if compliance attachment is required
+  requiresCompAttachment(checkpoint) {
+    if (!checkpoint) {
+      return false;
+    }
+
+    const selection = this.getRadioSelectionType(checkpoint);
+
+    if (['YES', 'OK', 'TRUE'].includes(selection)) {
+      return this.isFlagEnabled(checkpoint?.AttachforComp);
+    }
+
+    return false;
+  }
+
+  // Checks if OFI remark is required
+  requiresOfiRemark(checkpoint) {
+    if (!checkpoint) {
+      return false;
+    }
+
+    const selection = this.getRadioSelectionType(checkpoint);
+
+    if (['NO', 'NOTOK', 'FALSE'].includes(selection)) {
+      return this.isFlagEnabled(checkpoint?.RemarkforOfi);
+    }
+
+    if (selection === 'UNKNOWN') {
+      return (
+        this.hasRadioSelection(checkpoint) &&
+        this.isFlagEnabled(checkpoint?.RemarkforOfi)
+      );
+    }
+
+    return false;
+  }
+
+  // Checks if OFI attachment is required
+  requiresOfiAttachment(checkpoint) {
+    if (!checkpoint) {
+      return false;
+    }
+
+    const selection = this.getRadioSelectionType(checkpoint);
+
+    if (['NO', 'NOTOK', 'FALSE'].includes(selection)) {
+      return this.isFlagEnabled(checkpoint?.AttachforOfi);
+    }
+
+    if (selection === 'UNKNOWN') {
+      return (
+        this.hasRadioSelection(checkpoint) &&
+        this.isFlagEnabled(checkpoint?.AttachforOfi)
+      );
+    }
+
+    return false;
+  }
+
+  // Determines if any remark is mandatory for this checkpoint
+  isRemarkMandatory(checkpoint) {
+    if (!checkpoint) {
+      return false;
+    }
+
+    const selection = this.getRadioSelectionType(checkpoint);
+
+    if (['YES', 'OK', 'TRUE', 'NA'].includes(selection)) {
+      return false;
+    }
+
+    if (['NO', 'NOTOK', 'FALSE'].includes(selection)) {
+      return (
+        this.requiresNcRemark(checkpoint) ||
+        this.requiresOfiRemark(checkpoint)
+      );
+    }
+
+    return (
+      this.requiresNcRemark(checkpoint) ||
+      this.requiresOfiRemark(checkpoint)
+    );
+  }
+
+  // Returns true when remark text is present
+  hasRemarkValue(checkpoint) {
+    return ((checkpoint?.Remark ?? '').toString().trim() || '').length > 0;
+  }
+
+  // Determines if attachment is mandatory for this checkpoint
+  isAttachmentMandatory(checkpoint) {
+    if (!checkpoint) {
+      return false;
+    }
+
+    const selection = this.getRadioSelectionType(checkpoint);
+    let requiresAttachment = false;
+
+    if (['YES', 'OK', 'TRUE'].includes(selection)) {
+      requiresAttachment = this.requiresCompAttachment(checkpoint);
+    } else if (['NO', 'NOTOK', 'FALSE'].includes(selection)) {
+      requiresAttachment =
+        this.requiresNcAttachment(checkpoint) ||
+        this.requiresOfiAttachment(checkpoint);
+    } else if (selection === 'NA') {
+      requiresAttachment = false;
+    } else {
+      requiresAttachment =
+        this.requiresNcAttachment(checkpoint) ||
+        this.requiresOfiAttachment(checkpoint);
+    }
+
+    if (!requiresAttachment && this.isFlagEnabled(checkpoint?.IsVeto)) {
+      requiresAttachment = true;
+    }
+
+    return requiresAttachment;
+  }
+
+  // True if base asterisk requirement applies to this checkpoint
+  hasBaseAsteriskRequirement(checkpoint) {
+    if (!checkpoint) {
+      return false;
+    }
+
+    return (
+      this.isFlagEnabled(checkpoint?.AttachforNc) ||
+      this.isFlagEnabled(checkpoint?.AttachforOfi) ||
+      this.isFlagEnabled(checkpoint?.RemarkforNc) ||
+      this.isFlagEnabled(checkpoint?.RemarkforOfi) ||
+      this.isFlagEnabled(checkpoint?.AttachforComp)
+    );
+  }
+
+  // Checks server-driven mandatory flag for the checkpoint
+  isServerMandatory(checkpoint, index) {
+    const parseFlag = value => {
+      if (value === undefined || value === null || value === '') {
+        return false;
+      }
+      const numeric = parseInt(value, 10);
+      return !Number.isNaN(numeric) && numeric === 1;
+    };
+
+    if (parseFlag(checkpoint?.MandatoryCount)) {
+      return true;
+    }
+
+    const fallbackList = Array.isArray(this.state.checkpointList)
+      ? this.state.checkpointList
+      : [];
+    const fallbackItem =
+      typeof index === 'number' && index >= 0 && index < fallbackList.length
+        ? fallbackList[index]
+        : null;
+
+    return parseFlag(fallbackItem?.MandatoryCount);
+  }
+
+  // Returns true when any attachment exists
+  hasAttachmentValue(checkpoint) {
+    if (!checkpoint) {
+      return false;
+    }
+
+    const list = Array.isArray(checkpoint.AttachmentList)
+      ? checkpoint.AttachmentList
+      : [];
+
+    const hasListAttachment = list.some(item => {
+      if (!item) {
+        return false;
+      }
+
+      const attachmentVal = (item.Attachment || '').toString().trim();
+      const fileNameVal = (item.FileName || '').toString().trim();
+      const fileUriVal = (item.FileUri || '').toString().trim();
+      const fileVal = (item.File || '').toString().trim();
+
+      if (attachmentVal !== '' && attachmentVal !== 'EMPTY') {
+        return true;
+      }
+
+      if (fileNameVal !== '') {
+        return true;
+      }
+
+      if (fileUriVal !== '') {
+        return true;
+      }
+
+      if (fileVal !== '') {
+        return true;
+      }
+
+      if (
+        (item.Docid && item.Docid !== 0) ||
+        (item.AttachmentId && item.AttachmentId !== 0)
+      ) {
+        return true;
+      }
+
+      return false;
+    });
+
+    if (hasListAttachment) {
+      return true;
+    }
+
+    const fallbackAttachment = [
+      checkpoint.Attachment,
+      checkpoint.FileName,
+      checkpoint.File,
+    ]
+      .map(value => (value || '').toString().trim())
+      .find(value => value !== '' && value !== 'EMPTY');
+
+    return typeof fallbackAttachment !== 'undefined';
+  }
+
+  // Determines if NC requirement is mandatory
+  isNcRequirementMandatory(checkpoint) {
+    if (!checkpoint) {
+      return false;
+    }
+
+    return (
+      this.requiresNcAttachment(checkpoint) ||
+      this.requiresNcRemark(checkpoint)
+    );
+  }
+
+  // Determines if compliance requirement is mandatory
+  isCompRequirementMandatory(checkpoint) {
+    if (!checkpoint) {
+      return false;
+    }
+
+    return this.requiresCompAttachment(checkpoint);
+  }
+
+  // Determines if OFI requirement is mandatory
+  isOfiRequirementMandatory(checkpoint) {
+    if (!checkpoint) {
+      return false;
+    }
+
+    return (
+      this.requiresOfiAttachment(checkpoint) ||
+      this.requiresOfiRemark(checkpoint)
+    );
+  }
+
+  // Evaluates whether a checkpoint has any mandatory input
+  isCheckpointMandatory(checkpoint) {
+    if (!checkpoint) {
+      return false;
+    }
+
+    if (this.isNcRequirementMandatory(checkpoint)) {
+      return true;
+    }
+
+    if (this.isCompRequirementMandatory(checkpoint)) {
+      return true;
+    }
+
+    if (this.isOfiRequirementMandatory(checkpoint)) {
+      return true;
+    }
+
+    return this.isFlagEnabled(checkpoint?.IsVeto);
+  }
+
+  // Detects whether the user interacted with the checkpoint
+  isCheckpointTouched(checkpoint) {
+    if (!checkpoint) {
+      return false;
+    }
+
+    const modifiedFlag =
+      checkpoint.Modified === true ||
+      checkpoint.Modified === 'true' ||
+      checkpoint.Modified === 'TRUE' ||
+      checkpoint.Modified === 1 ||
+      checkpoint.Modified === '1';
+
+    if (modifiedFlag) {
+      return true;
+    }
+
+    if (this.hasRemarkValue(checkpoint)) {
+      return true;
+    }
+
+    if (this.hasAttachmentValue(checkpoint)) {
+      return true;
+    }
+
+    const completeFlag =
+      checkpoint.IsComplete === true ||
+      checkpoint.IsComplete === 'true' ||
+      checkpoint.IsComplete === 'TRUE' ||
+      checkpoint.IsComplete === 1 ||
+      checkpoint.IsComplete === '1';
+
+    if (completeFlag) {
+      return true;
+    }
+
+    return false;
+  }
+
+  // Decides if validation should run during save for this checkpoint
+  shouldValidateCheckpointOnSave(checkpoint, index) {
+    if (!checkpoint) {
+      return false;
+    }
+
+    const requiresRemark = this.isRemarkMandatory(checkpoint);
+    const requiresAttachment = this.isAttachmentMandatory(checkpoint);
+
+    if (!requiresRemark && !requiresAttachment) {
+      return false;
+    }
+
+    const activeIndexRaw = this.state.ActiveId;
+    const activeIndexNumber =
+      typeof activeIndexRaw === 'number'
+        ? activeIndexRaw
+        : parseInt(activeIndexRaw, 10);
+    const normalizedActiveIndex = Number.isNaN(activeIndexNumber)
+      ? 0
+      : activeIndexNumber;
+
+    if (index === normalizedActiveIndex) {
+      return true;
+    }
+    return this.isCheckpointTouched(checkpoint);
+  }
+
+  // Aggregates missing requirement messages for a checkpoint
+  validateCheckpointRequirements(checkpoint) {
+    if (!checkpoint) {
+      return {valid: true, missing: null};
+    }
+
+    if (
+      this.isAttachmentMandatory(checkpoint) &&
+      !this.hasAttachmentValue(checkpoint)
+    ) {
+      return {valid: false, missing: 'attachment'};
+    }
+
+    if (this.isRemarkMandatory(checkpoint) && !this.hasRemarkValue(checkpoint)) {
+      return {valid: false, missing: 'remark'};
+    }
+
+    return {valid: true, missing: null};
+  }
+
+  // Marks a requirement as blocking and updates state
+  blockRequirement(index, missingType, extraState = {}) {
+    const message =
+      missingType === 'attachment'
+        ? 'Please add Attachment to proceed further'
+        : 'Please add Remarks to proceed further';
+
+    const targetCheckpoint = this.state.checkpointList?.[index];
+
+    this.setState(
+      prevState => ({
+        ActiveId: index,
+        selectedindex: targetCheckpoint || prevState.selectedindex,
+        ...extraState,
+      }),
+      () => {
+        if (this._carousel && typeof index === 'number') {
+          try {
+            this._carousel.snapToItem(index, true);
+          } catch (error) {
+            console.warn('[blockRequirement] Failed to snap carousel', error);
+          }
+        }
+        Alert.alert('', message);
+      },
+    );
+  }
+
+  clearNcofiRecordsForTemplates = templateIdList => {
+    const activeAuditId =
+      this.state.auditId ??
+      this.props?.navigation?.state?.params?.AuditID ??
+      null;
+
+    if (!activeAuditId) {
+      return null;
+    }
+
+    const templateIds = Array.isArray(templateIdList)
+      ? templateIdList
+          .map(value => {
+            if (value === undefined || value === null) {
+              return null;
+            }
+            const stringValue = String(value).trim();
+            return stringValue.length > 0 ? stringValue : null;
+          })
+          .filter(Boolean)
+      : [];
+
+    if (templateIds.length === 0) {
+      return null;
+    }
+
+    const templateIdSet = new Set(templateIds);
+    const currentRecords = this.cloneNcofiRecords(
+      this.props?.data?.audits?.ncofiRecords,
+    );
+
+    if (!Array.isArray(currentRecords) || currentRecords.length === 0) {
+      return null;
+    }
+
+    let hasChanges = false;
+    const updatedRecords = currentRecords.map(record => {
+      const recordAuditId =
+        record?.AuditID ?? record?.AuditId ?? record?.auditId ?? null;
+      if (
+        recordAuditId === undefined ||
+        recordAuditId === null ||
+        String(recordAuditId) !== String(activeAuditId)
+      ) {
+        return record;
+      }
+
+      const pendingEntries = Array.isArray(record?.Pending)
+        ? record.Pending
+        : [];
+
+      const filteredPending = pendingEntries.filter(item => {
+        const templateId =
+          item?.ChecklistTemplateId ?? item?.ChecklistTemplateID ?? null;
+        if (templateId === undefined || templateId === null) {
+          return true;
+        }
+        const normalized = String(templateId).trim();
+        if (!normalized) {
+          return true;
+        }
+        return !templateIdSet.has(normalized);
+      });
+
+      if (filteredPending.length === pendingEntries.length) {
+        return record;
+      }
+
+      hasChanges = true;
+      return {
+        ...record,
+        Pending: filteredPending,
+      };
+    });
+
+    if (!hasChanges) {
+      this.logTotalCount('clearCheckpoints:ncofi:noop', {
+        auditId: activeAuditId,
+        templates: Array.from(templateIdSet),
+      });
+      return null;
+    }
+
+    this.props.storeNCRecords(updatedRecords);
+    this.ncofiBaseline = this.cloneNcofiRecords(updatedRecords);
+
+    const auditRecord = updatedRecords.find(
+      record =>
+        String(record?.AuditID ?? record?.AuditId ?? record?.auditId) ===
+        String(activeAuditId),
+    );
+
+    const pendingList = Array.isArray(auditRecord?.Pending)
+      ? auditRecord.Pending
+      : [];
+
+    const hasPendingNc = pendingList.some(item => {
+      const categoryCandidate =
+        item?.Category ??
+        item?.category ??
+        item?.CheckNC ??
+        item?.checkNc ??
+        item?.checkNC;
+      if (categoryCandidate === undefined || categoryCandidate === null) {
+        return false;
+      }
+      const normalized = String(categoryCandidate).trim().toUpperCase();
+      if (!normalized) {
+        return false;
+      }
+      if (normalized === '0') {
+        return true;
+      }
+      return normalized.startsWith('NC');
+    });
+
+    const hasPendingOfi = pendingList.some(item => {
+      const categoryCandidate =
+        item?.Category ??
+        item?.category ??
+        item?.CheckNC ??
+        item?.checkNc ??
+        item?.checkNC;
+      if (categoryCandidate === undefined || categoryCandidate === null) {
+        return false;
+      }
+      const normalized = String(categoryCandidate).trim().toUpperCase();
+      if (!normalized) {
+        return false;
+      }
+      if (normalized === '1') {
+        return true;
+      }
+      return normalized.includes('OFI');
+    });
+
+    this.logTotalCount('clearCheckpoints:ncofi:updated', {
+      auditId: activeAuditId,
+      templates: Array.from(templateIdSet),
+      summary: this.summarizeNcRecords(updatedRecords),
+    });
+
+    persistAuditSummarySnapshot(updatedRecords, activeAuditId).catch(error =>
+      console.log('clearCheckpoints persist error', error),
+    );
+
+    return {
+      hasPendingNc,
+      hasPendingOfi,
+    };
+  };
+
+  // Clears NC-related state for the current checkpoint
   clearNcCheckpoint = () => {
-    this.setState({dialogVisibleNCR: false}, () => {
+    this.setState({dialogVisibleNCR: false}, async () => {
       var dupNCrecords = [];
       var NCrecords = this.props.data.audits.ncofiRecords;
       for (var i = 0; i < NCrecords.length; i++) {
@@ -4014,6 +4954,16 @@ class CheckPointDemo extends Component {
         }
       }
       this.props.storeNCRecords(dupNCrecords);
+      this.logTotalCount('clearNcCheckpoint:persist:start', {
+        auditId: this.state.auditId,
+        summary: this.summarizeNcRecords(dupNCrecords),
+      });
+      await persistAuditSummarySnapshot(dupNCrecords, this.state.auditId);
+      this.logTotalCount('clearNcCheckpoint:persist:complete', {
+        auditId: this.state.auditId,
+        summary: this.summarizeNcRecords(dupNCrecords),
+      });
+      this.ncofiBaseline = this.cloneNcofiRecords(dupNCrecords);
       //console.log(this.props.storeNCRecords, 'storeNCRecords');
       this.refs.toast.show(strings.NCremoved, DURATION.LENGTH_LONG);
     });
@@ -4075,6 +5025,7 @@ class CheckPointDemo extends Component {
     return false;
   };
 
+  // Prevents duplicate files from being attached
   checkFileAlreadyExist = (checkPointsDetails, items, response) => {
     for (var i = 0; i < checkPointsDetails.length; i++) {
       //console.log('one:third');
@@ -4093,6 +5044,7 @@ class CheckPointDemo extends Component {
     return false;
   };
 
+  // Handles attachment processing after file selection
   callAttach = (checkPointsDetails, items, finalpath, response) => {
     var sumArray = [];
     //console.log(checkPointsDetails.length, 'checkdlength');
@@ -4398,6 +5350,7 @@ class CheckPointDemo extends Component {
     }
   };
 
+  // Calculates total attachment size for the checkpoint
   sumFileSize() {
     var sumarr = this.state.sumFileSizearray;
     let result = sumarr.reduce((a, b) => {
@@ -4413,116 +5366,178 @@ class CheckPointDemo extends Component {
     );
   }
 
+  // Resets checkpoint selections and attachments
   clearCheckpoints = () => {
     this.setState(
-      {isSaving: true, dialogVisibleReset: false, deleteallattachment: 1},
+      prevState => {
+        const resetCheckpointList = prevState.checkpointList.map(item => ({
+          ...item,
+          Status: '',
+          Score: '-2',
+          Scoretext: '',
+          RadioValue: 0,
+          Remark: '',
+          immediateAction: '',
+          Modified: true,
+        }));
+
+        const checkPointsDetails = resetCheckpointList.map(item => ({
+          AuditId: prevState.auditId,
+          ChecklistTemplateId: item?.ChecklistTemplateId,
+          ParentId: item?.ParentId,
+          FormId: item?.FormID,
+          Score: '-2',
+          Scoretext: '',
+          IsComplete: '',
+          Remark: '',
+          RadioValue: 0,
+          Correction: 0,
+          Approach: '',
+          ApproachId: 0,
+          ParamMode: 0,
+          IsNCAllowed: 0,
+          IsCorrect: -1,
+          Attachment: '',
+          AttachmentList: [],
+          FileName: '',
+          File: '',
+          FileType: '',
+          FileSize: 0,
+          isScoreValid: true,
+          scoreInvalidMsg: '',
+          AttachforNc: item?.AttachforNc,
+          RemarkforNc: item?.RemarkforNc,
+          AttachforOfi: item?.AttachforOfi,
+          RemarkforOfi: item?.RemarkforOfi,
+          AttachforComp: item?.AttachforComp,
+          MandatoryCount: item?.MandatoryCount,
+          IsVeto: item?.IsVeto,
+          immediateAction: '',
+          Modified: true,
+        }));
+
+        const templateIdsForClear = resetCheckpointList
+          .map(item => item?.ChecklistTemplateId)
+          .filter(
+            value => value !== undefined && value !== null && value !== '',
+          )
+          .map(value => String(value).trim())
+          .filter(Boolean);
+
+        const previousNcAvailable = prevState.ncAvailable_NC;
+        const previousOfiAvailable = prevState.ofiAvailable_OFI;
+        const ncStatus =
+          templateIdsForClear.length > 0
+            ? this.clearNcofiRecordsForTemplates(templateIdsForClear)
+            : null;
+
+        const ncAvailability =
+          ncStatus && typeof ncStatus.hasPendingNc === 'boolean'
+            ? ncStatus.hasPendingNc
+            : previousNcAvailable;
+        const ofiAvailability =
+          ncStatus && typeof ncStatus.hasPendingOfi === 'boolean'
+            ? ncStatus.hasPendingOfi
+            : previousOfiAvailable;
+
+        return {
+          isSaving: true,
+          dialogVisibleReset: false,
+          deleteallattachment: 1,
+          checkPointsDetails,
+          checkpointList: resetCheckpointList,
+          radiovalue_ncofi: '',
+          dropdownnotokvalue: null,
+          ActiveId: 0,
+          ncAvailable_NC: ncAvailability,
+          ofiAvailable_OFI: ofiAvailability,
+          radioResetKey: prevState.radioResetKey + 1,
+          checkpointRevision: prevState.checkpointRevision + 1,
+          radiovalue: [],
+          isUnsavedData: true,
+        };
+      },
       () => {
-        var checkPointsDetails = [];
-        var index = 0;
-        for (var i = 0; i < this.state.checkpointList.length; i++) {
-          //console.log('13==>');
-          //console.log('reset check', this.state.checkpointList);
-          checkPointsDetails.push({
-            AuditId: this.state.auditId,
-            ChecklistTemplateId:
-              this.state.checkpointList?.[i]?.ChecklistTemplateId,
-            ParentId: this.state.checkpointList?.[i]?.ParentId,
-            FormId: this.state.checkpointList?.[i]?.FormID,
-            Score: '-2',
-            Scoretext: '',
-            IsComplete: '',
-            Remark: '',
-            RadioValue: 0,
-            Correction: 0,
-            Approach: '',
-            ApproachId: '',
-            ParamMode: 0,
-            IsNCAllowed: 0,
-            IsCorrect: -1,
-            Attachment: '',
-            AttachmentList: [],
-            FileName: '',
-            File: '',
-            FileType: '',
-            FileSize: 0,
-            isScoreValid: true,
-            scoreInvalidMsg: '',
-            AttachforNc: this.state.checkpointList?.[i]?.AttachforNc,
-            RemarkforNc: this.state.checkpointList?.[i]?.RemarkforNc,
-            AttachforOfi: this.state.checkpointList?.[i]?.AttachforOfi,
-            RemarkforOfi: this.state.checkpointList?.[i]?.RemarkforOfi,
-            MandatoryCount: this.state.checkpointList?.[i]?.MandatoryCount,
-            IsVeto: this.state.checkpointList?.[i]?.IsVeto,
-            // immediateAction: this.state.checkpointList?.[i]?.immediateAction,
-            immediateAction: '',
-            Modified: true,
-          });
-        }
-        this.setState(
-          {
-            checkPointsDetails: checkPointsDetails,
-          },
-          () => {
-            //console.log('AFter reset', this.state.checkPointsDetails);
-            setTimeout(() => {
-              this.setState({isSaving: false, ActiveId: index});
-              // this.countStatistics(this.state.checkPointsDetails)
-            }, 200);
-            this.refs.toast.show(
-              strings.CheckpointClear,
-              DURATION.LENGTH_SHORT,
-            );
-          },
+        this.countStatistics(this.state.checkPointsDetails);
+        setTimeout(() => {
+          this.setState({isSaving: false, deleteallattachment: 0});
+        }, 200);
+        this.refs.toast.show(
+          strings.CheckpointClear,
+          DURATION.LENGTH_SHORT,
         );
       },
     );
   };
+  // Handles carousel tab button press
   btnDatapress(index, item) {
-    console.log("Button pressed for index:", index);
-  
+    console.log('Button pressed for index:', index);
+
+    const activeIndex = this.state.ActiveId ?? 0;
+    if (activeIndex !== index) {
+      const validation = this.validateCheckpointRequirements(
+        this.state.checkPointsDetails?.[activeIndex],
+      );
+      if (!validation.valid) {
+        this.blockRequirement(activeIndex, validation.missing);
+        return;
+      }
+    }
+
     const checkpoint = this.state.checkPointsDetails[index];
     const attachment = checkpoint.AttachmentList.filter(
-      checks => checks.Attachment === 'EMPTY'
+      checks => checks.Attachment === 'EMPTY',
     );
-  
+
     this.setState(
       {
         selectedindex: item,
         ActiveId: index,
-        isCaroselLoaded: Platform.OS !== 'ios' ? false : this.state.isCaroselLoaded,
+        isCaroselLoaded:
+          Platform.OS !== 'ios' ? false : this.state.isCaroselLoaded,
       },
       () => {
         if (attachment.length > 0) {
           this.downloadFile(attachment[0]);
           this.refs.toast.show(
             'Downloading the attachments...',
-            DURATION.LENGTH_LONG
+            DURATION.LENGTH_LONG,
           );
         }
-  
+
         // Carousel snapping logic\
-        if(this._carousel){
+        if (this._carousel) {
           const currentIndex = this._carousel.currentIndex;
-          console.log("Current index:", currentIndex);
-  
+          console.log('Current index:', currentIndex);
+
           // Check if index is far apart
           if (Math.abs(currentIndex - index) > 5) {
             // Force layout re-render and then snap
             this._carousel.triggerRenderingHack();
           }
-  
+
           // Snap to the correct index
           this._carousel.snapToItem(index, true);
-  
-      }
-    }
+        }
+      },
     );
   }
-  
 
+  // Renders carousel tab button
   btnData(index, item) {
     //console.log('index=====?', index);
     //console.log('item=====?', item);
+
+    const activeIndex = this.state.ActiveId ?? 0;
+    if (activeIndex !== index) {
+      const validation = this.validateCheckpointRequirements(
+        this.state.checkPointsDetails?.[activeIndex],
+      );
+      if (!validation.valid) {
+        this.blockRequirement(activeIndex, validation.missing);
+        return;
+      }
+    }
 
     this.setState({selectedindex: item});
     if (Platform.OS == 'ios') {
@@ -4558,8 +5573,8 @@ class CheckPointDemo extends Component {
             this.setState({isCaroselLoaded: true}, () => {
               const checkpoint = this.state.checkPointsDetails[index];
 
-             // this.setOnLoadFailureReason(checkpoint);
-             // this.setOnLoadRadioValue(checkpoint,item);
+              // this.setOnLoadFailureReason(checkpoint);
+              // this.setOnLoadRadioValue(checkpoint,item);
               const attachment = checkpoint.AttachmentList.filter(
                 checks => checks.Attachment === 'EMPTY',
               );
@@ -4577,7 +5592,16 @@ class CheckPointDemo extends Component {
       );
     }
   }
+  // Advances to the next checkpoint slide
   onNext(carosule_index, checklist) {
+    const currentCheckpoint = this.state.checkPointsDetails?.[carosule_index];
+    const validation = this.validateCheckpointRequirements(currentCheckpoint);
+
+    if (!validation.valid) {
+      this.blockRequirement(carosule_index, validation.missing);
+      return;
+    }
+
     let index = carosule_index + 1;
     //console.log('carosule_index index', carosule_index);
     console.log('LoadCategory:Next Button Clikced', index);
@@ -4590,9 +5614,11 @@ class CheckPointDemo extends Component {
           },
           () => {
             const checkpoint = this.state.checkPointsDetails[index];
-            this.setState({selectedindex: checkpoint});  
-           // this.setOnLoadFailureReason(checkpoint);
-           // this.setOnLoadRadioValue(checkpoint,checklist);
+
+            this.setState({selectedindex: checkpoint});
+
+            // this.setOnLoadFailureReason(checkpoint);
+            // this.setOnLoadRadioValue(checkpoint,checklist);
 
             const attachment = checkpoint.AttachmentList.filter(
               checks => checks.Attachment === 'EMPTY',
@@ -4616,39 +5642,53 @@ class CheckPointDemo extends Component {
           },
           () => {
             //setTimeout(() => {
-              //() => {
-              console.log('LoadCategory:Next Clikced4', index);
-              const checkpoint = this.state.checkPointsDetails[index];
-              console.log(checkpoint, 'checkpointinonnext');
-              this.setState({selectedindex: checkpoint});
-              const FailureCategoryId = checkpoint.FailureCategoryId;
-              console.log("LoadCategory:Next",FailureCategoryId);
-              
-              if (typeof FailureCategoryId !== "undefined" && FailureCategoryId !== "0" ){
-                  this.failurereasonArray(FailureCategoryId);
-              }
-                const attachment = checkpoint.AttachmentList.filter(
-                  checks => checks.Attachment === 'EMPTY',
-                );
+            //() => {
+            console.log('LoadCategory:Next Clikced4', index);
+            const checkpoint = this.state.checkPointsDetails[index];
+            console.log(checkpoint, 'checkpointinonnext');
 
-                if (attachment.length > 0) {
-                  this.downloadFile(attachment[0]);
-                  this.refs.toast.show(
-                    'Downloading the attachments...',
-                    DURATION.LENGTH_LONG,
-                  );
-                }
-                //this._carousel.snapToItem(index, true);
-              //};
+            this.setState({selectedindex: checkpoint});
 
-              this._carousel.snapToItem(index, true);
+            const FailureCategoryId = checkpoint.FailureCategoryId;
+            console.log('LoadCategory:Next', FailureCategoryId);
+
+            if (
+              typeof FailureCategoryId !== 'undefined' &&
+              FailureCategoryId !== '0'
+            ) {
+              this.failurereasonArray(FailureCategoryId);
+            }
+            const attachment = checkpoint.AttachmentList.filter(
+              checks => checks.Attachment === 'EMPTY',
+            );
+
+            if (attachment.length > 0) {
+              this.downloadFile(attachment[0]);
+              this.refs.toast.show(
+                'Downloading the attachments...',
+                DURATION.LENGTH_LONG,
+              );
+            }
+            //this._carousel.snapToItem(index, true);
+            //};
+
+            this._carousel.snapToItem(index, true);
             //}, 550),
-          }
+          },
         );
       }
     }
   }
+  // Moves back to the previous checkpoint slide
   onBack(carosule_index) {
+    const currentCheckpoint = this.state.checkPointsDetails?.[carosule_index];
+    const validation = this.validateCheckpointRequirements(currentCheckpoint);
+
+    if (!validation.valid) {
+      this.blockRequirement(carosule_index, validation.missing);
+      return;
+    }
+
     let index = carosule_index - 1;
     //console.log('carosule_index index', carosule_index);
     //console.log('back index', index);
@@ -4704,6 +5744,7 @@ class CheckPointDemo extends Component {
       }
     }
   }
+  // Normalizes iOS file paths for attachments
   IosPath(path) {
     //console.log(path, 'pathvariable');
     let IosFiles = RNFetchBlob.fs.dirs.DocumentDir + '/' + 'IosFiles';
@@ -4714,6 +5755,7 @@ class CheckPointDemo extends Component {
     return iosPath;
   }
 
+  // Formats selected approach text
   approachText(value) {
     var Approach_value = value;
     var LPAdrop_Arr = this.state.LPAdrop;
@@ -4731,6 +5773,7 @@ class CheckPointDemo extends Component {
     }
   }
 
+  // Returns display text for failure category
   failureCategoryText(value) {
     //console.log('helloid2', value, this.state.LPAdrop);
     var Failcat_value = value;
@@ -4744,7 +5787,7 @@ class CheckPointDemo extends Component {
           text = element.FailureCategoryName;
         }
       });
-      
+
       //console.log(text, 'helloid3');
       return text;
     } else {
@@ -4753,6 +5796,7 @@ class CheckPointDemo extends Component {
     }
   }
 
+  // Builds failure reason list based on category
   failurereasonArray(value) {
     //console.log(value, 'failurereasondata');
     const results = this.state.FailureReasonStateList.filter(obj => {
@@ -4772,22 +5816,28 @@ class CheckPointDemo extends Component {
       },
     );
   }
+  // Returns display text for failure reason
   failureReasonText(value) {
     //console.log('FailureReasonId:', value); // Debugging
     var Failres_value = value;
     var LPAdrop_Arr = this.state.FailureReasonStateList;
     var text = '';
+
     if (LPAdrop_Arr.length > 0) {
+      console.log(LPAdrop_Arr, 'LPAdrop_Arr11');
+
       LPAdrop_Arr.forEach(element => {
         if (element.FailureReasonId == Failres_value) {
           text = element.FailureReasonName;
         }
       });
     }
+
     console.log('Mapped FailureReasonText:', text); // Debugging
     return text || ''; // Return empty string if no match
   }
 
+  // Loads dropdown options (approach/failure reasons) for checkpoints
   getDropValue() {
     var AuditID = this.state.auditId;
     var Data = this.state.clauseRecords;
@@ -4871,7 +5921,7 @@ class CheckPointDemo extends Component {
     });
   };
 
-
+  // Initiates download for an attachment
   downloadFile(attach) {
     const checkpointList = this.state.checkPointsDetails;
     let newCheckPointDetails = [];
@@ -4913,6 +5963,7 @@ class CheckPointDemo extends Component {
       }
     });
   }
+  // Iterates attachments to fetch their data
   getFiles(attachments) {
     for (let i = 0; i < attachments.length; i++) {
       const attachment = attachments[i];
@@ -4927,6 +5978,7 @@ class CheckPointDemo extends Component {
       }
     }
   }
+  // Starts download flow for a single attachment
   initiateDownload(attachment) {
     var Token = this.props.data.audits.token;
     auth.downloadFile(attachment.Docid, Token, (res, data) => {
@@ -4950,6 +6002,7 @@ class CheckPointDemo extends Component {
         this.updateCheckPoints(attach, true);
       });
   }
+  // Builds local path for a downloaded attachment
   getNewFilePath(attach) {
     let extn = attach.FileName.substring(attach.FileName.lastIndexOf('.') + 1);
     var newFileName = 'file_' + attach.Docid + extn;
@@ -4962,6 +6015,7 @@ class CheckPointDemo extends Component {
       newFileName
     );
   }
+  // Updates checkpoint data after attachment download/upload
   updateCheckPoints(attach, error) {
     const checkpointList = this.state.checkPointsDetails;
     let newCheckPointDetails = [];
@@ -5003,6 +6057,7 @@ class CheckPointDemo extends Component {
     });
   }
 
+  // Renders attachment row for a checkpoint
   renderAttachment(index) {
     return (
       <ScrollView horizontal={true}>
@@ -5164,6 +6219,7 @@ class CheckPointDemo extends Component {
     );
   }
 
+  // Renders loading indicator overlay
   render_loader() {
     return (
       <View
@@ -5189,6 +6245,7 @@ class CheckPointDemo extends Component {
     });
   }
 
+  // Returns an icon component based on download state
   getDownloadLoadingIcon(FileName) {
     return (
       <View style={{flexDirection: 'row'}}>
@@ -5222,6 +6279,7 @@ class CheckPointDemo extends Component {
       </View>
     );
   }
+  // Chooses an icon based on attachment file type
   getFileIcon(attach) {
     let icon = 'file';
     const filename = attach.FileName;
@@ -5317,6 +6375,7 @@ class CheckPointDemo extends Component {
       </View>
     );
   }
+  // Shows a spinner while attachments are loading
   renderAttachmentLoading = () => {
     return (
       <View style={{flexDirection: 'row', paddingBottom: 10}}>
@@ -5354,6 +6413,7 @@ class CheckPointDemo extends Component {
       },
     );
   };
+  // Deletes an immediate action record from state
   deleteImmediateAction(item) {
     var checkPointsDetails = this.state.checkPointsDetails;
     for (var i = 0; i < checkPointsDetails.length; i++) {
@@ -5375,6 +6435,7 @@ class CheckPointDemo extends Component {
     );
   }
 
+  // Builds the status badge for a checkpoint based on score
   renderStatus = (checkpoint, scoreTypes) => {
     let scoreTypesData = scoreTypes.scoreTypesData;
     //console.log('renderStatus:scoreTypesData', scoreTypesData, checkpoint);
@@ -5407,6 +6468,7 @@ class CheckPointDemo extends Component {
       <Icon name="times" size={20} color="red" style={{marginTop: 10}} />
     ) : null;
   };
+  // Toggles the failure-reason dropdown visibility
   toggleDropdown = () => {
     // Toggle the boolean value
     //console.log('booleancheck', this.state.booleanNcofi);
@@ -5414,135 +6476,171 @@ class CheckPointDemo extends Component {
       booleanNcofi: !prevState.booleanNcofi,
     }));
   };
- 
-
-
-  handleNotOkClick = () => {
-    var NCrecords = this.props.data.audits.ncofiRecords || [];
-    
-    console.log('NCrecords:', NCrecords);
-    console.log("be here");
-    const responseData = this.state.clauseRecords[0].DropDownProps.Users
- 
-    const filteredData = responseData.filter((item) => item.ISSelection === "True").map((item) => item.userid);
-    console.log("filteredDataforres",filteredData)
- 
-    console.log('Selected AuditId:', this.state.selectedindex);
+  markAuditEdited = async () => {
+    try {
+      const { auditId } = this.state;
+      await AsyncStorage.setItem(`audit_edited_${auditId}`, 'true');
+      DeviceEventEmitter.emit('AUDIT_EDITED', auditId); // optional; lets AuditForm refresh instantly
+      console.log(`[CheckPointDemo] Marked audit ${auditId} as edited`);
+    } catch (e) {
+      console.log('[CheckPointDemo] Failed to set audit_edited flag:', e);
+    }
+  };
   
 
-    if (NCrecords.length === 0) {
-      console.warn('No NC records found');
+  // Handles quick “Not OK” action by staging an NC record
+  handleNotOkClick = () => {
+    const selectedChecklist = this.state.selectedindex;
+    const ncRecords = this.props.data.audits.ncofiRecords || [];
+
+    if (!selectedChecklist) {
+      console.warn('[handleNotOkClick] No checklist selected');
       return;
     }
- 
-    var dupNCrecords = [];
-    var BundleArr = {
-      requiretext: "-",
-      NonConfirmity: this.state.selectedindex.ChecklistName + ": No",
-      categoryDrop: this.state.clauseRecords[0].DropDownProps.Category[0].CategoryId,
+
+    if (ncRecords.length === 0) {
+      console.warn('[handleNotOkClick] No NC records found');
+      return;
+    }
+
+    const clauseRecord = this.state.clauseRecords?.[0];
+    const clauseProps = clauseRecord?.DropDownProps;
+
+    if (!clauseProps) {
+      console.warn('[handleNotOkClick] Missing clause dropdown properties');
+      return;
+    }
+
+    const responseData = clauseProps.Users || [];
+    const filteredData = responseData
+      .filter(item => item.ISSelection === 'True')
+      .map(item => item.userid);
+
+    const bundleEntry = {
+      requiretext: '-',
+      NonConfirmity:
+        (selectedChecklist.ChecklistName || '')
+          .replace(/<\/?p>/gi, '')
+          .replace(/<br\s*\/?>/gi, '\n')
+          .replace(/&nbsp;/gi, ' ')
+          .replace(/&amp;/gi, '&') + ': No',
+      categoryDrop: clauseProps.Category?.[0]?.CategoryId ?? 0,
       ResponsibilityUser: filteredData,
-      requestDrop: "24",
+      requestDrop: clauseProps.RequestBy?.[0]?.AuditeeContactPersonId ?? 0,
       deptDrop: 0,
       failureDrop: 0,
       filename: [],
       filedata: [],
-      AuditID: this.state.selectedindex.AuditId,
-      ChecklistID: "",
+      AuditID: selectedChecklist.AuditId,
+      ChecklistID: '',
       Formid: '-1',
       SiteID: 1,
-      auditstatus: "2",
-      title: "order by FormName asc",
-      NCNumber: this.state.raiseID.AUDIT_NO,
-      Category: "NC",
-      uniqueNCkey: this.state.selectedindex.uniqueNCkey === undefined ? Moment().unix() : this.state.selectedindex.uniqueNCkey,
+      auditstatus: '2',
+      title: 'order by FormName asc',
+      NCNumber: this.state.raiseID?.AUDIT_NO ?? '',
+      Category: 'NC',
+      uniqueNCkey:
+        selectedChecklist.uniqueNCkey === undefined
+          ? Moment().unix()
+          : selectedChecklist.uniqueNCkey,
       selectedItems: [],
       selectedItemsProcess: [],
-      ChecklistTemplateId: this.state.selectedindex.ChecklistTemplateId,
-      ncIdentifier: "",
-      objEvidence: "",
-      documentRef: "",
-      recommAction: "",
+      ChecklistTemplateId: selectedChecklist.ChecklistTemplateId,
+      ncIdentifier: '',
+      objEvidence: '',
+      documentRef: '',
+      recommAction: '',
     };
-    console.log('BundleArr:', BundleArr);
- 
-    for (var i = 0; i < NCrecords.length; i++) {
-      console.log("Processing AuditID:", NCrecords[i].AuditID);
-      if (String(NCrecords[i].AuditID) === String(this.state.selectedindex.AuditId)) {
-        console.log('Match found for AuditID:', NCrecords[i].AuditID);
- 
-        var Information = [...(NCrecords[i].Pending || [])];
- 
-        // Ensure each BundleArr is added as a separate entry in Pending
-        Information.push(BundleArr);
- 
-        // Ensure the Pending array has the correct order and structure (with indexes 0, 1, 2, etc.)
-        dupNCrecords.push({
-          AuditID: NCrecords[i].AuditID,
-          Uploaded: NCrecords[i].Uploaded,
-          Pending: Information,
-        });
-      } else {
-        dupNCrecords.push(NCrecords[i]);
-      }
-    }
- 
-    console.log('Updated NC Records:', dupNCrecords);
-    this.props.storeNCRecords(dupNCrecords);
-};
- 
 
+    const updatedRecords = ncRecords.map(record => {
+      if (String(record.AuditID) !== String(selectedChecklist.AuditId)) {
+        return record;
+      }
+
+      const pendingEntries = Array.isArray(record.Pending)
+        ? [...record.Pending, bundleEntry]
+        : [bundleEntry];
+
+      return {
+        ...record,
+        Pending: pendingEntries,
+      };
+    });
+
+    this.props.storeNCRecords(updatedRecords);
+    const auditIdForPersist = selectedChecklist.AuditId;
+    this.setState({ isUnsavedData: true });
+  };
+
+  // Ensures a failure reason belongs to the selected category
   isFailureReasonValid(failureReasonId, categoryId) {
-    const validReasons = this.state.FailReasArraySt.filter(reason => reason.categoryId === categoryId);
+    const validReasons = this.state.FailReasArraySt.filter(
+      reason => reason.categoryId === categoryId,
+    );
     return validReasons.some(reason => reason.id === failureReasonId);
   }
 
-//  setOnLoadRadioValue(checkpoint,checklist){
-//   console.log("Load:Radio:",checkpoint,checklist);
-//   var RadioValue = -1;
-//   if (checklist?.ansType === 'M3'){                             
-//     RadioValue = parseInt(checklist?.Status) == 1 || parseInt(checklist?.RadioValue) == 9 ? 9
-//       : parseInt(checklist.Status) == 0 || parseInt(checklist.RadioValue) == 10 ? 10 
-//       : parseInt(checklist.Status) == 2 || parseInt(checklist.RadioValue) == 11 ? 11
-//       : -1 
-//   } else if (checklist?.ansType === 'M4'){                             
-//     RadioValue = parseInt(checkpoint.Status) == 1 || parseInt(checkpoint.RadioValue) == 14 ? 14
-//       : parseInt(checklist.Status) == 0 || parseInt(checklist.RadioValue) == 15 ? 15
-//       : parseInt(checklist.Status) == 2 || parseInt(checklist.RadioValue) == 11 ? 11
-//       : -1 
-//   }
-//   console.log("Load:Radio:VAlue",RadioValue);
+  //  setOnLoadRadioValue(checkpoint,checklist){
+  //   console.log("Load:Radio:",checkpoint,checklist);
+  //   var RadioValue = -1;
+  //   if (checklist?.ansType === 'M3'){
+  //     RadioValue = parseInt(checklist?.Status) == 1 || parseInt(checklist?.RadioValue) == 9 ? 9
+  //       : parseInt(checklist.Status) == 0 || parseInt(checklist.RadioValue) == 10 ? 10
+  //       : parseInt(checklist.Status) == 2 || parseInt(checklist.RadioValue) == 11 ? 11
+  //       : -1
+  //   } else if (checklist?.ansType === 'M4'){
+  //     RadioValue = parseInt(checkpoint.Status) == 1 || parseInt(checkpoint.RadioValue) == 14 ? 14
+  //       : parseInt(checklist.Status) == 0 || parseInt(checklist.RadioValue) == 15 ? 15
+  //       : parseInt(checklist.Status) == 2 || parseInt(checklist.RadioValue) == 11 ? 11
+  //       : -1
+  //   }
+  //   console.log("Load:Radio:VAlue",RadioValue);
 
-//   for (var i = 0; i < this.state.checkPointsDetails.length; i++) {
-//     if (this.state.checkPointsDetails[i].ChecklistTemplateId == checklist.ChecklistTemplateId) {
-//       this.state.checkPointsDetails[i].RadioValue = RadioValue;
-//         return true;    
-//     }
-//   } 
-//   return false;
-// }
+  //   for (var i = 0; i < this.state.checkPointsDetails.length; i++) {
+  //     if (this.state.checkPointsDetails[i].ChecklistTemplateId == checklist.ChecklistTemplateId) {
+  //       this.state.checkPointsDetails[i].RadioValue = RadioValue;
+  //         return true;
+  //     }
+  //   }
+  //   return false;
+  // }
 
-// setOnLoadFailureReason(checkpoint){                  
-//     const FailureCategoryId = checkpoint?.FailureCategoryId;
-//     console.log("Load:Category:1",FailureCategoryId);
-//     if (typeof FailureCategoryId !== "undefined" && FailureCategoryId !== "0" ){     
-//        this.failurereasonArray(FailureCategoryId);
-//        return true;
-//    }
-// }
+  // setOnLoadFailureReason(checkpoint){
+  //     const FailureCategoryId = checkpoint?.FailureCategoryId;
+  //     console.log("Load:Category:1",FailureCategoryId);
+  //     if (typeof FailureCategoryId !== "undefined" && FailureCategoryId !== "0" ){
+  //        this.failurereasonArray(FailureCategoryId);
+  //        return true;
+  //    }
+  // }
+  // Adjusts layout when device orientation changes
+  handleOrientationChange = ({window}) => {
+    this.setState({screenWidth: window.width});
+  };
+  saveRadioSelection = async (auditId, checklistId, formId, checkPointId, selectedValue) => {
+    const key = `radio_${auditId}_${checklistId}_${formId}_${checkPointId}`;
+    try {
+      await AsyncStorage.setItem(key, selectedValue.toString());
+      console.log('📌 Saved radio selection:', key, selectedValue);
+    } catch (e) {
+      console.warn('❌ Failed to save radio selection:', e);
+    }
+  };
 
-
+  // Renders checkpoint carousel, actions, and modals
   render() {
     //console.log(this.state.radiovalue_ncofi,"valuesincoming");
-    console.log(this.state.Status_nc_ofi,"valuesincomingforncofi");
-    
+    console.log(this.state.Status_nc_ofi, 'valuesincomingforncofi');
 
-    console.log("Load:Category:1:render")
+    console.log('Load:Category:1:render');
     const {booleanNcofi} = this.state;
     let data = [
       {
         value: 'X',
       },
     ];
+    // const correctionText =
+    // this.state.checkPointsDetails?.Correction?.trim() ?? '';
 
     const Item = ({title}) => (
       <View style={styles.item}>
@@ -5568,7 +6666,7 @@ class CheckPointDemo extends Component {
       '###',
     );
     //console.log(FailReasArray, 'failreasonarray');
-    
+
     //console.log('failurecategorystate', FailCatarray);
     //console.log('Dta', this.state.checkPointsDetails);
     // //console.log("this.state.checkpointList", this.state.checkpointList);
@@ -5599,8 +6697,8 @@ class CheckPointDemo extends Component {
       {label: strings.NA, value: 11},
     ];
     //console.log('CheckPointDemo~checkpointList:>', this.state.checkpointList);
-   
-    // if (this.state.failureloaded === false){                              
+
+    // if (this.state.failureloaded === false){
     //   const ret = this.setOnLoadFailureReason(this.state.checkpointList[0])
     // if (ret)
     //   this.setState({failureloaded:true});
@@ -5608,15 +6706,14 @@ class CheckPointDemo extends Component {
 
     // const checkpoint =  this.state.checkPointsDetails[0];
 
-    // if (this.state.radiovalueloaded === false) { 
+    // if (this.state.radiovalueloaded === false) {
     //   //  const ret = this.setOnLoadRadioValue(checkpoint,this.state.checkpointList[0]);
     //     if (ret)
     //       this.setState({radiovalueloaded:true});
     // }
-  
+
     return (
       <View style={styles.mainContainer}>
-        {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
         <OfflineNotice />
         <ImageBackground
           source={Images.DashboardBG}
@@ -5639,6 +6736,8 @@ class CheckPointDemo extends Component {
               <Text
                 numberOfLines={2}
                 style={styles.headingText}
+                adjustsFontSizeToFit
+                minimumFontScale={0.75}
                 onPress={() => this.ShowToast()}>
                 {this.state.displayData}
               </Text>
@@ -5651,6 +6750,11 @@ class CheckPointDemo extends Component {
                 }}>
                 {this.state.breadCrumbText}
               </Text>
+              {/* <Text
+                numberOfLines={1}
+                style={styles.headerStatText}>
+                {`${strings.Asterisk_Questions}: ${this.state.mandatoryCheck}`}
+              </Text> */}
             </View>
 
             <View style={styles.headerDiv}>
@@ -5685,7 +6789,7 @@ class CheckPointDemo extends Component {
 
                 <View style={styles.statCard3}>
                   <Text style={{fontSize: 14, fontFamily: 'OpenSans-Regular'}}>
-                    {'Asterisk Questions'}
+                    {strings.Asterisk_Questions}
                   </Text>
                   <Text
                     style={{
@@ -5704,15 +6808,16 @@ class CheckPointDemo extends Component {
 
             {this.state.checkpointList.length ? (
               <View style={styles.body}>
-                {//console.log('venkat/yag', this.state.checkpointList)
-                }
                 <View
                   style={{flex: 1, height: '100%', marginTop: 5, bottom: 5}}>
                   <FlatList
                     data={this.state.checkpointList}
                     keyExtractor={item => item.ActualIndex}
                     showsVerticalScrollIndicator={false}
-                    extraData={this.state}
+                    extraData={{
+                      revision: this.state.checkpointRevision,
+                      radioKey: this.state.radioResetKey,
+                    }}
                     renderItem={({item, index}) => {
                       {
                         console.log(
@@ -5722,6 +6827,29 @@ class CheckPointDemo extends Component {
                           this.state.checkPointsDetails[index],
                         );
                       }
+                      const listCheckpoint = this.state.checkpointList[index] || {};
+                      const checkpointState =
+                        this.state.checkPointsDetails[index] || {};
+                      const isRemarkRequired = this.isRemarkMandatory(
+                        checkpointState,
+                      );
+                      const baseAttachmentRequired = this.isAttachmentMandatory(
+                        checkpointState,
+                      );
+                      const isAttachmentRequired =
+                        baseAttachmentRequired ||
+                        this.isFlagEnabled(listCheckpoint?.IsVeto);
+                      const isRemarkFilled = this.hasRemarkValue(
+                        checkpointState,
+                      );
+                      const isAttachmentFilled = this.hasAttachmentValue(
+                        checkpointState,
+                      );
+                      const hasOutstandingRequirement =
+                        (isRemarkRequired && !isRemarkFilled) ||
+                        (isAttachmentRequired && !isAttachmentFilled);
+                      const hasRequirement =
+                        isRemarkRequired || isAttachmentRequired;
                       return (
                         <TouchableOpacity
                           style={[
@@ -5758,101 +6886,31 @@ class CheckPointDemo extends Component {
                             )}
                           </View>
                           <View style={{width: '10%', marginRight: 5}}>
-                            {
-                              // NC validation
-                              (this.state.checkPointsDetails[index]
-                                .Attachment == '' &&
-                                this.state.checkPointsDetails[index]
-                                  .AttachforNc == 1 &&
-                                this.state.checkPointsDetails[index]
-                                  .RemarkforNc == 0) ||
-                              (this.state.checkPointsDetails[index].Remark ==
-                                '' &&
-                                this.state.checkPointsDetails[index]
-                                  .RemarkforNc == 1 &&
-                                this.state.checkPointsDetails[index]
-                                  .AttachforNc == 0) ||
-                              (this.state.checkPointsDetails[index]
-                                .Attachment == '' &&
-                                this.state.checkPointsDetails[index].Remark ==
-                                  '' &&
-                                this.state.checkPointsDetails[index]
-                                  .AttachforNc == 1 &&
-                                this.state.checkPointsDetails[index]
-                                  .RemarkforNc == 1) ||
-                              // OFI validation
-                              (this.state.checkPointsDetails[index]
-                                .Attachment == '' &&
-                                this.state.checkPointsDetails[index]
-                                  .AttachforOfi == 1 &&
-                                this.state.checkPointsDetails[index]
-                                  .RemarkforOfi == 0) ||
-                              (this.state.checkPointsDetails[index].Remark ==
-                                '' &&
-                                this.state.checkPointsDetails[index]
-                                  .RemarkforOfi == 1 &&
-                                this.state.checkPointsDetails[index]
-                                  .AttachforOfi == 0) ||
-                              (this.state.checkPointsDetails[index]
-                                .Attachment == '' &&
-                                this.state.checkPointsDetails[index].Remark ==
-                                  '' &&
-                                this.state.checkPointsDetails[index]
-                                  .AttachforOfi == 1 &&
-                                this.state.checkPointsDetails[index]
-                                  .AttachforOfi == 1) ? (
-                                <View
-                                  style={{
-                                    bottom: 15,
-                                    marginLeft:
-                                      Platform.OS === 'ios' ? 2 : null,
-                                  }}>
-                                  <ResponsiveImage
-                                    source={Images.ManIcon1}
-                                    initHeight={15}
-                                    initWidth={15}
-                                  />
-                                </View>
-                              ) : // NC validation
-                              (this.state.checkPointsDetails[index]
-                                  .AttachforNc == 1 &&
-                                  this.state.checkPointsDetails[index]
-                                    .RemarkforNc == 0) ||
-                                (this.state.checkPointsDetails[index]
-                                  .RemarkforNc == 1 &&
-                                  this.state.checkPointsDetails[index]
-                                    .AttachforNc == 0) ||
-                                (this.state.checkPointsDetails[index]
-                                  .AttachforNc == 1 &&
-                                  this.state.checkPointsDetails[index]
-                                    .RemarkforNc == 1) ||
-                                // OFI validation
-                                (this.state.checkPointsDetails[index]
-                                  .AttachforOfi == 1 &&
-                                  this.state.checkPointsDetails[index]
-                                    .RemarkforOfi == 0) ||
-                                (this.state.checkPointsDetails[index]
-                                  .RemarkforOfi == 1 &&
-                                  this.state.checkPointsDetails[index]
-                                    .AttachforOfi == 0) ||
-                                (this.state.checkPointsDetails[index]
-                                  .AttachforOfi == 1 &&
-                                  this.state.checkPointsDetails[index]
-                                    .RemarkforOfi == 1) ? (
-                                <View
-                                  style={{
-                                    bottom: 15,
-                                    marginLeft:
-                                      Platform.OS === 'ios' ? 2 : null,
-                                  }}>
-                                  <ResponsiveImage
-                                    source={Images.ManIcon3}
-                                    initHeight={15}
-                                    initWidth={15}
-                                  />
-                                </View>
-                              ) : null
-                            }
+                            {hasOutstandingRequirement ? (
+                              <View
+                                style={{
+                                  bottom: 15,
+                                  marginLeft: Platform.OS === 'ios' ? 2 : null,
+                                }}>
+                                <ResponsiveImage
+                                  source={Images.ManIcon1}
+                                  initHeight={15}
+                                  initWidth={15}
+                                />
+                              </View>
+                            ) : hasRequirement ? (
+                              <View
+                                style={{
+                                  bottom: 15,
+                                  marginLeft: Platform.OS === 'ios' ? 2 : null,
+                                }}>
+                                <ResponsiveImage
+                                  source={Images.ManIcon3}
+                                  initHeight={15}
+                                  initWidth={15}
+                                />
+                              </View>
+                            ) : null}
                           </View>
                         </TouchableOpacity>
                       );
@@ -5871,33 +6929,62 @@ class CheckPointDemo extends Component {
                       }}
                       startAutoplay
                       renderItem={({item, index}) => {
-                      if (Platform.OS === 'ios') {
-                        if (index == 0) {
-                          const checkpoint =
-                            this.state.checkPointsDetails[index];
-                          const attachment = checkpoint.AttachmentList.filter(
-                            checks => checks.Attachment === 'EMPTY',
-                          );
-                          if (attachment.length > 0) {
-                            this.downloadFile(attachment[0]);
-                            this.refs.toast.show(
-                              'Downloading the attachments...',
-                              DURATION.LENGTH_LONG,
+                        // console.log(item, 'LoadCategory:1',index);
+                        if (Platform.OS === 'ios') {
+                          if (index == 0) {
+                            const checkpoint =
+                              this.state.checkPointsDetails[index];
+                            const attachment = checkpoint.AttachmentList.filter(
+                              checks => checks.Attachment === 'EMPTY',
                             );
+
+                            if (attachment.length > 0) {
+                              this.downloadFile(attachment[0]);
+                              this.refs.toast.show(
+                                'Downloading the attachments...',
+                                DURATION.LENGTH_LONG,
+                              );
+                            }
                           }
                         }
-                      }
+
+                        const checkpointState =
+                          this.state.checkPointsDetails[index] || {};
+                        const isRemarkRequired = this.isRemarkMandatory(
+                          checkpointState,
+                        );
+                        const isAttachmentRequired = this.isAttachmentMandatory(
+                          checkpointState,
+                        );
+                        const isRemarkFilled = this.hasRemarkValue(
+                          checkpointState,
+                        );
+                        const isAttachmentFilled = this.hasAttachmentValue(
+                          checkpointState,
+                        );
+                        const hasOutstandingRequirement =
+                          (isRemarkRequired && !isRemarkFilled) ||
+                          (isAttachmentRequired && !isAttachmentFilled);
+                        const hasRequirement =
+                          isRemarkRequired || isAttachmentRequired;
+
                         return (
-                          <ScrollView style={{flex: 1, marginBottom: 20}}>
+                          <ScrollView
+                            style={{flex: 1, marginBottom: 20}}
+                            nestedScrollEnabled={true}
+                            keyboardShouldPersistTaps="handled"
+                            showsVerticalScrollIndicator={true}
+                          >
                             <View style={styles.cart}>
                               <View
-                                style={{flexDirection: 'row', width: '100%'}}>
-                                <View style={{width: '85%'}}>
+                                style={{flexDirection: 'row', width: '90%'}}>
+                                <View style={{width: '100%'}}>
                                   <View style={{flexDirection: 'row'}}>
                                     <RichText
                                       content={item.ChecklistName}
-                                      height={300}
+                                     
                                     />
+                                    {/* <Text>{item.ChecklistName}</Text> */}
                                     {this.state.checkPointsDetails[index]
                                       .nc_available_status ? (
                                       <View
@@ -5949,7 +7036,6 @@ class CheckPointDemo extends Component {
                                       alignItems: 'flex-end',
                                       flexDirection: 'row',
                                       justifyContent: 'flex-end',
-
                                       height: 5,
                                       width: '100%',
                                       marginLeft: 40,
@@ -5961,91 +7047,23 @@ class CheckPointDemo extends Component {
                                 </View>
 
                                 <View style={{width: '10%'}}>
-                                  {
-                                    // NC validation
-                                    (this.state.checkPointsDetails[index]
-                                      .Attachment == '' &&
-                                      this.state.checkPointsDetails[index]
-                                        .AttachforNc == 1 &&
-                                      this.state.checkPointsDetails[index]
-                                        .RemarkforNc == 0) ||
-                                    (this.state.checkPointsDetails[index]
-                                      .Remark == '' &&
-                                      this.state.checkPointsDetails[index]
-                                        .RemarkforNc == 1 &&
-                                      this.state.checkPointsDetails[index]
-                                        .AttachforNc == 0) ||
-                                    (this.state.checkPointsDetails[index]
-                                      .Attachment == '' &&
-                                      this.state.checkPointsDetails[index]
-                                        .Remark == '' &&
-                                      this.state.checkPointsDetails[index]
-                                        .AttachforNc == 1 &&
-                                      this.state.checkPointsDetails[index]
-                                        .RemarkforNc == 1) ||
-                                    // OFI validation
-                                    (this.state.checkPointsDetails[index]
-                                      .Attachment == '' &&
-                                      this.state.checkPointsDetails[index]
-                                        .AttachforOfi == 1 &&
-                                      this.state.checkPointsDetails[index]
-                                        .RemarkforOfi == 0) ||
-                                    (this.state.checkPointsDetails[index]
-                                      .Remark == '' &&
-                                      this.state.checkPointsDetails[index]
-                                        .RemarkforOfi == 1 &&
-                                      this.state.checkPointsDetails[index]
-                                        .AttachforOfi == 0) ||
-                                    (this.state.checkPointsDetails[index]
-                                      .Attachment == '' &&
-                                      this.state.checkPointsDetails[index]
-                                        .Remark == '' &&
-                                      this.state.checkPointsDetails[index]
-                                        .AttachforOfi == 1 &&
-                                      this.state.checkPointsDetails[index]
-                                        .AttachforOfi == 1) ? (
-                                      <View style={{bottom: 5, marginLeft: 2}}>
-                                        <ResponsiveImage
-                                          source={Images.ManIcon1}
-                                          initHeight={30}
-                                          initWidth={30}
-                                        />
-                                      </View>
-                                    ) : // NC validation
-                                    (this.state.checkPointsDetails[index]
-                                        .AttachforNc == 1 &&
-                                        this.state.checkPointsDetails[index]
-                                          .RemarkforNc == 0) ||
-                                      (this.state.checkPointsDetails[index]
-                                        .RemarkforNc == 1 &&
-                                        this.state.checkPointsDetails[index]
-                                          .AttachforNc == 0) ||
-                                      (this.state.checkPointsDetails[index]
-                                        .AttachforNc == 1 &&
-                                        this.state.checkPointsDetails[index]
-                                          .RemarkforNc == 1) ||
-                                      // OFI validation
-                                      (this.state.checkPointsDetails[index]
-                                        .AttachforOfi == 1 &&
-                                        this.state.checkPointsDetails[index]
-                                          .RemarkforOfi == 0) ||
-                                      (this.state.checkPointsDetails[index]
-                                        .RemarkforOfi == 1 &&
-                                        this.state.checkPointsDetails[index]
-                                          .AttachforOfi == 0) ||
-                                      (this.state.checkPointsDetails[index]
-                                        .AttachforOfi == 1 &&
-                                        this.state.checkPointsDetails[index]
-                                          .RemarkforOfi == 1) ? (
-                                      <View style={{bottom: 5, marginLeft: 2}}>
-                                        <ResponsiveImage
-                                          source={Images.ManIcon3}
-                                          initHeight={30}
-                                          initWidth={30}
-                                        />
-                                      </View>
-                                    ) : null
-                                  }
+                                  {hasOutstandingRequirement ? (
+                                    <View style={{bottom: 5, marginLeft: 2}}>
+                                      <ResponsiveImage
+                                        source={Images.ManIcon1}
+                                        initHeight={30}
+                                        initWidth={30}
+                                      />
+                                    </View>
+                                  ) : hasRequirement ? (
+                                    <View style={{bottom: 5, marginLeft: 2}}>
+                                      <ResponsiveImage
+                                        source={Images.ManIcon3}
+                                        initHeight={30}
+                                        initWidth={30}
+                                      />
+                                    </View>
+                                  ) : null}
                                 </View>
                               </View>
                               <View style={{flexDirection: 'column'}}>
@@ -6053,6 +7071,7 @@ class CheckPointDemo extends Component {
                                 item.scoreType !== 3 ? ( //Radio button
                                   <View style={styles.boxsecRadio}>
                                     <RadioForm
+                                      key={`radio-${item.ChecklistTemplateId || index}-${this.state.radioResetKey}`}
                                       radio_props={radio_props1}
                                       initial={
                                         this.state.checkPointsDetails.length >
@@ -6082,6 +7101,9 @@ class CheckPointDemo extends Component {
                                           : -1
                                       }
                                       onPress={value => {
+
+                                       
+
                                         // this.markStatus(item)
                                         this.ncofisetting(value);
                                         var checkPointsDetails =
@@ -6333,8 +7355,7 @@ class CheckPointDemo extends Component {
                                               isUnsavedData: true,
                                               dialogVisibleNCR: true,
                                             },
-                                            () => {
-                                            },
+                                            () => {},
                                           );
                                         } else {
                                           this.setState(
@@ -6343,8 +7364,7 @@ class CheckPointDemo extends Component {
                                                 checkPointsDetails,
                                               isUnsavedData: true,
                                             },
-                                            () => {
-                                            },
+                                            () => {},
                                           );
                                         }
                                       }}
@@ -6385,6 +7405,7 @@ class CheckPointDemo extends Component {
                                   item.scoreType !== 3 ? (
                                   <View style={styles.boxsecRadio}>
                                     <RadioForm
+                                      key={`radio-${item.ChecklistTemplateId || index}-${this.state.radioResetKey}`}
                                       radio_props={radio_props2}
                                       initial={
                                         this.state.checkPointsDetails.length >
@@ -6414,6 +7435,8 @@ class CheckPointDemo extends Component {
                                           : -1
                                       }
                                       onPress={value => {
+                                     
+
                                         //console.log('====>value', value);
                                         this.ncofisetting(value);
                                         var checkPointsDetails =
@@ -6669,8 +7692,7 @@ class CheckPointDemo extends Component {
                                               isUnsavedData: true,
                                               dialogVisibleNCR: true,
                                             },
-                                            () => {
-                                           },
+                                            () => {},
                                           );
                                         } else {
                                           this.setState(
@@ -6679,8 +7701,7 @@ class CheckPointDemo extends Component {
                                                 checkPointsDetails,
                                               isUnsavedData: true,
                                             },
-                                            () => {
-                                            },
+                                            () => {},
                                           );
                                         }
                                       }}
@@ -6737,6 +7758,7 @@ class CheckPointDemo extends Component {
                                   item.scoreType !== 3 ? (
                                   <View style={styles.boxsecRadio}>
                                     <RadioForm
+                                      key={`radio-${item.ChecklistTemplateId || index}-${this.state.radioResetKey}`}
                                       radio_props={radio_props3}
                                       initial={
                                         this.state.checkpointList.length > 0 ||
@@ -6770,288 +7792,299 @@ class CheckPointDemo extends Component {
                                                   index
                                                 ].RadioValue,
                                               ) == 11
-                                             
                                             ? 2
                                             : -1
                                           : -1
                                       }
                                       onPress={value => {
-                                        console.log("Load:Category:Radio Press",value)
-                                        {value === 10 ?
-                                          this.handleNotOkClick() :
-                                        this.ncofisetting(value);
-                                        //console.log('==--->', value);
-                                        //console.log('v+', value);
+                                      
+
                                         console.log(
-                                          this.state.checkpointList[index]
-                                            .Status,
-                                          'v++',
+                                          'Load:Category:Radio Press',
+                                          value,
                                         );
-                                        var checkPointsDetails =
-                                          this.state.checkPointsDetails;
-                                        var isNCClearRequired = false;
-                                        var ncRemovalTemplateId = 0;
-                                        for (
-                                          var i = 0;
-                                          i < checkPointsDetails.length;
-                                          i++
-                                        ) {
-                                          if (
-                                            checkPointsDetails[i]
-                                              .ChecklistTemplateId ==
-                                            item.ChecklistTemplateId
+                                        {
+                                          value === 10
+                                            ? this.handleNotOkClick()
+                                            : this.ncofisetting(value);
+                                          //console.log('==--->', value);
+                                          //console.log('v+', value);
+                                          console.log(
+                                            this.state.checkpointList[index]
+                                              .Status,
+                                            'v++',
+                                          );
+                                          var checkPointsDetails =
+                                            this.state.checkPointsDetails;
+                                          var isNCClearRequired = false;
+                                          var ncRemovalTemplateId = 0;
+                                          for (
+                                            var i = 0;
+                                            i < checkPointsDetails.length;
+                                            i++
                                           ) {
-                                            checkPointsDetails[i].RadioValue =
-                                              value;
-                                            checkPointsDetails[i].ParamMode = 3;
-                                            checkPointsDetails[
-                                              i
-                                            ].Modified = true;
-                                            if (value == item.correctAnswer) {
+                                            if (
+                                              checkPointsDetails[i]
+                                                .ChecklistTemplateId ==
+                                              item.ChecklistTemplateId
+                                            ) {
+                                              checkPointsDetails[i].RadioValue =
+                                                value;
                                               checkPointsDetails[
                                                 i
-                                              ].IsCorrect = 1;
-                                              //console.log('correct answer');
-                                              console.log(
-                                                'checkPointsDetails now',
-                                                checkPointsDetails[i].IsCorrect,
-                                              );
-                                              if (
-                                                checkPointsDetails[i]
-                                                  .IsNCAllowed == 1
-                                              ) {
-                                                var dataArr =
-                                                  this.props.data.audits
-                                                    .ncofiRecords;
-                                                var isNCExists = false;
-                                                for (
-                                                  var k = 0;
-                                                  k < dataArr.length;
-                                                  k++
+                                              ].ParamMode = 3;
+                                              checkPointsDetails[
+                                                i
+                                              ].Modified = true;
+                                              if (value == item.correctAnswer) {
+                                                checkPointsDetails[
+                                                  i
+                                                ].IsCorrect = 1;
+                                                //console.log('correct answer');
+                                                console.log(
+                                                  'checkPointsDetails now',
+                                                  checkPointsDetails[i]
+                                                    .IsCorrect,
+                                                );
+                                                if (
+                                                  checkPointsDetails[i]
+                                                    .IsNCAllowed == 1
                                                 ) {
-                                                  if (
-                                                    dataArr[k].AuditID ==
-                                                    this.state.auditId
+                                                  var dataArr =
+                                                    this.props.data.audits
+                                                      .ncofiRecords;
+                                                  var isNCExists = false;
+                                                  for (
+                                                    var k = 0;
+                                                    k < dataArr.length;
+                                                    k++
                                                   ) {
-                                                    for (
-                                                      var j = 0;
-                                                      j <
-                                                      dataArr[k].Pending.length;
-                                                      j++
+                                                    if (
+                                                      dataArr[k].AuditID ==
+                                                      this.state.auditId
                                                     ) {
-                                                      if (
-                                                        dataArr[k].Pending[j]
-                                                          .ChecklistTemplateId ==
-                                                          item.ChecklistTemplateId &&
-                                                        dataArr[k].Pending[j]
-                                                          .Category == 'NC'
+                                                      for (
+                                                        var j = 0;
+                                                        j <
+                                                        dataArr[k].Pending
+                                                          .length;
+                                                        j++
                                                       ) {
-                                                        isNCExists = true;
+                                                        if (
+                                                          dataArr[k].Pending[j]
+                                                            .ChecklistTemplateId ==
+                                                            item.ChecklistTemplateId &&
+                                                          dataArr[k].Pending[j]
+                                                            .Category == 'NC'
+                                                        ) {
+                                                          isNCExists = true;
+                                                        }
                                                       }
                                                     }
                                                   }
+                                                  if (isNCExists) {
+                                                    isNCClearRequired = true;
+                                                    ncRemovalTemplateId =
+                                                      checkPointsDetails[i]
+                                                        .ChecklistTemplateId;
+                                                  }
                                                 }
-                                                if (isNCExists) {
-                                                  isNCClearRequired = true;
-                                                  ncRemovalTemplateId =
-                                                    checkPointsDetails[i]
-                                                      .ChecklistTemplateId;
-                                                }
-                                              }
-                                              if (
-                                                item.scoreType == 3 &&
-                                                checkPointsDetails[i].Score !=
-                                                  ''
-                                              ) {
-                                                for (
-                                                  var j = 0;
-                                                  j <
-                                                  item.scoreTypesData.length;
-                                                  j++
+                                                if (
+                                                  item.scoreType == 3 &&
+                                                  checkPointsDetails[i].Score !=
+                                                    ''
                                                 ) {
-                                                  if (
-                                                    item.ChecklistTemplateId ==
-                                                      item.scoreTypesData[j]
-                                                        .templateId &&
-                                                    checkPointsDetails[i]
-                                                      .Score ==
-                                                      item.scoreTypesData[j].id
+                                                  for (
+                                                    var j = 0;
+                                                    j <
+                                                    item.scoreTypesData.length;
+                                                    j++
                                                   ) {
                                                     if (
-                                                      item.scoreTypesData[j]
-                                                        .status == '1'
+                                                      item.ChecklistTemplateId ==
+                                                        item.scoreTypesData[j]
+                                                          .templateId &&
+                                                      checkPointsDetails[i]
+                                                        .Score ==
+                                                        item.scoreTypesData[j]
+                                                          .id
                                                     ) {
-                                                      checkPointsDetails[
-                                                        i
-                                                      ].IsNCAllowed = 1;
-                                                      break;
-                                                    } else if (
-                                                      item.scoreTypesData[j]
-                                                        .status == '2' ||
-                                                      item.scoreTypesData[j]
-                                                        .status == '3'
-                                                    ) {
-                                                      checkPointsDetails[
-                                                        i
-                                                      ].IsNCAllowed = 0;
-                                                      break;
-                                                    } else {
-                                                      checkPointsDetails[
-                                                        i
-                                                      ].IsNCAllowed = 0;
-                                                      break;
+                                                      if (
+                                                        item.scoreTypesData[j]
+                                                          .status == '1'
+                                                      ) {
+                                                        checkPointsDetails[
+                                                          i
+                                                        ].IsNCAllowed = 1;
+                                                        break;
+                                                      } else if (
+                                                        item.scoreTypesData[j]
+                                                          .status == '2' ||
+                                                        item.scoreTypesData[j]
+                                                          .status == '3'
+                                                      ) {
+                                                        checkPointsDetails[
+                                                          i
+                                                        ].IsNCAllowed = 0;
+                                                        break;
+                                                      } else {
+                                                        checkPointsDetails[
+                                                          i
+                                                        ].IsNCAllowed = 0;
+                                                        break;
+                                                      }
                                                     }
                                                   }
+                                                } else {
+                                                  checkPointsDetails[
+                                                    i
+                                                    //].IsNCAllowed = 0; // NC is not allowed & OFI is allowed
+                                                  ].IsNCAllowed = 2; // NC is not allowed & OFI is not allowed
+                                                }
+                                              } else if (value == 11) {
+                                                checkPointsDetails[
+                                                  i
+                                                ].IsCorrect = 0;
+                                                if (
+                                                  checkPointsDetails[i]
+                                                    .IsNCAllowed == 1
+                                                ) {
+                                                  var dataArr =
+                                                    this.props.data.audits
+                                                      .ncofiRecords;
+                                                  var isNCExists = false;
+                                                  for (
+                                                    var k = 0;
+                                                    k < dataArr.length;
+                                                    k++
+                                                  ) {
+                                                    if (
+                                                      dataArr[k].AuditID ==
+                                                      this.state.auditId
+                                                    ) {
+                                                      for (
+                                                        var j = 0;
+                                                        j <
+                                                        dataArr[k].Pending
+                                                          .length;
+                                                        j++
+                                                      ) {
+                                                        if (
+                                                          dataArr[k].Pending[j]
+                                                            .ChecklistTemplateId ==
+                                                            item.ChecklistTemplateId &&
+                                                          dataArr[k].Pending[j]
+                                                            .Category == 'NC'
+                                                        ) {
+                                                          isNCExists = true;
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                  if (isNCExists) {
+                                                    isNCClearRequired = true;
+                                                    ncRemovalTemplateId =
+                                                      checkPointsDetails[i]
+                                                        .ChecklistTemplateId;
+                                                  }
+                                                }
+                                                if (
+                                                  item.scoreType == 3 &&
+                                                  checkPointsDetails[i].Score !=
+                                                    ''
+                                                ) {
+                                                  for (
+                                                    var j = 0;
+                                                    j <
+                                                    item.scoreTypesData.length;
+                                                    j++
+                                                  ) {
+                                                    if (
+                                                      item.ChecklistTemplateId ==
+                                                        item.scoreTypesData[j]
+                                                          .templateId &&
+                                                      checkPointsDetails[i]
+                                                        .Score ==
+                                                        item.scoreTypesData[j]
+                                                          .id
+                                                    ) {
+                                                      if (
+                                                        item.scoreTypesData[j]
+                                                          .status == '1'
+                                                      ) {
+                                                        checkPointsDetails[
+                                                          i
+                                                        ].IsNCAllowed = 1;
+                                                        break;
+                                                      } else if (
+                                                        item.scoreTypesData[j]
+                                                          .status == '2' ||
+                                                        item.scoreTypesData[j]
+                                                          .status == '3'
+                                                      ) {
+                                                        checkPointsDetails[
+                                                          i
+                                                        ].IsNCAllowed = 0;
+                                                        break;
+                                                      } else {
+                                                        checkPointsDetails[
+                                                          i
+                                                        ].IsNCAllowed = 2;
+                                                        break;
+                                                      }
+                                                    }
+                                                  }
+                                                } else {
+                                                  checkPointsDetails[
+                                                    i
+                                                  ].IsNCAllowed = 2; // Both NC & OFI is not allowed
                                                 }
                                               } else {
                                                 checkPointsDetails[
                                                   i
-                                                  //].IsNCAllowed = 0; // NC is not allowed & OFI is allowed
-                                                ].IsNCAllowed = 2; // NC is not allowed & OFI is not allowed
-                                              }
-                                            } else if (value == 11) {
-                                              checkPointsDetails[
-                                                i
-                                              ].IsCorrect = 0;
-                                              if (
-                                                checkPointsDetails[i]
-                                                  .IsNCAllowed == 1
-                                              ) {
-                                                var dataArr =
-                                                  this.props.data.audits
-                                                    .ncofiRecords;
-                                                var isNCExists = false;
-                                                for (
-                                                  var k = 0;
-                                                  k < dataArr.length;
-                                                  k++
-                                                ) {
-                                                  if (
-                                                    dataArr[k].AuditID ==
-                                                    this.state.auditId
-                                                  ) {
-                                                    for (
-                                                      var j = 0;
-                                                      j <
-                                                      dataArr[k].Pending.length;
-                                                      j++
-                                                    ) {
-                                                      if (
-                                                        dataArr[k].Pending[j]
-                                                          .ChecklistTemplateId ==
-                                                          item.ChecklistTemplateId &&
-                                                        dataArr[k].Pending[j]
-                                                          .Category == 'NC'
-                                                      ) {
-                                                        isNCExists = true;
-                                                      }
-                                                    }
-                                                  }
-                                                }
-                                                if (isNCExists) {
-                                                  isNCClearRequired = true;
-                                                  ncRemovalTemplateId =
-                                                    checkPointsDetails[i]
-                                                      .ChecklistTemplateId;
-                                                }
-                                              }
-                                              if (
-                                                item.scoreType == 3 &&
-                                                checkPointsDetails[i].Score !=
-                                                  ''
-                                              ) {
-                                                for (
-                                                  var j = 0;
-                                                  j <
-                                                  item.scoreTypesData.length;
-                                                  j++
-                                                ) {
-                                                  if (
-                                                    item.ChecklistTemplateId ==
-                                                      item.scoreTypesData[j]
-                                                        .templateId &&
-                                                    checkPointsDetails[i]
-                                                      .Score ==
-                                                      item.scoreTypesData[j].id
-                                                  ) {
-                                                    if (
-                                                      item.scoreTypesData[j]
-                                                        .status == '1'
-                                                    ) {
-                                                      checkPointsDetails[
-                                                        i
-                                                      ].IsNCAllowed = 1;
-                                                      break;
-                                                    } else if (
-                                                      item.scoreTypesData[j]
-                                                        .status == '2' ||
-                                                      item.scoreTypesData[j]
-                                                        .status == '3'
-                                                    ) {
-                                                      checkPointsDetails[
-                                                        i
-                                                      ].IsNCAllowed = 0;
-                                                      break;
-                                                    } else {
-                                                      checkPointsDetails[
-                                                        i
-                                                      ].IsNCAllowed = 2;
-                                                      break;
-                                                    }
-                                                  }
-                                                }
-                                              } else {
+                                                ].IsCorrect = 0;
                                                 checkPointsDetails[
                                                   i
-                                                ].IsNCAllowed = 2; // Both NC & OFI is not allowed
+                                                ].IsNCAllowed = 1; // Both NC & OFI is allowed
                                               }
-                                            } else {
-                                              checkPointsDetails[
-                                                i
-                                              ].IsCorrect = 0;
-                                              checkPointsDetails[
-                                                i
-                                              ].IsNCAllowed = 1; // Both NC & OFI is allowed
-                                            }
-                                            if (item.scoreType == 2) {
-                                              if (
-                                                value ==
-                                                parseInt(item.correctAnswer)
-                                              ) {
-                                                checkPointsDetails[i].Score =
-                                                  item.maxScore;
-                                              } else {
-                                                checkPointsDetails[i].Score =
-                                                  item.minScore;
+                                              if (item.scoreType == 2) {
+                                                if (
+                                                  value ==
+                                                  parseInt(item.correctAnswer)
+                                                ) {
+                                                  checkPointsDetails[i].Score =
+                                                    item.maxScore;
+                                                } else {
+                                                  checkPointsDetails[i].Score =
+                                                    item.minScore;
+                                                }
                                               }
                                             }
                                           }
+                                          if (isNCClearRequired) {
+                                            this.setState(
+                                              {
+                                                ncRemovalTemplateId:
+                                                  ncRemovalTemplateId,
+                                                checkPointsDetails:
+                                                  checkPointsDetails,
+                                                isUnsavedData: true,
+                                                dialogVisibleNCR: true,
+                                              },
+                                              () => {},
+                                            );
+                                          } else {
+                                            this.setState(
+                                              {
+                                                checkPointsDetails:
+                                                  checkPointsDetails,
+                                                isUnsavedData: true,
+                                              },
+                                              () => {},
+                                            );
+                                          }
                                         }
-                                        if (isNCClearRequired) {
-                                          this.setState(
-                                            {
-                                              ncRemovalTemplateId:
-                                                ncRemovalTemplateId,
-                                              checkPointsDetails:
-                                                checkPointsDetails,
-                                              isUnsavedData: true,
-                                              dialogVisibleNCR: true,
-                                            },
-                                            () => {
-                                            },
-                                          );
-                                        } else {
-                                          this.setState(
-                                            {
-                                              checkPointsDetails:
-                                                checkPointsDetails,
-                                              isUnsavedData: true,
-                                            },
-                                            () => {
-                                            },
-                                          );
-                                        }
-                                      }}}
+                                      }}
                                       formHorizontal={true}
                                       labelHorizontal={true}
                                       buttonSize={15}
@@ -7105,6 +8138,7 @@ class CheckPointDemo extends Component {
                                   item.scoreType !== 3 ? (
                                   <View style={styles.boxsecRadio}>
                                     <RadioForm
+                                      key={`radio-${item.ChecklistTemplateId || index}-${this.state.radioResetKey}`}
                                       radio_props={radio_props4}
                                       initial={
                                         this.state.checkpointList.length > 0 ||
@@ -7138,287 +8172,297 @@ class CheckPointDemo extends Component {
                                                   index
                                                 ].RadioValue,
                                               ) == 11
-                                             
                                             ? 2
                                             : -1
                                           : -1
                                       }
                                       onPress={value => {
-                                        console.log("Load:Category:Radio Press",value)
-                                     {value === 15 ?
-                                      this.handleNotOkClick() :
-                                                                                                                 
-                                     this.ncofisetting(value);
-                                        //console.log('v+', value);
+
+                                      
                                         console.log(
-                                          this.state.checkpointList[index]
-                                            .Status,
-                                          'v++',
+                                          'Load:Category:Radio Press',
+                                          value,
                                         );
-                                        var checkPointsDetails =
-                                          this.state.checkPointsDetails;
-                                        var isNCClearRequired = false;
-                                        var ncRemovalTemplateId = 0;
-                                        for (
-                                          var i = 0;
-                                          i < checkPointsDetails.length;
-                                          i++
-                                        ) {
-                                          if (
-                                            checkPointsDetails[i]
-                                              .ChecklistTemplateId ==
-                                            item.ChecklistTemplateId
+                                        {
+                                          value === 15
+                                            ? this.handleNotOkClick()
+                                            : this.ncofisetting(value);
+                                          //console.log('v+', value);
+                                          console.log(
+                                            this.state.checkpointList[index]
+                                              .Status,
+                                            'v++',
+                                          );
+                                          var checkPointsDetails =
+                                            this.state.checkPointsDetails;
+                                          var isNCClearRequired = false;
+                                          var ncRemovalTemplateId = 0;
+                                          for (
+                                            var i = 0;
+                                            i < checkPointsDetails.length;
+                                            i++
                                           ) {
-                                            checkPointsDetails[i].RadioValue =
-                                              value;
-                                            checkPointsDetails[i].ParamMode = 4;
-                                            checkPointsDetails[
-                                              i
-                                            ].Modified = true;
-                                            if (value == item.correctAnswer) {
+                                            if (
+                                              checkPointsDetails[i]
+                                                .ChecklistTemplateId ==
+                                              item.ChecklistTemplateId
+                                            ) {
+                                              checkPointsDetails[i].RadioValue =
+                                                value;
                                               checkPointsDetails[
                                                 i
-                                              ].IsCorrect = 1;
-                                              //console.log('correct answer');
-                                              console.log(
-                                                'checkPointsDetails now',
-                                                checkPointsDetails[i].IsCorrect,
-                                              );
-                                              if (
-                                                checkPointsDetails[i]
-                                                  .IsNCAllowed == 1
-                                              ) {
-                                                var dataArr =
-                                                  this.props.data.audits
-                                                    .ncofiRecords;
-                                                var isNCExists = false;
-                                                for (
-                                                  var k = 0;
-                                                  k < dataArr.length;
-                                                  k++
+                                              ].ParamMode = 4;
+                                              checkPointsDetails[
+                                                i
+                                              ].Modified = true;
+                                              if (value == item.correctAnswer) {
+                                                checkPointsDetails[
+                                                  i
+                                                ].IsCorrect = 1;
+                                                //console.log('correct answer');
+                                                console.log(
+                                                  'checkPointsDetails now',
+                                                  checkPointsDetails[i]
+                                                    .IsCorrect,
+                                                );
+                                                if (
+                                                  checkPointsDetails[i]
+                                                    .IsNCAllowed == 1
                                                 ) {
-                                                  if (
-                                                    dataArr[k].AuditID ==
-                                                    this.state.auditId
+                                                  var dataArr =
+                                                    this.props.data.audits
+                                                      .ncofiRecords;
+                                                  var isNCExists = false;
+                                                  for (
+                                                    var k = 0;
+                                                    k < dataArr.length;
+                                                    k++
                                                   ) {
-                                                    for (
-                                                      var j = 0;
-                                                      j <
-                                                      dataArr[k].Pending.length;
-                                                      j++
+                                                    if (
+                                                      dataArr[k].AuditID ==
+                                                      this.state.auditId
                                                     ) {
-                                                      if (
-                                                        dataArr[k].Pending[j]
-                                                          .ChecklistTemplateId ==
-                                                          item.ChecklistTemplateId &&
-                                                        dataArr[k].Pending[j]
-                                                          .Category == 'NC'
+                                                      for (
+                                                        var j = 0;
+                                                        j <
+                                                        dataArr[k].Pending
+                                                          .length;
+                                                        j++
                                                       ) {
-                                                        isNCExists = true;
+                                                        if (
+                                                          dataArr[k].Pending[j]
+                                                            .ChecklistTemplateId ==
+                                                            item.ChecklistTemplateId &&
+                                                          dataArr[k].Pending[j]
+                                                            .Category == 'NC'
+                                                        ) {
+                                                          isNCExists = true;
+                                                        }
                                                       }
                                                     }
                                                   }
+                                                  if (isNCExists) {
+                                                    isNCClearRequired = true;
+                                                    ncRemovalTemplateId =
+                                                      checkPointsDetails[i]
+                                                        .ChecklistTemplateId;
+                                                  }
                                                 }
-                                                if (isNCExists) {
-                                                  isNCClearRequired = true;
-                                                  ncRemovalTemplateId =
-                                                    checkPointsDetails[i]
-                                                      .ChecklistTemplateId;
-                                                }
-                                              }
-                                              if (
-                                                item.scoreType == 3 &&
-                                                checkPointsDetails[i].Score !=
-                                                  ''
-                                              ) {
-                                                for (
-                                                  var j = 0;
-                                                  j <
-                                                  item.scoreTypesData.length;
-                                                  j++
+                                                if (
+                                                  item.scoreType == 3 &&
+                                                  checkPointsDetails[i].Score !=
+                                                    ''
                                                 ) {
-                                                  if (
-                                                    item.ChecklistTemplateId ==
-                                                      item.scoreTypesData[j]
-                                                        .templateId &&
-                                                    checkPointsDetails[i]
-                                                      .Score ==
-                                                      item.scoreTypesData[j].id
+                                                  for (
+                                                    var j = 0;
+                                                    j <
+                                                    item.scoreTypesData.length;
+                                                    j++
                                                   ) {
                                                     if (
-                                                      item.scoreTypesData[j]
-                                                        .status == '1'
+                                                      item.ChecklistTemplateId ==
+                                                        item.scoreTypesData[j]
+                                                          .templateId &&
+                                                      checkPointsDetails[i]
+                                                        .Score ==
+                                                        item.scoreTypesData[j]
+                                                          .id
                                                     ) {
-                                                      checkPointsDetails[
-                                                        i
-                                                      ].IsNCAllowed = 1;
-                                                      break;
-                                                    } else if (
-                                                      item.scoreTypesData[j]
-                                                        .status == '2' ||
-                                                      item.scoreTypesData[j]
-                                                        .status == '3'
-                                                    ) {
-                                                      checkPointsDetails[
-                                                        i
-                                                      ].IsNCAllowed = 0;
-                                                      break;
-                                                    } else {
-                                                      checkPointsDetails[
-                                                        i
-                                                      ].IsNCAllowed = 0;
-                                                      break;
+                                                      if (
+                                                        item.scoreTypesData[j]
+                                                          .status == '1'
+                                                      ) {
+                                                        checkPointsDetails[
+                                                          i
+                                                        ].IsNCAllowed = 1;
+                                                        break;
+                                                      } else if (
+                                                        item.scoreTypesData[j]
+                                                          .status == '2' ||
+                                                        item.scoreTypesData[j]
+                                                          .status == '3'
+                                                      ) {
+                                                        checkPointsDetails[
+                                                          i
+                                                        ].IsNCAllowed = 0;
+                                                        break;
+                                                      } else {
+                                                        checkPointsDetails[
+                                                          i
+                                                        ].IsNCAllowed = 0;
+                                                        break;
+                                                      }
                                                     }
                                                   }
+                                                } else {
+                                                  checkPointsDetails[
+                                                    i
+                                                  ].IsNCAllowed = 0; // NC is not allowed & OFI is allowed
+                                                }
+                                              } else if (value == 11) {
+                                                checkPointsDetails[
+                                                  i
+                                                ].IsCorrect = 0;
+                                                if (
+                                                  checkPointsDetails[i]
+                                                    .IsNCAllowed == 1
+                                                ) {
+                                                  var dataArr =
+                                                    this.props.data.audits
+                                                      .ncofiRecords;
+                                                  var isNCExists = false;
+                                                  for (
+                                                    var k = 0;
+                                                    k < dataArr.length;
+                                                    k++
+                                                  ) {
+                                                    if (
+                                                      dataArr[k].AuditID ==
+                                                      this.state.auditId
+                                                    ) {
+                                                      for (
+                                                        var j = 0;
+                                                        j <
+                                                        dataArr[k].Pending
+                                                          .length;
+                                                        j++
+                                                      ) {
+                                                        if (
+                                                          dataArr[k].Pending[j]
+                                                            .ChecklistTemplateId ==
+                                                            item.ChecklistTemplateId &&
+                                                          dataArr[k].Pending[j]
+                                                            .Category == 'NC'
+                                                        ) {
+                                                          isNCExists = true;
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                  if (isNCExists) {
+                                                    isNCClearRequired = true;
+                                                    ncRemovalTemplateId =
+                                                      checkPointsDetails[i]
+                                                        .ChecklistTemplateId;
+                                                  }
+                                                }
+                                                if (
+                                                  item.scoreType == 3 &&
+                                                  checkPointsDetails[i].Score !=
+                                                    ''
+                                                ) {
+                                                  for (
+                                                    var j = 0;
+                                                    j <
+                                                    item.scoreTypesData.length;
+                                                    j++
+                                                  ) {
+                                                    if (
+                                                      item.ChecklistTemplateId ==
+                                                        item.scoreTypesData[j]
+                                                          .templateId &&
+                                                      checkPointsDetails[i]
+                                                        .Score ==
+                                                        item.scoreTypesData[j]
+                                                          .id
+                                                    ) {
+                                                      if (
+                                                        item.scoreTypesData[j]
+                                                          .status == '1'
+                                                      ) {
+                                                        checkPointsDetails[
+                                                          i
+                                                        ].IsNCAllowed = 1;
+                                                        break;
+                                                      } else if (
+                                                        item.scoreTypesData[j]
+                                                          .status == '2' ||
+                                                        item.scoreTypesData[j]
+                                                          .status == '3'
+                                                      ) {
+                                                        checkPointsDetails[
+                                                          i
+                                                        ].IsNCAllowed = 0;
+                                                        break;
+                                                      } else {
+                                                        checkPointsDetails[
+                                                          i
+                                                        ].IsNCAllowed = 2;
+                                                        break;
+                                                      }
+                                                    }
+                                                  }
+                                                } else {
+                                                  checkPointsDetails[
+                                                    i
+                                                  ].IsNCAllowed = 2; // Both NC & OFI is not allowed
                                                 }
                                               } else {
                                                 checkPointsDetails[
                                                   i
-                                                ].IsNCAllowed = 0; // NC is not allowed & OFI is allowed
-                                              }
-                                            } else if (value == 11) {
-                                              checkPointsDetails[
-                                                i
-                                              ].IsCorrect = 0;
-                                              if (
-                                                checkPointsDetails[i]
-                                                  .IsNCAllowed == 1
-                                              ) {
-                                                var dataArr =
-                                                  this.props.data.audits
-                                                    .ncofiRecords;
-                                                var isNCExists = false;
-                                                for (
-                                                  var k = 0;
-                                                  k < dataArr.length;
-                                                  k++
-                                                ) {
-                                                  if (
-                                                    dataArr[k].AuditID ==
-                                                    this.state.auditId
-                                                  ) {
-                                                    for (
-                                                      var j = 0;
-                                                      j <
-                                                      dataArr[k].Pending.length;
-                                                      j++
-                                                    ) {
-                                                      if (
-                                                        dataArr[k].Pending[j]
-                                                          .ChecklistTemplateId ==
-                                                          item.ChecklistTemplateId &&
-                                                        dataArr[k].Pending[j]
-                                                          .Category == 'NC'
-                                                      ) {
-                                                        isNCExists = true;
-                                                      }
-                                                    }
-                                                  }
-                                                }
-                                                if (isNCExists) {
-                                                  isNCClearRequired = true;
-                                                  ncRemovalTemplateId =
-                                                    checkPointsDetails[i]
-                                                      .ChecklistTemplateId;
-                                                }
-                                              }
-                                              if (
-                                                item.scoreType == 3 &&
-                                                checkPointsDetails[i].Score !=
-                                                  ''
-                                              ) {
-                                                for (
-                                                  var j = 0;
-                                                  j <
-                                                  item.scoreTypesData.length;
-                                                  j++
-                                                ) {
-                                                  if (
-                                                    item.ChecklistTemplateId ==
-                                                      item.scoreTypesData[j]
-                                                        .templateId &&
-                                                    checkPointsDetails[i]
-                                                      .Score ==
-                                                      item.scoreTypesData[j].id
-                                                  ) {
-                                                    if (
-                                                      item.scoreTypesData[j]
-                                                        .status == '1'
-                                                    ) {
-                                                      checkPointsDetails[
-                                                        i
-                                                      ].IsNCAllowed = 1;
-                                                      break;
-                                                    } else if (
-                                                      item.scoreTypesData[j]
-                                                        .status == '2' ||
-                                                      item.scoreTypesData[j]
-                                                        .status == '3'
-                                                    ) {
-                                                      checkPointsDetails[
-                                                        i
-                                                      ].IsNCAllowed = 0;
-                                                      break;
-                                                    } else {
-                                                      checkPointsDetails[
-                                                        i
-                                                      ].IsNCAllowed = 2;
-                                                      break;
-                                                    }
-                                                  }
-                                                }
-                                              } else {
+                                                ].IsCorrect = 0;
                                                 checkPointsDetails[
                                                   i
-                                                ].IsNCAllowed = 2; // Both NC & OFI is not allowed
+                                                ].IsNCAllowed = 1; // Both NC & OFI is allowed
                                               }
-                                            } else {
-                                              checkPointsDetails[
-                                                i
-                                              ].IsCorrect = 0;
-                                              checkPointsDetails[
-                                                i
-                                              ].IsNCAllowed = 1; // Both NC & OFI is allowed
-                                            }
-                                            if (item.scoreType == 2) {
-                                              if (
-                                                value ==
-                                                parseInt(item.correctAnswer)
-                                              ) {
-                                                checkPointsDetails[i].Score =
-                                                  item.maxScore;
-                                              } else {
-                                                checkPointsDetails[i].Score =
-                                                  item.minScore;
+                                              if (item.scoreType == 2) {
+                                                if (
+                                                  value ==
+                                                  parseInt(item.correctAnswer)
+                                                ) {
+                                                  checkPointsDetails[i].Score =
+                                                    item.maxScore;
+                                                } else {
+                                                  checkPointsDetails[i].Score =
+                                                    item.minScore;
+                                                }
                                               }
                                             }
                                           }
+                                          if (isNCClearRequired) {
+                                            this.setState(
+                                              {
+                                                ncRemovalTemplateId:
+                                                  ncRemovalTemplateId,
+                                                checkPointsDetails:
+                                                  checkPointsDetails,
+                                                isUnsavedData: true,
+                                                dialogVisibleNCR: true,
+                                              },
+                                              () => {},
+                                            );
+                                          } else {
+                                            this.setState(
+                                              {
+                                                checkPointsDetails:
+                                                  checkPointsDetails,
+                                                isUnsavedData: true,
+                                              },
+                                              () => {},
+                                            );
+                                          }
                                         }
-                                        if (isNCClearRequired) {
-                                          this.setState(
-                                            {
-                                              ncRemovalTemplateId:
-                                                ncRemovalTemplateId,
-                                              checkPointsDetails:
-                                                checkPointsDetails,
-                                              isUnsavedData: true,
-                                              dialogVisibleNCR: true,
-                                            },
-                                            () => {
-                                            },
-                                          );
-                                        } else {
-                                          this.setState(
-                                            {
-                                              checkPointsDetails:
-                                                checkPointsDetails,
-                                              isUnsavedData: true,
-                                            },
-                                            () => {
-                                            },
-                                          );
-                                        }
-                                      }}}
+                                      }}
                                       formHorizontal={true}
                                       labelHorizontal={true}
                                       buttonSize={15}
@@ -7504,10 +8548,7 @@ class CheckPointDemo extends Component {
                                   <></>
                                   // this.render_loader()
                                 )}
-                                <View
-                                  style={
-                                    styles.boxsec1
-                                  }>
+                                <View style={styles.boxsec1}>
                                   <View>
                                     {this.state.checkPointsDetails[index] ? (
                                       this.state.checkPointsDetails[index]
@@ -7535,7 +8576,8 @@ class CheckPointDemo extends Component {
                                           : styles.checkPointsTextInput
                                       }
                                       placeholderTextColor={
-                                        item.AttachforNc == 1
+                                        isAttachmentRequired &&
+                                        !isAttachmentFilled
                                           ? 'red'
                                           : '#A9A9A9'
                                       }
@@ -7553,13 +8595,12 @@ class CheckPointDemo extends Component {
                                         index,
                                       )}>
                                       <Icon
-                                        name="plus"
+                                        name="paperclip"
                                         size={25}
                                         color="grey"
                                         style={{bottom: 2}}
                                       />
-                                      {item.AttachforNc == 1 ||
-                                      item.AttachforOfi ? (
+                                      {isAttachmentRequired ? (
                                         <Icon
                                           name="asterisk"
                                           style={{bottom: 20, right: 10}}
@@ -7839,19 +8880,35 @@ class CheckPointDemo extends Component {
                                                   style={{
                                                     marginHorizontal: 5,
                                                   }}>
-                                      <Icon
-                                        name="circle"
-                                        size={12}
-                                        color={this.state.checkPointsDetails[index].IsComplete === 0 && this.state.checkPointsDetails[index].Modified === false ? '#fff' : Colors[this.state.checkPointsDetails[index].Score]}
-                                            />
-                                          </View>
-                                        </View>
-                                        }
+                                                  <Icon
+                                                    name="circle"
+                                                    size={12}
+                                                    color={
+                                                      this.state
+                                                        .checkPointsDetails[
+                                                        index
+                                                      ].IsComplete === 0 &&
+                                                      this.state
+                                                        .checkPointsDetails[
+                                                        index
+                                                      ].Modified === false
+                                                        ? '#fff'
+                                                        : Colors[
+                                                            this.state
+                                                              .checkPointsDetails[
+                                                              index
+                                                            ].Score
+                                                          ]
+                                                    }
+                                                  />
+                                                </View>
+                                              </View>
+                                            }
                                             value={
                                               this.state.checkPointsDetails[
                                                 index
                                               ].Score === '-2'
-                                                ? 'Please Select'
+                                                ? strings.Please_select
                                                 : this.state.checkPointsDetails[
                                                     index
                                                   ].Scoretext
@@ -7869,18 +8926,22 @@ class CheckPointDemo extends Component {
                                               this.toggleDropdown();
                                               const scoreindex = data[index].id;
                                               const text =
-                                                value == 'Please select'
+                                                value == strings.Please_select
                                                   ? '-3'
                                                   : value;
                                               //console.log('Text', text);
 
-                                              if (text == 'Please select') {
+                                              if (
+                                                text == strings.Please_select
+                                              ) {
                                                 this.setState({
                                                   score_text_plsslct: true,
                                                 });
                                               }
 
-                                              if (text !== 'Please select') {
+                                              if (
+                                                text !== strings.Please_select
+                                              ) {
                                                 var checkPointsDetails =
                                                   this.state.checkPointsDetails;
                                                 for (
@@ -8016,7 +9077,7 @@ class CheckPointDemo extends Component {
                                                     if (
                                                       checkPointsDetails[i]
                                                         .Scoretext !=
-                                                      'Please select'
+                                                      strings.Please_select
                                                     ) {
                                                       checkPointsDetails[
                                                         i
@@ -8034,6 +9095,14 @@ class CheckPointDemo extends Component {
                                                     hasValue: true,
                                                   },
                                                   () => {
+                                                    // console.log('[CheckPointDemo] Score changed - dispatching changeAuditState(true)');
+                                                    // this.props.changeAuditState(true);
+                                                    
+                                                    // console.log('[CheckPointDemo] Redux isAuditing (should be true):', this.props.data.audits.isAuditing);
+                                                    
+                                                   
+                                                    //   DeviceEventEmitter.emit('scoreUpdated');
+                                                   
                                                     // //console.log('checkPointsDetails', this.state.checkPointsDetails)
                                                   },
                                                 );
@@ -8112,7 +9181,7 @@ class CheckPointDemo extends Component {
                                               backgroundColor:
                                                 this.state.checkPointsDetails[
                                                   index.Score
-                                                ]== 0
+                                                ] == 0
                                                   ? 'red'
                                                   : dropdata.color,
                                             }}
@@ -8124,7 +9193,7 @@ class CheckPointDemo extends Component {
                                               this.state.checkPointsDetails[
                                                 index
                                               ].Score === '-2'
-                                                ? 'Please select'
+                                                ? strings.Please_select
                                                 : this.state.checkPointsDetails[
                                                     index
                                                   ].Scoretext
@@ -8148,18 +9217,22 @@ class CheckPointDemo extends Component {
                                                 'helloconsolecheck',
                                               );
                                               const text =
-                                                value == 'Please select'
-                                                  ? 'Please select'
+                                                value == strings.Please_select
+                                                  ? strings.Please_select
                                                   : value;
                                               //console.log('Text', text);
 
-                                              if (text == 'Please select') {
+                                              if (
+                                                text == strings.Please_select
+                                              ) {
                                                 this.setState({
                                                   score_text_plsslct: true,
                                                 });
                                               }
 
-                                              if (text !== 'Please select') {
+                                              if (
+                                                text !== strings.Please_select
+                                              ) {
                                                 var checkPointsDetails =
                                                   this.state.checkPointsDetails;
                                                 for (
@@ -8284,7 +9357,7 @@ class CheckPointDemo extends Component {
                                                     if (
                                                       checkPointsDetails[i]
                                                         .Score !=
-                                                      'Please select'
+                                                      strings.Please_select
                                                     ) {
                                                       checkPointsDetails[
                                                         i
@@ -8301,9 +9374,9 @@ class CheckPointDemo extends Component {
                                                     score_text_plsslct: false,
                                                     hasValue: true,
                                                   },
-                                                  () => {
-                                                    // //console.log('checkPointsDetails', this.state.checkPointsDetails)
-                                                  },
+                                                 () =>{
+
+                                                 }
                                                 );
                                               } else {
                                                 this.setState({
@@ -8529,7 +9602,9 @@ class CheckPointDemo extends Component {
                                       this.state.checkPointsDetails[index]
                                         .RadioValue == 11 ||
                                       this.state.checkPointsDetails[index]
-                                        .RadioValue == 9
+                                        .RadioValue == 9 ||
+                                      this.state.checkPointsDetails[index]
+                                        .RadioValue == 14
                                         ? styles.boxsecNone
                                         : styles.boxsec1
                                     }>
@@ -8572,7 +9647,6 @@ class CheckPointDemo extends Component {
                                         }
                                         placeholder={strings.Correction}
                                         onChangeText={text => {
-                                          //console.log('Writing', text);
                                           var checkPointsDetails =
                                             this.state.checkPointsDetails;
                                           for (
@@ -8590,18 +9664,17 @@ class CheckPointDemo extends Component {
                                               checkPointsDetails[
                                                 i
                                               ].Modified = true;
+                                              checkPointsDetails[
+                                                i
+                                              ].isCorrectionEntered =
+                                                text.trim() !== '';
                                             }
                                           }
-                                          this.setState(
-                                            {
-                                              checkPointsDetails:
-                                                checkPointsDetails,
-                                              isUnsavedData: true,
-                                            },
-                                            () => {
-                                              // //console.log('checkPointsDetails', this.state.checkPointsDetails)
-                                            },
-                                          );
+                                          this.setState({
+                                            checkPointsDetails:
+                                              checkPointsDetails,
+                                            isUnsavedData: true,
+                                          });
                                         }}
                                       />
                                     </View>
@@ -8616,11 +9689,17 @@ class CheckPointDemo extends Component {
                                       this.state.checkPointsDetails[index]
                                         .RadioValue == 11 ||
                                       this.state.checkPointsDetails[index]
-                                        .RadioValue == 9
+                                        .RadioValue == 9 ||
+                                      this.state.checkPointsDetails[index]
+                                        .RadioValue == 14
                                         ? styles.boxsecNone
                                         : styles.boxsec1
                                     }>
-                                    {dropdata.length > 0 ? (
+                                    {dropdata.length > 0 &&
+                                    (
+                                      this.state.checkPointsDetails[index]
+                                        ?.Correction || ''
+                                    ).trim() === '' ? (
                                       <Dropdown
                                         label={
                                           this.state.checkPointsDetails[
@@ -8630,7 +9709,7 @@ class CheckPointDemo extends Component {
                                             : strings.Choose_Approach
                                         }
                                         containerStyle={{paddingTop: 5}}
-                                        itemPadding={5}
+                                        itemPadding={10}
                                         baseColor={dropdata.color}
                                         selectedItemColor="black"
                                         textColor="black"
@@ -8705,24 +9784,25 @@ class CheckPointDemo extends Component {
                                         data={dropdata}
                                       />
                                     ) : (
-                                      <Text
-                                        style={{
-                                          height: 40,
-                                          color: 'grey',
-                                          padding: 5,
-                                          paddingTop: 10,
-                                          fontFamily: 'OpenSans-Regular',
-                                        }}>
-                                        {strings.No_Approaches_found}
-                                      </Text>
+                                      <View></View>
+                                      // <Text
+                                      //   style={{
+                                      //     height: 40,
+                                      //     color: 'grey',
+                                      //     padding: 5,
+                                      //     paddingTop: 10,
+                                      //     fontFamily: 'OpenSans-Regular',
+                                      //   }}>
+                                      //   {strings.No_Approaches_found}
+                                      // </Text>
                                     )}
                                     <View style={{marginTop: 5}}>
                                       {console.log(
                                         this.state.checkPointsDetails[index],
                                         'helloid6',
                                       )}
-                                   <Dropdown
-                                        label={'Failure Category'}
+                                      <Dropdown
+                                        label={strings.Failure_category}
                                         value={
                                           this.state.checkPointsDetails[index]
                                             .FailureCategoryId !== 0
@@ -8731,79 +9811,104 @@ class CheckPointDemo extends Component {
                                                   index
                                                 ].FailureCategoryId,
                                               )
-                                            : 'Choose Failure Category'
+                                            : strings.Choose_Failure_category
                                         }
-                                        containerStyle={{ paddingTop: 5 }}
-                                        itemPadding={5}
+                                        containerStyle={{paddingTop: 5}}
+                                        itemPadding={10}
                                         baseColor={dropdata.color}
                                         selectedItemColor="black"
                                         textColor="black"
                                         itemColor="black"
                                         fontSize={Fonts.size.medium}
                                         labelFontSize={Fonts.size.small}
-                                        dropdownOffset={{ top: 10, left: 0 }}
+                                        dropdownOffset={{top: 10, left: 0}}
                                         itemTextStyle={{
                                           fontFamily: 'OpenSans-Regular',
                                           backgroundColor: dropdata.color,
                                         }}
                                         data={FailCatarray}
-                                       
                                         onChangeText={(value, index, data) => {
-                                          console.log("Load:Category:",value)
+                                          console.log('Load:Category:', value);
                                           this.failurereasonArray(value);
-                                          var checkPointsDetails = this.state.checkPointsDetails;
-                                          for (var i = 0; i < checkPointsDetails.length; i++) {
-                                            if (checkPointsDetails[i].ChecklistTemplateId == item.ChecklistTemplateId) {
+                                          var checkPointsDetails =
+                                            this.state.checkPointsDetails;
+                                          for (
+                                            var i = 0;
+                                            i < checkPointsDetails.length;
+                                            i++
+                                          ) {
+                                            if (
+                                              checkPointsDetails[i]
+                                                .ChecklistTemplateId ==
+                                              item.ChecklistTemplateId
+                                            ) {
                                               // Reset FailureReasonId when a new FailureCategoryId is selected
-                                              checkPointsDetails[i].FailureReasonId = 0;
-                                              for (var j = 0; j < data.length; j++) {
+                                              checkPointsDetails[
+                                                i
+                                              ].FailureReasonId = 0;
+                                              for (
+                                                var j = 0;
+                                                j < data.length;
+                                                j++
+                                              ) {
                                                 if (value == data[j].value) {
                                                   //console.log('Failcat dropdown0', data[j].value);
-                                                  checkPointsDetails[i].FailureCategoryId = data[j].id;
-                                                  checkPointsDetails[i].Modified = true;
-                                                  checkPointsDetails[i].FailureCategoryId = value;
+                                                  // checkPointsDetails[i].FailureCategoryId = data[j].id;
+                                                  checkPointsDetails[
+                                                    i
+                                                  ].Modified = true;
+                                                  checkPointsDetails[
+                                                    i
+                                                  ].FailureCategoryId = value;
                                                 }
                                               }
                                             }
                                           }
-                                          this.setState({  checkPointsDetails:
-                                            checkPointsDetails,
-                                            isUnsavedData: true }, () => {
-                                           });
+                                          this.setState(
+                                            {
+                                              checkPointsDetails:
+                                                checkPointsDetails,
+                                              isUnsavedData: true,
+                                            },
+                                            () => {},
+                                          );
                                         }}
                                       />
                                     </View>
-                                    <View style={{ marginTop: 5 }}>
+                                    <View style={{marginTop: 5}}>
                                       <Dropdown
-                                        label={'Failure Reason'}
+                                        label={strings.Failure_Reason}
                                         value={
                                           this.state.checkPointsDetails[index]
                                             .FailureReasonId !== 0
                                             ? this.failureReasonText(
-                                              this.state.checkPointsDetails[
-                                                index
-                                              ].FailureReasonId,
-                                            )
-                                            : 'Choose Failure Reason'
+                                                this.state.checkPointsDetails[
+                                                  index
+                                                ].FailureReasonId,
+                                              )
+                                            : strings.Choose_Failure_Reason
                                         }
-                                        containerStyle={{ paddingTop: 5 }}
-                                        itemPadding={5}
+                                        containerStyle={{paddingTop: 5}}
+                                        itemPadding={10}
                                         baseColor={dropdata.color}
                                         selectedItemColor="black"
                                         textColor="black"
                                         itemColor="black"
                                         fontSize={Fonts.size.medium}
                                         labelFontSize={Fonts.size.small}
-                                        dropdownOffset={{ top: 10, left: 0 }}
+                                        dropdownOffset={{top: 10, left: 0}}
                                         itemTextStyle={{
                                           fontFamily: 'OpenSans-Regular',
                                           backgroundColor: dropdata.color,
                                         }}
                                         data={this.state.FailReasArraySt}
                                         onChangeText={(value, index, data) => {
-                                          var checkPointsDetails =  this.state.checkPointsDetails;      
-                                          for ( var i = 0; i < checkPointsDetails.length;  i++
-
+                                          var checkPointsDetails =
+                                            this.state.checkPointsDetails;
+                                          for (
+                                            var i = 0;
+                                            i < checkPointsDetails.length;
+                                            i++
                                           ) {
                                             if (
                                               checkPointsDetails[i]
@@ -8876,84 +9981,136 @@ class CheckPointDemo extends Component {
                                             fontSize: Fonts.size.small,
                                             fontFamily: 'OpenSans-Regular',
                                           }}>
-                                          Immediate Action
+                                          {strings.Immediate_Action}
                                         </Text>
 
-                                        <Dropdown
-                                          label="Please Select"
-                                          containerStyle={{paddingTop: 5}}
-                                          itemPadding={5}
-                                          baseColor={'transparent'}
-                                          selectedItemColor="black"
-                                          textColor="black"
-                                          itemColor="black"
-                                          fontSize={Fonts.size.medium}
-                                          labelFontSize={Fonts.size.small}
-                                          dropdownOffset={{top: 10, left: 0}}
-                                          itemTextStyle={{
-                                            fontFamily: 'OpenSans-Regular',
-                                          }}
-                                          value={
-                                            this.state.checkPointsDetails[index]
-                                              .immediateAction == 'X' ||
-                                            this.state.checkPointsDetails[index]
-                                              .immediateAction == '1'
-                                              ? 'X'
-                                              : 'Please Select'
-                                          }
-                                          onChangeText={(
-                                            value,
-                                            index,
-                                            data,
-                                          ) => {
-                                            var checkPointsDetails =
-                                              this.state.checkPointsDetails;
-                                            for (
-                                              var i = 0;
-                                              i < checkPointsDetails.length;
-                                              i++
-                                            ) {
-                                              if (
-                                                checkPointsDetails[i]
-                                                  .ChecklistTemplateId ==
-                                                item.ChecklistTemplateId
-                                              ) {
+                                        <View
+                                          style={{
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                           
+                                          }}>
+                                          <View style={{flex: 1}}>
+                                            <Dropdown
+                                              label="strings.Please_select"
+                                              containerStyle={{paddingTop: 5}}
+                                              itemPadding={10}
+                                              baseColor={'transparent'}
+                                              selectedItemColor="black"
+                                              textColor="black"
+                                              itemColor="black"
+                                              fontSize={Fonts.size.medium}
+                                              labelFontSize={Fonts.size.small}
+                                              dropdownOffset={{
+                                                top: 10,
+                                                left: 0,
+                                              }}
+                                              itemTextStyle={{
+                                                fontFamily: 'OpenSans-Regular',
+                                              }}
+                                              value={
+                                                this.state.checkPointsDetails[
+                                                  index
+                                                ].immediateAction == 'X' ||
+                                                this.state.checkPointsDetails[
+                                                  index
+                                                ].immediateAction == '1'
+                                                  ? 'X'
+                                                  : strings.Please_select
+                                              }
+                                              onChangeText={(
+                                                value,
+                                                dropIndex,
+                                                data,
+                                              ) => {
+                                                var checkPointsDetails =
+                                                  this.state.checkPointsDetails;
                                                 for (
-                                                  var j = 0;
-                                                  j < data.length;
-                                                  j++
+                                                  var i = 0;
+                                                  i < checkPointsDetails.length;
+                                                  i++
                                                 ) {
-                                                  if (value == data[j].value) {
-                                                    console.log(
-                                                      'Approach dropdown',
-                                                      value,
-                                                    );
-                                                    checkPointsDetails[
-                                                      i
-                                                    ].Modified = true;
-                                                    checkPointsDetails[
-                                                      i
-                                                    ].immediateAction = value;
+                                                  if (
+                                                    checkPointsDetails[i]
+                                                      .ChecklistTemplateId ==
+                                                    item.ChecklistTemplateId
+                                                  ) {
+                                                    for (
+                                                      var j = 0;
+                                                      j < data.length;
+                                                      j++
+                                                    ) {
+                                                      if (
+                                                        value == data[j].value
+                                                      ) {
+                                                        console.log(
+                                                          'Approach dropdown',
+                                                          value,
+                                                        );
+                                                        checkPointsDetails[
+                                                          i
+                                                        ].Modified = true;
+                                                        checkPointsDetails[
+                                                          i
+                                                        ].immediateAction =
+                                                          value;
+                                                      }
+                                                    }
                                                   }
                                                 }
-                                              }
-                                            }
-                                            this.setState(
-                                              {
-                                                checkPointsDetails:
-                                                  checkPointsDetails,
-                                                isUnsavedData: true,
-                                              },
-                                              () => {
-                                                console.log(
-                                                  'checkPointsDetails****',
-                                                  this.state.checkPointsDetails,
+                                                this.setState(
+                                                  {
+                                                    checkPointsDetails:
+                                                      checkPointsDetails,
+                                                    isUnsavedData: true,
+                                                  },
+                                                  () => {
+                                                    console.log(
+                                                      'checkPointsDetails****',
+                                                      this.state
+                                                        .checkPointsDetails,
+                                                    );
+                                                  },
                                                 );
-                                              },
-                                            );
-                                          }}
-                                          data={data}
-                                        />
+                                              }}
+                                              data={data}
+                                            />
+                                          </View>
+
+                                          {this.state.checkPointsDetails[index]
+                                            .immediateAction &&
+                                          this.state.checkPointsDetails[index]
+                                            .immediateAction !==
+                                            strings.Please_select ? (
+                                            <TouchableOpacity
+                                              onPress={() => {
+                                                let checkPointsDetails =
+                                                  this.state.checkPointsDetails;
+                                                checkPointsDetails[
+                                                  index
+                                                ].immediateAction = '';
+                                                checkPointsDetails[
+                                                  index
+                                                ].Modified = true;
+                                                this.setState({
+                                                  checkPointsDetails:
+                                                    checkPointsDetails,
+                                                  isUnsavedData: true,
+                                                });
+                                              }}
+                                              style={{
+                                                marginLeft: 10,
+                                                marginTop: 5,
+                                                padding: 5,
+                                              }}>
+                                              <Icon
+                                                name="times-circle"
+                                                size={18}
+                                                color="#000"
+                                              />
+                                            </TouchableOpacity>
+                                          ) : null}
+                                        </View>
                                       </View>
                                     ) : (
                                       <View></View>
@@ -8974,6 +10131,7 @@ class CheckPointDemo extends Component {
                                         </Text>
                                       ) : null
                                     ) : null}
+                                    
                                     <TextInput
                                       style={
                                         this.state.checkPointsDetails
@@ -8984,12 +10142,7 @@ class CheckPointDemo extends Component {
                                           : styles.checkPointsTextInput
                                       }
                                       placeholderTextColor={
-                                        item.RemarkforNc ||
-                                        item.RemarkforOfi == 1 ||
-                                        this.state.checkPointsDetails[index]
-                                          .Values !==
-                                          this.state.checkPointsDetails[index]
-                                            .RadioValue
+                                        isRemarkRequired && !isRemarkFilled
                                           ? 'red'
                                           : '#A9A9A9'
                                       }
@@ -9026,25 +10179,15 @@ class CheckPointDemo extends Component {
                                             ].Modified = true;
                                           }
                                         }
-                                        this.setState(
-                                          {
-                                            checkPointsDetails:
-                                              checkPointsDetails,
-                                            isUnsavedData: true,
-                                          },
-                                          () => {
-                                            console.log(
-                                              'checkPointsDetails',
-                                              this.state.checkPointsDetails,
-                                            );
-                                          },
-                                        );
+                                       this.setState({ checkPointsDetails, isUnsavedData: true }, async () => {
+    console.log('checkPointsDetails', this.state.checkPointsDetails);
+    await this.markAuditEdited();
+  });
                                       }}
                                     />
                                   </View>
 
-                                  {item.RemarkforNc == 1 ||
-                                  item.RemarkforOfi ? (
+                                  {isRemarkRequired ? (
                                     <Icon
                                       name="asterisk"
                                       style={{right: 10, top: 10}}
@@ -9086,7 +10229,7 @@ class CheckPointDemo extends Component {
                                             : '#00BAC8',
                                       },
                                     ]}
-                                    onPress={() => this.onNext(index,item)}>
+                                    onPress={() => this.onNext(index, item)}>
                                     <Text
                                       style={{
                                         fontSize: 16,
@@ -9107,14 +10250,16 @@ class CheckPointDemo extends Component {
                           </ScrollView>
                         );
                       }}
-                      sliderWidth={Width}
-                      itemWidth={Width}
-                      enableMomentum={false} 
+                      sliderWidth={this.state.screenWidth}
+                      itemWidth={this.state.screenWidth * 1}
+                      enableMomentum={false}
                       decelerationRate="fast"
-                      activeSlideAlignment = "center"
+                      activeSlideAlignment="center"
                       initialNumToRender={100}
                       removeClippedSubviews={false} // Prevent unloading of items
-                      onSnapToItem={(index) => console.log('Snapped to index:', index)}
+                      onSnapToItem={index =>
+                        console.log('Snapped to index:', index)
+                      }
                     />
                   ) : (
                     this.render_loader
@@ -9161,97 +10306,67 @@ class CheckPointDemo extends Component {
           </View>
         )}
 
-        {this.state.checkpointList.length > 0 ? (
-          <View style={styles.footer}>
-            <Image
+        {this.state.checkpointList.length > 0 && (
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-evenly',
+              paddingHorizontal: 5,
+              paddingVertical: 5,
+            }}>
+            <TouchableOpacity
+              onPress={() => this.setState({dialogVisibleReset: true})}
               style={{
-                width: '100%',
-                height: 65,
-              }}
-              source={Images.Footer}
-            />
+                flex: 0.45,
+                backgroundColor: '#00BAC8',
+                marginHorizontal: 2,
+                paddingVertical: 12,
+                borderRadius: 10,
+                alignItems: 'center',
+              }}>
+              <Icon name="undo" size={20} color="white" />
+              <Text
+                style={{
+                  textAlign: 'center',
+                  fontSize: 14,
+                  fontWeight: '600',
+                  color: '#fff',
+                }}>
+                {strings.clearall}
+              </Text>
+            </TouchableOpacity>
 
-            {this.state.isSaving == false ? (
-              <View style={styles.footerDiv}>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}>
-                  <TouchableOpacity
+            <TouchableOpacity
+              onPress={debounce(this.updateCheckPointsValues.bind(this), 1500)}
+              disabled={this.state.isSaving}
+              style={{
+                flex: 0.45,
+                backgroundColor: '#00BAC8',
+                marginHorizontal: 2,
+                paddingVertical: 12,
+                borderRadius: 10,
+                alignItems: 'center',
+                opacity: this.state.isSaving ? 0.7 : 1,
+              }}>
+              {this.state.isSaving ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ) : (
+                <>
+                  <Icon name="save" size={20} color="white" />
+                  <Text
                     style={{
-                      flexDirection: 'column',
-                      width: width(45),
-                      // width: '45%',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                    }}
-                    onPress={() => this.setState({dialogVisibleReset: true})}>
-                    <Icon name="undo" size={25} color="white" />
-                    <Text
-                      style={{
-                        color: 'white',
-                        fontSize: Fonts.size.regular,
-                        fontFamily: 'OpenSans-Regular',
-                      }}>
-                      {strings.Reset}
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}>
-                  <View
-                    style={{
-                      width: width(10),
-                      // width: '10%',
-                      justifyContent: 'center',
-                      alignItems: 'center',
+                      textAlign: 'center',
+                      fontSize: 14,
+                      fontWeight: '600',
+                      color: '#fff',
                     }}>
-                    <Image source={Images.lineIcon} />
-                  </View>
-                </View>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}>
-                  <TouchableOpacity
-                    style={{
-                      flexDirection: 'column',
-                      width: width(45),
-                      // width: '45%',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                    }}
-                    onPress={debounce(
-                      this.updateCheckPointsValues.bind(this),
-                      1500,
-                    )}>
-                    <Icon name="save" size={25} color="white" />
-                    <Text
-                      style={{
-                        color: 'white',
-                        fontSize: Fonts.size.regular,
-                        fontFamily: 'OpenSans-Regular',
-                      }}>
-                      {strings.Save}
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            ) : (
-              <View style={{right: 70, position: 'absolute'}}>
-                <Pulse size={20} color="white" />
-              </View>
-            )}
+                    {strings.Save}
+                  </Text>
+                </>
+              )}
+            </TouchableOpacity>
           </View>
-        ) : null}
+        )}
 
         <Modal
           isVisible={this.state.dialogVisibleNC}
@@ -9273,12 +10388,12 @@ class CheckPointDemo extends Component {
               </View>
 
               {(this.state.radiovalue_ncofi == 9 ||
-              //  this.state.radiovalue_ncofi == 10 ||
-              this.state.radiovalue_ncofi == 14 ||
-              //   this.state.radiovalue_ncofi == 15 ||
-              this.state.Status_nc_ofi == 1 ||
-             ( this.state.Status_nc_ofi == 2 &&
-              this.state.radiovalue_ncofi !== 11)) && this.state.radiovalue_ncofi !==""? (
+                this.state.radiovalue_ncofi == 14)
+                ? null
+                : (this.state.Status_nc_ofi == 1 ||
+                    (this.state.Status_nc_ofi == 2 &&
+                      this.state.radiovalue_ncofi !== 11)) &&
+                  this.state.radiovalue_ncofi !== '' ? (
                 <TouchableOpacity
                   onPress={this.navigateTo.bind(
                     this,
@@ -9291,7 +10406,10 @@ class CheckPointDemo extends Component {
                     </View>
                   </View>
                 </TouchableOpacity>
-              ) : this.state.radiovalue_ncofi !== 11 && this.state.radiovalue_ncofi !== "" ? (
+              ) : this.state.radiovalue_ncofi !== 11 &&
+                this.state.radiovalue_ncofi !== '' &&
+                !(this.state.radiovalue_ncofi == 9 ||
+                  this.state.radiovalue_ncofi == 14) ? (
                 <TouchableOpacity
                   onPress={this.navigateTo.bind(
                     this,
@@ -9300,19 +10418,21 @@ class CheckPointDemo extends Component {
                   )}>
                   <View style={styles.sectionTop}>
                     <View style={styles.sectionContent}>
-                      {this.state.radiovalue_ncofi == 10 || this.state.radiovalue_ncofi == 15 ? (
-                      <Text style={styles.boxContent}>{'EDIT NC'}</Text>):null}
+                      {this.state.radiovalue_ncofi == 10 ||
+                      this.state.radiovalue_ncofi == 15 ? (
+                        <Text style={styles.boxContent}>{'EDIT NC'}</Text>
+                      ) : null}
                     </View>
                   </View>
                 </TouchableOpacity>
-              ):null}
+              ) : null}
 
-              {this.state.radiovalue_ncofi == 9 ||
-              this.state.radiovalue_ncofi == 10 ||
-              this.state.radiovalue_ncofi == 14 ||
+              {(this.state.radiovalue_ncofi == 10 ||
               this.state.radiovalue_ncofi == 15 ||
+              this.state.radiovalue_ncofi == 9 ||
+              this.state.radiovalue_ncofi == 14 ||
               this.state.Status_nc_ofi == 3 ||
-              this.state.Status_nc_ofi == 2 ? (
+              this.state.Status_nc_ofi == 2) ? (
                 <TouchableOpacity onPress={this.navigateTo.bind(this, 'OFI')}>
                   <View style={styles.sectionTop}>
                     <View style={styles.sectionContent}>
@@ -9374,11 +10494,7 @@ class CheckPointDemo extends Component {
 
               <TouchableOpacity
                 onPress={() =>
-                  this.setState({dialogVisible: false}, () => {
-                    this.state.go_home
-                      ? this.props.navigation.navigate(ROUTES.AUDIT_DASHBOARD_LISTING)
-                      : this.props.navigation.goBack();
-                  })
+                  this.handleDiscardUnsavedChanges(this.state.go_home)
                 }>
                 <View style={styles.sectionTopCancel}>
                   <View style={styles.sectionContent}>
@@ -9632,13 +10748,13 @@ class CheckPointDemo extends Component {
     );
   }
 }
-
 const mapStateToProps = state => {
+  //console.log(state, 'propsdataincoming1');
+
   return {
     data: state,
   };
 };
-
 const mapDispatchToProps = dispatch => {
   return {
     storeAuditRecords: auditRecords =>

@@ -510,7 +510,7 @@ class AuditForm extends Component {
     }
     if (this.state.CheckListbtn === true) {
       console.log('===>btnclick', item);
-      this.props.navigation.navigate(ROUTES.CHECKLIST_MENU, {
+      this.props.navigation.navigate(ROUTES.CHECKLIST_MENU_SM, {
         AuditID: this.state.AuditID,
         Checkpass: this.state.Checkpointpass,
         FormId: item.FormId,

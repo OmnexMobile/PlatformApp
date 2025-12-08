@@ -1,323 +1,131 @@
-import { StyleSheet, Dimensions} from 'react-native'
-import { width, height } from 'react-native-dimension'
-import Fonts from '../Themes/Fonts'
+// Updated AuditSummaryStyle.js with modern and attractive design
+import { StyleSheet, Dimensions } from 'react-native';
+import { width } from 'react-native-dimension';
+import Fonts from '../Themes/Fonts';
 
-let Window = Dimensions.get('window')
+const Window = Dimensions.get('window');
 
 export default StyleSheet.create({
   wrapper: {
     flex: 1,
-    flexDirection: "column",
-    justifyContent: 'flex-start',
+    backgroundColor: '#F5F7FA'
   },
   header: {
-    width:'100%',
-    zIndex: 3000,
+    width: '100%',
     flexDirection: 'row',
-    //backgroundColor: 'white',
-    padding: 5,
+    backgroundColor: '#00BAC8',
+    paddingHorizontal: 10,
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     height: 65,
     elevation: 4,
-    shadowOffset: { width: 2, height: 10 },
-    shadowColor: "lightgrey",
-    shadowOpacity: 0.5,
-    shadowRadius: 4,
-    flex:1
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
   },
-  backlogo:{
-    flexDirection: 'row',
-    backgroundColor:'transparent',
+  backlogo: {
     width: width(15),
-    height: 65,
-    justifyContent: 'center', 
-    alignItems:'center'
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  heading:{
-    flexDirection: 'column',
-    justifyContent: 'center', 
-    alignItems:'center', 
-    width:'80%',
-    height: 65
-  },  
-  headingText:{
+  heading: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  headingText: {
     fontSize: Fonts.size.mediump,
     color: '#fff',
-    textAlign: 'center',
-    fontFamily:'OpenSans-Bold'
+    fontFamily: 'OpenSans-Bold'
   },
-  headerDiv:{
-    width:width(15),
-    height: 65,
-    flexDirection:'row',
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-  footer:{
-    bottom:0,
-    flexDirection:'row',
-    justifyContent: 'center',
+  headerDiv: {
+    width: width(15),
     alignItems: 'center',
-    width:width(100),
-    backgroundColor:'transparent',
-    height: 65,
-    zIndex: 3000
-  },  
-  footerDiv:{
-    flexDirection:'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    width:width(100),
-    height:65,
-    position:'absolute'
+    justifyContent: 'center'
   },
-  auditPageBody: {
-  flex: 1,
-  zIndex: 10,
-  marginLeft: 0,
-  marginRight: 0,
-  padding: 5,
-  backgroundColor: 'white',
-  justifyContent: 'center',
-  paddingBottom: 0,
-  marginBottom: 0,
-  alignSelf:'stretch'
+  subHeading: {
+    height: 50,
+    backgroundColor: '#fff',
+    borderBottomWidth: 3,
+    borderBottomColor: '#00BAC8',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  subText: {
+    fontSize: 18,
+    color: '#00BAC8',
+    fontFamily: 'OpenSans-Bold'
   },
   scrollViewBody: {
-    height:'100%', 
-    backgroundColor: 'transparent' ,
-    textAlign:'center',
-    // backgroundColor:'red'
+    padding: 15,
+    backgroundColor: '#F5F7FA'
   },
-  card1:{
-    width:'95%',
-    height:'95%',
-    backgroundColor:'white',
-    flexDirection:'column',
-    borderWidth:0.5,
-    borderColor:'lightgrey',
-    elevation:8,
-    borderRadius:8,
-    justifyContent:'center',
-    alignItems:'center'
+  Carddiv1: {
+    marginBottom: 20
   },
-  card:{
-    width:Window.width,
-    height:290,
-    backgroundColor:'white',
-    marginTop:10,
-    justifyContent:'center',
-    alignItems:'center',
+  box1: {
+    flexDirection: 'row',
+    marginBottom: 10
   },
-  cardT:{
-  backgroundColor:'white',
-  width:width(100),
-  flexDirection: 'column',
-  borderBottomWidth: 0.5,
-  borderBottomColor: 'lightgrey', 
-  justifyContent: 'flex-start',
-  alignItems: 'flex-start',
-  paddingTop: 5,
-  paddingLeft: 10,
-  borderBottomColor:'lightgrey'
+  boxcard: {
+    flex: 1,
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 15,
+    marginRight: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 3
   },
-  boxCard1:{
-    width:'95%',
-    height:'25%',
-    backgroundColor:'white',
-    borderBottomWidth:0.5,
-    borderBottomColor:'lightgrey',
-    flexDirection:'column',
-    padding:10
+  boxcard1: {
+    flex: 1,
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 15,
+    marginLeft: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 3
   },
-  boxCard2:{
-    left: 0,
-    //marginTop: 11
+  boxcard2: {
+    flex: 1,
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 15,
+    marginRight: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 3
   },
-  detailTitle: { 
-    fontSize: Fonts.size.medium,
-    color: '#A6A6A6'
+  boxcard3: {
+    flex: 1,
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 15,
+    marginLeft: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 3
   },
-  detailContent: {
-    fontSize: Fonts.size.regular, 
-    color: '#1d1d1d'
+  boxcard31: {
+    flex: 1,
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 15,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 3
   },
-  div1:{
-  width:Window.width,
-  //height:height(10),
-  backgroundColor:'transparent',
-  marginTop:10,
-  alignItems:'center',
-  justifyContent:'center',
-  flexDirection:'row'
+  TextStyle: {
+    fontSize: Fonts.size.small,
+    color: '#888',
+    fontFamily: 'OpenSans-Regular',
+    marginBottom: 5
   },
-  input07:{
-  backgroundColor:'transparent',
-  width:'95%',
-  height:'80%',
-  },
-  Carddiv1:{
-  width:'100%',
-  height:150,
-  backgroundColor:'white',
-  padding:0,
-  flexDirection:'column'
-},
-cardS:{
-  width:'95%',
-  height:null,
-  backgroundColor:'white',
-  borderRadius:8,
-  borderColor:'lightgrey',
-  borderWidth:0.8,
-  elevation:5
-},
-box1:{
-  width:'100%',
-  height:'50%',
-  backgroundColor:'white',
-  borderBottomColor:'lightgrey',
-  borderBottomWidth:0.5,
-  flexDirection:'row',
-  borderTopWidth:0.5,
-  borderTopColor:'lightgrey'
-},
-boxcard:{
-  width:'50%',
-  height:'100%',
-  backgroundColor:'white',
-  justifyContent:'center',
-  alignItems:'center',
-  flexDirection:'column'
-},
-boxcard1:{
-  width:'50%',
-  height:'100%',
-  backgroundColor:'white',
-  borderLeftColor:'lightgrey',
-  borderLeftWidth:0.5,
-  justifyContent:'center',
-  alignItems:'center',
-  flexDirection:'column'
-},
-boxcard3:{
-  width:'50%',
-  height:'100%',
-  backgroundColor:'white',
-  borderLeftColor:'lightgrey',
-  borderLeftWidth:0.5,
-  justifyContent:'center',
-  alignItems:'center',
-  flexDirection:'column'
-},
-boxcard2:{
-  width:'50%',
-  height:'100%',
-  backgroundColor:'white',
-  borderLeftColor:'lightgrey',
-  borderLeftWidth:0.5,
-  justifyContent:'center',
-  alignItems:'center',
-  flexDirection:'column'
-},
-boxcard31:{
-  width:'50%',
-  height:'100%',
-  backgroundColor:'white',
-  borderLeftColor:'lightgrey',
-  // borderLeftWidth:0.5,
-  justifyContent:'center',
-  alignItems:'center',
-  flexDirection:'column'
-},
-TextStyle:{fontSize:Fonts.size.small,color:'grey',fontFamily:'OpenSans-Regular'},
-TextStyle1:{fontSize:26,color:'black',fontFamily:'OpenSans-Regular'},
-Carddiv2:{
-  width:'100%',
-  height:40,
-  backgroundColor:'white',
-  justifyContent:'center',
-  alignItems:'center',
-  borderBottomColor:'lightgrey',
-  borderBottomWidth:0.5,
-  marginTop:10
-},
-Carddiv3:{
-  width:'100%',
-  height:120,
-  backgroundColor:'white',
-  justifyContent:'center',
-  alignItems:'center',
-  marginTop:10,
-  marginBottom:5
-},
-CarddivCont:{ 
-  width:'95%',
-  height:null,
-  backgroundColor:'white',
-  borderRadius:5,
-  borderColor:'lightgrey',
-  borderWidth:0.5,
-  elevation:5,
-  padding:10,
-  flexDirection:'column'
-},
-box11:{
-  width:'100%',
-  height:'40%',
-  backgroundColor:'white',
-  borderBottomColor:'lightgrey',
-  borderBottomWidth:0.5,
-  alignItems:'center',
-  justifyContent:'center'
-},
-box12:{
-  width:'100%',
-  height:'60%',
-  backgroundColor:'white',
-  flexDirection:'row'
-},
-leftBox:{
-  width:'33.3%',
-  height:'100%',
-  backgroundColor:'white',
-  flexDirection:'column',
-  alignItems:'center',
-  justifyContent:'center',
-  borderRightColor:'lightgrey',
-  borderRightWidth:0.5
-},
-middleBox:{
-  width:'33.3%',
-  height:'100%',
-  backgroundColor:'white',
-  flexDirection:'column',
-  alignItems:'center',
-  justifyContent:'center'
-},
-rightBox:{
-  width:'33.3%',
-  height:'100%',
-  backgroundColor:'white',
-  flexDirection:'column',
-  alignItems:'center',
-  justifyContent:'center',
-  borderLeftColor:'lightgrey',
-  borderLeftWidth:0.5
-},
-subHeading:{
-  width:'100%',
-  height:50,
-  backgroundColor:'#FFFFFF',
-  borderBottomWidth:5,
-  borderBottomColor:'#00BAC8',
-  justifyContent:'center',
-  alignItems:'center'
-},
-subText:{
-  fontSize:18,
-  color:'#00BAC8',
-  fontFamily:'OpenSans-Regular'
-}
-})
+  TextStyle1: {
+    fontSize: 28,
+    color: '#333',
+    fontFamily: 'OpenSans-Bold'
+  }
+});

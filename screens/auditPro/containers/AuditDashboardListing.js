@@ -69,7 +69,7 @@ class AuditDashboardListing extends Component {
     this.pageNo = 1;
     this.onEndReachedCalledDuringMomentum = false;
     // this.filterId = this.props.navigation.getParam('filterId');
-    this.filterId = this.props?.route?.params?.filterId
+    this.filterId = this.props?.route?.params?.status ?? this.props?.route?.params?.filterId;
     this.state = {
       listEndReached: false,
       loader: true,
@@ -98,7 +98,7 @@ class AuditDashboardListing extends Component {
       showMyAllAudits: false,
       notifybadge: [],
       ShowNotifyBadge: 0,
-      filterId: '',
+      filterId: this.props?.route?.params?.status ?? this.props?.route?.params?.filterId ?? '',
       scheduled: '',
       completed: '',
       deadlineviolated: '',
@@ -1311,6 +1311,7 @@ class AuditDashboardListing extends Component {
         // value previously stored
         this.setState({
           projectData: value,
+          filterId: this.state.filterId || value?.projectStatus || '',
         });
       }
     } catch (e) {
@@ -1400,37 +1401,21 @@ class AuditDashboardListing extends Component {
         var SortBy = '',
           SortOrder = '',
           Default = 1;
-        let filterStr = '';
-        console.log('test props---->',this.props?.route?.params?.fromHome,'---' ,this.props?.route?.params?.filterId, '----', this.state.projectData?.projectStatus)
-        
+        const filterStatus =
+          Number(
+            this.props?.route?.params?.status ??
+            this.props?.route?.params?.filterId ??
+            this.state.projectData?.projectStatus ??
+            this.state.filterId,
+          ) || '';
+        const filterStr =
+          filterStatus === 2 || filterStatus === 3 || filterStatus === 4 || filterStatus === 5
+            ? `AuditStatus IN (${filterStatus})`
+            : '';
+        if (filterStatus && this.state.filterId !== filterStatus) {
+          this.setState({ filterId: filterStatus });
+        }
 
-        // if (this.props?.route?.params?.fromHome === false) {
-        //   console.log('test props---->iffffff', typeof this.props?.route?.params?.filterId)
-        //   if (this.props?.route?.params?.filterId === 2) {
-        //     filterStr = 'AuditStatus IN (2)';
-        //   } else if (this.props?.route?.params?.filterId === 3) {
-        //     filterStr = 'AuditStatus IN (3)';
-        //   } else if (this.props?.route?.params?.filterId === 4) {
-        //     filterStr = 'AuditStatus IN (4)';
-        //   } else if (this.props?.route?.params?.filterId === 5) {
-        //     filterStr = 'AuditStatus IN (5)';
-        //   }
-        // } 
-        // else {
-        //   console.log('test props---->else', this.state.projectData?.projectStatus)
-        //     if (this.state.projectData?.projectStatus === 2) {
-        //       filterStr = 'AuditStatus IN (2)';
-        //     } else if (this.state.projectData?.projectStatus === 3) {
-        //       filterStr = 'AuditStatus IN (3)';
-        //     } else if (this.state.projectData?.projectStatus === 4) {
-        //       filterStr = 'AuditStatus IN (4)';
-        //     } else if (this.state.projectData?.projectStatus === 5) {
-        //       filterStr = 'AuditStatus IN (5)';
-        //     }
-        // }
-          
-
-        // console.log('trets', auth.getauditlist);
         console.log('trets data', token,userId,siteId, this.state.currentUserData);
         console.log('reach here 003',
           this.state.currentUserData?.accessToken || token ,

@@ -14,7 +14,6 @@ import {
 import styles from '../../auditPro/styles/AuditDashboardListingStyle';
 //components
 import OfflineNotice from '../../auditPro/components/OfflineNotice';
-import AuditCard from '../../auditPro/components/AuditCard';
 //library
 import * as _ from 'lodash';
 import NetInfo from '@react-native-community/netinfo';
@@ -32,6 +31,7 @@ import constant from '../../../constants/SupplierMgnt/AppConstants';
 import { SPACING } from 'constants/theme-constants';
 import { ROUTES } from 'constants/app-constant';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import AuditCardSM from 'screens/auditPro/components/AuditCardSM';
 
 const {whitneyBook_18} = Fonts.style;
 const {blackGrey} = Fonts.colors;
@@ -67,9 +67,9 @@ class AuditDashboardListing extends Component {
 
     var filterIDasync = await AsyncStorage.getItem('FILTERIDLIST'); 
     var SMDATAraw = await AsyncStorage.getItem('supplierIndex'); 
-    var SMDATA = SMDATAraw ? JSON.parse(SMDATAraw) : null;
+    const SMDATA = SMDATAraw ? JSON.parse(SMDATAraw) : null;
     console.log('checkingsmdatvalllll', SMDATA);
-   
+
     if (this.props.data.audits.language === 'Chinese') {
       this.setState({ChineseScript: true}, () => {
         strings.setLanguage('zh');
@@ -84,13 +84,20 @@ class AuditDashboardListing extends Component {
         this.setState({});
       });
     }
-     this.setState({
-      filterID: filterIDasync,
-      SM: SMDATA
-    },()=>{
-      console.log('FILTERIDCHECK*****************',this.state.filterID,this.state.SM);
-    this.getAudits();
-    }) 
+     this.setState(
+      {
+        filterID: filterIDasync,
+        SM: SMDATA,
+      },
+      () => {
+        // Keep Redux copy in sync so consumers reading smdata from props get the latest selection
+        if (SMDATA !== null) {
+          this.props.dispatch({type: 'STORE_SUPPLIER_DATA', smdata: SMDATA});
+        }
+        console.log('FILTERIDCHECK*****************smmmm', this.state.filterID, this.state.SM);
+        this.getAudits();
+      },
+    ); 
     this.focusListener = this.props.navigation.addListener('focus', () => {
         console.log('AuditDashboardListing focused');
         // this.checkUser();
@@ -206,7 +213,7 @@ class AuditDashboardListing extends Component {
         showsHorizontalScrollIndicator={false}
         keyExtractor={(item, index) => index.toString()}
         renderItem={({item, index}) => (
-          <AuditCard
+          <AuditCardSM
             dateFormat={this.props.data.audits.userDateFormat}
             item={item}
             index={index}

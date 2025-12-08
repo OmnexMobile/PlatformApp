@@ -769,7 +769,7 @@ class AuditPage extends Component {
               // Checkpointlogic : this.state.CheckpointLogic,
             });
           } else { 
-            this.props.navigation.navigate(ROUTES.AUDIT_FORM_SM, {
+            this.props.navigation.navigate(ROUTES.AUDIT_FORM, {
               AuditID: this.state.AUDIT_ID,
               ChecklistBtn: this.state.ChecklistBtn,
               CreateNCdataBundle: {
@@ -829,7 +829,7 @@ class AuditPage extends Component {
               // Checkpointlogic : this.state.CheckpointLogic,
             });
           } else {
-            this.props.navigation.navigate(ROUTES.AUDIT_FORM_SM, {
+            this.props.navigation.navigate(ROUTES.AUDIT_FORM, {
               AuditID: this.state.AUDIT_ID,
               ChecklistBtn: this.state.ChecklistBtn,
               CreateNCdataBundle: {
@@ -879,7 +879,7 @@ class AuditPage extends Component {
               // Checkpointlogic : this.state.CheckpointLogic,
             });
           } else {
-            this.props.navigation.navigate(ROUTES.AUDIT_FORM_SM, {
+            this.props.navigation.navigate(ROUTES.AUDIT_FORM, {
               AuditID: this.state.AUDIT_ID,
               ChecklistBtn: this.state.ChecklistBtn,
               CreateNCdataBundle: {
@@ -1051,7 +1051,7 @@ class AuditPage extends Component {
             // Checkpointlogic : this.state.CheckpointLogic,
           });
         } else {
-          this.props.navigation.navigate(ROUTES.AUDIT_FORM_SM, {
+          this.props.navigation.navigate(ROUTES.AUDIT_FORM, {
             AuditID: this.state.AUDIT_ID,
             ChecklistBtn: this.state.ChecklistBtn,
             CreateNCdataBundle: {
@@ -1108,7 +1108,7 @@ class AuditPage extends Component {
             // Checkpointlogic : this.state.CheckpointLogic,
           });
         } else {
-          this.props.navigation.navigate(ROUTES.AUDIT_FORM_SM, {
+          this.props.navigation.navigate(ROUTES.AUDIT_FORM, {
             AuditID: this.state.AUDIT_ID,
             ChecklistBtn: this.state.ChecklistBtn,
             CreateNCdataBundle: {
@@ -1164,7 +1164,7 @@ class AuditPage extends Component {
             // Checkpointlogic : this.state.CheckpointLogic,
           });
         } else {
-          this.props.navigation.navigate(ROUTES.AUDIT_FORM_SM, {
+          this.props.navigation.navigate(ROUTES.AUDIT_FORM, {
             AuditID: this.state.AUDIT_ID,
             ChecklistBtn: this.state.ChecklistBtn,
             CreateNCdataBundle: {
@@ -2249,7 +2249,7 @@ class AuditPage extends Component {
             // Checkpointlogic : this.state.CheckpointLogic,
           });
         } else {
-          this.props.navigation.navigate(ROUTES.AUDIT_FORM_SM, {
+          this.props.navigation.navigate(ROUTES.AUDIT_FORM, {
             AuditID: this.state.AUDIT_ID,
             ChecklistBtn: this.state.ChecklistBtn,
             CreateNCdataBundle: {

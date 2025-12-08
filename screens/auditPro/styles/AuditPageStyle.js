@@ -24,17 +24,17 @@ export default StyleSheet.create({
   header: {
     width: '100%',
     zIndex: 3000,
-    flexDirection: 'row',
-    //backgroundColor: 'white',
-    padding: 5,
+     flexDirection: 'row',
+     //backgroundColor: 'white',
+     padding: 5,
     alignItems: 'center',
     justifyContent: 'center',
     height: 65,
-    elevation: 4,
-    shadowOffset: {width: 2, height: 10},
-    shadowColor: 'lightgrey',
-    shadowOpacity: 0.5,
-    shadowRadius: 4,
+     elevation: 4,
+     shadowOffset: {width: 2, height: 10},
+     shadowColor: 'lightgrey',
+     shadowOpacity: 0.5,
+     shadowRadius: 4,
   },
   heading: {
     flexDirection: 'row',
@@ -44,12 +44,12 @@ export default StyleSheet.create({
     height: 65,
   },
   headingText: {
-    fontSize: Fonts.size.h6,
+    fontSize: 20, // previously Fonts.size.h6
     color: '#fff',
     textAlign: 'center',
-    // fontWeight:'bold',
-    fontFamily: 'OpenSans-Bold',
+    fontFamily: 'OpenSans-Bold', // previously Bold
   },
+  
   backlogo: {
     flexDirection: 'row',
     backgroundColor: 'transparent',
@@ -87,17 +87,14 @@ export default StyleSheet.create({
     alignItems: 'center',
     width: '100%',
     backgroundColor: 'red',
-    height: 65,
-   // zIndex: 3000,
+    height: 70, // match footerDiv
   },
   footerDiv: {
     flexDirection: 'row',
-    justifyContent: 'center',
+    justifyContent: 'space-evenly',
     alignItems: 'center',
     width: '100%',
     height: 70,
-   // backgroundColor:'red',
-   // position: 'absolute',
   },
   footerLoader: {
     flexDirection: 'row',
@@ -107,33 +104,34 @@ export default StyleSheet.create({
   },
   footerTextContent: {
     color: 'white',
-    fontSize: Fonts.size.medium,
-    fontFamily: 'OpenSans-Regular',
-    textAlign:'center'
-  },
+    fontSize: 14,
+    fontFamily: 'OpenSans-SemiBold',
+   // textAlign: 'center',
+paddingTop:5 },
+  
   footerDivContent1: {
     flex:1,
     flexDirection: 'row',
     justifyContent: 'space-evenly',
-    alignItems:'center' 
+    alignItems:'center',
+  
   },
   footerDivContent: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
+    justifyContent: 'space-evenly',
     alignItems: 'center',
     width: '100%',
    // padding: 0.02, // Add padding relative to screen size
    // backgroundColor: '#333', // Example background color
   },
   iconSpacing: {
-    marginBottom: 5,
+    marginBottom: 4, // spacing between icon and text
   },
   iconContainer: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    marginHorizontal:10,
-    maxWidth: '25%', // Adjust maximum width for each container
+    // remove maxWidth: '25%'
   },
   // Body styles
   detailsCard: {
@@ -157,7 +155,7 @@ export default StyleSheet.create({
     paddingTop: 0,
   },
   scrollView: {
-    height: '80%',
+    flex: 1,
     backgroundColor: 'black',
   },
   box1: {
@@ -233,21 +231,24 @@ export default StyleSheet.create({
     borderBottomWidth: 0.5,
   },
   detailContent: {
-    fontSize: Fonts.size.regular,
+    fontSize: 16,
     color: '#1d1d1d',
     fontFamily: 'OpenSans-Regular',
-  },
+marginTop: 5, },
+  
   detailContent1: {
-    fontSize: Fonts.size.regular,
-    color: 'blue',
-    fontFamily: 'OpenSans-Regular',
-    //left:-10
+    fontSize: 15,
+    color: '#007AFF', // typical link blue
+    fontFamily: 'OpenSans-SemiBold',
+    marginTop: 5,
   },
+  
   detailTitle: {
-    fontSize: Fonts.size.medium,
-    color: '#A6A6A6',
-    fontFamily: 'OpenSans-Regular',
+    fontSize: 16, // previously Fonts.size.medium
+    color: '#5c5c5c', // less faded than #A6A6A6
+    fontFamily: 'OpenSans-SemiBold', // previously Medium
   },
+  
   textbox1: {
     left: 8,
   },
@@ -391,6 +392,36 @@ export default StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  floatingDiv1: {
+    position: 'absolute',
+    right: 20,
+    bottom: 100,
+    zIndex: 1000,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  floatingDiv2: {
+    position: 'absolute',
+    right: 20,
+    bottom: 170,
+    zIndex: 1000,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  floatinBtn1: {
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 100,
+    height: 50,
+    backgroundColor:  '#15bae8',
+    borderRadius: 5,
+    zIndex: 1000,
+    elevation: 15,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   floatinBtn: {
     borderWidth: 1,
     borderColor: 'rgba(0,0,0,0.2)',
@@ -404,5 +435,27 @@ export default StyleSheet.create({
     elevation: 15,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  footercontainer:{
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    alignItems: 'center',
+    // backgroundColor: 'red', // Change as needed
+    paddingVertical: 10,
+  },
+  footerItem:{
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    minWidth: 80,
+  },
+  footerText:{
+    fontSize: 14,
+    color: 'white',
+    marginTop: 3,
+
+  },
+  placeholder: {
+    flex: 1,
   },
 });

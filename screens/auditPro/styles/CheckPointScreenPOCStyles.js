@@ -1,4 +1,4 @@
-import {StyleSheet, Dimensions} from 'react-native';
+import {StyleSheet, Dimensions, Platform} from 'react-native';
 import {width, height} from 'react-native-dimension';
 import Fonts from '../Themes/Fonts';
 
@@ -10,6 +10,7 @@ export default StyleSheet.create({
   mainContainer: {
     width: '100%',
     height: '100%',
+    backgroundColor:'#F5F7FA',
   },
   backlogo: {
     flexDirection: 'row',
@@ -55,12 +56,21 @@ export default StyleSheet.create({
     alignItems: 'center',
     width: '75%',
     height: 65,
+    paddingHorizontal: width(2),
   },
   headingText: {
-    fontSize: Fonts.size.mediump,
+    fontSize: Math.min(Fonts.size.mediump, width(6)),
     color: '#fff',
     textAlign: 'center',
-    fontFamily: 'OpenSans-Bold',
+    fontFamily: Fonts.type.bold,
+    width: '100%',
+  },
+  headerStatText: {
+    fontSize: 14,
+    color: '#fff',
+    textAlign: 'center',
+    fontFamily: 'OpenSans-Regular',
+    marginTop: 2,
   },
   headerDiv: {
     width: width(15),
@@ -152,22 +162,20 @@ export default StyleSheet.create({
     justifyContent: 'space-between',
   },
   backBtn: {
-    width: '40%',
-    height: 50,
-    borderRadius: 5,
+    flex: 0.5,
     backgroundColor: '#00BAC8',
-    marginLeft: 20,
-    justifyContent: 'center',
+    marginHorizontal: 5,
+    paddingVertical: 12,
+    borderRadius: 10,
     alignItems: 'center',
   },
   nextBtn: {
-    width: '40%',
-    height: 50,
-    borderRadius: 5,
-    backgroundColor: '#00BAC8',
-    marginRight: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
+    flex: 0.5,
+                backgroundColor: '#00BAC8',
+                marginHorizontal: 5,
+                paddingVertical: 12,
+                borderRadius: 10,
+                alignItems: 'center',
   },
   quesText: {
     fontSize: Fonts.size.mediump,
@@ -254,14 +262,14 @@ export default StyleSheet.create({
     paddingTop: 0,
     marginTop: 0,
     fontFamily: 'OpenSans-Regular',
-    color: 'black'
+    color: '#000',
   },
   checkPointsTextInput: {
     fontSize: Fonts.size.mediump,
     paddingTop: 2,
     height: 50,
     fontFamily: 'OpenSans-Regular',
-    color:'black'
+    color: '#000',
     // borderBottomColor: 'lightgrey',
     // borderTopWidth: 0.5,
   },
@@ -308,9 +316,9 @@ export default StyleSheet.create({
     borderTopWidth: 0.5,
   },
   boxsecRemark: {
-    width: '98%',
+    width: Platform.OS === 'ios' ? '85%' : '90%',
     height: null,
-    backgroundColor: 'white',
+    backgroundColor: '#ffffff',
     /* borderBottomColor: '#808080',
     borderBottomWidth: 0.5, */
     flexDirection: 'row',

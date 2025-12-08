@@ -185,7 +185,7 @@ export default StyleSheet.create({
     borderBottomColor: 'lightgrey',
     borderBottomWidth: 0.5,
     fontFamily: 'OpenSans-Regular',
-    color: '#000000',
+    color: '#000',
   },
   placeholderT1Label: {
     fontSize: Fonts.size.regular,
@@ -195,12 +195,13 @@ export default StyleSheet.create({
     width: '100%',
     paddingVertical: Platform.OS === 'ios' ? 5 : null,
     fontFamily: 'OpenSans-Regular',
-    color: '#000000',
+    color: '#000',
   },
   placeholderSR: {
     fontSize: Fonts.size.regular,
    // width: '50%',
     fontFamily: 'OpenSans-Regular',
+    color: '#000',
   },
   placeholderSRLabel: {
     fontSize: Fonts.size.regular,
@@ -208,6 +209,7 @@ export default StyleSheet.create({
     width: '85%',
     fontFamily: 'OpenSans-Regular',
     paddingVertical: Platform.OS === 'ios' ? 55 : null,
+    color: '#000',
   },
 
   input2: {

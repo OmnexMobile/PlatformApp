@@ -811,7 +811,8 @@ class CreateNC extends Component {
       },
       () => {
         if (type == 'Camera') {
-          this.props.navigation.navigate('CameraCapture');
+          // Use the named route so navigation matches stack registration
+          this.props.navigation.navigate(ROUTES.CAMERA_CAPTURE);
         } else if (type == 'Video') {
           this.props.navigation.navigate('VideoCapture');
         }
@@ -3448,7 +3449,7 @@ class CreateNC extends Component {
               <TouchableOpacity
                 style={{paddingHorizontal: 10}}
                 onPress={() =>
-                  this.props.navigation.navigate('AuditDashboard')
+                  this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)
                 }>
                 <Icon name="home" size={30} color="white" />
               </TouchableOpacity>
@@ -3456,11 +3457,16 @@ class CreateNC extends Component {
           </View>
         </ImageBackground>
         {this.state.PageLoader === false ? (
-          <KeyboardAwareScrollView extraHeight={125}>
+          <KeyboardAwareScrollView
+            extraHeight={125}
+            enableOnAndroid
+            keyboardShouldPersistTaps="handled"
+            contentContainerStyle={{flexGrow: 1}}>
             <View style={styles.auditPageBody}>
-              <ScrollView showsVerticalScrollIndicator={false}>
+              <ScrollView
+                showsVerticalScrollIndicator={false}
+                keyboardShouldPersistTaps="handled">
                 <View style={{marginBottom: 50}}>
-                  <View style={styles.div1}></View>
                   <View style={styles.div1}>
                     {this.state.RouteParam === 'NC' ? (
                       <View style={styles.input02}>

@@ -30,6 +30,8 @@ const ListCardLogoSM = ({ item = {} }) => {
             await AsyncStorage.setItem('supplierIndex', JSON.stringify(2));
             }else if(item?.Module_name==='Supplier Routine Audit'){
             await AsyncStorage.setItem('supplierIndex', JSON.stringify(3));
+            }else{
+            await AsyncStorage.setItem('supplierIndex', JSON.stringify(1));
             }
              navigation.navigate(ROUTES.AUDIT_PAGE_SM, {
                 screenFrom: 'Dashboard',

@@ -39,7 +39,7 @@ import ScrollableTabView, {
 } from 'react-native-scrollable-tab-view';
 import Icon from 'react-native-vector-icons/FontAwesome';
 //component
-import CalendarAgenda from '../../auditPro/components/CalenderAgenda';
+// import CalendarAgenda from '../../auditPro/components/CalendarAgenda';
 import {Dropdown} from 'react-native-element-dropdown';
 import * as _ from 'lodash';
 // import { NavigationEvents } from 'react-navigation';s
@@ -700,10 +700,11 @@ class AllTabAuditList extends Component {
             <ActivityIndicator size={20} color="#1CAFF6" />
           </View>
         ) : (
-          <CalendarAgenda
-            dateFormat={this.props.data.audits.userDateFormat}
-            agendaData={this.state.agendaData}
-          />
+          // <CalendarAgenda
+          //   dateFormat={this.props.data.audits.userDateFormat}
+          //   agendaData={this.state.agendaData}
+          // />
+          <></>
         )}
     </View>
     );

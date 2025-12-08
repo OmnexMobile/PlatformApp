@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
         fontWeight: '400',
     },
     inputFilled: {
-        fontFamily: 'OpenSens-Semibold',
+        fontFamily: 'OpenSans-SemiBold',
         fontWeight: '600',
     },
 });

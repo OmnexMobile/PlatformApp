@@ -55,8 +55,9 @@ class PeriodicEditScreen extends Component {
   ProjectOwnerCheck = 0;
   TaskOwnerCheck = 0;
 
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
+    console.log('get current props--->', props)
     this.state = {
       completedtext: "",
       startdate: "",
@@ -156,6 +157,7 @@ class PeriodicEditScreen extends Component {
     } else {
       defaultText = "";
     }
+    console.log("defaultText", defaultText);
     this.setState({ remarktext: defaultText });
     this.setState({ ClientName: defaultText });
     this.setState({ TypeofWorkConducted: defaultText });
@@ -300,6 +302,7 @@ class PeriodicEditScreen extends Component {
   }
 
   onSavePress() {
+    console.log("onSavePress called", this.props, 'this.state.remarktext', this.state.remarktext);
     // Reactotron.log(
     //   parseInt(
     //     this.props.navigation.state.params.itemData.ResourcePercent ||
@@ -344,12 +347,13 @@ class PeriodicEditScreen extends Component {
 
       const Remark =
         this.props?.route?.params?.RouteParam == "Edit"
-          ? this.state.remarktext
-          : "From : " +
-            this.props.data.projects.loginuser.FullName +
-            "(" +
-            this.props.data.projects.loginuser.Email +
-            ")" +
+        ? this.state.remarktext
+        : "From : " +
+            // this.props.data.projects.loginuser.FullName +
+            this.props.data.projects.loginuser.userFullName +
+            (this.props.data.projects.loginuser?.Email
+              ? " (" + this.props.data.projects.loginuser.Email + ")"
+              : "") +
             "\n\n" +
             //------------------------------------Modified_for_Commercial_Use-------- lock-------//
             "Client Name : " +
@@ -373,6 +377,20 @@ class PeriodicEditScreen extends Component {
       const EndTime = this.state.endate;
       const Token = this.Token;
 
+      console.log("onSavePress saveperiodicupdate req-->",  
+        Id,
+        'UserID', UserID,
+        'TaskId', TaskId,
+        'FromPercent', FromPercent,
+       'Percent', Percent,
+       'ResourceID', ResourceID,
+       'StartDate', StartDate,
+       'Hours', Hours,
+       'Remark', Remark,
+       'UpdateType', UpdateType,
+       'EndTime', EndTime,
+       'Token', Token);
+
       auth.saveperiodicupdate(
         Id,
         UserID,
@@ -387,7 +405,7 @@ class PeriodicEditScreen extends Component {
         EndTime,
         Token,
         (res, data) => {
-          console.log("-->", data);
+          console.log("saveperiodicupdate -->", data);
           if (data.data.Message == "Success") {
             // this.refs.toast.show(
             //   data.data.Data == "" ? strings.Save_Message : data.data.Data,

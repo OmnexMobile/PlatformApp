@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import {
   View,
   Text,
@@ -13,6 +13,8 @@ import {
   Keyboard,
   InteractionManager,
   ActivityIndicator,
+  FlatList,
+  DeviceEventEmitter
 } from 'react-native';
 import {Images} from '../Themes';
 import styles from '../styles/AuditFormStyle';
@@ -49,12 +51,33 @@ import constants from '../constants/AppConstants';
 import { ROUTES } from 'constants/app-constant';
 import AsyncStorage from '@react-native-community/async-storage';
 import { SPACING } from 'constants/theme-constants';
+import SQLite from 'react-native-sqlite-storage';
+
 
 let Window = Dimensions.get('window');
+//import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Form type -1- Online
 // Form type -2- Reference
 // Form type -0- Template
+SQLite.enablePromise && SQLite.enablePromise(true);
+let dbInstance = null;
+const getDatabase = async () => {
+  if (dbInstance && typeof dbInstance.transaction === 'function') {
+    return dbInstance;
+  }
+  try {
+    const database = await SQLite.openDatabase({
+      name: 'AuditSyncDB.db',
+      location: 'default',
+    });
+    dbInstance = database;
+    return database;
+  } catch (err) {
+    console.error('Failed to open SQLite DB', err);
+    return null;
+  }
+};
 
 class AuditForm extends Component {
   syncStatus = 0;
@@ -67,7 +90,7 @@ class AuditForm extends Component {
 
   constructor(props) {
     super(props);
-    console.log('get this.props----->', props)
+
     this.state = {
       token: '',
       CheckListbtn: false,
@@ -86,6 +109,7 @@ class AuditForm extends Component {
       isLoaderVisible: false,
       OnlineName: undefined,
       notifyRed: false,
+      auditEdited: false,
       breadCrumbText: undefined,
       ActiveTab: 0,
       MandateCheck: false,
@@ -101,64 +125,37 @@ class AuditForm extends Component {
       generarereport_param: '',
       auditObj: '',
       loopCount: 0,
-      uploadIndex : 0,
-      totalFiles:0,
-      AuditAttachments : [],
+      uploadIndex: 0,
+      totalFiles: 0,
+      AuditAttachments: [],
       FailedAttachments: [],
-      syncStatusLabel : '',
+      syncStatusLabel: '',
       syncMode: 0,
-      currentUserData: [],
+      manualRedDot: false,      
+     redDotID : '',
+     uploadSpeed: null,
+
     };
   }
 
-  componentWillMount() {
-    DeviceInfo.getUniqueId().then(deviceId => {
-      this.setState({
-        deviceId,
-      });
-    });
-    if (this.props?.route?.params?.SpeechCommand) {
-      console.log('Coming from speech command');
-      if (this.props?.route?.params?.SpeechCommand == 'Template') {
-        this.setState({ ActiveTab: 1 }, () => {
-          console.log('Template Flag ', this.state.ActiveTab);
-        });
-      } else if (
-        this.props?.route?.params?.SpeechCommand == 'Reference'
-      ) {
-        this.setState({ ActiveTab: 2 }, () => {
-          console.log('Reference Flag ', this.state.ActiveTab);
-        });
-      }
-    }
-  }
-
-  async getAccessToken(){
-    try {
-      const stringifiedUserDetails = await AsyncStorage.getItem('userDetails');
-      const value = JSON.parse(stringifiedUserDetails);
-      console.log('current userdata--->', value)
-      if (value !== null) {
-        // value previously stored
-        console.log('current token2--->', value.accessToken)
-        this.setState({ currentUserData: value },()=>{
-          console.log('Token set')
-        })
-      }
-    } catch (e) {
-      // error reading value
-      console.log('error--->', e)
-    }
-  };
-
   componentDidMount() {
-    // this.getParamsDetails();
+    const AuditID = this.props?.route?.params?.AuditID;
+    if (AuditID) {
+      this.setState({ AuditID });
+    }
+    this.loadAuditEditedFlag(); 
+    this._navFocusListener = this.props.navigation.addListener(
+      'focus',
+      this.loadAuditEditedFlag,
+    );
+    this.createFailedSyncTable();
+  
     let Files =
       '/' +
       RNFetchBlob.fs.dirs.DocumentDir +
       '/' +
       (Platform.OS == 'ios' ? 'IosFiles' : 'AuditFiles');
-
+  
     console.log('AuditForm:Ios-Android-Path', Files);
     RNFetchBlob.fs.exists(Files).then(exist => {
       if (!exist || exist == '') {
@@ -176,10 +173,9 @@ class AuditForm extends Component {
         });
       }
     });
+  
     console.log('Auditform mounted', this.props);
-    console.log('checkinnngthis.props.navigation.state.params.datapass',this.props?.route?.params?.datapass);
-    // console.log('Recieved props in Audit Form', this.props.navigation.state.params)
-
+  
     if (this.props.data.audits.language === 'Chinese') {
       this.setState({ ChineseScript: true }, () => {
         strings.setLanguage('zh');
@@ -196,13 +192,13 @@ class AuditForm extends Component {
         console.log('Chinese script off', this.state.ChineseScript);
       });
     }
-
+  
     if (this.props?.route?.params?.ChecklistBtn === true) {
       this.setState({ CheckListbtn: true }, () => {
         // console.log('Check list button enabled',this.state.CheckListbtn)
       });
     }
-
+  
     this.setState(
       {
         token: this.props?.data?.audits?.token,
@@ -221,18 +217,14 @@ class AuditForm extends Component {
         // Checkpointlogic: this.props.navigation.state.params.Checkpointlogic,
       },
       () => {
-        // console.log('this.state.formdetails',this.state.formDetails)
-        // console.log('Form name fetched')
-        // console.log('BreadCrumb', this.state.breadCrumbText)
         console.log('AuditForm>-Checkpointpass', this.state.Checkpointpass);
         console.log('AuditForm>-AuditID', this.state.AuditID);
-
+  
         var auditRecords = this.props.data.audits.auditRecords;
-
         console.log('AuditForm>-auditRecords', auditRecords);
         var AuditCheckpointDetail = undefined;
         var Formdata = undefined;
-
+  
         for (var i = 0; i < auditRecords.length; i++) {
           if (this.state.AuditID == auditRecords[i].AuditId) {
             if (auditRecords[i].Formdata) {
@@ -245,15 +237,102 @@ class AuditForm extends Component {
         this.getFormdeTails();
         console.log('AuditForm>-AuditCheckpointDetail', AuditCheckpointDetail);
         console.log('AuditForm>-Formdata', Formdata);
-
+  
         if (Formdata && AuditCheckpointDetail) {
           this.countStatistics(AuditCheckpointDetail, Formdata);
         }
-      },
+      }
     );
   }
 
-  componentWillReceiveProps(props) {
+  componentWillMount() {
+
+    if (this.scoreListener) {
+      this.scoreListener.remove();
+    }
+    DeviceInfo.getUniqueId().then(deviceId => {
+      this.setState({
+        deviceId,
+      });
+    });
+    const speechCmd = this.props?.route?.params?.SpeechCommand;
+    if (speechCmd) {
+      console.log('Coming from speech command');
+      if (speechCmd === 'Template') {
+        this.setState({ActiveTab: 1}, () => {
+          console.log('Template Flag ', this.state.ActiveTab);
+        });
+      } else if (speechCmd === 'Reference') {
+        this.setState({ActiveTab: 2}, () => {
+          console.log('Reference Flag ', this.state.ActiveTab);
+        });
+      }
+    }
+  }
+
+
+  
+  
+  // ➕ Also add cleanup
+  componentWillUnmount() {
+    if (typeof this._navFocusListener === 'function') {
+      this._navFocusListener();
+    }
+  }
+  
+  
+  createFailedSyncTable = async () => {
+    try {
+      const database = await getDatabase();
+      if (!database || typeof database.transaction !== 'function') {
+        console.error('SQLite DB not ready to create table');
+        return;
+      }
+      database.transaction(tx => {
+        tx.executeSql(
+          `CREATE TABLE IF NOT EXISTS FailedSync (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            filename TEXT,
+            obj TEXT,
+            filePath TEXT,
+            status TEXT,
+            data TEXT
+          );`
+        );
+      });
+    } catch (error) {
+      console.error('Failed to create FailedSync table', error);
+    }
+  };
+
+
+  saveToFailedSyncDB = async attachment => {
+    try {
+      const database = await getDatabase();
+      if (!database || typeof database.transaction !== 'function') {
+        console.error('SQLite DB not ready to insert failed sync');
+        return;
+      }
+      database.transaction(tx => {
+        tx.executeSql(
+          'INSERT INTO FailedSync (filename, obj, filePath, status, data) VALUES (?, ?, ?, ?, ?)',
+          [
+            attachment.filename,
+            attachment.obj,
+            attachment.path,
+            'failed',
+            JSON.stringify(attachment)
+          ],
+          (_, result) => console.log('Saved to SQLite', result),
+          error => console.error('Failed to insert into SQLite', error)
+        );
+      });
+    } catch (error) {
+      console.error('Failed to insert into SQLite', error);
+    }
+  };
+
+  async componentWillReceiveProps(props) {
     var getCurrentPage = [];
     // getCurrentPage = this.props.data.nav.routes;
     // var CurrentPage = getCurrentPage[getCurrentPage.length - 1].routeName;
@@ -271,6 +350,89 @@ class AuditForm extends Component {
       console.log('AuditForm pass');
     }
   }
+  async loadAuditEditedFlag() {
+    try {
+      const AuditID = this.props.navigation?.state?.params?.AuditID || this.state.AuditID;
+      const edited = await AsyncStorage.getItem(`audit_edited_${AuditID}`);
+      if (edited === 'true') {
+        this.setState({
+          redDotID: 'true',
+          notifyRed: true,
+          auditEdited: true,
+          AuditID: AuditID,
+        });
+        console.log(`[AuditForm] Red dot ON for audit ${AuditID}`);
+      } else {
+        this.setState({
+          redDotID: 'false',
+          notifyRed: false,
+          auditEdited: false,
+          AuditID: AuditID,
+        });
+        console.log(`[AuditForm] Red dot OFF for audit ${AuditID}`);
+      }
+    } catch (e) {
+      console.log('[AuditForm] Error loading red dot flag:', e);
+    }
+  }
+  
+  componentDidUpdate(prevProps) {
+    if (
+      prevProps?.route?.params?.AuditID !==
+      this.props?.route?.params?.AuditID
+    ) {
+      this.setState({ redDotID: 'false' }, () => {
+        this.loadAuditEditedFlag(); // force reload
+      });
+    }
+  }
+  
+  
+  
+  // componentDidUpdate(prevProps) {
+  //   const prevAuditId = prevProps?.navigation?.state?.params?.AuditID;
+  //   const newAuditId = this.props?.navigation?.state?.params?.AuditID;
+  //   const isFreshAudit = newAuditId !== prevAuditId;
+  
+  //   const prevPage = prevProps.data.nav.routes[prevProps.data.nav.routes.length - 1]?.routeName;
+  //   const currentPage = this.props.data.nav.routes[this.props.data.nav.routes.length - 1]?.routeName;
+  
+  //   const prevIsAuditing = prevProps.data.audits?.isAuditing;
+  //   const currentIsAuditing = this.props.data.audits?.isAuditing;
+  
+  //   console.log('--CurrentPage--->', currentPage);
+  //   console.log(`[AuditForm] prevAuditId: ${prevAuditId}, newAuditId: ${newAuditId}, isFreshAudit: ${isFreshAudit}`);
+  //   console.log('[AuditForm] prevIsAuditing:', prevIsAuditing, '| currentIsAuditing:', currentIsAuditing);
+  
+  //   if (currentPage === 'AuditForm') {
+  //     // ✅ Reset red dot if new audit opened
+  //     if (isFreshAudit) {
+  //       console.log('[AuditForm] Fresh audit opened. Resetting red dot.');
+  //       this.setState({ notifyRed: false }, () => {
+  //         console.log('[AuditForm] Red dot reset for fresh audit');
+  //       });
+  //     }
+  
+  //     // ✅ Trigger red dot from Redux state if score updated
+  //     if (currentIsAuditing && !this.state.notifyRed) {
+  //       console.log('[AuditForm] isAuditing is TRUE → Red dot shown');
+  //       this.setState({ notifyRed: true }, () => {
+  //         console.log('[AuditForm] Red dot set from Redux state');
+  //       });
+  //     }
+  
+  //     // ✅ Sync status refresh
+  //     if (
+  //       prevProps.data.audits?.ncofiRecords !==
+  //       this.props.data.audits?.ncofiRecords
+  //     ) {
+  //       console.log('[AuditForm] Calling displayNCSync() with records:', this.props.data.audits.ncofiRecords);
+  //       this.displayNCSync(this.props.data.audits.ncofiRecords);
+  //     }
+  //   }
+  // }
+  
+
 
   countStatistics = (AuditCheckpointDetail, Formdata) => {
     var arr = [];
@@ -359,25 +521,61 @@ class AuditForm extends Component {
     }
 
     if (pendingCount === 0) {
-      this.setState({ notifyRed: false }, () => {
+      this.setState({notifyRed: false}, () => {
         console.log('no unsave');
       });
       console.log('isauditing props value' + this.props.data.audits.isAuditing);
     } else if (pendingCount > 0) {
-      this.setState({ notifyRed: true }, () => {
+      this.setState({notifyRed: true}, () => {
         console.log('notify save ncs');
       });
     }
 
-    if (this.props.data.audits.isAuditing === true) {
-      this.setState({ notifyRed: true }, () => {
-        console.log('changes done in auditing');
-      });
+    if (
+      this.props.data.audits.isAuditing === true &&
+      this.state.AuditID === this.props.navigation.state.params.AuditID
+    ) {
+      this.setState({ notifyRed: true });
     }
+    
   }
+  // displayNCSync(ncofiRecords) {
+  //   var checkNC = ncofiRecords;
+  //   var pendingCount = 0;
+  
+  //   for (var i = 0; i < checkNC.length; i++) {
+  //     if (this.state.AuditID === checkNC[i].AuditID) {
+  //       pendingCount = checkNC[i].Pending.length;
+  //     }
+  //   }
+  
+  //   console.log(`[displayNCSync] AuditID: ${this.state.AuditID}, PendingCount: ${pendingCount}`);
+  //   console.log(`[displayNCSync] Redux isAuditing: ${this.props.data.audits.isAuditing}`);
+    
+  
+  //   if (pendingCount === 0 ) {
+  //     this.setState({ notifyRed: false }, () => {
+  //       console.log('[displayNCSync] No pending, setting notifyRed = false');
+  //     });
+  //   } else if (pendingCount > 0) {
+  //     this.setState({ notifyRed: true }, () => {
+  //       console.log('[displayNCSync] Pending > 0, setting notifyRed = true');
+  //     });
+  //   }
+  
+  //   if (
+  //     this.props.data.audits.isAuditing === true &&
+  //     this.state.AuditID === this.props.navigation.state.params.AuditID
+  //   ) {
+  //     console.log('[displayNCSync] Matched AuditID and isAuditing === true, setting notifyRed = true');
+  //     this.setState({ notifyRed: true });
+  //   }
+  // }
+  
+  
+  
 
-  async getFormdeTails() {
-    await this.getAccessToken()
+  getFormdeTails() {
     var AllData = this.props.data.audits.auditRecords;
     var AuditID = this.state.AuditID;
     var FormData = [];
@@ -388,21 +586,21 @@ class AuditForm extends Component {
     for (var i = 0; i < AllData.length; i++) {
       // console.log('AllData.AuditID', AllData[i].AuditId)
       if (this.state.AuditID.toString() == AllData[i].AuditId) {
-        console.log('pass');
+        console.log('pass', this.state.AuditID.toString(), AllData[i].AuditId);
         FormData = AllData[i].Formdata;
         this.setState(
           {
-            AuditOrderId: AllData[i].AuditTypeOrder,
+            AuditOrderId: AllData[i].AuditOrderId,
           },
           () => {
-            console.log('AuditOrderId-----', this.state.AuditOrderId);
+            console.log('AuditOrderId', this.state.AuditOrderId);
           },
         );
       }
     }
 
     // console.log('local form fetch',FormData)
-    this.setState({ formDetails: FormData }, () => {
+    this.setState({formDetails: FormData}, () => {
       console.log('this.state.formDetails', this.state.formDetails);
       this.getForname();
     });
@@ -470,7 +668,7 @@ class AuditForm extends Component {
       // console.log('OnlineArr Arr',OnlineArr)
     }
     this.setState(
-      { RefList: ReferenceArr, TempList: TemplateArr, OnlineList: OnlineArr },
+      {RefList: ReferenceArr, TempList: TemplateArr, OnlineList: OnlineArr},
       () => {
         console.log('this.state.Reflist', this.state.RefList);
         console.log('this.state.TempList', this.state.TempList);
@@ -513,9 +711,6 @@ class AuditForm extends Component {
         FormId: item.FormId,
         ChecklistHeading: item,
         notifyRed: this.state.notifyRed,
-        // LogicPass: this.state.Checkpointlogic,
-        // ChecklistProp:this.state.ChecklistProp,
-        // dropProps: this.state.dropPass
       });
     }
   }
@@ -607,8 +802,14 @@ class AuditForm extends Component {
               auditCheckPoints = [];
               for (var j = 0; j < audits[i].Listdata.length; j++) {
                 AttachmentList = audits[i].Listdata[j].AttachmentList;
-                NewAttachments = AttachmentList.length > 0 ? AttachmentList.filter((item) => item.Attachment !== "Downloaded" && item.Attachment !== "Synced") : [];
-
+                NewAttachments =
+                  AttachmentList.length > 0
+                    ? AttachmentList.filter(
+                        item =>
+                          item.Attachment !== 'Downloaded' &&
+                          item.Attachment !== 'Synced',
+                      )
+                    : [];
 
                 if (
                   audits[i].Listdata[j].Modified == true &&
@@ -616,7 +817,8 @@ class AuditForm extends Component {
                 ) {
                   console.log(
                     'FormIds1audits[i]1.Listdata[j]1',
-                    audits[i].Listdata[j], NewAttachments
+                    audits[i].Listdata[j],
+                    NewAttachments,
                   );
                   hasListData = true;
 
@@ -633,14 +835,12 @@ class AuditForm extends Component {
                     if (NewAttachments.length > 0) {
                       console.log('auditAttachments : has Attachment');
                       this.isDocsAvail = true;
-                      for (
-                        let k = 0;
-                        k < NewAttachments.length;
-                        k++
-                      ) {
-
+                      for (let k = 0; k < NewAttachments.length; k++) {
                         let attachment = NewAttachments[k];
-                        console.log('auditAttachments : has Attachment - in', attachment);
+                        console.log(
+                          'auditAttachments : has Attachment - in',
+                          attachment,
+                        );
                         this.auditAttachments.push({
                           Type: 'CL',
                           Id: parseInt(
@@ -658,11 +858,14 @@ class AuditForm extends Component {
                         });
                         console.log(
                           'auditAttachmentsvvvvvvvvvvvvv',
-                          this.auditAttachments
+                          this.auditAttachments,
                         );
                         console.log(
                           'auditAttachments',
-                          this.auditAttachments, NewAttachments, '<-->', attachment
+                          this.auditAttachments,
+                          NewAttachments,
+                          '<-->',
+                          attachment,
                         );
                       }
                     }
@@ -686,9 +889,9 @@ class AuditForm extends Component {
                         if (
                           audits[i].CheckpointLogic.ScoreType[k]
                             .ChecklistTemplateId ==
-                          audits[i].Listdata[j].ChecklistTemplateId &&
+                            audits[i].Listdata[j].ChecklistTemplateId &&
                           audits[i].Listdata[j].Score ==
-                          audits[i].CheckpointLogic.ScoreType[k].ScoreText
+                            audits[i].CheckpointLogic.ScoreType[k].ScoreText
                         ) {
                           score_value =
                             audits[i].CheckpointLogic.ScoreType[k].ScoreValue;
@@ -707,8 +910,13 @@ class AuditForm extends Component {
                     console.log(audits[i], 'formidlength');
 
                     //let addFiles = audits[i].Listdata[j].AttachmentList.filter((i) => i.Attachment !== 'Downloaded')
-                    let fileNames = NewAttachments.map((it) => it.FileName).join(',')
-                    console.log("cjshjhgfsdjgfjsgjfgsjd",this.auditAttachments);
+                    let fileNames = NewAttachments.map(it => it.FileName).join(
+                      ',',
+                    );
+                    console.log(
+                      'cjshjhgfsdjgfjsgjfgsjd',
+                      this.auditAttachments,
+                    );
                     auditCheckPoints.push({
                       ChecklistTemplateId: parseInt(
                         audits[i].Listdata[j].ChecklistTemplateId,
@@ -717,7 +925,7 @@ class AuditForm extends Component {
                         ? parseInt(audits[i].Listdata[j].ParentId)
                         : 0,
                       //AttachmentList: [],
-                      Attachment: '',// audits[i].Listdata[j].Attachment,
+                      Attachment: '', // audits[i].Listdata[j].Attachment,
                       File: '', //audits[i].Listdata[j].File
                       FileType: audits[i].Listdata[j].FileType,
                       FileName: fileNames, //audits[i].Listdata[j].FileName,
@@ -741,12 +949,12 @@ class AuditForm extends Component {
                         : 0,
                       // Score: score_value,
                       ImmediateAction: audits[i].Listdata[j].immediateAction,
-                      // Status: audits[i].Status == '' || audits[i].Status == undefined || audits[i].Status == null  ? 0 : parseInt(audits[i].Status),
                       Status: parseInt(audits[i].Status),
                       FailureCategoryId:
                         audits[i].Listdata[j].FailureCategoryId,
                       FailureReasonId: audits[i].Listdata[j].FailureReasonId,
                       FormId: audits[i].Listdata[j].FormId,
+                      //deleteallattachment : 0
                       // FormId: audits[i].FormId == '' ? 0 : parseInt(audits[i].FormId),
                     });
                   }
@@ -754,19 +962,27 @@ class AuditForm extends Component {
               }
               if (hasListData == true) {
                 console.log(FormIds[kk], 'FormIds1entering loop');
+
+                let delallstatus = audits[i].Listdata.filter(
+                  item =>
+                    item.deleteallattachment == 1 && item.FormId == FormIds[kk],
+                );
+                let delstatus = delallstatus.length >= 1 ? 1 : 0;
+
                 auditRecords.push({
                   // FormId: audits[i].FormId == '' ? 0 : parseInt(audits[i].FormId),
                   FormId: parseInt(FormIds[kk]), //parseInt(audits[i].Listdata[j].FormId),
                   //FormId:this.props.navigation.state.params.ChecklistHeading.FormId,
                   AuditId: parseInt(audits[i].AuditId),
-                  AuditProgramId: this.props.data.audits.smdata == 2 ? -2 : parseInt(audits[i].AuditTemplateId),
+                  AuditProgramId: parseInt(audits[i].AuditProgramId),
                   AuditTypeId: parseInt(audits[i].AuditTypeId),
-                  AuditOrderId: parseInt(audits[i].AuditTypeOrder),
+                  AuditOrderId: parseInt(audits[i].AuditOrderId),
                   SiteId: parseInt(audits[i].SiteId),
-                  UserId: parseInt(this.state.currentUserData?.userId || audits[i].UserId),
+                  UserId: parseInt(audits[i].UserId),
                   FromDocPro: parseInt(audits[i].FromDocPro),
                   DocumentId: parseInt(audits[i].DocumentId),
                   DocRevNo: parseInt(audits[i].DocRevNo),
+                  deleteallattachment: delstatus,
                   // "Status": parseInt(audits[i].Status),
                   Listdata: auditCheckPoints,
                 });
@@ -787,8 +1003,10 @@ class AuditForm extends Component {
     }
 
     console.log('FormIds1syncAuditsToServer auditRecords', auditRecords);
-    console.log('FormIds1syncAuditsToServer auditRecordsdataaudit', this.props.data.audits.ncofiRecords);
-
+    console.log(
+      'FormIds1syncAuditsToServer auditRecordsdataaudit',
+      this.props.data.audits.ncofiRecords,
+    );
 
     if (auditRecords) {
       if (auditRecords.length > 0) {
@@ -819,14 +1037,12 @@ class AuditForm extends Component {
                   'LOGFOROBJJJJCHECKKKKK-------------',
                   flattenedArray,
                 );
-                var auditObjArr = []
+                var auditObjArr = [];
                 flattenedArray.map(item =>
                   auditObjArr.push({
                     obj: item.split('|')[0].trim(),
-                    filename: item.split('|')[1].trim()
-                  }
-                  )
-
+                    filename: item.split('|')[1].trim(),
+                  }),
                 );
 
                 var auditNumber = responseArray.AuditNumber;
@@ -834,23 +1050,27 @@ class AuditForm extends Component {
                 var auditObj = auditObjArr;
                 var auditSiteLevelID = responseArray.SiteLevelId;
 
-                this.setState({ auditObj: auditObj });
-
+                this.setState({auditObj: auditObj});
 
                 console.log('OOBJARRAYLENGTH------------', auditObjArr.length);
                 for (var i = 0; i < auditObjArr.length; i++) {
                   var splitTempID = auditObjArr[i].obj.split('-');
-                  let smdata = this.props.data.audits.smdata
+                  let smdata = this.props.data.audits.smdata;
                   // let index = 3
                   let formid = splitTempID[3];
 
-                  formid = (formid == "0" && (smdata == "1" || smdata == "2") ? -2 : formid == 0 && smdata != "1" ? -1 : parseInt(formid))
+                  formid =
+                    formid == '0' && (smdata == '1' || smdata == '2')
+                      ? -2
+                      : formid == 0 && smdata != '1'
+                      ? -1
+                      : parseInt(formid);
 
                   // if (formid == "") {formid = -2; index = 5;} else index = 4
                   // let templateid = parseInt(splitTempID[index])
 
                   this.checkListObjects.push({
-                    formId: formid, // splitTempID[3] === "0" ? -2 : parseInt(splitTempID[3]),               
+                    formId: formid, // splitTempID[3] === "0" ? -2 : parseInt(splitTempID[3]),
                     templateId: parseInt(splitTempID[4]),
                     obj: auditObjArr[i].obj.trim(),
                     filename: auditObjArr[i].filename.trim(),
@@ -864,17 +1084,41 @@ class AuditForm extends Component {
                   this.auditAttachments,
                 );
                 console.log('auditAttachments1', this.auditAttachments);
+                console.log('checkListObjects----', this.checkListObjects);
 
                 for (var i = 0; i < this.auditAttachments.length; i++) {
                   for (var j = 0; j < this.checkListObjects.length; j++) {
+                    console.log(
+                      'this.auditAttachments[i].FormId',
+                      this.auditAttachments[i].FormId,
+                    );
+                    console.log(
+                      'this.checkListObjects[j].formId',
+                      this.checkListObjects[j].formId,
+                    );
+                    console.log(
+                      'this.auditAttachments[i].Type',
+                      this.auditAttachments[i].Type,
+                    );
+                    console.log(
+                      'this.auditAttachments[i].Id',
+                      this.auditAttachments[i].Id,
+                    );
+                    console.log(
+                      'parseInt(this.checkListObjects[j].templateId',
+                      parseInt(this.checkListObjects[j].templateId),
+                    );
                     if (
-                      this.auditAttachments[i].FormId ==
-                      this.checkListObjects[j].formId &&
+                      // this.auditAttachments[i].FormId ==
+                      // this.checkListObjects[j].formId &&
                       this.auditAttachments[i].Type == 'CL' &&
                       this.auditAttachments[i].Id ==
-                      parseInt(this.checkListObjects[j].templateId)
+                        parseInt(this.checkListObjects[j].templateId)
                     ) {
-                      console.log('CHECK---------------', this.checkListObjects[j]);
+                      console.log(
+                        'CHECK---------------',
+                        this.checkListObjects[j],
+                      );
                       this.auditAttachments[i].Obj =
                         this.checkListObjects[j].obj;
                       this.auditAttachments[i].Id = parseInt(
@@ -882,6 +1126,11 @@ class AuditForm extends Component {
                       );
                       this.auditAttachments[i].SiteLevelId =
                         this.checkListObjects[j].siteLevelId;
+
+                      this.auditAttachments[i].FormId =
+                        this.checkListObjects[j].formId;
+                    } else {
+                      console.log('objjjjjcheckListObjects........');
                     }
                   }
                 }
@@ -903,7 +1152,7 @@ class AuditForm extends Component {
                   this.resetModifiedFlag();
 
                   this.setState(
-                    { isSyncing: false, isLoaderVisible: false },
+                    {isSyncing: false, isLoaderVisible: false},
                     () => {
                       this.refs.toast.show(
                         strings.AuditClosedOut,
@@ -965,13 +1214,36 @@ class AuditForm extends Component {
   }
 
   async syncFilesToDocPro() {
-    this.docProRequest();
+    let allattachments = [];
+    for (var i = 0; i < this.auditAttachments.length; i++) {
+      const data = this.auditAttachments[i];
+      console.log(data, 'venkats');
+      //const existPath = await RNFetchBlob.fs.exists(data.File);
+      allattachments.push({
+        filename: data.filename,
+        obj: data.Obj,
+        status: null,
+        path: data.File,
+        exist: true,
+      });
+    }
+    this.setState(
+      {
+        AuditAttachments: allattachments,
+      },
+      () => {
+        this.docProRequest();
+      },
+    );
   }
 
   docProRequest() {
     return new Promise(async (resolve, reject) => {
       // Dynamic parameters
-      // console.log('dksfskfhskdfhsdhfksdhfsdhf893393483993',this.props.data.audits.siteId);
+      console.log(
+        'dksfskfhskdfhsdhfksdhfsdhf893393483993',
+        this.props.data.audits.siteId,
+      );
       var dnum = this.state.Checkpointpass.AUDIT_NO;
       var siteId = this.state.currentUserData?.siteId || this.props.data.audits.siteId;
       var UserId = this.state.currentUserData?.userId || this.props.data.audits.userId;
@@ -1004,28 +1276,45 @@ class AuditForm extends Component {
       var formRequestArr = [];
       console.log('Forming docpro param', this.auditAttachments);
       let loopCount = 0;
-      // console.log('CHECKLIST---------2222222', this.checkListObjects);
+      let notDownloadedAttach = 0;
+      if (
+        this.auditAttachments.length > 0 &&
+        this.auditAttachments[0].FormId === 0
+      ) {
+        const updatedAttachments = this.auditAttachments.map(attachment => {
+          return {
+            ...attachment,
+            FormId: -2, // Update FormId to -2
+          };
+        });
+        this.auditAttachments = updatedAttachments;
+        console.log(
+          'checkingjdforfnsdfsfupdatedAttachments',
+          updatedAttachments,
+        );
+      }
 
-      const filteredNCArray = this.auditAttachments.filter(item => item.Type === 'NC');
-      // console.log('filteredNCArray---------2222222', filteredNCArray);
+      console.log('CHECKLIST---------2222222', this.checkListObjects);
 
-        const newArray = filteredNCArray.map(({ File, Type, ...rest }) => rest);
-      // console.log('filteredNCArray---------newArray', newArray);
-        
-    const combinedArray = newArray.concat(this.checkListObjects);
+      const filteredNCArray = this.auditAttachments.filter(
+        item => item.Type === 'NC',
+      );
+      console.log('filteredNCArray---------2222222', filteredNCArray);
+
+      const newArray = filteredNCArray.map(({File, Type, ...rest}) => rest);
+      console.log('filteredNCArray---------newArray', newArray);
+
+      const combinedArray = newArray.concat(this.checkListObjects);
       console.log('filteredNCArray---------combinedArray', combinedArray);
 
       for (var i = 0; i < this.auditAttachments.length; i++) {
         var formRequestObj = '';
 
         //   for (var j = 0; j < this.auditAttachments[i].length; j++) {
-        // console.log('CHECKLIST---------', this.checkListObjects);
+        console.log('CHECKLIST---------', this.checkListObjects);
         const parsedData = [];
         const objValues = this.checkListObjects.map(item => item.obj);
-        console.log(
-          'sdjgfhjsdgfjsgdfhjsdj   b3562536725372-------',
-          objValues,
-        );
+        console.log('sdjgfhjsdgfjsgdfhjsdj   b3562536725372-------', objValues);
         console.log('into the loop' + i, this.auditAttachments[i]);
         let getdname = this.auditAttachments[i].filename;
         let getfname = this.auditAttachments[i].filename;
@@ -1047,42 +1336,67 @@ class AuditForm extends Component {
         let getobj = currentItem;
         console.log('obj===>', getobj);
         let getSitId = this.auditAttachments[i].SiteLevelId;
-        console.log('-->33333333', getdname, getfname, getext, getobj, getSitId);
         console.log(
-          'filePATH--------------',
-          this.auditAttachments[i].File,
+          '-->33333333',
+          getdname,
+          getfname,
+          getext,
+          getobj,
+          getSitId,
         );
+        console.log('filePATH--------------', this.auditAttachments[i].File);
 
         this.convertFile(this.auditAttachments[i].File, i, 0).then(res => {
           let attachment = this.auditAttachments[res.i];
-          console.log('jjhjhsdjhsjdhjasdjhajsdh@@@@@@@@@@',attachment);
-          let ngetfname = attachment.filename;
-          console.log('jjhjhsdjhsjdhjasdjhajsdh@@@@@@@@@@ngetfname',ngetfname);
-          
+          console.log(
+            'jjhjhsdjhsjdhjasdjhajsdh@@@@@@@@@@auditAttachments',
+            attachment,
+          );
+          let ngetfname = attachment.filename.replace(/\s+/g, '');
+          console.log('jjhjhsdjhsjdhjasdjhajsdh@@@@@@@@@@ngetfname', ngetfname);
+
           let ntemplateid = attachment.Id;
-          console.log('jjhjhsdjhsjdhjasdjhajsdh@@@@@@@@@@ntemplateid',ntemplateid);
+          console.log(
+            'jjhjhsdjhsjdhjasdjhajsdh@@@@@@@@@@ntemplateid',
+            ntemplateid,
+          );
 
           let nformid = attachment.FormId;
-          console.log('jjhjhsdjhsjdhjasdjhajsdh@@@@@@@@@@nformid',nformid);
-      console.log('filteredNCArray---------combinedArray12121212', combinedArray);
-      console.log('filteredNCArray---------this.ncOfiObjects12121212', this.ncOfiObjects);
+          console.log('jjhjhsdjhsjdhjasdjhajsdh@@@@@@@@@@nformid', nformid);
+          console.log(
+            'filteredNCArray---------combinedArray12121212',
+            combinedArray,
+          );
+          console.log(
+            'filteredNCArray---------this.ncOfiObjects12121212',
+            this.ncOfiObjects,
+          );
 
-      let nobj = []
-      if (attachment.Type == "NC"){
-        nobj = combinedArray.filter(item => item.filename === ngetfname && item.FormId === nformid);
-        console.log("attachment.Type777777",attachment.Type,nobj);
-      }else{
-        nobj = combinedArray.filter(item => item.filename === ngetfname && item.templateId == ntemplateid && item.formId === nformid);
-        console.log("attachment.Type777777",attachment.Type,nobj)
-      }
-          console.log("Sync:conver", nobj, nobj[0]);
+          let nobj = [];
+          if (attachment.Type == 'NC') {
+            nobj = combinedArray.filter(
+              item => item.filename === ngetfname && item.FormId === nformid,
+            );
+
+            console.log('attachment.Type777777nc', attachment.Type, nobj);
+          } else {
+            nobj = combinedArray.filter(
+              item =>
+                item.filename.replace(/\s+/g, '') === ngetfname &&
+                item.templateId == ntemplateid &&
+                item.formId === nformid,
+            );
+            console.log('attachment.Type777777', attachment.Type, nobj);
+            console.log('removespaceval', ngetfname, ntemplateid);
+          }
+          console.log('Sync:conver', nobj, nobj[0]);
           formRequestObj = {
             dnum: dnum,
             dname: nobj[0].filename || undefined ? nobj[0].filename : '',
             filename: nobj[0].filename || undefined ? nobj[0].filename : '',
             ext: getext,
-            filepath:  attachment.File,
-            obj: attachment.Type == 'NC'? nobj[0].Obj : nobj[0].obj,
+            filepath: attachment.File,
+            obj: attachment.Type == 'NC' ? nobj[0].Obj : nobj[0].obj,
             fromdocpro: fromdocpro,
             frommod: frommod,
             doctypeid: doctypeid,
@@ -1128,7 +1442,19 @@ class AuditForm extends Component {
               formRequestArr,
             );
             this.attachmentFileApiCall(formRequestArr);
-
+          } else {
+            this.updateAttachmentStatus(null, res.i, null);
+            notDownloadedAttach++;
+            console.log(
+              'notDownloadedAttach',
+              notDownloadedAttach,
+              res.i,
+              this.auditAttachments,
+            );
+          }
+          if (notDownloadedAttach === this.auditAttachments.length) {
+            notDownloadedAttach = 0;
+            this.setSyncCompleted();
           }
         });
 
@@ -1142,15 +1468,13 @@ class AuditForm extends Component {
     var token = this.state.currentUserData?.accessToken || this.props.data.audits.token;
 
     console.log('fromrequestArrayCHECK-------', formRequestArr);
-    //const objValues = this.checkListObjects.map(item => item.obj);
-    // console.log('fromrequestArrayCHECK--objjjj-----', objValues);
-
     const formRequestArrPush = [];
     console.log('arraychjdhfjshf-0', arraylistData);
     const arraylistData = formRequestArr;
     console.log('arraychjdhfjshf-1', arraylistData);
     //const objArray = objValues;
     console.log('arraychjdhfjshf-2', arraylistData);
+    let allattachments = [];
     arraylistData.forEach((data, index) => {
       const formRequestObj = {
         dnum: data.dnum,
@@ -1184,144 +1508,522 @@ class AuditForm extends Component {
           userdtfmt: userPrefModel.userdtfmt,
           UserDtFmtDlm: userPrefModel.UserDtFmtDlm,
         })),
-
       };
 
       // Push the object into the array
       formRequestArrPush.push(formRequestObj);
     });
-    auth.getdocProAttachment(formRequestArrPush, token, (res, data) => {
-      console.log('120 formRequestArr response', data);
-      console.log(
-        '120 formRequestArr response formRequestArr---',
-        formRequestArrPush,
-      );
 
+    const initializedAttachments = formRequestArrPush.map(item => ({
+      filename: item.filename,
+      obj: item.obj,
+      path: item.filepath,
+      status: null,
+      exist: true,
+    }));
+
+    this.setState(
+      {
+        //AuditAttachments: allattachments,
+        uploadIndex: 0,
+        totalFiles: formRequestArrPush.length,
+        FailedAttachments: [],
+        AuditAttachments: initializedAttachments,
+      },
+      () => {
+        this.uploadFileSync(formRequestArrPush, token);
+        console.log('formRequestArrPush--------', formRequestArrPush);
+      },
+    );
+  }
+  checkFileExist(path) {
+    console.log('Attachment:>path', path);
+    return new Promise((resolve, reject) => {
+      RNFetchBlob.fs
+        .exists(path)
+        .then(exist => {
+          resolve(exist);
+        })
+        .catch(() => {
+          resolve(false);
+        });
+    });
+  }
+
+  setSyncCompleted() {
+    this.syncStatus = parseInt(this.syncStatus) + 1;
+    this.setState(
+      {
+        syncStatusLabel:
+          this.state.FailedAttachments.length === 0
+            ? 'Sync to Server Completed.'
+            : 'Sync to Server Completed with failed Attachment(s)',
+        syncMode: this.state.FailedAttachments.length > 0 ? 2 : 4,
+      },
+      () => {
+        console.log('Document Successfully Sequence Completed');
+      },
+    );
+  }
+  uploadFileSync = (formRequestArrPush, token) => {
+    let index = this.state.uploadIndex;
+    const formRequestObj = formRequestArrPush[index];
+    const attachmentsArr = [];
+    let failedAttachments = this.state.FailedAttachments;
+    attachmentsArr.push(formRequestObj);
+  
+    if (index <= formRequestArrPush.length - 1) {
+      this.checkFileExist(formRequestObj.filepath).then(exist => {
+        if (exist) {
+          auth.getdocProAttachment(attachmentsArr, token, (res, data) => {
+            console.log('120 formRequestArr response', data);
+            console.log(
+              '120 formRequestArr response formRequestArr-',
+              formRequestArrPush,
+            );
+  
+            if (data.data) {
+              if (data.data.Message === 'Success') {
+                this.updateAttachmentStatus(true, index);
+                if (this.state.uploadIndex >= formRequestArrPush.length - 1) {
+                  this.setSyncCompleted();
+                } else {
+                  this.setState(
+                    {
+                      uploadIndex: parseInt(this.state.uploadIndex) + 1,
+                      syncStatusLabel:
+                        'Syncing Attachment ' +
+                        (this.state.uploadIndex + 1) +
+                        ' of  ' +
+                        this.state.totalFiles,
+                    },
+                    () => {
+                      this.uploadFileSync(formRequestArrPush, token);
+                    },
+                  );
+                }
+              } else {
+                console.log('syncFilesToDocPro Failed!');
+                console.log('auditlog2');
+                failedAttachments.push(formRequestObj);
+                this.updateAttachmentStatus(false, index);
+                this.setState(
+                  {
+                    FailedAttachments: failedAttachments,
+                    uploadIndex: parseInt(this.state.uploadIndex) + 1,
+                  },
+                  () => {
+                    this.uploadFileSync(formRequestArrPush, token);
+                  },
+                );
+              }
+            } else {
+              console.log('syncFilesToDocPro Failed!');
+              this.updateAttachmentStatus(false, index);
+              failedAttachments.push(formRequestObj);
+              console.log('auditlog3');
+              this.setState(
+                {
+                  FailedAttachments: failedAttachments,
+                  uploadIndex: parseInt(this.state.uploadIndex) + 1,
+                },
+                () => {
+                  this.uploadFileSync(formRequestArrPush, token);
+                },
+              );
+            }
+          });
+        } else {
+          console.log('syncFilesToDocPro File Not Exist!');
+          this.updateAttachmentStatus(false, index, false);
+          failedAttachments.push(formRequestObj);
+          this.setState(
+            {
+              FailedAttachments: failedAttachments,
+              uploadIndex: parseInt(this.state.uploadIndex) + 1,
+            },
+            () => {
+              this.uploadFileSync(formRequestArrPush, token);
+            },
+          );
+        }
+      });
+    } else this.setSyncCompleted();
+  };
+  
+ 
+  updateAttachmentStatus = (status, index, exist = true) => {
+    let updateAttach = [];
+    for (var z = 0; z < this.state.AuditAttachments.length; z++) {
+      let file = this.state.AuditAttachments[z];
+      if (index === z)
+        updateAttach.push({...file, status: status, exist: exist});
+      else {
+        updateAttach.push(file);
+      }
+    }
+    this.setState(
+      {
+        AuditAttachments: updateAttach,
+      },
+      () => {
+        console.log(
+          'update this.state.AuditAttachment',
+          this.state.AuditAttachments,
+        );
+      },
+    );
+  };
+
+ 
+  convertFile = (path, i, j) => {
+    return new Promise((resolve, reject) => {
+      const maxSize = 5 * 1024 * 1024; // 5 MB
+  
+      const handleData = (finalPath) => {
+        RNFetchBlob.fs.stat(finalPath)
+          .then(stat => {
+            if (stat.size > maxSize) {
+              console.warn(`File too large: ${stat.size} bytes`);
+              resolve({ data: null, i, j });
+            } else {
+            RNFetchBlob.fs.readFile(finalPath, 'base64')
+                .then(data => {
+                  console.log(`Base64 size: ${data.length} characters`);
+                  resolve({ data, i, j });
+                })
+              .catch(err => {
+                console.warn('Base64 conversion failed:', err);
+                resolve({ data: null, i, j });
+              });
+            }
+          })
+          .catch(err => {
+            console.warn('File stat failed:', err);
+            resolve({ data: null, i, j });
+          });
+      };
+  
+      if (Platform.OS === 'ios') {
+        const IosFilesPath = RNFetchBlob.fs.dirs.DocumentDir + '/' + 'IosFiles';
+        const arr = path.split('/');
+        const uripathIos = IosFilesPath + '/' + arr[arr.length - 1];
+        const decodedPath = decodeURIComponent(uripathIos);
+        handleData(decodedPath);
+      } else {
+        handleData(path);
+      }
+      });
+  };
+  OpenFile = path => {
+    const fpath = FileViewer.open('file:/' + path) // absolute-path-to-my-local-file.
+      .then(() => {
+        console.log('Attachmentfile opened');
+      })
+      .catch(err => {
+        console.log('Attachmentfile opened error', err);
+      });
+  };
+
+  getFileIcon(attach) {
+    let icon = 'file';
+    const filename = attach.filename;
+    if (filename == null || typeof filename == 'undefined' || filename == '')
+      return null;
+    let type =
+      filename !== ''
+        ? filename.substring(filename.lastIndexOf('.') + 1)
+        : 'file';
+    switch (type) {
+      case 'pdf': {
+        icon = 'file-pdf-o';
+        break;
+      }
+      case 'doc':
+      case 'docx': {
+        icon = 'file-word-o';
+        break;
+      }
+      case 'ppt':
+      case 'pps': {
+        icon = 'file-powerpoint-o';
+        break;
+      }
+      case 'xls':
+      case 'xlsx':
+      case 'xlsm': {
+        icon = 'file-excel-o';
+        break;
+      }
+      case 'video':
+      case 'mp4':
+      case 'mpeg': {
+        icon = 'play';
+        break;
+      }
+      case 'image':
+      case 'jpg':
+      case 'png':
+      case 'gif': {
+        icon = 'image';
+        break;
+      }
+      default: {
+        icon = 'file';
+      }
+    }
+
+    return (
+      <View>
+        <Icon
+          name={icon}
+          size={15}
+          color="black"
+          style={{padding: 6, justifyContent: 'center', alignSelf: 'center'}}
+        />
+      </View>
+    );
+  }
+
+  // retryFailedAttachments = attach => {
+  //   const failedAttachments = this.state.FailedAttachments;
+  //   const attachment = failedAttachments.filter(
+  //     item => item.obj === attach.obj,
+  //   );
+  //   this.uploadFailedFileSync(attachment[0]);
+  // };
+
+
+  retryFailedAttachments = async attachment => {
+    const token = this.props.data.audits.token;
+    try {
+      const fileExists = await this.checkFileExist(attachment.path);
+      if (!fileExists) {
+        this.refs.toast.show('File not found');
+        return;
+      }
+      const response = await auth.getdocProAttachment([attachment], token);
+      if (response?.data?.Message === 'Success') {
+        this.updateAttachmentStatus(true, attachment);
+      } else {
+        this.updateAttachmentStatus(false, attachment);
+        this.saveToFailedSyncDB(attachment);
+      }
+    } catch (error) {
+      console.error('Retry failed', error);
+      this.updateAttachmentStatus(false, attachment);
+      this.saveToFailedSyncDB(attachment);
+    }
+  };
+
+
+  uploadFailedFileSync = formRequestObj => {
+    const token = this.props.data.audits.token;
+    const attachmentsArr = [];
+    attachmentsArr.push(formRequestObj);
+    auth.getdocProAttachment(attachmentsArr, token, (res, data) => {
+      console.log('120 formRequestArr response', data);
+      let updateAttachment = this.state.AuditAttachments;
+      let failedAttachments = this.state.FailedAttachments;
+      let index = updateAttachment.findIndex(
+        item => item.obj === formRequestObj.obj,
+      );
+      let rindex = failedAttachments.findIndex(
+        item => item.obj === formRequestObj.obj,
+      );
       if (data.data) {
         if (data.data.Message === 'Success') {
-          console.log('syncFilesToDocPro Success!');
-          this.syncStatus = parseInt(this.syncStatus) + 1;
-          this.syncResponseHandle();
+          this.updateAttachmentStatus(true, index);
+          this.removeFromFailedAttachment(rindex);
         } else {
-          console.log('syncFilesToDocPro Failed!');
-          console.log('auditlog2');
-          this.setState({ isLoaderVisible: false }, () => {
-            this.refs.toast.show(strings.AuditFail, DURATION.LENGTH_LONG);
-          });
+          this.updateAttachmentStatus(false, index);
+          this.setState(
+            {
+              syncMode: 2,
+              syncStatusLabel:
+                'Sync to Server Completed with failed Attachment(s)',
+            },
+            () => {
+              this.refs.toast.show(strings.AuditFail, DURATION.LENGTH_LONG);
+            },
+          );
         }
       } else {
         console.log('syncFilesToDocPro Failed!');
-        console.log('auditlog3');
-        this.setState({ isLoaderVisible: false }, () => {
-          this.refs.toast.show(strings.AuditFail, DURATION.LENGTH_LONG);
-        });
-      }
-    });
-    console.log('formRequestArrPush--------', formRequestArrPush);
-  }
-  // convertFile = (path, i, j) => {
+        this.updateAttachmentStatus(false, index);
 
-  //   return new Promise((resolve, reject,) => {
-  //     if (Platform.OS == 'ios') {
-  //       let IosFilesPath = RNFetchBlob.fs.dirs.DocumentDir + '/' + 'IosFiles';
-  //       console.log('IosFilesPath--->', IosFilesPath);
-  //       const arr = path.split('/');
-  //       var uripathIos = IosFilesPath + '/' + arr[arr.length - 1];
-  //       const decodedPath = decodeURIComponent(uripathIos);
-  //       RNFetchBlob.fs
-  //         .readFile(decodedPath, 'base64')
-  //         .then(data => {
-  //           console.log(data, 'responseFIlecontent');
-  //           if (data) {
-  //             let retObj = {
-  //               data: data,
-  //               i: i,
-  //               j: j
-  //             }
-  //             console.log('retObj', retObj);
-  //             resolve(retObj);
-  //             // console.log('path found',arrpath)
-  //           }
-  //         })
-  //         .catch(err => {
-  //           resolve(undefined);
-  //           console.warn('path not found====>', err);
-  //         });
-  //     } else {
-  //       RNFetchBlob.fs
-  //         .readFile(path, 'base64')
-  //         .then(data => {
-  //           console.log('FILEPATHGETANDROID------', data);
-  //           let retObj = {
-  //             data: data,
-  //             i: i,
-  //             j: j
-  //           }
-  //           console.log('retObj', retObj);
-  //           resolve(retObj);
-  //         })
-  //         .catch(err => {
-  //           resolve(undefined);
-  //           console.log('Error in converting', err);
-  //         });
-  //     }
-  //   });
-  // };
-  convertFile = (path, i, j) => {
- 
-    return new Promise((resolve, reject,) => {
-      if (Platform.OS == 'ios') {
-        let IosFilesPath = RNFetchBlob.fs.dirs.DocumentDir + '/' + 'IosFiles';
-        console.log('IosFilesPath--->', IosFilesPath);
-        const arr = path.split('/');
-        var uripathIos = IosFilesPath + '/' + arr[arr.length - 1];
-        const decodedPath = decodeURIComponent(uripathIos);
-        RNFetchBlob.fs
-          .readFile(decodedPath, 'base64')
-          .then(data => {
-            console.log(data, 'responseFIlecontent');
-            if (data) {
-              let retObj = {
-                data: data,
-                i: i,
-                j: j
-              }
-              console.log('retObj', retObj);
-              resolve(retObj);
-              // console.log('path found',arrpath)
-            }
-          })
-          .catch(err => {
-            resolve({data:null,i:i,j:j});
-            console.warn('path not found====>', err);
-          });
-      } else {
-        RNFetchBlob.fs
-          .readFile(path, 'base64')
-          .then(data => {
-            console.log('FILEPATHGETANDROID------', data);
-            let retObj = {
-              data: data,
-              i: i,
-              j: j
-            }
-            console.log('retObj', retObj);
-            resolve(retObj);
-          })
-          .catch(err => {
-            resolve({data:null,i:i,j:j});
-            console.log('Error in converting', err);
-          });
+        this.setState(
+          {
+            syncMode: 2,
+            syncStatusLabel:
+              'Sync to Server Completed with failed Attachment(s)',
+          },
+          () => {
+            this.refs.toast.show(strings.AuditFail, DURATION.LENGTH_LONG);
+          },
+        );
       }
     });
-  }
- 
-  handleNCOFIConnection() {
-    console.log(
-      'getting local unsaved data',
-      this.props.data.audits.ncofiRecords,
+  };
+
+  removeFromFailedAttachment = index => {
+    let FailedAttachments = this.state.FailedAttachments;
+    let newFailedAttachment = [];
+    for (let i = 0; i < FailedAttachments.length; i++) {
+      if (i !== index) {
+        newFailedAttachment.push(FailedAttachments[i]);
+      }
+    }
+    this.setState(
+      {
+        FailedAttachments: newFailedAttachment,
+        syncMode: newFailedAttachment.length === 0 ? 4 : 2,
+        syncStatusLabel:
+          newFailedAttachment.length === 0
+            ? 'Sync to Server Completed'
+            : 'Sync to Server Completed with failed Attachment(s)',
+      },
+      () => {
+        console.log('Retry Attachment Removed', this.state.FailedAttachments);
+        //this.state.syncMode === 4 && this.reDirect()
+      },
     );
-    var token = this.state.currentUserData?.accessToken || this.props.data.audits.token;
+  };
+
+  reDirect = () => {
+    Alert.alert(
+      'Sync Status',
+      'Sync to Server Completed',
+      [
+        {
+          text: 'Done',
+          onPress: () => {
+            this.syncResponseHandle();
+          },
+        },
+        {
+          text: 'Close',
+          style: 'cancel',
+          onPress: () => {
+            console.log('cancel clicked');
+          },
+        },
+      ],
+      {cancelable: false},
+    );
+  };
+
+  renderFileUploadStatus = () => {
+    console.log('this.state.AuditAttachments', this.state.AuditAttachments);
+  
+    return (
+      <FlatList
+        data={this.state.AuditAttachments}
+        ListHeaderComponent={() => (
+          <Text
+            style={{
+              paddingBottom: 10,
+              fontWeight: 'bold',
+              alignItems: 'center',
+              alignSelf: 'center',
+            }}>
+            Attachment Status
+          </Text>
+        )}
+        extraData={this.state}
+        renderItem={({ item }) => (
+          <TouchableOpacity
+            style={{
+              flex: 1,
+              flexDirection: 'row',
+              borderBottomWidth: 1,
+              minHeight: 40,
+              maxHeight: 60,
+              borderBottomColor: 'lightgrey',
+            }}
+            onPress={() => {
+              if (item.exist === undefined || item.exist === false) {
+                this.refs.toast.show('File not downloaded', DURATION.LENGTH_LONG);
+              } else {
+                this.OpenFile(item.path);
+              }
+            }}
+          >
+            {/* Icon */}
+            <View style={{ justifyContent: 'center', width: '5%', padding: 2 }}>
+              {this.getFileIcon(item)}
+            </View>
+  
+            {/* File name */}
+            <View style={{ width: '75%', justifyContent: 'center' }}>
+              <Text
+                multiline={true}
+                style={{
+                  flexShrink: 1,
+                  paddingLeft: 5,
+                  color: item.exist === false ? 'red' : 'black',
+                }}
+              >
+                {item.filename}
+              </Text>
+            </View>
+  
+            {/* Status icon */}
+            <View
+              style={{
+                width: '20%',
+                height: 40,
+                justifyContent: 'center',
+                alignItems: 'center',
+                alignSelf: 'center',
+              }}
+            >
+              {(() => {
+                if (item.exist === false) {
+                  return <Icon name="warning" size={18} color="red" />;
+                }
+                if (item.status === null) {
+                  return <Bars size={5} color="#1CB8CA" />;
+                }
+                if (item.status === true) {
+                  return <Icon name="check-circle" size={20} color="green" />;
+                }
+                if (item.status === false && item.exist === false) {
+                  return <Icon name="times-circle" size={15} color="red" />;
+                }
+                if (item.status === false) {
+                  return (
+                    <TouchableOpacity onPress={() => this.retryFailedAttachments(item)}>
+                      <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                        <Icon name="refresh" size={15} />
+                        <Text style={{ fontSize: 10, color: 'red' }}>{'Retry'}</Text>
+                      </View>
+                    </TouchableOpacity>
+                  );
+                }
+                return null;
+              })()}
+            </View>
+          </TouchableOpacity>
+        )}
+      />
+    );
+  };
+  
+  //End Sync to DocPro
+
+  handleNCOFIConnection() {
+    const {ncofiRecords, auditRecords, token} = this.props.data.audits;
+    const currentAudit = auditRecords.find(
+      ar => ar.AuditId === this.state.AuditID,
+    );
+    const defaultCategoryId =
+      currentAudit?.DropDownProps?.Category?.[0]?.CategoryId ?? 0;
+
+    // console.log('getting local unsaved data', [
+    //   this.props.data.audits.ncofiRecords,
+    // );
+   // var token = this.state.currentUserData?.accessToken || this.props.data.audits.token;
     var formRequest = [];
     var dataArr = this.props.data.audits.ncofiRecords;
     console.log(dataArr, 'duplicatees');
@@ -1329,26 +2031,40 @@ class AuditForm extends Component {
     for (var i = 0; i < dataArr.length; i++) {
       console.log(
         'dataArr[i].AuditID === this.state.AuditID' +
-        dataArr[i].AuditID +
-        '' +
-        this.state.AuditID,
+          String(dataArr[i].AuditID) +
+          '' +
+          String(this.state.AuditID),
       );
       if (dataArr[i].AuditID === this.state.AuditID) {
         for (var j = 0; j < dataArr[i].Pending.length; j++) {
-          console.log('syncing pending data:', dataArr[i].Pending);
+          const pendingItem = dataArr[i].Pending[j];
+          const currentCategory = pendingItem.Category; // “NC” or “OFI”
+
+
+           // Log what categoryDrop actually is:
+      console.log(
+        '  categoryDrop object:',
+        pendingItem.categoryDrop
+      );
+      console.log(
+        '  categoryDrop.id (if exists):',
+        pendingItem.categoryDrop?.id
+      );
+      console.log('  defaultCategoryId:', defaultCategoryId);
+
+      const categoryIdToSend =
+      pendingItem.categoryDrop?.id != null
+        ? pendingItem.categoryDrop.id
+        : defaultCategoryId;
 
           // if (dataArr[i].Pending[j].ChecklistTemplateId !== 0) {
           console.log('syncing data:', dataArr[i].Pending[j]);
           console.log('file data:', dataArr[i].Pending[j].filedata);
-          
+
           if (dataArr[i].Pending[j].filedata != '') {
             // Attachments for DocPro sync
             this.isDocsAvail = true;
-            for (
-              let k = 0;
-              k < dataArr[i].Pending[j].filedata.length;
-              k++
-            ) {
+            for (let k = 0; k < dataArr[i].Pending[j].filedata.length; k++) {
               // let attachment = dataArr[i].Pending[j].AttachmentList[k];
               this.auditAttachments.push({
                 Type: 'NC',
@@ -1357,7 +2073,7 @@ class AuditForm extends Component {
                 File: dataArr[i].Pending[j].filedata[k].fileData,
                 filename: dataArr[i].Pending[j].filedata[k].fileName,
                 SiteLevelId: 0,
-                FormId: parseInt(dataArr[i].Pending[j].Formid)
+                FormId: parseInt(dataArr[i].Pending[j].Formid),
               });
             }
           }
@@ -1365,15 +2081,22 @@ class AuditForm extends Component {
           if (dataArr[i].Pending[j].Category === 'NC') {
             console.log('into NC targeted arr', [i], dataArr[i].Pending[j]);
             // console.log('into NC targeted arr221212121', dataArr?.[i]?.Pending?.[j]?.filedata[k].filename);
-            const objValues = dataArr[i].Pending[j].filedata.map(item => item.fileName);
+            const objValues = dataArr[i].Pending[j].filedata.map(
+              item => item.fileName,
+            );
             const formattedImages = objValues.join("', '");
-            console.log("dbdjbfjkshjkfhskjfhsk", formattedImages);
-            const fileDataPath = dataArr[i].Pending[j].filedata.map(item => item.fileData);
+            console.log('dbdjbfjkshjkfhskjfhsk', formattedImages);
+            const fileDataPath = dataArr[i].Pending[j].filedata.map(
+              item => item.fileData,
+            );
             const fileDataPathNC = fileDataPath.join("', '");
-            console.log("dbdjbfjkshjkfhskjfhskfileDataNC", fileDataPathNC);
+            console.log('dbdjbfjkshjkfhskjfhskfileDataNC', fileDataPathNC);
 
+          
             formRequest.push({
-              Title: dataArr[i].Pending[j].NCNumber ? dataArr[i].Pending[j].NCNumber: ''  ,
+              Title: dataArr[i].Pending[j].NCNumber
+                ? dataArr[i].Pending[j].NCNumber
+                : '',
               strProcess:
                 dataArr[i].Pending[j].selectedItemsProcess.length > 0
                   ? dataArr[i].Pending[j].selectedItemsProcess.join(',')
@@ -1382,17 +2105,18 @@ class AuditForm extends Component {
               // CategoryId: dataArr[i].Pending[j].categoryDrop
               //   ? dataArr[i].Pending[j].categoryDrop.id
               //   : 0,
-              CategoryId: dataArr[i].Pending[j].CategoryId == 0 ? 0 : dataArr[i].Pending[j].categoryDrop
-                ? dataArr[i].Pending[j].categoryDrop.id
-                : 0,
-              FileName: formattedImages,//dataArr[i].Pending[j].filename,
+              CategoryId:dataArr[i].Pending[j].categoryDrop,
+               // dataArr[i].Pending[j].categoryDrop?.id ?? defaultCategoryId,
+
+              FileName: formattedImages, //dataArr[i].Pending[j].filename,
               AttachEvidence: fileDataPathNC,
-              Department: dataArr[i].Pending[j].deptDrop == null || undefined ? 0 :  dataArr[i].Pending[j].deptDrop,
+              Department:
+                dataArr[i].Pending[j].deptDrop == null || undefined
+                  ? 0
+                  : dataArr[i].Pending[j].deptDrop,
               AuditStatus:
                 dataArr[i].Pending[j].auditstatus === ''
                   ? 0
-                  : isNaN(parseInt(dataArr[i].Pending[j].auditstatus))
-                  ? this.props?.route?.params?.datapass
                   : parseInt(dataArr[i].Pending[j].auditstatus),
               NonConformity: dataArr[i].Pending[j].NonConfirmity,
               RequestedBy: dataArr[i].Pending[j].requestDrop
@@ -1404,28 +2128,19 @@ class AuditForm extends Component {
                   : parseInt(dataArr[i].Pending[j].Formid),
               SiteId: dataArr[i].Pending[j].SiteID,
               ChecklistId:
-              dataArr[i].Pending[j].ChecklistTemplateId === ''
-                ? 0
-                : parseInt(dataArr[i].Pending[j].ChecklistTemplateId),
-              // ChecklistId:1,
-              //   dataArr[i].Pending[j].ChecklistTemplateId === ''
-              //     ? 0
-              //     : parseInt(dataArr[i].Pending[j].ChecklistTemplateId),
-              // ElementID: dataArr[i].Pending[j].selectedItems
-              //   ? dataArr[i].Pending[j].selectedItems.join(',')
-              //   : 0,
-              ResponsibilityUser: dataArr[i].Pending[j].userDrop.id,
-              // dataArr[i].Pending[j].userDrop
-              //   ? dataArr[i].Pending[j].userDrop.id
-              //   : 0,
+                dataArr[i].Pending[j].ChecklistTemplateId === ''
+                  ? 0
+                  : parseInt(dataArr[i].Pending[j].ChecklistTemplateId),
+              ResponsibilityUser: dataArr[i].Pending[j].ResponsibilityUser[0],
+
               NCIdentifier:
                 dataArr[i].Pending[j].ncIdentifier === undefined
                   ? ''
                   : dataArr[i].Pending[j].ncIdentifier,
-              ObjectiveEvidence:  dataArr[i].Pending[j].objEvidence,
-                // dataArr[i].Pending[j].objEvidence === undefined
-                //   ? ''
-                //   : dataArr[i].Pending[j].objEvidence,
+              ObjectiveEvidence: dataArr[i].Pending[j].objEvidence,
+              // dataArr[i].Pending[j].objEvidence === undefined
+              //   ? ''
+              //   : dataArr[i].Pending[j].objEvidence,
               RecommendedAction:
                 dataArr[i].Pending[j].recommAction === undefined
                   ? ''
@@ -1433,23 +2148,29 @@ class AuditForm extends Component {
               uniqueNCkey: dataArr[i].Pending[j].uniqueNCkey,
               // ElementId:1,
               ElementID: dataArr[i].Pending[j].selectedItems
-              ? dataArr[i].Pending[j].selectedItems.join(',')
-              : 0,
+                ? dataArr[i].Pending[j].selectedItems.join(',')
+                : 0,
               // Conformance: "",
-              ProcessID:1,
-              DocumentRef:dataArr[i].Pending[j].documentRef,
-              FailureCategoryId:dataArr[i].Pending[j].failureDrop.value
+              ProcessID: 1,
+              DocumentRef: dataArr[i].Pending[j].documentRef,
+              FailureCategoryId: dataArr[i].Pending[j].failureDrop.value,
             });
-            console.log("sjkdfjjksdfkjsdfk45343formRequest",formRequest);
+            console.log(dataArr[i].Pending[j].categoryDrop?.id,"ccid");
+            
+            console.log('sjkdfjjksdfkjsdfk45343formRequest', formRequest);
           } else if (dataArr[i].Pending[j].Category === 'OFI') {
-            const objValues = dataArr[i].Pending[j].filedata.map(item => item.fileName);
+            const objValues = dataArr[i].Pending[j].filedata.map(
+              item => item.fileName,
+            );
             const formattedImages = objValues.join("', '");
-            console.log("dbdjbfjkshjkfhskjfhsk", formattedImages);
-            const fileDataPath = dataArr[i].Pending[j].filedata.map(item => item.fileData);
+            console.log('dbdjbfjkshjkfhskjfhsk', formattedImages);
+            const fileDataPath = dataArr[i].Pending[j].filedata.map(
+              item => item.fileData,
+            );
             const fileDataPathNC = fileDataPath.join("', '");
-            console.log("dbdjbfjkshjkfhskjfhskfileDataNC", fileDataPathNC);
+            console.log('dbdjbfjkshjkfhskjfhskfileDataNC', fileDataPathNC);
             console.log('into OFI targeted arr', [i], dataArr[i].Pending[j]);
-            console.log("dbdjbfjkshjkfhskjfhsk", objValues);
+            console.log('dbdjbfjkshjkfhskjfhsk', objValues);
             formRequest.push({
               strProcess:
                 dataArr[i].Pending[j].selectedItemsProcess.length > 0
@@ -1459,24 +2180,29 @@ class AuditForm extends Component {
               // CategoryId: dataArr[i].Pending[j].categoryDrop
               //   ? dataArr[i].Pending[j].categoryDrop.id
               //   : 0,
-              CategoryId: dataArr[i].Pending[j].CategoryId == 0 ? 0 : dataArr[i].Pending[j].categoryDrop
-                ? dataArr[i].Pending[j].categoryDrop.id
-                : 0,
-                Title: dataArr[i].Pending[j].NCNumber ? dataArr[i].Pending[j].NCNumber: ''  ,
-                FileName: formattedImages,// dataArr[i].Pending[j].filename,
+              CategoryId: dataArr[i].Pending[j].categoryDrop,
+               // dataArr[i].Pending[j].categoryDrop?.id ?? defaultCategoryId,
+
+              Title: dataArr[i].Pending[j].NCNumber
+                ? dataArr[i].Pending[j].NCNumber
+                : '',
+              FileName: formattedImages, // dataArr[i].Pending[j].filename,
               // AttachEvidence:dataArr[i].Pending[j].filedata,
-              Department: dataArr[i].Pending[j].deptDrop == null || undefined ? 0 :  dataArr[i].Pending[j].deptDrop,
+              Department:
+                dataArr[i].Pending[j].deptDrop == null || undefined
+                  ? 0
+                  : dataArr[i].Pending[j].deptDrop,
 
               AuditStatus:
                 dataArr[i].Pending[j].auditstatus === ''
                   ? 0
-                  : isNaN(parseInt(dataArr[i].Pending[j].auditstatus))
-                  ? this.props?.route?.params?.datapass
                   : parseInt(dataArr[i].Pending[j].auditstatus),
               RequestedBy: dataArr[i].Pending[j].requestDrop
-                ? dataArr[i].Pending[j].requestDrop.id
+                ? dataArr[i].Pending[j].requestDrop
                 : 0,
               NonConformity: dataArr[i].Pending[j].OFI,
+              DocumentRef: dataArr[i].Pending[j].documentRef,
+              FailureCategoryId: dataArr[i].Pending[j].failureDrop.value,
               FormId:
                 dataArr[i].Pending[j].Formid === ''
                   ? 0
@@ -1489,8 +2215,8 @@ class AuditForm extends Component {
               ElementID: dataArr[i].Pending[j].selectedItems
                 ? dataArr[i].Pending[j].selectedItems.join(',')
                 : 0,
-              ResponsibilityUser: dataArr[i].Pending[j].userDrop
-                ? dataArr[i].Pending[j].userDrop.id
+              ResponsibilityUser: dataArr[i].Pending[j].ResponsibilityUser[0]
+                ? dataArr[i].Pending[j].ResponsibilityUser[0]
                 : 0,
               NCIdentifier:
                 dataArr[i].Pending[j].ncIdentifier === undefined
@@ -1507,15 +2233,12 @@ class AuditForm extends Component {
               uniqueNCkey: dataArr[i].Pending[j].uniqueNCkey,
             });
           }
-
-          // }
-        }//j
+        } //j
       }
-
     }
 
     console.log('Request array pushed', formRequest, token);
-    this.setState({ generarereport_param: formRequest });
+    this.setState({generarereport_param: formRequest});
     console.log('api params stored in generarereport_param state..');
 
     if (formRequest) {
@@ -1544,7 +2267,7 @@ class AuditForm extends Component {
     console.log('keypass', datapass);
 
     auth.syncNCOFIToServer(datapass, TOKEN, (res, data) => {
-      console.log("syncNCOFIToServer----------------------",data);
+      console.log('syncNCOFIToServer----------------------', data);
       if (data.data) {
         if (data.data.Message === 'Success') {
           for (var i = 0; i < data.data.Data.length; i++) {
@@ -1559,8 +2282,8 @@ class AuditForm extends Component {
             let matches = auditObj.match(regex);
 
             var auditObjList = auditObj.split('|');
-            console.log('gdhsjgdhjsdgfjhdsgfauditObjList',auditObjList);
-            console.log('gdhsjgdhjsdgfjhdsgfauditObjListmatches',matches);
+            console.log('gdhsjgdhjsdgfjhdsgfauditObjList', auditObjList);
+            console.log('gdhsjgdhjsdgfjhdsgfauditObjListmatches', matches);
             if (matches) {
               matches.forEach(match => {
                 // for(var j = 0; j < matches.length; j++){
@@ -1568,19 +2291,21 @@ class AuditForm extends Component {
                   uniqueNCkey: uniqueNCkey,
                   obj: match,
                   siteLevelId: auditSiteLevelID,
-                  
                 });
-              // }
+                // }
               });
             }
-          //   for (var j = 0; j < auditObjList.length; i++) {
-          //   this.ncOfiObjects.push({
-              
-          //   });
-          // }
+            //   for (var j = 0; j < auditObjList.length; i++) {
+            //   this.ncOfiObjects.push({
+
+            //   });
+            // }
             console.log('120 NCOFIObjectsArr', this.ncOfiObjects);
           }
-          console.log('120 NCOFIObjectsArrauditAttachments', this.auditAttachments);
+          console.log(
+            '120 NCOFIObjectsArrauditAttachments',
+            this.auditAttachments,
+          );
 
           // for (var i = 0; i < this.auditAttachments.length; i++) {
           //   for (var j = 0; j < this.ncOfiObjects.length; j++) {
@@ -1606,17 +2331,20 @@ class AuditForm extends Component {
           let replaceIndex = 0;
 
           this.auditAttachments.forEach((item1, index1) => {
-      if (item1.Type === 'NC' || 'OFI') {
-        console.log('jdfjdfjdjfh',item1,index1);
-        const matchingItems2 = this.ncOfiObjects.filter(item2 => item2.uniqueNCkey === item1.Id.toString());
-        console.log('jdfjdfjdjfhwewerererer',matchingItems2);
+            if (item1.Type === 'NC' || 'OFI') {
+              console.log('jdfjdfjdjfh', item1, index1);
+              const matchingItems2 = this.ncOfiObjects.filter(
+                item2 => item2.uniqueNCkey === item1.Id.toString(),
+              );
+              console.log('jdfjdfjdjfhwewerererer', matchingItems2);
 
-        if (matchingItems2.length > 0) {
-          this.auditAttachments[index1].Obj = matchingItems2[replaceIndex % matchingItems2.length].obj;
-          replaceIndex++;
-        }
-      }
-    });
+              if (matchingItems2.length > 0) {
+                this.auditAttachments[index1].Obj =
+                  matchingItems2[replaceIndex % matchingItems2.length].obj;
+                replaceIndex++;
+              }
+            }
+          });
           console.log(
             'Request formed after audit formed4545454545',
             this.auditAttachments,
@@ -1689,12 +2417,11 @@ class AuditForm extends Component {
       auditRecords.push({
         AuditTypeOrder: auditRecordsOrg[p].AuditTypeOrder,
         AuditId: auditRecordsOrg[p].AuditId,
-        AuditOrderId: auditRecordsOrg[p].AuditTypeOrder,
-        AuditProgramId: this.props.data.audits.smdata == 2 ? -2 : auditRecordsOrg[p].AuditTemplateId,
+        AuditOrderId: auditRecordsOrg[p].AuditOrderId,
+        AuditProgramId: auditRecordsOrg[p].AuditProgramId,
         AuditTypeId: auditRecordsOrg[p].AuditTypeId,
         SiteId: auditRecordsOrg[p].SiteId,
-        // Status:  auditRecordsOrg[p].Status == '' || auditRecordsOrg[p].Status == undefined || auditRecordsOrg[p].Status == null  ? 0 : auditRecordsOrg[p].Status,
-        Status:  auditRecordsOrg[p].Status,
+        Status: auditRecordsOrg[p].Status,
         AssignedTaskRoutes: auditRecordsOrg[p].AssignedTaskRoutes,
         AssociatesName: auditRecordsOrg[p].AssociatesName,
         AuditConductedByName: auditRecordsOrg[p].AuditConductedByName,
@@ -1801,10 +2528,9 @@ class AuditForm extends Component {
         AuditCycleName: auditListOrg[i].AuditCycleName,
         AuditNumber: auditListOrg[i].AuditNumber,
         AuditPeriodId: auditListOrg[i].AuditPeriodId,
-        AuditProgramId:this.props.data.audits.smdata == 2 ? -2 : auditListOrg[i].AuditTemplateId,
+        AuditProgramId: auditListOrg[i].AuditProgramId,
         AuditProgramName: auditListOrg[i].AuditProgramName,
-        // AuditStatus: auditListOrg[i].AuditStatus,
-        AuditStatus: this.props?.route?.params?.datapassParam?.AuditStatus,
+        AuditStatus: auditListOrg[i].AuditStatus,
         AuditTemplateId: auditListOrg[i].AuditTemplateId,
         AuditTypeId: auditListOrg[i].AuditTypeId,
         AuditTypeName: auditListOrg[i].AuditTypeName,
@@ -1875,6 +2601,8 @@ class AuditForm extends Component {
                 scoreInvalidMsg: auditRecordsOrg[p].Listdata[q].scoreInvalidMsg,
                 nc_available_status: true,
                 ofi_avialable_status: true,
+                deleteallattachment:
+                  auditRecordsOrg[p].Listdata[q].deleteallattachment,
               });
             }
           }
@@ -1883,12 +2611,11 @@ class AuditForm extends Component {
         auditRecords.push({
           AuditTypeOrder: auditRecordsOrg[p].AuditTypeOrder,
           AuditId: auditRecordsOrg[p].AuditId,
-          AuditOrderId: auditRecordsOrg[p].AuditTypeOrder,
-          AuditProgramId: this.props.data.audits.smdata == 2 ? -2 : auditRecordsOrg[p].AuditTemplateId,
+          AuditOrderId: auditRecordsOrg[p].AuditOrderId,
+          AuditProgramId: auditRecordsOrg[p].AuditProgramId,
           AuditTypeId: auditRecordsOrg[p].AuditTypeId,
           SiteId: auditRecordsOrg[p].SiteId,
-          // Status: auditRecordsOrg[p].Status == '' || auditRecordsOrg[p].Status == undefined || auditRecordsOrg[p].Status == null? 0 : auditRecordsOrg[p].Status,
-          Status:  auditRecordsOrg[p].Status,
+          Status: auditRecordsOrg[p].Status,
           AssignedTaskRoutes: auditRecordsOrg[p].AssignedTaskRoutes,
           AssociatesName: auditRecordsOrg[p].AssociatesName,
           AuditConductedByName: auditRecordsOrg[p].AuditConductedByName,
@@ -1935,12 +2662,11 @@ class AuditForm extends Component {
         auditRecords.push({
           AuditTypeOrder: auditRecordsOrg[p].AuditTypeOrder,
           AuditId: auditRecordsOrg[p].AuditId,
-          AuditOrderId: auditRecordsOrg[p].AuditTypeOrder,
-          AuditProgramId: this.props.data.audits.smdata == 2 ? -2 : auditRecordsOrg[p].AuditTemplateId,
+          AuditOrderId: auditRecordsOrg[p].AuditOrderId,
+          AuditProgramId: auditRecordsOrg[p].AuditProgramId,
           AuditTypeId: auditRecordsOrg[p].AuditTypeId,
           SiteId: auditRecordsOrg[p].SiteId,
-          // Status: auditRecordsOrg[p].Status == '' || auditRecordsOrg[p].Status == undefined || auditRecordsOrg[p].Status == null? 0 : auditRecordsOrg[p].Status,
-          Status:  auditRecordsOrg[p].Status,
+          Status: auditRecordsOrg[p].Status,
           AssignedTaskRoutes: auditRecordsOrg[p].AssignedTaskRoutes,
           AssociatesName: auditRecordsOrg[p].AssociatesName,
           AuditConductedByName: auditRecordsOrg[p].AuditConductedByName,
@@ -2003,7 +2729,7 @@ class AuditForm extends Component {
         isModified: false,
       });
     }
-    this.setState({ formDetails: ModifiedformDataArr }, () => {
+    this.setState({formDetails: ModifiedformDataArr}, () => {
       this.updateFormdataRecords();
       this.getForname();
     });
@@ -2021,12 +2747,11 @@ class AuditForm extends Component {
             auditRecords.push({
               AuditTypeOrder: auditRecordsOrg[p].AuditTypeOrder,
               AuditId: auditRecordsOrg[p].AuditId,
-              AuditOrderId: auditRecordsOrg[p].AuditTypeOrder,
-              AuditProgramId: this.props.data.audits.smdata == 2 ? -2 : auditRecordsOrg[p].AuditTemplateId,
+              AuditOrderId: auditRecordsOrg[p].AuditOrderId,
+              AuditProgramId: auditRecordsOrg[p].AuditProgramId,
               AuditTypeId: auditRecordsOrg[p].AuditTypeId,
               SiteId: auditRecordsOrg[p].SiteId,
-              // Status: auditRecordsOrg[p].Status == '' || auditRecordsOrg[p].Status == undefined || auditRecordsOrg[p].Status == null ? 0 : auditRecordsOrg[p].Status,
-              Status:  auditRecordsOrg[p].Status,
+              Status: auditRecordsOrg[p].Status,
               AssignedTaskRoutes: auditRecordsOrg[p].AssignedTaskRoutes,
               AssociatesName: auditRecordsOrg[p].AssociatesName,
               AuditConductedByName: auditRecordsOrg[p].AuditConductedByName,
@@ -2077,18 +2802,8 @@ class AuditForm extends Component {
     console.log('auditRecords', auditRecords);
     this.props.storeAuditRecords(auditRecords);
   }
-  // async getParamsDetails() {
-  //   console.log('this.props.navigation.state.params.datapass.SiteId)',this.props.navigation.state.params.datapass.SiteId);
-    
-  //   const vall = AsyncStorage.setItem('AUDITYPE_ORDER',this.props.navigation.state.params.datapass.ActualAuditOrderNo);
-  //   this.setState({
-  //     AuditTypeOrdersync: vall
-  //   })
-    // AsyncStorage.setItem('AUDIT_SITE_ID',this.state.AUDIT_SITE_ID);
-    // AsyncStorage.setItem('AUDIT_STATUS',this.props.navigation.state.params.datapass.AuditStatus);
-// }
+
   syncAuditFormsToServer = () => {
-    // this.getParamsDetails();
     var documentList = [];
     const TOKEN = this.state.token;
     var userid = this.props.data.audits.userId;
@@ -2115,7 +2830,6 @@ class AuditForm extends Component {
           documentList.push({
             UploadedBy: userid,
             AuditId: parseInt(this.state.AuditID),
-            // AuditOrderId: parseInt(this.state.AuditTypeOrder),
             AuditOrderId: parseInt(this.state.AuditOrderId),
             FormId: parseInt(this.state.formDetails[j].FormId),
             // UploadId: this.state.Checkpointpass.AUDIT_NO,
@@ -2178,7 +2892,7 @@ class AuditForm extends Component {
                     if (
                       this.auditAttachments[i].Type == 'AR' &&
                       this.auditAttachments[i].Id ==
-                      parseInt(this.formObjects[j].formId)
+                        parseInt(this.formObjects[j].formId)
                     ) {
                       this.auditAttachments[i].Obj = this.formObjects[j].obj;
                       this.auditAttachments[i].Id = parseInt(
@@ -2202,22 +2916,30 @@ class AuditForm extends Component {
 
                 if (this.isDocsAvail == true) {
                   // Sync attached documents to docpro
-                  console.log('syncFilesToDocPro started.');
-                  this.syncFilesToDocPro();
+                  this.setState(
+                    {
+                      syncStatusLabel: 'Syncing Attachments ',
+                      syncMode: 1,
+                    },
+                    () => {
+                      console.log('syncFilesToDocPro started.');
+                      this.syncFilesToDocPro();
+                    },
+                  );
                 } else {
                   this.syncStatus = parseInt(this.syncStatus) + 1;
                   this.syncResponseHandle();
                 }
               }
             } else {
-              this.setState({ isLoaderVisible: false }, () => {
+              this.setState({isLoaderVisible: false}, () => {
                 console.log('syncAuditFormsToServer Failed! 1');
                 console.log('auditlog4');
                 this.refs.toast.show(strings.AuditFail, DURATION.LENGTH_LONG);
               });
             }
           } else {
-            this.setState({ isLoaderVisible: false }, () => {
+            this.setState({isLoaderVisible: false}, () => {
               console.log('syncAuditFormsToServer Failure! 2');
               console.log('auditlog5');
               this.refs.toast.show(strings.AuditFail, DURATION.LENGTH_LONG);
@@ -2229,8 +2951,16 @@ class AuditForm extends Component {
         this.syncStatus = parseInt(this.syncStatus) + 1;
         if (this.isDocsAvail == true) {
           // Sync attached documents to docpro
-          console.log('syncFilesToDocPro 2');
-          this.syncFilesToDocPro();
+          this.setState(
+            {
+              syncStatusLabel: 'Syncing Attachments ',
+              syncMode: 1,
+            },
+            () => {
+              console.log('syncFilesToDocPro 2');
+              this.syncFilesToDocPro();
+            },
+          );
         } else {
           this.syncStatus = parseInt(this.syncStatus) + 1;
           this.syncResponseHandle();
@@ -2241,8 +2971,16 @@ class AuditForm extends Component {
       this.syncStatus = parseInt(this.syncStatus) + 1;
       if (this.isDocsAvail == true) {
         // Sync attached documents to docpro
-        console.log('syncFilesToDocPro 3');
-        this.syncFilesToDocPro();
+        this.setState(
+          {
+            syncStatusLabel: 'Syncing Attachments ',
+            syncMode: 1,
+          },
+          () => {
+            console.log('syncFilesToDocPro 3');
+            this.syncFilesToDocPro();
+          },
+        );
       } else {
         this.syncStatus = parseInt(this.syncStatus) + 1;
         this.syncResponseHandle();
@@ -2254,6 +2992,7 @@ class AuditForm extends Component {
     this.setState(
       {
         isSyncing: false,
+        AuditAttachments: [],
       },
       () => {
         console.log('syncResponseHandle --> syncStatus: ' + this.syncStatus);
@@ -2265,26 +3004,38 @@ class AuditForm extends Component {
             let ListData = [];
             for (let z = 0; z < auditRecordsOrg[p].Listdata.length; z++) {
               let AttachList = [];
-              for (let b = 0; b < auditRecordsOrg[p].Listdata[z].AttachmentList.length; b++) {
-                let attach = { ...auditRecordsOrg[p].Listdata[z].AttachmentList[b] }
+              for (
+                let b = 0;
+                b < auditRecordsOrg[p].Listdata[z].AttachmentList.length;
+                b++
+              ) {
+                let attach = {
+                  ...auditRecordsOrg[p].Listdata[z].AttachmentList[b],
+                };
 
-                if (attach.Attachment.indexOf("Added") >= 0) {
+                if (
+                  attach.Attachment.indexOf('Added') >= 0 ||
+                  attach.Attachment.indexOf('added') >= 0
+                ) {
                   attach.Attachment = 'Synced';
                 }
                 AttachList.push(attach);
               }
-              ListData.push({ ...auditRecordsOrg[p].Listdata[z], AttachmentList: [...AttachList] })
+              ListData.push({
+                ...auditRecordsOrg[p].Listdata[z],
+                AttachmentList: [...AttachList],
+                deleteallattachment: 0,
+              });
             }
 
             auditRecords.push({
               AuditTypeOrder: auditRecordsOrg[p].AuditTypeOrder,
               AuditId: auditRecordsOrg[p].AuditId,
-              AuditOrderId: auditRecordsOrg[p].AuditTypeOrder,
-              AuditProgramId: this.props.data.audits.smdata == 2 ? -2 : auditRecordsOrg[p].AuditTemplateId,
+              AuditOrderId: auditRecordsOrg[p].AuditOrderId,
+              AuditProgramId: auditRecordsOrg[p].AuditProgramId,
               AuditTypeId: auditRecordsOrg[p].AuditTypeId,
               SiteId: auditRecordsOrg[p].SiteId,
-              //  Status: auditRecordsOrg[p].Status == '' || auditRecordsOrg[p].Status == undefined || auditRecordsOrg[p].Status == null ? 0 : auditRecordsOrg[p].Status,
-              Status:  auditRecordsOrg[p].Status,
+              Status: auditRecordsOrg[p].Status,
               AssignedTaskRoutes: auditRecordsOrg[p].AssignedTaskRoutes,
               AssociatesName: auditRecordsOrg[p].AssociatesName,
               AuditConductedByName: auditRecordsOrg[p].AuditConductedByName,
@@ -2397,10 +3148,9 @@ class AuditForm extends Component {
               AuditCycleName: auditListOrg[i].AuditCycleName,
               AuditNumber: auditListOrg[i].AuditNumber,
               AuditPeriodId: auditListOrg[i].AuditPeriodId,
-              AuditProgramId: this.props.data.audits.smdata == 2 ? -2 : auditListOrg[i].AuditTemplateId,
+              AuditProgramId: auditListOrg[i].AuditProgramId,
               AuditProgramName: auditListOrg[i].AuditProgramName,
-              // AuditStatus: auditListOrg[i].AuditStatus,
-              AuditStatus: this.props?.route?.params?.datapassParam?.AuditStatus,
+              AuditStatus: auditListOrg[i].AuditStatus,
               AuditTemplateId: auditListOrg[i].AuditTemplateId,
               AuditTypeId: auditListOrg[i].AuditTypeId,
               AuditTypeName: auditListOrg[i].AuditTypeName,
@@ -2420,9 +3170,19 @@ class AuditForm extends Component {
           console.log(auditList, 'auditlistarraydata');
           this.props.storeAudits(auditList);
 
-          this.props.changeAuditState(false);
+         // this.props.changeAuditState(false);
 
-          this.setState({ isLoaderVisible: false }, () => {
+          this.setState({isLoaderVisible: false}, async () => {
+            // Clear per-audit edited flag once sync completes for this audit
+            try {
+              const AuditID = this.props.navigation?.state?.params?.AuditID || this.state.AuditID;
+              if (AuditID) {
+                await AsyncStorage.setItem(`audit_edited_${AuditID}`, 'false');
+                this.setState({ redDotID: 'false', notifyRed: false, auditEdited: false });
+              }
+            } catch (e) {
+              console.log('[AuditForm] Failed clearing audit_edited flag:', e);
+            }
             console.log('Sync process completed successfully!');
             console.log(!this.isDocsAvail, 'docavail');
             if (
@@ -2462,7 +3222,7 @@ class AuditForm extends Component {
           });
         } else {
           console.log('auditlog1');
-          this.setState({ isLoaderVisible: false }, () => {
+          this.setState({isLoaderVisible: false}, () => {
             this.refs.toast.show(strings.AuditFail, DURATION.LENGTH_LONG);
           });
         }
@@ -2496,7 +3256,7 @@ class AuditForm extends Component {
     if (Platform.OS == 'android') {
       var path =
         dirs.DownloadDir.replace('/Download', '') +
-        '/Android/data/com.omnex.suppliermanagement/cache/' +
+        '/Android/data/com.omnex.auditpro/cache/' +
         fileName.replace(/\s/g, '-');
     } else {
       var path =
@@ -2518,7 +3278,7 @@ class AuditForm extends Component {
                     'File downloaded and stored in internal storage!',
                     success,
                   );
-                  FileViewer.open(path, { showOpenWithDialog: true })
+                  FileViewer.open(path, {showOpenWithDialog: true})
                     .then(() => {
                       console.log(success);
                     })
@@ -2543,7 +3303,7 @@ class AuditForm extends Component {
                   'File downloaded and stored in internal storage!',
                   success,
                 );
-                FileViewer.open(path, { showOpenWithDialog: true })
+                FileViewer.open(path, {showOpenWithDialog: true})
                   .then(() => {
                     // success
                   })
@@ -2561,7 +3321,7 @@ class AuditForm extends Component {
                   'File downloaded and stored in internal storage!',
                   success,
                 );
-                FileViewer.open(path, { showOpenWithDialog: true })
+                FileViewer.open(path, {showOpenWithDialog: true})
                   .then(() => {
                     // success
                   })
@@ -2616,7 +3376,7 @@ class AuditForm extends Component {
           }
         }
       } else {
-        FileViewer.open(filepath, { showOpenWithDialog: true })
+        FileViewer.open(filepath, {showOpenWithDialog: true})
           .then(() => {
             console.log(success);
           })
@@ -2627,7 +3387,7 @@ class AuditForm extends Component {
     }
   }
 
-  syncPassword() { }
+
 
   StartSyncProcess() {
     console.log('StartSyncProcess called in Forms page...');
@@ -2647,8 +3407,6 @@ class AuditForm extends Component {
         const check = create({
           baseURL: baseURL + 'CheckConnection',
         });
-        console.log('loggggcheckkkkkk',check);
-        
         check.post().then(response => {
           if (response.duration > constant.ThresholdSpeed) {
             this.setState(
@@ -2656,18 +3414,18 @@ class AuditForm extends Component {
                 isLowConnection: true,
               },
               () => {
-                this.syncAuditsToServer()
+                this.syncAuditsToServer();
 
                 // this.checkUser();
-                console.log('Download response1', response);
+                console.log('Download response', response);
                 console.log('Low network', this.state.isLowConnection);
               },
             );
           } else {
-            this.syncAuditsToServer()
+            this.syncAuditsToServer();
 
             // this.checkUser();
-            console.log('Download response2', response);
+            console.log('Download response', response);
             console.log('Low network', this.state.isLowConnection);
           }
         });
@@ -2709,7 +3467,7 @@ class AuditForm extends Component {
 
           if (Platform.OS == 'android') {
             path =
-              '/data/user/0/com.omnex.suppliermanagement/cache/AuditUser' +
+              '/data/user/0/com.omnex.auditpro/cache/AuditUser' +
               '/' +
               this.propsServerUrl +
               ID;
@@ -2746,14 +3504,11 @@ class AuditForm extends Component {
     for (var i = 0; i < audits.length; i++) {
       if (audits[i].AuditId == this.state.Checkpointpass.AuditID) {
         for (var j = 0; j < audits[i].Listdata.length; j++) {
-          let attach = audits[i].Listdata?.[j]?.AttachmentList
-          console.log("RE====>Attach", attach)
-          let len = audits[i].Listdata?.[j]?.AttachmentList ? attach.length : 0
-          console.log("RE====>Len", len)
-          if (
-            len > 0 &&
-            audits[i].Listdata[j].Modified
-          ) {
+          let attach = audits[i].Listdata?.[j]?.AttachmentList;
+          console.log('RE====>Attach', attach);
+          let len = audits[i].Listdata?.[j]?.AttachmentList ? attach.length : 0;
+          console.log('RE====>Len', len);
+          if (len > 0 && audits[i].Listdata[j].Modified) {
             pushCLpath.push(audits[i].Listdata[j]);
           }
         }
@@ -2764,7 +3519,6 @@ class AuditForm extends Component {
     // Para checkpoints
 
     for (var j = 0; j < pushCLpath.length; j++) {
-
       for (var k = 0; k < pushCLpath[j].AttachmentList.length; k++) {
         var attach = pushCLpath[j].AttachmentList[k];
         let checkPath = await this.isPathExist(attach.FileUri);
@@ -2833,7 +3587,7 @@ class AuditForm extends Component {
     if (pushErrPath.length > 0) {
       // perform
       console.log('Broken path detected =========');
-      this.setState({ missingFileArr: pushErrPath, isMissingFindings: false });
+      this.setState({missingFileArr: pushErrPath, isMissingFindings: false});
     } else {
       this.syncAuditsToServer();
     }
@@ -2929,15 +3683,6 @@ class AuditForm extends Component {
   deleteAttachments(item, type) {
     console.log('Item to be deleted', item);
     console.log('Type', type);
-    //** Delete file from ios  files folder */
-    // if(Platform.OS == 'ios'){
-    //       let IosFilesPath = RNFetchBlob.fs.dirs.DocumentDir+'/'+'IosFiles'
-    //       console.log("IosFilesPath--->",IosFilesPath)
-    //       var uripathIos = IosFilesPath+'/'+item.DocName
-    //       if(RNFetchBlob.fs.isDir(IosFilesPath)){
-    //       RNFetchBlob.fs.unlink(uripathIos).then( () => {console.log("IosFilesPath deleted successfully--->")})
-    //       }
-    //   }
 
     if (type == 'ref') {
       var RefList = this.state.RefList;
@@ -3081,7 +3826,7 @@ class AuditForm extends Component {
     if (this.props.data.audits.isOfflineMode) {
       this.refs.toast.show(strings.Offline_Notice, DURATION.LENGTH_LONG);
     } else {
-      this.setState({ dialogVisible: true });
+      this.setState({dialogVisible: true});
     }
   }
 
@@ -3091,9 +3836,7 @@ class AuditForm extends Component {
         {
           isEmptyPwd: strings.enter_password,
         },
-        () => {
-          // this.refs.toast.show('Empty password attempt', DURATION.LENGTH_SHORT)
-        },
+        () => {},
       );
     } else {
       NetInfo.fetch().then(isConnected => {
@@ -3168,7 +3911,7 @@ class AuditForm extends Component {
                     pwdentry: undefined,
                     isEmptyPwd: strings.invalidpassword,
                   },
-                  () => { },
+                  () => {},
                 );
               }
             },
@@ -3194,6 +3937,9 @@ class AuditForm extends Component {
 
   render() {
     console.log('newformID', this.props.data.audits.auditRecords);
+    const {height} = Dimensions.get('window');
+    const middle = height / 2 - 200;
+    const attachmentHeight = middle + 100;
 
     const attachmentType = [
       {
@@ -3218,7 +3964,6 @@ class AuditForm extends Component {
 
     return (
       <View style={styles.wrapper}>
-        {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
         <OfflineNotice />
 
         <ImageBackground
@@ -3234,11 +3979,10 @@ class AuditForm extends Component {
                 this.state.isLoaderVisible === false
                   ? () => this.props.navigation.goBack()
                   : () => {
-                    console.log('please wait');
-                  }
+                      console.log('please wait');
+                    }
               }>
               <View style={styles.backlogo}>
-                {/* <ResponsiveImage source={Images.BackIconWhite} initWidth="13" initHeight="22" /> */}
                 <Icon name="angle-left" size={30} color="white" />
               </View>
             </TouchableOpacity>
@@ -3247,50 +3991,26 @@ class AuditForm extends Component {
               <Text
                 numberOfLines={1}
                 style={{
-                  fontSize: 14,
+                  fontSize: 15,
                   color: 'white',
                   fontFamily: 'OpenSans-Regular',
                 }}>
                 {this.state.breadCrumbText}
               </Text>
             </View>
-            {/* <View style={{width:Window.width,height:20,position:'absolute',backgroundColor:'yellow'}}>
 
-            </View> */}
             <View style={styles.headerDiv}>
-              {/* <ImageBackground source={Images.headerBG} style={styles.backgroundImage}></ImageBackground> */}
               <TouchableOpacity
-                style={{ paddingHorizontal: 10 }}
+                style={{paddingHorizontal: 10}}
                 onPress={() =>
-                  this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)
+                  this.props.navigation.navigate('AuditDashboard')
                 }>
                 <Icon name="home" size={30} color="white" />
               </TouchableOpacity>
             </View>
           </View>
         </ImageBackground>
-
-        {/* <View style={styles.secondDiv}>
-          <View style={styles.checktBox}>
-            <View style={{top:0,marginBottom: 5}}>
-              <Text style={{color:'#A0A0A0',fontSize: Fonts.size.h5}}>Online Form</Text>
-            </View>
-            <TouchableOpacity
-            onPress={
-              (this.state.isLoaderVisible === false) ? 
-              this.onCheckPress.bind(this) :
-              () => {console.log('please wait')}
-            }>
-              <LinearGradient start={{x: 0, y: 0}} end={{x: 1, y: 0}} 
-              colors={['#14D0AE', '#1FBFD0', '#2EA4E2']} 
-              style={styles.CheckButton}>
-                <Text style={styles.buttonText}>
-                  Check List
-                </Text>
-              </LinearGradient>
-            </TouchableOpacity>
-          </View>
-        </View> */}
+  
 
         {this.state.isLoaderVisible === false ? (
           <View style={styles.auditPageBody}>
@@ -3321,7 +4041,7 @@ class AuditForm extends Component {
                 tabLabel={strings.Online}
                 style={styles.scrollViewBody}>
                 {this.state.OnlineList.length > 0 ? (
-                  <View style={{ marginTop: 60 }}>
+                  <View style={{marginTop: 60}}>
                     {this.state.OnlineList.map((item, key) => (
                       <View key={key} style={styles.secondDiv}>
                         {console.log(this.state.OnlineList, 'onlinelist==>')}
@@ -3330,39 +4050,15 @@ class AuditForm extends Component {
                             this.state.isLoaderVisible === false
                               ? this.onCheckPress.bind(this, item)
                               : () => {
-                                console.log('please wait');
-                              }
+                                  console.log('please wait');
+                                }
                           }>
                           <LinearGradient
-                            start={{ x: 0, y: 0 }}
-                            end={{ x: 1, y: 0 }}
+                            start={{x: 0, y: 0}}
+                            end={{x: 1, y: 0}}
                             colors={['#14D0AE', '#1FBFD0', '#2EA4E2']}
                             style={styles.CheckButton}>
-                            {/* <View style={styles.madatecircleDiv}>
-                              {this.checkMandateCount(item) == 0 ? null : (
-                                <View style={styles.mandatecircle}>
-                                  <Text
-                                    style={{
-                                      color: '#14D0AE',
-                                      fontSize: 20,
-                                      fontFamily: 'OpenSans-Regular',
-                                    }}>
-                                    {this.checkMandateCount(item)}
-                                  </Text>
-                                </View>
-                              )}
-                            </View> */}
-                            {/* <View style={styles.mandatecircle}>
-                                  <Text
-                                    style={{
-                                      color: '#14D0AE',
-                                      fontSize: 20,
-                                      fontFamily: 'OpenSans-Regular',
-                                    }}>
-                                    {this.checkMandateCount(item)}
-                                  </Text>
-                                </View> */}
-                            <View style={{ width: '95%', height: null }}>
+                            <View style={{width: '95%', height: null}}>
                               <Text style={styles.buttonText}>
                                 {item.FormName.length > 30
                                   ? item.FormName.slice(0, 30) + '...'
@@ -3375,19 +4071,31 @@ class AuditForm extends Component {
                     ))}
                   </View>
                 ) : (
-                  <View style={{ marginTop: 55 }}>
-                    <Text
+                  <View style={{marginTop: '20%'}}>
+                    <View
                       style={{
-                        width: width(90),
-                        textAlign: 'center',
-                        marginTop: 45,
-                        fontSize: Fonts.size.h5,
-                        paddingTop: 40,
-                        color: 'grey',
-                        fontFamily: 'OpenSans-Regular',
+                        flexDirection: 'row',
+                        justifyContent: 'center',
                       }}>
-                      {strings.No_online_form_found}
-                    </Text>
+                      <Image
+                        source={Images.emptybox}
+                        style={{height: 50, resizeMode: 'contain'}}
+                      />
+                    </View>
+                    <View style={{}}>
+                      <Text
+                        style={{
+                          // width: width(90),
+                          textAlign: 'center',
+                          marginTop: 5,
+                          fontSize: Fonts.size.h5,
+                          // paddingTop: 40,
+                          color: 'grey',
+                          fontFamily: 'OpenSans-Regular',
+                        }}>
+                        {strings.No_online_form_found}
+                      </Text>
+                    </View>
                   </View>
                 )}
               </ScrollView>
@@ -3395,7 +4103,7 @@ class AuditForm extends Component {
                 tabLabel={strings.Templates}
                 style={styles.scrollViewBody}>
                 {this.state.TempList.length > 0 ? (
-                  <View style={{ marginTop: 60 }}>
+                  <View style={{marginTop: 60}}>
                     {this.state.TempList.map((item, key) => (
                       <View key={key} style={styles.cardBox}>
                         <View style={styles.sectionTop}>
@@ -3427,19 +4135,19 @@ class AuditForm extends Component {
                                   {item.Attachmenttype == 1
                                     ? '-'
                                     : item.AttachedDocument == ''
-                                      ? ' - '
-                                      : item.AttachedDocument}
+                                    ? ' - '
+                                    : item.AttachedDocument}
                                 </Text>
                               </TouchableOpacity>
-                              {/* {item.AttachedDocument &&
-                                item.Attachmenttype == 0 ? (
+                              {item.AttachedDocument &&
+                              item.Attachmenttype == 0 ? (
                                 <TouchableOpacity
                                   onPress={() =>
                                     this.deleteAttachments(item, 'temp')
                                   }>
                                   <Icon name="trash" size={20} color="red" />
                                 </TouchableOpacity>
-                              ) : null} */}
+                              ) : null}
                               {item.Attachmenttype == 0 ? (
                                 <TouchableOpacity
                                   onPress={() => {
@@ -3460,8 +4168,6 @@ class AuditForm extends Component {
                                           );
 
                                           if (res) {
-                                            // console.log('Form item', item)
-                                            // console.log('Form item', this.state.formDetails)
                                             var formDetailsOrg =
                                               this.state.formDetails;
                                             var formDetails = [];
@@ -3523,7 +4229,7 @@ class AuditForm extends Component {
                                               }
                                             }
                                             this.setState(
-                                              { formDetails: formDetails },
+                                              {formDetails: formDetails},
                                               () => {
                                                 console.log(
                                                   'formDetails',
@@ -3705,21 +4411,12 @@ class AuditForm extends Component {
                                         },
                                       );
                                     }
-                                    // iPad
-                                    /*const {pageX, pageY} = event.nativeEvent;
-                              DocumentPicker.show({
-                              top: pageY,
-                              left: pageX,
-                              filetype: ['public.image'],
-                              }, (error, url) => {
-                                alert(url);
-                              });*/
                                   }}>
-                                  {/* <ResponsiveImage
+                                  <ResponsiveImage
                                     source={Images.AttachIcon}
                                     initWidth="24"
                                     initHeight="22"
-                                  /> */}
+                                  />
                                 </TouchableOpacity>
                               ) : null}
                             </View>
@@ -3729,7 +4426,7 @@ class AuditForm extends Component {
                           <View style={styles.sectionContent}>
                             {/* <Text numberOfLines={1} style={styles.boxHeader}>{strings.Attach_Files}</Text> */}
                           </View>
-                          <View style={{ width: '100%', height: null }}>
+                          <View style={{width: '100%', height: null}}>
                             <Dropdown
                               data={attachmentType2}
                               label={strings.attachmenttype}
@@ -3749,8 +4446,8 @@ class AuditForm extends Component {
                               textColor="#000"
                               itemColor="#000"
                               itemPadding={5}
-                              dropdownOffset={{ top: 10, left: 0 }}
-                              itemTextStyle={{ fontFamily: 'OpenSans-Regular' }}
+                              dropdownOffset={{top: 10, left: 0}}
+                              itemTextStyle={{fontFamily: 'OpenSans-Regular'}}
                               onChange={value => {
                                 var TempList = [];
 
@@ -3782,11 +4479,11 @@ class AuditForm extends Component {
                             <View
                               style={[
                                 styles.sectionContent,
-                                { width: '100%', flexDirection: 'column' },
+                                {width: '100%', flexDirection: 'column'},
                               ]}>
-                              <View style={{ width: '100%', height: null }}>
+                              <View style={{width: '100%', height: null}}>
                                 {this.state.TempList[key].AttachedDocument !=
-                                  '' ? (
+                                '' ? (
                                   <Text
                                     style={{
                                       color: 'grey',
@@ -3797,7 +4494,7 @@ class AuditForm extends Component {
                                   </Text>
                                 ) : null}
                               </View>
-                              <View style={{ width: '100%', height: null }}>
+                              <View style={{width: '100%', height: null}}>
                                 <TextInput
                                   multiline={true}
                                   value={
@@ -3813,7 +4510,6 @@ class AuditForm extends Component {
                                   textColor="#747474"
                                   onChangeText={text => {
                                     var TempList = [];
-
                                     TempList = this.state.TempList;
                                     TempList[key].AttachedDocument = text;
                                     TempList[key].DocName = text;
@@ -3906,24 +4602,31 @@ class AuditForm extends Component {
                     ))}
                   </View>
                 ) : (
-                  <View
-                    style={{
-                      marginTop: 55,
-                      justifyContent: 'center',
-                      alignContent: 'center',
-                    }}>
-                    <Text
+                  <View style={{marginTop: '20%'}}>
+                    <View
                       style={{
-                        // width: width(90),
-                        textAlign: 'center',
-                        marginTop: 45,
-                        fontSize: Fonts.size.h5,
-                        paddingTop: 40,
-                        color: 'grey',
-                        fontFamily: 'OpenSans-Regular',
+                        flexDirection: 'row',
+                        justifyContent: 'center',
                       }}>
-                      {strings.No_templates_found}
-                    </Text>
+                      <Image
+                        source={Images.emptybox}
+                        style={{height: 50, resizeMode: 'contain'}}
+                      />
+                    </View>
+                    <View style={{}}>
+                      <Text
+                        style={{
+                          // width: width(90),
+                          textAlign: 'center',
+                          marginTop: 5,
+                          fontSize: Fonts.size.h5,
+                          // paddingTop: 40,
+                          color: 'grey',
+                          fontFamily: 'OpenSans-Regular',
+                        }}>
+                        {strings.No_templates_found}
+                      </Text>
+                    </View>
                   </View>
                 )}
               </ScrollView>
@@ -3932,7 +4635,7 @@ class AuditForm extends Component {
                 tabLabel={strings.References}
                 style={styles.scrollViewBody}>
                 {this.state.RefList.length > 0 ? (
-                  <View style={{ marginTop: 60 }}>
+                  <View style={{marginTop: 60}}>
                     {this.state.RefList.map((item, key) => (
                       <View key={key} style={styles.cardBox}>
                         <View style={styles.sectionTop}>
@@ -3955,7 +4658,7 @@ class AuditForm extends Component {
                               </Text>
                             </View>
                             <View style={styles.sectionContent}>
-                              <View style={{ flexDirection: 'row' }}>
+                              <View style={{flexDirection: 'row'}}>
                                 <TouchableOpacity
                                   onPress={() => this.FilePress(item)}
                                   style={styles.AttBox}>
@@ -3965,12 +4668,12 @@ class AuditForm extends Component {
                                     {item.Attachmenttype == 1
                                       ? '-'
                                       : item.AttachedDocument == ''
-                                        ? ' - '
-                                        : item.AttachedDocument}
+                                      ? ' - '
+                                      : item.AttachedDocument}
                                   </Text>
                                 </TouchableOpacity>
                                 {item.AttachedDocument &&
-                                  item.Attachmenttype == 0 ? (
+                                item.Attachmenttype == 0 ? (
                                   <TouchableOpacity
                                     onPress={() =>
                                       this.deleteAttachments(item, 'ref')
@@ -4065,7 +4768,7 @@ class AuditForm extends Component {
                                               }
                                             }
                                             this.setState(
-                                              { formDetails: formDetails },
+                                              {formDetails: formDetails},
                                               () => {
                                                 console.log(
                                                   'formDetails',
@@ -4228,10 +4931,8 @@ class AuditForm extends Component {
                           </View>
                         ) : null}
                         <View style={styles.sectionBottom}>
-                          <View style={styles.sectionContent}>
-                            {/* <Text numberOfLines={1} style={styles.boxHeader}>{strings.Attach_Files}</Text> */}
-                          </View>
-                          <View style={{ width: '100%', height: null }}>
+                          <View style={styles.sectionContent}></View>
+                          <View style={{width: '100%', height: null}}>
                             <Dropdown
                               data={attachmentType}
                               label={strings.attachmenttype}
@@ -4251,8 +4952,8 @@ class AuditForm extends Component {
                               textColor="#000"
                               itemColor="#000"
                               itemPadding={5}
-                              dropdownOffset={{ top: 10, left: 0 }}
-                              itemTextStyle={{ fontFamily: 'OpenSans-Regular' }}
+                              dropdownOffset={{top: 10, left: 0}}
+                              itemTextStyle={{fontFamily: 'OpenSans-Regular'}}
                               onChange={value => {
                                 var RefList = [];
 
@@ -4284,11 +4985,11 @@ class AuditForm extends Component {
                             <View
                               style={[
                                 styles.sectionContent,
-                                { width: '100%', flexDirection: 'column' },
+                                {width: '100%', flexDirection: 'column'},
                               ]}>
-                              <View style={{ width: '100%', height: null }}>
+                              <View style={{width: '100%', height: null}}>
                                 {this.state.RefList[key].AttachedDocument !=
-                                  '' ? (
+                                '' ? (
                                   <Text
                                     style={{
                                       color: 'grey',
@@ -4299,7 +5000,7 @@ class AuditForm extends Component {
                                   </Text>
                                 ) : null}
                               </View>
-                              <View style={{ width: '100%', height: null }}>
+                              <View style={{width: '100%', height: null}}>
                                 <TextInput
                                   multiline={true}
                                   value={
@@ -4352,11 +5053,6 @@ class AuditForm extends Component {
                                         this.state.formDetails[i].FormId ==
                                         this.state.RefList[key].FormId
                                       ) {
-                                        // console.log('into for loop--->',this.state.RefList[key].AttachedDocument)
-                                        // console.log('this.state.formDetails[i] before',formDetails[i])
-                                        // formDetails[i].AttachedDocument = this.state.RefList[key].AttachedDocument
-                                        // formDetails[i].Attachmenttype = this.state.RefList[key].Attachmenttype
-                                        // console.log('this.state.formDetails[i] after',formDetails[i])
                                         formDetails.push({
                                           AttachedDocument:
                                             this.state.RefList[
@@ -4414,24 +5110,29 @@ class AuditForm extends Component {
                     ))}
                   </View>
                 ) : (
-                  <View
-                    style={{
-                      marginTop: 55,
-                      justifyContent: 'center',
-                      alignContent: 'center',
-                    }}>
-                    <Text
+                  <View style={{marginTop: '20%'}}>
+                    <View
                       style={{
-                        // width: width(90),
-                        textAlign: 'center',
-                        marginTop: 45,
-                        fontSize: Fonts.size.h5,
-                        paddingTop: 40,
-                        color: 'grey',
-                        fontFamily: 'OpenSans-Regular',
+                        flexDirection: 'row',
+                        justifyContent: 'center',
                       }}>
-                      {strings.No_references_found}
-                    </Text>
+                      <Image
+                        source={Images.emptybox}
+                        style={{height: 50, resizeMode: 'contain'}}
+                      />
+                    </View>
+                    <View style={{}}>
+                      <Text
+                        style={{
+                          textAlign: 'center',
+                          marginTop: 5,
+                          fontSize: Fonts.size.h5,
+                          color: 'grey',
+                          fontFamily: 'OpenSans-Regular',
+                        }}>
+                        {strings.No_references_found}
+                      </Text>
+                    </View>
                   </View>
                 )}
               </ScrollView>
@@ -4439,7 +5140,7 @@ class AuditForm extends Component {
             <View style={styles.floatingDiv}>
               <TouchableOpacity
                 onPress={() => {
-                  this.props.navigation.navigate('AuditSummary', {
+                  this.props.navigation.navigate(ROUTES.AUDIT_SUMMARY, {
                     AuditID: this.state.AuditID,
                     breadCrumbText: this.state.breadCrumbText,
                   });
@@ -4451,31 +5152,46 @@ class AuditForm extends Component {
           </View>
         ) : (
           <View style={styles.auditPageBody}>
+            <View style={{alignItems: 'center', marginTop: middle}}>
+              {this.state.syncMode === 2 ? (
+                <Icon name="check-circle" color="red" size={50} />
+              ) : this.state.syncMode === 0 || this.state.syncMode === 1 ? (
+                <Bars size={20} color="#1CB8CA" />
+              ) : this.state.syncMode === 4 ? (
+                <Icon name="check-circle" color="green" size={50} />
+              ) : null}
+              <Text
+                style={{textAlign: 'center', fontFamily: 'OpenSans-Regular'}}>
+                {this.state.syncStatusLabel === ''
+                  ? strings.Syncing_Audits
+                  : this.state.syncStatusLabel}
+              </Text>
+            </View>
             <View
               style={{
                 alignItems: 'center',
+                paddingTop: 20,
+                height: attachmentHeight,
               }}>
-              <Bars size={20} color="#1CB8CA" />
-              <Text
-                style={{ textAlign: 'center', fontFamily: 'OpenSans-Regular' }}>
-                {strings.Syncing_Audits}
-              </Text>
+              {this.state.AuditAttachments.length > 0 &&
+                this.renderFileUploadStatus()}
             </View>
           </View>
         )}
 
         <View style={styles.footer}>
-            {/* <Image source={Images.Footer}/> */}
+          <ImageBackground
+            source={Images.Footer}
+            style={{
+              resizeMode: 'stretch',
+              width: '100%',
+              height: 65,
+            }}>
             <View style={styles.footerDiv}>
-            <LinearGradient
-                            start={{ x: 0, y: 0 }}
-                            end={{ x: 1, y: 0 }}
-                            colors={['#14D0AE', '#1FBFD0', '#2EA4E2']}
-                            style={styles.CheckButton}>
               {!this.state.isSyncing ? (
                 <TouchableOpacity onPress={() => this.checkoffline()}>
-                  {this.state.notifyRed === true ? (
-                    <View style={{ left: 0, top: 2 }}>
+                  {this.state.redDotID === 'true' ? (
+                    <View style={{left: 0, top: 6}}>
                       <Icon name="circle" size={10} color="red" />
                     </View>
                   ) : (
@@ -4486,16 +5202,17 @@ class AuditForm extends Component {
                       flexDirection: 'row',
                       justifyContent: 'center',
                       alignItems: 'center',
+                      marginTop: 10
                     }}>
                     <ResponsiveImage
                       source={Images.uploadToServerIcon}
-                      initWidth="30"
-                      initHeight="20"
+                      initWidth="50"
+                      initHeight="40"
                     />
                     <Text
                       style={{
                         color: 'white',
-                        fontSize: Fonts.size.regular,
+                        fontSize: Fonts.size.h5,
                         marginLeft: 5,
                         fontFamily: 'OpenSans-Regular',
                       }}>
@@ -4503,53 +5220,81 @@ class AuditForm extends Component {
                     </Text>
                   </View>
                 </TouchableOpacity>
-              ) : (
+              ) : this.state.syncMode !== 4 ? (
                 <View
                   style={{
                     paddingVertical: 20,
                     borderTopWidth: 1,
                     borderColor: '#CED0CE',
+                    justifyContent: 'center',
+                    alignItems: 'center',
                   }}>
-                  <ActivityIndicator size={20} color="#fff" />
+                  <ActivityIndicator size={20} color="#1CAFF6" />
+                </View>
+              ) : (
+                <View
+                  style={{
+                    borderColor: '#CED0CE',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}>
+                  <TouchableOpacity
+                    style={{alignItems: 'center'}}
+                    onPress={() => this.syncResponseHandle()}>
+                    <Icon name="check-square-o" size={35} color="white" />
+                    <Text
+                      style={{
+                        color: 'white',
+                        fontSize: Fonts.size.medium,
+                        //marginLeft: 5,
+                        fontFamily: 'OpenSans-Regular',
+                      }}>
+                      {'Proceed'}
+                    </Text>
+                  </TouchableOpacity>
                 </View>
               )}
-                </LinearGradient>
             </View>
-       
+          </ImageBackground>
         </View>
 
         <Toast
           ref="toast"
-          style={{ backgroundColor: 'black', margin: 20 }}
+          style={{backgroundColor: 'black', margin: 20}}
           position="top"
           positionValue={200}
           fadeInDuration={750}
           fadeOutDuration={1000}
           opacity={0.8}
-          textStyle={{ color: 'white' }}
+          textStyle={{color: 'white'}}
         />
 
         <ConfirmDialog
           title={strings.Sync_title}
           message={strings.Sync_message}
-          titleStyle={{ fontFamily: 'OpenSans-SemiBold' }}
-          messageStyle={{ fontFamily: 'OpenSans-Regular' }}
+          titleStyle={{fontFamily: 'OpenSans-SemiBold'}}
+          messageStyle={{fontFamily: 'OpenSans-Regular'}}
           visible={this.state.dialogVisible}
-          onTouchOutside={() => this.setState({ dialogVisible: false })}
+          onTouchOutside={() => this.setState({dialogVisible: false})}
+          supportedOrientations={[
+            'portrait',
+            'portrait-upside-down',
+            'landscape',
+            'landscape-left',
+            'landscape-right',
+          ]}
           positiveButton={{
             title: strings.yes,
             onPress: this.StartSyncProcess.bind(this),
-            //   onPress: () =>
-            //     this.setState({confirmpwd: true, dialogVisible: false}),
           }}
           negativeButton={{
             title: strings.no,
-            onPress: () => this.setState({ dialogVisible: false }),
+            onPress: () => this.setState({dialogVisible: false}),
           }}
         />
         <Modal
           isVisible={this.state.confirmpwd}
-          onBackdropPress={() => this.setState({ confirmpwd: false })}>
+          onBackdropPress={() => this.setState({confirmpwd: false})}>
           <View
             style={{
               width: '100%',
@@ -4559,10 +5304,10 @@ class AuditForm extends Component {
               padding: 10,
             }}>
             <TouchableOpacity
-              onPress={() => this.setState({ confirmpwd: false })}>
+              onPress={() => this.setState({confirmpwd: false})}>
               <Icon
                 name="times-circle"
-                style={{ alignSelf: 'flex-end' }}
+                style={{alignSelf: 'flex-end'}}
                 size={30}
                 color="#2EA4E2"
               />
@@ -4634,7 +5379,7 @@ class AuditForm extends Component {
                   }}
                   secureTextEntry={true}
                   onChangeText={text =>
-                    this.setState({ pwdentry: text, isEmptyPwd: undefined })
+                    this.setState({pwdentry: text, isEmptyPwd: undefined})
                   }
                 />
                 {this.state.isEmptyPwd ? (
@@ -4709,7 +5454,7 @@ class AuditForm extends Component {
                   <View key={i} style={styles.carddivMissing}>
                     <View style={styles.cardContMissing}>
                       <View style={styles.cardSecMissing}>
-                        <Text style={{ fontFamily: 'OpenSans-Regular' }}>
+                        <Text style={{fontFamily: 'OpenSans-Regular'}}>
                           {strings.Type}
                         </Text>
                         <Text
@@ -4724,12 +5469,12 @@ class AuditForm extends Component {
                         </Text>
                       </View>
                       <View style={styles.cardsec2Missing}>
-                        <Text style={{ fontFamily: 'OpenSans-Regular' }}>
+                        <Text style={{fontFamily: 'OpenSans-Regular'}}>
                           {strings.Name}
                         </Text>
                         <Text
                           style={{
-                            fontSize: 18,
+                            fontSize: Fonts.size.mediump,
                             color: '#070F6E',
                             fontFamily: 'OpenSans-Regular',
                           }}>
@@ -4765,7 +5510,7 @@ class AuditForm extends Component {
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() =>
-                  this.setState({ isMissingFindings: false }, () => {
+                  this.setState({isMissingFindings: false}, () => {
                     this.syncAuditsToServer();
                   })
                 }
@@ -4796,73 +5541,15 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
   return {
     changeAuditState: isAuditing =>
-      dispatch({ type: 'CHANGE_AUDIT_STATE', isAuditing }),
+      dispatch({type: 'CHANGE_AUDIT_STATE', isAuditing}),
     storeAuditRecords: auditRecords =>
-      dispatch({ type: 'STORE_AUDIT_RECORDS', auditRecords }),
-    storeAudits: audits => dispatch({ type: 'STORE_AUDITS', audits }),
+      dispatch({type: 'STORE_AUDIT_RECORDS', auditRecords}),
+    storeAudits: audits => dispatch({type: 'STORE_AUDITS', audits}),
     storeNCRecords: ncofiRecords =>
-      dispatch({ type: 'STORE_NCOFI_RECORDS', ncofiRecords }),
-    clearAudits: () => dispatch({ type: 'CLEAR_AUDITS' }),
+      dispatch({type: 'STORE_NCOFI_RECORDS', ncofiRecords}),
+    clearAudits: () => dispatch({type: 'CLEAR_AUDITS'}),
+    
   };
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(AuditForm);
-
-// import React, { Component } from 'react';
-// import { View, Text, ScrollView, Dimensions, TouchableOpacity } from 'react-native';
-
-// let Window = Dimensions.get('window');
-
-// class AuditForm extends Component {
-//   constructor(props) {
-//     super(props);
-//     this.state = {
-//     };
-//     this.scrollView = React.createRef()
-//   }
-
-//   press = () => {
-//     //
-//     this.scrollView.scrollTo({x: 1*Window.width, y: 0, animated: true })
-
-//   }
-
-//   render() {
-//     return (
-//       <View>
-//        <ScrollView
-//        horizontal
-//        pagingEnabled
-//        ref={(scrollView) => { this.scrollView = scrollView; }}
-//        >
-//         <View style={{
-//           height: 100,
-//           width: Window.width,
-//           backgroundColor: 'pink'
-//         }} />
-//         <View style={{
-//           height: 100,
-//           width: Window.width,
-//           backgroundColor: 'skyblue'
-//         }} />
-//         <View style={{
-//           height: 100,
-//           width: Window.width,
-//           backgroundColor: 'red'
-//         }} />
-//        </ScrollView>
-
-//        <TouchableOpacity style={{
-//         margin: 30
-//        }} onPress={()=>{
-//         this.press()
-
-//        }}>
-//         <Text>Press</Text>
-//        </TouchableOpacity>
-//       </View>
-//     );
-//   }
-// }
-
-// export default AuditForm;
