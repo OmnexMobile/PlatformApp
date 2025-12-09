@@ -129,7 +129,10 @@ const LoginFunctional = ({}) => {
             handleServerURL(response);
         } else if (response?.Message !== '') {
             handleInputChange('loggingIn', false);
-            showErrorMessage('Please enter valid username and password' || response?.Message || strings?.InvalidCred, 'top');
+            showErrorMessage(response?.Message || 'Please enter valid username and password' || strings?.InvalidCred, 'top');
+        } else if (response?.Error !== '') {
+            handleInputChange('loggingIn', false);
+            showErrorMessage(response?.Error, 'top');
         } else {
             handleInputChange('loggingIn', false);
             showErrorMessage('Something went wrong!!');

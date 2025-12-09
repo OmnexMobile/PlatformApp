@@ -9,6 +9,7 @@ import { FONT_TYPE, ICON_TYPE, OPACITY_ANIMATION, OPACITY_TRANSLATE_Y_ANIMATION,
 import { COLORS, FONT_SIZE, SPACING } from 'constants/theme-constants';
 import useTheme from 'theme/useTheme';
 import LoginInput from './login-input';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const LoginPresentational = ({
     selectLanguageModal,
@@ -20,8 +21,9 @@ const LoginPresentational = ({
     isRegistered,
 }) => {
     const { theme } = useTheme();
+    const insets = useSafeAreaInsets();
     return (
-        <View style={{ flex: 1, backgroundColor: COLORS.white }}>
+        <View style={{ flex: 1, backgroundColor: COLORS.white, paddingTop: insets.top }}>
             {/* need image with transparent background */}
             <ImageComponent style={{ width: '100%', height: '100%', position: 'absolute', zIndex: 0 }} source={IMAGES.loginBack} />
             <KeyboardAwareScrollViewComponent keyboardShouldPersistTaps="always" style={{ flex: 1, backgroundColor: COLORS.transparent }}>

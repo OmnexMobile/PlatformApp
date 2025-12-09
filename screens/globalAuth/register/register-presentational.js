@@ -8,11 +8,14 @@ import { ICON_TYPE, OPACITY_ANIMATION, OPACITY_TRANSLATE_Y_ANIMATION } from 'con
 import { COLORS, FONT_SIZE, SPACING } from 'constants/theme-constants';
 import useTheme from 'theme/useTheme';
 import LoginInput from 'screens/auth/login/components/login-input';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const RegisterPresentational = ({ navigation, handleChange, state, handleRegister, isRegistered, handleUnRegister, loading, getDeviceStatus }) => {
     const { theme } = useTheme();
+    const insets = useSafeAreaInsets();
+
     return (
-        <View style={{ flex: 1, backgroundColor: COLORS.white }}>
+        <View style={{ flex: 1, backgroundColor: COLORS.white, paddingTop: insets.top }}>
             {/* need image with transparent background */}
             <ImageComponent style={{ width: '100%', height: '100%', position: 'absolute', zIndex: 0 }} source={IMAGES.loginBack} />
             <KeyboardAwareScrollViewComponent style={{ flex: 1, backgroundColor: COLORS.transparent }}>
@@ -29,7 +32,16 @@ const RegisterPresentational = ({ navigation, handleChange, state, handleRegiste
                     <ImageComponent source={IMAGES.omnexLogo} resizeMode="contain" style={{ height: RFPercentage(10), width: '100%' }} />
                 </AnimatableView>
                 <AnimatableView animationConfig={OPACITY_TRANSLATE_Y_ANIMATION} delay={500} style={{ flex: 6 }}>
-                    <LoginInput {...{ value: state?.globalServerURL, label: strings.Server_Url, name: 'globalServerURL', onChangeText: handleChange, placeholder:'Enter API URL', editable: !isRegistered }} />
+                    <LoginInput
+                        {...{
+                            value: state?.globalServerURL,
+                            label: strings.Server_Url,
+                            name: 'globalServerURL',
+                            onChangeText: handleChange,
+                            placeholder: 'Enter API URL',
+                            editable: !isRegistered,
+                        }}
+                    />
                     <GradientButton
                         loading={loading}
                         disabled={!(state?.globalServerURL?.length > 1)}
