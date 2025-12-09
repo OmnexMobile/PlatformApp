@@ -9,7 +9,7 @@ import { registerDevice, REGISTER_TYPES } from 'screens/globalAuth/register/regi
 import { getUniqueId } from 'react-native-device-info';
 import localStorage from 'global/localStorage';
 import AsyncStorage from '@react-native-community/async-storage';
-import { GLOBALSERVER_URL } from 'screens/globalConstant/globalURL';
+import { GLOBALSERVER_URL, getGlobalUrls, setGlobalUrls } from 'screens/globalConstant/globalURL';
 import { useDispatch } from 'react-redux';
 
 const menus = [];
@@ -57,21 +57,23 @@ const LogoutFunctional = () => {
 			successMessage({ message: 'Success', description: 'Successfully Logged Out' });
 			localStorage.storeData('appLogged', false);
 			await AsyncStorage.removeItem('userDetails');
-			console.log('globalDeviceDetails--->2', globalDeviceDetails?.deviceDetails?.ServerUrl, '--', GLOBALSERVER_URL)
-			localStorage.storeData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL, GLOBALSERVER_URL)
-			handleGlobalURL('serverUrl', GLOBALSERVER_URL)
+			const currentGlobal = getGlobalUrls().globalServerUrl || GLOBALSERVER_URL;
+			console.log('globalDeviceDetails--->2', globalDeviceDetails?.deviceDetails?.ServerUrl, '--', currentGlobal)
+			localStorage.storeData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL, currentGlobal)
+			handleGlobalURL('serverUrl', currentGlobal)
+      setGlobalUrls({ globalServerUrl: currentGlobal });
 			clearSite();
     }
 
 		const handleLogoutFun1 = async () => {
 			setLoading(true);
 			console.log('reach handlelogout---<>',globalDeviceDetails, globalDeviceDetails?.deviceDetails?.ServerUrl, '---', globalURL?.serverUrl, appSettings?.serverUrl,)
-			const DEFAULT_URL = GLOBALSERVER_URL;
-			const BASE_URL = DEFAULT_URL.replace(/\/$/, '');
+			const currentGlobal = getGlobalUrls().globalServerUrl || GLOBALSERVER_URL;
+			const BASE_URL = currentGlobal.replace(/\/$/, '');
 			// const currentServerUrl = await localStorage.getData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL);
 			// console.log('DEFAULT_URL------>', currentServerUrl, DEFAULT_URL)
 			await registerDevice(
-					DEFAULT_URL,
+					currentGlobal,
 					{
 							RegisteredDeviceId: await getUniqueId(),
 							serverUrl: BASE_URL,
@@ -84,9 +86,10 @@ const LogoutFunctional = () => {
 						successMessage({ message: 'Success', description: 'Successfully Logged Out' });
 						localStorage.storeData('appLogged', false);
 						await AsyncStorage.removeItem('userDetails');
-						console.log('globalDeviceDetails--->2', globalDeviceDetails?.deviceDetails?.ServerUrl, '--', DEFAULT_URL)
-						localStorage.storeData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL, DEFAULT_URL)
-						handleGlobalURL('serverUrl', DEFAULT_URL)
+						console.log('globalDeviceDetails--->2', globalDeviceDetails?.deviceDetails?.ServerUrl, '--', currentGlobal)
+						localStorage.storeData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL, currentGlobal)
+						handleGlobalURL('serverUrl', currentGlobal)
+            setGlobalUrls({ globalServerUrl: currentGlobal });
 						clearSite();
 					} else {
 						console.log('error data:', data);

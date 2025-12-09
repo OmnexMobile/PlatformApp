@@ -1,8 +1,6 @@
 // Default API Urls to communicate with the backend. Users can change this in Registration screen.
 // export const API_URL = 'http://1.22.172.236/AuditPro/api/' // Static IP
 
-import { APQP_URL } from "screens/globalConstant/globalURL";
-
 // export const API_URL = 'http://1.22.172.237/AuditPro/api/' // Static IP
 export const DP_API_URL = "http://1.22.172.236/DPAPI/api/"; // Static IP - DocPro
 
@@ -10,7 +8,7 @@ export const DP_API_URL = "http://1.22.172.236/DPAPI/api/"; // Static IP - DocPr
 
 // export const API_URL = "https://omnex.ewqims.com/APQPApi/"; // IP for customer demo _Edited_by_Sudha
 // export const API_URL = "http://1.22.172.236/APQPApi/";
-export const API_URL = APQP_URL; 
+export { APQP_URL as API_URL } from 'screens/globalConstant/globalURL';
 
 
 export const login = "Login";

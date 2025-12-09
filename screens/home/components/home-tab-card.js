@@ -368,10 +368,9 @@ const dataSet = React.useMemo(() => {
 
   // console.log('TotalConcern', isPSCount?.TotalConcern, 'OpenConcern', isPSCount?.OpenConcern, 'InprogressConcern', isPSCount?.InprogressConcern);
 
+  // Store the last-used app and server without overwriting the global registration URL.
   const storeUrl = async (url, recentApp) => {
     console.log("reach storeUrl--->", url, 'recentApp', recentApp);
-    localStorage.storeData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL, url);
-    handleGlobalURL('serverUrl', url)
     await AsyncStorage.setItem('storedserverrul', url);
     localStorage.storeData('CurrentApp', recentApp);
   };

@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext, useEffect, useCallback } from 'react';
 import moment from 'moment';
 import localStorage from '../global/localStorage';
 import { API_URL, COMPANY_DETAILS, DATE_FORMAT, Languages, LOCAL_STORAGE_VARIABLES } from '../constants/app-constant';
@@ -54,6 +54,24 @@ const AppProvider = ({ children }) => {
     const [globalDeviceDetails, setGlobalDeviceDetails] = useState({
         deviceDetails: [],
     });
+    useEffect(() => {
+        (async () => {
+            try {
+                const [storedGlobalUrl, storedDeviceStatus] = await Promise.all([
+                    localStorage.getData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL),
+                    localStorage.getData(LOCAL_STORAGE_VARIABLES.GLOBAL_DEVICE_STATUS),
+                ]);
+                if (storedGlobalUrl) {
+                    setGlobalURL(prev => ({ ...prev, serverUrl: storedGlobalUrl }));
+                }
+                if (storedDeviceStatus) {
+                    setGlobalDeviceDetails(prev => ({ ...prev, deviceDetails: storedDeviceStatus }));
+                }
+            } catch (err) {
+                console.log('Failed to pre-load global URLs/device details', err);
+            }
+        })();
+    }, []);
 
     // const handleLogout = async () => {
     //     setProfile(DEFAULT_VALUE);
@@ -103,13 +121,16 @@ const AppProvider = ({ children }) => {
         }
     };
 
-    const handleGlobalURL = (key, value) => {
-        console.log('🚀 ~ file: app-context.js:93 ~ handleGlobalURL ~ handleGlobalURL', key, value);
-        setGlobalURL({
-            ...globalURL,
-            [key]: value,
+    const handleGlobalURL = useCallback((key, value) => {
+        setGlobalURL(prev => {
+            if (prev?.[key] === value) return prev;
+            console.log('🚀 ~ file: app-context.js:93 ~ handleGlobalURL ~ handleGlobalURL', key, value);
+            return {
+                ...prev,
+                [key]: value,
+            };
         });
-    };
+    }, []);
 
     const handleGlobalLogin = async (data) => {
         await localStorage.storeData(LOCAL_STORAGE_VARIABLES.globalLogin, data);

@@ -1,8 +1,6 @@
 // Default API Urls to communicate with the backend. Users can change this in Registration screen.
 // export const API_URL = 'http://1.22.172.236/AuditPro/api/' // Static IP
 
-import { AUDITPRO_URL } from "screens/globalConstant/globalURL";
-
 // export const API_URL = 'http://1.22.172.237/AuditPro/api/' // Static IP
 export const DP_API_URL = 'http://1.22.172.236/DPAPI/api/' // Static IP - DocPro 
 
@@ -14,7 +12,7 @@ export const DP_API_URL = 'http://1.22.172.236/DPAPI/api/' // Static IP - DocPro
 //export const  API_URL = 'https://cloudqa3.ewqims.com/AuditProApi/api/' 
 //export const  API_URL = 'https://qa46a.ewqims.com/common/EwIMSNew/Index/Index' // Production
 //export const  API_URL = 'http://saas.omnex.in:2010/auditproapi/api/'
-export const API_URL = AUDITPRO_URL // Global Server AP/SM
+export { AUDITPRO_URL as API_URL } from 'screens/globalConstant/globalURL'; // Global Server AP/SM
 // export const API_URL = 'https://omn-qa-forvia.ewqims.com/auditproapi/api/';
 // export const API_URL = 'https://saasmobile.ewqims.net/AuditproApi/api/';
 

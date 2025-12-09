@@ -1,8 +1,6 @@
 // Default API Urls to communicate with the backend. Users can change this in Registration screen.
 // export const API_URL = 'http://1.22.172.236/AuditPro/api/' // Static IP
 
-import { AUDITPRO_URL } from "screens/globalConstant/globalURL";
-
 // export const API_URL = 'http://1.22.172.237/AuditPro/api/' // Static IP
 export const DP_API_URL = 'http://1.22.172.236/DPAPI/api/' // Static IP - DocPro 
 
@@ -17,7 +15,7 @@ export const DP_API_URL = 'http://1.22.172.236/DPAPI/api/' // Static IP - DocPro
 
 // export const API_URL = 'https://cloudqa1.ewqims.com/auditproapi/api/' //SM
 // export const API_URL = 'https://training-michelin.ewqims.com/auditproapi/api/' // Training Server SM
-export const API_URL_SM = AUDITPRO_URL // Global Server SM
+export { AUDITPRO_URL as API_URL_SM } from 'screens/globalConstant/globalURL'; // Global Server SM
 
 
 /** NXP  */ 

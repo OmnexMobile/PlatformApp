@@ -230,15 +230,22 @@ import {
     },
   
     getstatapi(token, userId, SiteId, SM, cb) {
-      console.log('AuditListStatus', token);
-  
+      const key = `${token || ''}-${SiteId || ''}-${SM || ''}`;
+      if (!this._auditStatsCache) {
+        this._auditStatsCache = {};
+      }
+      const cacheEntry = this._auditStatsCache[key];
+      if (cacheEntry?.promise) {
+        cacheEntry.promise.then(data => cb({ data })).catch(err => cb({ status: err }));
+        return;
+      }
+
       var formData = new FormData();
       formData.append('AuditorId', userId);
       formData.append('SiteId', SiteId);
       formData.append('SM', SM);
-      console.log('formData status', formData);
-  
-      fetch(sURL + GetAuditStats, {
+
+      const promise = fetch(sURL + GetAuditStats, {
         method: 'POST',
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -248,17 +255,21 @@ import {
       })
         .then(resp => resp.json())
         .then(data => {
-          console.log('scedule', data);
+          this._auditStatsCache[key] = { promise: null, data };
           cb({
             data,
           });
+          return data;
         })
-        .catch(data => {
+        .catch(err => {
+          this._auditStatsCache[key] = { promise: null, data: null };
           cb({
-            //status: cons.ERROR_500
-            status: data,
+            status: err,
           });
+          throw err;
         });
+
+      this._auditStatsCache[key] = { promise };
     },
   
     auditDetailsapi(auditProps, token, cb) {

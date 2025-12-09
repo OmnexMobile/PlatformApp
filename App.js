@@ -25,6 +25,9 @@ import { persistor } from 'store';
 import { createInspectTable } from 'store/database/inspectStorage';
 import { checkForUpdate } from 'helpers/updateAppAlert';
 import UpdateModal from 'helpers/UpdateModal';
+import { loadGlobalUrls } from 'screens/globalConstant/globalURL';
+import { refreshUrlsFromGlobals } from 'services/AuditPro-Api';
+import { LogBox } from 'react-native';
 
 setupInterceptors();
 
@@ -39,6 +42,30 @@ const Parent = () => {
     };
 
     const [showUpdateModal, setShowUpdateModal] = useState(false);
+    const [reduxReady, setReduxReady] = useState(false);
+    const [navReady, setNavReady] = useState(false);
+    const [splashHidden, setSplashHidden] = useState(false);
+
+    useEffect(() => {
+        LogBox.ignoreAllLogs();
+    }, []);
+
+    useEffect(() => {
+        // Hide only after both redux and navigation are ready, with a safety timeout.
+        const hideSplash = () => {
+            if (splashHidden) return;
+            RNBootSplash.hide({ fade: true }).catch(() => {});
+            setSplashHidden(true);
+        };
+        if (reduxReady && navReady) {
+            hideSplash();
+            return;
+        }
+        const timer = setTimeout(() => {
+            hideSplash();
+        }, 8000);
+        return () => clearTimeout(timer);
+    }, [reduxReady, navReady, splashHidden]);
 
     // useEffect(() => {
     //     const check = async () => {
@@ -59,6 +86,8 @@ const Parent = () => {
 
     useEffect(() => {
         (async () => {
+            await loadGlobalUrls();
+            refreshUrlsFromGlobals();
             await createInspectTable();
         })();
     }, []);
@@ -82,12 +111,25 @@ const Parent = () => {
         <GestureHandlerRootView style={{ flex: 1 }}>
             <View style={[backgroundStyle, { backgroundColor: theme.mode.backgroundColor }]}>
                 <Provider store={store}>
-                    <PersistGate loading={null} persistor={persistor}>
+                    <PersistGate
+                        loading={
+                            <View style={{ flex: 1, backgroundColor: theme.mode.backgroundColor }}>
+                                <StatusBarAndroidIOS />
+                            </View>
+                        }
+                        persistor={persistor}
+                        onBeforeLift={() => setReduxReady(true)}>
                         <AppProvider>
                             <PaperProvider>
                                 <StatusBarAndroidIOS />
-                                <NavigationContainer onReady={() => RNBootSplash.hide()}>
-                                    <AppStack />
+                                <NavigationContainer onReady={() => setNavReady(true)}>
+                                    {!reduxReady || !navReady ? (
+                                        <View style={{ flex: 1, backgroundColor: theme.mode.backgroundColor }}>
+                                            <StatusBarAndroidIOS />
+                                        </View>
+                                    ) : (
+                                        <AppStack />
+                                    )}
                                 </NavigationContainer>
                                 {/* {warningList?.loading ? (x
                         <Loader />

@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigation } from '@react-navigation/native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import CryptoJS from 'react-native-crypto-js';
 import API_URL from 'global/ApiUrl';
 import { LOCAL_STORAGE_VARIABLES, ROUTES } from 'constants/app-constant';
@@ -13,6 +13,7 @@ import globalAuth from '../../../services/Auditpro-Auth';
 import AsyncStorage from '@react-native-community/async-storage';
 import { useDispatch, useSelector } from 'react-redux';
 import ApiUrl from 'global/ApiUrl';
+import { GLOBALSERVER_URL, ensureTrailingSlash, setGlobalUrls } from 'screens/globalConstant/globalURL';
 
 const LoginFunctional = ({}) => {
     const dispatch = useDispatch();
@@ -26,6 +27,8 @@ const LoginFunctional = ({}) => {
         loggingIn: false,
     });
     const [currentToken, setCurrentToken] = useState('');
+    const [serverUrlLoaded, setServerUrlLoaded] = useState(false);
+    const [bootstrappedUrl, setBootstrappedUrl] = useState('');
     // const [currentURL, setCurrentURL] = useState('');
     const {
         profile,
@@ -41,8 +44,7 @@ const LoginFunctional = ({}) => {
         handleSite,
     } = useAppContext();
     const navigation = useNavigation();
-    // const isRegistered = !!appSettings?.serverUrl;
-    const isRegistered = !!globalURL?.serverUrl;
+    const isRegistered = !!(globalURL?.serverUrl || bootstrappedUrl);
     // console.log('currentURL--->login1', currentURL)
     // const isRegistered = currentURL;
 
@@ -61,9 +63,32 @@ const LoginFunctional = ({}) => {
 
     // }, [currentURL])
 
+    useFocusEffect(
+        useCallback(() => {
+            const defaultUrl = ensureTrailingSlash(GLOBALSERVER_URL);
+            handleGlobalURL('serverUrl', defaultUrl);
+            localStorage.storeData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL, defaultUrl);
+            setGlobalUrls({ globalServerUrl: defaultUrl });
+            setBootstrappedUrl(defaultUrl);
+        }, []),
+    );
+
     useEffect(() => {
-        !isRegistered && navigation.navigate(ROUTES.GLOBAL_REGISTER);
-    }, []);
+        (async () => {
+            const storedUrl = await localStorage.getData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL);
+            if (storedUrl) {
+                setBootstrappedUrl(storedUrl);
+                handleGlobalURL('serverUrl', storedUrl);
+            }
+            setServerUrlLoaded(true);
+        })();
+    }, [handleGlobalURL]);
+
+    useEffect(() => {
+        if (serverUrlLoaded && !isRegistered) {
+            navigation.navigate(ROUTES.GLOBAL_REGISTER);
+        }
+    }, [serverUrlLoaded, isRegistered, navigation]);
 
     const handleInputChange = (label, value) => {
         setLoginDetails({

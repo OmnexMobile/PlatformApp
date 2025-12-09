@@ -37,10 +37,16 @@ import {
   // export var sURL = API_URL;
   // export var dpURL = DP_API_URL;
   // export var sURL = 'https://omn-qa-forvia.ewqims.com/auditproapi/api/';
-  export var sURL= AUDITPRO_URL; //Global Server AP/SM
+  export var sURL = AUDITPRO_URL; //Global Server AP/SM
   export var dpURL = DP_API_URL;
-  export const sURLPS = PROBLEMSOLVING_URL; //Problem Solving URL
-   export const globalURL = GLOBALSERVER_URL;
+  export var sURLPS = PROBLEMSOLVING_URL; //Problem Solving URL
+  export var globalURL = GLOBALSERVER_URL;
+
+  export const refreshUrlsFromGlobals = () => {
+    sURL = AUDITPRO_URL;
+    sURLPS = PROBLEMSOLVING_URL;
+    globalURL = GLOBALSERVER_URL;
+  };
 
    
 // export const BaseURL = () => localStorage.getStringItem(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL);
@@ -371,15 +377,22 @@ import {
     },
   
     getstatapi(token, userId, SiteId, SM, cb) {
-      console.log('AuditListStatus', token);
-  
-      var formData = new FormData();
+      const key = `${token || ''}-${SiteId || ''}-${SM || ''}`;
+      if (!this._auditStatsCache) {
+        this._auditStatsCache = {};
+      }
+      const cacheEntry = this._auditStatsCache[key];
+      if (cacheEntry?.promise) {
+        cacheEntry.promise.then(data => cb({ data })).catch(err => cb({ status: err }));
+        return;
+      }
+
+      const formData = new FormData();
       formData.append('AuditorId', userId);
       formData.append('SiteId', SiteId);
       formData.append('SM', SM);
-      console.log('formData status', formData);
-  
-      fetch(sURL + GetAuditStats, {
+
+      const promise = fetch(sURL + GetAuditStats, {
         method: 'POST',
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -389,17 +402,17 @@ import {
       })
         .then(resp => resp.json())
         .then(data => {
-          console.log('scedule', data);
-          cb({
-            data,
-          });
+          this._auditStatsCache[key] = { promise: null, data };
+          cb({ data });
+          return data;
         })
-        .catch(data => {
-          cb({
-            //status: cons.ERROR_500
-            status: data,
-          });
+        .catch(err => {
+          this._auditStatsCache[key] = { promise: null, data: null };
+          cb({ status: err });
+          throw err;
         });
+
+      this._auditStatsCache[key] = { promise };
     },
   
     auditDetailsapi(auditProps, token, cb) {
