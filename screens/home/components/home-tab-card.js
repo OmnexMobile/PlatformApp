@@ -38,10 +38,10 @@ import { Images } from 'theme/Apqp';
 import { APQP_URL, AUDITPRO_URL, GLOBAL_BASE_URL, PROBLEMSOLVING_URL, IC_URL } from 'screens/globalConstant/globalURL';
 import LinearGradient from 'react-native-linear-gradient';
 
-const screenWidth = Dimensions.get("window").width;
-const SECTION_HORIZONTAL_PADDING = 16;
-const CARD_GAP = 12;
-const CARD_WIDTH = (screenWidth - (SECTION_HORIZONTAL_PADDING * 2) - (CARD_GAP * 2)) / 3;
+  const screenWidth = Dimensions.get("window").width;
+  const SECTION_HORIZONTAL_PADDING = 16;
+  const CARD_GAP = 12;
+  const CARD_WIDTH = (screenWidth - (SECTION_HORIZONTAL_PADDING * 2) - (CARD_GAP * 2)) / 3;
 
 const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
   // console.log('tabIndex--------', tabIndex, '--', currentUser, '--', isSupplier)
@@ -157,7 +157,49 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
       },
   ];
 
-  const finalUser = currentUser.replace(/\s+/g, '');
+  const moduleLicenses = currentUserData?.data?.[0]?.ModuleLicense;
+
+  const hasModuleLicense = React.useCallback(
+    (targetId, targetName) => {
+      if (!moduleLicenses) return false;
+      const licenseList = Array.isArray(moduleLicenses) ? moduleLicenses : [moduleLicenses];
+
+      const matchesModule = entry => {
+        if (!entry) return false;
+
+        if (typeof entry === 'number' || typeof entry === 'string') {
+          const numericEntry = Number(entry);
+          const entryLower = typeof entry === 'string' ? entry.toLowerCase() : '';
+          return numericEntry === targetId || entryLower === targetName;
+        }
+
+        if (Array.isArray(entry)) {
+          return entry.some(inner => matchesModule(inner));
+        }
+
+        const moduleId = entry?.ModuleId ?? entry?.moduleId ?? entry?.id ?? entry?.Id;
+        const moduleName = entry?.ModuleName ?? entry?.moduleName ?? entry?.name;
+        const moduleNameLower = typeof moduleName === 'string' ? moduleName.toLowerCase() : '';
+        return Number(moduleId) === targetId || moduleNameLower === targetName;
+      };
+
+      return licenseList.some(license => matchesModule(license));
+    },
+    [moduleLicenses],
+  );
+
+  const hasSupplierManagementLicense = React.useMemo(
+    () => hasModuleLicense(21, 'supplier management'),
+    [hasModuleLicense],
+  );
+  const hasAuditProLicense = React.useMemo(() => hasModuleLicense(2, 'audit pro'), [hasModuleLicense]);
+  const hasApqpPpapLicense = React.useMemo(() => hasModuleLicense(10, 'apqp ppap manager'), [hasModuleLicense]);
+  const hasProblemSolverLicense = React.useMemo(() => hasModuleLicense(13, 'Problem Solver'), [hasModuleLicense]);
+  const hasInspectionControlLicense = React.useMemo(() => hasModuleLicense(17, 'Inspection Control'), [hasModuleLicense]);
+  const hasDoumentProLicense = React.useMemo(() => hasModuleLicense(4, 'Document Pro'), [hasModuleLicense]);
+
+
+
   // console.log(finalUser, 'finalUser');
   // const dataSet = React.useMemo(() => {
   //   // Static data is used for show app based on user 
@@ -190,12 +232,14 @@ const dataSet = React.useMemo(() => {
         }
         // Static data is used for show app based on user
         if (!tabData || tabData.length === 0) return [];
-        if (finalUser === 'AzhalleAnna') return tabData.filter(item => item.id === 1);
-        if (finalUser === 'KRoopa') return tabData.filter(item => item.id === 2);
-        if (finalUser === 'DhanapalSwetha') return tabData.filter(item => [3, 5, 6].includes(item.id));
- 
+        if (hasApqpPpapLicense) return tabData.filter(item => item.id === 1);
+        if (hasAuditProLicense) return tabData.filter(item => item.id === 2);
+        if (hasProblemSolverLicense) return tabData.filter(item => item.id === 3);
+        if (hasInspectionControlLicense) return tabData.filter(item => item.id === 5);
+        if (hasSupplierManagementLicense) return tabData.filter(item => item.id === 6);
+        if (hasDoumentProLicense) return tabData.filter(item => item.id === 6);
         return tabData;
-    }, [data, currentUser, icSettings?.SearchInspectionNeeded]);
+    }, [data, currentUser, icSettings?.SearchInspectionNeeded, hasSupplierManagementLicense, hasAuditProLicense, hasApqpPpapLicense]);
 
   const redirectToPage = async (title, status, category, countValue) => {
     // Reset supplier index to default whenever redirecting from this card
@@ -350,7 +394,7 @@ const dataSet = React.useMemo(() => {
       value?.accessToken,
       value?.userId,
       value?.siteId,
-      0,
+      1,
       (response, data) => {
         const stats = data?.data?.Data;
         if (stats) {

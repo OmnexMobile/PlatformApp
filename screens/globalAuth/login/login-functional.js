@@ -14,6 +14,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 import { useDispatch, useSelector } from 'react-redux';
 import ApiUrl from 'global/ApiUrl';
 import { GLOBALSERVER_URL, ensureTrailingSlash, setGlobalUrls } from 'screens/globalConstant/globalURL';
+import axios from 'axios';
 
 const LoginFunctional = ({}) => {
     const dispatch = useDispatch();
@@ -181,12 +182,28 @@ const LoginFunctional = ({}) => {
     const setProfileCall = async data => {
         console.log('🚀 ~ file: login-functional.js:148,  ~ setProfileCall ~ data', data, '--', data?.Data);
         const APIURL = await localStorage.getData(LOCAL_STORAGE_VARIABLES.IC_API_URL);
-        const settingsRes = await postAPI(`${APIURL}${ApiUrl.IC_SETTINGS}`);
-        if (settingsRes.Success) {
+        // const settingsRes = await postAPI(`${APIURL}${ApiUrl.IC_SETTINGS}`);
+        // if (settingsRes.Success) {
+        //     const settings = {
+        //         ...settingsRes?.Data[0],
+        //     };
+        //     dispatch({ type: 'IC_SETTINGS', icSettings: settings || {} });
+        // }
+        try {
+        const response = await axios.post(`${APIURL}${ApiUrl.IC_SETTINGS}`);
+        
+        if (response.data?.Success) {
             const settings = {
-                ...settingsRes?.Data[0],
+            ...response.data?.Data?.[0],
             };
-            dispatch({ type: 'IC_SETTINGS', icSettings: settings || {} });
+        
+            dispatch({
+            type: 'IC_SETTINGS',
+            icSettings: settings || {},
+            });
+        }
+        } catch (error) {
+        console.error("API Error:", error);
         }
         localStorage.storeData(LOCAL_STORAGE_VARIABLES.Token, data?.Token);
         localStorage.storeData(LOCAL_STORAGE_VARIABLES.UserId, data?.Data[0]?.UserId);

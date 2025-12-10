@@ -250,10 +250,10 @@ const HomeDashboard = () => {
     const getApqpList = async () => {
         const UserFullName = await localStorage.getData(LOCAL_STORAGE_VARIABLES.UserFullName);
         console.log('UserFullName------------', UserFullName);
-        if (UserFullName === 'Azhalle Anna   ') {
+        // if (UserFullName === 'Azhalle Anna   ' || 'Alice Jones') {
             getData()
                 .then(res => {
-                    console.log('async  getdata', res);
+                    console.log('async  getdata apqp', res);
                     APQPAuth.setServerUrl(APQP_URL);
                     getapqpDashboarddata(res); //counts API
                     getTodaysTask(res);
@@ -262,7 +262,7 @@ const HomeDashboard = () => {
                 .catch(e => {
                     console.log('Async aerror', e);
                 });
-        }
+        // }
     };
 
     const getData = async () => {
@@ -292,6 +292,9 @@ const HomeDashboard = () => {
         var Siteid = res.SiteId;
         var TodayTask = 1;
         console.log('API  getTodaysTask', res);
+        console.log('Siteid--->', Siteid);
+        console.log('UserID--->', UserID);
+        console.log('Token--->', Token);
         NetInfo.fetch().then(netStatus => {
             if (netStatus.isConnected) {
                 APQPAuth.calendarapi(UserID, Siteid, Token, TodayTask, (res, data) => {
@@ -433,7 +436,7 @@ const HomeDashboard = () => {
                     }}
                 />
                 {/* Recent Activity */}
-                {currentName === 'Azhalle Anna   ' ?
+                {currentName === 'Azhalle Anna   ' || 'Alice Jones' ?
               
                     <HomeListComponentApqp
                         {...{

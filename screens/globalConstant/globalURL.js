@@ -59,16 +59,24 @@ export const setGlobalUrls = ({
     const baseFromInput = globalBaseUrl || deriveBaseUrl(GLOBALSERVER_URL);
     GLOBAL_BASE_URL = stripTrailingSlash(baseFromInput || GLOBAL_BASE_URL || DEFAULT_URLS.globalBaseUrl);
 
-    // Derive service URLs from base if none explicitly provided.
-    const derivedAuditPro = GLOBAL_BASE_URL ? `${GLOBAL_BASE_URL}/AuditproApi/api/` : DEFAULT_URLS.auditProUrl;
-    const derivedProblemSolving = GLOBAL_BASE_URL ? `${GLOBAL_BASE_URL}/ProblemSolverAPI/` : DEFAULT_URLS.problemSolvingUrl;
-    const derivedApqp = GLOBAL_BASE_URL ? `${GLOBAL_BASE_URL}/APQPAPI/` : DEFAULT_URLS.apqpUrl;
-    const derivedIc = GLOBAL_BASE_URL ? `${GLOBAL_BASE_URL}/InspectionControlAPI/api/` : DEFAULT_URLS.icUrl;
+    // Normalize service URLs to the base host; avoid accidental platformapi paths.
+    const deriveFromBase = (suffix, explicitUrl, currentUrl, defaultUrl) => {
+        const desired = GLOBAL_BASE_URL ? `${GLOBAL_BASE_URL}${suffix}` : defaultUrl;
+        const normalizedExplicit = ensureTrailingSlash(explicitUrl || '');
+        const normalizedCurrent = ensureTrailingSlash(currentUrl || '');
+        const lowerExplicit = normalizedExplicit.toLowerCase();
+        const looksLikePlatformApi = lowerExplicit.includes('/platformapi/');
+        const looksLikeBaseApi = lowerExplicit.includes('/platformapi/api/');
+        if (normalizedExplicit && !looksLikePlatformApi && !looksLikeBaseApi) return normalizedExplicit;
+        if ((looksLikePlatformApi || looksLikeBaseApi) && desired) return ensureTrailingSlash(desired);
+        if (normalizedCurrent) return normalizedCurrent;
+        return ensureTrailingSlash(desired || defaultUrl);
+    };
 
-    AUDITPRO_URL = ensureTrailingSlash(auditProUrl || AUDITPRO_URL || derivedAuditPro);
-    PROBLEMSOLVING_URL = ensureTrailingSlash(problemSolvingUrl || PROBLEMSOLVING_URL || derivedProblemSolving);
-    APQP_URL = ensureTrailingSlash(apqpUrl || APQP_URL || derivedApqp);
-    IC_URL = ensureTrailingSlash(icUrl || IC_URL || derivedIc);
+    AUDITPRO_URL = deriveFromBase('/AuditproApi/api/', auditProUrl, AUDITPRO_URL, DEFAULT_URLS.auditProUrl);
+    PROBLEMSOLVING_URL = deriveFromBase('/ProblemSolverAPI/', problemSolvingUrl, PROBLEMSOLVING_URL, DEFAULT_URLS.problemSolvingUrl);
+    APQP_URL = deriveFromBase('/APQPAPI/', apqpUrl, APQP_URL, DEFAULT_URLS.apqpUrl);
+    IC_URL = deriveFromBase('/InspectionControlAPI/api/', icUrl, IC_URL, DEFAULT_URLS.icUrl);
     try {
         // Refresh runtime API URLs without creating an import cycle at module load.
         const { refreshUrlsFromGlobals } = require('../../services/AuditPro-Api');

@@ -31,7 +31,7 @@ export const HomeListComponent = ({ title, data, loading, statusCode, hideSeeAll
                                     title,
                                     data,
                                 });
-                            } else if (currentName === 'Azhalle Anna   ') {
+                            } else if (currentName === 'Azhalle Anna   ' || 'Alice Jones') {
                                 navigation.navigate(ROUTES.HOME_LIST_APQP, {
                                     statusCode,
                                     title,
@@ -61,9 +61,9 @@ export const HomeListComponent = ({ title, data, loading, statusCode, hideSeeAll
                         ['AuditPro', 'Supplier Initial Assessment', 'Supplier Routine Audit'].includes(item.Module_name) ? (
                             <ListCardLogoSM key={index} item={item} handleRecentActivity={handleRecentActivity} />
                         ) :
-                        currentName === 'Azhalle Anna   ' ? (
+                        currentName === 'Azhalle Anna   ' || 'Alice Jones'? (
                             <ListCardLogoApqp key={index} item={item} handleRecentActivity={handleRecentActivity} statusCode={statusCode} />
-                        ) : currentName !== 'Azhalle Anna   ' ? (
+                        ) : currentName !== 'Azhalle Anna   ' || 'Alice Jones' ? (
                             <ListCardLogo key={index} item={item} handleRecentActivity={handleRecentActivity} statusCode={statusCode} />
                         ) : null
 

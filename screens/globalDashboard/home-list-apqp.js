@@ -31,7 +31,8 @@ export const HomeListComponentApqp = ({ title, data, loading, statusCode, hideSe
                                     title,
                                     data,
                                 });
-                            } else if (currentName === 'Azhalle Anna   ') {
+                            } else if (currentName === 'Azhalle Anna   ' || 'Alice Jones') {
+                                console.log('navigating to apqp list alice');
                                 navigation.navigate(ROUTES.HOME_LIST_APQP, {
                                     statusCode,
                                     title,
@@ -62,7 +63,7 @@ export const HomeListComponentApqp = ({ title, data, loading, statusCode, hideSe
                             <ListCardLogoSM key={index} item={item} handleRecentActivity={handleRecentActivity} />
                         ) :
                        
-                        currentName === 'Azhalle Anna   ' ? (
+                        currentName === 'Azhalle Anna   ' || 'Alice Jones' ? (
                             <ListCardLogoApqp key={index} item={item} handleRecentActivity={handleRecentActivity} statusCode={statusCode} />
                         // ) : currentName !== 'Azhalle Anna   ' ? (
                         //     <ListCardLogo key={index} item={item} handleRecentActivity={handleRecentActivity} statusCode={statusCode} />
