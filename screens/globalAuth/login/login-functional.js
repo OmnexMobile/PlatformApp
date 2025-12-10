@@ -65,24 +65,34 @@ const LoginFunctional = ({}) => {
 
     useFocusEffect(
         useCallback(() => {
-            const defaultUrl = ensureTrailingSlash(GLOBALSERVER_URL);
-            handleGlobalURL('serverUrl', defaultUrl);
-            localStorage.storeData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL, defaultUrl);
-            setGlobalUrls({ globalServerUrl: defaultUrl });
-            setBootstrappedUrl(defaultUrl);
-        }, []),
-    );
+            let isActive = true;
+            const bootstrapUrl = async () => {
+                const storedUrl = await localStorage.getData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL);
+                const registeredUrl = await localStorage.getData(LOCAL_STORAGE_VARIABLES.globalRegister);
+                const persistedAuthUrl = await AsyncStorage.getItem('storedserverrul');
+                const fallbackUrl = ensureTrailingSlash(GLOBALSERVER_URL);
+                const resolvedUrl = ensureTrailingSlash(storedUrl || registeredUrl || persistedAuthUrl || fallbackUrl || '');
 
-    useEffect(() => {
-        (async () => {
-            const storedUrl = await localStorage.getData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL);
-            if (storedUrl) {
-                setBootstrappedUrl(storedUrl);
-                handleGlobalURL('serverUrl', storedUrl);
-            }
-            setServerUrlLoaded(true);
-        })();
-    }, [handleGlobalURL]);
+                if (!isActive) return;
+
+                if (resolvedUrl) {
+                    handleGlobalURL('serverUrl', resolvedUrl);
+                    setGlobalUrls({ globalServerUrl: resolvedUrl });
+                    globalAuth.setServerUrl(resolvedUrl);
+                    setBootstrappedUrl(resolvedUrl);
+                    await localStorage.storeData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL, resolvedUrl);
+                    await AsyncStorage.setItem('storedserverrul', resolvedUrl);
+                } else {
+                    setBootstrappedUrl('');
+                }
+                setServerUrlLoaded(true);
+            };
+            bootstrapUrl();
+            return () => {
+                isActive = false;
+            };
+        }, [handleGlobalURL]),
+    );
 
     useEffect(() => {
         if (serverUrlLoaded && !isRegistered) {

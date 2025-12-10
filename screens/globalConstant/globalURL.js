@@ -1,16 +1,17 @@
 import { LOCAL_STORAGE_VARIABLES } from 'constants/app-constant';
 import localStorage from 'global/localStorage';
+import AsyncStorage from '@react-native-community/async-storage';
 
-const globalServerUrl = 'https://mobility-dev.ewqims.com/EwQIMSAPI/api/';
+const globalServerUrl = null;
 const globalBaseUrl = globalServerUrl ? globalServerUrl.replace(/^(https?:\/\/[^/]+).*/, '$1') : '';
 
 const DEFAULT_URLS = {
     globalServerUrl: globalServerUrl,
     globalBaseUrl: globalBaseUrl,
-    auditProUrl: globalBaseUrl ? globalBaseUrl + "/AuditproApi/api/" : '',
-    problemSolvingUrl: globalBaseUrl ? globalBaseUrl + "/ProblemSolverAPI/" : '',
-    apqpUrl: globalBaseUrl ? globalBaseUrl + "/APQPAPI/" : '',
-    icUrl: globalBaseUrl ? globalBaseUrl + "/InspectionControlAPI/api/" : '',
+    auditProUrl: globalBaseUrl ? globalBaseUrl + '/AuditproApi/api/' : '',
+    problemSolvingUrl: globalBaseUrl ? globalBaseUrl + '/ProblemSolverAPI/' : '',
+    apqpUrl: globalBaseUrl ? globalBaseUrl + '/APQPAPI/' : '',
+    icUrl: globalBaseUrl ? globalBaseUrl + '/InspectionControlAPI/api/' : '',
 };
 
 export const stripTrailingSlash = url => (url ? url.replace(/\/+$/, '') : url);
@@ -57,10 +58,17 @@ export const setGlobalUrls = ({
     GLOBALSERVER_URL = ensureTrailingSlash(globalServerUrl || GLOBALSERVER_URL || DEFAULT_URLS.globalServerUrl);
     const baseFromInput = globalBaseUrl || deriveBaseUrl(GLOBALSERVER_URL);
     GLOBAL_BASE_URL = stripTrailingSlash(baseFromInput || GLOBAL_BASE_URL || DEFAULT_URLS.globalBaseUrl);
-    AUDITPRO_URL = ensureTrailingSlash(auditProUrl || AUDITPRO_URL || DEFAULT_URLS.auditProUrl);
-    PROBLEMSOLVING_URL = ensureTrailingSlash(problemSolvingUrl || PROBLEMSOLVING_URL || DEFAULT_URLS.problemSolvingUrl);
-    APQP_URL = ensureTrailingSlash(apqpUrl || APQP_URL || DEFAULT_URLS.apqpUrl);
-    IC_URL = ensureTrailingSlash(icUrl || IC_URL || DEFAULT_URLS.icUrl);
+
+    // Derive service URLs from base if none explicitly provided.
+    const derivedAuditPro = GLOBAL_BASE_URL ? `${GLOBAL_BASE_URL}/AuditproApi/api/` : DEFAULT_URLS.auditProUrl;
+    const derivedProblemSolving = GLOBAL_BASE_URL ? `${GLOBAL_BASE_URL}/ProblemSolverAPI/` : DEFAULT_URLS.problemSolvingUrl;
+    const derivedApqp = GLOBAL_BASE_URL ? `${GLOBAL_BASE_URL}/APQPAPI/` : DEFAULT_URLS.apqpUrl;
+    const derivedIc = GLOBAL_BASE_URL ? `${GLOBAL_BASE_URL}/InspectionControlAPI/api/` : DEFAULT_URLS.icUrl;
+
+    AUDITPRO_URL = ensureTrailingSlash(auditProUrl || AUDITPRO_URL || derivedAuditPro);
+    PROBLEMSOLVING_URL = ensureTrailingSlash(problemSolvingUrl || PROBLEMSOLVING_URL || derivedProblemSolving);
+    APQP_URL = ensureTrailingSlash(apqpUrl || APQP_URL || derivedApqp);
+    IC_URL = ensureTrailingSlash(icUrl || IC_URL || derivedIc);
     try {
         // Refresh runtime API URLs without creating an import cycle at module load.
         const { refreshUrlsFromGlobals } = require('../../services/AuditPro-Api');
@@ -74,16 +82,21 @@ export const setGlobalUrls = ({
 
 // Load persisted URLs and update the shared bindings. Falls back to defaults.
 export const loadGlobalUrls = async () => {
-    const [storedServerUrl, storedDeviceDetails] = await Promise.all([
+    const [storedServerUrl, storedRegisterUrl, storedDeviceDetails, storedAuthUrl] = await Promise.all([
         localStorage.getData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL),
+        localStorage.getData(LOCAL_STORAGE_VARIABLES.globalRegister),
         localStorage.getData(LOCAL_STORAGE_VARIABLES.GLOBAL_DEVICE_STATUS),
+        AsyncStorage.getItem('storedserverrul'),
     ]);
 
+    const resolvedServerUrl = ensureTrailingSlash(storedServerUrl || storedRegisterUrl || storedAuthUrl || DEFAULT_URLS.globalServerUrl);
+    const resolvedBase = stripTrailingSlash(deriveBaseUrl(resolvedServerUrl) || DEFAULT_URLS.globalBaseUrl);
     setGlobalUrls({
-        globalServerUrl: storedServerUrl,
-        auditProUrl: storedDeviceDetails?.AuditProURL,
-        problemSolvingUrl: storedDeviceDetails?.PSApiURL,
-        apqpUrl: storedDeviceDetails?.APQPApiURL,
-        icUrl: storedDeviceDetails?.ICApiURL,
+        globalServerUrl: resolvedServerUrl,
+        globalBaseUrl: resolvedBase,
+        auditProUrl: storedDeviceDetails?.AuditProURL || (resolvedBase ? `${resolvedBase}/AuditproApi/api/` : DEFAULT_URLS.auditProUrl),
+        problemSolvingUrl: storedDeviceDetails?.PSApiURL || (resolvedBase ? `${resolvedBase}/ProblemSolverAPI/` : DEFAULT_URLS.problemSolvingUrl),
+        apqpUrl: storedDeviceDetails?.APQPApiURL || (resolvedBase ? `${resolvedBase}/APQPAPI/` : DEFAULT_URLS.apqpUrl),
+        icUrl: storedDeviceDetails?.ICApiURL || (resolvedBase ? `${resolvedBase}/InspectionControlAPI/api/` : DEFAULT_URLS.icUrl),
     });
 };
