@@ -186,7 +186,7 @@ const RegisterFunctional = ({}) => {
             //     deviceStatusSettings: data?.Data || {},
             // });
             // localStorage.storeData(LOCAL_STORAGE_VARIABLES.DEVICE_STATUS_SETTINGS, data?.Data);
-            console.log('state?.globalServerURL-->', state?.globalServerURL, '--', globalServerUrl);
+            // console.log('state?.globalServerURL-->', state?.globalServerURL, '--', globalServerUrl);
             handleGlobalURL('serverUrl', targetUrl);
             localStorage.storeData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL, targetUrl);
             localStorage.storeData(LOCAL_STORAGE_VARIABLES.globalRegister, targetUrl);

@@ -182,28 +182,31 @@ const LoginFunctional = ({}) => {
     const setProfileCall = async data => {
         console.log('🚀 ~ file: login-functional.js:148,  ~ setProfileCall ~ data', data, '--', data?.Data);
         const APIURL = await localStorage.getData(LOCAL_STORAGE_VARIABLES.IC_API_URL);
-        // const settingsRes = await postAPI(`${APIURL}${ApiUrl.IC_SETTINGS}`);
-        // if (settingsRes.Success) {
-        //     const settings = {
-        //         ...settingsRes?.Data[0],
-        //     };
-        //     dispatch({ type: 'IC_SETTINGS', icSettings: settings || {} });
-        // }
+       
         try {
-        const response = await axios.post(`${APIURL}${ApiUrl.IC_SETTINGS}`);
-        
-        if (response.data?.Success) {
-            const settings = {
-            ...response.data?.Data?.[0],
-            };
-        
-            dispatch({
-            type: 'IC_SETTINGS',
-            icSettings: settings || {},
+            const res = await fetch(`${APIURL}${ApiUrl.IC_SETTINGS}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                // body: JSON.stringify(payload)  // include if you have any request body
             });
-        }
+ 
+            const data = await res.json();
+ 
+            if (data?.Success) {
+                console.log(data?.Data,'data?.Data')
+                const settings = {
+                    ...data?.Data?.[0],
+                };
+ 
+                dispatch({
+                    type: 'IC_SETTINGS',
+                    icSettings: settings || {},
+                });
+            }
         } catch (error) {
-        console.error("API Error:", error);
+            console.error('Fetch Error:', error);
         }
         localStorage.storeData(LOCAL_STORAGE_VARIABLES.Token, data?.Token);
         localStorage.storeData(LOCAL_STORAGE_VARIABLES.UserId, data?.Data[0]?.UserId);

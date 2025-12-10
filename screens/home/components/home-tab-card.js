@@ -35,7 +35,7 @@ import { Bubbles } from 'react-native-loader';
 import { useDispatch, useSelector } from 'react-redux';
 import { showMessage } from 'react-native-flash-message';
 import { Images } from 'theme/Apqp';
-import { APQP_URL, AUDITPRO_URL, GLOBAL_BASE_URL, PROBLEMSOLVING_URL, IC_URL } from 'screens/globalConstant/globalURL';
+import { APQP_URL, AUDITPRO_URL, GLOBAL_BASE_URL, PROBLEMSOLVING_URL, IC_URL, ensureTrailingSlash } from 'screens/globalConstant/globalURL';
 import LinearGradient from 'react-native-linear-gradient';
 
   const screenWidth = Dimensions.get("window").width;
@@ -440,8 +440,14 @@ const dataSet = React.useMemo(() => {
         redirectToPage(title, status, category, countValue)
       // PROBLEMSOLVER //
       } else if (title === strings.problemSolver) {
-        currentGlobalURL = globalDeviceDetails?.deviceDetails?.PSApiURL ? globalDeviceDetails?.deviceDetails?.PSApiURL: PROBLEMSOLVING_URL;
+        const psUrl = globalDeviceDetails?.deviceDetails?.PSApiURL || PROBLEMSOLVING_URL;
+        const psBase =
+            GLOBAL_BASE_URL ||
+            (psUrl ? psUrl.replace(/^(https?:\/\/[^/]+).*/, '$1') : '');
+        const normalizedPs = psBase ? `${psBase}/ProblemSolverAPI/` : psUrl;
+        currentGlobalURL = ensureTrailingSlash(normalizedPs);
         console.log('current click--->', strings.problemSolver,'--', category.replace(/\n/g, ' '),'--', category, '--')
+        localStorage.storeData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL, currentGlobalURL);
         storeUrl(currentGlobalURL, strings.problemSolver);
         navigateToStatusCount(category.replace(/\n/g, ' '));
       // APQP //
@@ -488,6 +494,7 @@ const dataSet = React.useMemo(() => {
       } else if (title === strings.inspectionControl) {
         console.log('IC API URL--->', globalDeviceDetails?.deviceDetails?.ICApiURL, IC_URL)
         currentGlobalURL = globalDeviceDetails?.deviceDetails?.ICApiURL ? globalDeviceDetails?.deviceDetails?.ICApiURL: IC_URL;
+        localStorage.storeData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL, currentGlobalURL);
         storeUrl(currentGlobalURL, strings.inspectionControl);
         setLoading(true);
         navigations.navigate(routeName);

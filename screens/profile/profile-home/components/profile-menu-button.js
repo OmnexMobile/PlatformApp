@@ -3,16 +3,17 @@ import { View, ActivityIndicator, StyleSheet, Modal } from 'react-native';
 import Ripple from 'react-native-material-ripple';
 import { useNavigation } from '@react-navigation/core';
 import { COLORS, FONT_SIZE } from 'constants/theme-constants';
-import { FONT_TYPE } from 'constants/app-constant';
+import { FONT_TYPE, LOCAL_STORAGE_VARIABLES } from 'constants/app-constant';
 import useTheme from 'theme/useTheme';
 import { IconComponent, TextComponent } from 'components';
+import localStorage from 'global/localStorage';
 
 const ProfileMenuButton = ({ menu, getProfileReset }) => {
   const [loading, setLoading] = useState(false);
   const navigation = useNavigation();
   const { theme } = useTheme();
 
-  const handleMenu = (menu) => {
+  const handleMenu = async (menu) => {
 		console.log("menu click", menu);
     // if (menu?.link) {
     //   console.log("menu.link", menu.link);
@@ -21,6 +22,10 @@ const ProfileMenuButton = ({ menu, getProfileReset }) => {
 		// setLoading(true);
     if (menu?.route) {
       setLoading(true);
+      if (menu.title == 'Logout') {
+            const globURL = await localStorage.getData(LOCAL_STORAGE_VARIABLES.globalRegister);
+            await localStorage.storeData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL, globURL);
+        }
       setTimeout(() => {
         setLoading(false);
         navigation.navigate(menu.route);
