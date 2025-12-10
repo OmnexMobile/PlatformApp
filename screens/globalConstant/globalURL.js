@@ -1,13 +1,16 @@
 import { LOCAL_STORAGE_VARIABLES } from 'constants/app-constant';
 import localStorage from 'global/localStorage';
 
+const globalServerUrl = 'https://mobility-dev.ewqims.com/EwQIMSAPI/api/';
+const globalBaseUrl = globalServerUrl ? globalServerUrl.replace(/^(https?:\/\/[^/]+).*/, '$1') : '';
+
 const DEFAULT_URLS = {
-    globalServerUrl: 'https://mobility-dev.ewqims.com/EwQIMSAPI/api/',
-    globalBaseUrl: 'https://mobility-dev.ewqims.com',
-    auditProUrl: 'https://mobility-dev.ewqims.com/AuditproApi/api/',
-    problemSolvingUrl: 'https://mobility-dev.ewqims.com/ProblemSolverAPI/',
-    apqpUrl: 'https://mobility-dev.ewqims.com/APQPAPI/',
-    icUrl: 'https://mobility-dev.ewqims.com/InspectionControlAPI/api/',
+    globalServerUrl: globalServerUrl,
+    globalBaseUrl: globalBaseUrl,
+    auditProUrl: globalBaseUrl ? globalBaseUrl + "/AuditproApi/api/" : '',
+    problemSolvingUrl: globalBaseUrl ? globalBaseUrl + "/ProblemSolverAPI/" : '',
+    apqpUrl: globalBaseUrl ? globalBaseUrl + "/APQPAPI/" : '',
+    icUrl: globalBaseUrl ? globalBaseUrl + "/InspectionControlAPI/api/" : '',
 };
 
 export const stripTrailingSlash = url => (url ? url.replace(/\/+$/, '') : url);

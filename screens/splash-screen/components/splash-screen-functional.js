@@ -21,7 +21,7 @@ const SplashScreenFunctional = ({}) => {
             navigation.reset({
                 index: 0,
                 // routes: [{ name: token?.length > 0 ? ROUTES.HOME_FAB_VIEW : ROUTES.GLOBAL_LOGIN }],
-                routes: [{ name: token?.length > 0 ? ROUTES.GLOBAL_DASHBOARD : ROUTES.GLOBAL_LOGIN }],
+                routes: [{ name: token?.length > 0 ? ROUTES.GLOBAL_DASHBOARD : ROUTES.GLOBAL_REGISTER }],
             });
     }, [loading]);
 

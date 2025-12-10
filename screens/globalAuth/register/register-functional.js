@@ -3,7 +3,7 @@ import { useNavigation } from '@react-navigation/native';
 import { getUniqueId } from 'react-native-device-info';
 import { postAPI } from 'global/api-helpers';
 import API_URL from 'global/ApiUrl';
-import { LOCAL_STORAGE_VARIABLES } from 'constants/app-constant';
+import { LOCAL_STORAGE_VARIABLES, ROUTES } from 'constants/app-constant';
 import localStorage from 'global/localStorage';
 import { useAppContext } from 'contexts/app-context';
 import { formReq, showErrorMessage, successMessage } from 'helpers/utils';
@@ -38,7 +38,7 @@ export const registerDevice = async (requestURL, request, type) => {
     const url = requestURL?.endsWith('/') ? `${requestURL}RegisterDevice` : `${requestURL}/RegisterDevice`;
     const req = formReq({
         ...request,
-        Active: type === REGISTER_TYPES?.REGISTER ? 'true' : type === REGISTER_TYPES?.LOGOUT ? 'false' : '0',
+        Active: type === REGISTER_TYPES?.REGISTER ? 'true' : 'false',
         IsDeleted: type === REGISTER_TYPES?.REGISTER ? '0' : '1',
         RegisteredDate: today,
         UnRegisteredDate: today,
@@ -77,8 +77,9 @@ const RegisterFunctional = ({}) => {
     const { appSettings, handleAppSetting, globalURL, handleGlobalURL, globalDeviceDetails, handleDeviceDetails } = useAppContext();
     const [loading, setLoading] = useState(false);
     const [state, setState] = useState({
-        serverUrl: appSettings?.serverUrl || defaultGlobalServerUrl,
-        globalServerURL: defaultGlobalServerUrl,
+        // keep input blank on load; we still know registration status separately
+        serverUrl: '',
+        globalServerURL: '',
         deviceId: getUniqueId(),
     });
     const [currentURL, setCurrentURL] = useState('');
@@ -99,16 +100,6 @@ const RegisterFunctional = ({}) => {
 
     console.log('editable currentURL-->', currentURL, 'isregistered-->', !!currentURL);
 
-    React.useEffect(() => {
-        if (currentURL) {
-            setState({
-                ...state,
-                globalServerURL: currentURL,
-                serverUrl: currentURL,
-            });
-        }
-    }, [currentURL]);
-
     // React.useEffect(() => {
     //     if (appSettings?.serverUrl) {
     //         setState({
@@ -119,13 +110,29 @@ const RegisterFunctional = ({}) => {
     // }, [appSettings?.serverUrl]);
 
     React.useEffect(() => {
+        let isActive = true;
         async function fetchData() {
-            const currentUrl = await localStorage.getData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL);
-            console.log('currentURL--->login', currentUrl);
-            setCurrentURL(currentUrl);
+            const [storedServerUrl, storedRegisterUrl] = await Promise.all([
+                localStorage.getData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL),
+                localStorage.getData(LOCAL_STORAGE_VARIABLES.globalRegister),
+            ]);
+            const resolved = ensureTrailingSlash(storedServerUrl || storedRegisterUrl || '');
+            if (!isActive) return;
+            console.log('currentURL--->login', resolved);
+            setCurrentURL(resolved);
+            if (resolved) {
+                setState(prev => ({
+                    ...prev,
+                    serverUrl: resolved,
+                    globalServerURL: resolved,
+                }));
+            }
         }
         fetchData();
-    }, [currentURL]);
+        return () => {
+            isActive = false;
+        };
+    }, []);
 
     const handleChange = (label, value) => {
         const updates = { [label]: value };
@@ -156,7 +163,7 @@ const RegisterFunctional = ({}) => {
 
     const getDeviceStatus = async () => {
         const deviceId = await getUniqueId();
-        const targetUrl = ensureTrailingSlash(state?.serverUrl || state?.globalServerURL || defaultGlobalServerUrl);
+        const targetUrl = ensureTrailingSlash(state?.serverUrl || state?.globalServerURL);
         await AsyncStorage.setItem('deviceid', deviceId);
         console.log('set deviceId', deviceId);
         const req = formReq({
@@ -292,7 +299,10 @@ const RegisterFunctional = ({}) => {
                     if (data?.Success) {
                         console.log('🚀 ~ file: register-functional.js:236 ~ handleRegister ~ data:', data);
                         localStorage.storeData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL, targetUrl);
-                        navigation.goBack();
+                        navigation.reset({
+                            index: 0,
+                            routes: [{ name: ROUTES.GLOBAL_LOGIN }],
+                        });
                         const deviceStatusURL = await getDeviceStatus();
                         const auditProUrl = ensureTrailingSlash(deviceStatusURL?.AuditProURL);
                         if (auditProUrl) {

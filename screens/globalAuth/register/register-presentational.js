@@ -33,16 +33,19 @@ const RegisterPresentational = ({ navigation, handleChange, state, handleRegiste
                     <ImageComponent source={IMAGES.omnexLogo} resizeMode="contain" style={{ height: RFPercentage(10), width: '100%' }} />
                 </AnimatableView>
                 <AnimatableView animationConfig={OPACITY_TRANSLATE_Y_ANIMATION} delay={500} style={{ flex: 6 }}>
-                    <LoginInput {...{ 
-                        value: currentURL, 
-                        label: strings.Server_Url, 
-                        name: 'serverUrl', 
-                        onChangeText: handleChange, 
-                        placeholder:'Enter API URL', 
-                        editable: !isRegistered }} />
+                    <LoginInput
+                        {...{
+                            value: currentURL,
+                            label: strings.Server_Url,
+                            name: 'serverUrl',
+                            onChangeText: handleChange,
+                            placeholder: 'Enter API URL',
+                            editable: true,
+                        }}
+                    />
                         <GradientButton
                             loading={loading}
-                            disabled={!(currentURL?.length > 1)}
+                            disabled={isRegistered ? false : !(currentURL?.length > 1)}
                             onPress={isRegistered ? handleUnRegister : handleRegister}>
                             {isRegistered ? strings.Unregister : strings.Register}
                         </GradientButton>
