@@ -29,12 +29,13 @@ const LogoutFunctional = () => {
     console.log('current appSettings', appSettings)
     
     useEffect(() => {
-        !profile?.Token &&
+        if (!profile?.Token) {
             navigation.reset({
                 index: 0,
-                routes: [{ name: ROUTES.SPLASH_SCREEN }],
+                routes: [{ name: ROUTES.GLOBAL_LOGIN }],
             });
-    }, [profile]);
+        }
+    }, [profile, navigation]);
 
     // const getUserDetails = async () => {
     //     try {
