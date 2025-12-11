@@ -25,6 +25,8 @@ import { deleteInspectionByUniqueId, getInspectionDataByUserAndSite } from 'stor
 import { isArray } from 'underscore';
 import { showErrorMessage } from 'helpers/utils';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-community/async-storage';
+
 
 const optionsList = [
     {
@@ -89,6 +91,13 @@ const CompletedInspection = () => {
         setMasterData(completedList?.length ? completedList : []);
         setShowSkeleton(false);
         setRefreshing(false);
+        const countIC = await AsyncStorage.getItem('countIC');
+        if (countIC) {
+            const parsedData = JSON.parse(countIC);
+            parsedData.operatorList = inspectList?.length || 0;
+            parsedData.completed=completedList.length || 0;
+            AsyncStorage.setItem('countIC', JSON.stringify(parsedData));
+        }
     };
 
     const onRefresh = () => {

@@ -24,6 +24,7 @@ import APQPAuth from '../../services/APQP-Auth';
 import { APQP_URL, PROBLEMSOLVING_URL } from 'screens/globalConstant/globalURL';
 import { getDashboardConcernCounts, getTodayConcernList } from 'screens/home/home.action';
 import { HomeListComponentApqp } from './home-list-apqp';
+import { getInspectionDataByUserAndSite } from 'store/database/inspectStorage';
 
 const HomeDashboard = () => {
     const { theme } = useTheme();
@@ -82,11 +83,10 @@ const HomeDashboard = () => {
     const recentActivityPS = recentActivities.filter(item => !item.ProjectDescription);
     console.log('222 Recent Activity:', recentActivityPS);
 
-    useEffect(async () => {
+    useEffect(() => {
         const fetchUserDetails = async () => {
             const userDetailsString = await AsyncStorage.getItem('userDetails');
             const userDetails = userDetailsString ? JSON.parse(userDetailsString) : null;
-
             if (userDetails) {
                 setuserDetailsAudit(userDetails);
                 setaccessToken(userDetails.accessToken);
@@ -113,11 +113,12 @@ const HomeDashboard = () => {
         if (accessToken && siteId && userId) {
             console.log('inside isFocused----->1');
             getApqpList();
+            getICList();
         }
     }, [isFocused]);
 
     useEffect(() => {
-        async function fetchData() {
+        const fetchData = async () => {
             const UserFullName = await localStorage.getData(LOCAL_STORAGE_VARIABLES.UserFullName);
             console.log('UserFullName------------', UserFullName);
             setCurrentName(UserFullName);
@@ -275,6 +276,18 @@ const HomeDashboard = () => {
         // }
     };
 
+    const getICList=async()=>{
+        const OpList = await getInspectionDataByUserAndSite(userId, siteId);
+        const completedList = OpList?.filter(item => item?.status === 'Completed' || item?.status === 'In Progress');
+        const OverAllCount = {
+            inspection:0, // api data need to add
+            search:0, // api data need to add
+            completed: completedList?.length || 0,
+            operatorList: OpList?.length || 0,
+        }
+        AsyncStorage.setItem('countIC', JSON.stringify(OverAllCount));
+    }
+
     const getData = async () => {
         try {
             var userdata = [];
@@ -318,7 +331,6 @@ const HomeDashboard = () => {
             }
         });
     };
-
     const getapqpDashboarddata = async res => {
         console.log('API_Calls------------------>1');
         console.log('calling dashboard api counts');

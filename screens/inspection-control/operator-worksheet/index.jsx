@@ -16,6 +16,7 @@ import { postAPI } from 'global/api-helpers';
 import IcSkeleton from '../Components/IcSkeleton';
 import { deleteInspectionByUniqueId, getDatabaseSize, getInspectionDataByUserAndSite } from 'store/database/inspectStorage';
 import ICScrollTab from '../Components/ICScrollTab';
+import AsyncStorage from '@react-native-community/async-storage';
 
 const OperatorWorksheet = () => {
     const { icUserData } = useSelector(state => state.inspection);
@@ -39,6 +40,14 @@ const OperatorWorksheet = () => {
         }
         setInspectionList(list);
         setShowSkeleton(false);
+        const countIC = await AsyncStorage.getItem('countIC');
+        if (countIC) {
+            const parsedData = JSON.parse(countIC);
+            const completedList = list?.filter(item => item?.status === 'Completed' || item?.status === 'In Progress');
+            parsedData.operatorList = list?.length || 0;
+            parsedData.completed=completedList.length || 0;
+            AsyncStorage.setItem('countIC', JSON.stringify(parsedData));
+        }
     };
     const handleCIbtnpress = () => {
         navigation.navigate(ROUTES.COMPLETED_INSPECTION);
@@ -102,7 +111,7 @@ const OperatorWorksheet = () => {
                 hasMissingStatus = true;
             }
         }
-       
+
         // 🔑 Priority Logic
         if (hasInprogress) {
             return { colorCode: COLORS.ipBgColor, status: 'In Progress' };

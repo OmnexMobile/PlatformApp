@@ -62,6 +62,7 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
   const [routineStats, setRoutineStats] = useState(null);
   const [detail, setDetail] = useState([]);
   const { icSettings } = useSelector(state => state.inspection);
+  const [icCount,setIcCount]= useState(null);
  
   const psCounts = useSelector (state => state?.homeRedux?.dashboardConcernCounts?.countDetails ?? null);
   // console.log('PS Counts:', psCounts);
@@ -111,9 +112,9 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
       id: 5,
       title: tabIndex === 0 ? strings.inspectionControl : null,
       detail: tabIndex === 0 ? [
-        { images: IMAGES.ICIS, category: strings.inspectionSchedule, status: 1, routeName: ROUTES.INSPECTION_SCHEDULE },
-        { images: IMAGES.ICOS, category: strings.operatorWorksheet, status: 2, routeName: ROUTES.OPERATOR_WORKSHEET },
-        { images: IMAGES.ICCI, category: strings.completedInspection, status: 3, routeName: ROUTES.COMPLETED_INSPECTION },
+        { images: IMAGES.ICIS, category: strings.inspectionSchedule, status: icCount?.inspection ? icCount?.inspection : 0, routeName: ROUTES.INSPECTION_SCHEDULE },
+        { images: IMAGES.ICOS, category: strings.operatorWorksheet, status: icCount?.operatorList ?icCount?.operatorList : 0, routeName: ROUTES.OPERATOR_WORKSHEET },
+        { images: IMAGES.ICCI, category: strings.completedInspection, status: icCount?.completed ? icCount?.completed : 0, routeName: ROUTES.COMPLETED_INSPECTION },
       //   { images: IMAGES.ICSS, category: strings.supervisorSchedule, status: 4, routeName: ROUTES.SUPERVISOR_SCHEDULE },
       ] : [],
     },
@@ -220,7 +221,7 @@ const dataSet = React.useMemo(() => {
                         ? {
                               images: IMAGES.ICIS,
                               category: strings.searchInspection,
-                              status: 1,
+                              status: icCount?.search ? icCount?.search : 0,
                               routeName: ROUTES.SEARCH_INSPECTION,
                           }
                         : detailItem,
@@ -343,9 +344,15 @@ const dataSet = React.useMemo(() => {
         console.log('countAPQP parsedData------------', parsedData);
         setApqpCount(parsedData);
       }
+      const countIC = await AsyncStorage.getItem('countIC');
+      if(countIC){
+        const parsedData = JSON.parse(countIC);
+        console.log('countIC parsedData------------1', parsedData);
+        setIcCount(parsedData);
+      }
     };
     loadCountData();
-  }, []);
+  }, [isFocused]);
 
   const getAuditStatusDetails = async value => {
     console.log('checkgetuserDetailsss------', value);
