@@ -2,7 +2,7 @@ import { StyleSheet, Dimensions } from "react-native";
 import { Metrics, ApplicationStyles } from "../../themes";
 import Fonts from "../../themes/Fonts";
 import { width, height } from "react-native-dimension";
-import { android15FooterPadding } from "../../../auditPro/Themes/AndroidInsets";
+// import { android15FooterPadding } from "../../../auditPro/Themes/AndroidInsets";
 
 let Window = Dimensions.get("window");
 
@@ -328,7 +328,8 @@ export default StyleSheet.create({
     height: 60,
     backgroundColor: "transparent",
     position: "absolute",
-    bottom: 20 + android15FooterPadding,
+    // bottom: 20 + android15FooterPadding,
+    bottom: 0,
   },
   footerButton2: {
     width: "50%",

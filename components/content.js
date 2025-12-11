@@ -1,11 +1,14 @@
 import React from 'react';
 import { ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { COLORS, SPACING } from 'constants/theme-constants';
+import { SPACING } from 'constants/theme-constants';
 import useTheme from 'theme/useTheme';
 
 const Content = ({ children, noPadding = false, scroll = false, style = {}, contentContainerStyle = {}, ...rest }) => {
     const { theme } = useTheme();
+    const insets = useSafeAreaInsets();
+    const topInset = insets.top;
+    const bottomInset = insets.bottom;
     const Component = scroll ? ScrollView : View;
     return (
         <Component
@@ -16,10 +19,11 @@ const Content = ({ children, noPadding = false, scroll = false, style = {}, cont
                               flexGrow: 1,
                               padding: SPACING.NORMAL,
                               backgroundColor: theme.mode.backgroundColor,
+                              paddingTop: topInset,
+                              paddingBottom: bottomInset,
                               ...contentContainerStyle,
-                              ...(noPadding && { padding: 0 }),
-                              paddingTop: useSafeAreaInsets().top,
                               ...style,
+                              ...(noPadding && { padding: 0, paddingTop: 0, paddingBottom: 0 }),
                           },
                           style: {
                               flex: 1,
@@ -32,9 +36,10 @@ const Content = ({ children, noPadding = false, scroll = false, style = {}, cont
                               flex: 1,
                               backgroundColor: theme.mode.backgroundColor,
                               padding: SPACING.NORMAL,
+                              paddingTop: topInset,
+                              paddingBottom: bottomInset,
                               ...style,
-                              paddingTop: useSafeAreaInsets().top,
-                              ...(noPadding && { padding: 0 }),
+                              ...(noPadding && { padding: 0, paddingTop: 0, paddingBottom: 0 }),
                           },
                       }),
                 ...(noPadding && { padding: 0 }),

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Provider } from 'react-redux';
-import { SafeAreaView, useColorScheme, View } from 'react-native';
+import { useColorScheme, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 // import { Colors } from 'react-native/Libraries/NewAppScreen';
 import FlashMessage from 'react-native-flash-message';
@@ -19,6 +19,7 @@ import ThemeProvider from 'theme/ThemeProvider';
 import useTheme from 'theme/useTheme';
 import { isJailBroken } from 'helpers/utils';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { SafeAreaProvider, initialWindowMetrics, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { PaperProvider } from 'react-native-paper';
 import { PersistGate } from 'redux-persist/integration/react';
 import { persistor } from 'store';
@@ -28,6 +29,7 @@ import UpdateModal from 'helpers/UpdateModal';
 import { loadGlobalUrls } from 'screens/globalConstant/globalURL';
 import { refreshUrlsFromGlobals } from 'services/AuditPro-Api';
 import { LogBox } from 'react-native';
+import { android15FooterPadding, android15HeaderPadding } from './screens/auditPro/Themes/AndroidInsets';
 
 setupInterceptors();
 
@@ -36,9 +38,14 @@ const Parent = () => {
     const isDarkMode = useColorScheme() === 'dark';
     const [warningList, setWarningList] = useState({ loading: true });
     const { isInternetReachable } = useInternetReachable();
+    const insets = useSafeAreaInsets();
+    const topPadding = Math.max(insets.top, android15HeaderPadding);
+    const bottomPadding = Math.max(insets.bottom, android15FooterPadding);
     const backgroundStyle = {
         // backgroundColor: isDarkMode ? COLORS.white : COLORS.white,
         flex: 1,
+        paddingTop: topPadding,
+        paddingBottom: bottomPadding,
     };
 
     const [showUpdateModal, setShowUpdateModal] = useState(false);
@@ -161,9 +168,13 @@ const Parent = () => {
 
 const App = () => {
     return (
-        <ThemeProvider>
-            <Parent />
-        </ThemeProvider>
+        <SafeAreaProvider
+            initialMetrics={initialWindowMetrics}
+            style={{ flex: 1 }}>
+            <ThemeProvider>
+                <Parent />
+            </ThemeProvider>
+        </SafeAreaProvider>
     );
 };
 

@@ -8,14 +8,24 @@ import { ICON_TYPE, OPACITY_ANIMATION, OPACITY_TRANSLATE_Y_ANIMATION } from 'con
 import { COLORS, FONT_SIZE, SPACING } from 'constants/theme-constants';
 import useTheme from 'theme/useTheme';
 import LoginInput from 'screens/auth/login/components/login-input';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const RegisterPresentational = ({ navigation, handleChange, state, handleRegister, isRegistered, handleUnRegister, loading, getDeviceStatus }) => {
     const { theme } = useTheme();
+    const insets = useSafeAreaInsets();
+    const topInset = insets.top;
+    const bottomInset = insets.bottom;
 		console.log('editable check-->',isRegistered, '--',  !isRegistered, state?.globalServerURL,'---', state?.serverUrl)
 		const currentURL = state?.serverUrl ? state?.serverUrl : state?.globalServerURL ;
 		console.log('currentURL--->', currentURL)
     return (
-        <View style={{ flex: 1, backgroundColor: COLORS.white }}>
+        <View
+            style={{
+                flex: 1,
+                backgroundColor: COLORS.white,
+                paddingTop: topInset,
+                paddingBottom: bottomInset,
+            }}>
              {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }        
             {/* need image with transparent background */}
             <ImageComponent style={{ width: '100%', height: '100%', position: 'absolute', zIndex: 0 }} source={IMAGES.loginBack} />
