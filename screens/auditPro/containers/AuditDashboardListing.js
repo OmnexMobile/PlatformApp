@@ -158,7 +158,7 @@ class AuditDashboardListing extends Component {
     var EndDate = '';
     var SortBy = this.state.SortBy;
     var SortOrder = this.state.SortOrder;
-    var SM = this.props?.data?.audits?.smdata;
+    var SM = 1;
     console.log('reach here 001',
           token,
           userId,
@@ -171,7 +171,7 @@ class AuditDashboardListing extends Component {
           EndDate,
           SortBy,
           SortOrder,
-          SM,
+          1,
           1,
     )
     NetInfo.fetch().then(netState => {
@@ -191,7 +191,7 @@ class AuditDashboardListing extends Component {
           EndDate,
           SortBy,
           SortOrder,
-          SM,
+          1,
           1,
           (response, data) => {
             console.log('getauditlist count --->:' + data);
@@ -353,7 +353,7 @@ class AuditDashboardListing extends Component {
       this.props?.data?.audits?.token || this.state.currentUserData?.accessToken,
       this.props?.data?.audits?.userId || this.state.currentUserData?.userId,
       this.props?.data?.audits?.siteId || this.state.currentUserData?.siteId,
-      this.props?.data?.audits?.smdata,
+      1,
       (response, data) => {
         if (data.data) {
           this.props.storeAuditStats(
@@ -432,7 +432,7 @@ class AuditDashboardListing extends Component {
         var EndDate = endDate == undefined ? '' : endDate;
         var SortBy = this.state.SortBy;
         var SortOrder = this.state.SortOrder;
-        var SM = this.props?.data?.audits?.smdata;
+        var SM = 1;
         var Default = this.state.default;
 
         auth.getauditlist(
@@ -447,7 +447,7 @@ class AuditDashboardListing extends Component {
           EndDate,
           SortBy,
           SortOrder,
-          SM,
+          1,
           Default,
           (response, data) => {
             console.log('AuditList todaysactivity data', data);
@@ -1394,7 +1394,7 @@ class AuditDashboardListing extends Component {
         const {userId, token} = this.props?.data?.audits;
         const siteId = this.props?.data?.audits?.siteId;
 
-        var SM = this.props?.data?.audits?.smdata;
+        var SM = 1;
         var GlobalFilter = '',
           StartDate = '',
           EndDate = '';
@@ -1429,7 +1429,7 @@ class AuditDashboardListing extends Component {
           EndDate,
           SortBy,
           SortOrder,
-          SM,
+          1,
           Default,
         )
         auth.getauditlist(
@@ -1447,7 +1447,7 @@ class AuditDashboardListing extends Component {
           EndDate,
           SortBy,
           SortOrder,
-          SM,
+          1,
           Default,
           (response, data) => {
             console.log('trets get audit list', data, 'response', response);

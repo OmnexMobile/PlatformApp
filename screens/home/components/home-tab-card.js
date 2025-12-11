@@ -267,9 +267,11 @@ const dataSet = React.useMemo(() => {
       try {
         const stringifiedUserDetails = await AsyncStorage.getItem('userDetails');
         const value = JSON.parse(stringifiedUserDetails);
+        console.log('checkinguserSiteselection',value );
+        
         // console.log('current userdata--->', value)
         getAuditStatusDetails(value);
-        getAuditProStats(value);
+        // getAuditProStats(value);
         if (value !== null) {
           // console.log('current token2 Auditpro--->', value?.accessToken)
           setCurrentUserData(value)
@@ -283,7 +285,7 @@ const dataSet = React.useMemo(() => {
       }
     }
     getUserDetails();
-  }, [currentUserData?.siteId, isFocused]);
+  }, [currentUserData?.siteId]);
 
   useEffect(() => {
     if (assessmentStats && routineStats) {
@@ -347,13 +349,51 @@ const dataSet = React.useMemo(() => {
 
   const getAuditStatusDetails = async value => {
     console.log('checkgetuserDetailsss------', value);
+    // Ensure Supplier Mgmt API base URL is configured before fetching stats.
+    const storedServerUrl = await AsyncStorage.getItem('storedserverrul');
+    const currentGlobalURL = ensureTrailingSlash(
+      globalDeviceDetails?.deviceDetails?.AuditProURL ||
+        storedServerUrl ||
+        AUDITPRO_URL,
+    );
+    if (currentGlobalURL) {
+      supplierAuth.setServerUrl(currentGlobalURL);
+    } else {
+      console.log('getAuditStatusDetails skipped: missing AuditPro URL');
+      return;
+    }
+     supplierAuth.getStat(
+      value?.accessToken,
+      value?.userId,
+      value?.siteId,
+      1,//Auditpro
+      (response, data) => {
+        const stats = data?.data?.Data;
+        console.log('checkdetailsrresponseAuditpro',data + 'responseeeee' + response);
+        
+        if (stats) {
+          const counts = {
+            Scheduled: Number(stats.Scheduled ?? 0),
+            Completed: Number(stats.Completed ?? 0),
+            DeadlineViolated: Number(stats.DeadlineViolated ?? 0),
+            CompletedDeadlineViolated: Number(stats.CompletedDeadlineViolated ?? 0),
+          };
+          setAuditStats(counts);
+        }
+      },
+    );
+    if (!value?.accessToken || !value?.userId || !value?.siteId) {
+      console.log('getAuditStatusDetails skipped: missing auth/site info');
+      return;
+    }
+
     supplierAuth.getStat(
       value?.accessToken,
       value?.userId,
       value?.siteId,
       2, // Assessment
       (response, data) => {
-        console.log('inside1', response, data);
+        console.log('inside1', data);
         if (data?.data?.Data) {
           const auditsCount = {
             Scheduled: Number(data.data.Data.Scheduled ?? 0),
@@ -373,7 +413,7 @@ const dataSet = React.useMemo(() => {
       value?.siteId,
       3, // Routine
       (response2, data2) => {
-        console.log('inside2');
+        console.log('inside2',response2, data2);
         if (data2?.data?.Data) {
           const auditsCount = {
             Scheduled: Number(data2.data.Data.Scheduled ?? 0),
@@ -387,6 +427,12 @@ const dataSet = React.useMemo(() => {
       },
     );
   };
+
+  useEffect(() => {
+    if (!isFocused) return;
+    if (!currentUserData?.accessToken) return;
+    getAuditStatusDetails(currentUserData);
+  }, [isFocused, currentUserData?.accessToken, currentUserData?.userId, currentUserData?.siteId]);
 
   const getAuditProStats = async value => {
     if (!value?.accessToken) return;

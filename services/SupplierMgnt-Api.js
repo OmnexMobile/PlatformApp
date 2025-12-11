@@ -244,6 +244,7 @@ import {
       formData.append('AuditorId', userId);
       formData.append('SiteId', SiteId);
       formData.append('SM', SM);
+console.log('formmdatastatsSM',formData ,sURL);
 
       const promise = fetch(sURL + GetAuditStats, {
         method: 'POST',

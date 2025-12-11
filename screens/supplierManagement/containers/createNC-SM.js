@@ -657,14 +657,14 @@ class CreateNC extends Component {
     const video_type = this.props?.route?.params?.Type || 'empty';
     console.log(cancelled + 'value');
 
-    var getCurrentPage = [];
-    getCurrentPage = this.props.data.nav.routes;
-    var CurrentPage = getCurrentPage[getCurrentPage.length - 1].routeName;
+    // Use the current route name instead of relying on redux navigation state
+    const CurrentPage = this.props?.route?.name;
+    const routes = this.props.navigation.getState().routes;
+    const getpreviouspage = routes[routes.length - 2]?.name;
     console.log('--CurrentPage--->', CurrentPage);
-    var getpreviouspage = getCurrentPage[getCurrentPage.length - 2].routeName;
     console.log('previous page' + getpreviouspage);
 
-    if (CurrentPage == 'CreateNC') {
+    if (CurrentPage === ROUTES.CREATE_NC_SM) {
       this.InitVoice();
       console.log(
         'exception1',
