@@ -96,6 +96,7 @@ const HomeDashboard = () => {
         };
         fetchUserDetails();
     }, []);
+
     useEffect(() => {
         console.log('isFocused----->', isFocused);
 
@@ -103,9 +104,18 @@ const HomeDashboard = () => {
             console.log('Now calling getAuditlist after states are set ✅');
             console.log('inside isFocused----->');
             getAuditlist('', '');
-            getApqpList();
+            // getApqpList();
         }
     }, [accessToken, siteId, userId, isFocused]);
+
+    useEffect(() => {
+        console.log('isFocused----->1', isFocused);
+        if (accessToken && siteId && userId) {
+            console.log('inside isFocused----->1');
+            getApqpList();
+        }
+    }, [isFocused]);
+
     useEffect(() => {
         async function fetchData() {
             const UserFullName = await localStorage.getData(LOCAL_STORAGE_VARIABLES.UserFullName);

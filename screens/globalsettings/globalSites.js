@@ -11,6 +11,7 @@ import { useAppContext } from 'contexts/app-context';
 import { LOCAL_STORAGE_VARIABLES, STATUS_CODES, TOAST_STATUS } from 'constants/app-constant';
 import { getDashboardConcernCounts, getPendingConcernList, getTodayConcernList, getUpcomingConcernList } from '../home/home.action';
 import { useDispatch, useSelector } from 'react-redux';
+import AsyncStorage from '@react-native-community/async-storage';
 
 const GlobalSites = () => {
     const [searchKey, setSearchKey] = useState('');
@@ -73,6 +74,30 @@ const GlobalSites = () => {
         () => sites?.siteList?.filter(site => site?.SiteName?.toLowerCase()?.includes(searchKey?.toLowerCase())),
         [sites?.siteList, searchKey],
     );
+
+    useEffect(() => {
+      const updateSiteId = async () => {
+        try {
+          const storedDetails = await AsyncStorage.getItem('userDetails');
+          if (storedDetails) {
+            let parsedDetails = JSON.parse(storedDetails);
+            // Update only siteId
+            parsedDetails.siteId = sites?.selectedSite?.Siteid;
+            // Save back to storage
+            await AsyncStorage.setItem('userDetails', JSON.stringify(parsedDetails));
+            console.log('Updated userDetails:', parsedDetails);
+          } else {
+            console.log("No userDetails found in storage");
+          }
+        } catch (error) {
+            console.log("Error updating userDetails:", error);
+        }
+      };
+      if (sites?.selectedSite?.Siteid) {
+          updateSiteId();
+      }
+    }, [sites]);
+
 
     console.log('current sites--->', sites);
     console.log('current filteredSites', sites?.selectedSite, '--', sites?.selectedSite?.Siteid, '--', filteredSites);

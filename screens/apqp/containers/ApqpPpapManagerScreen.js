@@ -2824,11 +2824,13 @@ class ApqpPpapManagerScreen extends Component {
     const datas = this.state.apqpList;
 
     const isRefreshing = this.state.isRefreshing;
-    console.log("Tab changed result apqpTobecompleted", this.state.apqpTobecompleted, this.state.apqpPending);
+    console.log("Tab changed result", this.state.apqpTobecompleted, this.state.apqpPending);
     // var v1 = (this.state.apqpTobecompleted == undefined) ? 0 : this.state?.apqpTobecompleted;
     // var v2 = (this.state.apqpPending == undefined) ? 0 : this.state?.apqpPending;
-    var v1 = (this.state.apqpTobecompleted ?? this.props?.data?.projects?.counts?.TobeCompleted) ?? 0;
-    var v2 = (this.state.apqpPending ?? this.props?.data?.projects?.counts?.PendingTask) ?? 0;
+    // var v1 = (this.state.apqpTobecompleted ?? this.props?.data?.projects?.counts?.TobeCompleted) ?? 0;
+    // var v2 = (this.state.apqpPending ?? this.props?.data?.projects?.counts?.PendingTask) ?? 0;
+    var v1 = (this.props?.data?.projects?.counts?.TobeCompleted ?? this.state.apqpTobecompleted) ?? 0;
+    var v2 = (this.props?.data?.projects?.counts?.PendingTask ?? this.state.apqpPending) ?? 0;
     const result = Number.isNaN(v2 + v1) ? 0 : v2 + v1;
     const result1 = v2 + v1;
     console.log("Tab changed result", v1, v2, result, result1);
