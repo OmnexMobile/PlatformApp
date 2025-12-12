@@ -158,59 +158,80 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
       },
   ];
 
-  const moduleLicenses = currentUserData?.data?.[0]?.ModuleLicense;
+  // Convert ModuleLicense string into array of { id, name }
+  const parseModuleLicenseString = (str) => {
+    if (!str || typeof str !== "string") return [];
 
-  const hasModuleLicense = React.useCallback(
-    (targetId, targetName) => {
-      if (!moduleLicenses) return false;
-      const licenseList = Array.isArray(moduleLicenses) ? moduleLicenses : [moduleLicenses];
+    // Example: "[1, AQuA Pro]"
+    const items = str.split("],").map(item => {
+      const clean = item.replace(/[\[\]]/g, "").trim();  
+      const parts = clean.split(",");  
 
-      const matchesModule = entry => {
-        if (!entry) return false;
+      if (parts.length < 2) return null;
 
-        if (typeof entry === 'number' || typeof entry === 'string') {
-          const numericEntry = Number(entry);
-          const entryLower = typeof entry === 'string' ? entry.toLowerCase() : '';
-          return numericEntry === targetId || entryLower === targetName;
-        }
-
-        if (Array.isArray(entry)) {
-          return entry.some(inner => matchesModule(inner));
-        }
-
-        const moduleId = entry?.ModuleId ?? entry?.moduleId ?? entry?.id ?? entry?.Id;
-        const moduleName = entry?.ModuleName ?? entry?.moduleName ?? entry?.name;
-        const moduleNameLower = typeof moduleName === 'string' ? moduleName.toLowerCase() : '';
-        return Number(moduleId) === targetId || moduleNameLower === targetName;
+      return {
+        id: Number(parts[0].trim()),
+        name: parts[1].trim().toLowerCase()
       };
+    });
 
-      return licenseList.some(license => matchesModule(license));
+    return items.filter(Boolean);
+  };
+
+  const rawModuleString = currentUserData?.data?.[0]?.ModuleLicense;
+
+  const moduleLicenses = React.useMemo(() => {
+    return parseModuleLicenseString(rawModuleString);
+  }, [rawModuleString]);
+
+  const hasModuleLicense = React.useCallback((targetId, targetName) => {
+    if (!moduleLicenses || !Array.isArray(moduleLicenses)) return false;
+    const targetNameLower = targetName.toLowerCase();
+    return moduleLicenses.some(item => {
+      const idMatch = Number(item.id) === targetId;
+      const nameMatch = item.name.toLowerCase() === targetNameLower;
+      return idMatch || nameMatch;
+    });
     },
     [moduleLicenses],
   );
 
-  const hasSupplierManagementLicense = React.useMemo(
-    () => hasModuleLicense(21, 'supplier management'),
-    [hasModuleLicense],
-  );
-  const hasAuditProLicense = React.useMemo(() => hasModuleLicense(2, 'audit pro'), [hasModuleLicense]);
-  const hasApqpPpapLicense = React.useMemo(() => hasModuleLicense(10, 'apqp ppap manager'), [hasModuleLicense]);
+  const hasSupplierManagementLicense = React.useMemo(() => hasModuleLicense(21, "Supplier Management"),[hasModuleLicense]);
+  const hasAuditProLicense = React.useMemo(() => hasModuleLicense(2, "Audit Pro"),[hasModuleLicense]);
+  const hasApqpPpapLicense = React.useMemo(() => hasModuleLicense(10, "APQP PPAP Manager"),[hasModuleLicense]);
   const hasProblemSolverLicense = React.useMemo(() => hasModuleLicense(13, 'Problem Solver'), [hasModuleLicense]);
-  const hasInspectionControlLicense = React.useMemo(() => hasModuleLicense(17, 'Inspection Control'), [hasModuleLicense]);
-  const hasDoumentProLicense = React.useMemo(() => hasModuleLicense(4, 'Document Pro'), [hasModuleLicense]);
+  const hasInspectionControlLicense = React.useMemo(() => hasModuleLicense(17, "Inspection Control"),[hasModuleLicense]);
+  const hasDoumentProLicense = React.useMemo(() => hasModuleLicense(4, "Document Pro"), [hasModuleLicense]);
 
+  console.log("Supplier:", hasSupplierManagementLicense);
+  console.log("Audit:", hasAuditProLicense);
+  console.log("APQP:", hasApqpPpapLicense);
+  console.log("ProblemSolver:", hasProblemSolverLicense);
+  console.log("Inspection:", hasInspectionControlLicense);
+  console.log("Document:", hasDoumentProLicense);
 
+  useEffect(() => {
+    const storeLicenses = async () => {
+      const licenses = {
+        hasSupplierManagementLicense,
+        hasAuditProLicense,
+        hasApqpPpapLicense,
+        hasProblemSolverLicense,
+        hasInspectionControlLicense,
+        hasDoumentProLicense
+      };
+      await AsyncStorage.setItem('moduleLicenses', JSON.stringify(licenses));
+    };
+    storeLicenses();
+  }, [
+    hasSupplierManagementLicense,
+    hasAuditProLicense,
+    hasApqpPpapLicense,
+    hasProblemSolverLicense,
+    hasInspectionControlLicense,
+    hasDoumentProLicense
+  ]);
 
-  // console.log(finalUser, 'finalUser');
-  // const dataSet = React.useMemo(() => {
-  //   // Static data is used for show app based on user 
-  //   if (!data || data.length === 0) return [];
-  //   if (finalUser === "AzhalleAnna") return data.filter(item => item.id === 1);
-  //   if (finalUser === "KRoopa") return data.filter(item => item.id === 2);
-  //   if (finalUser === "DhanapalSwetha") return data.filter(item => [3,5,6].includes(item.id));
-
-  //   return data;
-  // }, [data, currentUser]);
 const dataSet = React.useMemo(() => {
         let tabData = data;
         if (icSettings?.SearchInspectionNeeded) {
@@ -231,15 +252,17 @@ const dataSet = React.useMemo(() => {
         } else {
             tabData = data;
         }
-        // Static data is used for show app based on user
-        if (!tabData || tabData.length === 0) return [];
-        if (hasApqpPpapLicense) return tabData.filter(item => item.id === 1);
-        if (hasAuditProLicense) return tabData.filter(item => item.id === 2);
-        if (hasProblemSolverLicense) return tabData.filter(item => item.id === 3);
-        if (hasInspectionControlLicense) return tabData.filter(item => item.id === 5);
-        if (hasSupplierManagementLicense) return tabData.filter(item => item.id === 6);
-        if (hasDoumentProLicense) return tabData.filter(item => item.id === 6);
-        return tabData;
+    //  data is used for show app based on license
+    if (!tabData || tabData.length === 0) return [];
+      const licensedIds = [];
+      if (hasApqpPpapLicense) licensedIds.push(1);
+      if (hasAuditProLicense) licensedIds.push(2);
+      if (hasProblemSolverLicense) licensedIds.push(3);
+      if (hasInspectionControlLicense) licensedIds.push(5);
+      if (hasSupplierManagementLicense) licensedIds.push(6);
+      if (hasDoumentProLicense) licensedIds.push(4);
+      if (licensedIds.length === 0) return tabData;
+      return tabData.filter(item => licensedIds.includes(item.id));
     }, [data, currentUser, icSettings?.SearchInspectionNeeded, hasSupplierManagementLicense, hasAuditProLicense, hasApqpPpapLicense]);
 
   const redirectToPage = async (title, status, category, countValue) => {

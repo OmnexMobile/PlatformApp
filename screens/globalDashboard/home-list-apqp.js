@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { TouchableOpacity, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { TextComponent, ListCard, PlaceHolders, NoRecordFound } from 'components';
@@ -9,12 +9,28 @@ import { useAppContext } from 'contexts/app-context';
 import ListCardLogo from 'components/ListCard-logo';
 import ListCardLogoSM from 'components/ListCard-logoSM';
 import ListCardLogoApqp from 'components/ListCard-logo-apqp';
+import AsyncStorage from '@react-native-community/async-storage';
 
 export const HomeListComponentApqp = ({ title, data, loading, statusCode, hideSeeAll, currentName }) => {
     const { theme } = useTheme();
     const { handleRecentActivity } = useAppContext();
     const navigation = useNavigation();
+    const [moduleLicenses, setModuleLicenses] = useState(null);
     console.log('checkdTodayList------------>>>>>>', data);
+
+    useEffect(() => {
+      const loadLicenses = async () => {
+        const stored = await AsyncStorage.getItem('moduleLicenses');
+        console.log('stored licenses', stored);
+        
+        if (stored) {
+          setModuleLicenses(JSON.parse(stored));
+        }
+      };
+
+      loadLicenses();
+    }, []);
+    console.log('moduleLicenses hasApqpPpapLicense', moduleLicenses?.hasApqpPpapLicense);
 
     return (
         <View>
@@ -31,7 +47,7 @@ export const HomeListComponentApqp = ({ title, data, loading, statusCode, hideSe
                                     title,
                                     data,
                                 });
-                            } else if (currentName === 'Azhalle Anna   ' || 'Alice Jones') {
+                            } else if (moduleLicenses.hasApqpPpapLicense) {
                                 console.log('navigating to apqp list alice');
                                 navigation.navigate(ROUTES.HOME_LIST_APQP, {
                                     statusCode,

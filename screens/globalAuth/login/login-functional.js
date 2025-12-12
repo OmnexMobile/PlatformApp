@@ -68,11 +68,13 @@ const LoginFunctional = ({}) => {
         useCallback(() => {
             let isActive = true;
             const bootstrapUrl = async () => {
-                const storedUrl = await localStorage.getData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL);
                 const registeredUrl = await localStorage.getData(LOCAL_STORAGE_VARIABLES.globalRegister);
+                const storedUrl = await localStorage.getData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL);
                 const persistedAuthUrl = await AsyncStorage.getItem('storedserverrul');
                 const fallbackUrl = ensureTrailingSlash(GLOBALSERVER_URL);
-                const resolvedUrl = ensureTrailingSlash(storedUrl || registeredUrl || persistedAuthUrl || fallbackUrl || '');
+
+                console.log('bootstrapUrl storedUrl, registeredUrl, persistedAuthUrl, fallbackUrl', storedUrl,'--', registeredUrl, '--', persistedAuthUrl,'--', fallbackUrl);
+                const resolvedUrl = ensureTrailingSlash(registeredUrl || storedUrl || persistedAuthUrl || fallbackUrl || '');
 
                 if (!isActive) return;
 
