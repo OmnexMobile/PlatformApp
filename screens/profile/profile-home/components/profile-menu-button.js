@@ -7,6 +7,7 @@ import { FONT_TYPE, LOCAL_STORAGE_VARIABLES } from 'constants/app-constant';
 import useTheme from 'theme/useTheme';
 import { IconComponent, TextComponent } from 'components';
 import localStorage from 'global/localStorage';
+import AsyncStorage from "@react-native-community/async-storage";
 
 const ProfileMenuButton = ({ menu, getProfileReset }) => {
   const [loading, setLoading] = useState(false);
@@ -22,15 +23,22 @@ const ProfileMenuButton = ({ menu, getProfileReset }) => {
 		// setLoading(true);
     if (menu?.route) {
       setLoading(true);
-      if (menu.title == 'Logout') {
-            const globURL = await localStorage.getData(LOCAL_STORAGE_VARIABLES.globalRegister);
-            console.log('globURL logout', globURL);
-            await localStorage.storeData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL, globURL);
+      try {
+        if (menu.title === 'Logout') {
+          const globURL = await localStorage.getData(LOCAL_STORAGE_VARIABLES.globalRegister);
+          console.log('globURL logout', globURL);
+          await localStorage.storeData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL, globURL);
+          await AsyncStorage.setItem('storedserverrul', globURL);
+          // Wait for safety (optional small delay)
+          await new Promise(resolve => setTimeout(resolve, 100));
         }
-      setTimeout(() => {
-        setLoading(false);
+        // Navigate only after AsyncStorage update is 100% completed
         navigation.navigate(menu.route);
-      }, 500);
+      } catch (err) {
+        console.error('Error handling menu:', err);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
