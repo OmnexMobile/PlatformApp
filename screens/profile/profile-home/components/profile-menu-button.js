@@ -24,6 +24,7 @@ const ProfileMenuButton = ({ menu, getProfileReset }) => {
       setLoading(true);
       if (menu.title == 'Logout') {
             const globURL = await localStorage.getData(LOCAL_STORAGE_VARIABLES.globalRegister);
+            console.log('globURL logout', globURL);
             await localStorage.storeData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL, globURL);
         }
       setTimeout(() => {

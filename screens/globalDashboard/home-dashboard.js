@@ -85,17 +85,25 @@ const HomeDashboard = () => {
 
     useEffect(() => {
         const fetchUserDetails = async () => {
-            const userDetailsString = await AsyncStorage.getItem('userDetails');
-            const userDetails = userDetailsString ? JSON.parse(userDetailsString) : null;
-            if (userDetails) {
-                setuserDetailsAudit(userDetails);
-                setaccessToken(userDetails.accessToken);
-                setsiteId(userDetails.siteId);
-                setuserId(userDetails.userId);
+            try {
+                const userDetailsString = await AsyncStorage.getItem('userDetails');
+                const userDetails = userDetailsString ? JSON.parse(userDetailsString) : null;
+
+                if (userDetails) {
+                    setuserDetailsAudit(userDetails);
+                    setaccessToken(userDetails.accessToken);
+                    setsiteId(userDetails.siteId);
+                    setuserId(userDetails.userId);
+                }
+            } catch (err) {
+                console.log("Error fetching user details", err);
             }
         };
-        fetchUserDetails();
-    }, []);
+
+        if (isFocused) {
+            fetchUserDetails();
+        }
+    }, [isFocused]);
 
     useEffect(() => {
         console.log('isFocused----->', isFocused);
@@ -374,13 +382,11 @@ const HomeDashboard = () => {
             );
             const UserFullName = await localStorage.getData(LOCAL_STORAGE_VARIABLES.UserFullName);
             console.log('UserFullName------------', UserFullName);
-            if (UserFullName === 'Dhanapal Swetha   ') {
                 if (sites?.selectedSite) {
                     console.log('🚀 ~ sites?.selectedSite2', sites, '----', sites?.selectedSite);
                     storeUrl(PROBLEMSOLVING_URL);
                     getListData(sites?.selectedSite);
                 }
-            }
         };
         fetchData(); // call it
         // optional cleanup:

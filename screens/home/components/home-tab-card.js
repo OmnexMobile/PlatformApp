@@ -493,13 +493,14 @@ const dataSet = React.useMemo(() => {
         redirectToPage(title, status, category, countValue)
       // PROBLEMSOLVER //
       } else if (title === strings.problemSolver) {
-        const psUrl = globalDeviceDetails?.deviceDetails?.PSApiURL || PROBLEMSOLVING_URL;
-        const psBase =
-            GLOBAL_BASE_URL ||
-            (psUrl ? psUrl.replace(/^(https?:\/\/[^/]+).*/, '$1') : '');
-        const normalizedPs = psBase ? `${psBase}/ProblemSolverAPI/` : psUrl;
-        currentGlobalURL = ensureTrailingSlash(normalizedPs);
+        // const psUrl = globalDeviceDetails?.deviceDetails?.PSApiURL || PROBLEMSOLVING_URL;
+        // const psBase =
+        //     GLOBAL_BASE_URL ||
+        //     (psUrl ? psUrl.replace(/^(https?:\/\/[^/]+).*/, '$1') : '');
+        // const normalizedPs = psBase ? `${psBase}/ProblemSolverAPI/` : psUrl;
+        // currentGlobalURL = ensureTrailingSlash(normalizedPs);
         console.log('current click--->', strings.problemSolver,'--', category.replace(/\n/g, ' '),'--', category, '--')
+        currentGlobalURL = globalDeviceDetails?.deviceDetails?.PSApiURL ? globalDeviceDetails?.deviceDetails?.PSApiURL: PROBLEMSOLVING_URL;
         localStorage.storeData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL, currentGlobalURL);
         storeUrl(currentGlobalURL, strings.problemSolver);
         navigateToStatusCount(category.replace(/\n/g, ' '));
