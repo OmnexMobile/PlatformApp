@@ -74,5 +74,6 @@ module.exports = {
     IC_INPROCESS_SINGLE_SYNC:'InsertSamplesInpro',
     IC_GET_SEARCH_INSPECTIONLIST:'GetSearchInspectionList',
     IC_SEARCH_INSPECTION_DOWNLOAD:'SearchInspectionFormDownload',
-    LOGIN_LOGO:'GetCompanyLogo'
+    LOGIN_LOGO:'GetCompanyLogo',
+    ICTABCOUNT:'IClistCount'
 };

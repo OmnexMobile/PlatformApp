@@ -9,6 +9,9 @@ import { DATE_FORMAT, IMAGE_UPLOAD_STATUS, INPUTS_CONSTANTS, LOCAL_STORAGE_VARIA
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { check, request, openSettings, PERMISSIONS, RESULTS } from 'react-native-permissions';
 import InAppBrowser from 'react-native-inappbrowser-reborn';
+import { getInspectionDataByUserAndSite } from 'store/database/inspectStorage';
+import localStorage from 'global/localStorage';
+import ApiUrl from 'global/ApiUrl';
 
 LogBox.ignoreLogs(['Require cycle:']);
 
@@ -305,3 +308,40 @@ export const getDisplayValue = (columnValue, columnData, rowData, timeSettings) 
             return columnValue ?? '---';
     }
 };
+export const getICList=async(userId,siteId,online=true)=>{
+        const OpList = await getInspectionDataByUserAndSite(userId, siteId);
+        const completedList = OpList?.filter(item => item?.status === 'Completed' || item?.status === 'In Progress');
+        const ICAPIURL = await localStorage.getData(LOCAL_STORAGE_VARIABLES.IC_API_URL);
+        let apiData;
+        if(online){
+            const formData = new FormData();
+            formData.append("userId", userId);
+            formData.append("siteId", siteId);
+            try {
+                const res = await fetch(`${ICAPIURL}${ApiUrl.ICTABCOUNT}`, {
+                    method: "POST",
+                    body: formData,     // No need to set headers; fetch auto-sets multipart boundary
+                });
+                const data = await res.json();
+                apiData=data?.Data
+            } catch (error) {
+                console.error("Fetch Error:", error);
+            }
+        }else{
+            const countIC = await AsyncStorage.getItem('countIC');
+            const data = JSON.parse(countIC);
+            apiData={
+                InspectionSchedule:data?.inspection,
+                SearchInspection:data?.search,
+                SupervisorSchedule:data?.supervisor
+            }
+        }
+        const OverAllCount = {
+            inspection:apiData?.InspectionSchedule || 0, // api data need to add
+            search:apiData?.SearchInspection || 0, // api data need to add
+            completed: completedList?.length || 0,
+            operatorList: OpList?.length || 0,
+            supervisor:apiData?.SupervisorSchedule || 0,
+        }
+        AsyncStorage.setItem('countIC', JSON.stringify(OverAllCount));
+}

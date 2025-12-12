@@ -9,7 +9,7 @@ import useTheme from 'theme/useTheme';
 import strings from 'config/localization';
 import IconComponent from 'components/icon-component';
 import { useAppContext } from 'contexts/app-context';
-import { formReq, getAvatarInitials, RFPercentage } from 'helpers/utils';
+import { formReq, getAvatarInitials, getICList, RFPercentage } from 'helpers/utils';
 import { useSelector, useDispatch } from 'react-redux';
 import ProjectCount from './ProjectCount';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -121,7 +121,7 @@ const HomeDashboard = () => {
         if (accessToken && siteId && userId) {
             console.log('inside isFocused----->1');
             getApqpList();
-            getICList();
+            getICList(userId,siteId);
         }
     }, [isFocused]);
 
@@ -284,17 +284,6 @@ const HomeDashboard = () => {
         // }
     };
 
-    const getICList=async()=>{
-        const OpList = await getInspectionDataByUserAndSite(userId, siteId);
-        const completedList = OpList?.filter(item => item?.status === 'Completed' || item?.status === 'In Progress');
-        const OverAllCount = {
-            inspection:0, // api data need to add
-            search:0, // api data need to add
-            completed: completedList?.length || 0,
-            operatorList: OpList?.length || 0,
-        }
-        AsyncStorage.setItem('countIC', JSON.stringify(OverAllCount));
-    }
 
     const getData = async () => {
         try {

@@ -7,7 +7,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { PLACEHOLDERS, ROUTES } from 'constants/app-constant';
 import { Divider, Modal } from 'react-native-paper';
-import { RFPercentage, showErrorMessage } from 'helpers/utils';
+import { getICList, RFPercentage, showErrorMessage } from 'helpers/utils';
 import DeleteModal from '../Components/DeleteModal';
 import NoDataFound from '../Components/NoDataFound';
 import { useDispatch, useSelector } from 'react-redux';
@@ -40,14 +40,7 @@ const OperatorWorksheet = () => {
         }
         setInspectionList(list);
         setShowSkeleton(false);
-        const countIC = await AsyncStorage.getItem('countIC');
-        if (countIC) {
-            const parsedData = JSON.parse(countIC);
-            const completedList = list?.filter(item => item?.status === 'Completed' || item?.status === 'In Progress');
-            parsedData.operatorList = list?.length || 0;
-            parsedData.completed=completedList.length || 0;
-            AsyncStorage.setItem('countIC', JSON.stringify(parsedData));
-        }
+        await getICList(icUserData?.userData?.UserId, icUserData?.userData?.Siteid,false);
     };
     const handleCIbtnpress = () => {
         navigation.navigate(ROUTES.COMPLETED_INSPECTION);

@@ -29,6 +29,7 @@ import { addInspectionData, getInspectionDataByUserAndSite } from 'store/databas
 import ICCheckBox from '../Components/ICCheckBox';
 import SingleDropDown from '../Components/SingleDropDown';
 import DynamicFormField from '../Components/DynamicFormField';
+import { getICList } from 'helpers/utils';
 
 const filterList = [
     {
@@ -424,6 +425,7 @@ const SearchInspection = () => {
                     style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : { paddingTop: insets.top },
                 });
                 setShowBubble(false);
+                await getICList(icUserData?.userData?.UserId, icUserData?.userData?.Siteid,false);
                 navigation.navigate(ROUTES.INPROCESS_INSPECTION, { inspectData: inspectObj });
             } else {
                 console.log('response', response);

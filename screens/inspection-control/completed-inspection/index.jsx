@@ -23,7 +23,7 @@ import { Bubbles } from 'react-native-loader';
 import { showMessage } from 'react-native-flash-message';
 import { deleteInspectionByUniqueId, getInspectionDataByUserAndSite } from 'store/database/inspectStorage';
 import { isArray } from 'underscore';
-import { showErrorMessage } from 'helpers/utils';
+import { getICList, showErrorMessage } from 'helpers/utils';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-community/async-storage';
 
@@ -91,13 +91,7 @@ const CompletedInspection = () => {
         setMasterData(completedList?.length ? completedList : []);
         setShowSkeleton(false);
         setRefreshing(false);
-        const countIC = await AsyncStorage.getItem('countIC');
-        if (countIC) {
-            const parsedData = JSON.parse(countIC);
-            parsedData.operatorList = inspectList?.length || 0;
-            parsedData.completed=completedList.length || 0;
-            AsyncStorage.setItem('countIC', JSON.stringify(parsedData));
-        }
+       await getICList(icUserData?.userData?.UserId, icUserData?.userData?.Siteid,false);
     };
 
     const onRefresh = () => {
