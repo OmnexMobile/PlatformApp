@@ -245,11 +245,14 @@ const RegisterFunctional = ({}) => {
                     await deleteAllInspectionData();
                     localStorage.removeItem(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL);
                     localStorage.removeItem(LOCAL_STORAGE_VARIABLES.globalRegister);
+                    await AsyncStorage.removeItem('storedserverrul');
                     handleAppSetting('serverUrl', '');
                     handleGlobalURL('serverUrl', '');
-                    setGlobalUrls({ globalServerUrl: defaultGlobalServerUrl });
+                    // setGlobalUrls({ globalServerUrl: defaultGlobalServerUrl });
+                    setGlobalUrls({ globalServerUrl: '' });
                     setState({
                         ...state,
+                        serverUrl: '',
                         globalServerURL: '',
                     });
 

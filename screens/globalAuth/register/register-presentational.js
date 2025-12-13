@@ -10,13 +10,14 @@ import useTheme from 'theme/useTheme';
 import LoginInput from 'screens/auth/login/components/login-input';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-const RegisterPresentational = ({ navigation, handleChange, state, handleRegister, isRegistered, handleUnRegister, loading, getDeviceStatus }) => {
+const RegisterPresentational = ({ navigation, handleChange, handleRegister, state, isRegistered, handleUnRegister, loading, getDeviceStatus }) => {
     const { theme } = useTheme();
     const insets = useSafeAreaInsets();
     const topInset = insets.top;
     const bottomInset = insets.bottom;
 		console.log('editable check-->',isRegistered, '--',  !isRegistered, state?.globalServerURL,'---', state?.serverUrl)
 		const currentURL = state?.serverUrl ? state?.serverUrl : state?.globalServerURL ;
+        console.log('state?.serverUrl register--->', state?.serverUrl, 'state?.globalServerURL--->', state?.globalServerURL)
 		console.log('currentURL--->', currentURL)
     return (
         <View
@@ -28,9 +29,9 @@ const RegisterPresentational = ({ navigation, handleChange, state, handleRegiste
             }}>
              {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }        
             {/* need image with transparent background */}
-            <ImageComponent style={{ width: '100%', height: '100%', position: 'absolute', zIndex: 0 }} source={IMAGES.loginBack} />
+            {/* {isRegistered ? null : <ImageComponent style={{ width: '100%', height: '100%', position: 'absolute', zIndex: 0 }} source={IMAGES.loginBack} />} */}
             <KeyboardAwareScrollViewComponent style={{ flex: 1, backgroundColor: COLORS.transparent }}>
-                <AnimatableView
+               {isRegistered ? <AnimatableView
                     style={[styles.translateIcon, { backgroundColor: theme.colors.primaryThemeColor }]}
                     delay={1000}
                     animationConfig={OPACITY_ANIMATION}>
@@ -38,7 +39,7 @@ const RegisterPresentational = ({ navigation, handleChange, state, handleRegiste
                         {/* <TouchableOpacity activeOpacity={0.8} style={styles.icon} onPress={() => setSelectLanguageModal(true)}> */}
                         <IconComponent name={'arrowleft'} type={ICON_TYPE.AntDesign} color={COLORS.white} size={FONT_SIZE.LARGE} />
                     </TouchableOpacity>
-                </AnimatableView>
+                </AnimatableView> : null}
                 <AnimatableView animationConfig={OPACITY_TRANSLATE_Y_ANIMATION} style={styles.topArea}>
                     <ImageComponent source={IMAGES.omnexLogo} resizeMode="contain" style={{ height: RFPercentage(10), width: '100%' }} />
                 </AnimatableView>
