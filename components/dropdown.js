@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 import { TextComponent } from 'components';
 import { COLORS, FONT_SIZE, SPACING } from 'constants/theme-constants';
@@ -47,6 +47,11 @@ const DropdownComponent = ({ name, label, value, onChange, data = [], required =
                 disable={!editable}
                 onChange={item => {
                     onChange?.(item.value);
+                }}
+                containerStyle={{
+                    zIndex: 1000,
+                    elevation: 10, // Android
+                    marginTop: Platform.OS === 'android' ? -45 : 0,
                 }}
                 selectedTextProps={{ numberOfLines: 1 }}
                 //  backgroundColor={COLORS.primaryLightTransparentThemeColor}
