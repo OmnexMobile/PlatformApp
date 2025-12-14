@@ -160,20 +160,73 @@ const LoginFunctional = ({}) => {
         const deviceId = await AsyncStorage.getItem('deviceid');
         console.log('get deviceId', deviceId);
         try {
-            globalAuth.globalLogin(loginDetails?.username, encryptedPassword.toString(), fcmToken, deviceId, loginflag, isSso, async (res, data) => {
-                console.log('global loginUser---->', data, res);
-                if (data?.data?.Success == true) {
-                    console.log('checking global loginResponse---->', data?.data);
-                    AsyncStorage.setItem('userDetails', JSON.stringify(data?.data));
-                    data?.data?.Token && await setProfileCall(data?.data); // navigate to home
-                    handleGlobalLogin(data?.data);
-                    handleServerURL(data?.data);
-                } else {
+            globalAuth.globalLogin(
+                loginDetails?.username,
+                encryptedPassword.toString(),
+                fcmToken,
+                deviceId,
+                loginflag,
+                isSso,
+                async (res, data) => {
+                    console.log('global loginUser---->', data, res);
+                    if (data?.data?.Success == true) {
+                        console.log('checking global loginResponse---->', data?.data);
+
+                        // Persist NCOFI setting so AuditPro CheckPoint screens can use it
+                        try {
+                            const fromLogin =
+                                data?.data?.Data?.NCOFISetting ??
+                                (Array.isArray(data?.data?.Data)
+                                    ? data.data.Data[0]?.NCOFISetting
+                                    : undefined) ??
+                                data?.data?.NCOFISetting;
+                            const fromDevice =
+                                globalDeviceDetails?.deviceDetails?.NCOFISetting;
+                            const ncofiSetting = fromLogin ?? fromDevice;
+                            if (
+                                typeof ncofiSetting !== 'undefined' &&
+                                ncofiSetting !== null
+                            ) {
+                                const normalized = String(ncofiSetting);
+                                console.log(
+                                    '[GlobalLogin] NCOFISetting resolved:',
+                                    normalized,
+                                );
+                                await AsyncStorage.setItem(
+                                    'NCSettingValue',
+                                    normalized,
+                                );
+                            } else {
+                                console.log(
+                                    '[GlobalLogin] NCOFISetting not found in login or device details',
+                                    {
+                                        fromLogin,
+                                        fromDevice,
+                                    },
+                                );
+                            }
+                        } catch (e) {
+                            console.log(
+                                '[GlobalLogin] Failed to persist NCOFISetting',
+                                e,
+                            );
+                        }
+
+                        AsyncStorage.setItem('userDetails', JSON.stringify(data?.data));
+                        data?.data?.Token && (await setProfileCall(data?.data)); // navigate to home
+                        handleGlobalLogin(data?.data);
+                        handleServerURL(data?.data);
+                    } else {
+                        handleInputChange('loggingIn', false);
+                        showErrorMessage(
+                            'Please enter valid username and password!' ||
+                                data?.Message ||
+                                strings?.InvalidCred,
+                        );
+                    }
                     handleInputChange('loggingIn', false);
-                    showErrorMessage('Please enter valid username and password!' || data?.Message || strings?.InvalidCred);
-                }
-                handleInputChange('loggingIn', false);
-            });
+                },
+            );
         } catch (err) {
             console.log('🚀 ~ file: login-functional.js:58 ~ handleSubmit ~ err', err);
             handleInputChange('loggingIn', false);

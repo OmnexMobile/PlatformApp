@@ -180,6 +180,7 @@ class CheckPointDemo extends Component {
       ncFormID: '',
       booleanNcofi: false,
       ncofisettingvalue: '',
+      ncofiEnabled: false,
       onpressRadio: false,
       radiovalue_ncofi: '',
       checkpointdetails: [],
@@ -380,18 +381,33 @@ class CheckPointDemo extends Component {
     }
   }
 
+  isNcofiFeatureEnabled(value) {
+    if (value === undefined || value === null) {
+      return false;
+    }
+    const normalized = String(value).trim().toLowerCase();
+    return normalized === '1' || normalized === 'true';
+  }
+
   fetchData = async () => {
     try {
       const ncofisettingvalue = await AsyncStorage.getItem('NCSettingValue');
       const ReportID = await AsyncStorage.getItem('ReportID');
 
       console.log(ReportID, 'ReportID123');
+      console.log(
+        'NCSettingValue in CheckPointDemo:',
+        ncofisettingvalue,
+        'enabled:',
+        this.isNcofiFeatureEnabled(ncofisettingvalue),
+      );
 
       //console.log(ncofisettingvalue, 'ncvalues');
       this.setState(
         {
           ncofisettingvalue: ncofisettingvalue,
           ReportId: ReportID,
+          ncofiEnabled: this.isNcofiFeatureEnabled(ncofisettingvalue),
         },
         () => {
           console.log(ReportID, 'ReportID123');
@@ -3042,14 +3058,23 @@ class CheckPointDemo extends Component {
     var notifyRed = this.props?.route?.params?.notifyRed;
     // if (this.state.TemplateID == 5) {
     // if (this.state.isUnsavedData == true) {
-    const allowedMinimum = (2 / 3).toFixed(2);
-    var totalCheckPoint = this.state.checkPointsDetails.length;
+    const allowedMinimum = 2 / 3;
+    const totalCheckPoint =
+      this.state.totalCheck || this.state.checkPointsDetails.length;
     const filledData = this.state.checkPointsDetails.filter(
       checkPoint => checkPoint.Score !== '-2',
     );
 
-    const filledCount = filledData.length;
-    const filledPercentage = ((filledCount / totalCheckPoint) * 100).toFixed(2);
+    const filledCount =
+      this.state.totalfilled !== undefined && this.state.totalfilled !== null
+        ? this.state.totalfilled
+        : Math.min(filledData.length, totalCheckPoint);
+    const filledPercentage =
+      totalCheckPoint > 0
+        ? parseFloat(
+            ((filledCount / totalCheckPoint) * 100).toFixed(2) || '0',
+          )
+        : 0;
     console.log('filledCount', filledCount);
     console.log(filledData, 'filledData');
     console.log(totalCheckPoint, 'filledtotalCheckPoint');
@@ -3060,8 +3085,8 @@ class CheckPointDemo extends Component {
     }
     console.log('Can continue:', bcontinue);
 
-    if (filledCount > 0) {
-      const filledMin = (filledCount / totalCheckPoint).toFixed(2);
+    if (filledCount > 0 && totalCheckPoint > 0) {
+      const filledMin = filledCount / totalCheckPoint;
       if (filledMin >= allowedMinimum) {
         bcontinue = true;
       }
@@ -3158,6 +3183,18 @@ class CheckPointDemo extends Component {
               var auditRecordsOrg = this.props.data.audits.auditRecords;
               var auditRecords = [];
               var checkPointsDetails = this.state.checkPointsDetails;
+              const routeAuditId =
+                this.props?.route?.params?.AuditID ||
+                this.props?.route?.params?.Check?.AuditID ||
+                this.props?.route?.params?.Check?.AuditId;
+              const activeAuditId =
+                this.state.auditId || routeAuditId || (auditRecordsOrg?.[0]?.AuditId ?? '');
+              console.log(
+                '[CPD] activeAuditId used for save',
+                activeAuditId,
+                'state auditId:',
+                this.state.auditId,
+              );
               var listData = [];
               var isAuditFound = false;
               //console.log('checkPointsDetails1 &&&', checkPointsDetails);
@@ -3165,7 +3202,7 @@ class CheckPointDemo extends Component {
 
               for (var p = 0; p < auditRecordsOrg.length; p++) {
                 var listDataArr = [];
-                if (auditRecordsOrg[p].AuditId == this.state.auditId) {
+                if (auditRecordsOrg[p].AuditId == activeAuditId) {
                   if (auditRecordsOrg[p].Listdata) {
                     if (auditRecordsOrg[p].Listdata.length > 0) {
                       for (
@@ -3488,6 +3525,16 @@ class CheckPointDemo extends Component {
 
               // Store audit list in redux store to set it in persistant storage
               //auditRecords = mapListToCheckPointDetail(auditRecords);
+              console.log('[CPD] BEFORE_STORE_AUDIT_RECORDS', {
+                auditId: activeAuditId,
+                checkpoints: auditRecords
+                  .find(a => a.AuditId === activeAuditId)
+                  ?.Listdata?.map(cp => ({
+                    ChecklistTemplateId: cp.ChecklistTemplateId,
+                    Score: cp.Score,
+                    Remark: cp.Remark,
+                  })),
+              });
               this.props.storeAuditRecords(auditRecords);
               //console.log('AE===>AE===>AE===>AE===>', auditRecords);
               // Audit process started, So we are marking isAuditing flag as true
@@ -4174,7 +4221,7 @@ this.props.navigation.setParams({ auditUpdated: true });
     if (isNCOFIExists) {
       if (id == 'NC') {
         this.setState({dialogVisibleNC: false}, () => {
-          this.props.navigation.navigate('CreatencLPA', {
+          this.props.navigation.navigate(ROUTES.CREATE_NCLPA, {
             CheckpointRoute: 'NC',
             AuditID: this.state.auditId,
             name: 1,
@@ -4210,7 +4257,7 @@ this.props.navigation.setParams({ auditUpdated: true });
       }
       if (id == 'OFI') {
         this.setState({dialogVisibleNC: false}, () => {
-          this.props.navigation.navigate('CreatencLPA', {
+          this.props.navigation.navigate(ROUTES.CREATE_NCLPA, {
             CheckpointRoute: 'OFI',
             name: 2,
             AuditID: this.state.raiseID.AUDIT_NO,
@@ -4229,7 +4276,7 @@ this.props.navigation.setParams({ auditUpdated: true });
     } else {
       if (id == 'NC') {
         this.setState({dialogVisibleNC: false}, () => {
-          this.props.navigation.navigate('CreatencLPA', {
+          this.props.navigation.navigate(ROUTES.CREATE_NCLPA, {
             CheckpointRoute: 'NC',
             NCOFIDetails: this.state.raiseID,
             name: 3,
@@ -4255,7 +4302,7 @@ this.props.navigation.setParams({ auditUpdated: true });
           'AuditID in entering 4',
         );
         this.setState({dialogVisibleNC: false}, () => {
-          this.props.navigation.navigate('CreatencLPA', {
+          this.props.navigation.navigate(ROUTES.CREATE_NCLPA, {
             CheckpointRoute: 'OFI',
             NCOFIDetails: this.state.raiseID,
             name: 4,
@@ -6236,12 +6283,17 @@ this.props.navigation.setParams({ auditUpdated: true });
   }
 
   async ncofisetting(value) {
-    var ncofiSetting = await AsyncStorage.getItem('NCOFISetting');
-    //console.log(ncofiSetting, value, 'heloncofisetting');
-    var dropdownnotokvalue = value;
+    const storedValue =
+      this.state.ncofisettingvalue ||
+      (await AsyncStorage.getItem('NCSettingValue'));
+    const normalizedValue = storedValue ?? '';
+    const dropdownnotokvalue = value;
+    const ncofiEnabled = this.isNcofiFeatureEnabled(normalizedValue);
     this.setState({
-      ncofiSetting: ncofiSetting,
+      ncofiSetting: normalizedValue,
+      ncofisettingvalue: normalizedValue,
       dropdownnotokvalue: dropdownnotokvalue,
+      ncofiEnabled,
     });
   }
 
@@ -7383,7 +7435,7 @@ this.props.navigation.setParams({ auditUpdated: true });
                                       .IsNCAllowed != 0 &&
                                     this.state.TemplateID !== 5 &&
                                     this.state.ischeckLPA !== true &&
-                                    this.state.ncofiSetting === true &&
+                                    this.state.ncofiEnabled &&
                                     this.state.dropdownnotokvalue === 15 ? (
                                       <TouchableOpacity
                                         onPress={this.popupModal.bind(
@@ -7713,7 +7765,7 @@ this.props.navigation.setParams({ auditUpdated: true });
                                         paddingRight: 12,
                                       }}
                                     />
-                                    {this.state.ncofiSetting === 'true' &&
+                                    {this.state.ncofiEnabled &&
                                       this.state.dropdownnotokvalue === 11 && (
                                         <TouchableOpacity
                                           onPress={this.popupModal.bind(
@@ -8093,7 +8145,7 @@ this.props.navigation.setParams({ auditUpdated: true });
                                         paddingRight: 12,
                                       }}
                                     />
-                                    {this.state.ncofiSetting === 'true' &&
+                                    {this.state.ncofiEnabled &&
                                       this.state.dropdownnotokvalue === 10 && (
                                         <TouchableOpacity
                                           onPress={this.popupModal.bind(
@@ -8471,7 +8523,7 @@ this.props.navigation.setParams({ auditUpdated: true });
                                         paddingRight: 12,
                                       }}
                                     />
-                                    {this.state.ncofiSetting === 'true' &&
+                                    {this.state.ncofiEnabled &&
                                       this.state.dropdownnotokvalue === 15 && (
                                         <TouchableOpacity
                                           onPress={this.popupModal.bind(
@@ -8517,7 +8569,7 @@ this.props.navigation.setParams({ auditUpdated: true });
                                 {/*new nc button*/}
 
                                 <View>
-                                  {this.state.ncofisettingvalue === 'true' &&
+                                  {this.state.ncofiEnabled &&
                                   this.state.TemplateID !== 5 &&
                                   this.state.TemplateID < 8 ? (
                                     <TouchableOpacity

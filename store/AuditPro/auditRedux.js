@@ -90,15 +90,99 @@ export const INITIAL_STATE = Immutable({
 
 
 export const storeAudits = (state, {audits}) => {
-  // console.log('reducer storeAudits',audits)
+   console.log('reducer storeAudits',audits)
   state = ensureImmutable(state);
   return state.merge({audits: audits});
 };
 
 export const storeAuditRecords = (state, {auditRecords}) => {
-  // console.log('reducer storeAuditRecords',auditRecords)
+  console.log('[auditRedux] STORE_AUDIT_RECORDS', {
+    auditIds: auditRecords.map(a => a.AuditId),
+    firstAudit: auditRecords[0],
+  });
   state = ensureImmutable(state);
-  return state.merge({auditRecords: auditRecords});
+  return state.merge({auditRecords});
+  console.log('reducer storeAuditRecords', auditRecords);
+  state = ensureImmutable(state);
+
+  const existingRecords = state.auditRecords || [];
+
+  // Merge incoming records with existing ones, preserving user-edited
+  // checkpoints (those marked Modified=true) if a later payload tries
+  // to overwrite them with unmodified data.
+  const mergedAuditRecords = (auditRecords || []).map(newAudit => {
+    const oldAudit =
+      existingRecords &&
+      existingRecords.find &&
+      existingRecords.find(a => a.AuditId === newAudit.AuditId);
+
+    if (!oldAudit || !Array.isArray(newAudit.Listdata)) {
+      return newAudit;
+    }
+
+    const oldList = Array.isArray(oldAudit.Listdata) ? oldAudit.Listdata : [];
+
+    const mergedList = newAudit.Listdata.map(newItem => {
+      const keyMatches = item =>
+        item.FormId === newItem.FormId &&
+        String(item.ChecklistTemplateId) ===
+          String(newItem.ChecklistTemplateId) &&
+        String(item.ParentId) === String(newItem.ParentId);
+
+      const oldItem = oldList.find(keyMatches);
+      const oldModified =
+        oldItem &&
+        (oldItem.Modified === true ||
+          oldItem.Modified === 'true' ||
+          oldItem.Modified === 1 ||
+          oldItem.Modified === '1');
+
+      const newModified =
+        newItem &&
+        (newItem.Modified === true ||
+          newItem.Modified === 'true' ||
+          newItem.Modified === 1 ||
+          newItem.Modified === '1');
+
+      // If old item is explicitly modified and the new one is not,
+      // prefer the old (user-edited) values.
+      if (oldItem && oldModified && !newModified) {
+        return {
+          ...newItem,
+          Score: oldItem.Score,
+          Scoretext: oldItem.Scoretext,
+          Remark: oldItem.Remark,
+          Attachment: oldItem.Attachment,
+          AttachmentList: oldItem.AttachmentList,
+          File: oldItem.File,
+          FileName: oldItem.FileName,
+          FileType: oldItem.FileType,
+          IsNCAllowed: oldItem.IsNCAllowed,
+          IsCorrect: oldItem.IsCorrect,
+          RadioValue: oldItem.RadioValue,
+          FailureCategoryId: oldItem.FailureCategoryId,
+          FailureReasonId: oldItem.FailureReasonId,
+          Modified: oldItem.Modified,
+        };
+      }
+
+      return newItem;
+    });
+
+    // Keep CheckpointLogic.AuditCheckpointDetail in sync with Listdata
+    const newCheckpointLogic = newAudit.CheckpointLogic || {};
+    return {
+      ...newAudit,
+      Listdata: mergedList,
+      CheckpointLogic: {
+        ...newCheckpointLogic,
+        AuditCheckpointDetail:
+          newCheckpointLogic.AuditCheckpointDetail || mergedList,
+      },
+    };
+  });
+
+  return state.merge({auditRecords: mergedAuditRecords});
 };
 
 export const storeNcofiRecords = (state, {ncofiRecords}) => {

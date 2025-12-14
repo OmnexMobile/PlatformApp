@@ -50,11 +50,11 @@ export default {
   checkRegistrationStatus(deviceId, cb) {
     api.checkRegistrationStatus(deviceId, res => {
       console.log('checkRegistrationStatus response++++', res);
-      console.log("ncofi/button",res.data.Data.NCOFISetting)
-      AsyncStorage.setItem(
-        'NCSettingValue',
-        JSON.stringify(res.data.Data.NCOFISetting)
-      );
+      const ncofiSetting = res?.data?.Data?.NCOFISetting;
+      console.log('ncofi/button Auditpro-Auth', ncofiSetting);
+      if (typeof ncofiSetting !== 'undefined' && ncofiSetting !== null) {
+        AsyncStorage.setItem('NCSettingValue', String(ncofiSetting));
+      }
       cb(true, res);
     });
   },

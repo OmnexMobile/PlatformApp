@@ -22,15 +22,20 @@ import {debounce, once} from 'underscore';
 import LinearGradient from 'react-native-linear-gradient';
 import { stat } from 'react-native-fs';
 import { ROUTES } from 'constants/app-constant';
-import { SPACING } from 'constants/theme-constants';
+import { SPACING} from 'constants/theme-constants';
+
 import localStorage from 'global/localStorage';
 
-let Window = Dimensions.get('window');
-
+const screenWidth = Dimensions.get('window').width;
+const screenHeight = Dimensions.get('window').height;
+const isTablet = Math.min(screenWidth, screenHeight) >= 768;
+const circleSize = isTablet
+  ? Math.min(screenWidth, screenHeight) * 0.05  // Smaller scale for iPad
+  : Math.min(screenWidth, screenHeight) * 0.08; // Normal for phones
+const fontSize = circleSize * 0.28;
 class CheckListMenu extends Component {
   constructor(props) {
     super(props);
-    console.log('get props---->', props)
     this.state = {
       displayData: [],
       checkListdata: [],
@@ -52,25 +57,28 @@ class CheckListMenu extends Component {
       AuditProgramId: undefined,
     };
   }
-  //  AuditOrder AuditProgramId
   componentDidMount() {
-    LogBox.ignoreLogs(['Each child in a list should have a unique "key" prop.'])
     // ...long-running synchronous task...
+    const myData = this.props;
+    console.log(myData, 'vparam');
+
     this.LongTask();
-    this.props.navigation.addListener(
-        'didFocus',
-        () => {
-          this.LongTask();
-        }
-      );
+    const { filledPercentage } = this.props.route?.params || { filledPercentage: 0 };
+    console.log("Received filledPercentage:", filledPercentage);
+    this.setState({ filledPercentage });
+
+    this.props.navigation.addListener('didFocus', () => {
+      this.LongTask();
+    });
   }
 
   componentWillReceiveProps() {
-    console.log('consolenavigationparams1', this.props?.route?.params);
+    //console.log('consolenavigationparams1', this.props.navigation.state.params);
   }
+  
 
   LongTask() {
-    console.log('consolenavigationparams', this.props?.route?.params);
+    // console.log('consolenavigationparams', this.props.navigation.state.params);
     if (this.props.data.audits.language === 'Chinese') {
       this.setState({ChineseScript: true}, () => {
         strings.setLanguage('zh');
@@ -88,7 +96,7 @@ class CheckListMenu extends Component {
       });
     }
 
-    var allData = this.props.data.audits.auditRecords || [];
+    var allData = this.props.data.audits.auditRecords;
     console.log('alDataConsole', allData);
     var AuditID =
       this.props?.route?.params?.AuditID ||
@@ -105,9 +113,9 @@ class CheckListMenu extends Component {
     var AuditProgramId = undefined;
     console.log('CheckListMenu>-AuditID', AuditID);
     var ListData = undefined;
-    if (allData && allData.length) {
+    if (allData) {
       for (var i = 0; i < allData.length; i++) {
-        if (String(AuditID) == String(allData[i].AuditId)) {
+        if (AuditID === allData[i].AuditId) {
           console.log('CheckListMenu>-allData[i]', AuditID, allData[i]);
           PropsData = [...allData[i].CheckListPropData];
           ListData = allData[i].Listdata;
@@ -116,15 +124,7 @@ class CheckListMenu extends Component {
         }
       }
     }
-    if (ListData) {
-      this.countStatistics(ListData);
-    } else {
-      this.setState({
-        mandatoryCheck: 0,
-        totalCheck: 0,
-        optionalCheck: 0,
-      });
-    }
+    this.countStatistics(ListData);
 
     if (PropsData.length > 0) {
       for (var i = 0; i < PropsData.length; i++) {
@@ -156,28 +156,13 @@ class CheckListMenu extends Component {
         displayData.push(checklistData[j]);
       }
     }
-
-    // Fallback: if nothing matched, try all checklist entries for this formId
-    if (displayData.length === 0 && PropsData.length > 0) {
-      console.log(
-        '[CheckListMenu] No checklist data matched filters, using fallback for form',
-        formId,
-      );
-      const fallback = PropsData.filter(
-        item =>
-          item?.FormId && parseInt(item.FormId) === parseInt(formId),
-      );
-      displayData = fallback.length > 0 ? fallback : PropsData;
-    }
-
     console.log(displayData, 'DisplayData===>');
     this.setState(
       {
         CheckpointP: this.props?.route?.params?.Checkpass,
-        breadCrumbText: this.props?.route?.params?.Checkpass?.breadCrumb,
-        // breadCrumbText: this.props.navigation.state.params.Checkpass.breadCrumb.length>30 ? this.props.navigation.state.params.Checkpass.breadCrumb.slice(0,30) + '...' : this.props.navigation.state.params.Checkpass.breadCrumb,
-        Heading: this.props?.route?.params?.ChecklistHeading?.FormName,
-        FormId: this.props?.route?.params?.FormId,
+        breadCrumbText: this.props?.route?.params?.Checkpass.breadCrumb,
+        Heading: this.props.route.params.ChecklistHeading.FormName,
+        FormId: this.props.route.params.FormId,
         ChecklistTemplateId:
           this.props?.route?.params?.ChecklistHeading?.ChecklistTemplateId,
         ParentId: this.props?.route?.params?.ChecklistHeading?.ParentId,
@@ -187,7 +172,6 @@ class CheckListMenu extends Component {
         pageLoader: false,
         AuditOrder: AuditOrder,
         AuditProgramId: AuditProgramId,
-        TemplateID: displayData?.[0]?.TemplateID,
       },
       () => {
         console.log('display data', this.state.CheckpointP);
@@ -195,44 +179,22 @@ class CheckListMenu extends Component {
     );
   }
 
-  async onCheckListPress(ChecklistTemplateId, CheckPointname) {
-    const CurrentApp = await localStorage.getData('CurrentApp');
-    console.log('current app--->', CurrentApp)
-    if(CurrentApp == 'Supplier Management') {
-      console.log('Reach if case--->')
-      this.props.navigation.navigate(ROUTES.CHECKPOINT_DEMO, {
-        AuditID: this.state.AuditID,
-        ChecklistTemplateId: ChecklistTemplateId,
-        Check: this.state.CheckpointP,
-        FormId : this.state.FormId,
-        CheckPointname: CheckPointname,
-        breadCrumbText: this.state.breadCrumbText,
-        AuditOrder: this.state.AuditOrder,
-        AuditProgramId: this.state.AuditProgramId,
-        TemplateID: this.state.displayData?.[0]?.TemplateID,
-        FormIdNavigate:
-          this.props?.route?.params?.ChecklistHeading?.FormId,
-        notifyRed: this.props?.route?.params?.notifyRed,
-      });
-    } else {
-      console.log('Reach else case--->')
-      this.props.navigation.navigate(ROUTES.CHECKPOINT_DEMO, {
-        AuditID: this.state.AuditID,
-        ChecklistTemplateId: ChecklistTemplateId,
-        Check: this.state.CheckpointP,
-        FormId : this.state.FormId,
-        CheckPointname: CheckPointname,
-        breadCrumbText: this.state.breadCrumbText,
-        AuditOrder: this.state.AuditOrder,
-        AuditProgramId: this.state.AuditProgramId,
-        TemplateID: this.state.displayData?.[0]?.TemplateID,
-        FormIdNavigate:
-          this.props?.route?.params?.ChecklistHeading?.FormId,
-        notifyRed: this.props?.route?.params?.notifyRed,
-      });
-    }
+  onCheckListPress(ChecklistTemplateId, CheckPointname) {
+    this.props.navigation.navigate(ROUTES.CHECKPOINT_DEMO, {
+      AuditID: this.state.AuditID,
+      ChecklistTemplateId: ChecklistTemplateId,
+      Check: this.state.CheckpointP,
+      FormId: this.state.FormId,
+      CheckPointname: CheckPointname,
+      breadCrumbText: this.state.breadCrumbText,
+      AuditOrder: this.state.AuditOrder,
+      AuditProgramId: this.state.AuditProgramId,
+      TemplateID: this.state.displayData[0].TemplateID,
+      FormIdNavigate:
+      this.props?.route?.params?.ChecklistHeading?.FormId,
+      notifyRed: this.props?.route?.params?.notifyRed,
+    });
   }
-
   countStatistics = checkPointsDetails => {
     console.log('---', checkPointsDetails);
     var data = checkPointsDetails;
@@ -284,17 +246,11 @@ class CheckListMenu extends Component {
 
     this.setState(
       {
-        //   mandateCheckpoints: pendingCheck.length,
-        //   totalfilled: completed.length,
         optionalCheck: data.length - mandatoryCheck,
         totalCheck: data.length,
         mandatoryCheck: mandatoryCheck,
       },
-      () => {
-        //   console.log('total checkpoints filled', this.state.totalfilled)
-        //   console.log('total pending checkpoints', this.state.mandateCheckpoints)
-        //   console.log('total manadatory checkpoints', this.state.mandatoryCheck)
-      },
+      () => {},
     );
   };
   countMandate(items) {
@@ -302,87 +258,156 @@ class CheckListMenu extends Component {
     console.log('displayData', this.state.displayData);
     return items.MandatoryCount;
   }
-
-  showStatus = checkList => {
+  filledpercentage = checkList => {
+    console.log('Enter filledpercentage');
+    var auditRecords = this.props.data.audits.auditRecords;
+    console.log('auditRecords/fill', auditRecords);
+    
+    var AuditID = this.props.route.params.AuditID;
+    let listData = [];
+    let filledPercentage = 0; // Initialize percentage variable
+    let filledCount = 0; // Ensure filledCount is defined
+  
+    for (var i = 0; i < auditRecords.length; i++) {
+      if (AuditID === auditRecords[i].AuditId) {
+        const listData = auditRecords[i].Listdata;
+        console.log(listData, 'listData/full');
+        
+        const checkPoints = listData.filter(
+          item =>
+            item.ParentId.toString() === this.state.ChecklistTemplateId &&
+            item.FormId === this.state.FormId,
+           
+        );
+  
+        if (checkPoints.length > 0) {  // Prevent division by zero
+          const filledData = checkPoints.filter((cp, idx) => {
+            const scoreValid = cp.Score !== null && cp.Score !== '-1' && cp.Score !== '-2';
+            const valueValid = cp.Status !== undefined && cp.Status !== null && cp.Status.trim() !== '';  
+            return scoreValid || valueValid;
+          });
+          filledCount = filledData.length;
+          filledPercentage = Math.floor((filledCount / checkPoints.length) * 100);
+        } else {
+          filledPercentage = 0;  // If no checkpoints, percentage is 0
+          filledCount = 0;  // Ensure filledCount is 0 if no checkpoints
+        }
+  
+        console.log('Filled Percentage:', filledPercentage);
+        console.log('Filled Count:', filledCount);
+      }
+    }
+  };
+  
+  showStatus = (checkList) => {
     var auditRecords = this.props.data.audits.auditRecords;
     var AuditID = this.props?.route?.params?.AuditID;
     let listData = [];
-    
     let status = checkList.MandatoryCount;
-    console.log("showStatus:checkList", checkList);
-    for (var i = 0; i < auditRecords.length; i++) { 
+    let filledPercentage = 0; // Initialize percentage variable
+  
+    console.log('showStatus:checkList', checkList);
+  
+    for (var i = 0; i < auditRecords.length; i++) {
       if (AuditID === auditRecords[i].AuditId) {
         let audit = auditRecords[i];
-        console.log("showStatus:audit", audit); 
-        listData = audit.Listdata; 
-        console.log("showStatus:listData", listData); 
-        const checkPoints =listData.filter(item => item.ParentId.toString() === checkList.ChecklistTemplateId 
-                                                    && item.FormId === checkList.FormId);
-        console.log("showStatus:checkPoints", checkPoints);
-        //Tick Mark : No empty score must be present
+        listData = audit.Listdata;
+  
+        const checkPoints = listData.filter((item) => {
+          const matches =
+            String(item.ParentId) === String(checkList.ChecklistTemplateId) &&
+            String(item.FormId) === String(checkList.FormId);
+        
+          if (matches) {
+            console.log("Matched Item:", item);
+          }
+        
+          return matches;
+        });
+        
+        console.log("Filtered checkPoints:", checkPoints);
+        console.log('showStatus:checkPoints', checkPoints);
+        const totalCheckPoint = checkPoints.length;
+        
+        if (totalCheckPoint > 0) {
+          const filledData = checkPoints.filter(
+            (checkPoint) =>
+              (checkPoint.Score && checkPoint.Score.toString() !== '-1' && checkPoint.Score.toString() !== '-2') ||
+            (checkPoint.RadioValue === 9 || checkPoint.RadioValue === 10 || checkPoint.RadioValue === 11 ||checkPoint.RadioValue === 14
+               ||checkPoint.RadioValue === 15 || checkPoint.RadioValue === 12 || checkPoint.RadioValue === 13 || checkPoint.Status === 0 ||
+                checkPoint.Status === 1 || checkPoint.Status === 2 || checkPoint.Status === 3 || checkPoint.Status === 4)
 
-        //Warning: 2/3 score must be filled without N/A
-
-        const allowedMinimum = (2 / 3).toFixed(2);  
-        var totalCheckPoint = checkPoints.length;
-        const emptyCheckPoint =  checkPoints.filter(checkPoint => checkPoint.Score === '-2');        
-            
-        if (emptyCheckPoint.length === 0)
-        {
-          const filledData = checkPoints.filter(checkPoint => checkPoint.Score.toString() !== '-1');                 
-          console.log("showStatus:filledData", filledData, allowedMinimum);
+          );
+          console.log('showStatus:filledData', filledData);
           const filledCount = filledData.length;
-          if (filledCount > 0) {         
-            const filledMin = (filledCount / totalCheckPoint).toFixed(2);
-            if (filledMin < allowedMinimum) {
-              status = -1;        
-            }
-            else
-              status = 0; 
+          filledPercentage = Math.floor((filledCount / totalCheckPoint) * 100);
+          console.log('Filled Percentage:', filledPercentage);
+          console.log('Filled Count:', filledCount);
         }
       }
-        else 
-          status = ""              
-      }
     }
-    console.log("showStatus:STATTUS", status); 
-return(
-<View
-    style={{
-      flex: 0.8,
-      flexDirection: 'row',
-      justifyContent: 'center',
-      alignItems: 'flex-end',
-    }}>
-    <View
-      style={{
-        width: 30,
-        height: 30,
-        // borderRadius: 15,
-        // backgroundColor: '#00bec1',
-        justifyContent: 'center',
-        alignItems: 'center',
-      }}>
-
-        { (status === 0 ? (
-      <Icon
-        name="check"
-        size={20}
-        color="green"
-      />
-    ) : status === -1 ? <Icon name="warning" size={20} color="red" /> : null)}
-      
-    </View>
-  </View>)
   
-  }
+    console.log('showStatus:STATUS', status);
+  
+    return (
+      <View
+        style={{
+          flex: 0.8,
+          flexDirection: 'row',
+          justifyContent: 'center',
+          alignItems: 'flex-end',
+        }}
+      >
+        <View
+          style={{
+            width: 30,
+            height: 30,
+            justifyContent: 'center',
+            alignItems: 'center',
+            flexDirection: 'row',
+            marginLeft: 5,
+          }}
+        >
+          <View
+            style={{
+              flex: 1,
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          >
+            <View
+              style={{
+                width: circleSize,
+                height: circleSize,
+                borderRadius: circleSize / 1,
+                backgroundColor: 'white',
+                borderWidth: 1,
+                borderColor: '#00bec1',
+                justifyContent: 'center',
+                alignItems: 'center',
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.3,
+                shadowRadius: 5,
+                elevation: 2,
+              }}
+            >
+              <Text style={{ fontSize: fontSize, fontWeight: 'bold' }}>
+                {filledPercentage}%
+              </Text>
+            </View>
+          </View>
+        </View>
+      </View>
+    );
+  };
+  
+
   render() {
-    console.log('CURRENT_PAGE', 'CheckListMenu')
     console.log(
-      //this.props.data.audits.auditRecords[0].CheckListPropData,
       this.props?.route?.params?.ChecklistHeading?.FormId
-        ? this.props?.route?.params?.ChecklistHeading?.FormId
-        : 0,
+      ? this.props?.route?.params?.ChecklistHeading?.FormId
+      : 0,
       'SerisProduction',
     );
 
@@ -393,44 +418,20 @@ return(
 
     return (
       <View style={styles.wrapper}>
-        {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
         <OfflineNotice />
-        <ImageBackground
-          source={Images.DashboardBG}
-          style={{
-            resizeMode: 'stretch',
-            width: '100%',
-            height: 60,
-          }}>
+        <ImageBackground source={Images.DashboardBG} style={{ resizeMode: 'stretch', width: '100%', height: 60, }}>
           <View style={styles.header}>
             <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
               <View style={styles.backlogo}>
-                {/* <ResponsiveImage source={Images.BackIconWhite} initWidth="13" initHeight="22" /> */}
                 <Icon name="angle-left" size={30} color="white" />
               </View>
             </TouchableOpacity>
             <View style={styles.heading}>
-              <Text numberOfLines={1} style={styles.headingText}>
-                {this.state.Heading}
-              </Text>
-              <Text
-                numberOfLines={1}
-                style={{
-                  fontSize: 15,
-                  color: 'white',
-                  fontFamily: 'OpenSans-Regular',
-                }}>
-                {this.state.breadCrumbText}
-              </Text>
+              <Text numberOfLines={1} style={styles.headingText}> {this.state.Heading} </Text>
+              <Text numberOfLines={1} style={{ fontSize: 15, color: 'white', fontFamily: 'OpenSans-Regular', }}> {this.state.breadCrumbText} </Text>
             </View>
             <View style={styles.headerDiv}>
-              {/* <ImageBackground source={Images.headerBG} style={styles.backgroundImage}></ImageBackground> */}
-              <TouchableOpacity
-                style={{paddingHorizontal: 10}}
-                onPress={() =>
-                  // this.props.navigation.navigate('Home')
-                  this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)
-                }>
+              <TouchableOpacity style={{paddingHorizontal: 10}} onPress={() => this.props.navigation.navigate('AuditDashboard') }>
                 <Icon name="home" size={30} color="white" />
               </TouchableOpacity>
             </View>
@@ -450,28 +451,10 @@ return(
                 <ScrollView
                   style={styles.scrollViewBody}
                   contentContainerStyle={{flexGrow: 1}}>
-                  {/* <View style={styles.statistics}>
-            <View style={styles.statCard1}>
-              <Text style={{ fontSize: 14 }}>{strings.Total_checkpoints}</Text>
-              <Text style={{ fontSize: Fonts.size.h5 }}>{this.state.totalCheck}</Text>
-            </View>
-
-            <View style={styles.statCard3}>
-              <Text style={{ fontSize: 14}}>{strings.Mandatory}</Text>
-              <Text style={{ fontSize: Fonts.size.h5}}>{this.state.mandatoryCheck}</Text>
-            </View>
-
-            <View style={styles.statCard2}>
-              <Text style={{ fontSize: 14}}>{strings.Optional}</Text>
-              <Text style={{ fontSize: Fonts.size.h5}}>{this.state.optionalCheck}</Text>
-            </View>
-          </View> */}
                   <View style={{marginTop: 10}}>
                     {this.state.displayData.map((items, i) =>
                       items.CompLevelId == 1 ? (
-                        <TouchableOpacity
-                          //onPress={once(this.onCheckListPress.bind(this,items.ChecklistTemplateId , items.ChecklistName))}
-                          style={styles.parentcardBox}>
+                        <TouchableOpacity style={styles.parentcardBox}>
                           {items.ChecklistName.toLowerCase() ===
                           'series production' ? null : (
                             <LinearGradient
@@ -487,58 +470,21 @@ return(
                                 }}>
                                 <View style={styles.checkText01}>
                                   <Text
-                                    numberOfLines={2}
-                                    style={{
-                                      color: 'white',
-                                      fontFamily: 'OpenSans-Bold',
-                                      fontSize: Fonts.size.mediump,
-                                    }}>
-                                    {items.ChecklistName}
-                                  </Text>
+                                    numberOfLines={2} style={{ color: 'white', fontFamily: 'OpenSans-Bold', fontSize: Fonts.size.mediump, }}> {items.ChecklistName} </Text>
                                 </View>
                               </View>
                             </LinearGradient>
                           )}
                         </TouchableOpacity>
                       ) : items.CompLevelId == 2 ? (
-                        <TouchableOpacity
-                          style={styles.parentcardBox}
-                          // onPress={once(
-                          //   this.onCheckListPress.bind(
-                          //     this,
-                          //     items.ChecklistTemplateId,
-                          //     items.ChecklistName
-                          //   )
-                          // )}
-                        >
-                          <View
-                            style={{
-                              width: '5%',
-                              height: 50,
-                              justifyContent: 'center',
-                              alignItems: 'center',
-                            }}></View>
+                        <TouchableOpacity style={styles.parentcardBox}>
+                          <View style={{ width: '5%', height: 50, justifyContent: 'center', alignItems: 'center', }}></View>
                           {items.ChecklistName.toLowerCase() ===
                           'series production' ? null : (
-                            <LinearGradient
-                              start={{x: 0, y: 0}}
-                              end={{x: 1, y: 0}}
-                              colors={['#00aed0', '#1FBFD0', '#00bec1']}
-                              style={styles.LG2}>
-                              <View
-                                style={{
-                                  width: '100%',
-                                  height: 50,
-                                  justifyContent: 'center',
-                                }}>
+                            <LinearGradient start={{x: 0, y: 0}} end={{x: 1, y: 0}} colors={['#00aed0', '#1FBFD0', '#00bec1']} style={styles.LG2}>
+                              <View style={{ width: '100%', height: 50, justifyContent: 'center', }}>
                                 <View style={styles.checkText01}>
-                                  <Text
-                                    numberOfLines={2}
-                                    style={{
-                                      color: 'white',
-                                      fontFamily: 'OpenSans-Bold',
-                                      fontSize: Fonts.size.mediump,
-                                    }}>
+                                  <Text numberOfLines={2} style={{ color: 'white', fontFamily: 'OpenSans-Bold', fontSize: Fonts.size.mediump, }}>
                                     {items.ChecklistName}
                                   </Text>
                                 </View>
@@ -547,79 +493,22 @@ return(
                           )}
                         </TouchableOpacity>
                       ) : (
-                        <TouchableOpacity
-                          onPress={once(
-                            this.onCheckListPress.bind(
-                              this,
-                              items.ChecklistTemplateId,
-                              items.ChecklistName,
-                            ),
-                          )}
-                          style={styles.parentcardBox}>
-                          <View
-                            style={{
-                              width: '10%',
-                              height: 50,
-                              justifyContent: 'center',
-                              alignItems: 'center',
-                            }}>
-                            <Icon
-                              name={'arrow-right'}
-                              size={15}
-                              color={'#00bec1'}
-                            />
+                        <TouchableOpacity onPress={once( this.onCheckListPress.bind( this, items.ChecklistTemplateId, items.ChecklistName, ), )} style={styles.parentcardBox}>
+                          <View style={{ width: '10%', height: 50, justifyContent: 'center', alignItems: 'center', }}>
+                            <Icon name={'arrow-right'} size={15} color={'#00bec1'} />
                           </View>
                           <View style={styles.LG3}>
                             <View style={{flex: 1, flexDirection: 'row'}}>
                               {this.props.data.audits.smdata !== 2 &&
-                              this.props.data.audits.smdata !== 3 ? // <View
-                              //   style={{
-                              //     flex: 0.8,
-                              //     flexDirection: 'row',
-                              //     justifyContent: 'center',
-                              //     alignItems: 'center',
-                              //   }}>
-                              //   <View
-                              //     style={{
-                              //       width: 30,
-                              //       height: 30,
-                              //       borderRadius: 15,
-                              //       backgroundColor: '#00bec1',
-                              //       justifyContent: 'center',
-                              //       alignItems: 'center',
-                              //     }}>
-                              //     <Text
-                              //       style={{
-                              //         color: '#fff',
-                              //         fontSize: Fonts.size.regular,
-                              //         fontFamily: 'OpenSans-Bold',
-                              //       }}>
-                              //       {this.countMandate(items)}
-                              //     </Text>
-                              //   </View>
-                              // </View>
-                              null : (
-                                <View
-                                  style={{
-                                    flex: 0.1,
-                                    flexDirection: 'row',
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                  }}></View>
+                              this.props.data.audits.smdata !== 3 ? null : (
+                                <View style={{ flex: 0.1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', }}></View>
                               )}
-
                               <View style={{flex: 5, flexDirection: 'row'}}>
-                                <Text
-                                  numberOfLines={2}
-                                  style={{
-                                    color: '#00bec1',
-                                    fontSize: Fonts.size.small,
-                                    fontFamily: 'OpenSans-Regular',
-                                  }}>
+                                <Text numberOfLines={2} style={{ color: '#00bec1', fontSize: Fonts.size.small, fontFamily: 'OpenSans-Regular'}}>
                                   {items.ChecklistName}
                                 </Text>
-                                
                               </View>
+                              {this.filledpercentage()}
                               {this.showStatus(items)}
                             </View>
                           </View>
@@ -635,8 +524,8 @@ return(
                     borderTopWidth: 1,
                     backgroundColor: 'white',
                     opacity: 0.5,
-                    width: Window.width,
-                    height: Window.height,
+                    // width: Window.width,
+                    // height: Window.height,
                     justifyContent: 'center',
                     alignItems: 'center',
                     position: 'absolute',
@@ -647,46 +536,18 @@ return(
                 </View>
               ) : null
             ) : !this.state.pageLoader ? (
-              <View
-                style={{
-                  paddingVertical: 20,
-                  borderTopWidth: 1,
-                  backgroundColor: 'white',
-                  opacity: 0.5,
-                  width: Window.width,
-                  height: Window.height,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  position: 'absolute',
-                }}>
+              <View style={{ paddingVertical: 20, borderTopWidth: 1, backgroundColor: 'white', opacity: 0.5, width: Window.width, height: Window.height, justifyContent: 'center', alignItems: 'center', position: 'absolute', }}>
                 <Text style={{fontFamily: 'OpenSans-Regular'}}>
                   {strings.No_checklists_found}
                 </Text>
               </View>
             ) : null}
             {this.state.pageLoader ? (
-              <View
-                style={{
-                  flexDirection: 'column',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  width: '100%',
-                  height: '100%',
-                }}>
-                {/* <Bars size={20} color='#48BCF7'/> */}
-                <ResponsiveImage
-                  source={Images.ContentLoader}
-                  initHeight={100}
-                  initWidth={100}
-                />
-                <Text
-                  style={{
-                    fontSize: Fonts.size.regular,
-                    fontFamily: 'OpenSans-Regular',
-                  }}>
+              <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: '100%', height: '100%', }}>
+                <ResponsiveImage source={Images.ContentLoader} initHeight={100} initWidth={100} />
+                <Text style={{ fontSize: Fonts.size.regular, fontFamily: 'OpenSans-Regular', }}>
                   {strings.cp_01}
                 </Text>
-                {/* <Text style={{fontSize:Fonts.size.small}}>We are loading checkpoint!</Text> */}
               </View>
             ) : null}
           </ImageBackground>
@@ -697,14 +558,11 @@ return(
 }
 
 const mapStateToProps = state => {
-  // console.log('mapStateToProps',state)
   return {
     data: state,
   };
 };
-
 const mapDispatchToProps = dispatch => {
   return {};
 };
-
 export default connect(mapStateToProps, mapDispatchToProps)(CheckListMenu);

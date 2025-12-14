@@ -807,12 +807,45 @@ import {
     },
   
     syncAuditFormsToServer(audits, token, cb) {
-      var documentListdataArr = [
-        {
-          DocumentListdata: audits,
-        },
-      ];
-  
+      const documentListdataArr = [];
+      const detail = {
+        DocumentListdata: audits || [],
+      };
+
+      if (Array.isArray(audits) && audits.length > 0) {
+        const [
+          {
+            AuditId,
+            AuditOrderId,
+            AuditProgramId,
+            AuditTypeId,
+            ChecklistTemplateId,
+            FormId,
+          },
+        ] = audits;
+
+        if (AuditId !== undefined && AuditId !== null) {
+          detail.AuditId = AuditId;
+        }
+        if (AuditOrderId !== undefined && AuditOrderId !== null) {
+          detail.AuditOrderId = AuditOrderId;
+        }
+        if (AuditProgramId !== undefined && AuditProgramId !== null) {
+          detail.AuditProgramId = AuditProgramId;
+        }
+        if (AuditTypeId !== undefined && AuditTypeId !== null) {
+          detail.AuditTypeId = AuditTypeId;
+        }
+        if (ChecklistTemplateId !== undefined && ChecklistTemplateId !== null) {
+          detail.ChecklistTemplateId = ChecklistTemplateId;
+        }
+        if (FormId !== undefined && FormId !== null) {
+          detail.FormId = FormId;
+        }
+      }
+
+      documentListdataArr.push(detail);
+
       console.log('auditform postBody', documentListdataArr);
       // console.log('token', token)
   

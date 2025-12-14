@@ -316,7 +316,7 @@ class CreateNC extends Component {
         );
         ////console.log('Original Data:', this.state.fileArrayList);
         const selectedItems =
-        this.props?.route?.params?.data?.selectedItemsProcess; // Example array with undefined elements
+        this.props?.route?.params?.data?.selectedItemsProcess || []; // Example array with undefined elements
 
         // Filter out undefined elements
         const filteredItems = selectedItems.filter(item => item !== undefined);
@@ -326,7 +326,7 @@ class CreateNC extends Component {
 
         //SelectedArray--->
         const arr1 =
-        this.props?.route?.params?.data?.selectedItemsProcess;
+        this.props?.route?.params?.data?.selectedItemsProcess || [];
         //Default array--->
         const arr2 = this.state.processdata;
         // //console.log("this.state.processdatathis.state.processdata",arr1 );
