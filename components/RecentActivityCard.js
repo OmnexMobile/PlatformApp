@@ -230,6 +230,11 @@ import ImageComponent from './image-component';
 // import Tag from './tag';
 
 const RecentActivityCard = ({ item = {} }) => {
+    // Normalize item to avoid accidentally rendering plain strings/numbers
+    const safeItem = item && typeof item === 'object' ? item : {};
+    const moduleName = safeItem?.Module_name || '';
+    const isSupplierModule = ['AuditPro', 'Supplier Initial Assessment', 'Supplier Routine Audit'].includes(moduleName);
+
     const { sites, handleRecentActivity, timeSettings } = useAppContext();
     const { theme } = useTheme();
     const elevation = getElevation();
@@ -237,7 +242,7 @@ const RecentActivityCard = ({ item = {} }) => {
     console.log('item in list card logo RecentActivityCard------->>>', sites, item);
 
     const handleClickCard = item => {
-        if (['AuditPro', 'Supplier Initial Assessment', 'Supplier Routine Audit'].includes(item.Module_name)) {
+        if (isSupplierModule) {
             navigation.navigate(ROUTES.AUDIT_PAGE_SM, {
                 screenFrom: 'Dashboard',
                 datapass: item,
@@ -296,10 +301,10 @@ const RecentActivityCard = ({ item = {} }) => {
                             <ImageComponent
                                 resizeMode="contain"
                                 // source={IMAGES.ps_logo_round}
-                                source={['AuditPro', 'Supplier Initial Assessment', 'Supplier Routine Audit'].includes(item.Module_name) ? IMAGES.supplier_logo : IMAGES.ps_logo_round}
+                                source={isSupplierModule ? IMAGES.supplier_logo : IMAGES.ps_logo_round}
                             />
                         </Ripple>
-                        {['AuditPro', 'Supplier Initial Assessment', 'Supplier Routine Audit'].includes(item.Module_name) ? null :
+                        {isSupplierModule ? null :
                         <Ripple
                             rippleContainerBorderRadius={SPACING.SMALL}
                             onPress={() =>
@@ -339,28 +344,26 @@ const RecentActivityCard = ({ item = {} }) => {
                                     style={{
                                         color: theme.colors.primaryThemeColor,
                                     }}>
-                                    {/* {sites?.selectedSite?.SiteName} */}
-                                    {console.log('sites?.selectedSite?.SiteName------->>>', sites?.selectedSite?.SiteName,item.Module_name)}
-                                    {['AuditPro', 'Supplier Initial Assessment', 'Supplier Routine Audit'].includes(item.Module_name) ? sites?.selectedSite?.SiteName : item?.Title}
+                                    {isSupplierModule ? sites?.selectedSite?.SiteName || '' : safeItem?.Title || ''}
                                 </TextComponent>
                             </View>
                         </View>
-                        {item?.Type ? (
+                        {safeItem?.Type ? (
                             <View style={{ width: '100%', paddingBottom: SPACING.SMALL }}>
-                                <TextComponent numberOfLines={1}>Type: {item?.Type}</TextComponent>
+                                <TextComponent numberOfLines={1}>Type: {safeItem?.Type}</TextComponent>
                             </View>
                         ) : null}
-                        {item?.ConcernNo && 
+                        {safeItem?.ConcernNo && 
                         <View style={{ width: '100%', paddingBottom: SPACING.SMALL }}>
                             <TextComponent numberOfLines={1}>
-                                Concern No: {item?.ConcernNo}
+                                Concern No: {safeItem?.ConcernNo}
                             </TextComponent>
                         </View>
                         }
-                       {item?.AuditTypeName && 
+                       {safeItem?.AuditTypeName && 
                        <View style={{ width: '100%', paddingBottom: SPACING.SMALL }}>
                             <TextComponent numberOfLines={1}>
-                                {item?.AuditTypeName}
+                                {safeItem?.AuditTypeName}
                             </TextComponent>
                         </View>}
                         {/* <View style={{ width: '100%', paddingBottom: SPACING.SMALL }}>
@@ -384,26 +387,26 @@ const RecentActivityCard = ({ item = {} }) => {
                                 <TextComponent type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.SMALL}>
                                     {/* {moment(item?.StartDate).format(DATE_FORMAT[timeSettings || "DD_MM_YYYY"])} -{' '} */}
 
-                                    {['AuditPro', 'Supplier Initial Assessment', 'Supplier Routine Audit'].includes(item.Module_name)
-                                        ? `${moment(item?.StartDate).format(DATE_FORMAT[timeSettings || "DD_MM_YYYY"])} - `
-                                        : `${moment(item?.CreatedDate).format(DATE_FORMAT[timeSettings || "DD_MM_YYYY"])} - `}
+                                    {isSupplierModule
+                                        ? `${moment(safeItem?.StartDate).format(DATE_FORMAT[timeSettings || "DD_MM_YYYY"])} - `
+                                        : `${moment(safeItem?.CreatedDate).format(DATE_FORMAT[timeSettings || "DD_MM_YYYY"])} - `}
                                 </TextComponent>
                             </View>
                             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                 <TextComponent type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.SMALL}>
 
-                                    {['AuditPro', 'Supplier Initial Assessment', 'Supplier Routine Audit'].includes(item.Module_name)
-                                        ? moment(item?.EndDate).format(DATE_FORMAT[timeSettings || "DD_MM_YYYY"])
-                                        : moment(item?.DueDate).format(DATE_FORMAT[timeSettings || "DD_MM_YYYY"])
+                                    {isSupplierModule
+                                        ? moment(safeItem?.EndDate).format(DATE_FORMAT[timeSettings || "DD_MM_YYYY"])
+                                        : moment(safeItem?.DueDate).format(DATE_FORMAT[timeSettings || "DD_MM_YYYY"])
                                     }
                                     {/* {moment(item?.DueDate).format(DATE_FORMAT.DD_MM_YYYY)} */}
                                 </TextComponent>
                             </View>
                         </View>
-                        {item?.AuditNumber && <TextComponent style={{ paddingLeft: SPACING.X_SMALL }} numberOfLines={1}> <TextComponent type={FONT_TYPE.BOLD}>{item?.AuditNumber}</TextComponent>
+                        {safeItem?.AuditNumber && <TextComponent style={{ paddingLeft: SPACING.X_SMALL }} numberOfLines={1}> <TextComponent type={FONT_TYPE.BOLD}>{safeItem?.AuditNumber}</TextComponent>
                         </TextComponent>}
-                        {item?.DuebyDays && <TextComponent style={{ paddingLeft: SPACING.X_SMALL }} numberOfLines={1}>
-                            Due by days: <TextComponent type={FONT_TYPE.BOLD}>{item?.DuebyDays}</TextComponent>
+                        {safeItem?.DuebyDays && <TextComponent style={{ paddingLeft: SPACING.X_SMALL }} numberOfLines={1}>
+                            Due by days: <TextComponent type={FONT_TYPE.BOLD}>{safeItem?.DuebyDays}</TextComponent>
                         </TextComponent>}
                         {/* <TextComponent
                             style={{ color: COLORS.searchText, paddingLeft: SPACING.X_SMALL, paddingTop: SPACING.X_SMALL }}
@@ -411,10 +414,10 @@ const RecentActivityCard = ({ item = {} }) => {
                             numberOfLines={1}>
                             {moment(item?.CreatedDate, DATE_FORMAT.DD_MM_YYYY_HH_MM_SS).fromNow()}
                         </TextComponent> */}
-                        {item?.lastOpened ? (
+                        {safeItem?.lastOpened ? (
                             <View style={{ paddingTop: SPACING.SMALL, paddingLeft: SPACING.X_SMALL }}>
                                 <TextComponent type={FONT_TYPE.BOLD} style={{ color: COLORS.green, fontSize: FONT_SIZE.X_SMALL }}>
-                                    Last opened: {moment(item?.lastOpened).fromNow()}
+                                    Last opened: {moment(safeItem?.lastOpened).fromNow()}
                                 </TextComponent>
                             </View>
                         ) : null}
@@ -462,4 +465,3 @@ const styles = StyleSheet.create({
         height: 17,
     },
 });
-

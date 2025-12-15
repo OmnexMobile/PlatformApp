@@ -16,39 +16,39 @@ export const HomeListComponentApqp = ({ title, data, loading, statusCode, hideSe
     const { handleRecentActivity } = useAppContext();
     const navigation = useNavigation();
     const [moduleLicenses, setModuleLicenses] = useState(null);
-    console.log('checkdTodayList------------>>>>>>', data);
+    console.log('checkdTodayList------------>>>>>>', data, 'hideSeeAll', hideSeeAll);
 
     useEffect(() => {
       const loadLicenses = async () => {
         const stored = await AsyncStorage.getItem('moduleLicenses');
         console.log('stored licenses', stored);
-        
         if (stored) {
           setModuleLicenses(JSON.parse(stored));
         }
       };
-
       loadLicenses();
     }, []);
-    console.log('moduleLicenses hasApqpPpapLicense', moduleLicenses?.hasApqpPpapLicense);
+    console.log('moduleLicenses', moduleLicenses);
 
     return (
         <View>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: SPACING.SMALL }}>
-                <TextComponent fontSize={FONT_SIZE.LARGE} style={{ padding: SPACING.SMALL }} type={FONT_TYPE.BOLD}>
+               <TextComponent fontSize={FONT_SIZE.LARGE} style={{ padding: SPACING.SMALL }} type={FONT_TYPE.BOLD}>
                     {title}
                 </TextComponent>
                 {data?.length && !hideSeeAll ? (
                     <TouchableOpacity
                         onPress={() => {
-                            if (currentName === 'Dhanapal Swetha   ' || 'One Auditor  ') {
-                                navigation.navigate(ROUTES.HOME_LIST_PS, {
-                                    [APP_VARIABLES.DASHBOARD_CONCERNS]: statusCode,
-                                    title,
-                                    data,
-                                });
-                            } else if (moduleLicenses.hasApqpPpapLicense) {
-                                console.log('navigating to apqp list alice');
+                            if (moduleLicenses?.hasProblemSolverLicense || moduleLicenses?.hasAuditProLicense
+                                || moduleLicenses?.hasSupplierManagementLicense) {
+                                    console.log('navigating to ps , auditpro, sm list');
+                                    navigation.navigate(ROUTES.HOME_LIST_PS, {
+                                        [APP_VARIABLES.DASHBOARD_CONCERNS]: statusCode,
+                                        title,
+                                        data,
+                                    });
+                            } else if (moduleLicenses?.hasApqpPpapLicense) {
+                                console.log('navigating to apqp list');
                                 navigation.navigate(ROUTES.HOME_LIST_APQP, {
                                     statusCode,
                                     title,
@@ -79,9 +79,9 @@ export const HomeListComponentApqp = ({ title, data, loading, statusCode, hideSe
                             <ListCardLogoSM key={index} item={item} handleRecentActivity={handleRecentActivity} />
                         ) :
                        
-                        currentName === 'Azhalle Anna   ' || 'Alice Jones' ? (
+                        moduleLicenses?.hasApqpPpapLicense ? (
                             <ListCardLogoApqp key={index} item={item} handleRecentActivity={handleRecentActivity} statusCode={statusCode} />
-                        // ) : currentName !== 'Azhalle Anna   ' ? (
+                        // ) : currentName !== moduleLicenses?.hasApqpPpapLicense ? (
                         //     <ListCardLogo key={index} item={item} handleRecentActivity={handleRecentActivity} statusCode={statusCode} />
                         ) : null
 

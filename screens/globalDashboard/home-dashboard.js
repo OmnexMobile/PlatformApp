@@ -30,17 +30,15 @@ const HomeDashboard = () => {
     const { theme } = useTheme();
     const navigation = useNavigation();
     const { sites, recentActivities, handleGlobalURL } = useAppContext();
+    console.log('recentActivities in home dashboard', recentActivities);
     const [currentName, setCurrentName] = useState('');
-
+    const [moduleLicenses, setModuleLicenses] = useState(null);
     //Apqp
-
     const [todaysActivityAPQP, setTodaysActivityAPQP] = useState([]); //APQP
     const [todayLoading, setTodayLoading] = useState(true); //APQP
     const [countAPQP, setCountAPQP] = useState([]); //APQP/
-
     //PS
     const [todaysActivityPS, setTodaysActivityPS] = useState([]);
-
     const [accessToken, setaccessToken] = useState('');
     const [userId, setuserId] = useState('');
     const [siteId, setsiteId] = useState('');
@@ -164,7 +162,19 @@ const HomeDashboard = () => {
         }
 
     }, [todaysActivitySM, todaysActivityAPQP, todaysActivityPS]);
-    console.log('Final array of today and Recent activity------->', todaysActivity, recentActivity);
+    console.log('Final array of today and Recent activity------->', todaysActivity, '------',recentActivity);
+
+    useEffect(() => {
+      const loadLicenses = async () => {
+        const stored = await AsyncStorage.getItem('moduleLicenses');
+        console.log('stored licenses', stored);
+        if (stored) {
+          setModuleLicenses(JSON.parse(stored));
+        }
+      };
+      loadLicenses();
+    }, []);
+    console.log('moduleLicenses hasApqpPpapLicense', moduleLicenses?.hasSupplierManagementLicense,moduleLicenses?.hasApqpPpapLicense, moduleLicenses?.hasProblemSolverLicense)
 
     // const updateRecentList = (SM) => {
     //     console.log('updateRecentList called', SM);
@@ -269,7 +279,7 @@ const HomeDashboard = () => {
     const getApqpList = async () => {
         const UserFullName = await localStorage.getData(LOCAL_STORAGE_VARIABLES.UserFullName);
         console.log('UserFullName------------', UserFullName);
-        // if (UserFullName === 'Azhalle Anna   ' || 'Alice Jones') {
+        // if(moduleLicenses?.hasApqpPpapLicense) {
             getData()
                 .then(res => {
                     console.log('async  getdata apqp', res);
@@ -452,9 +462,8 @@ const HomeDashboard = () => {
                         currentName: currentName,
                     }}
                 />
-                {/* Recent Activity */}
-                {currentName === 'Azhalle Anna   ' || 'Alice Jones' ?
-              
+                {/* Recent Activity */}             
+                {moduleLicenses?.hasApqpPpapLicense ?
                     <HomeListComponentApqp
                         {...{
                             statusCode: STATUS_CODES.PENDING_CONCERN,

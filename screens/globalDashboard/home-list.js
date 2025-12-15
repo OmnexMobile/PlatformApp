@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { TouchableOpacity, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { TextComponent, ListCard, PlaceHolders, NoRecordFound } from 'components';
@@ -9,12 +9,25 @@ import { useAppContext } from 'contexts/app-context';
 import ListCardLogo from 'components/ListCard-logo';
 import ListCardLogoSM from 'components/ListCard-logoSM';
 import ListCardLogoApqp from 'components/ListCard-logo-apqp';
+import AsyncStorage from '@react-native-community/async-storage';
 
 export const HomeListComponent = ({ title, data, loading, statusCode, hideSeeAll, currentName }) => {
     const { theme } = useTheme();
     const { handleRecentActivity } = useAppContext();
     const navigation = useNavigation();
+        const [moduleLicenses, setModuleLicenses] = useState(null);
     console.log('checkdTodayList------------>>>>>>', data);
+
+    useEffect(() => {
+      const loadLicenses = async () => {
+        const stored = await AsyncStorage.getItem('moduleLicenses');
+        console.log('stored licenses', stored);
+        if (stored) {
+          setModuleLicenses(JSON.parse(stored));
+        }
+      };
+      loadLicenses();
+    }, []);
 
     return (
         <View>
@@ -26,12 +39,14 @@ export const HomeListComponent = ({ title, data, loading, statusCode, hideSeeAll
                     <TouchableOpacity
                         onPress={() => {
                             if (currentName === 'Dhanapal Swetha   ') {
+                            // if (moduleLicenses?.hasProblemSolverLicense || moduleLicenses?.hasAuditProLicense
+                            //     || moduleLicenses?.hasSupplierManagementLicense) {
                                 navigation.navigate(ROUTES.HOME_LIST_PS, {
                                     [APP_VARIABLES.DASHBOARD_CONCERNS]: statusCode,
                                     title,
                                     data,
                                 });
-                            } else if (currentName === 'Azhalle Anna   ' || 'Alice Jones') {
+                            } else if (moduleLicenses?.hasApqpPpapLicense) {
                                 navigation.navigate(ROUTES.HOME_LIST_APQP, {
                                     statusCode,
                                     title,
@@ -61,9 +76,9 @@ export const HomeListComponent = ({ title, data, loading, statusCode, hideSeeAll
                         ['AuditPro', 'Supplier Initial Assessment', 'Supplier Routine Audit'].includes(item.Module_name) ? (
                             <ListCardLogoSM key={index} item={item} handleRecentActivity={handleRecentActivity} />
                         ) :
-                        currentName === 'Azhalle Anna   ' || 'Alice Jones'? (
+                        moduleLicenses?.hasApqpPpapLicense? (
                             <ListCardLogoApqp key={index} item={item} handleRecentActivity={handleRecentActivity} statusCode={statusCode} />
-                        ) : currentName !== 'Azhalle Anna   ' || 'Alice Jones' ? (
+                        ) : !moduleLicenses?.hasApqpPpapLicense ? (
                             <ListCardLogo key={index} item={item} handleRecentActivity={handleRecentActivity} statusCode={statusCode} />
                         ) : null
 
