@@ -361,6 +361,30 @@ class CreateNC extends Component {
     });
   }
 
+  getRequestedById = () => {
+    const {NCresponsible} = this.state;
+    if (!NCresponsible) {
+      return undefined;
+    }
+    return typeof NCresponsible === 'object'
+      ? NCresponsible.id
+      : NCresponsible;
+  };
+
+  getRequestedByValue = () => {
+    const {NCresponsible, UserArr, RequestArr} = this.state;
+    if (!NCresponsible) {
+      return '';
+    }
+    if (typeof NCresponsible === 'object' && NCresponsible.value) {
+      return NCresponsible.value;
+    }
+    const matchedRecord =
+      UserArr.find(user => user.id === NCresponsible) ||
+      RequestArr.find(req => req.id === NCresponsible);
+    return matchedRecord ? matchedRecord.value : '';
+  };
+
   // onSpeechResults = (e) => {this.setState({ nonconfirmityText: e.value[0] });};
   
   // handleInputChange = (text) => {     this.setState({ PrevNonConformity: this.state.nonconfirmityText, : text });   };
@@ -1962,7 +1986,10 @@ class CreateNC extends Component {
         nonconfirmityText: this.state.ncData.NonConfirmity,
         // NCresponsible: this.state.ncData.userDrop,
         // NCresponsible: this.state.RequestArr[0],
-        NCresponsible: this.state.requestDropdown[0].id,
+        NCresponsible:
+          this.state.ncData.requestDrop ||
+          this.state.ncData.userDrop ||
+          (this.state.requestDropdown?.[0] || undefined),
         ofitext: this.state.ncData.ofitext,
         fileName: this.state.ncData.filename,
         fileData: this.state.ncData.filedata,
@@ -2151,6 +2178,7 @@ class CreateNC extends Component {
         UserArr: UserArr,
         RequestArr: RequestArr,
         FailureCategory: FailureCategory,
+        NCresponsible: this.state.NCresponsible || NCresponsible,
         // NCresponsible: (this.state.NCresponsible) ? this.state.NCresponsible : NCresponsible
         // PageLoader: false
       },
@@ -2198,21 +2226,21 @@ class CreateNC extends Component {
         dialogVisible: false,
         selectedItems: [],
         selectedItemsProcess: [],
-        displayData: undefined,
+        displayData: '',
         NCcategoryt: undefined,
         NCuser: undefined,
         NCrequestby: undefined,
         NCdept: undefined,
         NCFailure: undefined,
-        requirementText: undefined,
-        nonconfirmityText: undefined,
+        requirementText: '',
+        nonconfirmityText: '',
         NCresponsible: undefined,
-        ofitext: undefined,
+        ofitext: '',
         fileName: undefined,
         fileData: undefined,
-        documentRef: undefined,
+        documentRef: '',
         ncIdentifier: '',
-        objEvidence: undefined,
+        objEvidence: '',
         recommAction: '',
         fileArrayList: [],
       },
@@ -2393,7 +2421,7 @@ class CreateNC extends Component {
               userDrop: this.state.NCrequestby,
               //  requestDrop: this.state.RequestArr,
               // requestDrop: this.state.NCresponsible,
-              requestDrop: this.state.requestDropdown[0].id,
+              requestDrop: this.getRequestedById(),
               deptDrop: this.state.NCdept === undefined ? 0 : this.state.NCdept,
               failureDrop:
                 this.state.NCFailure === undefined
@@ -2751,7 +2779,7 @@ class CreateNC extends Component {
             categoryDrop: this.state.NCcategoryt,
             userDrop: this.state.NCrequestby,
             // requestDrop: this.state.NCresponsible,
-            requestDrop: this.state.requestDropdown[0].id,
+            requestDrop: this.getRequestedById(),
             deptDrop: this.state.NCdept === undefined ? 0 : this.state.NCdept,
             failureDrop:
               this.state.NCFailure === undefined ? 0 : this.state.NCFailure,
@@ -3978,12 +4006,7 @@ class CreateNC extends Component {
                           //     ? this.state.NCresponsible.value
                           //     : ''
                           // }
-                          value={
-                            this.state.requestDropdown &&
-                            this.state.requestDropdown.length >= 1
-                              ? this.state.requestDropdown[0].value
-                              : ''
-                          }
+                          value={this.getRequestedByValue()}
                           label={strings.RequestedL}
                           data={user}
                           baseColor={
@@ -4727,6 +4750,7 @@ class CreateNC extends Component {
                     style={{
                       fontSize: Fonts.size.h5,
                       fontFamily: 'OpenSans-Regular',
+                      color: '#000',
                     }}>
                     {this.state.NCtxtFlag == false
                       ? strings.StandardRequirementsL
@@ -4746,6 +4770,7 @@ class CreateNC extends Component {
                               style={{
                                 fontSize: Fonts.size.regular,
                                 fontFamily: 'OpenSans-Bold',
+                                color: '#000',
                               }}>
                               {item.name}
                             </Text>
@@ -4754,6 +4779,7 @@ class CreateNC extends Component {
                               style={{
                                 fontSize: Fonts.size.regular,
                                 fontFamily: 'OpenSans-Regular',
+                                color: '#000',
                               }}>
                               {item.Requirement == null
                                 ? 'No content found for this clause'
@@ -4770,6 +4796,7 @@ class CreateNC extends Component {
                           style={{
                             fontSize: Fonts.size.regular,
                             fontFamily: 'OpenSans-Regular',
+                            color: '#000',
                           }}>
                           {this.state.RouteParam === 'NC'
                             ? this.state.nonconfirmityText
