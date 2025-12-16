@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
-  TouchableOpacity, SafeAreaView,
+  TouchableOpacity,
+  SafeAreaView,
   View,
   FlatList,
   StyleSheet,
@@ -11,6 +12,7 @@ import {
   LogBox,
   Modal,
   ScrollView,
+  ActivityIndicator,
 } from 'react-native';
 // import { Card, IconButton } from 'react-native-paper';
 import { COLORS, FONT_SIZE, SPACING } from 'constants/theme-constants';
@@ -72,9 +74,36 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
       title: tabIndex === 0 ? strings.ppapProjects : strings.apqp_ppapManager,
       detail: [
         { images: tabIndex === 0 ? IMAGES.actions : null, category: tabIndex === 0 ? strings.Actions : null, status: 0 },
-        { images: IMAGES.projects, category: tabIndex === 0 ? strings.projects : strings.apap_ppap, status: tabIndex === 0 ? 0 : apqpCount?.APQPPPAP ? apqpCount?.APQPPPAP : 0},
-        { images: tabIndex === 0 ? null : IMAGES.risk, category: tabIndex === 0 ? null : strings.risk, status: tabIndex === 0 ? 0 : apqpCount?.Risk ? apqpCount?.Risk : 0 },
-        { images: tabIndex === 0 ? null : IMAGES.meeting, category: tabIndex === 0 ? null : strings.meeting, status: tabIndex === 0 ? 0 : apqpCount?.Meetings ? apqpCount?.Meetings : 0 },
+        {
+          images: IMAGES.projects,
+          category: tabIndex === 0 ? strings.projects : strings.apap_ppap,
+          status:
+            tabIndex === 0
+              ? 0
+              : apqpCount
+                ? apqpCount?.APQPPPAP ?? 0
+                : undefined,
+        },
+        {
+          images: tabIndex === 0 ? null : IMAGES.risk,
+          category: tabIndex === 0 ? null : strings.risk,
+          status:
+            tabIndex === 0
+              ? 0
+              : apqpCount
+                ? apqpCount?.Risk ?? 0
+                : undefined,
+        },
+        {
+          images: tabIndex === 0 ? null : IMAGES.meeting,
+          category: tabIndex === 0 ? null : strings.meeting,
+          status:
+            tabIndex === 0
+              ? 0
+              : apqpCount
+                ? apqpCount?.Meetings ?? 0
+                : undefined,
+        },
         { images: tabIndex === 0 ? IMAGES.todayTask : null, category: tabIndex === 0 ? strings.todayTask : null, status: 0 },
         { images: tabIndex === 0 ? IMAGES.dailyTask : null, category: tabIndex === 0 ? strings.dailyTask : null, status: 0 },
       ]
@@ -83,10 +112,36 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
       id: 2,
       title: strings.auditPro,
       detail: [
-        { images: IMAGES.scheduledAudit, category: strings.scheduledAudit, status: auditStats?.Scheduled ?? 0, navStatus: 2, auditTitle: strings.scheduled },
-        { images: IMAGES.completedAudit, category: strings.completedAudit, status: auditStats?.Completed ?? 0, navStatus: 3, auditTitle: strings.completed },
-        { images: IMAGES.deadlineViolated, category: strings.deadlineViolated, status: auditStats?.DeadlineViolated ?? 0, navStatus: 4, auditTitle: strings.deadlineviolated },
-        { images: IMAGES.closedOut, category: strings.closedOut, status: auditStats?.CompletedDeadlineViolated ?? 0, navStatus: 5, auditTitle: strings.abb_deadlineviolatedandcompleted }
+        {
+          images: IMAGES.scheduledAudit,
+          category: strings.scheduledAudit,
+          status: auditStats ? auditStats?.Scheduled ?? 0 : undefined,
+          navStatus: 2,
+          auditTitle: strings.scheduled,
+        },
+        {
+          images: IMAGES.completedAudit,
+          category: strings.completedAudit,
+          status: auditStats ? auditStats?.Completed ?? 0 : undefined,
+          navStatus: 3,
+          auditTitle: strings.completed,
+        },
+        {
+          images: IMAGES.deadlineViolated,
+          category: strings.deadlineViolated,
+          status: auditStats ? auditStats?.DeadlineViolated ?? 0 : undefined,
+          navStatus: 4,
+          auditTitle: strings.deadlineviolated,
+        },
+        {
+          images: IMAGES.closedOut,
+          category: strings.closedOut,
+          status: auditStats
+            ? auditStats?.CompletedDeadlineViolated ?? 0
+            : undefined,
+          navStatus: 5,
+          auditTitle: strings.abb_deadlineviolatedandcompleted,
+        },
       ]
     },
     {
@@ -94,9 +149,23 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
       title: tabIndex === 0 ? strings.problemSolver : null,
       detail: tabIndex === 0 ? [
         // { images: tabIndex === 0 ? IMAGES.supplierConcerns : IMAGES.concerns, category: tabIndex === 0 ? strings.supplierConcerns : strings.concerns, status: 0 },
-        { images: IMAGES.concerns, category: strings.concerns, status: psCounts?.TotalConcern ? psCounts?.TotalConcern : 0 },
-        { images: IMAGES.openConcerns, category: strings.openConcerns, status: psCounts?.OpenConcern ? psCounts?.OpenConcern : 0 },
-        { images: IMAGES.inProgressConcerns, category: strings.inProgressConcerns, status: psCounts?.InprogressConcern ? psCounts?.InprogressConcern : 0 },
+        {
+          images: IMAGES.concerns,
+          category: strings.concerns,
+          status: psCounts ? Number(psCounts?.TotalConcern ?? 0) : undefined,
+        },
+        {
+          images: IMAGES.openConcerns,
+          category: strings.openConcerns,
+          status: psCounts ? Number(psCounts?.OpenConcern ?? 0) : undefined,
+        },
+        {
+          images: IMAGES.inProgressConcerns,
+          category: strings.inProgressConcerns,
+          status: psCounts
+            ? Number(psCounts?.InprogressConcern ?? 0)
+            : undefined,
+        },
       ] : [],
     },
     {
@@ -112,9 +181,24 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
       id: 5,
       title: tabIndex === 0 ? strings.inspectionControl : null,
       detail: tabIndex === 0 ? [
-        { images: IMAGES.ICIS, category: strings.inspectionSchedule, status: icCount?.inspection ? icCount?.inspection : 0, routeName: ROUTES.INSPECTION_SCHEDULE },
-        { images: IMAGES.ICOS, category: strings.operatorWorksheet, status: icCount?.operatorList ?icCount?.operatorList : 0, routeName: ROUTES.OPERATOR_WORKSHEET },
-        { images: IMAGES.ICCI, category: strings.completedInspection, status: icCount?.completed ? icCount?.completed : 0, routeName: ROUTES.COMPLETED_INSPECTION },
+        {
+          images: IMAGES.ICIS,
+          category: strings.inspectionSchedule,
+          status: icCount ? Number(icCount?.inspection ?? 0) : undefined,
+          routeName: ROUTES.INSPECTION_SCHEDULE,
+        },
+        {
+          images: IMAGES.ICOS,
+          category: strings.operatorWorksheet,
+          status: icCount ? Number(icCount?.operatorList ?? 0) : undefined,
+          routeName: ROUTES.OPERATOR_WORKSHEET,
+        },
+        {
+          images: IMAGES.ICCI,
+          category: strings.completedInspection,
+          status: icCount ? Number(icCount?.completed ?? 0) : undefined,
+          routeName: ROUTES.COMPLETED_INSPECTION,
+        },
       //   { images: IMAGES.ICSS, category: strings.supervisorSchedule, status: 4, routeName: ROUTES.SUPERVISOR_SCHEDULE },
       ] : [],
     },
@@ -135,23 +219,67 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
           {
             groupTitle: strings.supplierInitialAssessment, // Supplier Assessment Audits
             audits: [
-              { images: IMAGES.scheduledAudit, category: strings.scheduledAudit, status: assessmentStats?.Scheduled },
-              { images: IMAGES.completedAudit, category: strings.completedAudit, status: assessmentStats?.Completed },
-              { images: IMAGES.deadlineViolated, category: strings.deadlineViolated, status: assessmentStats?.DeadlineViolated },
-              { images: IMAGES.closedOut, category: strings.closedOut, status: assessmentStats?.CompletedDeadlineViolated },
+              {
+                images: IMAGES.scheduledAudit,
+                category: strings.scheduledAudit,
+                status: assessmentStats
+                  ? assessmentStats?.Scheduled ?? 0
+                  : undefined,
+              },
+              {
+                images: IMAGES.completedAudit,
+                category: strings.completedAudit,
+                status: assessmentStats
+                  ? assessmentStats?.Completed ?? 0
+                  : undefined,
+              },
+              {
+                images: IMAGES.deadlineViolated,
+                category: strings.deadlineViolated,
+                status: assessmentStats
+                  ? assessmentStats?.DeadlineViolated ?? 0
+                  : undefined,
+              },
+              {
+                images: IMAGES.closedOut,
+                category: strings.closedOut,
+                status: assessmentStats
+                  ? assessmentStats?.CompletedDeadlineViolated ?? 0
+                  : undefined,
+              },
             ],
           },
           {
             groupTitle: strings.supplierRoutineAudit, // Supplier Routine Audits
             audits: [
-              { images: IMAGES.scheduledAudit, category: strings.scheduledAudit, status: routineStats?.Scheduled || 0 },
-              { images: IMAGES.completedAudit, category: strings.completedAudit, status: routineStats?.Completed || 0 },
               {
-                  images: IMAGES.deadlineViolated,
-                  category: strings.deadlineViolated,
-                  status: routineStats?.DeadlineViolated || 0,
+                images: IMAGES.scheduledAudit,
+                category: strings.scheduledAudit,
+                status: routineStats
+                  ? routineStats?.Scheduled ?? 0
+                  : undefined,
               },
-              { images: IMAGES.closedOut, category: strings.closedOut, status: routineStats?.CompletedDeadlineViolated || 0 },
+              {
+                images: IMAGES.completedAudit,
+                category: strings.completedAudit,
+                status: routineStats
+                  ? routineStats?.Completed ?? 0
+                  : undefined,
+              },
+              {
+                images: IMAGES.deadlineViolated,
+                category: strings.deadlineViolated,
+                status: routineStats
+                  ? routineStats?.DeadlineViolated ?? 0
+                  : undefined,
+              },
+              {
+                images: IMAGES.closedOut,
+                category: strings.closedOut,
+                status: routineStats
+                  ? routineStats?.CompletedDeadlineViolated ?? 0
+                  : undefined,
+              },
             ],
           },
         ],
@@ -242,7 +370,7 @@ const dataSet = React.useMemo(() => {
                         ? {
                               images: IMAGES.ICIS,
                               category: strings.searchInspection,
-                              status: icCount?.search ? icCount?.search : 0,
+                              status: icCount ? Number(icCount?.search ?? 0) : undefined,
                               routeName: ROUTES.SEARCH_INSPECTION,
                           }
                         : detailItem,
@@ -788,9 +916,22 @@ const dataSet = React.useMemo(() => {
                 <TextComponent style={styles.cardTitle}>
                   {items.category}
                 </TextComponent>
-                <TextComponent type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.X_LARGE} style={styles.countText}>
-                  {items?.status ?? 0}
-                </TextComponent>
+                <View style={styles.countContainer}>
+                  {items?.status === undefined || items?.status === null ? (
+                    <ActivityIndicator
+                      size="small"
+                      color={COLORS.primaryThemeColor}
+                    />
+                  ) : (
+                    <TextComponent
+                      type={FONT_TYPE.BOLD}
+                      fontSize={FONT_SIZE.X_LARGE}
+                      style={styles.countText}
+                    >
+                      {items?.status}
+                    </TextComponent>
+                  )}
+                </View>
               </TouchableOpacity>
             ) : null
           ))}
@@ -856,9 +997,22 @@ const dataSet = React.useMemo(() => {
                     <TextComponent style={styles.cardTitle}>
                       {audit.category}
                     </TextComponent>
-                    <TextComponent type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.X_LARGE} style={styles.countText}>
-                      {audit?.status ?? 0}
-                    </TextComponent>
+                    <View style={styles.countContainer}>
+                      {audit?.status === undefined || audit?.status === null ? (
+                        <ActivityIndicator
+                          size="small"
+                          color={COLORS.primaryThemeColor}
+                        />
+                      ) : (
+                        <TextComponent
+                          type={FONT_TYPE.BOLD}
+                          fontSize={FONT_SIZE.X_LARGE}
+                          style={styles.countText}
+                        >
+                          {audit?.status}
+                        </TextComponent>
+                      )}
+                    </View>
                   </TouchableOpacity>
                 ))}
               </View>
@@ -950,8 +1104,12 @@ const styles = StyleSheet.create({
     color: COLORS.black,
     marginTop: SPACING.SMALL,
   },
-  countText: {
+  countContainer: {
     marginTop: SPACING.SMALL,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  countText: {
     color: COLORS.black,
   },
   imageView: {

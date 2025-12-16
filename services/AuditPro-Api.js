@@ -808,24 +808,37 @@ import {
   
     syncAuditFormsToServer(audits, token, cb) {
       const documentListdataArr = [];
+      const rawDocuments = Array.isArray(audits) ? audits : [];
+
       const detail = {
-        DocumentListdata: audits || [],
+        DocumentListdata: [],
       };
 
-      if (Array.isArray(audits) && audits.length > 0) {
+      let auditId = null;
+
+      if (rawDocuments.length > 0) {
         const [
           {
             AuditId,
+            AuditID,
             AuditOrderId,
             AuditProgramId,
             AuditTypeId,
             ChecklistTemplateId,
             FormId,
           },
-        ] = audits;
+        ] = rawDocuments;
 
-        if (AuditId !== undefined && AuditId !== null) {
-          detail.AuditId = AuditId;
+        const firstAuditId =
+          AuditId !== undefined && AuditId !== null
+            ? AuditId
+            : AuditID !== undefined && AuditID !== null
+            ? AuditID
+            : null;
+
+        if (firstAuditId !== null) {
+          detail.AuditId = firstAuditId;
+          auditId = firstAuditId;
         }
         if (AuditOrderId !== undefined && AuditOrderId !== null) {
           detail.AuditOrderId = AuditOrderId;
@@ -844,10 +857,36 @@ import {
         }
       }
 
+      // Ensure every document carries an AuditId so that the
+      // backend procedure always receives the parameter.
+      const normalizedDocs = rawDocuments.map(doc => {
+        const docAuditId =
+          doc.AuditId !== undefined && doc.AuditId !== null
+            ? doc.AuditId
+            : doc.AuditID !== undefined && doc.AuditID !== null
+            ? doc.AuditID
+            : auditId;
+        return {
+          ...doc,
+          AuditId: docAuditId,
+        };
+      });
+
+      detail.DocumentListdata = normalizedDocs;
       documentListdataArr.push(detail);
 
       console.log('auditform postBody', documentListdataArr);
-      // console.log('token', token)
+
+      const payload = {
+        AuditFormDocumentUploadDetails: documentListdataArr,
+      };
+
+      // The backend stored procedure `sp_api_AuditSaveAuditformattachment`
+      // expects an explicit `@AuditId` parameter. We surface that at the
+      // root of the JSON payload and on each document.
+      if (auditId !== null) {
+        payload.AuditId = auditId;
+      }
   
       fetch(sURL + AuditFormDocumentUpload, {
         method: 'POST',
@@ -855,9 +894,7 @@ import {
           'Content-Type': 'application/json',
           Authorization: 'Bearer' + ' ' + token,
         },
-        body: JSON.stringify({
-          AuditFormDocumentUploadDetails: documentListdataArr,
-        }),
+        body: JSON.stringify(payload),
       })
         .then(resp => resp.json())
         .then(data => {

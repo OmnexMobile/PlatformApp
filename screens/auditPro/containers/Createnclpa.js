@@ -491,6 +491,17 @@ class CreateNC extends Component {
       );
       //console.log('logvalllllll', this.state.nonconfirmityText);
 
+      // Decide whether this screen should behave as ADD or EDIT.
+      // Some older callers may not pass an explicit `type`, so if
+      // `data` is present we default to EDIT.
+      const incomingType = this.props?.route?.params?.type;
+      const hasPrefillData = !!this.props?.route?.params?.data;
+      const resolvedType = incomingType
+        ? incomingType
+        : hasPrefillData
+        ? 'EDIT'
+        : 'ADD';
+
       this.setState(
         {
           isLPA: isLpa,
@@ -515,7 +526,7 @@ class CreateNC extends Component {
           title: this.props?.route?.params?.NCOFIDetails?.title,
           auditnumber: this.props?.route?.params?.NCOFIDetails?.AUDIT_NO,
           clauseRecords: this.props.data.audits?.auditRecords,
-          type: this.props?.route?.params?.type,
+          type: resolvedType,
           ncData: this.props?.route?.params?.data,
           selectedItems: this.props?.route?.params?.data
             ? this.props?.route?.params?.data?.selectedItems
@@ -2192,15 +2203,56 @@ class CreateNC extends Component {
       });
     }
 
+    // Resolve any pre-selected values (especially when editing) so that
+    // numeric IDs coming from pending NC/OFI records are converted into
+    // the `{ id, value }` objects expected by the dropdowns.
+    const resolveOption = (current, list) => {
+      if (current === null || current === undefined) {
+        return undefined;
+      }
+
+      // When we already have an object with an id, try to re-use it.
+      if (typeof current === 'object' && current.id !== undefined) {
+        const found = list.find(item => item.id === current.id);
+        return found || current;
+      }
+
+      const numericId =
+        typeof current === 'number' ? current : parseInt(current, 10);
+      if (!Number.isFinite(numericId)) {
+        return undefined;
+      }
+      return list.find(item => item.id === numericId) || undefined;
+    };
+
+    const resolvedCategory = resolveOption(
+      this.state.NCcategoryt,
+      categoryArr,
+    );
+    const resolvedDept = resolveOption(this.state.NCdept, departArr);
+
+    // Requested-by can arrive either as an object or as a plain id
+    // stored in `ncData.requestDrop`.
+    const requestSource =
+      this.state.NCrequestby ||
+      (this.state.ncData ? this.state.ncData.requestDrop : undefined);
+    const resolvedRequest = resolveOption(requestSource, RequestArr);
+
     this.setState(
       {
-        categoryArr: categoryArr,
-        departArr: departArr,
-        UserArr: UserArr,
-        selectedItemsResponse: UserArr?.filter((data) => data?.selection === "True").map((data) => data?.id),
-      // selectedItemsResponse:this.state.selectedItemsResponse,
-        RequestArr: RequestArr,
-        FailureCategory: FailureCategory,
+        categoryArr,
+        departArr,
+        UserArr,
+        selectedItemsResponse: UserArr?.filter(
+          data => data?.selection === 'True',
+        ).map(data => data?.id),
+        RequestArr,
+        FailureCategory,
+        // Apply the resolved selections so that the edit flow
+        // correctly pre-fills mandatory dropdown fields.
+        NCcategoryt: resolvedCategory,
+        NCdept: resolvedDept,
+        NCrequestby: resolvedRequest,
       },
       
       () => {
@@ -3526,13 +3578,18 @@ class CreateNC extends Component {
             <View style={styles.heading}>
               {this.state.PageLoader === false ? (
                 <Text style={styles.headingText}>
-                  {this.state.RouteParam === 'NC'
-                    ? this.state.type == 'ADD'
-                      ? strings.Upload + ' ' + 'NC'
-                      : strings.Edit + ' ' + 'NC'
-                    : this.state.type == 'ADD'
-                      ? strings.Upload + ' ' + 'OFI'
-                      : strings.Edit + ' ' + 'OFI'}
+                  {(() => {
+                    const isNC = this.state.RouteParam === 'NC';
+                    const hasPrefillData = !!this.state.ncData;
+                    const isEdit =
+                      (this.state.type &&
+                        this.state.type.toUpperCase() === 'EDIT') ||
+                      hasPrefillData;
+                    if (isNC) {
+                      return (isEdit ? strings.Edit : strings.Upload) + ' NC';
+                    }
+                    return (isEdit ? strings.Edit : strings.Upload) + ' OFI';
+                  })()}
                 </Text>
               ) : null}
               <Text

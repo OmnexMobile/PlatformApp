@@ -258,50 +258,14 @@ class CheckListMenu extends Component {
     console.log('displayData', this.state.displayData);
     return items.MandatoryCount;
   }
-  filledpercentage = checkList => {
-    console.log('Enter filledpercentage');
-    var auditRecords = this.props.data.audits.auditRecords;
-    console.log('auditRecords/fill', auditRecords);
-    
-    var AuditID = this.props.route.params.AuditID;
-    let listData = [];
-    let filledPercentage = 0; // Initialize percentage variable
-    let filledCount = 0; // Ensure filledCount is defined
-  
-    for (var i = 0; i < auditRecords.length; i++) {
-      if (AuditID === auditRecords[i].AuditId) {
-        const listData = auditRecords[i].Listdata;
-        console.log(listData, 'listData/full');
-        
-        const checkPoints = listData.filter(
-          item =>
-            item.ParentId.toString() === this.state.ChecklistTemplateId &&
-            item.FormId === this.state.FormId,
-           
-        );
-  
-        if (checkPoints.length > 0) {  // Prevent division by zero
-          const filledData = checkPoints.filter((cp, idx) => {
-            const scoreValid = cp.Score !== null && cp.Score !== '-1' && cp.Score !== '-2';
-            const valueValid = cp.Status !== undefined && cp.Status !== null && cp.Status.trim() !== '';  
-            return scoreValid || valueValid;
-          });
-          filledCount = filledData.length;
-          filledPercentage = Math.floor((filledCount / checkPoints.length) * 100);
-        } else {
-          filledPercentage = 0;  // If no checkpoints, percentage is 0
-          filledCount = 0;  // Ensure filledCount is 0 if no checkpoints
-        }
-  
-        console.log('Filled Percentage:', filledPercentage);
-        console.log('Filled Count:', filledCount);
-      }
-    }
-  };
-  
   showStatus = (checkList) => {
     var auditRecords = this.props.data.audits.auditRecords;
-    var AuditID = this.props?.route?.params?.AuditID;
+    // Use the same AuditID resolution logic as LongTask
+    // so that percentage works regardless of how we arrived here.
+    var AuditID =
+      this.props?.route?.params?.AuditID ||
+      this.props?.route?.params?.Checkpass?.AuditID ||
+      this.props?.route?.params?.Checkpass?.AuditId;
     let listData = [];
     let status = checkList.MandatoryCount;
     let filledPercentage = 0; // Initialize percentage variable
@@ -330,14 +294,30 @@ class CheckListMenu extends Component {
         const totalCheckPoint = checkPoints.length;
         
         if (totalCheckPoint > 0) {
-          const filledData = checkPoints.filter(
-            (checkPoint) =>
-              (checkPoint.Score && checkPoint.Score.toString() !== '-1' && checkPoint.Score.toString() !== '-2') ||
-            (checkPoint.RadioValue === 9 || checkPoint.RadioValue === 10 || checkPoint.RadioValue === 11 ||checkPoint.RadioValue === 14
-               ||checkPoint.RadioValue === 15 || checkPoint.RadioValue === 12 || checkPoint.RadioValue === 13 || checkPoint.Status === 0 ||
-                checkPoint.Status === 1 || checkPoint.Status === 2 || checkPoint.Status === 3 || checkPoint.Status === 4)
+          const filledData = checkPoints.filter(checkPoint => {
+            const score = checkPoint.Score;
+            const hasScore =
+              score !== null &&
+              score !== undefined &&
+              score.toString() !== '-1' &&
+              score.toString() !== '-2';
 
-          );
+            const hasSelection =
+              checkPoint.RadioValue === 9 ||
+              checkPoint.RadioValue === 10 ||
+              checkPoint.RadioValue === 11 ||
+              checkPoint.RadioValue === 12 ||
+              checkPoint.RadioValue === 13 ||
+              checkPoint.RadioValue === 14 ||
+              checkPoint.RadioValue === 15 ||
+              checkPoint.Status === 0 ||
+              checkPoint.Status === 1 ||
+              checkPoint.Status === 2 ||
+              checkPoint.Status === 3 ||
+              checkPoint.Status === 4;
+
+            return hasScore || hasSelection;
+          });
           console.log('showStatus:filledData', filledData);
           const filledCount = filledData.length;
           filledPercentage = Math.floor((filledCount / totalCheckPoint) * 100);
@@ -508,7 +488,6 @@ class CheckListMenu extends Component {
                                   {items.ChecklistName}
                                 </Text>
                               </View>
-                              {this.filledpercentage()}
                               {this.showStatus(items)}
                             </View>
                           </View>

@@ -1,5 +1,5 @@
 diff --git a/node_modules/react-native-material-dropdown/src/components/dropdown/index.js b/node_modules/react-native-material-dropdown/src/components/dropdown/index.js
-index b1e65a1..a8baaa2 100644
+index b1e65a1..9c0ddc6 100644
 --- a/node_modules/react-native-material-dropdown/src/components/dropdown/index.js
 +++ b/node_modules/react-native-material-dropdown/src/components/dropdown/index.js
 @@ -17,7 +17,7 @@ import { TextField } from 'react-native-material-textfield';
@@ -20,3 +20,18 @@ index b1e65a1..a8baaa2 100644
  
      itemCount: PropTypes.number,
      itemPadding: PropTypes.number,
+@@ -499,9 +499,11 @@ export default class Dropdown extends PureComponent {
+       return renderBase({ ...props, title, value, renderAccessory });
+     }
+ 
+-    title = null == title || 'string' === typeof title?
+-      title:
+-      String(title);
++    if (null == title) {
++      title = '';
++    } else if ('string' !== typeof title) {
++      title = String(title);
++    }
+ 
+     return (
+       <TextField

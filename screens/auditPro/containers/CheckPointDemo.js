@@ -303,7 +303,7 @@ class CheckPointDemo extends Component {
       },
       () => {
         if (navigateHome) {
-          this.props.navigation.navigate('AuditDashboard');
+          this.props.navigation.navigate(ROUTES.AUDIT_DASHBOARD_LISTING);
         } else {
           this.props.navigation.goBack();
         }
@@ -700,6 +700,59 @@ class CheckPointDemo extends Component {
             }
           }
         }
+
+        // When checkpoints already have saved answers, prefer the saved
+        // immediateAction from Listdata over the template default so that
+        // the dropdown reflects the persisted value after a reload.
+        if (
+          Array.isArray(checkPoints) &&
+          checkPoints.length > 0 &&
+          Array.isArray(checkPointList) &&
+          checkPointList.length > 0
+        ) {
+          const immediateActionByKey = {};
+
+          checkPoints.forEach(cp => {
+            const key = [
+              cp.FormId,
+              cp.ChecklistTemplateId,
+              cp.ParentId,
+              cp.SerialNo,
+            ]
+              .map(v => String(v ?? ''))
+              .join('_');
+
+            if (
+              cp.immediateAction !== undefined &&
+              cp.immediateAction !== null &&
+              cp.immediateAction !== ''
+            ) {
+              immediateActionByKey[key] = cp.immediateAction;
+            }
+          });
+
+          checkPointList = checkPointList.map(item => {
+            const key = [
+              item.FormID,
+              item.ChecklistTemplateId,
+              item.ParentId,
+              item.SerialNo,
+            ]
+              .map(v => String(v ?? ''))
+              .join('_');
+
+            const savedImmediate = immediateActionByKey[key];
+            if (savedImmediate === undefined) {
+              return item;
+            }
+
+            return {
+              ...item,
+              immediateAction: savedImmediate.toString(),
+            };
+          });
+        }
+
         //console.log('Radio values', checkPointList);
         if (checkPoints) {
           //console.log('dummycheckpointdemo', checkPoints);
@@ -3220,6 +3273,10 @@ class CheckPointDemo extends Component {
                         );
                         const formid = this.props?.route?.params?.FormIdNavigate;
                         listDataArr.push({
+                          // Preserve SerialNo so we can reliably
+                          // match checkpoints when restoring
+                          // immediateAction on reload.
+                          SerialNo: auditRecordsOrg[p].Listdata[q].SerialNo,
                           ParentId: auditRecordsOrg[p].Listdata[q].ParentId,
                           FormId: auditRecordsOrg[p].Listdata[q].FormId,
                           Attachment: auditRecordsOrg[p].Listdata[q].Attachment,
@@ -3306,6 +3363,13 @@ class CheckPointDemo extends Component {
 
                         //console.log(checkPointsDetails[j], 'LISTDATAFINAL');
                         listDataArr[i] = {
+                          // Keep original serial number so that
+                          // the key used to hydrate immediateAction
+                          // (FormId + ChecklistTemplateId + ParentId + SerialNo)
+                          // remains stable across saves.
+                          SerialNo:
+                            listDataArr[i].SerialNo ??
+                            checkPointsDetails[j].SerialNo,
                           ParentId: listDataArr[i].ParentId,
                           FormId: listDataArr[i].FormId,
                           Attachment: checkPointsDetails[j].Attachment,
@@ -9854,7 +9918,7 @@ this.props.navigation.setParams({ auditUpdated: true });
                                         'helloid6',
                                       )}
                                       <Dropdown
-                                        label={strings.Failure_category}
+                                        label={strings.FailureCategory}
                                         value={
                                           this.state.checkPointsDetails[index]
                                             .FailureCategoryId !== 0

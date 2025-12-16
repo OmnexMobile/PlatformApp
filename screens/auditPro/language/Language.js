@@ -143,6 +143,7 @@ export let strings = new LocalizedStrings({
     Make_your_selection: "Make your selection",
     NC: "NC",
     OFI: "OFI",
+    conformance: "Conformance",
     Cancel: "Cancel",
     Confirm: "Confirm",
     Confirm_message: "Would you like to save your data?",
@@ -178,6 +179,7 @@ export let strings = new LocalizedStrings({
     Opportunity_ApproachL: "Opportunity for improvements",
     DepartmentL: "Department",
     FailureCategory: "Failure Category",
+    Choose_Failure_category: "Choose Failure Category",
     Auditee_Approach: "Auditee Approach",
     Attach_EvidenceL: "Attach Evidence",
     OFI_Desc: "OFI description",
@@ -252,6 +254,7 @@ export let strings = new LocalizedStrings({
     TypeMissing: "Please select type!",
     AttachMissing: "Please Fill the Mandatory Fields",
     UrlMissing: "Please provide a valid Url!",
+    Immediate_Action: "Immediate Action",
     /* Register */
     Server_Url: "Server Url",
     Register: "Register",
@@ -419,6 +422,7 @@ export let strings = new LocalizedStrings({
     //Audit page commands//
     Voice_Assistant: "Voice Assistant",
     Quick_suggestions: "Quick suggestions",
+    Asterisk_Questions : "Asterisk Questions",
     va_hi: "hi",
     va_hello: "hello",
     va_reply1: "Hi! How can i help you?",
