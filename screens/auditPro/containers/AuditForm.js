@@ -139,7 +139,9 @@ class AuditForm extends Component {
   }
 
   componentDidMount() {
-    const AuditID = this.props?.route?.params?.AuditID;
+    const AuditID =
+      this.props?.route?.params?.AuditID ||
+      this.props?.route?.params?.CreateNCdataBundle?.AuditID;
     if (AuditID) {
       this.setState({ AuditID });
     }
@@ -206,7 +208,7 @@ class AuditForm extends Component {
         // Checkpointpass: this.props.navigation.state.params.CreateNCdataBundle,
         // breadCrumbText:
         //   this.props.navigation.state.params.CreateNCdataBundle.breadCrumb,
-        AuditID: this.props?.route?.params?.AuditID,
+        AuditID: AuditID || this.state.AuditID,
         Checkpointpass: this.props?.route?.params?.CreateNCdataBundle,
         breadCrumbText:
           this.props?.route?.params?.CreateNCdataBundle?.breadCrumb,
@@ -5140,9 +5142,17 @@ class AuditForm extends Component {
             <View style={styles.floatingDiv}>
               <TouchableOpacity
                 onPress={() => {
+                  const auditId =
+                    this.state.AuditID ||
+                    this.props?.route?.params?.AuditID ||
+                    this.props?.route?.params?.CreateNCdataBundle?.AuditID;
+                  const breadCrumbText =
+                    this.state.breadCrumbText ||
+                    this.props?.route?.params?.CreateNCdataBundle?.breadCrumb ||
+                    this.props?.route?.params?.breadCrumbText;
                   this.props.navigation.navigate(ROUTES.AUDIT_SUMMARY, {
-                    AuditID: this.state.AuditID,
-                    breadCrumbText: this.state.breadCrumbText,
+                    AuditID: auditId,
+                    breadCrumbText,
                   });
                 }}
                 style={styles.floatinBtn}>

@@ -36,6 +36,7 @@ import FS from '../../../services/ReactNativeFS';
 import AsyncStorage from '@react-native-community/async-storage';
 import { ROUTES } from 'constants/app-constant';
 import { SPACING } from 'constants/theme-constants';
+import { log } from 'ramdasauce';
 
 let Window = Dimensions.get('window');
 
@@ -316,7 +317,13 @@ class AuditSummary extends Component {
         var ProcessOFI = 0;
         var MajorOFI = 0;
         var MinorOFI = 0;
+        console.log('heckconditionn,',this.state.AuditID);
+        console.log('heckconditionn,2',NCdata[0].AuditID);
+
+        
         if (this.state.AuditID == NCdata[i].AuditID) {
+            console.log('NCs found for this audit');
+
           for (var j = 0; j < NCdata[i].Uploaded.length; j++) {
             // define all the OFI
             if (
@@ -405,6 +412,8 @@ class AuditSummary extends Component {
               MinorOFI++;
             }
           }
+        }else{
+          console.log('No NCs found for this audit');
         }
         this.setState(
           {
