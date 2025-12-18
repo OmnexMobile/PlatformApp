@@ -99,6 +99,12 @@ export default {
     openConcerns: 'Open\nConcerns',
     inProgressConcerns: 'In Progress\nConcerns',
     supplierConcerns: 'Supplier\nConcerns',
+    closed:'Closed\n',
+    rejected:'Rejected\n',
+    draft:'Draft\n',
+    rework:'Rework\n',
+    cancelled:'Cancelled\n',
+    Projects:'Projects\n',
 
     //Document Pro
     documentPro: 'Document Pro',

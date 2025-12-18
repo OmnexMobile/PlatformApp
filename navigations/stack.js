@@ -13,31 +13,31 @@ import GlobalSettings from '../screens/globalsettings/index';
 import GlobalSites from '../screens/globalsettings/globalSites';
 import LaunchScreen from '../screens/launch-screen';
 import { BottomTab } from './bottom-tab';
-import HomeFabView from '../screens/home/components/home-fab-view'
+import HomeFabView from '../screens/home/components/home-fab-view';
 //// AUDITPRO ////
 import AuditDashboardListing from '../screens/auditPro/containers/AuditDashboardListing';
 import AuditPage from '../screens/auditPro/containers/AuditPage1';
 import AuditAttach from '../screens/auditPro/containers/AuditAttach';
 import AuditForm from '../screens/auditPro/containers/AuditForm';
-import NCOFIPage from 'screens/auditPro/containers/NCOFIPage'
+import NCOFIPage from 'screens/auditPro/containers/NCOFIPage';
 import CreateNC from 'screens/auditPro/containers/CreateNC';
 import Conformacy from 'screens/auditPro/containers/Conformacy';
 import AuditSummary from 'screens/auditPro/containers/AuditSummary';
 import CreateAttach from 'screens/auditPro/containers/CreateAttach';
-import AuditWebView from 'screens/auditPro/containers/AuditWebView'
+import AuditWebView from 'screens/auditPro/containers/AuditWebView';
 import UserPreference from 'screens/auditPro/containers/UserPreference';
 import CameraCapture from 'screens/auditPro/containers/CameraCaptureAndroid';
 import AuditHome from 'screens/home';
 import AuditLaunchScreen from 'screens/auditPro/containers/LaunchScreen';
-import AuditCard from 'screens/auditPro/components/AuditCard'
+import AuditCard from 'screens/auditPro/components/AuditCard';
 // import CameraCapture from 'screens/auditPro/containers/CameraCaptureIos';
 // import VideoCapture from 'screens/auditPro/containers/VideoCapture';
 import CheckListMenuSM from 'screens/auditPro/containers/CheckListMenuSM';
 import CheckListMenu from 'screens/auditPro/containers/CheckListMenu';
-import CheckPointDemo from 'screens/auditPro/containers/CheckPointDemo'
+import CheckPointDemo from 'screens/auditPro/containers/CheckPointDemo';
 import AuditStatus from 'screens/auditPro/containers/AuditStatus';
-import LPAPublish from 'screens/auditPro/containers/LPAPublish'
-import AuditResult from 'screens/auditPro/containers/AuditResult'
+import LPAPublish from 'screens/auditPro/containers/LPAPublish';
+import AuditResult from 'screens/auditPro/containers/AuditResult';
 import ConformacyVoice from 'screens/auditPro/containers/ConformacyVoice';
 import VoiceAssist from 'screens/auditPro/components/VoiceAssist';
 import LoginUIScreen from 'screens/auditPro/containers/LoginUIScreen';
@@ -83,9 +83,9 @@ import EightDDynamicPage from 'screens/problemSolver/containers/eightd-dynamic-p
 import TimeSettings from 'screens/problemSolver/containers/settings/time-settings';
 //// APQP ////
 import DashBoardAPQP from '../screens/apqp/containers/DashboardScreen';
-import CalandarListAPQP from  '../screens/apqp/containers/CalandarList';
+import CalandarListAPQP from '../screens/apqp/containers/CalandarList';
 import ProjectListAPQP from '../screens/apqp/containers/ProjectListScreen';
-import ApqpPpapManagerScreen from  '../screens/apqp/containers/ApqpPpapManagerScreen';
+import ApqpPpapManagerScreen from '../screens/apqp/containers/ApqpPpapManagerScreen';
 import RiskScreen from '../screens/apqp/containers/RiskScreen';
 import FilterScreenAPQP from 'screens/apqp/containers/FilterScreen';
 import MeetingScreen from 'screens/apqp/containers/MeetingScreen';
@@ -123,7 +123,7 @@ import NCOFIPageSM from 'screens/supplierManagement/containers/NCOFIPageSM';
 //DOC-PRO
 import DocproDashboard from 'screens/docpro/DocproDashboard';
 // import DocproAction from 'screens/docpro/actions/DocproAction';
-import DocproAction from 'screens/docpro/actions/DocproAction'
+import DocproAction from 'screens/docpro/actions/DocproAction';
 import DocproAdminAction from 'screens/docpro/DocproAdminAction';
 import DocproDocuments from 'screens/docpro/DocproDocuments';
 import DocproNewDocumentRequest from 'screens/docpro/DocproNewDocumentRequest';
@@ -138,6 +138,7 @@ import ContainmentActions from 'screens/inspection-control/containmentActions';
 import IcSettings from 'screens/inspection-control/icSettings';
 import SearchInspection from 'screens/inspection-control/search-inspection';
 import HomeListCardApqp from '../screens/globalDashboard/home-listcard-apqp';
+import Calender from 'screens/problemSolver/containers/calender';
 
 const Stack = createStackNavigator();
 
@@ -217,7 +218,6 @@ export const AppStackData = [
         name: ROUTES.AUDIT_HOME,
         component: AuditHome,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-
     },
     {
         name: ROUTES.LIST_SCREEN,
@@ -364,357 +364,366 @@ export const AppStackData = [
         component: ConformacyVoice,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
-     {
+    {
         name: ROUTES.VOICE_ASSIST,
         component: VoiceAssist,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-     },
-     {
+    },
+    {
         name: ROUTES.LOGINUISCREEN,
         component: LoginUIScreen,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-     },
-     {
+    },
+    {
         name: ROUTES.REGISTRATION,
         component: Registration,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-     },
-     {
+    },
+    {
         name: ROUTES.LANGUAGES,
         component: Languages,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-     },
-     {
+    },
+    {
         name: ROUTES.AUDIT_LAUNCH,
         component: AuditLaunchScreen,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-     },
-     {
+    },
+    {
         name: ROUTES.UNREGISTER,
         component: UnRegistration,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-     },
-     {
+    },
+    {
         name: ROUTES.ALLTABAUDITLIST,
         component: AllTabAuditList,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-     },
-     {
+    },
+    {
         name: ROUTES.AUDITPRODASHBOARD,
         component: AuditProDashboard,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-     },
-     {
+    },
+    {
         name: ROUTES.AUDIT_NOTIFICATIONS,
         component: AuditNotifications,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-     },
-     {
+    },
+    {
         name: ROUTES.VOICE_RECOGNITION,
         component: VoiceRecognition,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-     },
-     {
+    },
+    {
         name: ROUTES.FILTER_SCREEN,
         component: FilterScreen,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-     },
-     {
+    },
+    {
         name: ROUTES.PROFILE_SCREEN,
         component: Profile,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-     },
-     {
+    },
+    {
         name: ROUTES.DOWNLOADS,
         component: Downloads,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-     },
-     {
+    },
+    {
         name: ROUTES.SYNC_DETAILS,
         component: SyncDetails,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-     },
-     {
+    },
+    {
         name: ROUTES.HELP,
         component: Help,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-     },
-     {
+    },
+    {
         name: ROUTES.SUPPLY_MANAGE,
         component: SupplyManage,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-     },
-     {
+    },
+    {
         name: ROUTES.CALENDER_LIST,
         component: CalendarList,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-     },
-     {
+    },
+    {
         name: ROUTES.CREATE_NCLPA,
         component: Createnclpa,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-     },
+    },
 
-     //// PROBLEMSOLVER ////
+    //// PROBLEMSOLVER ////
 
-     {
+    {
         name: ROUTES.SPLASH_SCREEN_PS,
         component: SplashScreenPS,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-     },
-     {
+    },
+    {
         name: ROUTES.LOGIN_PS,
         component: LoginPrblmSolver,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-     },
-     {
+    },
+    {
         name: ROUTES.REGISTER_PS,
         component: RegisterPrblmSolver,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-     },
-     {
+    },
+    {
         name: ROUTES.FILTERED_LIST_PS,
         component: FilteredConcernListScreen,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-     },
-     {
+    },
+    {
         name: ROUTES.LIST_SCREEN_PS,
         component: ConcernListScreen,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-     },
-     {
+    },
+    {
         name: ROUTES.HOME_LIST_PS,
         component: HomeListCard,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-     },
-     {
+    },
+    {
         name: ROUTES.HOME_LIST_APQP,
         component: HomeListCardApqp,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-     },
-     {
-         name: ROUTES.VIEW_CONCERN_PS,
-         component: ViewConcern,
-         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-     },
-     {
-         name: ROUTES.HOME_PS,
-         component: BottomTabPS,
-         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-     },
-     {
+    },
+    {
+        name: ROUTES.VIEW_CONCERN_PS,
+        component: ViewConcern,
+        cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
+    },
+    {
+        name: ROUTES.HOME_PS,
+        component: BottomTabPS,
+        cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
+    },
+    {
         name: ROUTES.EDIT_CONCERN,
         component: EditConcern,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-     },
-     {
-         name: ROUTES.VIEW_LOGS,
-         component: ViewLogs,
-         cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-     },
-     {
-         name: ROUTES.EIGHTD_DYNAMIC_PAGE,
-         component: EightDDynamicPage,
-         cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-     },
-     {
-         name: ROUTES.TIME_SETTINGS,
-         component: TimeSettings,
-         cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-     },
+    },
+    {
+        name: ROUTES.VIEW_LOGS,
+        component: ViewLogs,
+        cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
+    },
+    {
+        name: ROUTES.EIGHTD_DYNAMIC_PAGE,
+        component: EightDDynamicPage,
+        cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
+    },
+    {
+        name: ROUTES.TIME_SETTINGS,
+        component: TimeSettings,
+        cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
+    },
+    {
+        name: ROUTES.CALENDER,
+        component: Calender,
+        cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
+    },
+    {
+        name: ROUTES.PROJECT_LIST_PS,
+        component: ProjectListScreen,
+        cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
+    },
 
+    //// APQP ////
 
-     //// APQP ////
-
-     {
+    {
         name: ROUTES.DASHBOARD_APQP,
         component: DashBoardAPQP,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-     },
-     {
+    },
+    {
         name: ROUTES.CALANDAR_LIST_APQP,
         component: CalandarListAPQP,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-     },
-     {
+    },
+    {
         name: ROUTES.PROJECT_LIST_APQP,
         component: ProjectListAPQP,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-     },
-     {
+    },
+    {
         name: ROUTES.APQP_PPAP_MANAGER_SCREEN,
         component: ApqpPpapManagerScreen,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-     },
-     {
+    },
+    {
         name: ROUTES.RISK_SCREEN,
         component: RiskScreen,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-     },
-     {
+    },
+    {
         name: ROUTES.FILTER_SCREEN_APQP,
         component: FilterScreenAPQP,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-     },
-     {
+    },
+    {
         name: ROUTES.MEETING_SCREEN,
         component: MeetingScreen,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-     },
-     {
+    },
+    {
         name: ROUTES.OPEN_SCREEN,
         component: OpenScreen,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-     },
-     {
+    },
+    {
         name: ROUTES.INPROGRESS_SCREEN,
         component: InProgressScreen,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-     },
-     {
+    },
+    {
         name: ROUTES.TODAYS_TASK,
         component: TodaysTask,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-     },
-     {
+    },
+    {
         name: ROUTES.ACTION_TAB_INTERFACE,
         component: ActionTabInterface,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-     },
-     {
+    },
+    {
         name: ROUTES.PERIODIC_UPDATE_SCREEN,
         component: PeriodicUpdateScreen,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-     },
-     {
+    },
+    {
         name: ROUTES.CALENDER_VIEW,
         component: Calenderview,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-     },
-     {
+    },
+    {
         name: ROUTES.RISK_ACTION_SCREEN,
         component: RiskActionScreen,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-     },
-     {
+    },
+    {
         name: ROUTES.MEETING_PLAN_SCREEN,
         component: MeetingPlanScreen,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-     },
-     {
+    },
+    {
         name: ROUTES.APQP_MANAGER_SCREEN,
         component: ApqpmanagerScreen,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-     },
-     {
+    },
+    {
         name: ROUTES.TASK_LIST_SCREEN,
         component: TaskListScreen,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-     },
-     {
+    },
+    {
         name: ROUTES.PERIODIC_HISTORY_SCREEN,
         component: PeriodicHistoryScreen,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-     },
-     {
+    },
+    {
         name: ROUTES.PERIODIC_EDIT_SCREEN,
         component: PeriodicEditScreen,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-     },
-     {
+    },
+    {
         name: ROUTES.DELIVERABLE_INFO_SCREEN,
         component: DeliverableInfoScreen,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-     },
-     {
+    },
+    {
         name: ROUTES.REVISION_HISTORY_SCREEN,
         component: RevisionHistoryScreen,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-     },
-     {
+    },
+    {
         name: ROUTES.OPEN_DOCUMENT_SCREEN,
         component: OpenDocumentScreen,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-     },
-     {
+    },
+    {
         name: ROUTES.ATTACH_ADDITIONAL_DOC_SCREEN,
         component: AttachAdditionalDocScreen,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-     },
-     {
+    },
+    {
         name: ROUTES.PROFILE_APQP,
         component: ProfileAPQP,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-     },
-     {
+    },
+    {
         name: ROUTES.HELP_APQP,
         component: HelpAPQP,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-     },
-     {
+    },
+    {
         name: ROUTES.DAILY_ACTION,
         component: DailyAction,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-     },
-     {
+    },
+    {
         name: ROUTES.SUPPLY_MANAGE_SM,
         component: SupplyManageSM,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-     },
-     {
+    },
+    {
         name: ROUTES.REGISTRATION_SM,
         component: RegisterSM,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-     },
-     {
+    },
+    {
         name: ROUTES.LOGIN_SM,
         component: LoginSM,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-     },
-     {
+    },
+    {
         name: ROUTES.ALLTABAUDITLIST_SM,
         component: AllTabAuditListSM,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-     },
-     {
+    },
+    {
         name: ROUTES.AUDIT_DASHBOARD_LISTING_SM,
         component: AuditDashboardListingSM,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-     },
-     
-     {
+    },
+
+    {
         name: ROUTES.AUDITPRODASHBOARD_SM,
         component: AuditDashboardSM,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-     },
-     {
-         name: ROUTES.CHECKPOINT_DEMO_SM,
-         component: CheckPointDemoSM,
-         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-     },
-     {
-         name: ROUTES.AUDIT_PAGE_SM,
-         component: AuditPageSM,
-         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-     },
-     {
+    },
+    {
+        name: ROUTES.CHECKPOINT_DEMO_SM,
+        component: CheckPointDemoSM,
+        cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
+    },
+    {
+        name: ROUTES.AUDIT_PAGE_SM,
+        component: AuditPageSM,
+        cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
+    },
+    {
         name: ROUTES.AUDIT_FORM_SM,
         component: AuditFormSM,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-     },
-     {
+    },
+    {
         name: ROUTES.CREATE_NC_SM,
         component: CreateNCSM,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-     },
+    },
     {
         name: ROUTES.NC_OFI_PAGE_SM,
         component: NCOFIPageSM,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
 
-     //DOC-PRO
-     {
+    //DOC-PRO
+    {
         name: ROUTES.DOCPRO_DASHBOARD,
         component: DocproDashboard,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
@@ -785,11 +794,8 @@ export const AppStackData = [
         name: ROUTES.SEARCH_INSPECTION,
         component: SearchInspection,
         cardStyleInterpolator: CardStyleInterpolators.forFadeFromCenter,
-    }
-
+    },
 ];
-
-
 
 export const ProjectData = [
     {

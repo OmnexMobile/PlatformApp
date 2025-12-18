@@ -166,6 +166,31 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
             ? Number(psCounts?.InprogressConcern ?? 0)
             : undefined,
         },
+        {
+          images: IMAGES.closedOut,
+          category: strings.closed,
+          status: psCounts ? Number(psCounts?.CloseConcern ?? 0) : undefined,
+        },
+         {
+          images: IMAGES.ICOS,
+          category: strings.rejected,
+          status: psCounts ? Number(psCounts?.RejectConcern ?? 0) : undefined,
+        },
+         {
+          images: IMAGES.deadlineViolated,
+          category: strings.draft,
+          status: psCounts ? Number(psCounts?.DraftConcern ?? 0) : undefined,
+        },
+         {
+          images: IMAGES.todayTask,
+          category: strings.rework,
+          status: psCounts ? Number(psCounts?.ReworkConcern ?? 0) : undefined,
+        },
+        {
+          images: IMAGES.risk,
+          category: strings.cancelled,
+          status: psCounts ? Number(psCounts?.CancelledConcern ?? 0) : undefined,
+        }
       ] : [],
     },
     {
@@ -833,6 +858,46 @@ const dataSet = React.useMemo(() => {
     else if (concerns == 'In Progress Concerns'){
         const field = 'InprogressConcern'
         const title = 'In-Progress'
+        navigations.navigate(ROUTES.LIST_SCREEN_PS, {
+            [APP_VARIABLES.CONCERN_STATUS_ID]: STATUS_CODES[field],
+            title,
+        })
+    }
+    else if (concerns == 'Closed '){
+        const field = 'CloseConcern'
+        const title = 'Closed'
+        navigations.navigate(ROUTES.LIST_SCREEN_PS, {
+            [APP_VARIABLES.CONCERN_STATUS_ID]: STATUS_CODES[field],
+            title,
+        })
+    }
+    else if (concerns == 'Rejected '){
+        const field = 'RejectConcern'
+        const title = 'Rejected'
+        navigations.navigate(ROUTES.LIST_SCREEN_PS, {
+            [APP_VARIABLES.CONCERN_STATUS_ID]: STATUS_CODES[field],
+            title,
+        })
+    }
+    else if (concerns == 'Draft '){
+        const field = 'DraftConcern'
+        const title = 'Draft'
+        navigations.navigate(ROUTES.LIST_SCREEN_PS, {
+            [APP_VARIABLES.CONCERN_STATUS_ID]: STATUS_CODES[field],
+            title,
+        })
+    }
+    else if (concerns == 'Rework '){
+        const field = 'ReworkConcern'
+        const title = 'Rework'
+        navigations.navigate(ROUTES.LIST_SCREEN_PS, {
+            [APP_VARIABLES.CONCERN_STATUS_ID]: STATUS_CODES[field],
+            title,
+        })
+    }
+    else if (concerns == 'Cancelled '){
+        const field = 'CancelledConcern'
+        const title = 'Cancelled'
         navigations.navigate(ROUTES.LIST_SCREEN_PS, {
             [APP_VARIABLES.CONCERN_STATUS_ID]: STATUS_CODES[field],
             title,
