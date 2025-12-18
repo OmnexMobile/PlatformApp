@@ -292,7 +292,7 @@ const EstimationPickerComponent = ({
 
     useEffect(() => {
         if (sites?.selectedSite) {
-            getDropdownList(sites?.selectedSite?.SiteId);
+            getDropdownList(sites?.selectedSite?.Siteid);
         }
     }, [sites?.selectedSite]);
 

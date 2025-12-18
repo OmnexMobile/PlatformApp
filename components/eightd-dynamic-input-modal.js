@@ -160,7 +160,7 @@ const WrapperDropDown = ({ input, onChange, dropdownData, setSelectedData, selec
             const URL = isDefaultDD ? API_URL.DROPDOWN_LIST : `${API_URL.GET_ACTION_DESCRIPTION}?TypeId=${TypeId}&ClassificationId=1`;
 
             const formData = new FormData();
-            formData.append(APP_VARIABLES.SITE_ID, sites?.selectedSite?.SiteId);
+            formData.append(APP_VARIABLES.SITE_ID, sites?.selectedSite?.Siteid);
             ConcernID && formData.append("ConcernID", ConcernID || null);
 
             const res = isDefaultDD ? await postAPI(URL, formData) : await postAPI(URL);
@@ -185,7 +185,7 @@ const WrapperDropDown = ({ input, onChange, dropdownData, setSelectedData, selec
     useEffect(() => {
         const dropdownDD = selectedData?.Options?.length ? selectedData?.Options.map(({ Label: label, Value: value }) => ({ label, value })) : null;
         dropdownDD ? setData(dropdownDD) : getData();
-    }, [sites?.selectedSite?.SiteId]);
+    }, [sites?.selectedSite?.Siteid]);
 
     const handleSaveNewValue = async () => {
         // const isStatus = data?.Key === 'InterimAction_Status';
@@ -448,13 +448,13 @@ const EightDDynamicInputModal = ({ selectedData, setSelectedData, ConcernID, get
                 formData.append('concernid', ConcernID);
                 formData.append('attachment', selectedData?.NodeName);
                 formData.append('attachmentcomments', selectedData?.ColumnDefinition);
-                formData.append('SiteId', sites?.selectedSite?.SiteId);
+                formData.append('SiteId', sites?.selectedSite?.Siteid);
 
                 const request = {
                     UsageID: selectedData?.UsageID,
                     FileContent: base64Content,
                     ConcernID,
-                    SiteId: sites?.selectedSite?.SiteId,
+                    SiteId: sites?.selectedSite?.Siteid,
                     CreatedBy: sites?.selectedSite?.UserId,
                     Filename: fileName,
                     AttachmentActionType: selectedData?.DynamicNodeName,

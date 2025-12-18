@@ -36,10 +36,10 @@ const ListScreenFunctional = ({}) => {
 
     const getListData = async res => {
         console.log('get res--->', res)
-        console.log('getListData--->', res,'--', res.SiteId,'res.Siteid--->', res.Siteid)
+        console.log('getListData--->', res,'--', res?.Siteid,'res.Siteid--->', res.Siteid)
         var formData = new FormData();
         formData.append(LOCAL_STORAGE_VARIABLES.UserId, res.UserId);
-        // formData.append(LOCAL_STORAGE_VARIABLES.SiteId, res.SiteId);
+        // formData.append(LOCAL_STORAGE_VARIABLES.SiteId, res?.Siteid);
         formData.append(LOCAL_STORAGE_VARIABLES.SiteId, res.Siteid);
         if (DashboardConcern) {
             formData.append(LOCAL_STORAGE_VARIABLES.Filterstring, DashboardConcern);

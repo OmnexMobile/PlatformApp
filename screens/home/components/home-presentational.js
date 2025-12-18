@@ -263,7 +263,7 @@ const HomePresentational = ({
                                                     borderWidth: 2,
                                                     borderRadius: 100,
                                                     padding: 2,
-                                                    borderColor: sites?.selectedSite?.SiteId === SiteId ? COLORS.primaryThemeColor : COLORS.white,
+                                                    borderColor: sites?.selectedSite?.Siteid === SiteId ? COLORS.primaryThemeColor : COLORS.white,
                                                 }}>
                                                 <Avatar
                                                     img={img}

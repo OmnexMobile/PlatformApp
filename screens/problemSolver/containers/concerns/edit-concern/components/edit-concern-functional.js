@@ -87,7 +87,7 @@ const EditConcernFunctional = () => {
                     [APP_VARIABLES.FORM_TYPE]: 'cat',
                     [LOCAL_STORAGE_VARIABLES.UserId]: res.UserId,
                     [APP_VARIABLES.FORM_TYPE_ID]: FormTypeID || 1, // 1 for Draft page
-                    // [APP_VARIABLES.SITE_ID]: res.SiteId,
+                    // [APP_VARIABLES.SITE_ID]: res?.Siteid,
                     [APP_VARIABLES.SITE_ID]: res.Siteid,
                     [APP_VARIABLES.CONCERN_FORM_ID]: stateVariables?.concernDetails?.ConcernFormID,
                     ...(ConcernID && {
@@ -144,7 +144,7 @@ const EditConcernFunctional = () => {
     const getCategoryList = async res => {
         console.log('get res--->', res)
         const formData = new FormData();
-        // formData.append(LOCAL_STORAGE_VARIABLES.SiteId, res.SiteId);
+        // formData.append(LOCAL_STORAGE_VARIABLES.SiteId, res?.Siteid);
         formData.append(LOCAL_STORAGE_VARIABLES.SiteId, res.Siteid);
         const categoryList = await postAPI(`${API_URL.CATEGORY_LIST}`, formData);
         setListDetails(listDetails => ({
@@ -193,7 +193,7 @@ const EditConcernFunctional = () => {
     const getSubCategoryList = async (res, categoryId) => {
         const formData = new FormData();
         formData.append(LOCAL_STORAGE_VARIABLES.CategoryID, categoryId);
-        // formData.append(LOCAL_STORAGE_VARIABLES.SiteId, res.SiteId);
+        // formData.append(LOCAL_STORAGE_VARIABLES.SiteId, res?.Siteid);
         formData.append(LOCAL_STORAGE_VARIABLES.SiteId, res.Siteid);
         const subCategories = await postAPI(`${API_URL.SUB_CATEGORY_LIST}`, formData);
         setListDetails(listDetails => ({
@@ -212,7 +212,7 @@ const EditConcernFunctional = () => {
         if (subCategoryID) {
             const formData = new FormData();
             formData.append(LOCAL_STORAGE_VARIABLES.SubCategoryID, subCategoryID);
-            // formData.append(LOCAL_STORAGE_VARIABLES.SiteId, res.SiteId);
+            // formData.append(LOCAL_STORAGE_VARIABLES.SiteId, res?.Siteid);
             formData.append(LOCAL_STORAGE_VARIABLES.SiteId, res.Siteid);
             const problemClassifications = await postAPI(`${API_URL.PROBLEM_CLASSIFICATION_LIST}`, formData);
             setListDetails(listDetails => ({
@@ -403,7 +403,7 @@ const EditConcernFunctional = () => {
     useEffect(() => {
         if (sites?.selectedSite) {
             getCategoryList(sites?.selectedSite);
-            getDropdownList(sites?.selectedSite?.SiteId);
+            getDropdownList(sites?.selectedSite?.Siteid);
         }
     }, [sites?.selectedSite]);
 
@@ -537,7 +537,7 @@ const EditConcernFunctional = () => {
                     ConcernId: ConcernID,
                     ButtonSave: APP_VARIABLES.SAVE,
                     Mode: 'Add',
-                    [LOCAL_STORAGE_VARIABLES.SiteId]: sites?.selectedSite?.SiteId,
+                    [LOCAL_STORAGE_VARIABLES.SiteId]: sites?.selectedSite?.Siteid,
                 },
             ],
             DynamicConcernInput: formattedDynamicConcernDetails,

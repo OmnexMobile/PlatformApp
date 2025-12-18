@@ -54,8 +54,8 @@ const WrapperRadioButton = ({ input, handleInputChange }) => {
     };
 
     useEffect(() => {
-        getData(sites?.selectedSite?.SiteId);
-    }, [sites?.selectedSite?.SiteId]);
+        getData(sites?.selectedSite?.Siteid);
+    }, [sites?.selectedSite?.Siteid]);
 
     return <RadioButton {...{ ...input, options: data, onChange: (name, value) => handleInputChange?.(name, value) }} />;
 };
@@ -84,8 +84,8 @@ const WrapperCheckBox = ({ input, handleInputChange }) => {
     };
 
     useEffect(() => {
-        getData(sites?.selectedSite?.SiteId);
-    }, [sites?.selectedSite?.SiteId]);
+        getData(sites?.selectedSite?.Siteid);
+    }, [sites?.selectedSite?.Siteid]);
 
     return <CheckBox {...{ ...input, options: data, onChange: (name, value) => handleInputChange?.(name, value) }} />;
 };
@@ -113,8 +113,8 @@ const WrapperDropDown = ({ input, handleInputChange }) => {
     };
 
     useEffect(() => {
-        getData(sites?.selectedSite?.SiteId);
-    }, [sites?.selectedSite?.SiteId]);
+        getData(sites?.selectedSite?.Siteid);
+    }, [sites?.selectedSite?.Siteid]);
 
     return (
         <DropdownComponent

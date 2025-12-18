@@ -59,7 +59,7 @@ const HomeFunctional = ({}) => {
                 if (res?.UserId) {
                     const defaultObj = {
                         [LOCAL_STORAGE_VARIABLES.UserId]: res?.UserId,
-                        // [LOCAL_STORAGE_VARIABLES.SiteId]: res.SiteId,
+                        // [LOCAL_STORAGE_VARIABLES.SiteId]: res?.Siteid,
                         [LOCAL_STORAGE_VARIABLES.SiteId]: res.Siteid,
                         [LOCAL_STORAGE_VARIABLES.MaxRow]: 3,
                     };
@@ -67,7 +67,7 @@ const HomeFunctional = ({}) => {
                         getDashboardConcernCounts(
                             formReq({
                                 [LOCAL_STORAGE_VARIABLES.UserId]: res?.UserId,
-                                // [LOCAL_STORAGE_VARIABLES.SiteId]: res.SiteId,
+                                // [LOCAL_STORAGE_VARIABLES.SiteId]: res?.Siteid,
                                 [LOCAL_STORAGE_VARIABLES.SiteId]: res.Siteid,
                             }),
                         ),

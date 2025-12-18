@@ -69,7 +69,7 @@ const ProjectListScreenFunctional = ({}) => {
             postAPI(`${API_URL.PROJECT_LIST}`, {
                 UserID: res.UserId,
                 SiteID: res.Siteid,
-                // SiteID: res.SiteId,
+                // SiteID: res?.Siteid,
                 Index: '0',
                 MaxRow: '500',
                 ListType: '0',

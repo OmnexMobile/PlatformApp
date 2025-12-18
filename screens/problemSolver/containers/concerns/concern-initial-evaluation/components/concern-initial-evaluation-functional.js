@@ -67,7 +67,7 @@ const ConcernInitialEvaluationFunctional = ({}) => {
                     [LOCAL_STORAGE_VARIABLES.UserId]: res.UserId,
                     // [APP_VARIABLES.FORM_TYPE_ID]: 3,
                     [APP_VARIABLES.FORM_TYPE_ID]: 2,
-                    [APP_VARIABLES.SITE_ID]: res.SiteId,
+                    [APP_VARIABLES.SITE_ID]: res?.Siteid,
                     [APP_VARIABLES.CONCERN_FORM_ID]: concernDetails?.ConcernFormID,
                     ...(ConcernID && {
                         ConcernId: ConcernID,
@@ -257,7 +257,7 @@ const ConcernInitialEvaluationFunctional = ({}) => {
 
     useEffect(() => {
         // sites?.selectedSite?.Siteid && getDropdownList(sites?.selectedSite?.Siteid);
-        sites?.selectedSite?.SiteId && getDropdownList(sites?.selectedSite?.SiteId);
+        sites?.selectedSite?.Siteid && getDropdownList(sites?.selectedSite?.Siteid);
     }, [sites?.selectedSite]);
 
     useEffect(() => {
@@ -269,14 +269,14 @@ const ConcernInitialEvaluationFunctional = ({}) => {
     const getListData = res => {
         const defaultObj = {
             [LOCAL_STORAGE_VARIABLES.UserId]: res.UserId,
-            [LOCAL_STORAGE_VARIABLES.SiteId]: res.SiteId,
+            [LOCAL_STORAGE_VARIABLES.SiteId]: res?.Siteid,
             [LOCAL_STORAGE_VARIABLES.MaxRow]: 3,
         };
         dispatch(
             getDashboardConcernCounts(
                 formReq({
                     [LOCAL_STORAGE_VARIABLES.UserId]: res.UserId,
-                    [LOCAL_STORAGE_VARIABLES.SiteId]: res.SiteId,
+                    [LOCAL_STORAGE_VARIABLES.SiteId]: res?.Siteid,
                 }),
             ),
         );

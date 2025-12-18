@@ -36,10 +36,10 @@ const ConcernListScreenFunctional = ({}) => {
     };
 
     const getConcernList = async res => {
-        console.log('getConcernList--->', res,'--', res.SiteId,'res.Siteid--->', res.Siteid)
+        console.log('getConcernList--->', res,'--', res?.Siteid,'res.Siteid--->', res.Siteid)
         var formData = new FormData();
         formData.append(LOCAL_STORAGE_VARIABLES.UserId, res.UserId);
-        // formData.append(LOCAL_STORAGE_VARIABLES.SiteId, res.SiteId);
+        // formData.append(LOCAL_STORAGE_VARIABLES.SiteId, res?.Siteid);
         formData.append(LOCAL_STORAGE_VARIABLES.SiteId, res.Siteid)
         formData.append(APP_VARIABLES.MAX_ROW, 500);
         if (DashboardConcern) {

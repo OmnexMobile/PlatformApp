@@ -43,7 +43,6 @@ const CreateConcernFunctional = ({}) => {
     const [notOkPicker, setNotOkPicker] = useState(null);
     const [selectedTeam, setSelectedTeam] = useState(null);
     const [dynamicInputs, setDynamicInputs] = useState([]);
-    console.log('🚀 ~ CreateConcernFunctional ~ dynamicInputs:', dynamicInputs?.[0]?.concernFormID);
     const [dynamicInputsLoading, setDynamicInputsLoading] = useState(false);
     const [formModalVisible, setFormModalVisible] = useState(false);
     const [savingConcern, setSavingConcern] = useState(false);
@@ -73,9 +72,10 @@ const CreateConcernFunctional = ({}) => {
     const { ConcernID = '' } = route?.params || { ConcernID: '' };
 
     const getCategoryList = async res => {
+        console.log('🚀 ~ getCategoryList ~ res:', res?.Siteid, res);
         const formData = new FormData();
          formData.append(LOCAL_STORAGE_VARIABLES.SiteId, res.Siteid);
-        // formData.append(LOCAL_STORAGE_VARIABLES.SiteId, res.SiteId);
+        // formData.append(LOCAL_STORAGE_VARIABLES.SiteId, res?.Siteid);
         const categoryList = await postAPI(`${API_URL.CATEGORY_LIST}`, formData);
         setListDetails({
             ...listDetails,
@@ -128,9 +128,10 @@ const CreateConcernFunctional = ({}) => {
     };
 
     const getSubCategoryList = async (res, categoryId) => {
+        console.log('🚀 ~ getCategoryList ~ res:', res?.Siteid, res);
         const formData = new FormData();
         formData.append(LOCAL_STORAGE_VARIABLES.CategoryID, categoryId);
-        // formData.append(LOCAL_STORAGE_VARIABLES.SiteId, res.SiteId);
+        // formData.append(LOCAL_STORAGE_VARIABLES.SiteId, res?.Siteid);
         formData.append(LOCAL_STORAGE_VARIABLES.SiteId, res.Siteid);
         const subCategories = await postAPI(`${API_URL.SUB_CATEGORY_LIST}`, formData);
         setListDetails({
@@ -148,7 +149,7 @@ const CreateConcernFunctional = ({}) => {
     const getProblemClassificationList = async (res, subCategoryID) => {
         const formData = new FormData();
         formData.append(LOCAL_STORAGE_VARIABLES.SubCategoryID, subCategoryID);
-        // formData.append(LOCAL_STORAGE_VARIABLES.SiteId, res.SiteId);
+        // formData.append(LOCAL_STORAGE_VARIABLES.SiteId, res?.Siteid);
         formData.append(LOCAL_STORAGE_VARIABLES.SiteId, res.Siteid);
         const problemClassifications = await postAPI(`${API_URL.PROBLEM_CLASSIFICATION_LIST}`, formData);
         setListDetails({
@@ -186,14 +187,14 @@ const CreateConcernFunctional = ({}) => {
     const getListData = res => {
         const defaultObj = {
             [LOCAL_STORAGE_VARIABLES.UserId]: res.UserId,
-            [LOCAL_STORAGE_VARIABLES.SiteId]: res.SiteId,
+            [LOCAL_STORAGE_VARIABLES.SiteId]: res?.Siteid,
             [LOCAL_STORAGE_VARIABLES.MaxRow]: 3,
         };
         dispatch(
             getDashboardConcernCounts(
                 formReq({
                     [LOCAL_STORAGE_VARIABLES.UserId]: res.UserId,
-                    [LOCAL_STORAGE_VARIABLES.SiteId]: res.SiteId,
+                    [LOCAL_STORAGE_VARIABLES.SiteId]: res?.Siteid,
                 }),
             ),
         );
@@ -216,7 +217,7 @@ const CreateConcernFunctional = ({}) => {
                     [APP_VARIABLES.SOURCE_ID]: categoryId,
                     [APP_VARIABLES.FORM_TYPE]: 'cat',
                     [APP_VARIABLES.FORM_TYPE_ID]: 1,
-                    [APP_VARIABLES.SITE_ID]: res.SiteId,
+                    [APP_VARIABLES.SITE_ID]: res?.Siteid,
                     [APP_VARIABLES.CONCERN_FORM_ID]: 0,
                     ...(ConcernID && {
                         ConcernId: ConcernID,
@@ -467,7 +468,7 @@ const CreateConcernFunctional = ({}) => {
 
         delete formattedConcernDetails?.OkPicker;
         delete formattedConcernDetails?.NotOkPicker;
-        console.log('🚀 ~ proceedToSaveOrSubmit ~ formattedConcernDetails:', dynamicInputs?.[0]?.concernFormID);
+        console.log('🚀 ~ proceedToSaveOrSubmit ~ formattedConcernDetails:', formattedConcernDetails);
 
         const request = {
             StaticConcernInput: [
@@ -479,10 +480,7 @@ const CreateConcernFunctional = ({}) => {
                     ButtonSave: Mode,
                     Mode: 'Add',
                     CreatedBy: sites?.selectedSite?.UserId,
-                    ...(dynamicInputs?.[0]?.concernFormID && {
-                        ConcernFormId: dynamicInputs?.[0]?.concernFormID,
-                    }),
-                    [LOCAL_STORAGE_VARIABLES.SiteId]: sites?.selectedSite?.SiteId,
+                    [LOCAL_STORAGE_VARIABLES.SiteId]: sites?.selectedSite?.Siteid,
                 },
             ],
             DynamicConcernInput: formattedDynamicConcernDetails,
@@ -508,13 +506,17 @@ const CreateConcernFunctional = ({}) => {
         console.log('🚀 ~ proceedToSaveOrSubmit ~ request:', request);
         setSavingConcern(true);
         try {
+
+            console.log('🚀 ~ proceedToSaveOrSubmit ~ request:', request) ;
             const res = await postAPI(`${API_URL.SAVE_CONCERN}`, request);
+            console.log('🚀 ~ proceedToSaveOrSubmit ~ res:', res) ;
             if (res?.Success) {
                 setSavingConcern(false);
                 navigation.goBack();
                 getListData(sites?.selectedSite);
                 successMessage({ message: 'Success', description: 'Concern has been created' });
             } else {
+                console.log('🚀 ~ proceedToSaveOrSubmit ~ Error:', res?.Error) ;
                 showErrorMessage(res?.Error);
                 setSavingConcern(false);
             }
@@ -525,13 +527,16 @@ const CreateConcernFunctional = ({}) => {
     };
 
     const handleSaveConcern = async Mode => {
+        console.log('reach handleSaveConcern', Mode);
         if (Mode === APP_VARIABLES.SUBMIT) {
+            console.log('reach handleSaveConcern submit', Mode);
             // if (!!dynamicConcernDetails?.SupplierID) {
             proceedToSaveOrSubmit(Mode);
             // } else {
             //     showErrorMessage('Supplier Id is required!!');
             // }
         } else {
+            console.log('reach handleSaveConcern save', Mode);
             proceedToSaveOrSubmit(Mode);
         }
     };
@@ -542,11 +547,13 @@ const CreateConcernFunctional = ({}) => {
     };
 
     useEffect(() => {
+        console.log('🚀 ~ useffect ~ sites?.selectedSite:', sites?.selectedSite);
         if (sites?.selectedSite) {
             getCategoryList(sites?.selectedSite);
-            getDropdownList(sites?.selectedSite?.SiteId);
+            getDropdownList(sites?.selectedSite?.Siteid);
         }
     }, [sites?.selectedSite]);
+     console.log('🚀 ~ useffect ~ sites?.selectedSite1:', sites?.selectedSite);
 
     useEffect(() => {
         if (concernDetails?.SubCategoryID) {
