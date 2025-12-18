@@ -118,20 +118,42 @@ class AuditStatus extends React.Component {
         console.log('Chinese script off', this.state.ChineseScript);
       });
     }
-    this.checkUser();
-    //console.log('audit id & generate report dat:'+this.props.navigation.state.params.AuditID+''+this.props.navigation.state.params.generatereport)
+    const routeParams =
+      this.props?.route?.params || this.props?.navigation?.state?.params || {};
+    console.log('[AuditStatus] componentDidMount:routeParams', routeParams);
+
+    // Derive AuditID when it is not explicitly passed (LPA close-out paths)
+    let derivedAuditId = routeParams.AuditID;
+    if (!derivedAuditId || derivedAuditId === '0') {
+      const gen = routeParams.generatereport;
+      if (Array.isArray(gen) && gen.length > 0) {
+        const first = gen[0] || {};
+        derivedAuditId =
+          first.CorrectiveId ||
+          first.CorrectiveID ||
+          first.Correctiveid ||
+          first.AuditID ||
+          first.AuditId ||
+          '';
+      }
+    }
+
+    if (derivedAuditId !== undefined && derivedAuditId !== null) {
+      derivedAuditId = String(derivedAuditId);
+    } else {
+      derivedAuditId = '';
+    }
+
     this.setState(
       {
-        // breadCrumbText: this.props.navigation.state.params.breadCrumb,
-        breadCrumbText: this.props?.route?.params?.breadCrumb,
-        // breadCrumbText: this.props.navigation.state.params.breadCrumb.length > 30 ? this.props.navigation.state.params.breadCrumb.slice(0, 30) + '...' : this.props.navigation.state.params.breadCrumb,
-        AuditID: this.props?.route?.params?.AuditID,
-        //generatereportdata: this.props.navigation.state.params.generatereport,
+        breadCrumbText: routeParams.breadCrumb || '',
+        AuditID: derivedAuditId,
         pageLoad: true,
         NetInfo: false,
       },
       () => {
-        // this.checkUser();
+        console.log('[AuditStatus] componentDidMount:stateAuditId', this.state.AuditID);
+        this.checkUser();
       },
     );
 
@@ -167,45 +189,54 @@ class AuditStatus extends React.Component {
     */
   }
 
-  async getAccessToken(){
+  async getAccessToken() {
     try {
       const stringifiedUserDetails = await AsyncStorage.getItem('userDetails');
       const value = JSON.parse(stringifiedUserDetails);
-      console.log('current userdata--->', value)
+      console.log('current userdata--->', value);
       if (value !== null) {
         // value previously stored
-        console.log('current token2--->', value.accessToken)
-        this.setState({ currentUserData: value },()=>{
-          console.log('Token set')
-        })
+        console.log('current token2--->', value.accessToken);
+        this.setState({currentUserData: value}, () => {
+          console.log('Token set in state');
+        });
       }
+      return value;
     } catch (e) {
       // error reading value
-      console.log('error--->', e)
+      console.log('error--->', e);
+      return null;
     }
-  };
+  }
 
   async checkUser() {
-    await this.getAccessToken()
-    console.log('Get currentUserData---->', this.state.currentUserData)
-    // console.log('user id', this.props.data.audits.userId);
-    // var userid = this.props.data.audits.userId;
-    var userid = this.state.currentUserData?.userId;
-    // var token = this.props.data.audits.token;
-    var token = this.state.currentUserData?.accessToken;
+    const userData = await this.getAccessToken();
+    const fallbackUser = this.props?.data?.audits || {};
+    const currentUser = userData || this.state.currentUserData || {};
+    const resolvedUserId = currentUser.userId || fallbackUser.userId;
+    const resolvedToken = currentUser.accessToken || fallbackUser.token;
+    const resolvedSiteId = currentUser.siteId || fallbackUser.siteId;
+
+    const userid = resolvedUserId;
+    const token = resolvedToken;
     var UserStatus = '';
     var serverUrl = this.props.data.audits.serverUrl;
-    // var ID = this.props.data.audits.userId;
-    var ID = this.state.currentUserData?.userId;
+    const ID = resolvedUserId;
     var path = '';
     const deviceId = await AsyncStorage.getItem('loginDeviceId');
 
     var RegisterDevice = this.props.data.audits.deviceid;
-    console.log(userid, token, deviceId, RegisterDevice);
+    console.log('[AuditStatus] checkUser:resolvedUser', {
+      userid,
+      tokenPresent: !!token,
+      siteId: resolvedSiteId,
+      deviceId,
+      registerDevice: RegisterDevice,
+    });
   
     // auth.getCheckUser(userid,RegisterDevice,token, (res, data) => {
     auth.getCheckUser(userid, deviceId, token, (res, data) => {
-      console.log('User information', data);
+      console.log('[AuditStatus] checkUser:User information', data);
       if (data.data.Message == 'Success') {
         console.log('Checking User status', data.data.Data.ActiveStatus);
         UserStatus = data.data.Data.ActiveStatus;
@@ -225,7 +256,27 @@ class AuditStatus extends React.Component {
         }
         if (UserStatus == 2) {
           console.log('User active');
-          this.getStatus();
+          this.setState(
+            {
+              currentUserData: {
+                ...currentUser,
+                userId: resolvedUserId,
+                accessToken: resolvedToken,
+                siteId: resolvedSiteId,
+              },
+              AuditID:
+                this.props?.route?.params?.AuditID ||
+                this.props?.navigation?.state?.params?.AuditID ||
+                this.state.AuditID,
+            },
+            () => {
+              console.log('[AuditStatus] ready to fetch status', {
+                auditIdState: this.state.AuditID,
+                routeParams: this.props?.route?.params,
+              });
+              this.getStatus();
+            },
+          );
         } else if (UserStatus == 1) {
           console.log('deleting user details');
 
@@ -243,7 +294,7 @@ class AuditStatus extends React.Component {
               this.propsServerUrl +
               ID +
             //   this.props.data.audits.siteId;
-            this.state.currentUserData?.siteId;
+            resolvedSiteId;
             console.log('path storing-->', path);
           } else {
             var iOSpath = RNFS.DocumentDirectoryPath;
@@ -253,7 +304,7 @@ class AuditStatus extends React.Component {
               this.propsServerUrl +
               ID +
             //   this.props.data.audits.siteId;
-            this.state.currentUserData?.siteId;
+            resolvedSiteId;
           }
           console.log('*** path', path);
           // this.deleteUserFile(path)
@@ -363,15 +414,41 @@ class AuditStatus extends React.Component {
             'getting local props',
             this.props.data.audits.auditRecords,
           );
-          console.log('this.state.AuditID', this.state.AuditID);
-          //   var Token = this.props.data.audits.token;
-          var Token = this.state.currentUserData?.accessToken;
-          //   var SiteId = this.props.data.audits.siteId;
-          var SiteId = this.state.currentUserData?.siteId;
+
+          const routeParams =
+            this.props?.route?.params ||
+            this.props?.navigation?.state?.params ||
+            {};
+
+          const resolvedAuditIdRaw =
+            this.state.AuditID || routeParams.AuditID || null;
+          const resolvedAuditId = resolvedAuditIdRaw
+            ? String(resolvedAuditIdRaw)
+            : null;
+
+          console.log('[AuditStatus] getStatus:resolvedIds', {
+            resolvedAuditId,
+            stateAuditId: this.state.AuditID,
+            routeAuditId: routeParams.AuditID,
+          });
+          console.log('[AuditStatus] getStatus:auditRecords:length', {
+            count: (this.props?.data?.audits?.auditRecords || []).length,
+          });
+          const auditsState = this.props?.data?.audits || {};
+          const Token =
+            (this.state.currentUserData &&
+              this.state.currentUserData.accessToken) ||
+            auditsState.token;
+          const SiteId =
+            (this.state.currentUserData && this.state.currentUserData.siteId) ||
+            auditsState.siteId;
           var RequestParam = [];
           var auditRecords = this.props.data.audits.auditRecords;
           for (var i = 0; i < auditRecords.length; i++) {
-            if (this.state.AuditID === auditRecords[i].AuditId) {
+            if (
+              resolvedAuditId &&
+              String(resolvedAuditId) === String(auditRecords[i].AuditId)
+            ) {
               RequestParam.push({
                 AuditId: auditRecords[i].AuditId,
                 AuditProgramId: auditRecords[i].AuditProgramId,
@@ -383,10 +460,25 @@ class AuditStatus extends React.Component {
               });
             }
           }
-          console.log('Token', Token);
-          console.log('RequestParam', RequestParam);
+          console.log('[AuditStatus] getStatus:Token/SiteId', {
+            Token,
+            SiteId,
+          });
+          console.log('[AuditStatus] getStatus:RequestParam', RequestParam);
 
-          if (RequestParam[0].AuditProgramId == -1) {
+          if (RequestParam.length === 0) {
+            console.warn(
+              '[AuditStatus] No matching audit record found for AuditID',
+              resolvedAuditId,
+            );
+            this.setState({pageLoad: false});
+            return;
+          }
+
+          if (
+            RequestParam.length > 0 &&
+            RequestParam[0].AuditProgramId == -1
+          ) {
             let dummyDropdown = [
               {value: 'No NC', id: 1},
               {value: 'NC identified', id: 2},
@@ -397,7 +489,10 @@ class AuditStatus extends React.Component {
           }
 
           auth.getAuditStatus(RequestParam, Token, (res, data) => {
-            console.log('getAuditStatus --->', data);
+            console.log('[AuditStatus] getAuditStatus:raw', {
+              ok: !!data,
+              message: data?.data?.Message,
+            });
             if (data.data) {
               if (data.data.Message === 'Success') {
                 var Details = data.data.Data.lstAuditStatus;
@@ -405,6 +500,12 @@ class AuditStatus extends React.Component {
                 var StatusHistory = [];
                 var routes = data.data.Data.lstRoutes;
                 var routesList = [];
+
+                console.log('[AuditStatus] getAuditStatus:payloadCounts', {
+                  detailsCount: Details ? Details.length : 0,
+                  statusHistoryCount: StHistory ? StHistory.length : 0,
+                  routesCount: routes ? routes.length : 0,
+                });
 
                 if (routes.length > 0) {
                   for (var i = 0; i < routes.length; i++) {
@@ -418,7 +519,7 @@ class AuditStatus extends React.Component {
                   }
                 }
 
-                console.log('lstRoutes', routesList);
+                console.log('[AuditStatus] lstRoutes', routesList);
 
                 for (var i = 0; i < StHistory.length; i++) {
                   StatusHistory.push({
@@ -439,7 +540,7 @@ class AuditStatus extends React.Component {
                     To: StHistory[i].To === null ? '-' : StHistory[i].To,
                   });
                 }
-                console.log('StatusHistory', StatusHistory);
+                console.log('[AuditStatus] StatusHistory', StatusHistory);
                 this.setState(
                   {
                     NetInfo: false,
@@ -596,10 +697,15 @@ class AuditStatus extends React.Component {
             );
             console.log('this.state.AuditID', this.state.AuditID);
             var auditRecords = this.props.data.audits.auditRecords;
-            // var Token = this.props.data.audits.token;
-            var Token = this.state.currentUserData?.accessToken;
-            // var ChangedBy = this.props.data.audits.userId;
-            var ChangedBy = this.state.currentUserData?.userId;
+            const auditsState = this.props?.data?.audits || {};
+            const Token =
+              (this.state.currentUserData &&
+                this.state.currentUserData.accessToken) ||
+              auditsState.token;
+            const ChangedBy =
+              (this.state.currentUserData &&
+                this.state.currentUserData.userId) ||
+              auditsState.userId;
             var AuditResult = this.state.AuditResult;
             var AuditCompletionDate = this.state.StartDateAPI;
             var ReUploadTime = this.state.EndDateAPI;
@@ -644,11 +750,13 @@ class AuditStatus extends React.Component {
                     );
                     this.getStatus();
                     if (this.state.AuditType === 'LPA') {
-                      this.props.navigation.navigate(ROUTES.LPA_PUBLISH, {
+                      const navParams = {
                         Auditid: this.state.AuditID,
                         Auditorder: 1,
-                        siteid:this.props.data.audits.siteId,
-                      });
+                        siteid: this.props.data.audits.siteId,
+                      };
+                      console.log('[NAV] AuditStatus -> LPA_PUBLISH', navParams);
+                      this.props.navigation.navigate(ROUTES.LPA_PUBLISH, navParams);
                     }
                   });
                 } else {
@@ -795,7 +903,23 @@ class AuditStatus extends React.Component {
             <ScrollView
               tabLabel={strings.AuditStatus}
               style={styles.scrollViewBody}>
-              {this.state.routesList.length > 0 ? (
+              {this.state.NetInfo ? (
+                <View
+                  style={{
+                    marginTop: 60,
+                    marginBottom: 20,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}>
+                  <Text
+                    styles={{
+                      fontSize: Fonts.size.h3,
+                      fontFamily: 'OpenSans-Regular',
+                    }}>
+                    {strings.NoInternet}
+                  </Text>
+                </View>
+              ) : (
                 <View style={{marginTop: 60, marginBottom: 20}}>
                   <View style={styles.card}>
                     <View style={styles.boxCard1}>
@@ -1041,40 +1165,48 @@ class AuditStatus extends React.Component {
                   </View>
                   <View style={styles.div1}>
                     <View style={styles.input07}>
-                      <Dropdown
-                        data={routesDropdown}
-                        label={strings.AssignRoute}
-                        fontSize={Fonts.size.regular}
-                        labelFontSize={Fonts.size.small}
-                        baseColor={'#A6A6A6'}
-                        selectedItemColor="#000"
-                        textColor="#000"
-                        itemColor="#000"
-                        itemPadding={5}
-                        value={this.state.routesList[0].value}
-                        dropdownOffset={{top: 10, left: 0}}
-                        itemTextStyle={{fontFamily: 'OpenSans-Regular'}}
-                        onChange={text => {
-                          var routeId = 0;
-                          console.log('routeList', this.state.routesList);
-                          for (
-                            var i = 0;
-                            i < this.state.routesList.length;
-                            i++
-                          ) {
-                            if (text.value === this.state.routesList[i].value) {
-                              routeId = this.state.routesList[i].id;
-                            }
+                      {routesDropdown && routesDropdown.length > 0 ? (
+                        <Dropdown
+                          data={routesDropdown}
+                          label={strings.AssignRoute}
+                          fontSize={Fonts.size.regular}
+                          labelFontSize={Fonts.size.small}
+                          baseColor={'#A6A6A6'}
+                          selectedItemColor="#000"
+                          textColor="#000"
+                          itemColor="#000"
+                          itemPadding={5}
+                          value={
+                            routesDropdown[0] && routesDropdown[0].value
+                              ? routesDropdown[0].value
+                              : ''
                           }
-                          console.log('routeId', routeId);
-                          this.setState({aRouteId: routeId}, () => {
-                            console.log(
-                              'this.state.aRouteId',
-                              this.state.aRouteId,
-                            );
-                          });
-                        }}
-                      />
+                          dropdownOffset={{top: 10, left: 0}}
+                          itemTextStyle={{fontFamily: 'OpenSans-Regular'}}
+                          onChange={text => {
+                            var routeId = 0;
+                            console.log('routeList', this.state.routesList);
+                            for (
+                              var i = 0;
+                              i < this.state.routesList.length;
+                              i++
+                            ) {
+                              if (
+                                text.value === this.state.routesList[i].value
+                              ) {
+                                routeId = this.state.routesList[i].id;
+                              }
+                            }
+                            console.log('routeId', routeId);
+                            this.setState({aRouteId: routeId}, () => {
+                              console.log(
+                                'this.state.aRouteId',
+                                this.state.aRouteId,
+                              );
+                            });
+                          }}
+                        />
+                      ) : null}
                     </View>
                   </View>
                   <View
@@ -1121,23 +1253,7 @@ class AuditStatus extends React.Component {
                     </View>
                   </View>
                 </View>
-              ) : this.state.NetInfo ? (
-                <View
-                  style={{
-                    marginTop: 60,
-                    marginBottom: 20,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}>
-                  <Text
-                    styles={{
-                      fontSize: Fonts.size.h3,
-                      fontFamily: 'OpenSans-Regular',
-                    }}>
-                    {strings.NoInternet}
-                  </Text>
-                </View>
-              ) : null}
+              )}
             </ScrollView>
 
             <View tabLabel={strings.StatusHistory}>

@@ -86,17 +86,19 @@ class AuditResult extends Component{
     try {
       const stringifiedUserDetails = await AsyncStorage.getItem('userDetails');
       const value = JSON.parse(stringifiedUserDetails);
-      console.log('current userdata--->', value)
+      console.log('current userdata--->', value);
       if (value !== null) {
         // value previously stored
-        console.log('current token2--->', value.accessToken)
-        this.setState({ currentUserData: value },()=>{
-          console.log('Token set')
-        })
+        console.log('current token2--->', value.accessToken);
+        this.setState({ currentUserData: value }, () => {
+          console.log('Token set');
+        });
       }
+      return value;
     } catch (e) {
       // error reading value
-      console.log('error--->', e)
+      console.log('error--->', e);
+      return null;
     }
   };
 
@@ -137,7 +139,7 @@ class AuditResult extends Component{
   }
 
   async auditResultRefresh(){
-    await this.getAccessToken()
+    const userData = await this.getAccessToken();
     if(this.props.data.audits.isOfflineMode) {
       this.toast.show(strings.Offline_Notice,DURATION.LENGTH_LONG)
     }
@@ -157,8 +159,12 @@ class AuditResult extends Component{
           this.setState({
             isLoading: true
           }, () => {
-            // const TOKEN = this.state.token
-            const TOKEN = this.state.currentUserData?.accessToken
+            // Prefer token from stored user details, fall back to redux token
+            const TOKEN =
+              (userData && userData.accessToken) ||
+              this.state.currentUserData?.accessToken ||
+              this.state.token ||
+              this.props.data.audits.token;
             const SiteID = this.state.SiteID
             const strSortBy = 'order by FormName asc'
             const iAuditId = this.state.AuditID
