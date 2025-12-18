@@ -1440,12 +1440,18 @@ this.getParamsDetails();
   };
 
   getAuditDetails() {
-    var Token = this.state.token;
-    console.log('getAuditDetails SuccessfullgetAuditDetails Token');
+    // var Token = this.state.token;
+    const token =
+    this.state.token || this.props?.data?.audits?.token;
+
+    console.log('getAuditDetails SuccessfullgetAuditDetails Token', this.props);
+    console.log('state  Token', this.state.token);
+    console.log('finnaltoken', token);
+
 
     auth.getAuditReportDetails(
       this.state.AuditProp,
-      Token,
+      token,
       async (resp, data) => {
         console.log('Audit Report details data ', data);
         console.log('venkat url==>', data.data.Data[0].AuditAgendaUrl);
@@ -3207,54 +3213,54 @@ console.log('checkvalues0000',SiteID,UserId,SearchCondition,TOKEN,iAuditId,iAudP
   displayStatusNew = status => {
     console.log('displaystatusnew', status);
 
-    // var status = '';
-    var auditColor = '';
+    let displayStatus = status;
+    let auditColor = '';
 
-    var CloseOutStatus =
+    const CloseOutStatus =
       this.props?.route?.params?.datapass?.CloseOutStatus;
 
-    //console.log('@auditstatus', AuditStatus, PerformStarted, CloseOutStatus);
-
     console.log('status===>', status);
-    console.log('status===>---------------------', this.props?.route?.params,this.props?.route?.params?.datapass?.cStatus);
+    console.log(
+      'status===>---------------------',
+      this.props?.route?.params,
+      this.props?.route?.params?.datapass?.cStatus,
+    );
 
+    // When opened from Dashboard, map numeric AuditStatus codes
+    // to the corresponding status text.
+    if (this.props?.route?.params?.screenFrom === 'Dashboard') {
+      const code =
+        typeof displayStatus === 'string'
+          ? parseInt(displayStatus, 10)
+          : displayStatus;
+
+      switch (code) {
+        case 2:
+          // Scheduled
+          displayStatus = constant.StatusScheduled;
+          break;
+        case 3:
+          // Completed / Closed Out
+          displayStatus =
+            CloseOutStatus === 9
+              ? constant.StatusCompleted
+              : constant.Completed;
+          break;
+        case 4:
+          // Deadline Violated
+          displayStatus = constant.StatusDV;
+          break;
+        case 5:
+          // Closed Out / Deadline Violated
+          displayStatus = constant.StatusDVC;
+          break;
+        default:
+          break;
+      }
+    }
 
     // Set Audit Card color by checking its Status
-    
-    switch (status) {
-      case constant.StatusScheduled:
-        auditColor = '#1081de';
-        break;
-      case constant.StatusDownloaded:
-        auditColor = '#cd8cff';
-        break;
-      case constant.StatusCompleted:
-        auditColor = '#00000';
-        break;
-
-      case constant.StatusDV:
-        auditColor = 'red';
-        break;
-      case constant.StatusDVC:
-        auditColor = 'green';
-        break;
-      case constant.Completed:
-        auditColor = 'green';
-        break;
-      case 'In progress':
-        auditColor = '#e88316';
-        break;
-      case constant.StatusNotSynced:
-        auditColor = '#2ec3c7';
-        break;
-      case constant.StatusSynced:
-        auditColor = '#48bcf7';
-        break;
-      default:
-        auditColor = '#BAB614';
-        break;
-    }
-    switch (this.state.statusCheck) {
+    switch (displayStatus) {
       case constant.StatusScheduled:
         auditColor = '#1081de';
         break;
@@ -3288,8 +3294,43 @@ console.log('checkvalues0000',SiteID,UserId,SearchCondition,TOKEN,iAuditId,iAudP
         break;
     }
 
+    // If a local statusCheck value is present, allow it to
+    // override the color mapping (e.g. future offline cases).
+    if (this.state.statusCheck) {
+      switch (this.state.statusCheck) {
+        case constant.StatusScheduled:
+          auditColor = '#1081de';
+          break;
+        case constant.StatusDownloaded:
+          auditColor = '#cd8cff';
+          break;
+        case constant.StatusCompleted:
+          auditColor = '#00000';
+          break;
+        case constant.StatusDV:
+          auditColor = 'red';
+          break;
+        case constant.StatusDVC:
+          auditColor = 'green';
+          break;
+        case constant.Completed:
+          auditColor = 'green';
+          break;
+        case 'In progress':
+          auditColor = '#e88316';
+          break;
+        case constant.StatusNotSynced:
+          auditColor = '#2ec3c7';
+          break;
+        case constant.StatusSynced:
+          auditColor = '#48bcf7';
+          break;
+        default:
+          break;
+      }
+    }
 
-    console.log('STSCOLOR===>', status, auditColor);
+    console.log('STSCOLOR===>', displayStatus, auditColor);
     return (
       <Text
         style={{
@@ -3297,7 +3338,9 @@ console.log('checkvalues0000',SiteID,UserId,SearchCondition,TOKEN,iAuditId,iAudP
           fontSize: Fonts.size.regular,
           fontFamily: 'OpenSans-Bold',
         }}>
-        {status == undefined ? this.state.statusCheck : status}
+        {displayStatus == null || displayStatus === ''
+          ? this.state.statusCheck
+          : displayStatus}
       </Text>
     );
   };
