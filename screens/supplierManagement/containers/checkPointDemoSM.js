@@ -2838,9 +2838,22 @@ class CheckPointDemo extends Component {
     this.refs.toast.show(this.state.displayData, 6000);
   };
 
+  markAuditEdited = async () => {
+    try {
+      const { auditId } = this.state;
+      await AsyncStorage.setItem(`audit_edited_${auditId}`, 'true');
+      console.log(`[CheckPointDemoSM] Marked audit ${auditId} as edited`);
+    } catch (e) {
+      console.log('[CheckPointDemoSM] Failed to set audit_edited flag:', e);
+    }
+  };
+
   updateCheckPointsValues = async () => {
     //console.log('updateCheckPointsValues executed');
     await AsyncStorage.setItem('redDotActive', 'true');
+    if (typeof this.markAuditEdited === 'function') {
+      await this.markAuditEdited();
+    }
     let bcontinue = false;
     //  this.updatecheckpointvalues_new();
     var notifyRed = this.props?.route?.params?.notifyRed;

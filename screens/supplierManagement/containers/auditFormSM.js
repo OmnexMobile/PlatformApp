@@ -140,7 +140,9 @@ class AuditForm extends Component {
     this.getparamsDetails();
   }
   componentWillUnmount() {
-    if (this._navFocusListener) this._navFocusListener.remove();
+    if (typeof this._navFocusListener === 'function') {
+      this._navFocusListener();
+    }
   }
   
   async getAccessToken(){
@@ -162,7 +164,6 @@ class AuditForm extends Component {
   };
 
   componentDidMount() {
-    // this.getParamsDetails();
     console.log('dhfjdhfksfksfksfjsn dfnsd f',this.props);
     
     const AuditID = this.props.route.params.AuditID;  
@@ -213,6 +214,17 @@ class AuditForm extends Component {
       this.setState({ CheckListbtn: true }, () => {});
     }
   
+    // Load per-audit edited flag on mount and on focus
+    this.loadAuditEditedFlag();
+    this._navFocusListener = this.props.navigation.addListener(
+      'focus',
+      () => {
+        this.loadAuditEditedFlag();
+        const records = this.props?.data?.audits?.ncofiRecords || [];
+        this.displayNCSync(records);
+      },
+    );
+  
     this.setState(
       {
         token: this.props.data.audits.token,
@@ -257,21 +269,59 @@ async getparamsDetails(){
       AUDITPROG_ID: auditProgId
    })
 }
+
+  async loadAuditEditedFlag() {
+    try {
+      const AuditID =
+        this.props?.route?.params?.AuditID || this.state.AuditID;
+      const edited = await AsyncStorage.getItem(`audit_edited_${AuditID}`);
+      if (edited === 'true') {
+        this.setState({
+          redDotID: 'true',
+          notifyRed: true,
+          auditEdited: true,
+          AuditID: AuditID,
+        });
+        console.log(`[AuditFormSM] Red dot ON for audit ${AuditID}`);
+      } else {
+        this.setState({
+          redDotID: 'false',
+          notifyRed: false,
+          auditEdited: false,
+          AuditID: AuditID,
+        });
+        console.log(`[AuditFormSM] Red dot OFF for audit ${AuditID}`);
+      }
+    } catch (e) {
+      console.log('[AuditFormSM] Error loading red dot flag:', e);
+    }
+  }
+
+  componentDidUpdate(prevProps) {
+    if (
+      prevProps?.route?.params?.AuditID !==
+      this.props?.route?.params?.AuditID
+    ) {
+      this.setState({ redDotID: 'false' }, () => {
+        this.loadAuditEditedFlag();
+      });
+    }
+  }
+
   async componentWillReceiveProps(props) {
-    var getCurrentPage = [];
     // getCurrentPage = this.props.data.nav.routes;
     // var CurrentPage = getCurrentPage[getCurrentPage.length - 1].routeName;
     var CurrentPage = this.props.route.name
     console.log('--CurrentPage--->', CurrentPage);
 
-    if (CurrentPage == 'AuditForm') {
+    if (CurrentPage === ROUTES.AUDIT_FORM_SM) {
       console.log('Audit form page focussed!');
       console.log('--AuditForm-PROPS-->', props);
       console.log('--AuditForm-this.PROPS-->', this.props);
-        const notifyRedasync = await AsyncStorage.getItem('redDotActive');
-        this.setState({ CheckListbtn: true, redDotID : notifyRedasync }, () => {
-        console.log('Check list button enabled',notifyRedasync)
-        });
+      await this.loadAuditEditedFlag();
+      this.setState({ CheckListbtn: true }, () => {
+        console.log('Check list button enabled');
+      });
       console.log('componentWillReceiveProps', props.data.audits.ncofiRecords);
       this.displayNCSync(props.data.audits.ncofiRecords);
     } else {
@@ -1302,7 +1352,16 @@ async getparamsDetails(){
             : 'Sync to Server Completed with failed Attachment(s)',
         syncMode: this.state.FailedAttachments.length > 0 ? 2 : 4,
       },
-      () => {
+      async () => {
+        this.setState({ isLoaderVisible: false, redDotID: 'false', notifyRed: false })
+         const AuditID =
+                this.props?.route?.params?.AuditID || this.state.AuditID;
+              if (AuditID) {
+                await AsyncStorage.setItem(`audit_edited_${AuditID}`, 'false');
+              }
+              console.log('aftersyncsuccess------>');
+              await AsyncStorage.setItem('redDotActive', 'false');
+        await AsyncStorage.setItem('redDotActive', 'false');
         console.log('Document Successfully Sequence Completed');
         this.props.navigation.goBack();
       },
@@ -2858,8 +2917,20 @@ reDirect = () => {
 
           // this.props.changeAuditState(false);
 
-          this.setState({ isLoaderVisible: false }, async () => {
-            await AsyncStorage.setItem('redDotActive', 'false');
+          // ✅ Sync success → hide red dot immediately and persist flags
+          this.setState({ isLoaderVisible: false, redDotID: 'false', notifyRed: false }, async () => {
+            
+            try {
+              const AuditID =
+                this.props?.route?.params?.AuditID || this.state.AuditID;
+              if (AuditID) {
+                await AsyncStorage.setItem(`audit_edited_${AuditID}`, 'false');
+              }
+              console.log('aftersyncsuccess------>');
+              await AsyncStorage.setItem('redDotActive', 'false');
+            } catch (e) {
+              console.log('[AuditFormSM] Failed clearing audit_edited flag:', e);
+            }
             console.log('Sync process completed successfully!');
             console.log(!this.isDocsAvail, 'docavail');
             if (
@@ -3625,6 +3696,7 @@ reDirect = () => {
     const {height} = Dimensions.get('window');
     const middle = height / 2 - 200;
     const attachmentHeight = middle + 100;
+console.log('checckkreddoticon',this.state.redDotID);
 
     const attachmentType = [
       {

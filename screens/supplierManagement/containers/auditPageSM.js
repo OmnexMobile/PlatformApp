@@ -486,6 +486,7 @@ this.getParamsDetails();
       this.props?.route?.params,
     );
     console.log('componentWillReceiveProps', props);
+              this.getAuditDetails();
 
     const isSubmitted = this.props?.route?.params?.isSubmitted;
 
@@ -550,7 +551,7 @@ this.getParamsDetails();
           voicePopUp: false,
           isVisible: false,
           suggestionText: '',
-          statusCheck: Audit_Status
+          // statusCheck: Audit_Status
         },
         () => {
           console.log('setSTate called',this.state.statusCheck);

@@ -95,18 +95,19 @@ class AuditDashboardListing extends Component {
           this.props.dispatch({type: 'STORE_SUPPLIER_DATA', smdata: SMDATA});
         }
         console.log('FILTERIDCHECK*****************smmmm', this.state.filterID, this.state.SM);
-        this.getAudits();
+        this.refreshAudits();
       },
     ); 
     this.focusListener = this.props.navigation.addListener('focus', () => {
         console.log('AuditDashboardListing focused');
-        // this.checkUser();
-        this.getAudits();
+        this.refreshAudits();
       });
   }
 
   componentWillUnmount() {
-    this.focusListener();
+    if (this.focusListener) {
+      this.focusListener();
+    }
   }
 
   render() {
@@ -252,6 +253,24 @@ class AuditDashboardListing extends Component {
       return null;
     }
   }
+
+  refreshAudits = () => {
+    this.pageSize = 10;
+    this.pageNo = 1;
+    this.onEndReachedCalledDuringMomentum = false;
+
+    this.setState(
+      {
+        auditList: [],
+        auditListAll: [],
+        loader: true,
+        error: false,
+        subLoader: false,
+        listEndReached: false,
+      },
+      () => this.getAudits(),
+    );
+  };
 
   getAudits() {
     NetInfo.fetch().then(netState => {
