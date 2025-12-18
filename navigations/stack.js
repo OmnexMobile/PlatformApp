@@ -18,6 +18,8 @@ import HomeFabView from '../screens/home/components/home-fab-view';
 import AuditDashboardListing from '../screens/auditPro/containers/AuditDashboardListing';
 import AuditPage from '../screens/auditPro/containers/AuditPage1';
 import AuditAttach from '../screens/auditPro/containers/AuditAttach';
+import AuditAttachSM from '../screens/supplierManagement/containers/AuditAttachSM';
+import CreateAttachSM from 'screens/supplierManagement/containers/CreateAttachSM';
 import AuditForm from '../screens/auditPro/containers/AuditForm';
 import NCOFIPage from 'screens/auditPro/containers/NCOFIPage';
 import CreateNC from 'screens/auditPro/containers/CreateNC';
@@ -272,6 +274,16 @@ export const AppStackData = [
     {
         name: ROUTES.AUDIT_ATTACH,
         component: AuditAttach,
+        cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
+    },
+    {
+        name: ROUTES.CREATE_ATTACHSM,
+        component: CreateAttachSM,
+        cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
+    },
+    {
+        name: ROUTES.AUDIT_ATTACHSM,
+        component: AuditAttachSM,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {

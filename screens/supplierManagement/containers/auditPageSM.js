@@ -162,6 +162,8 @@ class AuditPage extends Component {
         }
       }
     });
+this.getParamsDetails();
+
   }
 
    componentDidMount() {
@@ -932,7 +934,7 @@ class AuditPage extends Component {
           this.setState({isVisible: false}, () => {
             console.log('cloded');
           });
-          this.props.navigation.navigate(ROUTES.AUDIT_ATTACH, {
+          this.props.navigation.navigate(ROUTES.AUDIT_ATTACHSM, {
             AuditID: this.state.AUDIT_ID,
             isDeleted: 0,
             breadCrumb: this.state.auditDetailList.Auditee,
@@ -1355,8 +1357,7 @@ class AuditPage extends Component {
     if (auditRecords.ActualAuditId == targetAuditId) {
       auditDetailList = auditRecords;
       console.log('✅ Found:', auditDetailList);
-
-} 
+    } 
           console.log('auditDetailList*****', auditDetailList);
 
           if (auditDetailList) {
@@ -1375,12 +1376,12 @@ class AuditPage extends Component {
                 clauseMandatory === undefined ? '0' : clauseMandatory,
             },
             () => {
-              console.log('auditDetailList loaded', this.state.auditDetailList);
+              console.log('auditDetailList loaded11111', this.state.auditDetailList);
             },
           );
 
           if (auditDetailList) {
-            console.log('auditDetailList---->', auditDetailList);
+            console.log('auditDetailList---->222', auditDetailList);
             this._getLocalValues(auditDetailList);
           } else {
             this.setState({isLoading: false, auditDetailList: null});
@@ -1416,7 +1417,7 @@ class AuditPage extends Component {
                 },
                 () => {
                   console.log(
-                    'auditDetailList loaded.....',
+                    'auditDetailList loaded.....33333',
                     this.state.auditDetailList,
                   );
                 },
@@ -1439,6 +1440,7 @@ class AuditPage extends Component {
 
   getAuditDetails() {
     var Token = this.state.token;
+    console.log('getAuditDetails SuccessfullgetAuditDetails Token');
 
     auth.getAuditReportDetails(
       this.state.AuditProp,
@@ -1479,7 +1481,7 @@ class AuditPage extends Component {
                 },
                 () => {
                   this._getLocalValues(this.state.auditDetailList);
-                  console.log('auditdetails......',this.state.auditDetailList);
+                  console.log('auditdetails......4444',this.state.auditDetailList);
                   
                 },
               );
@@ -1597,14 +1599,14 @@ class AuditPage extends Component {
   }
  
   async getParamsDetails() {
-    console.log('this.props.navigation.state.params.datapass.SiteId)',this.props.route?.params?.datapass?.SiteId);
+    console.log('this.props.navigation.state.params.datapass.SiteId)',this.props);
     
     AsyncStorage.setItem('AUDIT_ID',this.props?.route?.params?.datapass.ActualAuditId);
     AsyncStorage.setItem('AUDITPROG_ID',this.props?.route?.params?.datapass?.AuditProgramId);
     AsyncStorage.setItem('AUDITYPE_ORDER',this.props?.route?.params?.datapass?.ActualAuditOrderNo);
     AsyncStorage.setItem('AUDITYPE_ID',this.props?.route?.params?.datapass?.AuditTypeId);
     AsyncStorage.setItem('SITEID',`${this.props?.route?.params?.datapass?.SiteId}`);
-    AsyncStorage.setItem('AUDITPROGORDER',this.props?.route?.params?.datapass?.AuditProgramId);
+    AsyncStorage.setItem('AUDITPROGORDER',this.props?.route?.params?.datapass?.ActualAuditOrderNo);
     // AsyncStorage.setItem('AUDIT_SITE_ID',this.state.AUDIT_SITE_ID);
     // AsyncStorage.setItem('AUDIT_STATUS',this.props.navigation.state.params.datapass.AuditStatus);
 }
@@ -2163,7 +2165,7 @@ console.log('checkvalues0000',SiteID,UserId,SearchCondition,TOKEN,iAuditId,iAudP
   }
 
   onNavigateTo(id) {
-    console.log('Navigating...', id);
+    console.log('Navigating...', id,this.state.AUDITPROGORDER);
     const multiprocess =
       this.props?.route?.params?.datapass?.multiprocess;
     // return
@@ -2244,8 +2246,9 @@ console.log('checkvalues0000',SiteID,UserId,SearchCondition,TOKEN,iAuditId,iAudP
         },
       });
     } else {
-      this.props.navigation.navigate(ROUTES.AUDIT_ATTACH, {
+      this.props.navigation.navigate(ROUTES.AUDIT_ATTACHSM, {
         AuditID: this.state.AUDIT_ID,
+        AuditProgramOrder: this.state.AUDITPROGORDER,
         isDeleted: 0,
         breadCrumb: this.state.auditDetailList.Auditee,
       });
@@ -2532,7 +2535,7 @@ console.log('checkvalues0000',SiteID,UserId,SearchCondition,TOKEN,iAuditId,iAudP
       console.log('auditDetailList created.', auditDetailList);
 
       for (var i = 0; i < auditRecords.length; i++) {
-        if (auditRecords[i].AuditId == auditDetailList.AuditId) {
+        if (auditRecords[i]?.AuditId == auditDetailList?.AuditId) {
           isAuditExists = true;
         }
       }

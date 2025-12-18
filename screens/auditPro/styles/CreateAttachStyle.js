@@ -161,9 +161,9 @@ export default StyleSheet.create({
     //marginTop: 11
   },
   detailTitle: {
-    marginLeft: 35,
+    // marginLeft: 35,
     fontSize: Fonts.size.medium,
-    color: '#A6A6A6',
+    color: '#000',
     fontFamily: 'OpenSans-Regular',
   },
   detailContent: {

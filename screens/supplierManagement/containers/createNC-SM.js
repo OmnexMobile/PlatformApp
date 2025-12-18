@@ -2380,7 +2380,7 @@ class CreateNC extends Component {
         // }
         if (
           this.state.NCcategoryt &&
-          // this.state.NCresponsible &&
+          this.state.NCresponsible &&
           this.state.NCrequestby &&
           // bcontinue &&
           this.state.nonconfirmityText 
@@ -2618,7 +2618,7 @@ class CreateNC extends Component {
             if (this.state.NCresponsible === undefined) {
               this.setState(
                 {
-                  // MarkUser: true,
+                  MarkUser: true,
                 },
                 () => {
                   // console.log('this.state.MarkUser',this.state.MarkUser)
@@ -2748,7 +2748,7 @@ class CreateNC extends Component {
 
         if (
           /* this.state.NCdept &&  */ this.state.NCcategoryt &&
-          // this.state.NCresponsible &&
+          this.state.NCresponsible &&
           this.state.NCrequestby &&
           this.state.selectedItems &&
           this.state.ofitext
@@ -2963,17 +2963,17 @@ class CreateNC extends Component {
                   () => {
                     // console.log('this.state.MarkReq',this.state.MarkReq)
                   },
-                );
-              }
-              if (this.state.NCresponsible === undefined) {
-                this.setState(
-                  {
-                    // MarkUser: true,
-                  },
-                  () => {
-                    // console.log('this.state.MarkUser',this.state.MarkUser)
-                    // ---> this.refs.toast.show(strings.Requested,DURATION.LENGTH_LONG)
-                  },
+              );
+            }
+            if (this.state.NCresponsible === undefined) {
+              this.setState(
+                {
+                  MarkUser: true,
+                },
+                () => {
+                  // console.log('this.state.MarkUser',this.state.MarkUser)
+                  // ---> this.refs.toast.show(strings.Requested,DURATION.LENGTH_LONG)
+                },
                 );
               } else {
                 this.setState(

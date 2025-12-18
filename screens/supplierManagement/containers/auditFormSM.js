@@ -112,6 +112,7 @@ class AuditForm extends Component {
       manualRedDot: false,      
      redDotID : '',
      uploadSpeed: null,
+      AUDITPROG_ID: '',
 
     };
   }
@@ -136,6 +137,7 @@ class AuditForm extends Component {
         });
       }
     }
+    this.getparamsDetails();
   }
   componentWillUnmount() {
     if (this._navFocusListener) this._navFocusListener.remove();
@@ -246,7 +248,15 @@ class AuditForm extends Component {
       }
     );
   }
+async getparamsDetails(){
+       let auditProgId = await AsyncStorage.getItem('AUDITPROG_ID');
 
+   console.log('cchecjlldllflsj',auditProgId);
+   
+   this.setState({
+      AUDITPROG_ID: auditProgId
+   })
+}
   async componentWillReceiveProps(props) {
     var getCurrentPage = [];
     // getCurrentPage = this.props.data.nav.routes;
@@ -769,7 +779,7 @@ class AuditForm extends Component {
                   FormId: parseInt(FormIds[kk]), //parseInt(audits[i].Listdata[j].FormId),
                   //FormId:this.props.route.params.ChecklistHeading.FormId,
                   AuditId: parseInt(audits[i].AuditId),
-                  AuditProgramId: this.props.data.audits.smdata == 2 ? -2 : parseInt(audits[i].AuditTemplateId),
+                  AuditProgramId: this.props.data.audits.smdata == 2 ? -2 : this.state.AUDITPROG_ID,
                   AuditTypeId: parseInt(audits[i].AuditTypeId),
                   AuditOrderId: parseInt(audits[i].AuditTypeOrder),
                   SiteId: parseInt(audits[i].SiteId),
@@ -2095,7 +2105,7 @@ reDirect = () => {
         AuditTypeOrder: auditRecordsOrg[p].AuditTypeOrder,
         AuditId: auditRecordsOrg[p].AuditId,
         AuditOrderId: auditRecordsOrg[p].AuditTypeOrder,
-        AuditProgramId: this.props.data.audits.smdata == 2 ? -2 : auditRecordsOrg[p].AuditTemplateId,
+        AuditProgramId: this.props.data.audits.smdata == 2 ? -2 : this.state.AUDITPROG_ID,
         AuditTypeId: auditRecordsOrg[p].AuditTypeId,
         SiteId: auditRecordsOrg[p].SiteId,
         Status:  auditRecordsOrg[p].Status == '' || auditRecordsOrg[p].Status == undefined || auditRecordsOrg[p].Status == null  ? 0 : auditRecordsOrg[p].Status,
@@ -2205,7 +2215,7 @@ reDirect = () => {
         AuditCycleName: auditListOrg[i].AuditCycleName,
         AuditNumber: auditListOrg[i].AuditNumber,
         AuditPeriodId: auditListOrg[i].AuditPeriodId,
-        AuditProgramId:this.props.data.audits.smdata == 2 ? -2 : auditListOrg[i].AuditTemplateId,
+        AuditProgramId:this.props.data.audits.smdata == 2 ? -2 : this.state.AUDITPROG_ID,
         AuditProgramName: auditListOrg[i].AuditProgramName,
         // AuditStatus: auditListOrg[i].AuditStatus,
         AuditStatus: this.props.route.params.datapassParam.AuditStatus,
@@ -2290,7 +2300,7 @@ reDirect = () => {
           AuditTypeOrder: auditRecordsOrg[p].AuditTypeOrder,
           AuditId: auditRecordsOrg[p].AuditId,
           AuditOrderId: auditRecordsOrg[p].AuditTypeOrder,
-          AuditProgramId: this.props.data.audits.smdata == 2 ? -2 : auditRecordsOrg[p].AuditTemplateId,
+          AuditProgramId: this.props.data.audits.smdata == 2 ? -2 : this.state.AUDITPROG_ID,
           AuditTypeId: auditRecordsOrg[p].AuditTypeId,
           SiteId: auditRecordsOrg[p].SiteId,
           Status: auditRecordsOrg[p].Status == '' || auditRecordsOrg[p].Status == undefined || auditRecordsOrg[p].Status == null? 0 : auditRecordsOrg[p].Status,
@@ -2341,7 +2351,7 @@ reDirect = () => {
           AuditTypeOrder: auditRecordsOrg[p].AuditTypeOrder,
           AuditId: auditRecordsOrg[p].AuditId,
           AuditOrderId: auditRecordsOrg[p].AuditTypeOrder,
-          AuditProgramId: this.props.data.audits.smdata == 2 ? -2 : auditRecordsOrg[p].AuditTemplateId,
+          AuditProgramId: this.props.data.audits.smdata == 2 ? -2 : this.state.AUDITPROG_ID,
           AuditTypeId: auditRecordsOrg[p].AuditTypeId,
           SiteId: auditRecordsOrg[p].SiteId,
           Status: auditRecordsOrg[p].Status == '' || auditRecordsOrg[p].Status == undefined || auditRecordsOrg[p].Status == null? 0 : auditRecordsOrg[p].Status,
@@ -2426,7 +2436,7 @@ reDirect = () => {
               AuditTypeOrder: auditRecordsOrg[p].AuditTypeOrder,
               AuditId: auditRecordsOrg[p].AuditId,
               AuditOrderId: auditRecordsOrg[p].AuditTypeOrder,
-              AuditProgramId: this.props.data.audits.smdata == 2 ? -2 : auditRecordsOrg[p].AuditTemplateId,
+              AuditProgramId: this.props.data.audits.smdata == 2 ? -2 : this.state.AUDITPROG_ID,
               AuditTypeId: auditRecordsOrg[p].AuditTypeId,
               SiteId: auditRecordsOrg[p].SiteId,
               Status: auditRecordsOrg[p].Status,
@@ -2707,7 +2717,7 @@ reDirect = () => {
               AuditTypeOrder: auditRecordsOrg[p].AuditTypeOrder,
               AuditId: auditRecordsOrg[p].AuditId,
               AuditOrderId: auditRecordsOrg[p].AuditTypeOrder,
-              AuditProgramId: this.props.data.audits.smdata == 2 ? -2 : auditRecordsOrg[p].AuditTemplateId,
+              AuditProgramId: this.props.data.audits.smdata == 2 ? -2 : this.state.AUDITPROG_ID,
               AuditTypeId: auditRecordsOrg[p].AuditTypeId,
               SiteId: auditRecordsOrg[p].SiteId,
              Status: auditRecordsOrg[p].Status == '' || auditRecordsOrg[p].Status == undefined || auditRecordsOrg[p].Status == null ? 0 : auditRecordsOrg[p].Status,
@@ -2823,7 +2833,7 @@ reDirect = () => {
               AuditCycleName: auditListOrg[i].AuditCycleName,
               AuditNumber: auditListOrg[i].AuditNumber,
               AuditPeriodId: auditListOrg[i].AuditPeriodId,
-              AuditProgramId: this.props.data.audits.smdata == 2 ? -2 : auditListOrg[i].AuditTemplateId,
+              AuditProgramId: this.props.data.audits.smdata == 2 ? -2 : this.state.AUDITPROG_ID,
               AuditProgramName: auditListOrg[i].AuditProgramName,
               // AuditStatus: auditListOrg[i].AuditStatus,
               AuditStatus: this.props.route.params.datapassParam.AuditStatus,

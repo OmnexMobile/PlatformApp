@@ -2538,81 +2538,79 @@ class CheckPointDemo extends Component {
   };
 
   componentWillReceiveProps(props) {
-    var getCurrentPage = [];
-    // getCurrentPage = this.props.data.nav.routes;
-    // var CurrentPage = getCurrentPage[getCurrentPage.length - 1].routeName;
-    var CurrentPage = this.props.route.name
-    console.log('--CurrentPage--->', CurrentPage);
-    if (CurrentPage == ROUTES.CHECKPOINT_DEMO_SM) {
-      //console.log('Checkpoints page focussed!');
-      //console.log('--CheckPointScreen-PROPS-->', props);
-      //console.log('--CheckPointScreen-this.PROPS-->', this.props);
+    // Determine navigation stack so we only react to camera captures
+    // that were triggered from this screen (CHECKPOINT_DEMO_SM).
+    const routes = this.props.navigation?.getState?.().routes || [];
+    const topRouteName =
+      routes.length > 0 ? routes[routes.length - 1]?.name : null;
+    const prevRouteName =
+      routes.length > 1 ? routes[routes.length - 2]?.name : null;
 
-      if (this.state.attachSelectedItem) {
-        var cameraCapture = props.data.audits.cameraCapture;
-        var checkPointsDetails = this.state.checkPointsDetails;
-        var templateId = this.state.attachSelectedItem.ChecklistTemplateId;
+    const isCameraFlowFromThisScreen =
+      topRouteName === ROUTES.CAMERA_CAPTURE &&
+      prevRouteName === ROUTES.CHECKPOINT_DEMO_SM;
 
-        if (cameraCapture.length > 0 && checkPointsDetails.length > 0) {
-          for (var i = 0; i < checkPointsDetails.length; i++) {
-            if (checkPointsDetails[i].ChecklistTemplateId == templateId) {
-              // checkPointsDetails[i].Attachment = cameraCapture[0].name;
-              // checkPointsDetails[i].File = cameraCapture[0].uri;
-              // // checkPointsDetails[i].FileName = cameraCapture[0].name.length > 30 ? cameraCapture[0].name.slice(0, 30) + '...' : cameraCapture[0].name
-              // checkPointsDetails[i].FileName = cameraCapture[0].name;
-              // checkPointsDetails[i].FileType = cameraCapture[0].type;
+    console.log(
+      '--CheckpointDemoSM routes--->',
+      topRouteName,
+      prevRouteName,
+      isCameraFlowFromThisScreen,
+    );
 
-              checkPointsDetails[i].Modified = true;
-              let FileArrayTemp = checkPointsDetails[i].AttachmentList;
-              let FileArrayTempOne = [
-                {
-                  id: Moment().unix() + '_' + i,
-                  FileUri: cameraCapture[0].uri,
-                  AuditID: parseInt(this.state.auditId),
-                  ChecklistTemplateID: templateId,
-                  Docid: 0,
-                  FormId: checkPointsDetails[i].FormId,
-                  FileName: cameraCapture[0].name,
-                  FileType: cameraCapture[0].type,
-                  Attachment: cameraCapture[0].data,
-                },
-              ];
-              //console.log(FileArrayTemp.length, 'filearraytemp');
+    if (isCameraFlowFromThisScreen && this.state.attachSelectedItem) {
+      var cameraCapture = props.data.audits.cameraCapture || [];
+      var checkPointsDetails = this.state.checkPointsDetails || [];
+      var templateId = this.state.attachSelectedItem.ChecklistTemplateId;
 
-              let fileMergeResult = FileArrayTemp.concat(FileArrayTempOne);
-              //console.log(fileMergeResult, 'filearraytemp2');
-              checkPointsDetails[i].AttachmentList = fileMergeResult;
-            }
+      if (cameraCapture.length > 0 && checkPointsDetails.length > 0) {
+        for (var i = 0; i < checkPointsDetails.length; i++) {
+          if (checkPointsDetails[i].ChecklistTemplateId == templateId) {
+            checkPointsDetails[i].Modified = true;
+            let FileArrayTemp = checkPointsDetails[i].AttachmentList || [];
+            let FileArrayTempOne = [
+              {
+                id: Moment().unix() + '_' + i,
+                FileUri: cameraCapture[0].uri,
+                AuditID: parseInt(this.state.auditId),
+                ChecklistTemplateID: templateId,
+                Docid: 0,
+                FormId: checkPointsDetails[i].FormId,
+                FileName: cameraCapture[0].name,
+                FileType: cameraCapture[0].type,
+                Attachment: cameraCapture[0].data,
+              },
+            ];
+
+            let fileMergeResult = FileArrayTemp.concat(FileArrayTempOne);
+            checkPointsDetails[i].AttachmentList = fileMergeResult;
           }
-          this.setState(
-            {
-              checkPointsDetails: checkPointsDetails,
-              isUnsavedData: true,
-              isAttachmentLoaded: true,
-            },
-            () => {
-              console.log(
-                'Checkpoint page - checkPointsDetails',
-                this.state.checkPointsDetails,
-                cameraCapture,
-              );
-              this.countStatistics(this.state.checkPointsDetails);
-            },
-          );
-          this.props.storeCameraCapture([]);
-        } else {
-          this.setState(
-            {
-              isAttachmentLoaded: true,
-            },
-            () => {
-              //console.log('Attachment: photo cancelled');
-            },
-          );
         }
+        this.setState(
+          {
+            checkPointsDetails: checkPointsDetails,
+            isUnsavedData: true,
+            isAttachmentLoaded: true,
+          },
+          () => {
+            console.log(
+              'Checkpoint page - checkPointsDetails',
+              this.state.checkPointsDetails,
+              cameraCapture,
+            );
+            this.countStatistics(this.state.checkPointsDetails);
+          },
+        );
+        this.props.storeCameraCapture([]);
+      } else {
+        this.setState(
+          {
+            isAttachmentLoaded: true,
+          },
+          () => {
+            //console.log('Attachment: photo cancelled');
+          },
+        );
       }
-    } else {
-      //console.log('CheckPointScreen pass');
     }
 
     //nc -ofi --if new nc/ofi raised then showed circles in templaes...
@@ -3722,7 +3720,7 @@ updatecheckpointvalues_new = () => {
         uploadedList = NCrecords[i].Uploaded;
       }
     }
-    //console.log(this.state.auditId, 'Audot');
+    console.log(NCrecords, 'AudotNCrecordsNCrecordsNCrecords--------');
     if (pendingList) {
       //console.log('entering NC?OFI');
       for (var i = 0; i < pendingList.length; i++) {
@@ -3783,6 +3781,8 @@ updatecheckpointvalues_new = () => {
             : uploadedData.ProcesssId
             ? uploadedData.ProcesssId.split(',')
             : [];
+            console.log('checkk------->selectedItemsProcess',selectedItemsProcess);
+            
         var changetoInt = selectedItemsProcess;
         var IntArr = [];
         for (var i = 0; i < changetoInt.length; i++) {
@@ -3797,9 +3797,14 @@ updatecheckpointvalues_new = () => {
         var requirementStr = '';
 
         for (var i = 0; i < auditRecords.length; i++) {
+          console.log('checkforrrlooopppppp');
           if (this.state.ncofiPassAuditId == auditRecords?.[i]?.AuditId) {
+          console.log('checking--------uploadedData',uploadedData);
+          console.log('ifcheckkkkkkkkkkkkkkkk',uploadedData.RequestedByID);
           ResponsibilityId = uploadedData.ResponsibilityId;
             var dropdowns = auditRecords?.[i]?.DropDownProps;
+            console.log('checkdropdowns-------->', dropdowns);
+            
             // Requirements
             for (var j = 0; j < dropdowns.ClauseList.length; j++) {
               for (var k = 0; k < selectedItems.length; k++) {
@@ -3825,11 +3830,13 @@ updatecheckpointvalues_new = () => {
             }
             // User - Responsibility
             if (uploadedData.RequestedByID) {
+              console.log('checklog----->RequestedByID', uploadedData.RequestedByID);
+              console.log('checktestingvallll---->RequestedByID',dropdowns.RequestBy);
               for (var j = 0; j < dropdowns.Users.length; j++) {
-                if (uploadedData.RequestedByID == dropdowns.Users[j].userid) {
+                if (uploadedData.RequestedByID == dropdowns.RequestBy[j].AuditeeContactPersonId) {
                   requestObj = {
-                    id: dropdowns.Users[j].userid,
-                    value: dropdowns.Users[j].Name,
+                    id: dropdowns.RequestBy[j].AuditeeContactPersonId,
+                    value: dropdowns.RequestBy[j].AuditeeContactPersonName,
                   };
                   break;
                 }
@@ -3837,14 +3844,16 @@ updatecheckpointvalues_new = () => {
             }
             // Requested by
             if (uploadedData.ResponsibilityId) {
-              for (var j = 0; j < dropdowns.RequestBy.length; j++) {
+              console.log('checklog----->ResponsibilityId', uploadedData.ResponsibilityId);
+              console.log('checktestingvallll---->ResponsibilityId',dropdowns.RequestBy);
+              for (var j = 0; j < dropdowns.Users.length; j++) {
                 if (
                   uploadedData.ResponsibilityId ==
-                  dropdowns.RequestBy[j].AuditeeContactPersonId
+                  dropdowns.Users[j].userid
                 ) {
                   userObj = {
-                    id: dropdowns.RequestBy[j].AuditeeContactPersonId,
-                    value: dropdowns.RequestBy[j].AuditeeContactPersonName,
+                    id: dropdowns.Users[j].userid,
+                    value: dropdowns.Users[j].Name,
                   };
                   break;
                 }
@@ -3889,7 +3898,7 @@ updatecheckpointvalues_new = () => {
           NonConfirmity: uploadedData.NonConfirmity,
           uniqueNCkey: Moment().unix(),
           selectedItems: selectedItems,
-          ResponsibilityUser:ResponsibilityId,
+          ResponsibilityUser: ResponsibilityId,
           selectedItemsProcess: selectedProcess,
           ChecklistTemplateId: uploadedData.ChecklistTemplateId,
           ncIdentifier: uploadedData.NCIdentifier,

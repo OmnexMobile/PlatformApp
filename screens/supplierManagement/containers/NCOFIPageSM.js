@@ -1742,6 +1742,8 @@ class NCOFIPage extends Component {
 
     var SiteID = this.state.currentUserData?.siteId || this.props.data.audits.siteId;
     var TOKEN = this.state.currentUserData?.accessToken || this.props.data.audits.token;
+   let progID =  await AsyncStorage.getItem('AUDITPROG_ID');
+console.log('checkDetailsss--------',progID);
 
     for (var i = 0; i < Data.length; i++) {
       if (this.state.AUDIT_ID == Data[i].AuditId) {
@@ -1750,7 +1752,7 @@ class NCOFIPage extends Component {
           iAudProgId = -2;
         }else{
         console.log('innsideelseprogid',Data[i].AuditTemplateId);
-        iAudProgId = 7
+        iAudProgId = progID;
         }
         AuditTypeId = Data[i].AuditTypeId;
       }
@@ -1766,6 +1768,7 @@ class NCOFIPage extends Component {
           this.props.data.audits.auditRecords[j].AuditProgOrder;
       }
     }
+console.log('heckdata--------,',this.props);
 
     this.setState(
       {
@@ -1774,7 +1777,7 @@ class NCOFIPage extends Component {
         AUDITYPE_ORDER: iAudTypeOrder,
         AUDITYPE_ID: AuditTypeId,
         SITEID: SiteID,
-        AUDITPROGORDER: iAudProgOrder,
+        AUDITPROGORDER: iAudTypeOrder,
       },
       () => {
         const strSortBy = 'order by Title asc';
