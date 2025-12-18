@@ -2216,7 +2216,7 @@ class AuditPage extends Component {
     const multiprocess = this.props?.route?.params?.datapass?.multiprocess;
     // return
     if (id === 1) {
-      this.props.navigation.navigate(ROUTES.AUDIT_RESULT, {
+      const navParams = {
         AuditID: this.state.AUDIT_ID,
         SiteID: this.state.SITEID,
         AuditProgramId: this.state.AUDITPROG_ID,
@@ -2224,7 +2224,9 @@ class AuditPage extends Component {
         AuditOrder: this.state.AUDITYPE_ORDER,
         AuditTypeId: this.state.AUDITYPE_ID,
         breadCrumb: this.state.auditDetailList.Auditee,
-      });
+      };
+      console.log('[NAV] AuditPage -> AUDIT_RESULT', navParams);
+      this.props.navigation.navigate(ROUTES.AUDIT_RESULT, navParams);
     } else if (id === 2) {
         if(CurrentApp === 'Audit Pro') {
           this.props.navigation.navigate(ROUTES.AUDIT_FORM, {

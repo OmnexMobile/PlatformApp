@@ -2212,7 +2212,7 @@ class AuditPage extends Component {
     const multiprocess = this.props?.route?.params?.datapass?.multiprocess;
     // return
     if (id === 1) {
-      this.props.navigation.navigate(ROUTES.AUDIT_RESULT, {
+      const navParams = {
         AuditID: this.state.AUDIT_ID,
         SiteID: this.state.SITEID,
         AuditProgramId: this.state.AUDITPROG_ID,
@@ -2220,7 +2220,9 @@ class AuditPage extends Component {
         AuditOrder: this.state.AUDITYPE_ORDER,
         AuditTypeId: this.state.AUDITYPE_ID,
         breadCrumb: this.state.auditDetailList.Auditee,
-      });
+      };
+      console.log('[NAV] AuditPage1 -> AUDIT_RESULT', navParams);
+      this.props.navigation.navigate(ROUTES.AUDIT_RESULT, navParams);
     } else if (id === 2) {
         if(CurrentApp === 'Audit Pro') {
           this.props.navigation.navigate(ROUTES.AUDIT_FORM, {
@@ -2292,8 +2294,12 @@ class AuditPage extends Component {
       console.log('this.state.AUDITYPE_ORDER', this.state.AUDITYPE_ORDER);
       console.log('this.state.auditstatus', this.state.auditstatus);
       console.log(this.props?.route?.params, 'stateparams');
+      const datapass =
+        this.props?.route?.params?.datapass ||
+        this.props?.navigation?.state?.params?.datapass;
+      const auditIdFromRoute = datapass?.ActualAuditId;
       this.props.navigation.navigate(ROUTES.CONFORMACY, {
-        AuditID: this.state.AUDIT_ID || this.props.navigation.state.params.datapass.ActualAuditId,
+        AuditID: this.state.AUDIT_ID || auditIdFromRoute,
         ChecklistBtn: this.state.ChecklistBtn,
         CreateNCdataBundle: {
           AuditID: this.state.AUDIT_ID,

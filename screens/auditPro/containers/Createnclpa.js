@@ -228,6 +228,8 @@ class CreateNC extends Component {
       checklistName: '',
       editnclpa: false,
       ncDetails: { ...this.props.navigationParams },
+      radioVal: 0,
+      
      // };
     };
 
@@ -241,30 +243,76 @@ class CreateNC extends Component {
   }
 
   componentDidMount() {
-    
     Voice.onSpeechResults = this.onSpeechResults;
 
-    const routes = this.props.navigation.getState().routes;
+    // Prefer direct route params (React Navigation v5+), with fallbacks
+    // to navigation state and the legacy `data.nav.routes` shape used
+    // in the APQP implementation so this works in all setups.
+    const directParams =
+      this.props?.route?.params ||
+      this.props?.navigation?.state?.params ||
+      {};
 
-    // const checklistName = this.props?.route?.name?.find(
-    const checklistName = routes.find(
-      route => route.routeName === ROUTES.CREATE_NCLPA,
-    )?.params?.checklistName;
-    // const radioVal = this.props?.route?.name?.find(
-    const radioVal = routes.find(
-      route => route.routeName === ROUTES.CREATE_NCLPA,
-    )?.params?.radiovalue;
+    let checklistName = directParams.checklistName;
+    let radioVal = directParams.radiovalue;
 
-    // Debugging logs
+    // 1) Try legacy Redux navigation store (data.nav.routes) first,
+    //    mirroring the working CreatencLPAAP implementation.
+    if (checklistName === undefined || radioVal === undefined) {
+      const navRoutes = this.props?.data?.nav?.routes || [];
+      const ncRouteFromStore =
+        navRoutes.find(
+          route =>
+            route?.routeName === 'CreatencLPA' ||
+            route?.routeName === ROUTES.CREATE_NCLPA,
+        ) || {};
+      if (ncRouteFromStore.params) {
+        checklistName =
+          checklistName ?? ncRouteFromStore.params.checklistName;
+        radioVal = radioVal ?? ncRouteFromStore.params.radiovalue;
+      }
+    }
+
+    // 2) Fallback to the navigation state tree if still missing.
+    if (checklistName === undefined || radioVal === undefined) {
+      const navState =
+        (this.props.navigation &&
+          typeof this.props.navigation.getState === 'function' &&
+          this.props.navigation.getState()) ||
+        this.props.navigation?.state ||
+        {};
+      const routes = navState.routes || [];
+      const currentRoute =
+        routes.find(
+          route =>
+            route?.name === ROUTES.CREATE_NCLPA ||
+            route?.routeName === ROUTES.CREATE_NCLPA,
+        ) || {};
+
+      if (currentRoute.params) {
+        checklistName =
+          checklistName ?? currentRoute.params.checklistName;
+        radioVal = radioVal ?? currentRoute.params.radiovalue;
+      }
+    }
+
+    // Normalize radio value so it works when passed as string or number
+    const numericRadioVal =
+      typeof radioVal === 'number'
+        ? radioVal
+        : parseInt(radioVal, 10);
+
     ////console.log('checklistdataaaalogggg********', checklistName);
-    ////console.log('radioValdataaaalogggg********', radioVal);
+    ////console.log('radioValdataaaalogggg********', numericRadioVal);
 
-    if (radioVal === 15) {
+    // Auto-fill NC text when answer is NO / NOT OK
+    if (numericRadioVal === 10 || numericRadioVal === 15) {
       ////console.log('looooggggtrue');
       this.setState(
         {
           editnclpa: true,
-          nonconfirmityText: checklistName + ":No" || '',
+          radioVal: numericRadioVal,
+          nonconfirmityText: checklistName ? `${checklistName}:No` : '',
           //  NCresponsible: responsibiltyField
 
           // Ensure it falls back to an empty string if checklistName is undefined
@@ -278,6 +326,7 @@ class CreateNC extends Component {
       ////console.log('looooggggfalse');
       this.setState({
         editnclpa: false,
+        radioVal: Number.isFinite(numericRadioVal) ? numericRadioVal : 0,
         nonconfirmityText: '',
       });
     }
@@ -404,238 +453,179 @@ class CreateNC extends Component {
   };
 
   LongTask() {
-    this.setState({
-      clauseMandatory:
-      this.props?.route?.params?.NCOFIDetails?.clauseMandatory,
-    });
-    console.log(
-      this.props?.route?.params?.NCOFIDetails?.clauseMandatory,
-      'clausemandatory',
-    );
-    //console.log('LongTask',this.props?.route?.params);
-    
+    if (!this.state.PageLoader) {
+      this.setState({PageLoader: true});
+    }
 
-    //console.log(this.props.data, 'propsdataincoming');
+    // Support both React Navigation v4 (`navigation.state.params`)
+    // and v5+ (`route.params`) when reading navigation params.
+    const params =
+      this.props?.route?.params ||
+      this.props?.navigation?.state?.params ||
+      {};
+
+    const clauseMandatory = params.NCOFIDetails?.clauseMandatory;
+    const shouldInitialize = !this.state.hasInitialized;
+
+    if (!shouldInitialize) {
+      if (
+        clauseMandatory !== undefined &&
+        clauseMandatory !== this.state.clauseMandatory
+      ) {
+        this.setState({clauseMandatory});
+      }
+      this.getDropValue();
+      return;
+    }
+
+    // Normalize type so callers that omit it still behave correctly:
+    // if `data` is present we default to EDIT.
+    const incomingType = params.type;
+    const hasPrefillData = !!params.data;
+    const resolvedType = incomingType
+      ? incomingType
+      : hasPrefillData
+      ? 'EDIT'
+      : 'ADD';
+
     if (this.props.data.audits.language === 'Chinese') {
-      this.setState({ ChineseScript: true }, () => {
+      this.setState({ChineseScript: true}, () => {
         strings.setLanguage('zh');
         this.setState({});
-        //console.log('Chinese script on', this.state.ChineseScript);
       });
     } else if (
       this.props.data.audits.language === null ||
       this.props.data.audits.language === 'English'
     ) {
-      this.setState({ ChineseScript: false }, () => {
+      this.setState({ChineseScript: false}, () => {
         strings.setLanguage('en-US');
         this.setState({});
-        //console.log('Chinese script off', this.state.ChineseScript);
       });
     }
-    //console.log('CreateNCmounted', this.props?.route?.params?);
-    // //console.log('getting props',this.props.data.audits)
-    var auditRecords = this.props.data.audits.auditRecords;
-    var auditProcessListAll = null;
-    var auditProgramId = null;
-    var isLpa = false;
-    console.log(
-      'Load:NC:CreateNC auditRecords props',
-      auditRecords,
-      'AuditID',
-      this.props.data.audits.auditRecords[0].AuditProcessList,
-      typeof this.props?.route?.params?.NCOFIDetails == 'string'
-        ? this.props?.route?.params?.AuditID
-        : this.props?.route?.params?.NCOFIDetails?.AuditID,
-    );
 
-    for (var i = 0; i < auditRecords.length; i++) {
-      var auid =
-        typeof this.props?.route?.params?.NCOFIDetails == 'string'
-          ? this.props?.route?.params?.AuditID
-          : this.props?.route?.params?.NCOFIDetails?.AuditID;
-      console.log(
-        'insideForauditRecords[i]',
-        auditRecords[i].AuditId,
-        'porp',
-        auid,
-      );
+    const auditRecords = this.props.data.audits.auditRecords;
+    let auditProcessListAll = null;
+    let auditProgramId = null;
+    let isLpa = false;
+
+    for (let i = 0; i < auditRecords.length; i++) {
+      const auid =
+        typeof params.NCOFIDetails == 'string'
+          ? params.AuditID
+          : params.NCOFIDetails?.AuditID;
       if (auditRecords[i].AuditId == auid) {
-        console.log(
-          'insideIFauditRecords[i]',
-          auditRecords[i],
-          auditRecords[i].AuditProcessList,
-        );
         auditProcessListAll = auditRecords[i].AuditProcessList;
         auditProgramId = auditRecords[i].AuditProgramId;
         break;
       }
     }
 
-    if (auditProgramId) {
-      if (auditProgramId == -1) {
-        isLpa = true;
-      }
+    if (auditProgramId && auditProgramId == -1) {
+      isLpa = true;
     }
 
-    //console.log('auditProcessListAll', auditProcessListAll);
-    //console.log('isLpa', isLpa);
-
-    if (this.props?.route?.params?.CheckpointRoute) {
+    if (params.CheckpointRoute) {
+      const data = params.data;
       console.log(
-        'Load:NC:this.props?.route?.params?',
-        this.props?.route?.params,
+        'CreateNCLPA LongTask params from CheckPointDemo',
+        {
+          checkpointRoute: params.CheckpointRoute,
+          type: params.type,
+          hasData: !!data,
+          dataKeys: data ? Object.keys(data || {}) : [],
+        },
       );
-      console.log(
-        'this.props?.route?.params?.CheckpointRoute',
-        this.props?.route?.params?.NCOFIDetails,
-      );
-      //console.log('logvalllllll', this.state.nonconfirmityText);
-
-      // Decide whether this screen should behave as ADD or EDIT.
-      // Some older callers may not pass an explicit `type`, so if
-      // `data` is present we default to EDIT.
-      const incomingType = this.props?.route?.params?.type;
-      const hasPrefillData = !!this.props?.route?.params?.data;
-      const resolvedType = incomingType
-        ? incomingType
-        : hasPrefillData
-        ? 'EDIT'
-        : 'ADD';
-
       this.setState(
         {
+          clauseMandatory,
+          hasInitialized: true,
           isLPA: isLpa,
           ProcessListAll: auditProcessListAll,
-          breadCrumbText:
-            this.props?.route?.params?.NCOFIDetails?.breadCrumb,
-          RouteParam: this.props?.route?.params?.CheckpointRoute,
-          templateId: this.props?.route?.params?.templateId,
-          isUploaded: this.props?.route?.params?.isUploaded,
+          breadCrumbText: params.NCOFIDetails?.breadCrumb,
+          RouteParam: params.CheckpointRoute,
+          templateId: params.templateId,
+          isUploaded: params.isUploaded,
           AuditID:
-            typeof this.props?.route?.params?.NCOFIDetails == 'string'
-              ? this.props?.route?.params?.NCOFIDetails
-              : this.props?.route?.params?.NCOFIDetails?.AuditID,
-          AuditOrder:
-            this.props?.route?.params?.NCOFIDetails?.AuditOrder,
-          ChecklistID:
-            this.props?.route?.params?.NCOFIDetails?.ChecklistID,
-          Formid: this.props?.route?.params?.NCOFIDetails?.Formid,
-          SiteID: this.props?.route?.params?.NCOFIDetails?.SiteID,
-          auditstatus:
-            this.props?.route?.params?.NCOFIDetails?.auditstatus,
-          title: this.props?.route?.params?.NCOFIDetails?.title,
-          auditnumber: this.props?.route?.params?.NCOFIDetails?.AUDIT_NO,
+            typeof params.NCOFIDetails == 'string'
+              ? params.NCOFIDetails
+              : params.NCOFIDetails?.AuditID,
+          AuditOrder: params.NCOFIDetails?.AuditOrder,
+          ChecklistID: params.NCOFIDetails?.ChecklistID,
+          Formid: params.NCOFIDetails?.Formid,
+          SiteID: params.NCOFIDetails?.SiteID,
+          auditstatus: params.NCOFIDetails?.auditstatus,
+          title: params.NCOFIDetails?.title,
+          auditnumber: params.NCOFIDetails?.AUDIT_NO,
           clauseRecords: this.props.data.audits?.auditRecords,
           type: resolvedType,
-          ncData: this.props?.route?.params?.data,
-          selectedItems: this.props?.route?.params?.data
-            ? this.props?.route?.params?.data?.selectedItems
-            : [],
-          selectedItemsProcess: this.props?.route?.params?.data
-            ? this.props?.route?.params?.data?.selectedItemsProcess
-            : [],
-          displayData: this.props?.route?.params?.data
-            ? this.props?.route?.params?.data?.requiretext
-            : undefined,
-          NCcategoryt: this.props?.route?.params?.data
-            ? this.props?.route?.params?.data?.categoryDrop
-            : undefined,
-          NCrequestby: this.props?.route?.params?.data
-            ? this.props?.route?.params?.data?.userDrop
-            : undefined,
-          NCdept: this.props?.route?.params?.data
-            ? this.props?.route?.params?.data?.deptDrop
-            : undefined,
-          NCFailure: this.props?.route?.params?.data
-            ? this.props?.route?.params?.data?.failureDrop == '0'
+          ncData: data,
+          selectedItems: data ? data.selectedItems : [],
+          selectedItemsProcess: data ? data.selectedItemsProcess : [],
+          displayData: data ? data.requiretext : undefined,
+          NCcategoryt: data ? data.categoryDrop : undefined,
+          NCrequestby: data ? data.userDrop : undefined,
+          NCdept: data ? data.deptDrop : undefined,
+          NCFailure: data
+            ? data.failureDrop == '0'
               ? undefined
-              : this.props?.route?.params?.data?.failureDrop
+              : data.failureDrop
             : undefined,
-          nonconfirmityText: this.props?.route?.params?.data
-            ? this.props?.route?.params?.data?.NonConfirmity
+          nonconfirmityText: data
+            ? data.NonConfirmity
             : this.state.nonconfirmityText,
-          NCresponsible: this.props?.route?.params?.data
-            ? this.props?.route?.params?.data?.requestDrop
-            : undefined,
-          ofitext: this.props?.route?.params?.data
-            ? this.props?.route?.params?.data?.OFI
-            : this.state.ofitext,
-          fileName: this.props?.route?.params?.data
-            ? this.props?.route?.params?.data?.filename
-            : undefined,
-          fileData: this.props?.route?.params?.data
-            ? this.props?.route?.params?.data?.filedata
-            : undefined,
-          ncIdentifier: this.props?.route?.params?.data
-            ? this.props?.route?.params?.data?.ncIdentifier
-            : undefined,
-          objEvidence: this.props?.route?.params?.data
-            ? this.props?.route?.params?.data?.objEvidence
-            : undefined,
-          recommAction: this.props?.route?.params?.data
-            ? this.props?.route?.params?.data?.recommAction
-            : undefined,
-          documentRef: this.props?.route?.params?.data
-            ? this.props?.route?.params?.data?.documentRef
-            : undefined,
-          selectedItemsResponse: this.props?.route?.params?.data && this.props?.route?.params?.data?.ResponsibilityUser ?
-            this.props?.route?.params?.data?.ResponsibilityUser 
-            :undefined,
+          NCresponsible: data ? data.requestDrop : undefined,
+          ofitext: data ? data.OFI : this.state.ofitext,
+          fileName: data ? data.filename : undefined,
+          fileData: data ? data.filedata : undefined,
+          ncIdentifier: data ? data.ncIdentifier : undefined,
+          objEvidence: data ? data.objEvidence : undefined,
+          recommAction: data ? data.recommAction : undefined,
+          documentRef: data ? data.documentRef : undefined,
+          selectedItemsResponse:
+            data && data.ResponsibilityUser
+              ? data.ResponsibilityUser
+              : undefined,
         },
         () => {
           this.getDropValue();
-          // console.log(
-          //   'Load:NC:ResponsibilityUser',
-          //   this.props?.route?.params?.data,this.props?.route?.params?.data.ResponsibilityUser,
-          //   this.state.selectedItemsProcess,
-          // );
-          //console.log(this.props?.route?.params, 'dataaa==>');
-          //console.log('checklistamevalue1', this.state.nonconfirmityText);
-
         },
       );
     } else {
-      //console.log('Audit props', this.props.data.audits);
       this.setState(
         {
+          clauseMandatory,
+          hasInitialized: true,
           isLPA: isLpa,
-          dropvalues: this.props?.route?.params?.DropDownval,
-          isUploaded: this.props?.route?.params?.isUploaded,
-          getDetails: this.props?.route?.params?.CreateNCdetails,
-          AuditID: this.props?.route?.params?.CreateNCdetails?.AuditID,
-          AuditOrder:
-            this.props?.route?.params?.CreateNCdetails?.AuditOrder,
-          ChecklistID:
-            this.props?.route?.params?.CreateNCdetails?.ChecklistID,
-          Formid: this.props?.route?.params?.CreateNCdetails?.Formid,
-          SiteID: this.props?.route?.params?.CreateNCdetails?.SiteID,
-          auditstatus:
-            this.props?.route?.params?.CreateNCdetails?.auditstatus,
-          title: this.props?.route?.params?.CreateNCdetails?.title,
-          auditnumber:
-            this.props?.route?.params?.CreateNCdetails?.AUDIT_NO,
-          RouteParam: this.props?.route?.params?.RouteValue,
+          dropvalues: params.DropDownval,
+          isUploaded: params.isUploaded,
+          getDetails: params.CreateNCdetails,
+          AuditID: params.CreateNCdetails?.AuditID,
+          AuditOrder: params.CreateNCdetails?.AuditOrder,
+          ChecklistID: params.CreateNCdetails?.ChecklistID,
+          Formid: params.CreateNCdetails?.Formid,
+          SiteID: params.CreateNCdetails?.SiteID,
+          auditstatus: params.CreateNCdetails?.auditstatus,
+          title: params.CreateNCdetails?.title,
+          auditnumber: params.CreateNCdetails?.AUDIT_NO,
+          RouteParam: params.RouteValue,
           clauseRecords: this.props.data.audits?.auditRecords,
-          ofitext: this.props?.route?.params?.data?.OFI,
-          documentRef: this.props?.route?.params?.documentRef,
+          ofitext: params.data?.OFI,
+          documentRef: params.documentRef,
         },
         () => {
           this.getDropValue();
         },
       );
     }
-    //console.log('auditstatus', this.state.auditstatus);
-    //console.log('AuditOrder', this.state.AuditOrder);
-    var processautoid =
-      this.props?.route?.params?.NCOFIDetails?.ProcessID;
-    var type = this.props?.route?.params?.type;
+
+    const processautoid = params.NCOFIDetails?.ProcessID;
     if (
       processautoid !== '' &&
       processautoid !== null &&
       processautoid !== undefined &&
-      type === 'ADD'
+      resolvedType === 'ADD'
     ) {
-      var processArray = [processautoid];
+      const processArray = [processautoid];
       this.setState({
         selectedItemsProcess: processArray,
         MarkProcess: false,
@@ -644,11 +634,30 @@ class CreateNC extends Component {
   }
 
   componentWillReceiveProps(props) {
-    const { navigation } = this.props;
-    const cancelled = navigation.getParam('cancelpressed', 'empty');
-    const uri_details = navigation.getParam('Uri', 'empty');
-    const video_name = navigation.getParam('Name', 'empty');
-    const video_type = navigation.getParam('Type', 'empty');
+    const navigation = props?.navigation || this.props.navigation;
+
+    // React Navigation v4 used navigation.getParam; v5+ puts everything in route.params.
+    let cancelled = 'empty';
+    let uri_details = 'empty';
+    let video_name = 'empty';
+    let video_type = 'empty';
+
+    if (navigation && typeof navigation.getParam === 'function') {
+      cancelled = navigation.getParam('cancelpressed', 'empty');
+      uri_details = navigation.getParam('Uri', 'empty');
+      video_name = navigation.getParam('Name', 'empty');
+      video_type = navigation.getParam('Type', 'empty');
+    } else {
+      const allParams =
+        props?.route?.params ||
+        this.props?.route?.params ||
+        navigation?.state?.params ||
+        {};
+      cancelled = allParams.cancelpressed ?? 'empty';
+      uri_details = allParams.Uri ?? 'empty';
+      video_name = allParams.Name ?? 'empty';
+      video_type = allParams.Type ?? 'empty';
+    }
 
     //console.log(cancelled + 'value');
 
@@ -2459,6 +2468,20 @@ class CreateNC extends Component {
             //console.log('stateres', this.state.selectedItemsResponse);
             //console.log('########fileNames', fileDatas);
             //console.log("enter here as 1")
+            const resolvedCategoryDrop =
+              this.state.NCcategoryt && this.state.NCcategoryt.id
+                ? this.state.NCcategoryt.id
+                : this.state.categoryArr &&
+                  this.state.categoryArr[0] &&
+                  this.state.categoryArr[0].id
+                ? this.state.categoryArr[0].id
+                : 0;
+
+            const resolvedUniqueKey =
+              this.state.type === 'EDIT' && this.state.ncData?.uniqueNCkey
+                ? this.state.ncData.uniqueNCkey
+                : Moment().unix();
+
             BundleArr = {
               requiretext:
                 this.state.displayData === ''
@@ -2469,7 +2492,7 @@ class CreateNC extends Component {
                 this.state.nonconfirmityText === undefined
                   ? undefined
                   : this.state.nonconfirmityText,
-              categoryDrop: this.state.categoryArr[0].id,
+              categoryDrop: resolvedCategoryDrop,
               ResponsibilityUser: this.state.selectedItemsResponse,
               requestDrop: this.state.requestDropdown[0].id,
               deptDrop: this.state.NCdept === undefined ? 0 : this.state.NCdept,
@@ -2487,7 +2510,7 @@ class CreateNC extends Component {
               NCNumber: this.state.auditnumber,
               Category: 'NC',
               OFI: this.state.ofitext,
-              uniqueNCkey: Moment().unix(),
+              uniqueNCkey: resolvedUniqueKey,
               selectedItems: this.state.selectedItems,
               selectedItemsProcess: this.state.selectedItemsProcess,
               ChecklistTemplateId: this.state.templateId,
@@ -2515,7 +2538,9 @@ class CreateNC extends Component {
             //console.log('Information bundled', BundleArr);
 
             for (var i = 0; i < NCrecords.length; i++) {
-              if (NCrecords[i].AuditID === this.state.AuditID) {
+              if (
+                String(NCrecords[i].AuditID) === String(this.state.AuditID)
+              ) {
                 var Information = [];
                 if (NCrecords[i].Pending) {
                   //console.log('NCrecords[i].Pending', NCrecords[i].Pending);
@@ -2523,7 +2548,8 @@ class CreateNC extends Component {
                     if (
                       this.state.type == 'EDIT' &&
                       this.state.ncData.uniqueNCkey ==
-                      NCrecords?.[i]?.Pending?.[j]?.uniqueNCkey &&  NCrecords?.[i]?.Pending?.[j]?.uniqueNCkey != undefined
+                        NCrecords?.[i]?.Pending?.[j]?.uniqueNCkey &&
+                      NCrecords?.[i]?.Pending?.[j]?.uniqueNCkey != undefined
                     ) {
                       console.log(
                         'ncuniqkeycheck#####',
@@ -2531,9 +2557,7 @@ class CreateNC extends Component {
                         NCrecords?.[i]?.Pending?.[j]?.uniqueNCkey,
                       );
 
-                      NCrecords?.[i]?.Pending?.[j],
-                        'helloonetwo',
-                        Information.push(BundleArr);
+                      Information.push(BundleArr);
                     } else {
                       console.log(
                         NCrecords?.[i]?.Pending?.[j].filename,
@@ -2543,7 +2567,7 @@ class CreateNC extends Component {
                         NCrecords?.[i]?.Pending?.[j],
                         'helloonetwo11111112',
                       );
-//console.log("enter here as 2")
+                      //console.log("enter here as 2")
                       Information.push({
                         AuditID: NCrecords?.[i]?.Pending?.[j]?.AuditID,
                         // AuditID:NCrecords?.[i]?.Pending?.[j]?.AuditID,
@@ -2814,13 +2838,27 @@ class CreateNC extends Component {
           const fileDatas = this.state.fileArrayList; //.map(file => file.fileData);
           //console.log('########fileNames', fileDatas);
 
+          const resolvedOfiCategoryDrop =
+            this.state.NCcategoryt && this.state.NCcategoryt.id
+              ? this.state.NCcategoryt.id
+              : this.state.categoryArr &&
+                this.state.categoryArr[0] &&
+                this.state.categoryArr[0].id
+              ? this.state.categoryArr[0].id
+              : 0;
+
+          const resolvedOfiUniqueKey =
+            this.state.type === 'EDIT' && this.state.ncData?.uniqueNCkey
+              ? this.state.ncData.uniqueNCkey
+              : Moment().unix();
+
           BundleArr = {
             requiretext:
               this.state.displayData === ''
                 ? undefined
                 : this.state.displayData,
             OFI: this.state.ofitext === undefined ? '' : this.state.ofitext,
-            categoryDrop: this.state.NCcategoryt,
+            categoryDrop: this.state.NCcategoryt || resolvedOfiCategoryDrop,
             userDrop: this.state.NCrequestby,
             ResponsibilityUser: this.state.selectedItemsResponse,
             // requestDrop: this.state.NCresponsible,
@@ -2854,7 +2892,7 @@ class CreateNC extends Component {
                 ? undefined
                 : this.state.documentRef,
 
-            uniqueNCkey: Moment().unix(),
+            uniqueNCkey: resolvedOfiUniqueKey,
             selectedItems: this.state.selectedItems,
             selectedItemsProcess: this.state.selectedItemsProcess,
             ChecklistTemplateId: this.state.templateId,
@@ -2876,7 +2914,9 @@ class CreateNC extends Component {
 
 
           for (var i = 0; i < NCrecords.length; i++) {
-            if (NCrecords[i].AuditID === this.state.AuditID) {
+            if (
+              String(NCrecords[i].AuditID) === String(this.state.AuditID)
+            ) {
               var Information = [];
               if (NCrecords[i].Pending) {
                 for (var j = 0; j < NCrecords[i].Pending.length; j++) {
@@ -3581,10 +3621,15 @@ class CreateNC extends Component {
                   {(() => {
                     const isNC = this.state.RouteParam === 'NC';
                     const hasPrefillData = !!this.state.ncData;
+                    const explicitEdit =
+                      this.state.type &&
+                      typeof this.state.type === 'string' &&
+                      this.state.type.toUpperCase() === 'EDIT';
+                    const radioIndicatesEdit =
+                      this.state.radioVal === 10 ||
+                      this.state.radioVal === 15;
                     const isEdit =
-                      (this.state.type &&
-                        this.state.type.toUpperCase() === 'EDIT') ||
-                      hasPrefillData;
+                      explicitEdit || hasPrefillData || radioIndicatesEdit;
                     if (isNC) {
                       return (isEdit ? strings.Edit : strings.Upload) + ' NC';
                     }
@@ -3703,10 +3748,9 @@ class CreateNC extends Component {
                           onChangeText={text => {
                             this.setState(
                               {
-                                ofitext:
-                                  text +
-                                  this.props.data.audits.auditRecords[0]
-                                    .CheckListPropData[5].ChecklistName,
+                                // For OFI, use exactly what the user types.
+                                // Do not auto-append any checklist name.
+                                ofitext: text,
                               },
                               () => {
                                 this.isCheck3 = true;
@@ -4047,9 +4091,11 @@ class CreateNC extends Component {
                         <Dropdown
                           ref="requestTxtField"
                           value={
-                            this.state.requestDropdown &&
-                              this.state.requestDropdown.length >= 1
-                              ? this.state.requestDropdown[0].value
+                            this.state.NCrequestby && this.state.NCrequestby.value
+                              ? this.state.NCrequestby.value
+                              : this.state.RequestArr &&
+                                this.state.RequestArr.length > 0
+                              ? this.state.RequestArr[0].value
                               : ''
                           }
                           label={strings.RequestedL}

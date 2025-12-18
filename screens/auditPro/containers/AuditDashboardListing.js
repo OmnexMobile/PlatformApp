@@ -601,10 +601,10 @@ class AuditDashboardListing extends Component {
         }
 
         if (UserStatus == 2) {
-          ToastNew.show({
-            type: 'error',
-            text1: 'testing',
-          });
+          // ToastNew.show({
+          //   type: 'error',
+          //   text1: 'testing',
+          // });
 
           console.log('User active');
           // this.syncAuditsToServerMethod()

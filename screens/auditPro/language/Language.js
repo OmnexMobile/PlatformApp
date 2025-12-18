@@ -107,6 +107,7 @@ export let strings = new LocalizedStrings({
     Supplier_initial_assessment : "Supplier Initial Assessment",
     Supplier_routine_audit : "Supplier Routine Audit",
     SUPPLIER_MANGEMENT: "SUPPLIER MANAGEMENT",
+    Choose_Failure_Reason: "Choose Failure Reason",
     /** Audit result **/
     Templates: "Templates",
     Form_Name: "Form Name",
@@ -179,6 +180,7 @@ export let strings = new LocalizedStrings({
     Opportunity_ApproachL: "Opportunity for improvements",
     DepartmentL: "Department",
     FailureCategory: "Failure Category",
+    Failure_Reason: "Failure Reason",
     Choose_Failure_category: "Choose Failure Category",
     Auditee_Approach: "Auditee Approach",
     Attach_EvidenceL: "Attach Evidence",

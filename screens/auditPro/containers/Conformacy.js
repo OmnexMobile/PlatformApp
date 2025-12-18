@@ -40,7 +40,6 @@ import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import { ROUTES } from 'constants/app-constant';
 import { SPACING } from 'constants/theme-constants';
 import { F } from 'ramda';
-import {NavigationEvents, withNavigation, withNavigationFocus} from 'react-navigation';
 import OfflineNotice from '../components/OfflineNotice';
 import NetInfo from '@react-native-community/netinfo';
 
@@ -91,7 +90,6 @@ class Conformacy extends React.Component {
       EditFlag: false,
       Uploadedon: '',
       attachment: '',
-      AuditID: '',
       AttachID: '',
       breadCrumbText: '',
       isErrorFound: false,
@@ -147,7 +145,7 @@ class Conformacy extends React.Component {
       'this.props.audits',
       this.props.audits,
     );
-    console.log('Create attach mounted', tthis?.props?.route?.params);
+    console.log('Create attach mounted', this?.props?.route?.params);
     this.checkUser();
     this.getAuditDetails();
     console.log('trigger focus22')
@@ -168,7 +166,7 @@ class Conformacy extends React.Component {
     var getCurrentPage = [];
     // getCurrentPage = this.props.data.nav.routes;
     // var CurrentPage = getCurrentPage[getCurrentPage.length - 1].routeName;
-    var CurrentPage = this.props.route.name;
+    var CurrentPage = props?.route?.name;
     console.log('--CurrentPage--->', CurrentPage);
 
     if (CurrentPage == 'CONFORMACY') {
@@ -1051,8 +1049,11 @@ class Conformacy extends React.Component {
     return (
       <>
         <KeyboardAvoidingView style={styles.wrapper}>
-          {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
-          <NavigationEvents onDidFocus={ () => this.getAuditDetails() } />
+          {Platform.OS === 'ios' ? (
+            <View style={{padding: SPACING.MEDIUM, flexDirection: 'row'}} />
+          ) : (
+            <View style={{padding: SPACING.NORMAL, flexDirection: 'row'}} />
+          )}
           {/* {isFocused ? console.log('trigger isFocused return', isFocused) : console.log('trigger not isFocused', isFocused) }  */}
           <OfflineNotice/>
           <ImageBackground

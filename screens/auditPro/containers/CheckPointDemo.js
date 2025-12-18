@@ -61,7 +61,7 @@ import {
 } from 'react-native-compressor';
 import NetInfo from '@react-native-community/netinfo';
 import finalPropsSelectorFactory from 'react-redux/es/connect/selectorFactory';
-// import auth from '../Services/Auth';
+import auth from '../../../services/Auditpro-Auth';
 import {saveNavigationParams} from '../../../store/AuditPro/auditRedux';
 import { RichEditor} from 'react-native-pell-rich-editor';
 import { ROUTES } from 'constants/app-constant';
@@ -873,6 +873,18 @@ class CheckPointDemo extends Component {
                       }
                     }
                   }
+
+                  const resolvedFailureCategoryId = this.normalizeId(
+                    checkPoints?.[i]?.FailureCategoryId ??
+                      checkPointList?.[j]?.FailureCategoryId ??
+                      0,
+                  );
+
+                  const resolvedFailureReasonId = this.normalizeId(
+                    checkPoints?.[i]?.FailureReasonId ??
+                      checkPointList?.[j]?.FailureReasonId ??
+                      0,
+                  );
                   var temppp = '';
                   if (checkPointList?.[j]?.ansType == 'M3') {
                     //console.log('**ANSTYPE**', checkPointList?.[j]?.ansType);
@@ -934,9 +946,11 @@ class CheckPointDemo extends Component {
                           show_nc_ofi_status: showncofistatus,
                           nc_available_status: nc_available,
                           ofi_avialable_status: ofi_avialable,
+                          // FailureCategoryId: resolvedFailureCategoryId,
+                          // FailureReasonId: resolvedFailureReasonId,
                           FailureCategoryId:
-                            checkPointList?.[j]?.FailureCategoryId,
-                          FailureReasonId: checkPointList?.[j]?.FailureReasonId,
+                          checkPointList?.[j]?.FailureCategoryId,
+                        FailureReasonId: checkPointList?.[j]?.FailureReasonId,
                         });
                       } else if (checkPointList?.[j]?.Status == 1) {
                         //console.log('**checkpoints details**', checkPoints[i]);
@@ -1056,8 +1070,8 @@ class CheckPointDemo extends Component {
                           nc_available_status: nc_available,
                           ofi_avialable_status: ofi_avialable,
                           FailureCategoryId:
-                            checkPointList?.[j]?.FailureCategoryId,
-                          FailureReasonId: checkPointList?.[j]?.FailureReasonId,
+                          checkPointList?.[j]?.FailureCategoryId,
+                        FailureReasonId: checkPointList?.[j]?.FailureReasonId,
                         });
                       } else if (checkPointList?.[j]?.Status == -1) {
                         console.log(
@@ -2794,6 +2808,7 @@ class CheckPointDemo extends Component {
             this.captureNcofiBaseline().catch(error =>
               console.log('capture baseline error', error),
             );
+            this.syncFailureLabels();
           },
         );
         // }
@@ -3005,17 +3020,25 @@ class CheckPointDemo extends Component {
     // //console.log('***',this.state.checkPointsDetails)
     //console.log('Sathish==>', checkPointsDetails);
     const data = Array.isArray(checkPointsDetails) ? checkPointsDetails : [];
+    const isVda = this.isVdaAudit();
     var pendingCheck = [];
     var completed = [];
     var mandatoryCheck = 0;
 
     for (var i = 0; i < data.length; i++) {
       const checkpoint = data[i];
+      if (isVda) {
+        // For VDA-type audits, skip mandatory/asterisk logic entirely.
+        completed.push(checkpoint);
+        continue;
+      }
       const requiresRemark = this.isRemarkMandatory(checkpoint);
-      const requiresAttachmentBase = this.isAttachmentMandatory(checkpoint);
-      const requiresAttachment =
-        requiresAttachmentBase ||
-        this.isFlagEnabled(this.state.checkpointList?.[i]?.IsVeto);
+      // const requiresAttachmentBase = this.isAttachmentMandatory(checkpoint);
+      // const requiresAttachment =
+      //   requiresAttachmentBase ||
+      //   this.isFlagEnabled(this.state.checkpointList?.[i]?.IsVeto);
+      const requiresAttachment = this.isAttachmentMandatory(checkpoint);
+
       const isMandatory = requiresRemark || requiresAttachment;
       const hasStaticAsterisk = this.hasBaseAsteriskRequirement(checkpoint);
       const serverFlag = this.isServerMandatory(checkpoint, i);
@@ -3100,6 +3123,9 @@ class CheckPointDemo extends Component {
   // Validates checkpoint completion thresholds and triggers save/update flows
   updateCheckPointsValues = async () => {
     await AsyncStorage.setItem('redDotActive', 'true');
+    if (typeof this.markAuditEdited === 'function') {
+      await this.markAuditEdited();
+    }    
 
     // Mark this specific audit as edited (per-audit flag)
     if (typeof this.markAuditEdited === 'function') {
@@ -3348,14 +3374,35 @@ class CheckPointDemo extends Component {
                     AuditRecordStatus = constant.StatusNotSynced;
                   }
                   //console.log('LISTDATAARR', listDataArr, checkPointsDetails);
+                  const normalizeKey = value => {
+                    const normalized = this.normalizeId(value);
+                    return normalized === null || normalized === undefined
+                      ? ''
+                      : String(normalized);
+                  };
+
                   for (var i = 0; i < listDataArr.length; i++) {
+                    const listFormId = normalizeKey(listDataArr[i].FormId);
+                    const listTemplateId = normalizeKey(
+                      listDataArr[i].ChecklistTemplateId,
+                    );
+                    const listParentId = normalizeKey(listDataArr[i].ParentId);
+
                     for (var j = 0; j < checkPointsDetails.length; j++) {
+                      const checkpointFormId = normalizeKey(
+                        checkPointsDetails[j].FormId,
+                      );
+                      const checkpointTemplateId = normalizeKey(
+                        checkPointsDetails[j].ChecklistTemplateId,
+                      );
+                      const checkpointParentId = normalizeKey(
+                        checkPointsDetails[j].ParentId,
+                      );
+
                       if (
-                        listDataArr[i].FormId == checkPointsDetails[j].FormId &&
-                        listDataArr[i].ChecklistTemplateId ==
-                          checkPointsDetails[j].ChecklistTemplateId &&
-                        listDataArr[i].ParentId ==
-                          checkPointsDetails[j].ParentId
+                        listFormId === checkpointFormId &&
+                        listTemplateId === checkpointTemplateId &&
+                        listParentId === checkpointParentId
                       ) {
                         {
                           // //console.log(checkPointsDetails[j], 'LIST===>');
@@ -3416,8 +3463,18 @@ class CheckPointDemo extends Component {
                             checkPointsDetails[j].immediateAction,
                           FailureCategoryId:
                             checkPointsDetails[j].FailureCategoryId,
+                          // FailureCategoryName:
+                          //   checkPointsDetails[j].FailureCategoryName ||
+                          //   this.failureCategoryText(
+                          //     checkPointsDetails[j].FailureCategoryId,
+                          //   ),
                           FailureReasonId:
                             checkPointsDetails[j].FailureReasonId,
+                          // FailureReasonName:
+                          //   checkPointsDetails[j].FailureReasonName ||
+                          //   this.failureReasonText(
+                          //     checkPointsDetails[j].FailureReasonId,
+                          //   ),
                           // FileContent:checkPointsDetails[j].FileContent
                           deleteallattachment:
                             listDataArr[i]?.deleteallattachment,
@@ -4263,7 +4320,12 @@ this.props.navigation.setParams({ auditUpdated: true });
           NCNumber: this.state.raiseID.AUDIT_NO + '-' + id + '-' + maxOrder,
           Category: id,
           NonConfirmity: uploadedData.NonConfirmity,
-          uniqueNCkey: Moment().unix(),
+          // Preserve existing unique key when editing an already created NC/OFI
+          uniqueNCkey:
+            uploadedData.uniqueNCkey !== undefined &&
+            uploadedData.uniqueNCkey !== null
+              ? uploadedData.uniqueNCkey
+              : Moment().unix(),
           selectedItems: selectedItems,
           ResponsibilityUser: userObj,
           selectedItemsProcess: selectedProcess,
@@ -4393,6 +4455,89 @@ this.props.navigation.setParams({ auditUpdated: true });
       value === 'true' ||
       value === 'TRUE'
     );
+  }
+
+  // Returns true if the active audit is VDA-type
+  isVdaAudit() {
+    try {
+      const auditRecords = this.props?.data?.audits?.auditRecords;
+      if (!Array.isArray(auditRecords) || auditRecords.length === 0) {
+        return false;
+      }
+
+      const activeAuditId =
+        this.state?.auditId ??
+        this.props?.route?.params?.AuditID ??
+        this.props?.route?.params?.Check?.AuditID ??
+        auditRecords[0]?.AuditId;
+
+      const targetRecord =
+        auditRecords.find(
+          record =>
+            record && String(record.AuditId) === String(activeAuditId),
+        ) || auditRecords[0];
+
+      if (!targetRecord) {
+        return false;
+      }
+
+      const rawVda = targetRecord.VDA;
+
+      if (
+        rawVda === true ||
+        rawVda === 'true' ||
+        rawVda === 'TRUE' ||
+        rawVda === 1 ||
+        rawVda === '1'
+      ) {
+        return true;
+      }
+
+      // Fallback: infer VDA from template/program names when the flag is not set
+      const templateName = (
+        targetRecord.AuditTemplateName ||
+        targetRecord.Formname ||
+        targetRecord.AuditProgramName ||
+        ''
+      )
+        .toString()
+        .toUpperCase();
+
+      if (templateName.includes('VDA')) {
+        return true;
+      }
+
+      return false;
+    } catch (error) {
+      console.log('[CheckPointDemo] isVdaAudit error', error);
+      return false;
+    }
+  }
+
+  normalizeId(value) {
+    if (value === null || value === undefined) {
+      return null;
+    }
+    if (typeof value === 'number') {
+      return value;
+    }
+    const parsed = parseInt(value, 10);
+    if (Number.isNaN(parsed)) {
+      return value;
+    }
+    return parsed;
+  }
+
+  // Normalizes dropdown IDs so comparisons remain reliable
+  normalizeId(value) {
+    if (value === null || value === undefined) {
+      return value;
+    }
+    if (typeof value === 'number') {
+      return value;
+    }
+    const parsed = parseInt(value, 10);
+    return Number.isNaN(parsed) ? value : parsed;
   }
 
   // Returns true if a checkpoint has a radio value selected
@@ -4559,6 +4704,10 @@ this.props.navigation.setParams({ auditUpdated: true });
       return false;
     }
 
+    if (this.isVdaAudit()) {
+      return false;
+    }
+
     const selection = this.getRadioSelectionType(checkpoint);
 
     if (['YES', 'OK', 'TRUE', 'NA'].includes(selection)) {
@@ -4589,6 +4738,10 @@ this.props.navigation.setParams({ auditUpdated: true });
       return false;
     }
 
+    if (this.isVdaAudit()) {
+      return false;
+    }
+
     const selection = this.getRadioSelectionType(checkpoint);
     let requiresAttachment = false;
 
@@ -4604,10 +4757,10 @@ this.props.navigation.setParams({ auditUpdated: true });
       requiresAttachment =
         this.requiresNcAttachment(checkpoint) ||
         this.requiresOfiAttachment(checkpoint);
-    }
+    // }
 
-    if (!requiresAttachment && this.isFlagEnabled(checkpoint?.IsVeto)) {
-      requiresAttachment = true;
+    // if (!requiresAttachment && this.isFlagEnabled(checkpoint?.IsVeto)) {
+    //   requiresAttachment = true;
     }
 
     return requiresAttachment;
@@ -4616,6 +4769,10 @@ this.props.navigation.setParams({ auditUpdated: true });
   // True if base asterisk requirement applies to this checkpoint
   hasBaseAsteriskRequirement(checkpoint) {
     if (!checkpoint) {
+      return false;
+    }
+
+    if (this.isVdaAudit()) {
       return false;
     }
 
@@ -4630,6 +4787,10 @@ this.props.navigation.setParams({ auditUpdated: true });
 
   // Checks server-driven mandatory flag for the checkpoint
   isServerMandatory(checkpoint, index) {
+    if (this.isVdaAudit()) {
+      return false;
+    }
+
     const parseFlag = value => {
       if (value === undefined || value === null || value === '') {
         return false;
@@ -4720,6 +4881,10 @@ this.props.navigation.setParams({ auditUpdated: true });
       return false;
     }
 
+    if (this.isVdaAudit()) {
+      return false;
+    }
+
     return (
       this.requiresNcAttachment(checkpoint) ||
       this.requiresNcRemark(checkpoint)
@@ -4732,12 +4897,20 @@ this.props.navigation.setParams({ auditUpdated: true });
       return false;
     }
 
+    if (this.isVdaAudit()) {
+      return false;
+    }
+
     return this.requiresCompAttachment(checkpoint);
   }
 
   // Determines if OFI requirement is mandatory
   isOfiRequirementMandatory(checkpoint) {
     if (!checkpoint) {
+      return false;
+    }
+
+    if (this.isVdaAudit()) {
       return false;
     }
 
@@ -4753,6 +4926,10 @@ this.props.navigation.setParams({ auditUpdated: true });
       return false;
     }
 
+    if (this.isVdaAudit()) {
+      return false;
+    }
+
     if (this.isNcRequirementMandatory(checkpoint)) {
       return true;
     }
@@ -4765,7 +4942,7 @@ this.props.navigation.setParams({ auditUpdated: true });
       return true;
     }
 
-    return this.isFlagEnabled(checkpoint?.IsVeto);
+    return false;
   }
 
   // Detects whether the user interacted with the checkpoint
@@ -4813,6 +4990,10 @@ this.props.navigation.setParams({ auditUpdated: true });
       return false;
     }
 
+    if (this.isVdaAudit()) {
+      return false;
+    }
+
     const requiresRemark = this.isRemarkMandatory(checkpoint);
     const requiresAttachment = this.isAttachmentMandatory(checkpoint);
 
@@ -4838,6 +5019,10 @@ this.props.navigation.setParams({ auditUpdated: true });
   // Aggregates missing requirement messages for a checkpoint
   validateCheckpointRequirements(checkpoint) {
     if (!checkpoint) {
+      return {valid: true, missing: null};
+    }
+
+    if (this.isVdaAudit()) {
       return {valid: true, missing: null};
     }
 
@@ -5812,6 +5997,16 @@ this.props.navigation.setParams({ auditUpdated: true });
 
           () => {
             const checkpoint = this.state.checkPointsDetails[index];
+
+            // Refresh failure reason list for this checkpoint's category
+            const FailureCategoryId = checkpoint.FailureCategoryId;
+            if (
+              typeof FailureCategoryId !== 'undefined' &&
+              FailureCategoryId !== '0'
+            ) {
+              this.failurereasonArray(FailureCategoryId);
+            }
+
             const attachment = checkpoint.AttachmentList.filter(
               checks => checks.Attachment === 'EMPTY',
             );
@@ -5835,6 +6030,16 @@ this.props.navigation.setParams({ auditUpdated: true });
             setTimeout(() => {
               () => {
                 const checkpoint = this.state.checkPointsDetails[index];
+
+                // Refresh failure reason list for this checkpoint's category
+                const FailureCategoryId = checkpoint.FailureCategoryId;
+                if (
+                  typeof FailureCategoryId !== 'undefined' &&
+                  FailureCategoryId !== '0'
+                ) {
+                  this.failurereasonArray(FailureCategoryId);
+                }
+
                 const attachment = checkpoint.AttachmentList.filter(
                   checks => checks.Attachment === 'EMPTY',
                 );
@@ -5885,6 +6090,18 @@ this.props.navigation.setParams({ auditUpdated: true });
   }
 
   // Returns display text for failure category
+  // failureCategoryText(value) {
+  //   const Failcat_value = this.normalizeId(value);
+  //   const LPAdrop_Arr = Array.isArray(this.state.FaliureCategoryStateList)
+  //     ? this.state.FaliureCategoryStateList
+  //     : [];
+
+  //   const match = LPAdrop_Arr.find(element => {
+  //     return this.normalizeId(element.FailureCategoryId) === Failcat_value;
+  //   });
+
+  //   return match?.FailureCategoryName ?? '';
+  // }
   failureCategoryText(value) {
     //console.log('helloid2', value, this.state.LPAdrop);
     var Failcat_value = value;
@@ -5908,16 +6125,45 @@ this.props.navigation.setParams({ auditUpdated: true });
   }
 
   // Builds failure reason list based on category
+  // failurereasonArray(value) {
+  //   const normalizedValue = this.normalizeId(value);
+  //   const valueKey =
+  //     normalizedValue === null || normalizedValue === undefined
+  //       ? ''
+  //       : String(normalizedValue);
+  //   const results = (this.state.FailureReasonStateList || []).filter(obj => {
+  //     const categoryKey = String(this.normalizeId(obj.FailureCategoryId) ?? '');
+  //     return categoryKey === valueKey;
+  //   });
+  //   //console.log(results, 'filteredfailreason');
+  //   const FailReasArray = results.map(obj => ({
+  //     label: obj.FailureReasonName,
+  //     value: obj.FailureReasonId,
+  //   }));
+  //   this.setState(
+  //     {
+  //       FailReasArraySt: FailReasArray,
+  //     },
+  //     () => {
+  //       //console.log(this.state.FailReasArraySt, 'filteredfailreason');
+  //     },
+  //   );
+  // }
+
   failurereasonArray(value) {
-    //console.log(value, 'failurereasondata');
-    const results = this.state.FailureReasonStateList.filter(obj => {
-      return obj.FailureCategoryId === value;
+    // Build failure-reason dropdown for the given category id
+    const categoryId =
+      value === null || value === undefined ? null : parseInt(value, 10);
+    const results = (this.state.FailureReasonStateList || []).filter(obj => {
+      return parseInt(obj.FailureCategoryId, 10) === categoryId;
     });
-    //console.log(results, 'filteredfailreason');
+
     const FailReasArray = results.map(obj => ({
       label: obj.FailureReasonName,
-      value: obj.FailureReasonId,
+      value: obj.FailureReasonName,
+      id: obj.FailureReasonId,
     }));
+
     this.setState(
       {
         FailReasArraySt: FailReasArray,
@@ -5927,25 +6173,62 @@ this.props.navigation.setParams({ auditUpdated: true });
       },
     );
   }
-  // Returns display text for failure reason
+  // // Returns display text for failure reason
+  // failureReasonText(value) {
+  //   const Failres_value = this.normalizeId(value);
+  //   const LPAdrop_Arr = Array.isArray(this.state.FailureReasonStateList)
+  //     ? this.state.FailureReasonStateList
+  //     : [];
+  //   const match = LPAdrop_Arr.find(element => {
+  //     return this.normalizeId(element.FailureReasonId) === Failres_value;
+  //   });
+
+  //   return match?.FailureReasonName ?? '';
+  // }
   failureReasonText(value) {
-    //console.log('FailureReasonId:', value); // Debugging
-    var Failres_value = value;
-    var LPAdrop_Arr = this.state.FailureReasonStateList;
-    var text = '';
+    const Failres_value =
+      value === null || value === undefined ? null : parseInt(value, 10);
+    const LPAdrop_Arr = Array.isArray(this.state.FailureReasonStateList)
+      ? this.state.FailureReasonStateList
+      : [];
+    const match = LPAdrop_Arr.find(element => {
+      return parseInt(element.FailureReasonId, 10) === Failres_value;
+    });
 
-    if (LPAdrop_Arr.length > 0) {
-      console.log(LPAdrop_Arr, 'LPAdrop_Arr11');
-
-      LPAdrop_Arr.forEach(element => {
-        if (element.FailureReasonId == Failres_value) {
-          text = element.FailureReasonName;
-        }
-      });
+    return match?.FailureReasonName ?? '';
+  }
+  syncFailureLabels() {
+    const checkPointsDetails = this.state.checkPointsDetails;
+    if (!Array.isArray(checkPointsDetails) || checkPointsDetails.length === 0) {
+      return;
     }
 
-    console.log('Mapped FailureReasonText:', text); // Debugging
-    return text || ''; // Return empty string if no match
+    let hasChanges = false;
+    const updated = checkPointsDetails.map(entry => {
+      const categoryName =
+        entry.FailureCategoryName ||
+        this.failureCategoryText(entry.FailureCategoryId);
+      const reasonName =
+        entry.FailureReasonName || this.failureReasonText(entry.FailureReasonId);
+      if (
+        entry.FailureCategoryName !== categoryName ||
+        entry.FailureReasonName !== reasonName
+      ) {
+        hasChanges = true;
+        return {
+          ...entry,
+          FailureCategoryName: categoryName,
+          FailureReasonName: reasonName,
+        };
+      }
+      return entry;
+    });
+
+    if (hasChanges) {
+      this.setState({ checkPointsDetails: updated }, () => {
+        // Names synced
+      });
+    }
   }
 
   // Loads dropdown options (approach/failure reasons) for checkpoints
@@ -5957,10 +6240,15 @@ this.props.navigation.setParams({ auditUpdated: true });
       //console.log('Dropdatathree', Data);
       for (var i = 0; i < Data.length; i++) {
         if (AuditID === Data[i].AuditId) {
-          this.setState({
-            FaliureCategoryStateList: Data[i].CheckpointLogic.FailureCategory,
-            FailureReasonStateList: Data[i].CheckpointLogic.FailureReason,
-          });
+          this.setState(
+            {
+              FaliureCategoryStateList: Data[i].CheckpointLogic.FailureCategory,
+              FailureReasonStateList: Data[i].CheckpointLogic.FailureReason,
+            },
+            () => {
+              this.syncFailureLabels();
+            },
+          );
           //console.log('enteringfive', Data[i].CheckpointLogic);
         }
       }
@@ -6772,8 +7060,8 @@ this.props.navigation.setParams({ auditUpdated: true });
     // const CheckAttachment = this.state.
     const FailReasArray = this.state.FailureReasonStateList?.map(obj => ({
       label: obj?.FailureReasonName,
-
-      value: obj?.FailureReasonId,
+      value: obj?.FailureReasonName,
+      id: obj?.FailureReasonId,
     }));
     //  //console.log("$$$",this.state.CheckpointAttachment)
     console.log(
@@ -6903,22 +7191,25 @@ this.props.navigation.setParams({ auditUpdated: true });
                   </Text>
                 </View>
 
-                <View style={styles.statCard3}>
-                  <Text style={{fontSize: 14, fontFamily: 'OpenSans-Regular'}}>
-                    {strings.Asterisk_Questions}
-                  </Text>
-                  <Text
-                    style={{
-                      fontSize: Fonts.size.h5,
-                      fontFamily: 'OpenSans-Regular',
-                    }}>
-                    {this.state.mandatoryCheck}
-                    {console.log(
-                      'MAndatoryCheck===>',
-                      this.state.mandatoryCheck,
-                    )}
-                  </Text>
-                </View>
+                {!this.isVdaAudit() && (
+                  <View style={styles.statCard3}>
+                    <Text
+                      style={{fontSize: 14, fontFamily: 'OpenSans-Regular'}}>
+                      {strings.Asterisk_Questions}
+                    </Text>
+                    <Text
+                      style={{
+                        fontSize: Fonts.size.h5,
+                        fontFamily: 'OpenSans-Regular',
+                      }}>
+                      {this.state.mandatoryCheck}
+                      {console.log(
+                        'MAndatoryCheck===>',
+                        this.state.mandatoryCheck,
+                      )}
+                    </Text>
+                  </View>
+                )}
               </View>
             ) : null}
 
@@ -6949,12 +7240,9 @@ this.props.navigation.setParams({ auditUpdated: true });
                       const isRemarkRequired = this.isRemarkMandatory(
                         checkpointState,
                       );
-                      const baseAttachmentRequired = this.isAttachmentMandatory(
+                      const isAttachmentRequired = this.isAttachmentMandatory(
                         checkpointState,
                       );
-                      const isAttachmentRequired =
-                        baseAttachmentRequired ||
-                        this.isFlagEnabled(listCheckpoint?.IsVeto);
                       const isRemarkFilled = this.hasRemarkValue(
                         checkpointState,
                       );
@@ -7130,7 +7418,7 @@ this.props.navigation.setParams({ auditUpdated: true });
                                     ) : null}
 
                                     {/*Change done - 16/12/2022*/}
-                                    {item.IsVeto == '1' ? (
+                                    {item.IsVeto == '1'  ? (
                                       <View
                                         style={{
                                           justifyContent: 'flex-start',
@@ -9917,17 +10205,15 @@ this.props.navigation.setParams({ auditUpdated: true });
                                         this.state.checkPointsDetails[index],
                                         'helloid6',
                                       )}
-                                      <Dropdown
+                                       <Dropdown
                                         label={strings.FailureCategory}
                                         value={
                                           this.state.checkPointsDetails[index]
                                             .FailureCategoryId !== 0
-                                            ? this.failureCategoryText(
-                                                this.state.checkPointsDetails[
-                                                  index
-                                                ].FailureCategoryId,
-                                              )
-                                            : strings.Choose_Failure_category
+                                            ? this.state.checkPointsDetails[
+                                                index
+                                              ].FailureCategoryId
+                                            : ''
                                         }
                                         containerStyle={{paddingTop: 5}}
                                         itemPadding={10}
@@ -9962,22 +10248,10 @@ this.props.navigation.setParams({ auditUpdated: true });
                                               checkPointsDetails[
                                                 i
                                               ].FailureReasonId = 0;
-                                              for (
-                                                var j = 0;
-                                                j < data.length;
-                                                j++
-                                              ) {
-                                                if (value == data[j].value) {
-                                                  //console.log('Failcat dropdown0', data[j].value);
-                                                  // checkPointsDetails[i].FailureCategoryId = data[j].id;
-                                                  checkPointsDetails[
-                                                    i
-                                                  ].Modified = true;
-                                                  checkPointsDetails[
-                                                    i
-                                                  ].FailureCategoryId = value;
-                                                }
-                                              }
+                                              checkPointsDetails[i].Modified = true;
+                                              checkPointsDetails[
+                                                i
+                                              ].FailureCategoryId = value;
                                             }
                                           }
                                           this.setState(
@@ -9992,7 +10266,7 @@ this.props.navigation.setParams({ auditUpdated: true });
                                       />
                                     </View>
                                     <View style={{marginTop: 5}}>
-                                      <Dropdown
+                                    <Dropdown
                                         label={strings.Failure_Reason}
                                         value={
                                           this.state.checkPointsDetails[index]
@@ -10031,28 +10305,18 @@ this.props.navigation.setParams({ auditUpdated: true });
                                                 .ChecklistTemplateId ==
                                               item.ChecklistTemplateId
                                             ) {
-                                              for (
-                                                var j = 0;
-                                                j < data.length;
-                                                j++
-                                              ) {
-                                                if (value == data[j].value) {
-                                                  console.log(
-                                                    'Failcat dropdown',
-                                                    data[j],
-                                                    value,
-                                                  );
-                                                  checkPointsDetails[
-                                                    i
-                                                  ].FailureReasonId =
-                                                    data[j].id;
-                                                  checkPointsDetails[
-                                                    i
-                                                  ].Modified = true;
-                                                  checkPointsDetails[
-                                                    i
-                                                  ].FailureReasonId = value;
-                                                }
+                                              // Find the selected item and store its id
+                                              const selected = data.find(
+                                                d => d.value === value,
+                                              );
+                                              if (selected) {
+                                                checkPointsDetails[
+                                                  i
+                                                ].FailureReasonId =
+                                                  selected.id;
+                                                checkPointsDetails[
+                                                  i
+                                                ].Modified = true;
                                               }
                                             }
                                           }
@@ -10104,7 +10368,6 @@ this.props.navigation.setParams({ auditUpdated: true });
                                           style={{
                                             flexDirection: 'row',
                                             alignItems: 'center',
-                                           
                                           }}>
                                           <View style={{flex: 1}}>
                                             <Dropdown
@@ -10192,12 +10455,16 @@ this.props.navigation.setParams({ auditUpdated: true });
                                               data={data}
                                             />
                                           </View>
-
-                                          {this.state.checkPointsDetails[index]
-                                            .immediateAction &&
-                                          this.state.checkPointsDetails[index]
-                                            .immediateAction !==
-                                            strings.Please_select ? (
+                                          <Icon
+                                            name="angle-down"
+                                            size={16}
+                                            color="#777"
+                                            style={{marginLeft: 6, marginTop: 5}}
+                                          />
+                                          {(this.state.checkPointsDetails[index]
+                                            .immediateAction === 'X' ||
+                                            this.state.checkPointsDetails[index]
+                                              .immediateAction === '1') && (
                                             <TouchableOpacity
                                               onPress={() => {
                                                 let checkPointsDetails =
@@ -10225,7 +10492,7 @@ this.props.navigation.setParams({ auditUpdated: true });
                                                 color="#000"
                                               />
                                             </TouchableOpacity>
-                                          ) : null}
+                                          )}
                                         </View>
                                       </View>
                                     ) : (

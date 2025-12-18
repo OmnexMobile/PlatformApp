@@ -8,7 +8,6 @@ import NetInfo from "@react-native-community/netinfo";
 import { DoubleBounce } from "react-native-loader";
 import { Agenda } from "react-native-calendars";
 import Toast, { DURATION } from "react-native-easy-toast";
-import { withNavigation } from "react-navigation";
 import { connect } from "react-redux";
 import Moment from "moment";
 //services
@@ -595,4 +594,7 @@ const mapStateToProps = (state) => {
   };
 };
 
-export default connect(mapStateToProps)(withNavigation(CalendarAgenda));
+// CalendarAgenda is only used inside screens that already
+// receive a navigation prop; wrapping with withNavigation
+// can cause runtime errors when rendered outside a navigator.
+export default connect(mapStateToProps)(CalendarAgenda);

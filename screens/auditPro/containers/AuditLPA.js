@@ -1597,7 +1597,7 @@ class AuditForm extends Component {
   }
   //End Sync to DocPro
 
-   handleNCOFIConnection() {
+  handleNCOFIConnection() {
     console.log(
       'getting local unsaved data',
       this.props.data.audits.ncofiRecords,
@@ -1607,14 +1607,22 @@ class AuditForm extends Component {
     var dataArr = this.props.data.audits.ncofiRecords;
     console.log(dataArr, 'duplicatees');
 
+    const normalizeCategory = raw => {
+      if (raw === null || raw === undefined) {
+        return '';
+      }
+      return String(raw).trim().toUpperCase();
+    };
+
     for (var i = 0; i < dataArr.length; i++) {
       console.log(
-        'dataArr[i].AuditID === this.state.AuditID' +
-          dataArr[i].AuditID +
-          '' +
-          this.state.AuditID,
+        'handleNCOFIConnection: comparing AuditID',
+        'record.AuditID=',
+        dataArr[i].AuditID,
+        'state.AuditID=',
+        this.state.AuditID,
       );
-      if (dataArr[i].AuditID === this.state.AuditID) {
+      if (String(dataArr[i].AuditID) === String(this.state.AuditID)) {
         for (var j = 0; j < dataArr[i].Pending.length; j++) {
           // if (dataArr[i].Pending[j].ChecklistTemplateId !== 0) {
           console.log('syncing data:' + dataArr[i].Pending[j]);
@@ -1640,8 +1648,18 @@ class AuditForm extends Component {
               
             }
           }
+          const rawCategory = dataArr[i].Pending[j].Category;
+          const categoryUpper = normalizeCategory(rawCategory);
+          const isNC =
+            categoryUpper === 'NC' ||
+            categoryUpper === '0' ||
+            categoryUpper.startsWith('NC');
+          const isOFI =
+            categoryUpper === 'OFI' ||
+            categoryUpper === '1' ||
+            categoryUpper.indexOf('OFI') !== -1;
 
-          if (dataArr[i].Pending[j].Category === 'NC') {
+          if (isNC) {
             console.log('into NC targeted arr', [i], dataArr[i].Pending[j]);
             formRequest.push({
               strProcess:
@@ -1695,7 +1713,7 @@ class AuditForm extends Component {
                   : dataArr[i].Pending[j].recommAction,
               uniqueNCkey: dataArr[i].Pending[j].uniqueNCkey,
             });
-          } else if (dataArr[i].Pending[j].Category === 'OFI') {
+          } else if (isOFI) {
             console.log('into OFI targeted arr', [i], dataArr[i].Pending[j]);
             formRequest.push({
               strProcess:
@@ -1755,7 +1773,135 @@ class AuditForm extends Component {
       }
     }
 
-    console.log('Request array pushed', formRequest, token);
+    // Fallback: if no records matched by AuditID (e.g., ID mismatch),
+    // but there are NC/OFI entries in ncofiRecords, build payload
+    // from all audits so syncNCOFIToServer still runs.
+    if (formRequest.length === 0 && Array.isArray(dataArr)) {
+      console.warn(
+        '[AuditLPA] handleNCOFIConnection: no NC/OFI matched current AuditID. Falling back to all audits.',
+      );
+      for (var i2 = 0; i2 < dataArr.length; i2++) {
+        if (!Array.isArray(dataArr[i2].Pending)) {
+          continue;
+        }
+        for (var j2 = 0; j2 < dataArr[i2].Pending.length; j2++) {
+          const pending = dataArr[i2].Pending[j2];
+          const rawCategory2 = pending.Category;
+          const categoryUpper2 = normalizeCategory(rawCategory2);
+          const isNC2 =
+            categoryUpper2 === 'NC' ||
+            categoryUpper2 === '0' ||
+            categoryUpper2.startsWith('NC');
+          const isOFI2 =
+            categoryUpper2 === 'OFI' ||
+            categoryUpper2 === '1' ||
+            categoryUpper2.indexOf('OFI') !== -1;
+
+          if (!isNC2 && !isOFI2) {
+            continue;
+          }
+
+          if (pending.filedata != '') {
+            this.isDocsAvail = true;
+            const attachList2 = pending.AttachmentList || [];
+            for (let k2 = 0; k2 < attachList2.length; k2++) {
+              const attachment2 = attachList2[k2];
+              this.auditAttachments.push({
+                Type: 'NC',
+                Id: parseInt(pending.uniqueNCkey),
+                Obj: '',
+                File: pending.uri,
+                FileName: pending.name,
+                SiteLevelId: 0,
+              });
+            }
+          }
+
+          if (isNC2) {
+            formRequest.push({
+              strProcess:
+                pending.selectedItemsProcess &&
+                pending.selectedItemsProcess.length > 0
+                  ? pending.selectedItemsProcess.join(',')
+                  : '',
+              CorrectiveId: pending.AuditID,
+              CategoryId: pending.categoryDrop ? pending.categoryDrop.id : 0,
+              Title: pending.NCNumber,
+              FileName:
+                dataArr?.[i2]?.Pending?.[j2]?.AttachmentList?.[0]?.filename,
+              Department: pending.deptDrop ? pending.deptDrop.id : 0,
+              AuditStatus:
+                pending.auditstatus === '' ? 0 : parseInt(pending.auditstatus),
+              NonConformity: pending.NonConfirmity,
+              RequestedBy: pending.requestDrop ? pending.requestDrop.id : 0,
+              FormId: pending.Formid === '' ? 0 : parseInt(pending.Formid),
+              SiteId: pending.SiteID,
+              ChecklistId:
+                pending.ChecklistTemplateId === ''
+                  ? 0
+                  : parseInt(pending.ChecklistTemplateId),
+              ElementID: pending.selectedItems
+                ? pending.selectedItems.join(',')
+                : 0,
+              ResponsibilityUser: pending.userDrop ? pending.userDrop.id : 0,
+              NCIdentifier:
+                pending.ncIdentifier === undefined ? '' : pending.ncIdentifier,
+              ObjectiveEvidence:
+                pending.objEvidence === undefined ? '' : pending.objEvidence,
+              RecommendedAction:
+                pending.recommAction === undefined ? '' : pending.recommAction,
+              uniqueNCkey: pending.uniqueNCkey,
+            });
+          } else if (isOFI2) {
+            formRequest.push({
+              strProcess:
+                pending.selectedItemsProcess &&
+                pending.selectedItemsProcess.length > 0
+                  ? pending.selectedItemsProcess.join(',')
+                  : '',
+              CorrectiveId: pending.AuditID,
+              CategoryId: pending.categoryDrop ? pending.categoryDrop.id : 0,
+              Title: pending.NCNumber,
+              FileName:
+                dataArr?.[i2]?.Pending?.[j2]?.AttachmentList?.[0]?.filename,
+              Department: pending.deptDrop ? pending.deptDrop.id : 0,
+              AuditStatus:
+                pending.auditstatus === '' ? 0 : parseInt(pending.auditstatus),
+              RequestedBy: pending.requestDrop
+                ? pending.requestDrop.id
+                : 0,
+              NonConformity: pending.OFI,
+              FormId: pending.Formid === '' ? 0 : parseInt(pending.Formid),
+              SiteId: pending.SiteID,
+              ChecklistId:
+                pending.ChecklistTemplateId === ''
+                  ? 0
+                  : parseInt(pending.ChecklistTemplateId),
+              ElementID: pending.selectedItems
+                ? pending.selectedItems.join(',')
+                : 0,
+              ResponsibilityUser: pending.userDrop ? pending.userDrop.id : 0,
+              NCIdentifier:
+                pending.ncIdentifier === undefined ? '' : pending.ncIdentifier,
+              ObjectiveEvidence:
+                pending.objEvidence === undefined ? '' : pending.objEvidence,
+              RecommendedAction:
+                pending.recommAction === undefined ? '' : pending.recommAction,
+              uniqueNCkey: pending.uniqueNCkey,
+            });
+          }
+        }
+      }
+    }
+
+    console.log(
+      '[AuditLPA] Request array pushed (NC/OFI payload length):',
+      Array.isArray(formRequest) ? formRequest.length : 'not-array',
+      'payload=',
+      formRequest,
+      'auditId=',
+      this.state.AuditID,
+    );
     this.setState({generarereport_param: formRequest});
     console.log('api params stored in generarereport_param state..');
 
@@ -1782,7 +1928,12 @@ class AuditForm extends Component {
     var TOKEN = token;
     this.ncOfiObjects = [];
 
-    console.log('keypass', datapass);
+    console.log(
+      '[AuditLPA] formRequestArr called, datapass length=',
+      Array.isArray(datapass) ? datapass.length : 'not-array',
+      'datapass=',
+      datapass,
+    );
 
     auth.syncNCOFIToServer(datapass, TOKEN, (res, data) => {
       if (data.data) {
@@ -2628,7 +2779,7 @@ class AuditForm extends Component {
 
           this.props.changeAuditState(false);
 
-          this.setState({isLoaderVisible: false}, () => {
+            this.setState({isLoaderVisible: false}, () => {
             console.log('Sync process completed successfully!');
             console.log(!this.isDocsAvail, 'docavail');
             if (
@@ -2643,27 +2794,31 @@ class AuditForm extends Component {
             } else if (!this.isDocsAvail) {
               this.refs.toast.show(strings.AuditSync, DURATION.LENGTH_LONG);
               setTimeout(() => {
-                  this.props.navigation.navigate(ROUTES.AUDIT_STATUS, {
-                  isSubmitted: true,
+                  const navParams = {
+                    isSubmitted: true,
+                    AuditID: this.state.AuditID,
+                    breadCrumb: this.state.breadCrumbText,
+                    generatereport:
+                      this.state.generarereport_param.length > 0
+                        ? this.state.generarereport_param
+                        : 'empty',
+                  };
+                  console.log('[NAV] AuditLPA -> AUDIT_STATUS', navParams);
+                  this.props.navigation.navigate(ROUTES.AUDIT_STATUS, navParams);
+              }, 1000);
+            } else {
+              this.isDocsAvail = false;
+              this.refs.toast.show(strings.AuditSync, DURATION.LENGTH_LONG);
+                const navParams = {
                   AuditID: this.state.AuditID,
                   breadCrumb: this.state.breadCrumbText,
                   generatereport:
                     this.state.generarereport_param.length > 0
                       ? this.state.generarereport_param
                       : 'empty',
-                });
-              }, 1000);
-            } else {
-              this.isDocsAvail = false;
-              this.refs.toast.show(strings.AuditSync, DURATION.LENGTH_LONG);
-                this.props.navigation.navigate(ROUTES.AUDIT_STATUS, {
-                AuditID: this.state.AuditID,
-                breadCrumb: this.state.breadCrumbText,
-                generatereport:
-                  this.state.generarereport_param.length > 0
-                    ? this.state.generarereport_param
-                    : 'empty',
-              });
+                };
+                console.log('[NAV] AuditLPA -> AUDIT_STATUS', navParams);
+                this.props.navigation.navigate(ROUTES.AUDIT_STATUS, navParams);
             }
           });
         } else {

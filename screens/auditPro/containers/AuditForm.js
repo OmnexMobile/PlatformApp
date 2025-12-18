@@ -347,6 +347,7 @@ class AuditForm extends Component {
       console.log('--AuditForm-this.PROPS-->', this.props);
 
       console.log('componentWillReceiveProps', props.data.audits.ncofiRecords);
+      console.log('componentWillReceiveProps-state', this.props.data.audits);
       this.displayNCSync(props.data.audits.ncofiRecords);
     } else {
       console.log('AuditForm pass');
@@ -354,7 +355,8 @@ class AuditForm extends Component {
   }
   async loadAuditEditedFlag() {
     try {
-      const AuditID = this.props.navigation?.state?.params?.AuditID || this.state.AuditID;
+      const AuditID =
+        this.props?.route?.params?.AuditID || this.state.AuditID;
       const edited = await AsyncStorage.getItem(`audit_edited_${AuditID}`);
       if (edited === 'true') {
         this.setState({
@@ -533,13 +535,17 @@ class AuditForm extends Component {
       });
     }
 
+    const routeAuditId =
+      this.props?.route?.params?.AuditID ??
+      this.props?.route?.params?.CreateNCdataBundle?.AuditID;
+
     if (
       this.props.data.audits.isAuditing === true &&
-      this.state.AuditID === this.props.navigation.state.params.AuditID
+      routeAuditId &&
+      String(this.state.AuditID) === String(routeAuditId)
     ) {
-      this.setState({ notifyRed: true });
+      this.setState({notifyRed: true});
     }
-    
   }
   // displayNCSync(ncofiRecords) {
   //   var checkNC = ncofiRecords;
@@ -2016,8 +2022,40 @@ class AuditForm extends Component {
 
   handleNCOFIConnection() {
     const {ncofiRecords, auditRecords, token} = this.props.data.audits;
+
+    // Resolve the active AuditID from multiple possible sources so that
+    // NC/OFI sync works regardless of how AuditForm was opened.
+    const routeParams =
+      this.props?.route?.params ||
+      this.props?.navigation?.state?.params ||
+      {};
+
+    const resolvedAuditIdRaw =
+      this.state.AuditID ||
+      this.state.Checkpointpass?.AuditID ||
+      routeParams.AuditID ||
+      routeParams?.CreateNCdataBundle?.AuditID ||
+      null;
+
+    const resolvedAuditId = resolvedAuditIdRaw
+      ? String(resolvedAuditIdRaw)
+      : null;
+
+    console.log(
+      '[AuditForm] handleNCOFIConnection resolvedAuditId=',
+      resolvedAuditId,
+      'state.AuditID=',
+      this.state.AuditID,
+      'Checkpointpass.AuditID=',
+      this.state.Checkpointpass?.AuditID,
+      'route.AuditID=',
+      routeParams.AuditID,
+      'route.CreateNCdataBundle.AuditID=',
+      routeParams?.CreateNCdataBundle?.AuditID,
+    );
+
     const currentAudit = auditRecords.find(
-      ar => ar.AuditId === this.state.AuditID,
+      ar => String(ar.AuditId) === resolvedAuditId,
     );
     const defaultCategoryId =
       currentAudit?.DropDownProps?.Category?.[0]?.CategoryId ?? 0;
@@ -2030,34 +2068,59 @@ class AuditForm extends Component {
     var dataArr = this.props.data.audits.ncofiRecords;
     console.log(dataArr, 'duplicatees');
 
+    const normalizeCategory = raw => {
+      if (raw === null || raw === undefined) {
+        return '';
+      }
+      return String(raw).trim().toUpperCase();
+    };
+
+    if (!resolvedAuditId) {
+      console.log(
+        '[AuditForm] handleNCOFIConnection: no resolved AuditID, skipping payload build.',
+      );
+    }
+
     for (var i = 0; i < dataArr.length; i++) {
       console.log(
-        'dataArr[i].AuditID === this.state.AuditID' +
-          String(dataArr[i].AuditID) +
-          '' +
-          String(this.state.AuditID),
+        '[AuditForm] handleNCOFIConnection compare AuditID record=',
+        dataArr[i].AuditID,
+        'state=',
+        resolvedAuditId,
       );
-      if (dataArr[i].AuditID === this.state.AuditID) {
+      if (
+        resolvedAuditId &&
+        String(dataArr[i].AuditID) === String(resolvedAuditId)
+      ) {
         for (var j = 0; j < dataArr[i].Pending.length; j++) {
           const pendingItem = dataArr[i].Pending[j];
-          const currentCategory = pendingItem.Category; // “NC” or “OFI”
+          const rawCategory = pendingItem.Category;
+          const categoryUpper = normalizeCategory(rawCategory); // "NC", "OFI", "0", "1", "NC Minor", etc.
+          const isNC =
+            categoryUpper === 'NC' ||
+            categoryUpper === '0' ||
+            categoryUpper.startsWith('NC');
+          const isOFI =
+            categoryUpper === 'OFI' ||
+            categoryUpper === '1' ||
+            categoryUpper.indexOf('OFI') !== -1;
 
+          // Log what categoryDrop actually is:
+          console.log('[AuditForm] pendingItem.Category raw=', rawCategory, 'normalized=', categoryUpper);
+          console.log(
+            '[AuditForm]   categoryDrop object:',
+            pendingItem.categoryDrop,
+          );
+          console.log(
+            '[AuditForm]   categoryDrop.id (if exists):',
+            pendingItem.categoryDrop?.id,
+          );
+          console.log('[AuditForm]   defaultCategoryId:', defaultCategoryId);
 
-           // Log what categoryDrop actually is:
-      console.log(
-        '  categoryDrop object:',
-        pendingItem.categoryDrop
-      );
-      console.log(
-        '  categoryDrop.id (if exists):',
-        pendingItem.categoryDrop?.id
-      );
-      console.log('  defaultCategoryId:', defaultCategoryId);
-
-      const categoryIdToSend =
-      pendingItem.categoryDrop?.id != null
-        ? pendingItem.categoryDrop.id
-        : defaultCategoryId;
+          const categoryIdToSend =
+            pendingItem.categoryDrop?.id != null
+              ? pendingItem.categoryDrop.id
+              : defaultCategoryId;
 
           // if (dataArr[i].Pending[j].ChecklistTemplateId !== 0) {
           console.log('syncing data:', dataArr[i].Pending[j]);
@@ -2080,7 +2143,7 @@ class AuditForm extends Component {
             }
           }
 
-          if (dataArr[i].Pending[j].Category === 'NC') {
+          if (isNC) {
             console.log('into NC targeted arr', [i], dataArr[i].Pending[j]);
             // console.log('into NC targeted arr221212121', dataArr?.[i]?.Pending?.[j]?.filedata[k].filename);
             const objValues = dataArr[i].Pending[j].filedata.map(
@@ -2104,11 +2167,7 @@ class AuditForm extends Component {
                   ? dataArr[i].Pending[j].selectedItemsProcess.join(',')
                   : '',
               CorrectiveId: dataArr[i].Pending[j].AuditID,
-              // CategoryId: dataArr[i].Pending[j].categoryDrop
-              //   ? dataArr[i].Pending[j].categoryDrop.id
-              //   : 0,
-              CategoryId:dataArr[i].Pending[j].categoryDrop,
-               // dataArr[i].Pending[j].categoryDrop?.id ?? defaultCategoryId,
+              CategoryId: categoryIdToSend,
 
               FileName: formattedImages, //dataArr[i].Pending[j].filename,
               AttachEvidence: fileDataPathNC,
@@ -2157,10 +2216,13 @@ class AuditForm extends Component {
               DocumentRef: dataArr[i].Pending[j].documentRef,
               FailureCategoryId: dataArr[i].Pending[j].failureDrop.value,
             });
-            console.log(dataArr[i].Pending[j].categoryDrop?.id,"ccid");
+            console.log(
+              '[AuditForm] NC payload CategoryIdToSend=',
+              categoryIdToSend,
+            );
             
             console.log('sjkdfjjksdfkjsdfk45343formRequest', formRequest);
-          } else if (dataArr[i].Pending[j].Category === 'OFI') {
+          } else if (isOFI) {
             const objValues = dataArr[i].Pending[j].filedata.map(
               item => item.fileName,
             );
@@ -2179,11 +2241,7 @@ class AuditForm extends Component {
                   ? dataArr[i].Pending[j].selectedItemsProcess.join(',')
                   : '',
               CorrectiveId: dataArr[i].Pending[j].AuditID,
-              // CategoryId: dataArr[i].Pending[j].categoryDrop
-              //   ? dataArr[i].Pending[j].categoryDrop.id
-              //   : 0,
-              CategoryId: dataArr[i].Pending[j].categoryDrop,
-               // dataArr[i].Pending[j].categoryDrop?.id ?? defaultCategoryId,
+              CategoryId: categoryIdToSend,
 
               Title: dataArr[i].Pending[j].NCNumber
                 ? dataArr[i].Pending[j].NCNumber
@@ -2239,7 +2297,14 @@ class AuditForm extends Component {
       }
     }
 
-    console.log('Request array pushed', formRequest, token);
+    console.log(
+      '[AuditForm] Request array pushed, length=',
+      Array.isArray(formRequest) ? formRequest.length : 'not-array',
+      'payload=',
+      formRequest,
+      'token=',
+      token,
+    );
     this.setState({generarereport_param: formRequest});
     console.log('api params stored in generarereport_param state..');
 
@@ -2266,7 +2331,12 @@ class AuditForm extends Component {
     var TOKEN = token;
     this.ncOfiObjects = [];
 
-    console.log('keypass', datapass);
+    console.log(
+      '[AuditForm] formRequestArr called, datapass length=',
+      Array.isArray(datapass) ? datapass.length : 'not-array',
+      'datapass=',
+      datapass,
+    );
 
     auth.syncNCOFIToServer(datapass, TOKEN, (res, data) => {
       console.log('syncNCOFIToServer----------------------', data);
@@ -3199,7 +3269,7 @@ class AuditForm extends Component {
             } else if (!this.isDocsAvail) {
               this.refs.toast.show(strings.AuditSync, DURATION.LENGTH_LONG);
               setTimeout(() => {
-                this.props.navigation.navigate('AuditStatus', {
+                const navParams = {
                   isSubmitted: true,
                   AuditID: this.state.AuditID,
                   breadCrumb: this.state.breadCrumbText,
@@ -3207,19 +3277,23 @@ class AuditForm extends Component {
                     this.state.generarereport_param.length > 0
                       ? this.state.generarereport_param
                       : 'empty',
-                });
+                };
+                console.log('[NAV] AuditForm -> AUDIT_STATUS', navParams);
+                this.props.navigation.navigate(ROUTES.AUDIT_STATUS, navParams);
               }, 1000);
             } else {
               this.isDocsAvail = false;
               this.refs.toast.show(strings.AuditSync, DURATION.LENGTH_LONG);
-              this.props.navigation.navigate('AuditStatus', {
+              const navParams = {
                 AuditID: this.state.AuditID,
                 breadCrumb: this.state.breadCrumbText,
                 generatereport:
                   this.state.generarereport_param.length > 0
                     ? this.state.generarereport_param
                     : 'empty',
-              });
+              };
+              console.log('[NAV] AuditForm -> AUDIT_STATUS', navParams);
+              this.props.navigation.navigate(ROUTES.AUDIT_STATUS, navParams);
             }
           });
         } else {
