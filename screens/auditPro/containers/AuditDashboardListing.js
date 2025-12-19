@@ -12,8 +12,9 @@ import {
 //styles
 import styles from '../styles/AuditDashboardListingStyle';
 //components
-import OfflineNotice from '../components/OfflineNotice';  
+import OfflineNotice from '../components/OfflineNotice';
 import AuditCard from '../components/AuditCard';
+import { Content, Header, ListSearch } from 'components';
 //library
 import * as _ from 'lodash';
 import NetInfo from '@react-native-community/netinfo';
@@ -109,6 +110,9 @@ class AuditDashboardListing extends Component {
       isLazyLoading: false,
       isLazyLoadingRequired: true,
       default: 0, //todays activity
+      searchKey: '',
+      startDateFilter: '',
+      endDateFilter: '',
     };
   }
 
@@ -402,21 +406,30 @@ class AuditDashboardListing extends Component {
   }
 
   getAuditlist = (startDate, endDate) => {
-    this.setState({
-      loading: true,
-    });
+    this.setState(
+      {
+        loading: true,
+        startDateFilter: startDate || '',
+        endDateFilter: endDate || '',
+      },
+    );
     if (this.props?.data?.audits?.isOfflineMode) {
       // this.refs.toast.show(strings.Audit_List_Failed, DURATION.LENGTH_LONG)
-      this.setState({
-        auditList: this.props?.data?.audits?.audits,
-        auditListAll: this.props?.data?.audits?.audits,
-        loading: false,
-        isRefreshing: false,
-        isLazyLoading: false,
-        isLazyLoadingRequired: false,
-        isPageEmpty: false,
-        isMounted: true,
-      });
+      this.setState(
+        {
+          auditList: this.props?.data?.audits?.audits,
+          auditListAll: this.props?.data?.audits?.audits,
+          loading: false,
+          isRefreshing: false,
+          isLazyLoading: false,
+          isLazyLoadingRequired: false,
+          isPageEmpty: false,
+          isMounted: true,
+        },
+        () => {
+          this.applyAuditFilter();
+        },
+      );
     }
     NetInfo.fetch().then(netState => {
       if (netState.isConnected) {
@@ -1124,10 +1137,11 @@ class AuditDashboardListing extends Component {
     // console.log('tret1 login data render', this.state.userFullName, this.state.userId, this.state.siteId, this.state.accessToken)
     return (
       <View style={styles.wrapper}>
-        {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
-        {/* // Trigger getAudits method when initial render */}
-        {/* <NavigationEvents onDidFocus={() => this.getAudits()} /> */}
-        {/* Offline notification */}
+        {Platform.OS === 'ios' ? (
+          <View style={{padding: SPACING.MEDIUM, flexDirection: 'row'}} />
+        ) : (
+          <View style={{padding: SPACING.NORMAL, flexDirection: 'row'}} />
+        )}
         <OfflineNotice />
         <ImageBackground
           source={Images.DashboardBG}
@@ -1138,44 +1152,36 @@ class AuditDashboardListing extends Component {
           }}>
           <View style={styles.header}>
             <TouchableOpacity
-              // onPress={() => this.props.navigation.navigate(ROUTES.AUDITPRODASHBOARD)}
-              onPress={() => this.props.navigation.goBack() }
+              onPress={() => this.props.navigation.goBack()}
               style={styles.backlogo}>
               <Icon name="angle-left" size={30} color="white" />
             </TouchableOpacity>
             <View style={styles.heading}>
               <Text style={styles.headingText}>
-                {/* {this.props.navigation.getParam('title')} */}
-                {/* {this.props?.route?.params?.category} */}
-                {/* {this.state?.projectData?.projectCategory} */}
-                {this.props?.route?.params?.title || this.state.projectData?.auditTitle}
+                {this.props?.route?.params?.title ||
+                  this.state.projectData?.auditTitle}
               </Text>
             </View>
-            <View style={styles.headerDiv}>
-              {/* <TouchableOpacity
-                style={{paddingRight: 10}}
-                onPress={() =>
-                  // this.props.navigation.navigate('Home')
-                  this.props.navigation.navigate(ROUTES.AUDITPRODASHBOARD)
-                }
-                >
-                <Icon name="home" size={30} color="white" />
-              </TouchableOpacity> */}
-            </View>
+            <View style={styles.headerDiv} />
           </View>
         </ImageBackground>
         <View style={styles.auditPageBody}>
-          {/* {
-            (
-              this.renderFlatList()
-            )
-          } */}
+          {/* Search by Audit Number / Auditee / Date */}
+          <ListSearch
+            searchKey={this.state.searchKey}
+            setSearchKey={searchKey =>
+              this.setState({searchKey, AuditSearch: searchKey}, () => {
+                this.applyAuditFilter();
+              })
+            }
+            placeholder="search by audit no, auditee or date (YYYY-MM-DD)"
+          />
+
           {this.state.loader ? (
             <View style={styles.loaderParent}>
               <DoubleBounce size={20} color="#1CAFF6" />
             </View>
-          ) : this.state.error ?
-          (
+          ) : this.state.error ? (
             <View style={styles.errorWrapper}>
               <Text
                 style={[
@@ -1186,8 +1192,7 @@ class AuditDashboardListing extends Component {
                 {strings.No_records_found}
               </Text>
             </View>
-          ) 
-          : (
+          ) : (
             this.renderFlatList()
           )}
         </View>
@@ -1552,6 +1557,36 @@ class AuditDashboardListing extends Component {
     });
   }
 
+  applyAuditFilter = () => {
+    const {searchKey, auditListAll} = this.state;
+    if (!auditListAll || auditListAll.length === 0) {
+      return;
+    }
+
+    const query = (searchKey || '').toLowerCase().trim();
+
+    if (!query) {
+      this.setState({auditList: auditListAll});
+      return;
+    }
+
+    const filtered = auditListAll.filter(item => {
+      const auditNumber = (item.AuditNumber || '').toString().toLowerCase();
+      const auditee = (item.Auditee || '').toString().toLowerCase();
+      const startDate = (item.StartDate || '').split('T')[0].toLowerCase();
+      const endDate = (item.EndDate || '').split('T')[0].toLowerCase();
+
+      return (
+        auditNumber.includes(query) ||
+        auditee.includes(query) ||
+        startDate.includes(query) ||
+        endDate.includes(query)
+      );
+    });
+
+    this.setState({auditList: filtered});
+  };
+
   // transformAudits(audits) {
   //   var auditList = [];
   //   var auditListProps = this.props.data.audits.auditRecords;
@@ -1768,14 +1803,18 @@ class AuditDashboardListing extends Component {
       this.keyVal = this.keyVal + 1;
     }
 
-    this.setState({
-      auditList: auditList,
-      auditListAll: auditList,
-      loader: false,
-      error: false,
-      subLoader: false,
-      listEndReached: false,
-    });
+    this.setState(
+      {
+        auditListAll: auditList,
+        loader: false,
+        error: false,
+        subLoader: false,
+        listEndReached: false,
+      },
+      () => {
+        this.applyAuditFilter();
+      },
+    );
   }
 
 

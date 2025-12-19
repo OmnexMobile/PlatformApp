@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import Ripple from 'react-native-material-ripple';
 import { ScrollView, View, StyleSheet, Platform } from 'react-native';
-import { TextComponent, NoRecordFound, Avatar } from 'components';
+import { TextComponent, NoRecordFound, Avatar, ListSearch } from 'components';
 import { getAvatarInitials, RFPercentage, formReq } from 'helpers/utils';
 import { Content, Header } from 'components';
 import { COLORS, SPACING } from 'constants/theme-constants';
@@ -106,6 +106,11 @@ const GlobalSites = () => {
         // <View style={[styles.container, { backgroundColor: theme.mode.backgroundColor }]}>
         <Content noPadding>
             <Header title="Choose Site" />
+            <ListSearch
+                searchKey={searchKey}
+                setSearchKey={setSearchKey}
+                placeholder="search by site name"
+            />
             {/* <View
         style={[
           styles.header,a
