@@ -2,13 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { useFocusEffect, useRoute } from '@react-navigation/native';
 import API_URL from 'global/ApiUrl';
 import { postAPI } from 'global/api-helpers';
-import { APP_VARIABLES, LOCAL_STORAGE_VARIABLES } from 'constants/app-constant';
+import { APP_VARIABLES, DATE_FORMAT, LOCAL_STORAGE_VARIABLES } from 'constants/app-constant';
 import { useAppContext } from 'contexts/app-context';
 import ConcernListScreenPresentational from './concern-list-screen-presentational';
+import moment from 'moment';
 
 const ConcernListScreenFunctional = ({}) => {
     const { ConcernStatusID, DashboardConcern, title } = useRoute()?.params;
-    const { sites } = useAppContext();
+    const { sites, timeSettings } = useAppContext();
     const [searchKey, setSearchKey] = useState('');
     const [list, setList] = useState({
         data: [],
@@ -36,11 +37,11 @@ const ConcernListScreenFunctional = ({}) => {
     };
 
     const getConcernList = async res => {
-        console.log('getConcernList--->', res,'--', res?.Siteid,'res.Siteid--->', res.Siteid)
+        console.log('getConcernList--->', res, '--', res?.Siteid, 'res.Siteid--->', res.Siteid);
         var formData = new FormData();
         formData.append(LOCAL_STORAGE_VARIABLES.UserId, res.UserId);
         // formData.append(LOCAL_STORAGE_VARIABLES.SiteId, res?.Siteid);
-        formData.append(LOCAL_STORAGE_VARIABLES.SiteId, res.Siteid)
+        formData.append(LOCAL_STORAGE_VARIABLES.SiteId, res.Siteid);
         formData.append(APP_VARIABLES.MAX_ROW, 500);
         if (DashboardConcern) {
             formData.append(LOCAL_STORAGE_VARIABLES.Filterstring, DashboardConcern);
@@ -67,15 +68,29 @@ const ConcernListScreenFunctional = ({}) => {
             });
     };
 
-    const filteredData = React.useMemo(
-        () =>
-            list?.data?.filter(
-                concern =>
-                    concern?.ConcernNo?.toLowerCase()?.includes(searchKey?.toLowerCase()) ||
-                    concern?.Title?.toLowerCase()?.includes(searchKey?.toLowerCase()),
-            ),
-        [searchKey, list?.data],
-    );
+    // const filteredData = React.useMemo(
+    //     () =>
+    //         list?.data?.filter(
+    //             concern =>
+    //                 concern?.ConcernNo?.toLowerCase()?.includes(searchKey?.toLowerCase()) ||
+    //                 concern?.Title?.toLowerCase()?.includes(searchKey?.toLowerCase()) || moment(concern?.CreatedDate).format(DATE_FORMAT[timeSettings || "DD_MM_YYYY"]).toString()?.includes(searchKey),
+    //         ),
+    //     [searchKey, list?.data],
+    // );
+    const filteredData = React.useMemo(() => {
+        if (!searchKey) return list?.data;
+
+        const key = searchKey.toLowerCase();
+
+        return list?.data?.filter(concern => {
+            const concernNo = concern?.ConcernNo?.toLowerCase() || '';
+            const title = concern?.Title?.toLowerCase() || '';
+
+            const dateFormat = DATE_FORMAT[timeSettings] || 'DD_MM_YYYY';
+            const createdDate = moment(concern?.CreatedDate).format(dateFormat).toLowerCase();
+            return concernNo.includes(key) || title.includes(key) || createdDate.includes(key);
+        });
+    }, [searchKey, list?.data, timeSettings]);
 
     console.log('list?.data', list?.data);
 

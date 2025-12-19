@@ -329,7 +329,7 @@ const HomeDashboard = () => {
             if (netStatus.isConnected) {
                 APQPAuth.calendarapi(UserID, Siteid, Token, TodayTask, (res, data) => {
                     console.log(' todaystask data', data);
-                    if (data.data.Message == 'Success') {
+                    if (data?.data?.Message == 'Success') {
                         console.log(' todaystask data.data.Data', data.data.Data);
                         setTodaysActivityAPQP(data.data.Data);
                         setTodayLoading(false);
@@ -349,7 +349,7 @@ const HomeDashboard = () => {
             if (isConnected) {
                 APQPAuth.getapqpDashboarddata(UserID, Siteid, token, (res, data) => {
                     console.log('getting counts responses', data);
-                    if (data.data.Message == 'Success') {
+                    if (data?.data?.Message == 'Success') {
                         setCountAPQP(data.data.Data);
                         console.log('getting counts apqpDashboarddata', data.data.Data);
                         AsyncStorage.setItem('countAPQP', JSON.stringify(data.data.Data));

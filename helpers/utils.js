@@ -73,7 +73,7 @@ export const successMessage = ({ message = 'Success', description = 'Successfull
 export const showErrorMessage = (message,position='bottom') =>
     showMessage({
         message: 'Error',
-        description: message,
+        description: `${message}`,
         type: 'danger',
         backgroundColor: FlashMessage.ColorTheme.danger,
         color: COLORS.white,
