@@ -1,0 +1,52 @@
+diff --git a/node_modules/react-native-fetch-blob/android/build.gradle b/node_modules/react-native-fetch-blob/android/build.gradle
+index 919e64a..930eaf5 100644
+--- a/node_modules/react-native-fetch-blob/android/build.gradle
++++ b/node_modules/react-native-fetch-blob/android/build.gradle
+@@ -6,19 +6,23 @@ repositories {
+ 
+ buildscript {
+     repositories {
+-        jcenter()
++        // jcenter()
++        google()
++        mavenCentral()
+     }
+     dependencies {
+-        classpath 'com.android.tools.build:gradle:2.2.3'
++        // classpath 'com.android.tools.build:gradle:2.2.3'
++        classpath 'com.android.tools.build:gradle:7.4.2'
++
+     }
+ }
+ 
+ android {
+-    compileSdkVersion 23
+-    buildToolsVersion "23.0.1"
++    compileSdkVersion 33
++    buildToolsVersion "33.0.0"
+     defaultConfig {
+         minSdkVersion 16
+-        targetSdkVersion 23
++        targetSdkVersion 33
+         versionCode 1
+         versionName "1.0"
+     }
+@@ -33,6 +37,6 @@ android {
+ }
+ 
+ dependencies {
+-    compile 'com.facebook.react:react-native:+'
++    implementation 'com.facebook.react:react-native:+'
+     //{RNFetchBlob_PRE_0.28_DEPDENDENCY}
+ }
+diff --git a/node_modules/react-native-fetch-blob/react-native-fetch-blob.podspec b/node_modules/react-native-fetch-blob/react-native-fetch-blob.podspec
+index f702d28..c29e11b 100644
+--- a/node_modules/react-native-fetch-blob/react-native-fetch-blob.podspec
++++ b/node_modules/react-native-fetch-blob/react-native-fetch-blob.podspec
+@@ -9,5 +9,5 @@ Pod::Spec.new do |s|
+   s.source       = { :git => "https://github.com/wkh237/react-native-fetch-blob", :tag => 'v0.10.6'}
+   s.source_files = 'ios/**/*.{h,m}'
+   s.platform     = :ios, "7.0"
+-  s.dependency 'React/Core'
++  s.dependency 'React-Core'
+ end
