@@ -8,6 +8,7 @@ import { useNavigation } from '@react-navigation/native';
 
 const ConcernListScreenPresentational = ({ list, title, handleRefresh, refreshing, searchKey, setSearchKey }) => {
     const navigation = useNavigation();
+    console.log('ConcernListScreenPresentational title--->', title);
     return (
         <Content noPadding>
             {/* <Header title={`${title} Concerns`} /> */}
@@ -28,7 +29,7 @@ const ConcernListScreenPresentational = ({ list, title, handleRefresh, refreshin
                     keyExtractor={(item, index) => index.toString()}
                 />
             )}
-            <FAB onPress={() => navigation.navigate(ROUTES.CONCERN_SCREEN)} />
+           {title === 'All' && <FAB onPress={() => navigation.navigate(ROUTES.CONCERN_SCREEN)} />}
         </Content>
     )
 };
