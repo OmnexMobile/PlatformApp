@@ -237,14 +237,13 @@ const LoginFunctional = ({}) => {
     const setProfileCall = async data => {
         console.log('🚀 ~ file: login-functional.js:148,  ~ setProfileCall ~ data', data, '--', data?.Data);
         const APIURL = await localStorage.getData(LOCAL_STORAGE_VARIABLES.IC_API_URL);
-       
+        const newFormData = new FormData();
+            newFormData.append('UserID', data?.Data[0]?.UserId);
+            newFormData.append('SiteID', data?.Data[0]?.Siteid);
         try {
             const res = await fetch(`${APIURL}${ApiUrl.IC_SETTINGS}`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                // body: JSON.stringify(payload)  // include if you have any request body
+                body: newFormData,
             });
  
             const data = await res.json();

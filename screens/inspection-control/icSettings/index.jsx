@@ -17,6 +17,8 @@ import { Bubbles } from 'react-native-loader';
 import InputWithSearch from '../Components/InputWithSearch';
 import NoDataFound from '../Components/NoDataFound';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { postAPI } from 'global/api-helpers';
+import ApiUrl from 'global/ApiUrl';
 
 const dateList = [
     {
@@ -58,7 +60,7 @@ const IcSettings = () => {
     const [showLogoutModal, setShowLogoutModal] = useState(false);
     const [showSiteList, setShowSiteList] = useState(false);
     const { sites, handleLogout, handleLogin, handleSite } = useAppContext();
-    const { icUserData ,dateFormat} = useSelector(state => state.inspection);
+    const { icUserData, dateFormat } = useSelector(state => state.inspection);
     const [siteList, setSiteList] = useState([]);
     const [filteredSite, setFilteredSite] = useState([]);
     const [searchText, setSearchText] = useState('');
@@ -112,8 +114,22 @@ const IcSettings = () => {
     const handleOptionActions = () => {
         setShowSiteList(!showSiteList);
     };
-    const handleSelectedSite = item => {
+    const getOverAllSettings = async () => {
+        const formDate = new FormData();
+        formDate.append('UserID', parseInt(icUserData?.userData?.UserId));
+        formDate.append('SiteID', parseInt(icUserData?.userData?.Siteid));
+        const settingsRes = await postAPI(`${ApiUrl.IC_SETTINGS}`, formDate);
+        if (settingsRes.Success) {
+            const settings = {
+                ...settingsRes?.Data[0],
+            };
+            dispatch({ type: 'IC_SETTINGS', icSettings: settings || {} });
+        }
+        return settingsRes;
+    };
+    const handleSelectedSite = async item => {
         setProfileCall(item);
+        await getOverAllSettings();
         let newIcUserData = {
             userData: item || {},
             token: icUserData?.token || '',

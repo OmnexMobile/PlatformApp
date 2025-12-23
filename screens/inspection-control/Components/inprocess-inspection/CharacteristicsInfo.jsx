@@ -94,7 +94,7 @@ const CharacteristicsInfo = ({
     const navigation = useNavigation();
     useEffect(() => {
         getOverAllData();
-    }, [selectedData, type]);
+    }, [type,selectedData]);
     const getOverAllData = () => {
         if (selectedData?.isSamplePopup) {
             if (type == 'number') {

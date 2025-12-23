@@ -13,7 +13,7 @@ export const createInspectTable = async () => {
             chunkIndex INTEGER NOT NULL,
             inspectionData TEXT NOT NULL,
             PRIMARY KEY (uniqueId, chunkIndex)
-        )`
+        )`,
     );
 };
 
@@ -32,7 +32,7 @@ export const addInspectionData = async (userId, siteId, uniqueId, inspectionData
         await db.executeSql(
             `INSERT INTO inspections (userId, siteId, uniqueId, chunkIndex, inspectionData)
              VALUES (?, ?, ?, ?, ?)`,
-            [userId, siteId, uniqueId, index, chunks[index]]
+            [userId, siteId, uniqueId, index, chunks[index]],
         );
     }
 };
@@ -43,7 +43,7 @@ export const getInspectionDataByUserAndSite = async (userId, siteId) => {
         `SELECT uniqueId, inspectionData FROM inspections
          WHERE userId = ? AND siteId = ?
          ORDER BY uniqueId, chunkIndex`,
-        [userId, siteId]
+        [userId, siteId],
     );
 
     const inspectionsMap = {};
@@ -64,7 +64,7 @@ export const getInspectionDataByUserAndSiteAndDownloadedBy = async (userId, site
          FROM inspections
          WHERE userId = ? AND siteId = ?
          ORDER BY uniqueId, chunkIndex`,
-        [userId, siteId]
+        [userId, siteId],
     );
 
     const inspectionsMap = {};
@@ -102,7 +102,7 @@ export const updateInspectionByUniqueId = async (uniqueId, updatedData) => {
         await db.executeSql(
             `INSERT INTO inspections (userId, siteId, uniqueId, chunkIndex, inspectionData)
              VALUES (?, ?, ?, ?, ?)`,
-            [updatedData.userId, updatedData.siteId, uniqueId, index, chunks[index]]
+            [updatedData.userId, updatedData.siteId, uniqueId, index, chunks[index]],
         );
     }
 
@@ -111,9 +111,7 @@ export const updateInspectionByUniqueId = async (uniqueId, updatedData) => {
 
 export const getAllInspectionData = async () => {
     const db = await getDBConnection();
-    const [results] = await db.executeSql(
-        `SELECT * FROM inspections ORDER BY uniqueId, chunkIndex`
-    );
+    const [results] = await db.executeSql(`SELECT * FROM inspections ORDER BY uniqueId, chunkIndex`);
 
     const groupedData = {};
 
@@ -150,6 +148,20 @@ export const deleteAllInspectionData = async () => {
 export const deleteInspectionByUniqueId = async uniqueId => {
     const db = await getDBConnection();
     const [result] = await db.executeSql(`DELETE FROM inspections WHERE uniqueId = ?`, [uniqueId]);
+    return result.rowsAffected > 0;
+};
+export const deleteInspectionsByUniqueIds = async uniqueIds => {
+    if (!uniqueIds || uniqueIds.length === 0) return false;
+
+    const db = await getDBConnection();
+
+    // Create placeholders (?, ?, ?, ...) for the IN clause
+    const placeholders = uniqueIds.map(() => '?').join(', ');
+
+    const query = `DELETE FROM inspections WHERE uniqueId IN (${placeholders})`;
+
+    const [result] = await db.executeSql(query, uniqueIds);
+
     return result.rowsAffected > 0;
 };
 

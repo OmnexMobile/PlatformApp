@@ -242,7 +242,7 @@ const InprocessInspection = ({ route }) => {
                 hasMissingStatus = true;
             }
         }
-        
+
         // 🔑 Priority Logic
         if (hasInprogress) {
             return { colorCode: COLORS.ipBgColor, status: 'In Progress' };
@@ -351,7 +351,7 @@ const InprocessInspection = ({ route }) => {
         setShowAlart(false);
     };
     const handleSaveAlert = useCallback(
-        (movenext = '', typeid = '') => {
+        (movenext = '', typeid = '', userFormType = '') => {
             let isChanged = false;
             const filterdData = inspectList.filter(
                 item =>
@@ -375,14 +375,14 @@ const InprocessInspection = ({ route }) => {
                     if (selectedData?.Samples?.length !== undefined && selectedData?.Samples?.length !== masterData?.length) {
                         isChanged = true;
                     }
-                    let arrayList = [...finalData.VariableCharacteristics, ...finalData.AttributeCharacteristics];
+                    let arrayList = [...finalData?.VariableCharacteristics, ...finalData?.AttributeCharacteristics];
                     let selectedFinal = arrayList.filter(item => item?.CCharacteristicsId == selectedData?.CCharacteristicsId);
-                    const hasChanges = selectedFinal.length ? JSON.stringify(selectedFinal[0]) !== JSON.stringify(selectedData) : false;
+                    const hasChanges = selectedFinal.length ? JSON.stringify(selectedFinal[0]?.charInfo) != JSON.stringify(selectedData?.charInfo) : false;
                     if (isChanged || hasChanges) {
                         setShowAlart(true);
                     } else {
                         if (movenext == 'nextSample') {
-                            handleNextItem(typeid);
+                            handleNextItem(typeid, userFormType);
                         } else {
                             handleBackPress();
                         }
@@ -433,7 +433,10 @@ const InprocessInspection = ({ route }) => {
                 status: status,
             };
             const index = characteristicsList.findIndex(
-                obj => obj?.CCharacteristicsId === selectedData?.CCharacteristicsId && obj.FuncDetailsId == selectedData?.FuncDetailsId && obj.ID == selectedData?.ID,
+                obj =>
+                    obj?.CCharacteristicsId === selectedData?.CCharacteristicsId &&
+                    obj.FuncDetailsId == selectedData?.FuncDetailsId &&
+                    obj.ID == selectedData?.ID,
             );
             const newCharacteristicsList = [...characteristicsList];
             if (index !== -1) {
@@ -465,57 +468,136 @@ const InprocessInspection = ({ route }) => {
             let tempData = formType == 'number' ? infoData?.VariableCharacteristics : infoData.AttributeCharacteristics;
             if (currentIndex.index < tempData?.length - 1) {
                 setNextSave(false);
-                handleSaveAlert('nextSample');
+                handleSaveAlert('nextSample', '', infoData.userType);
                 Keyboard.dismiss();
                 // setShowCharInfo(false);
             } else {
-                console.log(formType == 'number', 'formType');
                 Alert.alert(`End of ${formType == 'number' ? 'variable' : 'attribute'} sample list`, 'You have reached the last sample.');
             }
         } else {
-            let tempData = formType == 'number' ? infoData?.VariableCharacteristics : infoData.AttributeCharacteristics;
-            console.log(currentIndex, tempData?.length - 1, 'tempData?.length - 1');
+            //    let tempData = formType == 'number' ? infoData?.VariableCharacteristics : infoData.AttributeCharacteristics;
+            //     console.log(currentIndex, tempData?.length - 1, 'tempData?.length - 1');
+            let tempData = [
+                ...(infoData?.VariableCharacteristics?.map((item, index) => ({
+                    ...item,
+                    type: 'number',
+                    key: `variable-${index}`,
+                })) || []),
+                ...(infoData?.AttributeCharacteristics?.map((item, index) => ({
+                    ...item,
+                    type: 'char',
+                    key: `attribute-${index}`,
+                })) || []),
+            ].sort((a, b) => Number(b.OperationID || 0) - Number(a.OperationID || 0));
+            let currentFormType = tempData[currentIndex.index + 1]?.type;
+
             if (currentIndex.index < tempData?.length - 1) {
-                console.log('error1');
                 setNextSave(false);
-                handleSaveAlert('nextSample');
+                if (currentFormType == 'char') {
+                    setMixedList('2');
+                    handleSaveAlert('nextSample', infoData.intInspectionTypeID,infoData.userType);
+                } else {
+                    handleSaveAlert('nextSample','',infoData.userType);
+                }
                 Keyboard.dismiss();
-                // setShowCharInfo(false);
-            } else if (currentIndex.index == tempData?.length - 1 && formType == 'number' && infoData.AttributeCharacteristics?.length !== 0) {
-                setMixedList('2');
-                setNextSave(false);
-                handleSaveAlert('nextSample', infoData.intInspectionTypeID);
-                Keyboard.dismiss();
-                console.log('error2');
-                // setShowCharInfo(false);
-            } else {
+            } else if (currentIndex.index == tempData?.length - 1) {
                 Alert.alert(`End of Sample List`, 'You have reached the last sample.');
             }
         }
     };
-
-    const handleNextItem = (id = mixedList) => {
-        if (id == '' || id == undefined) {
-            let tempData = formType == 'number' ? infoData?.VariableCharacteristics : infoData.AttributeCharacteristics;
-            const nextIndex = currentIndex.index + 1;
-            setCurrentIndex({ index: nextIndex, type: formType });
-            setMasterData([]);
-            setValueUpadted([]);
-            setSelectedData(tempData[nextIndex]);
-            console.log('inside5');
+    const handleNextItem = async (id = mixedList, userFormType = '') => {
+        if (infoData.intInspectionTypeID == 2) {
+            if (id == '' || id == undefined) {
+                let tempData = [];
+                if (infoData.intInspectionTypeID == 2) {
+                    tempData = [
+                        ...(infoData?.VariableCharacteristics?.map((item, index) => ({
+                            ...item,
+                            type: 'number',
+                            key: `variable-${index}`,
+                        })) || []),
+                        ...(infoData?.AttributeCharacteristics?.map((item, index) => ({
+                            ...item,
+                            type: 'char',
+                            key: `attribute-${index}`,
+                        })) || []),
+                    ].sort((a, b) => Number(b.OperationID || 0) - Number(a.OperationID || 0));
+                } else {
+                    tempData = formType == 'number' ? infoData?.VariableCharacteristics : infoData.AttributeCharacteristics;
+                }
+                if (userFormType == 'SupervisorSchedule') {
+                    await handleSavePress(false);
+                }
+                const nextIndex = currentIndex.index + 1;
+                setFormType(tempData[nextIndex]?.type);
+                setCurrentIndex({ index: nextIndex, type: infoData.intInspectionTypeID == 2 ? tempData[nextIndex]?.type : formType });
+                setMasterData([]);
+                setValueUpadted([]);
+                setSelectedData(tempData[nextIndex]);
+            } else {
+                let tempData = [];
+                let tempSele = {};
+                let tempCurrentIndex = {};
+                setMasterData([]);
+                setValueUpadted([]);
+                if (infoData.intInspectionTypeID == 2) {
+                    const nextIndex = currentIndex.index + 1;
+                    tempCurrentIndex = {
+                        index: nextIndex,
+                        type: infoData.intInspectionTypeID == 2 ? tempData[nextIndex]?.type : formType,
+                    };
+                    tempData = [
+                        ...(infoData?.VariableCharacteristics?.map((item, index) => ({
+                            ...item,
+                            type: 'number',
+                            key: `variable-${index}`,
+                        })) || []),
+                        ...(infoData?.AttributeCharacteristics?.map((item, index) => ({
+                            ...item,
+                            type: 'char',
+                            key: `attribute-${index}`,
+                        })) || []),
+                    ].sort((a, b) => Number(b.OperationID || 0) - Number(a.OperationID || 0));
+                    tempSele = tempData[nextIndex];
+                } else {
+                    tempData = infoData.AttributeCharacteristics;
+                    tempSele = tempData[0];
+                    tempCurrentIndex = { index: 0, type: 'char' };
+                }
+                setFormType(tempSele?.type);
+                setSelectedData(tempSele);
+                setCurrentIndex(tempCurrentIndex);
+            }
+            setShowAlart(false);
+            setNextSave(true);
+            setMixedList('');
+            flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
         } else {
-            setMasterData([]);
-            setValueUpadted([]);
-            let tempData = infoData.AttributeCharacteristics;
-            setSelectedData(tempData[0]);
-            setCurrentIndex({ index: 0, type: 'char' });
-            setFormType('char');
-            console.log('inside6');
+            if (id == '' || id == undefined) {
+                let tempData = formType == 'number' ? infoData?.VariableCharacteristics : infoData.AttributeCharacteristics;
+                if (userFormType == 'SupervisorSchedule') {
+                    await handleSavePress(false);
+                }
+                const nextIndex = currentIndex.index + 1;
+                setCurrentIndex({ index: nextIndex, type: formType });
+                setMasterData([]);
+                setValueUpadted([]);
+                setSelectedData(tempData[nextIndex]);
+                console.log('inside5');
+            } else {
+                setMasterData([]);
+                setValueUpadted([]);
+                let tempData = infoData.AttributeCharacteristics;
+                setFormType('char');
+                setSelectedData(tempData[0]);
+                setCurrentIndex({ index: 0, type: 'char' });
+                console.log('inside6');
+            }
+            setShowAlart(false);
+            setNextSave(true);
+            setMixedList('');
+            flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
         }
-        setShowAlart(false);
-        setNextSave(true);
-        setMixedList('');
-        flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
     };
     const handleShowCharInfo = () => {
         setShowCharInfo(!showCharInfo);
@@ -611,7 +693,6 @@ const InprocessInspection = ({ route }) => {
             setTypeOfModal('');
         }
     };
-    console.log(masterData.filter(x => x?.value != '')?.length, 'masterData');
     return (
         <CustomHeader
             title={renderHeader(inspectData.intInspectionTypeID)}
@@ -652,24 +733,46 @@ const InprocessInspection = ({ route }) => {
                         </View>
                     ) : (
                         <View style={[styles.centerBox]}>
-                            <ScrollView showsVerticalScrollIndicator={false}>
-                                {Boolean(infoData?.VariableCharacteristics?.length) && (
-                                    <View>
-                                        {Boolean(inspectData.intInspectionTypeID != 2) && <MyHeader title={'VARIABLE'} />}
-                                        {infoData?.VariableCharacteristics.map((item, index) => {
-                                            return renderItem({ item, index, type: 'number' });
-                                        })}
-                                    </View>
-                                )}
-                                {Boolean(infoData?.AttributeCharacteristics?.length) && (
-                                    <View style={{ marginVertical: 10 }}>
-                                        {Boolean(inspectData.intInspectionTypeID != 2) && <MyHeader title={'ATTRIBUTE'} />}
-                                        {infoData?.AttributeCharacteristics.map((item, index) => {
-                                            return renderItem({ item, index, type: 'char' });
-                                        })}
-                                    </View>
-                                )}
-                            </ScrollView>
+                            {Boolean(inspectData.intInspectionTypeID == 2) ? (
+                                <ScrollView showsVerticalScrollIndicator={false}>
+                                    {[
+                                        ...(infoData?.VariableCharacteristics?.map((item, index) => ({
+                                            ...item,
+                                            type: 'number',
+                                            key: `variable-${index}`,
+                                        })) || []),
+                                        ...(infoData?.AttributeCharacteristics?.map((item, index) => ({
+                                            ...item,
+                                            type: 'char',
+                                            key: `attribute-${index}`,
+                                        })) || []),
+                                    ]
+                                        // ✅ Sort globally by OperationID
+                                        .sort((a, b) => Number(b.OperationID || 0) - Number(a.OperationID || 0))
+                                        .map((item, index) => (
+                                            <React.Fragment key={item.key}>{renderItem({ item, index, type: item.type })}</React.Fragment>
+                                        ))}
+                                </ScrollView>
+                            ) : (
+                                <ScrollView showsVerticalScrollIndicator={false}>
+                                    {Boolean(infoData?.VariableCharacteristics?.length) && (
+                                        <View>
+                                            {Boolean(inspectData.intInspectionTypeID != 2) && <MyHeader title={'VARIABLE'} />}
+                                            {infoData?.VariableCharacteristics.map((item, index) => {
+                                                return renderItem({ item, index, type: 'number' });
+                                            })}
+                                        </View>
+                                    )}
+                                    {Boolean(infoData?.AttributeCharacteristics?.length) && (
+                                        <View style={{ marginVertical: 10 }}>
+                                            {Boolean(inspectData.intInspectionTypeID != 2) && <MyHeader title={'ATTRIBUTE'} />}
+                                            {infoData?.AttributeCharacteristics.map((item, index) => {
+                                                return renderItem({ item, index, type: 'char' });
+                                            })}
+                                        </View>
+                                    )}
+                                </ScrollView>
+                            )}
                             <View style={[styles.btnContainer]}>
                                 <ButtonComponent
                                     textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}
@@ -795,6 +898,7 @@ const InprocessInspection = ({ route }) => {
                                 danger={true}
                                 style={{ height: 30, width: 100, marginRight: 20 }}
                                 onPress={() => {
+                                    console.log('nextSave', nextSave);
                                     nextSave ? handleBackPress() : handleNextItem();
                                 }}
                                 textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}>
@@ -1068,3 +1172,4 @@ const styles = StyleSheet.create({
 });
 
 export default InprocessInspection;
+

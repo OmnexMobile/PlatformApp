@@ -44,15 +44,24 @@ const footerList = [
         svg: CompletedInspectionnSvg,
         routeName: ROUTES.COMPLETED_INSPECTION,
     },
-    // {
-    //     id: 4,
-    //     title: 'Supervisor\nSchedule',
-    //     svg: SupervisorScheduleSvg,
-    //     routeName: ROUTES.SUPERVISOR_SCHEDULE,
-    // },
+    {
+        id: 4,
+        title: 'Supervisor\nApproval',
+        svg: SupervisorScheduleSvg,
+        routeName: ROUTES.SUPERVISOR_SCHEDULE,
+    },
 ];
 const footerListWithoutSearch = footerList.filter(item => item.title !== 'Search\nInspection');
 const footerListWithoutSchedule = footerList.filter(item => item.title !== 'Inspection\nSchedule');
+const footerListWithoutSuperVisorandSearch = footerList.filter(item => item.title !== 'Supervisor\nApproval' && item.title !== 'Search\nInspection');
+const footerListWithoutSuperVisorWithSearch = footerList.filter(
+    item => item.title !== 'Supervisor\nApproval' && item.title !== 'Inspection\nSchedule',
+);
+const footerListWithoutSearchAndSchedule = footerList.filter(item => item.title !== 'Search\nInspection' && item.title !== 'Inspection\nSchedule');
+const footerListWithoutSuperVisorandSearchandInspection = footerList.filter(
+    item => item.title !== 'Supervisor\nApproval' && item.title !== 'Inspection\nSchedule' && item.title !== 'Search\nInspection',
+);
+
 const CustomHeader = ({
     children,
     title = '',
@@ -83,13 +92,35 @@ const CustomHeader = ({
     const widthAnim = useRef(new Animated.Value(0)).current;
 
     const bottomTabList = useMemo(() => {
-        return icSettings?.SearchInspectionNeeded ? footerListWithoutSchedule : footerListWithoutSearch;
-    }, [icSettings?.SearchInspectionNeeded]);
+        let showSuperVisorPage =
+            icSettings?.TabReceivingSupervisorNeeded || icSettings?.TabInprocessSupervisorNeeded || icSettings?.TabFinalSupervisorNeeded;
+        let showInspectionPage =
+            icSettings?.TabReceivingLotScheduleNeeded || icSettings?.TabInprocessLotScheduleNeeded || icSettings?.TabFinalLotScheduleNeeded;
+        if (icSettings?.SearchInspectionNeeded && icSettings?.TabSearchInspectionNeeded) {
+            if (showSuperVisorPage) {
+
+                return footerListWithoutSchedule;
+            }
+            return footerListWithoutSuperVisorWithSearch;
+        } else {
+            if (showSuperVisorPage && showInspectionPage) {
+                return footerListWithoutSearch;
+            } else if (showInspectionPage && !showSuperVisorPage) {
+                return footerListWithoutSuperVisorandSearch;
+            } else if (!showInspectionPage && showSuperVisorPage) {
+                return footerListWithoutSearchAndSchedule;
+            } else if (!showInspectionPage && !showSuperVisorPage) {
+                return footerListWithoutSuperVisorandSearchandInspection;
+            }
+            return footerListWithoutSuperVisorandSearch;
+        }
+        // return icSettings?.SearchInspectionNeeded && icSettings?.TabSearchInspectionNeeded ? footerListWithoutSchedule : footerListWithoutSearch;
+    }, [icSettings]);
     useEffect(() => {
         if (searchValue?.length) {
             setIsExpanded(true);
             Animated.timing(widthAnim, {
-                toValue: activeTabId !== 4 ? width / 1.8 : width / 2.2,
+                toValue: activeTabId !== 4 ? width / 1.8 : width / 1.7,
                 duration: 0,
                 useNativeDriver: false,
             }).start();
@@ -106,7 +137,7 @@ const CustomHeader = ({
         } else {
             setIsExpanded(true);
             Animated.timing(widthAnim, {
-                toValue: activeTabId !== 4 ? width / 1.8 : width / 2.2,
+                toValue: activeTabId != 4 ? width / 1.8 : width / 1.7,
                 duration: 300,
                 useNativeDriver: false,
             }).start();
@@ -145,11 +176,6 @@ const CustomHeader = ({
     };
     return (
         <SafeAreaView style={[styles.container]}>
-            {/* <View
-                style={{
-                    paddingTop: insets.top, // status bar height
-                }}
-            /> */}
             <View style={[styles.headerBox]}>
                 <TouchableOpacity
                     onPress={() => {
@@ -171,20 +197,17 @@ const CustomHeader = ({
                                 searchValue={searchValue}
                             />
                         </Animated.View>
-                        // <View>
-                        //     <TextInput onChangeText={()=>{}} placeholder='Search......'  placeholderTextColor={COLORS.white} style={styles.inputBox}/>
-                        // </View>
                     )}
                 </View>
                 <View style={[styles.rightIconList]}>
                     {showIcons && (
                         <>
-                            {activeTabId == 0 && (
+                            {(activeTabId == 0 || activeTabId == 4) && (
                                 <TouchableOpacity onPress={() => handleMultiSearch()}>
                                     <IconM name="filter-list" size={25} style={styles.iconButton} color={COLORS.white} />
                                 </TouchableOpacity>
                             )}
-                            {activeTabId == 0 && (
+                            {(activeTabId == 0 || activeTabId == 4) && (
                                 <TouchableOpacity onPress={() => handleFilterPress()}>
                                     <Icon name="filter" size={25} style={styles.iconButton} color={COLORS.white} />
                                 </TouchableOpacity>
@@ -200,64 +223,14 @@ const CustomHeader = ({
                                     <Icon name={!isExpanded ? 'search1' : 'close'} size={25} style={styles.iconButton} color={COLORS.white} />
                                 </TouchableOpacity>
                             )}
-                            {/* {activeTabId == 1 && (
-                                <TouchableOpacity
-                                    onPress={() => {
-                                        handleQRPress();
-                                    }}>
-                                    <IconF name="qrcode" size={25} style={styles.iconButton} color={COLORS.white} />
-                                </TouchableOpacity>
-                            )} */}
-                            {/* {activeTabId == 2 && (
-                                <TouchableOpacity>
-                                    <IconI name="settings-outline" size={25} style={styles.iconButton} color={COLORS.white} />
-                                </TouchableOpacity>
-                            )} */}
-                            {activeTabId == 4 && (
-                                <TouchableOpacity
-                                    onPress={() => {
-                                        handleFilterPress();
-                                    }}>
-                                    <Icon name="filter" size={25} style={styles.iconButton} color={COLORS.white} />
-                                </TouchableOpacity>
-                            )}
-                            {/* {(activeTabId == 3 || activeTabId == 4) && (
+                            {activeTabId == 3 && (
                                 <TouchableOpacity
                                     onPress={() => {
                                         handleSyncPress();
                                     }}>
                                     <IconO name="sync" size={25} style={styles.iconButton} color={COLORS.white} />
                                 </TouchableOpacity>
-                            )} */}
-                            {/* <TouchableOpacity
-                                onPress={() => {
-                                    // navigation.goBack();
-                                    navigation.reset({
-                                        index: 0,
-                                        routes: [{ name: ROUTES.HOME_FAB_VIEW }],
-                                    });
-                                }}>
-                                <IconI name="exit-outline" size={31} style={styles.iconButton} color={COLORS.white} />
-                            </TouchableOpacity> */}
-                            {/* <Tooltip title="Selected Camera" enterTouchDelay={0} leaveTouchDelay={2000}>
-                                <IconI name="information-circle-outline" size={28} style={styles.iconButton} color={COLORS.white} />
-                            </Tooltip> */}
-                            {/* <Menu
-                                visible={visible}
-                                onDismiss={closeMenu}
-                                anchor={
-                                    <TouchableOpacity onPress={openMenu}>
-                                        <IconI name="information-circle-outline" size={28} style={styles.iconButton} color={COLORS.white} />
-                                    </TouchableOpacity>
-                                }
-                                contentStyle={{
-                                    backgroundColor: '#000',
-                                    borderRadius: 5,
-                                    paddingHorizontal: 10,
-                                }}
-                                anchorPosition="bottom">
-                                <Text style={{ color: COLORS.white }}>Site : {sites?.selectedSite?.SiteName}</Text>
-                            </Menu> */}
+                            )}
                         </>
                     )}
                     {showFileIcon && (

@@ -26,7 +26,6 @@ import { deleteAllInspectionData, getInspectionDataByUserAndSite } from 'store/d
 import { Modal } from 'react-native-paper';
 import { Bubbles } from 'react-native-loader';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { getICList } from 'helpers/utils';
 
 const filterList = [
     {
@@ -63,7 +62,7 @@ const moreList = [
 const InspectionSchedule = () => {
     const insets = useSafeAreaInsets();
     const { height } = useWindowDimensions();
-    const { icUserData, dateFormat } = useSelector(state => state.inspection);
+    const { icUserData,icSettings, dateFormat } = useSelector(state => state.inspection);
     const uiDateFormat = dateFormat || 'DD/MM/YYYY';
     const dispatch = useDispatch();
     const isFocused = useIsFocused();
@@ -109,13 +108,17 @@ const InspectionSchedule = () => {
     //     console.log(list, '*********************************************list.length');
     // };
     const getOverAllSettings = async () => {
-        const settingsRes = await postAPI(`${ApiUrl.IC_SETTINGS}`);
+        const formDate=new FormData();
+        formDate.append('UserID', parseInt(icUserData?.userData?.UserId));
+        formDate.append('SiteID', parseInt(icUserData?.userData?.Siteid));
+        const settingsRes = await postAPI(`${ApiUrl.IC_SETTINGS}`,formDate);
         if (settingsRes.Success) {
             const settings = {
                 ...settingsRes?.Data[0],
             };
             dispatch({ type: 'IC_SETTINGS', icSettings: settings || {} });
         }
+        return settingsRes;
     };
     const handleListFetch = async (inspect = null, showSktn = true, filterType = '') => {
         // await deleteAllInspectionData();
@@ -125,18 +128,16 @@ const InspectionSchedule = () => {
         let dateFlag = startDate !== '' && endDate !== '';
         const formData = new FormData();
         formData.append('UserID', icUserData?.userData?.UserId);
-        // formData.append('UserID', 7);
         formData.append('SiteID', parseInt(icUserData?.userData?.Siteid));
         formData.append('LanguageID', 1);
         formData.append('StartDate', dateFlag ? moment(startDate).format('MM/DD/YYYY') : '');
         formData.append('EndDate', dateFlag ? moment(endDate).format('MM/DD/YYYY') : '');
-        // formData.append('InspectionType', inspect !== null ? inspect : type);
         const response = await postAPI(`${ApiUrl.IC_GET_IS}`, formData);
         await getOverAllSettings();
         let retunListData = [];
         if (response.Success) {
             let temp = response?.Data?.InspectionSchedules || [];
-            const updatedArray = temp.map(item => {
+            let updatedArray = temp.map(item => {
                 const match = inspectList.some(
                     compareItem =>
                         compareItem.intProductionItemID === item.ProductionItemId &&
@@ -148,6 +149,13 @@ const InspectionSchedule = () => {
                     isDownloaded: match,
                 };
             });
+
+            const allowedTypes = [];
+            if (icSettings.TabReceivingLotScheduleNeeded) allowedTypes.push('1');
+            if (icSettings.TabInprocessLotScheduleNeeded) allowedTypes.push('2');
+            if (icSettings.TabFinalLotScheduleNeeded) allowedTypes.push('3');
+            updatedArray = allowedTypes.length === 0 ? [] : updatedArray.filter(item => allowedTypes.includes(item.TypeOfInspection));
+
             const sortedSchedules = updatedArray.sort((a, b) => {
                 return new Date(b.ProductionStartDate) - new Date(a.ProductionStartDate);
             });
@@ -193,7 +201,7 @@ const InspectionSchedule = () => {
     };
 
     useEffect(() => {
-        if (icUserData && isFocused) {
+        if (icUserData.userData && isFocused) {
             handleListFetch(null, true, filterData.type);
         }
         return () => {
@@ -358,7 +366,6 @@ const InspectionSchedule = () => {
             };
         });
         setMasterData(updatedArray);
-        await getICList(icUserData?.userData?.UserId, icUserData?.userData?.Siteid);
         setShowBubble(false);
     };
     return (

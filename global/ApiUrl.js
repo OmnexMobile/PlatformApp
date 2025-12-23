@@ -75,5 +75,8 @@ module.exports = {
     IC_GET_SEARCH_INSPECTIONLIST:'GetSearchInspectionList',
     IC_SEARCH_INSPECTION_DOWNLOAD:'SearchInspectionFormDownload',
     LOGIN_LOGO:'GetCompanyLogo',
-    ICTABCOUNT:'IClistCount'
+    ICTABCOUNT:'IClistCount',
+    IC_SUPERVISOR_DOWNLOAD:'GetSupervisorForm',
+    IC_OPERATION_LIST:'GetOperations',
+    IC_BULK_SYNC:'BulkSync',
 };

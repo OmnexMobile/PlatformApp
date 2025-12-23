@@ -7,7 +7,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { PLACEHOLDERS, ROUTES } from 'constants/app-constant';
 import { Divider, Modal } from 'react-native-paper';
-import { getICList, RFPercentage, showErrorMessage } from 'helpers/utils';
+import { RFPercentage, showErrorMessage } from 'helpers/utils';
 import DeleteModal from '../Components/DeleteModal';
 import NoDataFound from '../Components/NoDataFound';
 import { useDispatch, useSelector } from 'react-redux';
@@ -16,7 +16,6 @@ import { postAPI } from 'global/api-helpers';
 import IcSkeleton from '../Components/IcSkeleton';
 import { deleteInspectionByUniqueId, getDatabaseSize, getInspectionDataByUserAndSite } from 'store/database/inspectStorage';
 import ICScrollTab from '../Components/ICScrollTab';
-import AsyncStorage from '@react-native-community/async-storage';
 
 const OperatorWorksheet = () => {
     const { icUserData } = useSelector(state => state.inspection);
@@ -35,12 +34,17 @@ const OperatorWorksheet = () => {
         // await getDatabaseSize()
         const list = await getInspectionDataByUserAndSite(icUserData?.userData?.UserId, icUserData?.userData?.Siteid);
         let filtered = [];
+        let superVisorData = [];
         if (list?.length > 0) {
-            filtered = list.filter(item => item?.userType === 'Inspector');
+            filtered = list
+                .filter(item => item?.userType != 'SupervisorSchedule')
+                .sort((a, b) => new Date(b.downloadedDate) - new Date(a.downloadedDate));
+            superVisorData = list
+                .filter(item => item?.userType === 'SupervisorSchedule')
+                .sort((a, b) => new Date(b.downloadedDate) - new Date(a.downloadedDate));
         }
-        setInspectionList(list);
+        setInspectionList([...filtered, ...superVisorData]);
         setShowSkeleton(false);
-        await getICList(icUserData?.userData?.UserId, icUserData?.userData?.Siteid,false);
     };
     const handleCIbtnpress = () => {
         navigation.navigate(ROUTES.COMPLETED_INSPECTION);
@@ -56,10 +60,13 @@ const OperatorWorksheet = () => {
         navigation.navigate(ROUTES.INPROCESS_INSPECTION, { inspectData: item });
     };
     useEffect(() => {
-        getOverAllSettings();
-    }, []);
+        icUserData.userData && getOverAllSettings();
+    }, [icUserData]);
     const getOverAllSettings = async () => {
-        const settingsRes = await postAPI(`${ApiUrl.IC_SETTINGS}`);
+        const formDate = new FormData();
+        formDate.append('UserID', parseInt(icUserData?.userData?.UserId));
+        formDate.append('SiteID', parseInt(icUserData?.userData?.Siteid));
+        const settingsRes = await postAPI(`${ApiUrl.IC_SETTINGS}`,formDate);
         if (settingsRes?.Success) {
             const settings = {
                 ...settingsRes?.Data[0],
@@ -136,7 +143,7 @@ const OperatorWorksheet = () => {
     const renderItem = ({ item }) => {
         const { status, colorCode } = rendetBtnText(item);
         return (
-            <View style={[styles.recordConatiner]}>
+            <View style={[styles.recordConatiner, { backgroundColor: item?.backgroundColor ? item?.backgroundColor : '#fff' }]}>
                 <View style={[styles.iconBox, { backgroundColor: renderIconBgColor(item?.intInspectionTypeID) }]}>
                     <Icon name="layers-outline" size={25} color={COLORS.white} />
                 </View>
@@ -223,7 +230,6 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 15,
         flexDirection: 'row',
-        backgroundColor: '#fff',
         marginBottom: 10,
         borderRadius: 10,
     },

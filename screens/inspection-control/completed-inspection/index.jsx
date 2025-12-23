@@ -21,12 +21,10 @@ import ApiUrl from 'global/ApiUrl';
 import { postAPI } from 'global/api-helpers';
 import { Bubbles } from 'react-native-loader';
 import { showMessage } from 'react-native-flash-message';
-import { deleteInspectionByUniqueId, getInspectionDataByUserAndSite } from 'store/database/inspectStorage';
+import { deleteInspectionByUniqueId, deleteInspectionsByUniqueIds, getInspectionDataByUserAndSite } from 'store/database/inspectStorage';
 import { isArray } from 'underscore';
-import { getICList, showErrorMessage } from 'helpers/utils';
+import { showErrorMessage } from 'helpers/utils';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import AsyncStorage from '@react-native-community/async-storage';
-
 
 const optionsList = [
     {
@@ -80,18 +78,27 @@ const CompletedInspection = () => {
     const [refreshing, setRefreshing] = useState(false);
     const [selectedValue, setSelectedValue] = useState({});
     const [disableBtn, setDisableBtn] = useState(false);
+    const [isBulkSync, setIsBulkSync] = useState(false);
 
     const isFocused = useIsFocused();
 
     const getAllCompletedData = async (showSkt = true) => {
         showSkt && setShowSkeleton(true);
         const inspectList = await getInspectionDataByUserAndSite(icUserData?.userData?.UserId, icUserData?.userData?.Siteid);
-        const completedList = inspectList?.filter(item => item?.status === 'Completed' || item?.status === 'In Progress');
-        // const completedList = inspectList?.filter(item => item?.status === 'Completed' || item?.status === 'In Progress');
-        setMasterData(completedList?.length ? completedList : []);
+        const list = inspectList?.filter(item => item?.status === 'Completed' || item?.status === 'In Progress');
+        let filtered = [];
+        let superVisorData = [];
+        if (list?.length > 0) {
+            filtered = list
+                .filter(item => item?.userType != 'SupervisorSchedule')
+                .sort((a, b) => new Date(b.downloadedDate) - new Date(a.downloadedDate));
+            superVisorData = list
+                .filter(item => item?.userType === 'SupervisorSchedule')
+                .sort((a, b) => new Date(b.downloadedDate) - new Date(a.downloadedDate));
+        }
+        setMasterData([...filtered, ...superVisorData]);
         setShowSkeleton(false);
         setRefreshing(false);
-       await getICList(icUserData?.userData?.UserId, icUserData?.userData?.Siteid,false);
     };
 
     const onRefresh = () => {
@@ -109,6 +116,7 @@ const CompletedInspection = () => {
         setSelectedValue(item);
     };
     const hideModal = () => {
+        setIsBulkSync(false);
         if (!disableBtn) {
             setSelectedRadio({
                 id: 1,
@@ -132,7 +140,7 @@ const CompletedInspection = () => {
     };
     const renderItem = ({ item, index }) => {
         return (
-            <View style={[styles.recordConatiner]} key={index + 1}>
+            <View style={[styles.recordConatiner, { backgroundColor: item?.backgroundColor ? item?.backgroundColor : '#fff' }]} key={index + 1}>
                 <View style={[styles.iconBox, { backgroundColor: renderIconBgColor(item?.intInspectionTypeID) }]}>
                     <Icon name="layers-outline" size={25} color={COLORS.white} />
                 </View>
@@ -390,8 +398,110 @@ const CompletedInspection = () => {
             showErrorMessage('Error deleting inspection');
         }
     };
+    const handleBulkSyncPress = () => {
+        setIsBulkSync(true);
+        const allStatus = masterData?.map(item => item?.status);
+        const isAllCompleted = allStatus?.every(item => item === 'Completed');
+        console.log('isAllCompleted', isAllCompleted);
+        if (!isAllCompleted) {
+            setSyncList([...optionsList.slice(0, 1)]);
+        } else {
+            setSyncList([...optionsList]);
+        }
+        setSyncModal(true);
+    };
+    const handleBulkFormSync = async () => {
+        setDisableBtn(true);
+        const allInspectionEntryDetailsID = masterData?.map(item => item?.InspectionEntryDetailsID.toString()).join(',');
+        const allInspectionID = masterData?.map(item => item?.InspectionID.toString()).join(',');
+        const temp = [];
+        masterData?.forEach(value => {
+            const templist = [
+                ...convertSampleList(value.VariableCharacteristics, 'number'),
+                ...convertSampleList(value.AttributeCharacteristics, 'char'),
+            ];
+            const updatedGeneralInfo = value.GeneralInfo.map(item => {
+                if ((item.DisplayName === 'Supervisor' || item.StaticText === 'Approver') && typeof item.Value === 'object' && item.Value !== null) {
+                    return {
+                        ...item,
+                        Value: item.Value.value,
+                        Case: 'SUPERVISOR',
+                        StrID: item.Value.ID,
+                        Name: 'CustomInspection',
+                        Topic: 'Supervisor',
+                    };
+                } else if (
+                    item.DisplayName !== 'Supervisor' &&
+                    item.DisplayName !== 'Approver' &&
+                    typeof item.Value === 'object' &&
+                    item.Value === null
+                ) {
+                    return {
+                        ...item,
+                        Value: item.Value.value,
+                    };
+                }
+                return item;
+            });
+            temp.push({
+                characteristicDetails: templist,
+                GeneralInfo: updatedGeneralInfo,
+            });
+        });
+        const payLoad = {
+            EnteredBy: icUserData?.userData?.UserId,
+            InspectedDate: moment(new Date()).format('MM/DD/YYYY hh:mm:ss A'),
+            InspectionData: [...temp],
+            SiteId: icUserData?.userData?.Siteid,
+            Status: [
+                {
+                    UserId: icUserData?.userData?.UserId,
+                    InspectionID: allInspectionID,
+                    SupervisorID: checkBox ? icUserData?.userData?.UserId : '',
+                    InspectionEntryDetailsID: allInspectionEntryDetailsID,
+                    Mode: selectedRadio.Mode,
+                    SupervisorApproved: checkBox ? 1 : 0,
+                    // IsProcess: selectedValue.intInspectionTypeID == '2' ? 1 : 0,
+                    // IsProcess: 0,
+                },
+            ],
+        };
+        const response = await postAPI(ApiUrl.IC_BULK_SYNC, payLoad);
+        if (response?.results) {
+            const uniqueIds=masterData?.map(item=>item?.uniqueId);
+            console.log('uniqueIds',uniqueIds)
+            setSyncModal(false);
+            // const flag = await deleteInspectionByUniqueId(selectedValue.uniqueId);
+            const flag = await deleteInspectionsByUniqueIds(uniqueIds);
+            showMessage({
+                message: 'Inspection synced successfully',
+                backgroundColor: COLORS.SUCCESS,
+                color: COLORS.white,
+                duration: 1500,
+                statusBarHeight: 40,
+                icon: 'success',
+                position: 'right',
+                style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : { paddingTop: insets.top },
+            });
+            if (flag) {
+                getAllCompletedData(true);
+            }
+        } else {
+            showMessage({
+                message: 'Something went wrong',
+                backgroundColor: COLORS.ERROR,
+                color: COLORS.white,
+                duration: 1500,
+                statusBarHeight: 40,
+                icon: 'warning',
+                position: 'right',
+                style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : { paddingTop: insets.top },
+            });
+        }
+        setDisableBtn(false);
+    };
     return (
-        <CustomHeader title="Completed Inspection" activeTabId={3} handleSyncPress={handleSyncPress}>
+        <CustomHeader title="Completed Inspection" activeTabId={3} handleSyncPress={handleBulkSyncPress}>
             <View style={[styles.container]}>
                 {Boolean(showSkeleton) ? (
                     <IcSkeleton type={PLACEHOLDERS.INSPECTION_CARD} />
@@ -456,7 +566,12 @@ const CompletedInspection = () => {
                                 <TouchableOpacity
                                     style={styles.cancelConatiner}
                                     onPress={() => {
-                                        handleSingleFormSync();
+                                        if (isBulkSync) {
+                                            handleBulkFormSync();
+                                        } else {
+                                            setIsBulkSync(false);
+                                            handleSingleFormSync();
+                                        }
                                     }}
                                     disabled={disableBtn}>
                                     <Text style={styles.btnStyle}>SUBMIT</Text>
@@ -486,7 +601,6 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 15,
         flexDirection: 'row',
-        backgroundColor: '#fff',
         marginBottom: 10,
         borderRadius: 10,
     },

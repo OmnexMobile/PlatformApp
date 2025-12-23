@@ -24,6 +24,7 @@ const errorObj = {
     lotQty: false,
     receiptNumber: false,
     frequency: false,
+    // operation: false,
 };
 
 const InputDataModal = ({
@@ -46,8 +47,10 @@ const InputDataModal = ({
         frequency: null,
         responsible: [],
         receiptNumber: '',
+        // operation: [],
     });
     const [frqList, setFrqList] = useState([]);
+    const [operationList, setOperationList] = useState([]);
     const [resList, setResList] = useState([]);
     const [errorList, setErrorList] = useState(errorObj);
     const [showLoader, setShowLoader] = useState(true);
@@ -81,6 +84,28 @@ const InputDataModal = ({
         });
     };
 
+    const getOperationList = async () => {
+        const formData = new FormData();
+        formData.append('ProductionItemId', selectedValue?.ProductionItemId);
+        const response = await postAPI(`${ApiUrl.IC_OPERATION_LIST}`, formData);
+        console.log(response, 'getOperationList');
+        if (response?.length) {
+            let temp = [];
+            response?.forEach(item => {
+                temp.push({
+                    label: item?.OperationName,
+                    value: item?.OperationId,
+                    isChecked: false,
+                    ...item,
+                });
+            });
+            setOperationList(temp || []);
+        } else {
+            setOperationList([]);
+        }
+        return true;
+    };
+
     const getFrequencyList = async () => {
         // let strType = selectedValue?.TypeOfInspection == '2' ? 'Aqua' : 'Custom';
         const formData = new FormData();
@@ -91,6 +116,7 @@ const InputDataModal = ({
         formData.append('SiteId', userData?.Siteid);
         const response = await postAPI(`${ApiUrl.IC_FRQ_FORM}`, formData);
         if (response.Success) {
+            console.log(response?.Data, 'response?.Data');
             if (response?.Data?.length) {
                 let temp = [];
                 response?.Data.forEach(item => {
@@ -151,6 +177,7 @@ const InputDataModal = ({
     };
     const getPageApi = async () => {
         await getFrequencyList();
+        await getOperationList();
         // await getResponsibleList();
         setShowLoader(false);
     };
@@ -168,7 +195,6 @@ const InputDataModal = ({
         }
     }, [selectedValue, userData]);
     const handleInputChange = (key, value) => {
-        console.log('called');
         setFormFields(pre => ({ ...pre, [key]: value }));
     };
     const handleValidation = () => {
@@ -179,6 +205,7 @@ const InputDataModal = ({
             lotQty: false,
             frequency: false,
             receiptNumber: false,
+            // operation: false,
         };
         if (shift == null) {
             errorobj.shift = true;
@@ -189,6 +216,9 @@ const InputDataModal = ({
         if (lotQty == '') {
             errorobj.lotQty = true;
         }
+        // if (operation.length == 0) {
+        //     errorobj.operation = true;
+        // }
         if (frequency == null && selectedValue.TypeOfInspection == 2) {
             errorobj.frequency = true;
         }
@@ -236,8 +266,12 @@ const InputDataModal = ({
             formData.append('ProductionItemName', selectedValue?.ProductionItem || '');
             formData.append('Description', selectedValue?.Description || '');
             formData.append('PIDHierarchy', selectedValue?.PIHierarchy || '');
+
             formData.append('OperationIds', selectedValue?.OperationID || '');
             formData.append('OperationName', selectedValue?.OperationName || '');
+            // formData.append('OperationName', formFields.operation.length > 0 ? formFields.operation.map(item => item.OperationName).join(';') : '');
+            // formData.append('OperationIds', formFields.operation.length > 0 ? formFields.operation.map(item => item.OperationId).join(';') : '');
+
             formData.append('OperationHierarchy', selectedValue?.OperationHierarchy || '');
             formData.append('SupplierId', selectedValue.SupplierId || '');
             if (selectedValue.TypeOfInspection == '1') {
@@ -335,6 +369,8 @@ const InputDataModal = ({
                     attachments: attachments,
                     userId: selectedSite?.UserId,
                     siteId: selectedSite?.Siteid,
+                    backgroundColor:'#fff',
+                    downloadedDate: new Date().toISOString(),
                 };
                 await addInspectionData(selectedSite?.UserId, selectedSite?.Siteid, inspectObj.uniqueId, inspectObj);
                 showMessage({
@@ -403,6 +439,26 @@ const InputDataModal = ({
                                 flexWrap: 'wrap', // important for tablet
                                 justifyContent: 'space-between',
                             }}>
+                            {/* <View style={[styles.inputContainer, { width: isTablet ? '48%' : '100%' }]}>
+                                <Text style={styles.inputText}>
+                                    Operation <Text style={[styles.rquired]}>*</Text>
+                                </Text>
+                                <DynamicDropDown
+                                    showSelectAll={true}
+                                    anchorPosition={'bottom'}
+                                    isMultiSelect={true}
+                                    list={operationList || []}
+                                    handleSelectedList={value => {
+                                        console.log('value', value);
+                                        handleInputChange('operation', value);
+                                    }}
+                                />
+                                {Boolean(errorList.operation) && (
+                                    <HelperText type="error" visible={errorList.operation} padding={'none'} style={styles.errorStyle}>
+                                        This field is required
+                                    </HelperText>
+                                )}
+                            </View> */}
                             <View style={[styles.inputContainer, { width: isTablet ? '48%' : '100%' }]}>
                                 <Text style={styles.inputText}>
                                     Shift <Text style={[styles.rquired]}>*</Text>

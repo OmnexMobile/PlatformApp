@@ -123,4 +123,5 @@ export default {
     operatorWorksheet:'Operator\nWorksheet',
     completedInspection:'Completed\nInspection',
     searchInspection:'Search\nInspection',
+    supervisorSchedule:'Supervisor\nApproval',
 };

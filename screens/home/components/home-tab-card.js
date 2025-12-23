@@ -211,20 +211,29 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
           category: strings.inspectionSchedule,
           status: icCount ? Number(icCount?.inspection ?? 0) : undefined,
           routeName: ROUTES.INSPECTION_SCHEDULE,
+          icid:1,
         },
         {
           images: IMAGES.ICOS,
           category: strings.operatorWorksheet,
           status: icCount ? Number(icCount?.operatorList ?? 0) : undefined,
           routeName: ROUTES.OPERATOR_WORKSHEET,
+          icid:2,
         },
         {
           images: IMAGES.ICCI,
           category: strings.completedInspection,
           status: icCount ? Number(icCount?.completed ?? 0) : undefined,
           routeName: ROUTES.COMPLETED_INSPECTION,
+          icid:3,
         },
-      //   { images: IMAGES.ICSS, category: strings.supervisorSchedule, status: 4, routeName: ROUTES.SUPERVISOR_SCHEDULE },
+        { 
+          images: IMAGES.ICSS, 
+          category: strings.supervisorSchedule, 
+          status: icCount ? Number(icCount?.supervisor ?? 0) : undefined, 
+          routeName: ROUTES.SUPERVISOR_SCHEDULE,
+          icid:4,
+        },
       ] : [],
     },
     // {
@@ -386,20 +395,49 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
   ]);
 
 const dataSet = React.useMemo(() => {
-        let tabData = data;
-        if (icSettings?.SearchInspectionNeeded) {
-            const inspectionIndex = data.findIndex(item => item.id === 5);
+      const inspectionIndex = data.findIndex(item => item.id === 5);
+      data[inspectionIndex].detail = data[inspectionIndex].detail.filter(item => {
+      // Hide Supervisor Schedule if all supervisor flags false
+      if (
+        item?.icid === 4 &&
+        !icSettings?.TabReceivingSupervisorNeeded &&
+        !icSettings?.TabInprocessSupervisorNeeded &&
+        !icSettings?.TabFinalSupervisorNeeded
+      ) {
+        return false;
+      }
+
+      // Hide Inspection Schedule if receiving/inprocess both false
+      if (
+        item?.icid === 1 &&
+        !icSettings?.TabReceivingLotScheduleNeeded &&
+        !icSettings?.TabInprocessLotScheduleNeeded &&
+        !icSettings?.TabFinalLotScheduleNeeded
+      ) {
+        return false;
+      }
+      return true;
+    })
+     let tabData = data;
+        if (icSettings?.SearchInspectionNeeded && icSettings?.TabSearchInspectionNeeded) {
             if (inspectionIndex !== -1) {
-                data[inspectionIndex].detail = data[inspectionIndex].detail.map(detailItem =>
-                    detailItem.category === strings.inspectionSchedule
-                        ? {
+              const detail = data[inspectionIndex].detail;
+              const indexOfStatus1 = detail.findIndex(d => d.status === 1 || d.category === strings.inspectionSchedule);
+              const newItem = {
                               images: IMAGES.ICIS,
                               category: strings.searchInspection,
                               status: icCount ? Number(icCount?.search ?? 0) : undefined,
                               routeName: ROUTES.SEARCH_INSPECTION,
-                          }
-                        : detailItem,
-                );
+                              icid:1,
+                          };
+               if (indexOfStatus1 !== -1) {
+                    // Replace existing inspectionSchedule
+                    detail[indexOfStatus1] = newItem;
+                } else {
+                    // Add searchInspection if not present
+                    detail.unshift(newItem); // add at the top
+                }
+                data[inspectionIndex].detail= detail;
             }
             tabData = data;
         } else {
