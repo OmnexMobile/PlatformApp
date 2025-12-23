@@ -4,7 +4,7 @@ import { RFPercentage } from 'react-native-responsive-fontsize';
 import { AnimatableView, GradientButton, IconComponent, ImageComponent, KeyboardAwareScrollViewComponent } from 'components';
 import { IMAGES } from 'assets/images';
 import strings from 'config/localization';
-import { ICON_TYPE, OPACITY_ANIMATION, OPACITY_TRANSLATE_Y_ANIMATION } from 'constants/app-constant';
+import { ICON_TYPE, OPACITY_ANIMATION, OPACITY_TRANSLATE_Y_ANIMATION,ROUTES} from 'constants/app-constant';
 import { COLORS, FONT_SIZE, SPACING } from 'constants/theme-constants';
 import useTheme from 'theme/useTheme';
 import LoginInput from 'screens/auth/login/components/login-input';
@@ -35,7 +35,7 @@ const RegisterPresentational = ({ navigation, handleChange, handleRegister, stat
                     style={[styles.translateIcon, { backgroundColor: theme.colors.primaryThemeColor }]}
                     delay={1000}
                     animationConfig={OPACITY_ANIMATION}>
-                    <TouchableOpacity activeOpacity={0.8} style={styles.icon} onPress={() => navigation.goBack()}>
+                    <TouchableOpacity activeOpacity={0.8} style={styles.icon} onPress={() => navigation.navigate(ROUTES.GLOBAL_LOGIN)}>
                         {/* <TouchableOpacity activeOpacity={0.8} style={styles.icon} onPress={() => setSelectLanguageModal(true)}> */}
                         <IconComponent name={'arrowleft'} type={ICON_TYPE.AntDesign} color={COLORS.white} size={FONT_SIZE.LARGE} />
                     </TouchableOpacity>
