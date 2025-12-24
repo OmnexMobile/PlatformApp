@@ -128,7 +128,7 @@ const GlobalSites = () => {
             {/* Content */}
             <ScrollView style={{ paddingBottom: SPACING.LARGE }} contentContainerStyle={{ paddingTop: SPACING.SMALL, flexGrow: 1 }}>
                 {!!filteredSites?.length ? (
-                    filteredSites.map(({ EntityNode, FullName, Siteid, SiteName, SupplierManagementAccess, UserId, UserType, img = null }, index) => (
+                    filteredSites.map(({ Siteid, SiteName, img = null }, index) => (
                         <Ripple
                             onPress={() => {
                                 let newIcUserData = {
@@ -139,15 +139,7 @@ const GlobalSites = () => {
                                     type: 'IC_USER_DATA',
                                     icUserData: newIcUserData,
                                 });
-                                handleSite({
-                                    EntityNode,
-                                    FullName,
-                                    Siteid,
-                                    SiteName,
-                                    SupplierManagementAccess,
-                                    UserId,
-                                    UserType,
-                                });
+                                handleSite(filteredSites[index]);
                                 toast('Loading...', 'setting up site details...', TOAST_STATUS.SUCCESS, 100);
                             }}
                             activeOpacity={0.8}

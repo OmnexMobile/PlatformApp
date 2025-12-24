@@ -11,7 +11,7 @@ const AppContext = React.createContext({});
 const DEFAULT_VALUE = {
     Token: '',
     UserId: '',
-    // SiteId: '',
+    SiteId: '',
     SiteDetails: '',
     UserFullName: '',
     UserEmail: '',
@@ -196,6 +196,7 @@ const AppProvider = ({ children }) => {
         // console.log('🚀 ~ file: app-context.js:--79 ~ handleSite ~ selectedSite:', selectedSite, selectedSite?.length);
         console.log('🚀 ~ file: app-context.js:--80 ~ handleSite1111 ~ selectedSite:', selectedSite,'--', selectedSite?.[0], '--', selectedSite?.length);
         await localStorage.storeData(LOCAL_STORAGE_VARIABLES.SiteDetails, selectedSite);
+        await localStorage.storeData(LOCAL_STORAGE_VARIABLES.SiteId, selectedSite);
         setSites({
             ...sites,
             selectedSite: selectedSite?.length ? selectedSite?.[0] : selectedSite,
@@ -205,6 +206,7 @@ const AppProvider = ({ children }) => {
 
     const clearSite = async () => {
         console.log('🧹 Clearing selected site');
+        await localStorage.removeItem(LOCAL_STORAGE_VARIABLES.SiteId);
         await localStorage.removeItem(LOCAL_STORAGE_VARIABLES.SiteDetails); // or storeData(null)
         setSites({
             ...sites,
@@ -212,13 +214,28 @@ const AppProvider = ({ children }) => {
         });
     };
 
-    const handleSiteList = async siteList => {
-        console.log('🚀 ~ file: app-context.js:193 ~ handleSiteList ~ siteList:', siteList);
+    // const handleSiteList = async siteList => {
+    //     console.log('🚀 ~ file: app-context.js:193 ~ handleSiteList ~ siteList:', siteList);
+    //     await localStorage.storeData(LOCAL_STORAGE_VARIABLES.SITES, siteList);
+    //     !sites?.selectedSite && (await localStorage.storeData(LOCAL_STORAGE_VARIABLES.SiteDetails, siteList?.[0]));
+    //     setSites({
+    //         ...sites,
+    //         selectedSite: siteList?.[0] || null,
+    //         siteList,
+    //     });
+    // };
+       const handleSiteList = async (siteList, selectedSite) => {
         await localStorage.storeData(LOCAL_STORAGE_VARIABLES.SITES, siteList);
-        !sites?.selectedSite && (await localStorage.storeData(LOCAL_STORAGE_VARIABLES.SiteDetails, siteList?.[0]));
+        if (selectedSite) {
+            await localStorage.storeData(LOCAL_STORAGE_VARIABLES.SiteId, selectedSite);
+            await localStorage.storeData(LOCAL_STORAGE_VARIABLES.SiteDetails, selectedSite);
+        } else {
+            !sites?.selectedSite && (await localStorage.storeData(LOCAL_STORAGE_VARIABLES.SiteId, siteList?.[0]));
+            !sites?.selectedSite && (await localStorage.storeData(LOCAL_STORAGE_VARIABLES.SiteDetails, siteList?.[0]));
+        }
         setSites({
             ...sites,
-            selectedSite: siteList?.[0] || null,
+            selectedSite: selectedSite ? selectedSite : siteList?.[0],
             siteList,
         });
     };
@@ -261,7 +278,7 @@ const AppProvider = ({ children }) => {
         const SiteList = await localStorage.getData(LOCAL_STORAGE_VARIABLES.SITES);
         const Token = await localStorage.getData(LOCAL_STORAGE_VARIABLES.Token);
         const UserId = await localStorage.getData(LOCAL_STORAGE_VARIABLES.UserId);
-        // const SiteId = await localStorage.getData(LOCAL_STORAGE_VARIABLES.SiteId);
+        const SiteId = await localStorage.getData(LOCAL_STORAGE_VARIABLES.SiteId);
         const SiteDetails = await localStorage.getData(LOCAL_STORAGE_VARIABLES.SiteDetails);
         const UserFullName = await localStorage.getData(LOCAL_STORAGE_VARIABLES.UserFullName);
         const UserEmail = await localStorage.getData(LOCAL_STORAGE_VARIABLES.UserEmail);
@@ -274,8 +291,8 @@ const AppProvider = ({ children }) => {
                 ...profile,
                 Token,
                 UserId,
-                SiteDetails,
-                // SiteId,
+                // SiteDetails,
+                SiteId,
                 UserFullName,
                 UserEmail,
                 loading: false,
@@ -288,7 +305,8 @@ const AppProvider = ({ children }) => {
             deviceStatusSettings,
         });
         setTimeSettings(timeSettings);
-        handleSiteList(SiteList);
+        let getSites = SiteId ? SiteId : SiteList?.[0];
+        handleSiteList(SiteList,getSites);
         SiteDetails && handleSite(SiteDetails);
         // SiteId && handleSite(SiteId);
     };
