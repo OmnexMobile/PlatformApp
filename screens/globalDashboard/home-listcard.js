@@ -43,13 +43,14 @@ const HomeListCard = ({ item = {}, route }) => {
         }
     };
 
-    console.log('item in home list card', item);
+    console.log('item in home list card', data);
 
     return (
         <Content noPadding>
             <Header title={title} />
             {data?.length > 0 ? (
                 data?.map((item, index) =>
+                    (['AuditPro', 'Supplier Initial Assessment', 'Supplier Routine Audit'].includes(item.Module_name) || item.ConcernID) ?
                     <TouchableOpacity
                         activeOpacity={1}
                         onPress={() => handleClickCard?.(item)}
@@ -205,7 +206,7 @@ const HomeListCard = ({ item = {}, route }) => {
                                 ) : null}
                             </View>
                         </View>
-                    </TouchableOpacity>
+                    </TouchableOpacity> : null
                 )) : <NoRecordFound/>}
         </Content>
     );

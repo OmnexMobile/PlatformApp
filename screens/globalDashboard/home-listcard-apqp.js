@@ -34,7 +34,7 @@ const HomeListCardApqp = ({ item = {}, route }) => {
             navigation.navigate(ROUTES.PERIODIC_UPDATE_SCREEN, {
                 itemData: item,
                 RouteParam: "Project",
-                ProjectId: item.ProjectID,
+                ProjectId: item.ProjectId,
                 TaskID: item.TaskId,
                 //activeTab: this.state.activeTab,
             }) :
@@ -47,7 +47,7 @@ const HomeListCardApqp = ({ item = {}, route }) => {
             });
         handleRecentActivity?.(item);
     };
-    console.log('item in home list card', item);
+    console.log('item in home list card apqp', data);
 
     return (
         <Content noPadding>
@@ -94,8 +94,8 @@ const HomeListCardApqp = ({ item = {}, route }) => {
                                     <ImageComponent
                                         resizeMode="contain"
                                         // source={IMAGES.ps_logo_round}
-                                        source={IMAGES.apqpModuleIcon}
-                                        style={{ width: '80%', height: '80%' }}
+                                        source={IMAGES.apqp_logo}
+                                        // style={{ width: '80%', height: '80%' }}
                                     />
                                 </Ripple>
                             </>

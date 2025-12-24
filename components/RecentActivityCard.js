@@ -233,13 +233,14 @@ const RecentActivityCard = ({ item = {} }) => {
     // Normalize item to avoid accidentally rendering plain strings/numbers
     const safeItem = item && typeof item === 'object' ? item : {};
     const moduleName = safeItem?.Module_name || '';
-    const isSupplierModule = ['AuditPro', 'Supplier Initial Assessment', 'Supplier Routine Audit'].includes(moduleName);
+    const isSupplierModule = ['AuditPro', 'Supplier Initial Assessment', 'Supplier Routine Audit'].includes(moduleName) || item?.ActualAuditId != null;
 
     const { sites, handleRecentActivity, timeSettings } = useAppContext();
     const { theme } = useTheme();
     const elevation = getElevation();
     const navigation = useNavigation();
     console.log('item in list card logo RecentActivityCard------->>>', sites, item);
+    console.log('isSupplierModule------->>>', isSupplierModule);
 
     const handleClickCard = item => {
         if (isSupplierModule) {

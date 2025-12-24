@@ -30,12 +30,12 @@ export const HomeListRecentActivity = ({ title, data, loading, statusCode, hideS
           alignItems: 'center',
           paddingHorizontal: SPACING.SMALL,
         }}>
-        <TextComponent
+        {/* <TextComponent
           fontSize={FONT_SIZE.LARGE}
           style={{ padding: SPACING.SMALL }}
           type={FONT_TYPE.BOLD}>
           {title}
-        </TextComponent>
+        </TextComponent> */}
 
         {activityData.length > 0 && !hideSeeAll ? (
           <TouchableOpacity
@@ -71,9 +71,11 @@ export const HomeListRecentActivity = ({ title, data, loading, statusCode, hideS
               handleRecentActivity={handleRecentActivity}
             />
         ))
-      ) : (
-        <NoRecordFound />
-      )}
+      ) : null
+      // (
+      //   <NoRecordFound />
+      // )
+      }
     </View>
   );
 };

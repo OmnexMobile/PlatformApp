@@ -33,9 +33,9 @@ export const HomeListComponentApqp = ({ title, data, loading, statusCode, hideSe
     return (
         <View>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: SPACING.SMALL }}>
-               <TextComponent fontSize={FONT_SIZE.LARGE} style={{ padding: SPACING.SMALL }} type={FONT_TYPE.BOLD}>
+               {/* <TextComponent fontSize={FONT_SIZE.LARGE} style={{ padding: SPACING.SMALL }} type={FONT_TYPE.BOLD}>
                     {title}
-                </TextComponent>
+                </TextComponent> */}
                 {data?.length && !hideSeeAll ? (
                     <TouchableOpacity
                         onPress={() => {
@@ -75,9 +75,9 @@ export const HomeListComponentApqp = ({ title, data, loading, statusCode, hideSe
             ) : data?.length > 0 ? (
                 <>
                     {data.map((item, index) =>
-                        ['AuditPro', 'Supplier Initial Assessment', 'Supplier Routine Audit'].includes(item.Module_name) ? (
-                            <ListCardLogoSM key={index} item={item} handleRecentActivity={handleRecentActivity} />
-                        ) :
+                        // ['AuditPro', 'Supplier Initial Assessment', 'Supplier Routine Audit'].includes(item.Module_name) ? (
+                        //     <ListCardLogoSM key={index} item={item} handleRecentActivity={handleRecentActivity} />
+                        // ) :
                        
                         moduleLicenses?.hasApqpPpapLicense ? (
                             <ListCardLogoApqp key={index} item={item} handleRecentActivity={handleRecentActivity} statusCode={statusCode} />
@@ -87,9 +87,11 @@ export const HomeListComponentApqp = ({ title, data, loading, statusCode, hideSe
 
                     )}
                 </>
-            ) : (
-                <NoRecordFound />
-            )}
+            ) : null
+            // (
+            //     <NoRecordFound />
+            // )
+            }
         </View>
     );
 };

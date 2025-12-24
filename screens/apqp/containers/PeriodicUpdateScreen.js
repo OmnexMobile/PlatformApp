@@ -235,7 +235,7 @@ class PeriodicUpdateScreen extends Component {
   getData = async () => {
     try {
       var userdata = [];
-      const stringifiedUserDetails = await AsyncStorage.getItem('userDataApqp');
+      const stringifiedUserDetails = await AsyncStorage.getItem('userDetails');
       const value = JSON.parse(stringifiedUserDetails);
       console.log('current userdata--->', value)
       var userdata = {

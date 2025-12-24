@@ -19,7 +19,7 @@ const ListCardLogo = ({ item = {} }) => {
     const { theme } = useTheme();
     const elevation = getElevation();
     const navigation = useNavigation();
-    console.log('item ps-->', item);
+    console.log('item ps-->', item,'ConcernID', item?.ConcernID);
 
     const handleClickCard = item => {
         // navigation.navigate(ROUTES.CONCERN_SCREEN, { ConcernID: item?.ConcernID });
@@ -32,6 +32,7 @@ const ListCardLogo = ({ item = {} }) => {
     };
     return (
         <View style={{ paddingHorizontal: SPACING.NORMAL }}>
+            {item?.ConcernID ?
             <TouchableOpacity
                 activeOpacity={1}
                 onPress={() => handleClickCard?.(item)}
@@ -173,6 +174,7 @@ const ListCardLogo = ({ item = {} }) => {
                     </View>
                 </View>
             </TouchableOpacity>
+            : null}
         </View>
     );
 };

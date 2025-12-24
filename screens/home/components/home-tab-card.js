@@ -363,14 +363,14 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
   const hasApqpPpapLicense = React.useMemo(() => hasModuleLicense(10, "APQP PPAP Manager"),[hasModuleLicense]);
   const hasProblemSolverLicense = React.useMemo(() => hasModuleLicense(13, 'Problem Solver'), [hasModuleLicense]);
   const hasInspectionControlLicense = React.useMemo(() => hasModuleLicense(17, "Inspection Control"),[hasModuleLicense]);
-  const hasDoumentProLicense = React.useMemo(() => hasModuleLicense(4, "Document Pro"), [hasModuleLicense]);
+  const hasDocumentProLicense = React.useMemo(() => hasModuleLicense(4, "Document Pro"), [hasModuleLicense]);
 
   console.log("Supplier:", hasSupplierManagementLicense);
   console.log("Audit:", hasAuditProLicense);
   console.log("APQP:", hasApqpPpapLicense);
   console.log("ProblemSolver:", hasProblemSolverLicense);
   console.log("Inspection:", hasInspectionControlLicense);
-  console.log("Document:", hasDoumentProLicense);
+  console.log("Document:", hasDocumentProLicense);
 
   useEffect(() => {
     const storeLicenses = async () => {
@@ -380,7 +380,7 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
         hasApqpPpapLicense,
         hasProblemSolverLicense,
         hasInspectionControlLicense,
-        hasDoumentProLicense
+        hasDocumentProLicense
       };
       await AsyncStorage.setItem('moduleLicenses', JSON.stringify(licenses));
     };
@@ -391,7 +391,7 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
     hasApqpPpapLicense,
     hasProblemSolverLicense,
     hasInspectionControlLicense,
-    hasDoumentProLicense
+    hasDocumentProLicense
   ]);
 
 const dataSet = React.useMemo(() => {
@@ -451,7 +451,7 @@ const dataSet = React.useMemo(() => {
       if (hasProblemSolverLicense) licensedIds.push(3);
       if (hasInspectionControlLicense) licensedIds.push(5);
       if (hasSupplierManagementLicense) licensedIds.push(6);
-      if (hasDoumentProLicense) licensedIds.push(4);
+      if (hasDocumentProLicense) licensedIds.push(4);
       if (licensedIds.length === 0) return tabData;
       return tabData.filter(item => licensedIds.includes(item.id));
     }, [data, currentUser, icSettings?.SearchInspectionNeeded, hasSupplierManagementLicense, hasAuditProLicense, hasApqpPpapLicense]);

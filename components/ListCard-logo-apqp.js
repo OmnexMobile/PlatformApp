@@ -21,10 +21,10 @@ const ListCardLogoApqp = ({ item = {}, statusCode }) => {
     const { theme } = useTheme();
     const elevation = getElevation();
     const navigation = useNavigation();
-    console.log('item apqp', item?.Description);
+    console.log('item apqp', item?.Description || item?.TaskDescription);
 
     const handleClickCard = item => {
-        console.log('Clicked Item1:', item);
+        console.log('Clicked Item1:', item, statusCode,STATUS_CODES.TODAY_CONCERN);
         // statusCode === STATUS_CODES.TODAY_CONCERN ?
         // navigation.navigate(ROUTES.APQP_PPAP_MANAGER_SCREEN, {
         //     filterId: 2,
@@ -34,13 +34,21 @@ const ListCardLogoApqp = ({ item = {}, statusCode }) => {
         // navigation.navigate(ROUTES.TODAYS_TASK, {
         //     isFilterApplied: false,
         // }) 
+        statusCode === STATUS_CODES.TODAY_CONCERN ?
         navigation.navigate(ROUTES.PERIODIC_UPDATE_SCREEN, {
-                      itemData: item,
-                      RouteParam: "Project",
-                      ProjectId: item.ProjectID,
-                      TaskID: item.ActionId,
-                      //activeTab: this.state.activeTab,
-                    });
+            itemData: item,
+            RouteParam: "Project",
+            ProjectId: item.ProjectId,
+            TaskID: item.TaskId,
+            //activeTab: this.state.activeTab,
+        }) :
+        navigation.navigate(ROUTES.PERIODIC_UPDATE_SCREEN, {
+            itemData: item,
+            RouteParam: "Project",
+            ProjectId: item.ProjectID,
+            TaskID: item.ActionId,
+            //activeTab: this.state.activeTab,
+        });
         // console.log('TODAYS_TASK navigation is commented', statusCode)
         handleRecentActivity?.(item);
     };
@@ -90,7 +98,6 @@ const ListCardLogoApqp = ({ item = {}, statusCode }) => {
                     }}>
                     <ImageComponent
                         resizeMode="contain"
-                        // source={IMAGES.ps_logo_round}
                         source={IMAGES.apqp_logo}
                         // style={{ width: '80%', height: '80%' }}
                     />

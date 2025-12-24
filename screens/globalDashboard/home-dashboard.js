@@ -1,15 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useLayoutEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { TouchableOpacity, View } from 'react-native';
 import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
-import { Content, TextComponent, ExitModal, ChooseSite, FAB, Avatar } from 'components';
+import { Content, TextComponent, ExitModal, ChooseSite, FAB, Avatar, NoRecordFound } from 'components';
 import { APP_VARIABLES, FONT_TYPE, ROUTES, USER_TYPE, ICON_TYPE, STATUS_CODES, LOCAL_STORAGE_VARIABLES } from 'constants/app-constant';
 import { COLORS, FONT_SIZE, SPACING } from 'constants/theme-constants';
 import useTheme from 'theme/useTheme';
 import strings from 'config/localization';
 import IconComponent from 'components/icon-component';
 import { useAppContext } from 'contexts/app-context';
-import { formReq, getAvatarInitials, getICList, RFPercentage } from 'helpers/utils';
 import { useSelector, useDispatch } from 'react-redux';
 import ProjectCount from './ProjectCount';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -21,15 +20,17 @@ import NetInfo from '@react-native-community/netinfo';
 import supplierAuth from '../../services/SupplierMgnt-Auth';
 import { useIsFocused } from '@react-navigation/native';
 import APQPAuth from '../../services/APQP-Auth';
-import { APQP_URL, PROBLEMSOLVING_URL } from 'screens/globalConstant/globalURL';
 import { getDashboardConcernCounts, getTodayConcernList } from 'screens/home/home.action';
 import { HomeListComponentApqp } from './home-list-apqp';
 import { getInspectionDataByUserAndSite } from 'store/database/inspectStorage';
+import { useModuleLicenses } from 'hooks/useModuleLicenses';
+import { formReq, getAvatarInitials, getICList, RFPercentage, getICSettingsData } from 'helpers/utils';
+import { APQP_URL, AUDITPRO_URL, PROBLEMSOLVING_URL, ensureTrailingSlash } from 'screens/globalConstant/globalURL';
 
 const HomeDashboard = () => {
     const { theme } = useTheme();
     const navigation = useNavigation();
-    const { sites, recentActivities, handleGlobalURL } = useAppContext();
+    const { sites, recentActivities, handleGlobalURL, globalDeviceDetails } = useAppContext();
     console.log('recentActivities in home dashboard', recentActivities);
     const [currentName, setCurrentName] = useState('');
     const [moduleLicenses, setModuleLicenses] = useState(null);
@@ -48,6 +49,8 @@ const HomeDashboard = () => {
     const [todaysActivitySM, settodaysActivitySM] = useState([]);
     const [todaysActivity, settodaysActivity] = useState([]);
     const [recentActivity, setRecentActivity] = useState([]);
+    const [currentUserData, setCurrentUserData] = useState([]);
+    const [appLicenses, setAppLicenses] = useState([]);
 
     // const [recentActivitySM, setRecentActivitySM] = useState([]);
     // const [recentSM, setRecentSM] = useState([]);
@@ -72,6 +75,15 @@ const HomeDashboard = () => {
     );
     // const [, set] = useState("");aa1eeeeer
     const isFocused = useIsFocused();
+    const auditProUrl = ensureTrailingSlash(
+        globalDeviceDetails?.deviceDetails?.AuditProURL || AUDITPRO_URL,
+    );
+ 
+    useEffect(() => {
+        if (auditProUrl) {
+            supplierAuth.setServerUrl(auditProUrl);
+        }
+    }, [auditProUrl]);
 
     const data = useSelector(state => state?.projects?.recentActivity?.flat() ?? []);
     const recentActivityAPQP = data.length > 0 ? [...data].reverse() : [];
@@ -80,6 +92,54 @@ const HomeDashboard = () => {
 
     const recentActivityPS = recentActivities.filter(item => !item.ProjectDescription);
     console.log('222 Recent Activity:', recentActivityPS);
+
+    const rawModuleString = currentUserData?.data?.[0]?.ModuleLicense;
+    console.log("rawModuleString:", rawModuleString,'----', currentUserData, '----', currentUserData?.data?.[0]?.ModuleLicense);
+    const {
+			isReady,
+			hasSupplierManagementLicense,
+			hasAuditProLicense,
+			hasApqpPpapLicense,
+			hasProblemSolverLicense,
+			hasInspectionControlLicense,
+			hasDocumentProLicense
+		} = useModuleLicenses(rawModuleString);
+
+    console.log("Supplier:", hasSupplierManagementLicense);
+    console.log("Audit:", hasAuditProLicense);
+    console.log("APQP:", hasApqpPpapLicense);
+    console.log("ProblemSolver:", hasProblemSolverLicense);
+    console.log("Inspection:", hasInspectionControlLicense);
+    console.log("Document:", hasDocumentProLicense);
+
+		useEffect(() => {
+			if (!isReady) return; // 🚨 KEY FIX
+			const storeLicenses = async () => {
+				const licenses = {
+					hasSupplierManagementLicense,
+					hasAuditProLicense,
+					hasApqpPpapLicense,
+					hasProblemSolverLicense,
+					hasInspectionControlLicense,
+					hasDocumentProLicense
+				};
+				await AsyncStorage.setItem("moduleLicenses", JSON.stringify(licenses));
+				setAppLicenses(licenses);
+				console.log("Stored module licenses:", licenses);
+			};
+			storeLicenses();
+		}, [
+				isReady,
+				hasSupplierManagementLicense,
+				hasAuditProLicense,
+				hasApqpPpapLicense,
+				hasProblemSolverLicense,
+				hasInspectionControlLicense,
+				hasDocumentProLicense
+		]);
+
+		console.log('appLicenses in home dashboard', appLicenses);
+
 
     useEffect(() => {
         const fetchUserDetails = async () => {
@@ -90,8 +150,13 @@ const HomeDashboard = () => {
                 if (userDetails) {
                     setuserDetailsAudit(userDetails);
                     setaccessToken(userDetails.accessToken);
+                    if(sites?.selectedSite){
+                        setsiteId(sites?.selectedSite?.Siteid);
+                    } else {
                     setsiteId(userDetails.siteId);
+                    }
                     setuserId(userDetails.userId);
+                    setCurrentUserData(userDetails);
                 }
             } catch (err) {
                 console.log("Error fetching user details", err);
@@ -110,7 +175,7 @@ const HomeDashboard = () => {
             console.log('Now calling getAuditlist after states are set ✅');
             console.log('inside isFocused----->');
             getAuditlist('', '');
-            // getApqpList();
+            getApqpList();
         }
     }, [accessToken, siteId, userId, isFocused]);
 
@@ -118,8 +183,9 @@ const HomeDashboard = () => {
         console.log('isFocused----->1', isFocused);
         if (accessToken && siteId && userId) {
             console.log('inside isFocused----->1');
+            getAuditlist('', '');
             getApqpList();
-            getICList(userId,siteId);
+            // getICList(userId,siteId);
         }
     }, [isFocused]);
 
@@ -131,6 +197,20 @@ const HomeDashboard = () => {
         }
         fetchData();
     }, [currentName]);
+
+    useLayoutEffect(() => {
+        const fetchICList = async () => {
+            if (accessToken && siteId && userId && isFocused) {
+                await getICList(userId, siteId);
+                const settings = await getICSettingsData(userId, siteId);
+                dispatch({
+                    type: 'IC_SETTINGS',
+                    icSettings: settings || {},
+                });
+            }
+        };
+        fetchICList();
+    }, [accessToken, siteId, userId, isFocused]);
 
     useEffect(() => {
         console.log('todaysActivitySM---->', todaysActivitySM);
@@ -146,17 +226,17 @@ const HomeDashboard = () => {
 
         // Normalize each input to an array
         const rSM = Array.isArray(recentActivitySM) ? recentActivitySM : recentActivitySM ? [recentActivitySM] : [];
-        // const rAPQP = Array.isArray(recentActivityAPQP) ? recentActivityAPQP : recentActivityAPQP ? [recentActivityAPQP] : [];
+        const rAPQP = Array.isArray(recentActivityAPQP) ? recentActivityAPQP : recentActivityAPQP ? [recentActivityAPQP] : [];
         const rPS = Array.isArray(recentActivityPS) ? recentActivityPS : recentActivityPS ? [recentActivityPS] : [];
 
         console.log('Final recent activity rSM:', rSM);
         // console.log('Final recent activity rAPQP:', rAPQP);
         console.log('Final recent activity rPS:', rPS);
 
-        // if (rSM.length > 0 || rAPQP.length > 0 || rPS.length > 0) {
-        if (rSM.length > 0  || rPS.length > 0) {
-            // const mergedRecentActivity = [...rSM, ...rAPQP, ...rPS];
-            const mergedRecentActivity = [...rSM, ...rPS];
+        if (rSM.length > 0 || rAPQP.length > 0 || rPS.length > 0) {
+        // if (rSM.length > 0  || rPS.length > 0) {
+            const mergedRecentActivity = [...rSM, ...rAPQP, ...rPS];
+            // const mergedRecentActivity = [...rSM, ...rPS];
             setRecentActivity(mergedRecentActivity);
             console.log('Final merged recent activity:', mergedRecentActivity);
         }
@@ -164,17 +244,27 @@ const HomeDashboard = () => {
     }, [todaysActivitySM, todaysActivityAPQP, todaysActivityPS]);
     console.log('Final array of today and Recent activity------->', todaysActivity, '------',recentActivity);
 
-    useEffect(() => {
-      const loadLicenses = async () => {
-        const stored = await AsyncStorage.getItem('moduleLicenses');
-        console.log('stored licenses', stored);
-        if (stored) {
-          setModuleLicenses(JSON.parse(stored));
-        }
-      };
-      loadLicenses();
-    }, []);
-    console.log('moduleLicenses hasApqpPpapLicense', moduleLicenses?.hasSupplierManagementLicense,moduleLicenses?.hasApqpPpapLicense, moduleLicenses?.hasProblemSolverLicense)
+    const hasAPQPToday = Array.isArray(todaysActivity) && todaysActivity.some( item => item?.ProjectId != null || item?.TaskId != null);
+    console.log("final hasAPQPToday------->", hasAPQPToday);
+
+    const hasPSToday = Array.isArray(todaysActivity) && todaysActivity.some( item => item?.ConcernID != null || item?.ConcernNo != null);
+    console.log("final hasPSToday------->", hasPSToday);
+    
+    console.log('HomeListRecentActivity SM------->', recentActivitySM, recentActivityPS, recentActivityAPQP);
+    console.log('final PS todaysActivityPS------->', todaysActivityPS);
+
+    
+    // useEffect(() => {
+    //   const loadLicenses = async () => {
+    //     const stored = await AsyncStorage.getItem('moduleLicenses');
+    //     console.log('stored licenses', stored);
+    //     if (stored) {
+    //       setModuleLicenses(JSON.parse(stored));
+    //     }
+    //   };
+    //   loadLicenses();
+    // }, []);
+    // console.log('moduleLicenses hasApqpPpapLicense', moduleLicenses?.hasApqpPpapLicense)
 
     // const updateRecentList = (SM) => {
     //     console.log('updateRecentList called', SM);
@@ -191,21 +281,40 @@ const HomeDashboard = () => {
     //     setRecentActivitySM(updatedList);
     // }
 
-    const getAuditlist = (startDate, endDate) => {
+    const getAuditlist = () => {
         NetInfo.fetch().then(netState => {
             if (netState.isConnected) {
                 const pageNo = 1;
-                const filterId = '';
+                const filterStr = '';
                 const pageSize = 10;
                 const GlobalFilter = '';
-                const StartDate = startDate == undefined ? '' : startDate;
-                const EndDate = endDate == undefined ? '' : endDate;
+                const StartDate = '';
+                const EndDate = '';
                 const SortBy = '';
                 const SortOrder = '';
                 const Default = 1;
-
+ 
                 console.log('checkaccesstokennnnn', accessToken, userId, siteId);
-
+ 
+                const formatDateYmd = date => {
+                    const year = date.getFullYear();
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const day = String(date.getDate()).padStart(2, '0');
+                    return `${year}-${month}-${day}`;
+                };
+ 
+                const getStartDateKey = value => {
+                    if (!value) return '';
+                    if (value instanceof Date) {
+                        return formatDateYmd(value);
+                    }
+                    const parsedDate = new Date(value);
+                    if (!Number.isNaN(parsedDate.getTime())) {
+                        return formatDateYmd(parsedDate);
+                    }
+                    return String(value).split('T')[0];
+                };
+ 
                 // 🔹 helper function to fetch audits by SM
                 const fetchAuditData = SM =>
                     new Promise(resolve => {
@@ -215,7 +324,7 @@ const HomeDashboard = () => {
                             siteId,
                             pageNo,
                             pageSize,
-                            filterId,
+                            filterStr,
                             GlobalFilter,
                             StartDate,
                             EndDate,
@@ -224,14 +333,15 @@ const HomeDashboard = () => {
                             SM,
                             Default,
                             (response, data) => {
+                                console.log('chekdatascuccess------->',data);
                                 if (data?.data?.Message === 'Success' && data?.data?.Data) {
-
+ 
                                     // Add S_name based on SM value
                                     const updatedData = data.data.Data.map(item => ({
                                         ...item,
                                         Module_name: SM === 1 ? 'AuditPro' : SM == 2 ? 'Supplier Initial Assessment' : 'Supplier Routine Audit',
                                     }));
-
+ 
                                     resolve(updatedData);
                                 } else {
                                     resolve([]); // No data
@@ -240,30 +350,28 @@ const HomeDashboard = () => {
                             },
                         );
                     });
-
+ 
                 // 🔹 Fetch both SM=2 and SM=3 data in parallel
                 Promise.all([fetchAuditData(1), fetchAuditData(2), fetchAuditData(3)])
                     .then(([sm1Data, sm2Data, sm3Data]) => {
                         // Merge results
                         const combinedData = [...sm1Data, ...sm2Data, ...sm3Data];
-
+ 
                         // 🔹 Date & status filter
-                        const today = new Date();
-                        const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0, 23, 59, 59);
-
+                        const todayKey = formatDateYmd(new Date());
+                        console.log('checksites----->',sites?.selectedSite);
+ 
                         const filteredAuditList = combinedData
                             .filter(audit => {
-                                const startDate = new Date(audit.StartDate);
-                                const endDate = new Date(audit.EndDate);
-                                const isInDateRange = endDate >= today && startDate <= endOfMonth;
                                 const isValidStatus = audit.AuditStatus === 2 || audit.AuditStatus === 4;
-                                return isInDateRange && isValidStatus;
+                                const isToday = getStartDateKey(audit?.StartDate) === todayKey;
+                                return isToday && isValidStatus;
                             })
                             .map(audit => ({
                                 ...audit,
-                                SiteName: sites.selectedSite.SiteName, // 👈 Add SiteName here
+                                SiteName: sites?.selectedSite?.SiteName, // 👈 Add SiteName here
                             }));
-
+ 
                         console.log('✅ Final Filtered AuditList:', filteredAuditList);
                         settodaysActivitySM(filteredAuditList);
                     })
@@ -275,11 +383,12 @@ const HomeDashboard = () => {
             }
         });
     };
+ 
 
     const getApqpList = async () => {
         const UserFullName = await localStorage.getData(LOCAL_STORAGE_VARIABLES.UserFullName);
         console.log('UserFullName------------', UserFullName);
-        // if(moduleLicenses?.hasApqpPpapLicense) {
+        // if(hasApqpPpapLicense) {
             getData()
                 .then(res => {
                     console.log('async  getdata apqp', res);
@@ -424,6 +533,60 @@ const HomeDashboard = () => {
         navigation.navigate(ROUTES.GLOBAL_SETTINGS);
     };
 
+    const getUniqueKey = (item) =>
+    item?.ConcernID ??
+    item?.ProjectID ??
+    item?.ActionId ??
+    item?.ActualAuditId;
+
+    const getItemDate = (item) =>
+    new Date(item?.lastOpened || item?.UpdatedDate || item?.CreatedDate || 0);
+
+    const recentLatestList = React.useMemo(() => {
+        if (!Array.isArray(recentActivity)) return [];
+
+        const uniqueMap = new Map();
+
+        recentActivity.forEach(item => {
+            const key = getUniqueKey(item);
+            if (key == null) return;
+
+            const existing = uniqueMap.get(key);
+
+            // ✅ keep the latest item for the same key
+            if (!existing || getItemDate(item) > getItemDate(existing)) {
+            uniqueMap.set(key, item);
+            }
+        });
+
+        return Array.from(uniqueMap.values())
+            .sort((a, b) => getItemDate(b) - getItemDate(a)) // latest first
+            .slice(0, 3);
+    }, [recentActivity]);
+
+    console.log('recentLatestList', recentLatestList);
+
+
+    const recentAPQP = recentLatestList.filter(
+        item =>
+            item?.ProjectID != null ||
+            item?.ActionId != null
+    );
+
+    const recentPS = recentLatestList.filter(
+    item =>
+        item?.ConcernID != null ||
+        item?.ConcernNo != null
+    );
+
+    const recentSM = recentLatestList.filter(
+    item =>
+        ['AuditPro', 'Supplier Initial Assessment', 'Supplier Routine Audit']
+        .includes(item?.Module_name) || item?.ActualAuditId != null
+    );
+    console.log('recentSM', recentSM);
+
+
     return (
         <Content noPadding>
             <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}>
@@ -460,10 +623,19 @@ const HomeDashboard = () => {
                         // loading: todayList?.loading,
                         loading: false,
                         currentName: currentName,
+						moduleLicenses: appLicenses,
+                        hasAPQPToday: hasAPQPToday,
+                        hasPSToday: hasPSToday,
                     }}
                 />
                 {/* Recent Activity */}             
-                {moduleLicenses?.hasApqpPpapLicense ?
+                {/* {hasApqpPpapLicense ? */}
+                <>
+                <View style={{  }}>
+                    <TextComponent fontSize={FONT_SIZE.LARGE} style={{ padding: SPACING.NORMAL }} type={FONT_TYPE.BOLD}>
+                        {`Recently Viewed`}
+                    </TextComponent>
+                   {/* {recentActivity?.length > 0 && (
                     <HomeListComponentApqp
                         {...{
                             statusCode: STATUS_CODES.PENDING_CONCERN,
@@ -473,22 +645,70 @@ const HomeDashboard = () => {
                             hideSeeAll: true,
                             currentName: currentName,
                         }}
-                    />
-                :
-                    <HomeListRecentActivity
+                    />)}
+                    {recentActivity?.length > 0 && (
+                   <HomeListRecentActivity
                         {...{
                             statusCode: STATUS_CODES.PENDING_CONCERN,
-                            // title: APP_VARIABLES.PENDING_CONCERN,
                             title: 'Recently Viewed',
-                            // data: recentActivities,
-                            // data: currentName == 'Dhanapal Swetha   ' ? recentActivities : null,
-                            data: recentActivity,
+                            data: recentActivityPS,
                             loading: false,
                             hideSeeAll: true,
                             currentName: currentName,
                         }}
+                    />)}
+                    {console.log('recentActivitySM?.length', recentActivitySM?.length)}
+                    {(Array.isArray(recentActivity)
+                        ? recentActivity.length > 0
+                        : Object.keys(recentActivity || {}).length > 0
+                    ) && (
+                    <HomeListRecentActivity
+                        {...{
+                            statusCode: STATUS_CODES.PENDING_CONCERN,
+                            title: 'Recently Viewed',
+                            data: recentActivitySM,
+                            loading: false,
+                            hideSeeAll: true,
+                            currentName: currentName,
+                        }}
+                    />)} */}
+
+                    {recentAPQP.length > 0 && (
+                    <HomeListComponentApqp
+                        statusCode={STATUS_CODES.PENDING_CONCERN}
+                        title="Recently Viewed"
+                        data={recentAPQP}
+                        loading={false}
+                        hideSeeAll
+                        currentName={currentName}
                     />
-                }
+                    )}
+
+                    {recentPS.length > 0 && (
+                    <HomeListRecentActivity
+                        statusCode={STATUS_CODES.PENDING_CONCERN}
+                        title="Recently Viewed"
+                        data={recentPS}
+                        loading={false}
+                        hideSeeAll
+                        currentName={currentName}
+                    />
+                    )}
+
+                    {recentSM.length > 0 && (
+                    <HomeListRecentActivity
+                        statusCode={STATUS_CODES.PENDING_CONCERN}
+                        title="Recently Viewed"
+                        data={recentSM}
+                        loading={false}
+                        hideSeeAll
+                        currentName={currentName}
+                    />
+                    )}
+                   {recentActivity?.length === 0 && ( <NoRecordFound />)}
+                    </View>
+                </>
+                {/* // } */}
             </ScrollView>
             <FAB iconName="tasks" iconType={ICON_TYPE.FontAwesome5} onPress={() => navigation.navigate(ROUTES.HOME_FAB_VIEW)} />
         </Content>
