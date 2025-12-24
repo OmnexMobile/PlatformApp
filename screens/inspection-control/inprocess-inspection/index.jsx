@@ -564,6 +564,9 @@ const InprocessInspection = ({ route }) => {
                     tempSele = tempData[0];
                     tempCurrentIndex = { index: 0, type: 'char' };
                 }
+                if (userFormType == 'SupervisorSchedule') {
+                    await handleSavePress(false);
+                }
                 setFormType(tempSele?.type);
                 setSelectedData(tempSele);
                 setCurrentIndex(tempCurrentIndex);
