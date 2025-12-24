@@ -29,6 +29,7 @@ import { addInspectionData, getInspectionDataByUserAndSite } from 'store/databas
 import ICCheckBox from '../Components/ICCheckBox';
 import SingleDropDown from '../Components/SingleDropDown';
 import DynamicFormField from '../Components/DynamicFormField';
+import { getICList } from 'helpers/utils';
 
 const filterList = [
     {
@@ -464,6 +465,7 @@ const SearchInspection = () => {
 
                 await addInspectionData(selectedSite?.UserId, selectedSite?.Siteid, inspectObj.uniqueId, inspectObj);
                 handleListFetch(false, false);
+                await getICList(icUserData?.userData?.UserId, icUserData?.userData?.Siteid,false);
                 showMessage({
                     message: 'Form Downloaded Successfully',
                     backgroundColor: COLORS.SUCCESS,

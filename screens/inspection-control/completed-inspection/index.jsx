@@ -23,7 +23,7 @@ import { Bubbles } from 'react-native-loader';
 import { showMessage } from 'react-native-flash-message';
 import { deleteInspectionByUniqueId, deleteInspectionsByUniqueIds, getInspectionDataByUserAndSite } from 'store/database/inspectStorage';
 import { isArray } from 'underscore';
-import { showErrorMessage } from 'helpers/utils';
+import { getICList, showErrorMessage } from 'helpers/utils';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const optionsList = [
@@ -97,6 +97,7 @@ const CompletedInspection = () => {
                 .sort((a, b) => new Date(b.downloadedDate) - new Date(a.downloadedDate));
         }
         setMasterData([...filtered, ...superVisorData]);
+        await getICList(icUserData?.userData?.UserId, icUserData?.userData?.Siteid,false);
         setShowSkeleton(false);
         setRefreshing(false);
     };

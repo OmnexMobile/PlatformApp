@@ -26,6 +26,7 @@ import { deleteAllInspectionData, getInspectionDataByUserAndSite } from 'store/d
 import { Modal } from 'react-native-paper';
 import { Bubbles } from 'react-native-loader';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { getICList } from 'helpers/utils';
 
 const filterList = [
     {
@@ -366,6 +367,7 @@ const InspectionSchedule = () => {
             };
         });
         setMasterData(updatedArray);
+        await getICList(icUserData?.userData?.UserId, icUserData?.userData?.Siteid);
         setShowBubble(false);
     };
     return (

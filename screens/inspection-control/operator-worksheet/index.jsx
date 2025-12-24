@@ -7,7 +7,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { PLACEHOLDERS, ROUTES } from 'constants/app-constant';
 import { Divider, Modal } from 'react-native-paper';
-import { RFPercentage, showErrorMessage } from 'helpers/utils';
+import { getICList, RFPercentage, showErrorMessage } from 'helpers/utils';
 import DeleteModal from '../Components/DeleteModal';
 import NoDataFound from '../Components/NoDataFound';
 import { useDispatch, useSelector } from 'react-redux';
@@ -44,6 +44,7 @@ const OperatorWorksheet = () => {
                 .sort((a, b) => new Date(b.downloadedDate) - new Date(a.downloadedDate));
         }
         setInspectionList([...filtered, ...superVisorData]);
+        await getICList(icUserData?.userData?.UserId, icUserData?.userData?.Siteid,false);
         setShowSkeleton(false);
     };
     const handleCIbtnpress = () => {

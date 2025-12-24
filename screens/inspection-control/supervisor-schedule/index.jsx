@@ -12,7 +12,7 @@ import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { PLACEHOLDERS, ROUTES } from 'constants/app-constant';
 import ICFileIcon from '../../../assets/images/svg/icFile.svg';
 import RadioButtonComponent from '../Components/RadioButtonComponent';
-import { RFPercentage } from 'helpers/utils';
+import { getICList, RFPercentage } from 'helpers/utils';
 import PartDetails from '../Components/supervisor-schedule/PartDetails';
 import FileViewModal from '../Components/supervisor-schedule/FileViewModal';
 import IcSkeleton from '../Components/IcSkeleton';
@@ -539,6 +539,7 @@ const SupervisorSchedule = () => {
 
                 await addInspectionData(selectedSite?.UserId, selectedSite?.Siteid, inspectObj.uniqueId, inspectObj);
                 handleGetAllData(false, false);
+                await getICList(icUserData?.userData?.UserId, icUserData?.userData?.Siteid);
                 showMessage({
                     message: 'Form Downloaded Successfully',
                     backgroundColor: COLORS.SUCCESS,
