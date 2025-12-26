@@ -11,12 +11,12 @@ import ListCardLogoSM from 'components/ListCard-logoSM';
 import ListCardLogoApqp from 'components/ListCard-logo-apqp';
 import AsyncStorage from '@react-native-community/async-storage';
 
-export const HomeListComponent = ({ title, data, loading, statusCode, hideSeeAll, currentName, moduleLicenses, hasAPQPToday, hasPSToday }) => {
+export const HomeListComponent = ({ title, data, loading, statusCode, hideSeeAll, currentName, moduleLicenses, hasAPQPToday, hasPSToday, hasSMToday }) => {
     const { theme } = useTheme();
     const { handleRecentActivity } = useAppContext();
     const navigation = useNavigation();
     // const [moduleLicenses, setModuleLicenses] = useState(null);
-    console.log('checkdTodayList------------>>>>>>', data, 'hasAPQPToday:', hasAPQPToday, 'hasPSToday:', hasPSToday);
+    console.log('checkdTodayList------------>>>>>>', data, 'hasAPQPToday:', hasAPQPToday, 'hasPSToday:', hasPSToday, 'hasSMToday:', hasSMToday);
 
     // useEffect(() => {
     //   const loadLicenses = async () => {
@@ -31,6 +31,15 @@ export const HomeListComponent = ({ title, data, loading, statusCode, hideSeeAll
 
     console.log('moduleLicenses in home list', moduleLicenses, 'hasApqpPpapLicense:', moduleLicenses?.hasApqpPpapLicense, (moduleLicenses?.hasProblemSolverLicense || moduleLicenses?.hasAuditProLicense
                                 || moduleLicenses?.hasSupplierManagementLicense) && !hasAPQPToday);
+    
+    const showSM = moduleLicenses?.hasSupplierManagementLicense && hasSMToday;
+        // console.log('showSM1 check------->>>', showSM, item.Module_name);
+    const showAPQP = moduleLicenses?.hasApqpPpapLicense && hasAPQPToday;
+        // console.log('showAPQP1 check------->>>', showAPQP);
+    const showPS =  moduleLicenses?.hasProblemSolverLicense && hasPSToday;
+        // console.log('showPS1 check------->>>', showPS, moduleLicenses?.hasProblemSolverLicense, hasPSToday);
+    const hasTodayActivity = showAPQP || showPS || showSM;
+    console.log('final hasTodayActivity', hasTodayActivity);
 
     return (
         <View>
@@ -38,7 +47,7 @@ export const HomeListComponent = ({ title, data, loading, statusCode, hideSeeAll
                 <TextComponent fontSize={FONT_SIZE.LARGE} style={{ padding: SPACING.SMALL }} type={FONT_TYPE.BOLD}>
                     {title}
                 </TextComponent>
-                {data?.length && !hideSeeAll ? (
+                {data?.length >=2 && hasTodayActivity ? (
                     <TouchableOpacity
                         onPress={() => {
                             const showSM = data.some(item =>
@@ -83,34 +92,14 @@ export const HomeListComponent = ({ title, data, loading, statusCode, hideSeeAll
             </View>
             {loading ? (
                 <PlaceHolders type={PLACEHOLDERS.TODAY_CARD} />
-            ) : data?.length > 0 ? (
+            ) : data?.length > 0 && hasTodayActivity ? (
                 <>
-                    {/* {data.map((item, index) =>
-                        ['AuditPro', 'Supplier Initial Assessment', 'Supplier Routine Audit'].includes(item.Module_name) ? (
-                            <ListCardLogoSM key={index} item={item} handleRecentActivity={handleRecentActivity} />
-                        ) :
-                        (moduleLicenses?.hasApqpPpapLicense && hasAPQPToday) ? (
-                            <ListCardLogoApqp key={index} item={item} handleRecentActivity={handleRecentActivity} statusCode={statusCode} />
-                        ) : !moduleLicenses?.hasApqpPpapLicense ? (
-                            <ListCardLogo key={index} item={item} handleRecentActivity={handleRecentActivity} statusCode={statusCode} />
-                        ) : null
-
-                    )} */}
-                    {data.map((item, index) => {
-                    const showSM = ['AuditPro', 'Supplier Initial Assessment', 'Supplier Routine Audit']
-                        .includes(item.Module_name);
-                        // console.log('showSM1 check------->>>', showSM, item.Module_name);
-
-                    const showAPQP = moduleLicenses?.hasApqpPpapLicense && hasAPQPToday;
-                        // console.log('showAPQP1 check------->>>', showAPQP);
-
-                    const showPS =  moduleLicenses?.hasProblemSolverLicense && hasPSToday;
-                        // console.log('showPS1 check------->>>', showPS, moduleLicenses?.hasProblemSolverLicense, hasPSToday);
+                    {data?.slice(0, 3).map((item, index) => { 
 
                     return (
                         <React.Fragment key={index}>
                         {/* 1️⃣ Supplier Management */}
-                        {(showSM && moduleLicenses?.hasSupplierManagementLicense) && (
+                        {(showSM) && (
                             <ListCardLogoSM
                             item={item}
                             handleRecentActivity={handleRecentActivity}

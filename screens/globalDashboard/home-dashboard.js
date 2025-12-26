@@ -267,6 +267,10 @@ const HomeDashboard = () => {
 
     const hasPSToday = Array.isArray(todaysActivity) && todaysActivity.some( item => item?.ConcernID != null || item?.ConcernNo != null);
     console.log("final hasPSToday------->", hasPSToday);
+
+    const SUPPLIER_MODULES = ['AuditPro', 'Supplier Initial Assessment', 'Supplier Routine Audit',];
+    const hasSMToday = Array.isArray(todaysActivity) && todaysActivity.some(item => SUPPLIER_MODULES.includes(item?.Module_name) || item?.ActualAuditId != null);
+    console.log('final hasSMToday------->', hasSMToday);
     
     console.log('HomeListRecentActivity SM------->', recentActivitySM, recentActivityPS, recentActivityAPQP);
     console.log('final PS todaysActivityPS------->', todaysActivityPS);
@@ -552,13 +556,23 @@ const HomeDashboard = () => {
     };
 
     const getUniqueKey = (item) =>
-    item?.ConcernID ??
-    item?.ProjectID ??
-    item?.ActionId ??
-    item?.ActualAuditId;
+      item?.ConcernID ??
+      item?.ProjectID ??
+      item?.ActionId ??
+      item?.ActualAuditId ??
+      item?.AuditNumber ??
+      item?.AuditTemplateId;
 
-    const getItemDate = (item) =>
-    new Date(item?.lastOpened || item?.UpdatedDate || item?.CreatedDate || 0);
+    const getItemDate = (item) => {
+      const date =
+        item?.lastOpened ||
+        item?.UpdatedDate ||
+        item?.CreatedDate ||
+        item?.StartDate ||
+        item?.EndDate;
+
+      return date ? new Date(date).getTime() : -Infinity;
+    };
 
     const recentLatestList = React.useMemo(() => {
         if (!Array.isArray(recentActivity)) return [];
@@ -580,6 +594,7 @@ const HomeDashboard = () => {
         return Array.from(uniqueMap.values())
             .sort((a, b) => getItemDate(b) - getItemDate(a)) // latest first
             .slice(0, 3);
+            // .slice(-3).reverse(); // keep only top 3, reverse to show oldest first
     }, [recentActivity]);
 
     console.log('final recentLatestList', recentLatestList);
@@ -610,6 +625,14 @@ const HomeDashboard = () => {
 
     const hasRecentActivity = showAPQP || showPS || showSM;
     console.log('final hasRecentActivity', hasRecentActivity);
+
+    // const orderedRecentList = [
+    //   ...(showPS ? recentPS.map(item => ({ ...item, type: 'PS' })) : []),
+    //   ...(showAPQP ? recentAPQP.map(item => ({ ...item, type: 'APQP' })) : []),
+    //   ...(showSM ? recentSM.map(item => ({ ...item, type: 'SM' })) : [])
+    // ];
+    // console.log('final orderedRecentList', orderedRecentList);
+
     return (
         <Content noPadding>
             <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}>
@@ -649,6 +672,7 @@ const HomeDashboard = () => {
 						moduleLicenses: appLicenses,
                         hasAPQPToday: hasAPQPToday,
                         hasPSToday: hasPSToday,
+                        hasSMToday: hasSMToday,
                     }}
                 />
                 {/* Recent Activity */} 
@@ -657,6 +681,52 @@ const HomeDashboard = () => {
                     <TextComponent fontSize={FONT_SIZE.LARGE} style={{ padding: SPACING.NORMAL }} type={FONT_TYPE.BOLD}>
                         {`Recently Viewed`}
                     </TextComponent>
+
+                    {/* {orderedRecentList.map(item => {
+                        if (item.type === 'PS') {
+                            return (
+                                <HomeListRecentActivity
+                                    key={getUniqueKey(item)}
+                                    statusCode={STATUS_CODES.PENDING_CONCERN}
+                                    title="Recently Viewed"
+                                    data={[item]}
+                                    loading={false}
+                                    hideSeeAll
+                                    currentName={currentName}
+                                />
+                            );
+                        }
+
+                        if (item.type === 'APQP') {
+                            return (
+                                <HomeListComponentApqp
+                                    key={getUniqueKey(item)}
+                                    statusCode={STATUS_CODES.PENDING_CONCERN}
+                                    title="Recently Viewed"
+                                    data={[item]}
+                                    loading={false}
+                                    hideSeeAll
+                                    currentName={currentName}
+                                />
+                            );
+                        }
+
+                        if (item.type === 'SM') {
+                            return (
+                                <HomeListRecentActivitySM
+                                    key={getUniqueKey(item)}
+                                    statusCode={STATUS_CODES.PENDING_CONCERN}
+                                    title="Recently Viewed"
+                                    data={[item]}
+                                    loading={false}
+                                    hideSeeAll
+                                    currentName={currentName}
+                                />
+                            );
+                        }
+                        return null;
+                    })} */}
+
 
                     {showAPQP && (
                     <HomeListComponentApqp
