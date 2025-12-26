@@ -33,7 +33,6 @@ const HomeDashboard = () => {
     const { sites, recentActivities, handleGlobalURL, globalDeviceDetails } = useAppContext();
     console.log('recentActivities in home dashboard', recentActivities);
     const [currentName, setCurrentName] = useState('');
-    const [moduleLicenses, setModuleLicenses] = useState(null);
     //Apqp
     const [todaysActivityAPQP, setTodaysActivityAPQP] = useState([]); //APQP
     const [todayLoading, setTodayLoading] = useState(true); //APQP
@@ -93,8 +92,24 @@ const HomeDashboard = () => {
     const recentActivityPS = recentActivities.filter(item => !item.ProjectDescription);
     console.log('222 Recent Activity:', recentActivityPS);
 
-    const rawModuleString = currentUserData?.data?.[0]?.ModuleLicense;
-    console.log("rawModuleString:", rawModuleString,'----', currentUserData, '----', currentUserData?.data?.[0]?.ModuleLicense);
+    const selectedSiteId = String(sites?.selectedSite?.Siteid);
+    console.log('selectedSiteId:', selectedSiteId);
+
+    const siteRecord = currentUserData?.data?.find(item => {
+        console.log(
+            'Comparing Site IDs:',
+            String(item.Siteid),'---',
+            String(selectedSiteId)
+        );
+
+        return String(item.Siteid) === String(selectedSiteId);
+    });
+
+
+    const rawModuleString = siteRecord?.ModuleLicense || '';
+    console.log("rawModuleString:", rawModuleString,);
+    console.log('currentUserData----', currentUserData,);
+    console.log('siteRecord----', siteRecord,'===',siteRecord?.ModuleLicense);
     const {
 			isReady,
 			hasSupplierManagementLicense,
@@ -112,33 +127,35 @@ const HomeDashboard = () => {
     console.log("Inspection:", hasInspectionControlLicense);
     console.log("Document:", hasDocumentProLicense);
 
-		useEffect(() => {
-			if (!isReady) return; // 🚨 KEY FIX
-			const storeLicenses = async () => {
-				const licenses = {
-					hasSupplierManagementLicense,
-					hasAuditProLicense,
-					hasApqpPpapLicense,
-					hasProblemSolverLicense,
-					hasInspectionControlLicense,
-					hasDocumentProLicense
-				};
-				await AsyncStorage.setItem("moduleLicenses", JSON.stringify(licenses));
-				setAppLicenses(licenses);
-				console.log("Stored module licenses:", licenses);
-			};
-			storeLicenses();
-		}, [
-				isReady,
-				hasSupplierManagementLicense,
-				hasAuditProLicense,
-				hasApqpPpapLicense,
-				hasProblemSolverLicense,
-				hasInspectionControlLicense,
-				hasDocumentProLicense
-		]);
+    useEffect(() => {
+        if (!isReady || !sites?.selectedSite?.Siteid) return; // 🚨 KEY FIX
+        const storeLicenses = async () => {
+            const licenses = {
+                hasSupplierManagementLicense,
+                hasAuditProLicense,
+                hasApqpPpapLicense,
+                hasProblemSolverLicense,
+                hasInspectionControlLicense,
+                hasDocumentProLicense
+            };
+            await AsyncStorage.setItem("moduleLicenses", JSON.stringify(licenses));
+            setAppLicenses(licenses);
+            console.log("Stored module licenses:", licenses);
+        };
+        storeLicenses();
+    }, [
+            isReady,
+            sites?.selectedSite?.Siteid,
+            hasSupplierManagementLicense,
+            hasAuditProLicense,
+            hasApqpPpapLicense,
+            hasProblemSolverLicense,
+            hasInspectionControlLicense,
+            hasDocumentProLicense,
+            
+    ]);
 
-		console.log('appLicenses in home dashboard', appLicenses);
+    console.log('appLicenses in home dashboard', appLicenses, 'sites?.selectedSite?.Siteid--->', sites?.selectedSite?.Siteid);
 
 
     useEffect(() => {
@@ -564,7 +581,7 @@ const HomeDashboard = () => {
             .slice(0, 3);
     }, [recentActivity]);
 
-    console.log('recentLatestList', recentLatestList);
+    console.log('final recentLatestList', recentLatestList);
 
 
     const recentAPQP = recentLatestList.filter(
@@ -584,9 +601,14 @@ const HomeDashboard = () => {
         ['AuditPro', 'Supplier Initial Assessment', 'Supplier Routine Audit']
         .includes(item?.Module_name) || item?.ActualAuditId != null
     );
-    console.log('recentSM', recentSM);
+    console.log('final recentSM', recentSM);
 
+    const showAPQP = recentAPQP.length > 0 && appLicenses?.hasApqpPpapLicense;
+    const showPS = recentPS.length > 0 && appLicenses?.hasProblemSolverLicense;
+    const showSM = recentSM.length > 0 && appLicenses?.hasSupplierManagementLicense;
 
+    const hasRecentActivity = showAPQP || showPS || showSM;
+    console.log('final hasRecentActivity', hasRecentActivity);
     return (
         <Content noPadding>
             <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}>
@@ -628,52 +650,14 @@ const HomeDashboard = () => {
                         hasPSToday: hasPSToday,
                     }}
                 />
-                {/* Recent Activity */}             
-                {/* {hasApqpPpapLicense ? */}
+                {/* Recent Activity */} 
                 <>
                 <View style={{  }}>
                     <TextComponent fontSize={FONT_SIZE.LARGE} style={{ padding: SPACING.NORMAL }} type={FONT_TYPE.BOLD}>
                         {`Recently Viewed`}
                     </TextComponent>
-                   {/* {recentActivity?.length > 0 && (
-                    <HomeListComponentApqp
-                        {...{
-                            statusCode: STATUS_CODES.PENDING_CONCERN,
-                            title: 'Recently Viewed',
-                            data: recentActivityAPQP,
-                            loading: false,
-                            hideSeeAll: true,
-                            currentName: currentName,
-                        }}
-                    />)}
-                    {recentActivity?.length > 0 && (
-                   <HomeListRecentActivity
-                        {...{
-                            statusCode: STATUS_CODES.PENDING_CONCERN,
-                            title: 'Recently Viewed',
-                            data: recentActivityPS,
-                            loading: false,
-                            hideSeeAll: true,
-                            currentName: currentName,
-                        }}
-                    />)}
-                    {console.log('recentActivitySM?.length', recentActivitySM?.length)}
-                    {(Array.isArray(recentActivity)
-                        ? recentActivity.length > 0
-                        : Object.keys(recentActivity || {}).length > 0
-                    ) && (
-                    <HomeListRecentActivity
-                        {...{
-                            statusCode: STATUS_CODES.PENDING_CONCERN,
-                            title: 'Recently Viewed',
-                            data: recentActivitySM,
-                            loading: false,
-                            hideSeeAll: true,
-                            currentName: currentName,
-                        }}
-                    />)} */}
 
-                    {recentAPQP.length > 0 && (
+                    {showAPQP && (
                     <HomeListComponentApqp
                         statusCode={STATUS_CODES.PENDING_CONCERN}
                         title="Recently Viewed"
@@ -684,7 +668,7 @@ const HomeDashboard = () => {
                     />
                     )}
 
-                    {recentPS.length > 0 && (
+                    {showPS && (
                     <HomeListRecentActivity
                         statusCode={STATUS_CODES.PENDING_CONCERN}
                         title="Recently Viewed"
@@ -695,7 +679,7 @@ const HomeDashboard = () => {
                     />
                     )}
 
-                    {recentSM.length > 0 && (
+                    {showSM && (
                     <HomeListRecentActivity
                         statusCode={STATUS_CODES.PENDING_CONCERN}
                         title="Recently Viewed"
@@ -705,10 +689,9 @@ const HomeDashboard = () => {
                         currentName={currentName}
                     />
                     )}
-                   {recentActivity?.length === 0 && ( <NoRecordFound />)}
+                   {!hasRecentActivity && <NoRecordFound />}
                     </View>
                 </>
-                {/* // } */}
             </ScrollView>
             <FAB iconName="tasks" iconType={ICON_TYPE.FontAwesome5} onPress={() => navigation.navigate(ROUTES.HOME_FAB_VIEW)} />
         </Content>

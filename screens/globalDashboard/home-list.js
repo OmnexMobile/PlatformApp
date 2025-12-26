@@ -52,7 +52,7 @@ export const HomeListComponent = ({ title, data, loading, statusCode, hideSeeAll
                             console.log('showAPQP onPress------->>>', showAPQP);
                             console.log('showPS onPress------->>>', showPS);
 
-                            if (showSM || showPS) {
+                            if ((showSM && moduleLicenses?.hasSupplierManagementLicense) || showPS) {
                                 navigation.navigate(ROUTES.HOME_LIST_PS, {
                                     [APP_VARIABLES.DASHBOARD_CONCERNS]: statusCode,
                                     title,
@@ -110,7 +110,7 @@ export const HomeListComponent = ({ title, data, loading, statusCode, hideSeeAll
                     return (
                         <React.Fragment key={index}>
                         {/* 1️⃣ Supplier Management */}
-                        {showSM && (
+                        {(showSM && moduleLicenses?.hasSupplierManagementLicense) && (
                             <ListCardLogoSM
                             item={item}
                             handleRecentActivity={handleRecentActivity}
