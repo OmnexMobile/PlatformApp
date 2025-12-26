@@ -19,7 +19,7 @@ const ListSearch = ({ searchKey, setSearchKey, placeholder = 'search here' }) =>
                             value={searchKey}
                             {...{ placeholder }}
                             placeholderTextColor={COLORS.searchText}
-                            style={{ fontFamily: 'OpenSans-Bold', fontSize: FONT_SIZE.NORMAL, padding: 0, color: theme.mode.textColor }}
+                            style={{ fontFamily: 'OpenSans-Bold', fontSize: FONT_SIZE.SMALL, padding: 0, color: theme.mode.textColor }}    
                             onChangeText={searchKey => setSearchKey(searchKey)}
                         />
                     </View>

@@ -18,7 +18,7 @@ import { Content, Header, ListSearch } from 'components';
 //library
 import * as _ from 'lodash';
 import NetInfo from '@react-native-community/netinfo';
-import {DoubleBounce} from 'react-native-loader';
+// import {DoubleBounce} from 'react-native-loader';
 import {connect} from 'react-redux';
 //assets
 import {Fonts, Images} from '../../auditPro/Themes';
@@ -1174,12 +1174,12 @@ class AuditDashboardListing extends Component {
                 this.applyAuditFilter();
               })
             }
-            placeholder="search by audit no, auditee or date (YYYY-MM-DD)"
+            placeholder="search by Audit no/Auditee"
           />
 
           {this.state.loader ? (
             <View style={styles.loaderParent}>
-              <DoubleBounce size={20} color="#1CAFF6" />
+              <ActivityIndicator size={20} color="#1CAFF6" />
             </View>
           ) : this.state.error ? (
             <View style={styles.errorWrapper}>
@@ -1293,7 +1293,7 @@ class AuditDashboardListing extends Component {
     if (this.state.subLoader) {
       return (
         <View style={styles.subLoaderWrap}>
-          <DoubleBounce size={16} color="#1CAFF6" />
+          <ActivityIndicator size={16} color="#1CAFF6" />
         </View>
       );
     } else {

@@ -2238,6 +2238,8 @@ class CreateNC extends Component {
       this.state.NCcategoryt,
       categoryArr,
     );
+    const resolvedCategoryWithDefault =
+      resolvedCategory || (categoryArr.length > 0 ? categoryArr[0] : undefined);
     const resolvedDept = resolveOption(this.state.NCdept, departArr);
 
     // Requested-by can arrive either as an object or as a plain id
@@ -2259,7 +2261,7 @@ class CreateNC extends Component {
         FailureCategory,
         // Apply the resolved selections so that the edit flow
         // correctly pre-fills mandatory dropdown fields.
-        NCcategoryt: resolvedCategory,
+        NCcategoryt: resolvedCategoryWithDefault,
         NCdept: resolvedDept,
         NCrequestby: resolvedRequest,
       },
@@ -3857,7 +3859,11 @@ class CreateNC extends Component {
 
                     <View style={styles.check}>
                       {this.props.data.audits.smdata !== 2 &&
-                        this.props.data.audits.smdata !== 3 ? (
+                        this.props.data.audits.smdata !== 3 &&
+                        !(
+                          this.state.RouteParam === 'NC' &&
+                          this.state.type === 'EDIT'
+                        ) ? (
                         <Icon
                           style={{ left: 6, top: 5 }}
                           name="asterisk"
@@ -4426,7 +4432,11 @@ class CreateNC extends Component {
                               : styles.check
                           }>
                           {this.props.data.audits.smdata !== 2 &&
-                            this.props.data.audits.smdata !== 3 ? (
+                            this.props.data.audits.smdata !== 3 &&
+                            !(
+                              this.state.RouteParam === 'NC' &&
+                              this.state.type === 'EDIT'
+                            ) ? (
                             <Icon
                               style={{ right: 10 }}
                               name="asterisk"
@@ -4588,7 +4598,11 @@ class CreateNC extends Component {
                     <View style={styles.check}>
                       {this.state.RouteParam === 'NC' &&
                         this.props.data.audits.smdata != 2 &&
-                        this.props.data.audits.smdata != 3 ? (
+                        this.props.data.audits.smdata != 3 &&
+                        !(
+                          this.state.RouteParam === 'NC' &&
+                          this.state.type === 'EDIT'
+                        ) ? (
                         <Icon
                           style={{ left: 6, top: 5 }}
                           name="asterisk"
