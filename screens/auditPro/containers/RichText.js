@@ -10,10 +10,19 @@ import Fonts from '../Themes/Fonts';
 import { RichEditor} from 'react-native-pell-rich-editor';
 
 
-const RichText = ({content,height}) => {
+const RichText = ({content, height, minHeight}) => {
 console.log('RichText', content , 'height', height) 
 
 const rtf = React.useRef();
+  const editorStyle = [styles.quesText];
+  if (height !== undefined) {
+    editorStyle.push({
+      height: height,
+      minHeight: minHeight === undefined ? height : minHeight,
+    });
+  } else if (minHeight !== undefined) {
+    editorStyle.push({minHeight});
+  }
   return <View style={{flex: 1}}>
           {/* <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -23,9 +32,8 @@ const rtf = React.useRef();
               initialContentHTML={content}
               initialHeight={height == undefined ? 200 : height}
               disabled={true}       
-              style={styles.quesText}    
+              style={editorStyle}    
              useContainer={false}  
-             containerStyle={{minHeight: 400}}
             />
           {/* </KeyboardAvoidingView> */}
         </View>

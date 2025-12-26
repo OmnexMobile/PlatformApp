@@ -47,6 +47,7 @@ import ToastNew, {ErrorToast} from 'react-native-toast-message';
 import Video from 'react-native-video';
 import FileViewer from 'react-native-file-viewer';
 import RichText from '../../auditPro/containers/RichText';
+import LinearGradient from 'react-native-linear-gradient';
 import {
   Image as compressImage,
   Video as compressVideo,
@@ -71,6 +72,7 @@ const Colors = {
   '-1': '#fff',
   '-2': '#fff',
 };
+const FOOTER_BUTTON_GRADIENT = ['#00AED0', '#1FBFD0', '#00BEC1'];
 
 const toastConfig = {
   error: props => (
@@ -5948,7 +5950,7 @@ isFailureReasonValid(failureReasonId, categoryId) {
                                   <View style={{flexDirection: 'row'}}>
                                     <RichText
                                       content={item.ChecklistName}
-                                      height={300}
+                                      height={140}
                                     />
                                     {this.state.checkPointsDetails[index]
                                       .nc_available_status ? (
@@ -9246,7 +9248,7 @@ isFailureReasonValid(failureReasonId, categoryId) {
                                 </View>
                               </View>
                             </View>
-                            <View style={{width: '100%', height: 400}}></View>
+                            <View style={{width: '100%', height: 80}} />
                           </ScrollView>
                         );
                       }}
@@ -9299,89 +9301,52 @@ isFailureReasonValid(failureReasonId, categoryId) {
         )}
 
         {this.state.checkpointList.length > 0 ? (
-          <View style={styles.footer}>
-            <Image
-              style={{
-                width: '100%',
-                height: 65,
-              }}
-              source={Images.Footer}
-            />
-
+          <View style={[styles.footer, styles.footerWhite]}>
             {this.state.isSaving == false ? (
               <View style={styles.footerDiv}>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}>
+                <View style={styles.footerActionRow}>
                   <TouchableOpacity
-                    style={{
-                      flexDirection: 'column',
-                      width: width(45),
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                    }}
+                    style={[
+                      styles.footerActionButton,
+                      styles.footerActionButtonLeft,
+                    ]}
                     onPress={() => this.setState({dialogVisibleReset: true})}>
-                    <Icon name="undo" size={25} color="white" />
-                    <Text
-                      style={{
-                        color: 'white',
-                        fontSize: Fonts.size.regular,
-                        fontFamily: 'OpenSans-Regular',
-                      }}>
-                      {strings.Reset}
-                    </Text>
+                    <LinearGradient
+                      start={{x: 0, y: 0}}
+                      end={{x: 1, y: 0}}
+                      colors={FOOTER_BUTTON_GRADIENT}
+                      style={styles.footerGradientButton}>
+                      <Icon name="undo" size={20} color="white" />
+                      <Text numberOfLines={1} style={styles.footerActionText}>
+                        {strings.Reset}
+                      </Text>
+                    </LinearGradient>
                   </TouchableOpacity>
-                </View>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}>
-                  <View
-                    style={{
-                      width: width(10),
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                    }}>
-                    <Image source={Images.lineIcon} />
-                  </View>
-                </View>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}>
                   <TouchableOpacity
-                    style={{
-                      flexDirection: 'column',
-                      width: width(45),
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                    }}
+                    style={[
+                      styles.footerActionButton,
+                      styles.footerActionButtonRight,
+                    ]}
                     onPress={debounce(
                       this.updateCheckPointsValues.bind(this),
                       1500,
                     )}>
-                    <Icon name="save" size={25} color="white" />
-                    <Text
-                      style={{
-                        color: 'white',
-                        fontSize: Fonts.size.regular,
-                        fontFamily: 'OpenSans-Regular',
-                      }}>
-                      {strings.Save}
-                    </Text>
+                    <LinearGradient
+                      start={{x: 0, y: 0}}
+                      end={{x: 1, y: 0}}
+                      colors={FOOTER_BUTTON_GRADIENT}
+                      style={styles.footerGradientButton}>
+                      <Icon name="save" size={20} color="white" />
+                      <Text numberOfLines={1} style={styles.footerActionText}>
+                        {strings.Save}
+                      </Text>
+                    </LinearGradient>
                   </TouchableOpacity>
                 </View>
               </View>
             ) : (
               <View style={{right: 70, position: 'absolute'}}>
-                <Pulse size={20} color="white" />
+                <Pulse size={20} color="#00BAC8" />
               </View>
             )}
           </View>

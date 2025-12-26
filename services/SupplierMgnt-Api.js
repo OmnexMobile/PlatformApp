@@ -189,6 +189,32 @@ import {
       Default,
       cb,
     ) {
+      const key = JSON.stringify([
+        token || '',
+        userId || '',
+        siteId || '',
+        page || '',
+        size || '',
+        filterId || '',
+        GlobalFilter || '',
+        StartDate || '',
+        EndDate || '',
+        SortBy || '',
+        SortOrder || '',
+        SM || '',
+        Default || '',
+      ]);
+      if (!this._auditListCache) {
+        this._auditListCache = {};
+      }
+      const cacheEntry = this._auditListCache[key];
+      if (cacheEntry?.promise) {
+        cacheEntry.promise
+          .then(data => cb({ data }))
+          .catch(err => cb({ status: err }));
+        return;
+      }
+
       var formData = new FormData();
       formData.append('SiteID', siteId);
       formData.append('UserID', userId);
@@ -205,8 +231,8 @@ import {
   
       console.log('filter formData', formData);
       console.log('checkbearrer',token);
-  
-      fetch(sURL + auditList, {
+
+      const promise = fetch(sURL + auditList, {
         method: 'POST',
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -217,16 +243,22 @@ import {
         .then(resp => resp.json())
         .then(data => {
           console.log('Authorization',data)
+          delete this._auditListCache[key];
           cb({
             data,
           });
+          return data;
         })
-        .catch(data => {
+        .catch(err => {
+          delete this._auditListCache[key];
           cb({
             //status: cons.ERROR_500
-            status: data,
+            status: err,
           });
+          throw err;
         });
+
+      this._auditListCache[key] = { promise };
     },
   
     getstatapi(token, userId, SiteId, SM, cb) {

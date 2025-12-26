@@ -474,6 +474,43 @@ export default StyleSheet.create({
     position: 'absolute',
     //resizeMode:'cover',
   },
+  footerWhite: {
+    backgroundColor: '#FFFFFF',
+  },
+  footerActionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+    height: '100%',
+    paddingHorizontal: width(3),
+  },
+  footerActionButton: {
+    flex: 1,
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  footerActionButtonLeft: {
+    marginRight: 8,
+  },
+  footerActionButtonRight: {
+    marginLeft: 8,
+  },
+  footerGradientButton: {
+    width: '100%',
+    height: 46,
+    borderRadius: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  footerActionText: {
+    marginLeft: 10,
+    fontSize: Fonts.size.regular,
+    fontFamily: 'OpenSans-Regular',
+    color: 'white',
+  },
   noRecordsFound: {
     width: '100%',
     textAlign: 'center',
