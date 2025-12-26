@@ -32,6 +32,7 @@ import { SPACING } from 'constants/theme-constants';
 import { ROUTES } from 'constants/app-constant';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import AuditCardSM from 'screens/auditPro/components/AuditCardSM';
+import { Content, Header, ListSearch } from 'components';
 
 const {whitneyBook_18} = Fonts.style;
 const {blackGrey} = Fonts.colors;
@@ -109,7 +110,35 @@ class AuditDashboardListing extends Component {
       this.focusListener();
     }
   }
+applyAuditFilter = () => {
+    const {searchKey, auditListAll} = this.state;
+    if (!auditListAll || auditListAll.length === 0) {
+      return;
+    }
 
+    const query = (searchKey || '').toLowerCase().trim();
+
+    if (!query) {
+      this.setState({auditList: auditListAll});
+      return;
+    }
+
+    const filtered = auditListAll.filter(item => {
+      const auditNumber = (item.AuditNumber || '').toString().toLowerCase();
+      const auditee = (item.Auditee || '').toString().toLowerCase();
+      const startDate = (item.StartDate || '').split('T')[0].toLowerCase();
+      const endDate = (item.EndDate || '').split('T')[0].toLowerCase();
+
+      return (
+        auditNumber.includes(query) ||
+        auditee.includes(query) ||
+        startDate.includes(query) ||
+        endDate.includes(query)
+      );
+    });
+
+    this.setState({auditList: filtered});
+  };
   render() {
     return (
       <View style={styles.wrapper}>
@@ -168,6 +197,15 @@ class AuditDashboardListing extends Component {
             </TouchableOpacity></View></View>
         </ImageBackground>
         <View style={styles.auditPageBody}>
+           <ListSearch
+                      searchKey={this.state.searchKey}
+                      setSearchKey={searchKey =>
+                        this.setState({searchKey, AuditSearch: searchKey}, () => {
+                          this.applyAuditFilter();
+                        })
+                      }
+                      placeholder="search by audit no, auditee or date (YYYY-MM-DD)"
+                    />
           {this.state.loader ? (
             <View style={styles.loaderParent}>
               <ActivityIndicator size={20} color="#1CAFF6" />
@@ -272,7 +310,32 @@ class AuditDashboardListing extends Component {
     );
   };
 
-  getAudits() {
+  getAudits(startDate, endDate) {
+     this.setState(
+      {
+        loading: true,
+        startDateFilter: startDate || '',
+        endDateFilter: endDate || '',
+      },
+    );
+    if (this.props?.data?.audits?.isOfflineMode) {
+      // this.refs.toast.show(strings.Audit_List_Failed, DURATION.LENGTH_LONG)
+      this.setState(
+        {
+          auditList: this.props?.data?.audits?.audits,
+          auditListAll: this.props?.data?.audits?.audits,
+          loading: false,
+          isRefreshing: false,
+          isLazyLoading: false,
+          isLazyLoadingRequired: false,
+          isPageEmpty: false,
+          isMounted: true,
+        },
+        () => {
+          this.applyAuditFilter();
+        },
+      );
+    }
     NetInfo.fetch().then(netState => {
       if (netState.isConnected) {
         const {userId, token} = this.props.data.audits;
@@ -287,15 +350,15 @@ class AuditDashboardListing extends Component {
           Default = 1;
         let filterStr = '';
 
-        if (this.state.filterID === '2') {
-          filterStr = 'AuditStatus IN (2)';
-        } else if (this.state.filterID === '3') {
-          filterStr = 'AuditStatus IN (3)';
-        } else if (this.state.filterID === '4') {
-          filterStr = 'AuditStatus IN (4)';
-        } else if (this.state.filterID === '5') {
-          filterStr = 'AuditStatus IN (5)';
-        }
+        // if (this.state.filterID === '2') {
+        //   filterStr = 'AuditStatus IN (2)';
+        // } else if (this.state.filterID === '3') {
+        //   filterStr = 'AuditStatus IN (3)';
+        // } else if (this.state.filterID === '4') {
+        //   filterStr = 'AuditStatus IN (4)';
+        // } else if (this.state.filterID === '5') {
+        //   filterStr = 'AuditStatus IN (5)';
+        // }
         console.log('tret', auth.getauditlist);
         console.log('paramcheckkkk', 
           this.currentUserData.accessToken,
@@ -523,6 +586,8 @@ class AuditDashboardListing extends Component {
       error: false,
       subLoader: false,
       listEndReached: false,
+    },()=>{
+      this.applyAuditFilter();
     });
   }
 }

@@ -227,23 +227,23 @@ class CheckPointDemo extends Component {
     //console.log(this.state.checkPointsDetails, 'lostArr');
   }
 
-	async getAccessToken(){
-			try {
-			const stringifiedUserDetails = await AsyncStorage.getItem('userDetails');
-			const value = JSON.parse(stringifiedUserDetails);
-			console.log('current userdata--->', value)
-			if (value !== null) {
-					// value previously stored
-					console.log('current token2--->', value.accessToken)
-					this.setState({ currentUserData: value },()=>{
-					console.log('Token set')
-					})
-			}
-			} catch (e) {
-			// error reading value
-			console.log('error--->', e)
-			}
-	};
+  async getAccessToken(){
+      try {
+      const stringifiedUserDetails = await AsyncStorage.getItem('userDetails');
+      const value = JSON.parse(stringifiedUserDetails);
+      console.log('current userdata--->', value)
+      if (value !== null) {
+          // value previously stored
+          console.log('current token2--->', value.accessToken)
+          this.setState({ currentUserData: value },()=>{
+          console.log('Token set')
+          })
+      }
+      } catch (e) {
+      // error reading value
+      console.log('error--->', e)
+      }
+  };
 
   fetchData = async () => {
     try {
@@ -289,7 +289,7 @@ class CheckPointDemo extends Component {
       {
         isContentLoaded: true,
         ChecklistTemplateId:
-				this.props?.route?.params?.ChecklistTemplateId,
+        this.props?.route?.params?.ChecklistTemplateId,
         auditId: this.props?.route?.params?.AuditID,
         clauseRecords: this.props.data.audits.auditRecords,
         displayData: this.props?.route?.params?.CheckPointname,
@@ -335,7 +335,7 @@ class CheckPointDemo extends Component {
                 this.state.ChecklistTemplateId ==
                   auditRecords?.[i]?.Listdata?.[j]?.ParentId &&
                 // this.props.navigation.state.params.Formid ==
-								this.props?.route?.params?.Formid ==
+                this.props?.route?.params?.Formid ==
                   auditRecords?.[i]?.Listdata?.[j]?.FormId
               ) {
                 RelatedCheckpoints.push(auditRecords?.[i]?.Listdata[j]);
@@ -541,7 +541,7 @@ class CheckPointDemo extends Component {
                     ) {
                       if (
                         // this.props.navigation.state.params.AuditID ==
-												this.props?.route?.params?.AuditID ==
+                        this.props?.route?.params?.AuditID ==
                         this.props.data.audits.ncofiRecords[n].AuditID
                       ) {
                         // console.log(
@@ -2465,7 +2465,7 @@ class CheckPointDemo extends Component {
             // RadioLogic: this.props.navigation.state.params.LogicPass,
             ncFormID: this.props?.route?.params?.FormId,
             ischeckLPA:
-						this.props?.route?.params?.AuditProgramId == -1
+            this.props?.route?.params?.AuditProgramId == -1
                 ? true
                 : false,
             AuditOrder: this.props?.route?.params?.AuditProgramId,
@@ -3014,7 +3014,7 @@ updatecheckpointvalues_new = () => {
                         auditRecordsOrg[p].Listdata[q],
                       );
                       const formid =
-											this.props?.route?.params?.FormIdNavigate;
+                      this.props?.route?.params?.FormIdNavigate;
 
                       listDataArr.push({
                         ParentId: auditRecordsOrg[p].Listdata[q].ParentId,
@@ -3169,7 +3169,7 @@ updatecheckpointvalues_new = () => {
                   auditRecordsOrg[p],
                   checkPointsDetails,
                   // this.props.navigation.state.params,
-									this.props?.route?.params,
+                  this.props?.route?.params,
                 );
                 // let newArray = [];
                 let AuditCheckpointDetailList = listDataArr;

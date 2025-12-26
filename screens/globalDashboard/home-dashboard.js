@@ -15,6 +15,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import localStorage from 'global/localStorage';
 import { HomeListComponent } from './home-list';
 import { HomeListRecentActivity } from './home-RecentActivity';
+import { HomeListRecentActivitySM } from './home-RecentActivitySM';
 import AsyncStorage from '@react-native-community/async-storage';
 import NetInfo from '@react-native-community/netinfo';
 import supplierAuth from '../../services/SupplierMgnt-Auth';
@@ -55,7 +56,7 @@ const HomeDashboard = () => {
     // const [recentSM, setRecentSM] = useState([]);
     const Reducers_RecentActivity = useSelector(state => state);
     console.log('Full Redux State:', Reducers_RecentActivity);
-    const recentActivitySM = Reducers_RecentActivity?.audits?.recentAudits?.slice(-1)[0];
+    const recentActivitySM = Reducers_RecentActivity?.audits?.recentAudits?.slice(-3) ?? [];
     console.log('Reversed Recent Audits:', recentActivitySM);
 
     const {
@@ -680,7 +681,7 @@ const HomeDashboard = () => {
                     )}
 
                     {showSM && (
-                    <HomeListRecentActivity
+                    <HomeListRecentActivitySM
                         statusCode={STATUS_CODES.PENDING_CONCERN}
                         title="Recently Viewed"
                         data={recentSM}

@@ -11,7 +11,7 @@ const {Types, Creators} = createActions({
   storeAudits: ['audits'],
   storeAuditRecords: ['auditRecords'],
   storeNcofiRecords: ['ncofiRecords'],
-  updateRecentAuditList: ['recentAudits'],
+  updateRecentAuditList: ['recentAudits', 'screenName'],
   storeCameraCapture: ['cameraCapture'],
   storeUserSession: ['userSession'],
   storeLanguage: ['userLanguage'],
@@ -191,10 +191,34 @@ export const storeNcofiRecords = (state, {ncofiRecords}) => {
   return state.merge({ncofiRecords: ncofiRecords});
 };
 
-export const updateRecentAuditList = (state, {recentAudits}) => {
-  console.log('reducer updateRecentAuditList',recentAudits)
+export const updateRecentAuditList = (state, {recentAudits, screenName}) => {
+  console.log('reducer updateRecentAuditList', recentAudits);
   state = ensureImmutable(state);
-  return state.merge({recentAudits: recentAudits});
+
+  if (!Array.isArray(recentAudits) || !screenName) {
+    return state.merge({recentAudits: recentAudits});
+  }
+
+  const updatedRecentAudits = recentAudits.map(item => {
+    if (!item || typeof item !== 'object') {
+      return item;
+    }
+
+    if (item.recent_ScreenName) {
+      return item;
+    }
+
+    if (item.recent_Module && item.recent_Module !== screenName) {
+      return item;
+    }
+
+    return {
+      ...item,
+      recent_ScreenName: screenName,
+    };
+  });
+
+  return state.merge({recentAudits: updatedRecentAudits});
 };
 
 export const storeCameraCapture = (state, {cameraCapture}) => {

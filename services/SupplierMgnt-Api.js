@@ -204,7 +204,7 @@ import {
       formData.append('SM', SM);
   
       console.log('filter formData', formData);
-      console.log(token);
+      console.log('checkbearrer',token);
   
       fetch(sURL + auditList, {
         method: 'POST',
@@ -216,7 +216,7 @@ import {
       })
         .then(resp => resp.json())
         .then(data => {
-          // console.log(data)
+          console.log('Authorization',data)
           cb({
             data,
           });

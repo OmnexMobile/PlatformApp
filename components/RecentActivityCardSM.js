@@ -12,42 +12,33 @@ import IconComponent from './icon-component';
 import TextComponent from './text';
 import { IMAGES } from 'assets/images';
 import ImageComponent from './image-component';
-import AsyncStorage from '@react-native-async-storage/async-storage';  
 // import Tag from './tag';
 
-const ListCardLogoSM = ({ item = {} }) => {
+const RecentActivityCardSM = ({ item = {} }) => {
+    // Normalize item to avoid accidentally rendering plain strings/numbers
+    const safeItem = item && typeof item === 'object' ? item : {};
+    const moduleName = safeItem?.Module_name || '';
+    const isSupplierModule = ['AuditPro', 'Supplier Initial Assessment', 'Supplier Routine Audit'].includes(moduleName) || safeItem?.ActualAuditId != null;
+
     const { sites, handleRecentActivity, timeSettings } = useAppContext();
     const { theme } = useTheme();
     const elevation = getElevation();
     const navigation = useNavigation();
-    console.log('ListCardLogoSMitem in list card logo------->>>', item);
+    console.log('item in list card logo RecentActivityCard---->>>SMMM', sites, item);
+    console.log('isSupplierModule---->>>SMMM', isSupplierModule, 'safeItem?.ActualAuditId', safeItem?.ActualAuditId);
+    console.log('recent_ScreenName---->>>SMMM', safeItem?.recent_ScreenName);
 
-    const handleClickCard = async item => {
-        console.log('checckitemmmmm',item);
-
-        if(item?.Module_name==='Supplier Initial Assessment' || item?.Module_name==='Supplier Routine Audit'){
-            if(item?.Module_name==='Supplier Initial Assessment'){
-            await AsyncStorage.setItem('supplierIndex', JSON.stringify(2));
-            }else if(item?.Module_name==='Supplier Routine Audit'){
-            await AsyncStorage.setItem('supplierIndex', JSON.stringify(3));
-            }else{
-            await AsyncStorage.setItem('supplierIndex', JSON.stringify(1));
-            }
-             navigation.navigate(ROUTES.AUDIT_PAGE_SM, {
-                screenFrom: 'Dashboard',
-                datapass: item,
-            });
-        }else if(item?.Module_name === 'AuditPro') {
-            navigation.navigate(ROUTES.AUDIT_PAGE, {
+    const handleClickCard = item => {
+        if (item?.recent_Module == "AUDIT_PAGE_SM") {
+            navigation.navigate(ROUTES.AUDIT_PAGE_SM, {
                 screenFrom: 'Dashboard',
                 datapass: item,
             });
         } else {
-            navigation.navigate(item?.Status === STATUS.CREATED ? ROUTES.CONCERN_INITIAL_EVALUATION : ROUTES.VIEW_CONCERN_PS, {
-                ConcernID: item?.ConcernID,
-                ...(item?.StatusID === STATUS_CODES.IN_PROGRESS.toString() && { FormTypeID: 3 }),
+           navigation.navigate(ROUTES.AUDIT_PAGE, {
+                screenFrom: 'Dashboard',
+                datapass: item,
             });
-            handleRecentActivity?.(item);
         }
     };
     return (
@@ -69,6 +60,7 @@ const ListCardLogoSM = ({ item = {} }) => {
                     <>
                         <Ripple
                             rippleContainerBorderRadius={SPACING.SMALL}
+                           
                             activeOpacity={1}
                             style={{
                                 position: 'absolute',
@@ -82,12 +74,36 @@ const ListCardLogoSM = ({ item = {} }) => {
                                 justifyContent: 'center',
                                 zIndex: 100,
                             }}>
-                            {item?.Module_name === 'Supplier Initial Assessment' || item?.Module_name === 'Supplier Routine Audit' ? (
-                                <ImageComponent resizeMode="contain" source={IMAGES.supplier_logo} />
-                            ) : (
-                                <ImageComponent resizeMode="contain" source={IMAGES.auditpro_logo} />
-                            )}
+                            <ImageComponent
+                                resizeMode="contain"
+                                // source={IMAGES.ps_logo_round}
+                                source={item?.recent_Module == "AUDIT_PAGE_SM" ? IMAGES.supplier_logo : IMAGES.auditpro_logo}
+                            />
                         </Ripple>
+                        {isSupplierModule ? null :
+                        <Ripple
+                            rippleContainerBorderRadius={SPACING.SMALL}
+                            onPress={() =>
+                                navigation.navigate(ROUTES.EDIT_CONCERN, {
+                                    ConcernID: item?.ConcernID,
+                                    FormTypeID: 3,
+                                })
+                            }
+                            activeOpacity={1}
+                            style={{
+                                position: 'absolute',
+                                right: SPACING.SMALL,
+                                bottom: SPACING.SMALL,
+                                width: RFPercentage(5),
+                                height: RFPercentage(5),
+                                backgroundColor: theme.colors.primaryThemeColor,
+                                borderRadius: SPACING.SMALL,
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                zIndex: 100,
+                            }}>
+                            <IconComponent name="edit" size={FONT_SIZE.LARGE} type={ICON_TYPE.AntDesign} color={COLORS.white} />
+                        </Ripple>}
                     </>
                 )}
                 <View style={[styles.cardOuterView]}>
@@ -97,21 +113,32 @@ const ListCardLogoSM = ({ item = {} }) => {
                                 <TextComponent
                                     numberOfLines={2}
                                     fontSize={FONT_SIZE.LARGE}
+                                    // type={FONT_TYPE.BOLD}
                                     style={{
                                         color: theme.colors.primaryThemeColor,
                                     }}>
-                                    {item?.SiteName}
+                                    {isSupplierModule ? sites?.selectedSite?.SiteName || '' : safeItem?.Title || ''}
                                 </TextComponent>
                             </View>
                         </View>
-                        {item?.Type ? (
+                        {safeItem?.Type ? (
                             <View style={{ width: '100%', paddingBottom: SPACING.SMALL }}>
-                                <TextComponent numberOfLines={1}>Type: {item?.Type}</TextComponent>
+                                <TextComponent numberOfLines={1}>Type: {safeItem?.Type}</TextComponent>
                             </View>
                         ) : null}
+                        {safeItem?.ConcernNo != null && 
                         <View style={{ width: '100%', paddingBottom: SPACING.SMALL }}>
-                            <TextComponent numberOfLines={1}> {item?.AuditTypeName}</TextComponent>
+                            <TextComponent numberOfLines={1}>
+                                Concern No: {safeItem?.ConcernNo}
+                            </TextComponent>
                         </View>
+                        }
+                       {safeItem?.AuditTypeName && 
+                       <View style={{ width: '100%', paddingBottom: SPACING.SMALL }}>
+                            <TextComponent numberOfLines={1}>
+                                {safeItem?.AuditTypeName}
+                            </TextComponent>
+                        </View>}
                         <View style={{ flexDirection: 'row', paddingBottom: SPACING.SMALL }}>
                             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                 <View
@@ -127,23 +154,32 @@ const ListCardLogoSM = ({ item = {} }) => {
                                     <IconComponent name="calendar" color={COLORS.white} type={ICON_TYPE.AntDesign} size={FONT_SIZE.X_SMALL} />
                                 </View>
                                 <TextComponent type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.SMALL}>
-                                    {moment(item?.StartDate).format(DATE_FORMAT[timeSettings || 'DD_MM_YYYY'])} -{' '}
+
+                                    {isSupplierModule
+                                        ? `${moment(safeItem?.StartDate).format(DATE_FORMAT[timeSettings || "DD_MM_YYYY"])} - `
+                                        : `${moment(safeItem?.CreatedDate).format(DATE_FORMAT[timeSettings || "DD_MM_YYYY"])} - `}
                                 </TextComponent>
                             </View>
                             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                 <TextComponent type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.SMALL}>
-                                    {moment(item?.EndDate).format(DATE_FORMAT[timeSettings || 'DD_MM_YYYY'])}
+
+                                    {isSupplierModule
+                                        ? moment(safeItem?.EndDate).format(DATE_FORMAT[timeSettings || "DD_MM_YYYY"])
+                                        : moment(safeItem?.DueDate).format(DATE_FORMAT[timeSettings || "DD_MM_YYYY"])
+                                    }
+                                    {/* {moment(item?.DueDate).format(DATE_FORMAT.DD_MM_YYYY)} */}
                                 </TextComponent>
                             </View>
                         </View>
-                        <TextComponent style={{ paddingLeft: SPACING.X_SMALL }} numberOfLines={1}>
-                            {' '}
-                            <TextComponent type={FONT_TYPE.BOLD}>{item?.AuditNumber}</TextComponent>
-                        </TextComponent>
-                        {item?.lastOpened ? (
+                        {safeItem?.AuditNumber != null && <TextComponent style={{ paddingLeft: SPACING.X_SMALL }} numberOfLines={1}> <TextComponent type={FONT_TYPE.BOLD}>{safeItem?.AuditNumber}</TextComponent>
+                        </TextComponent>}
+                        {safeItem?.DuebyDays != null && <TextComponent style={{ paddingLeft: SPACING.X_SMALL }} numberOfLines={1}>
+                            Due by days: <TextComponent type={FONT_TYPE.BOLD}>{safeItem?.DuebyDays}</TextComponent>
+                        </TextComponent>}
+                        {safeItem?.lastOpened ? (
                             <View style={{ paddingTop: SPACING.SMALL, paddingLeft: SPACING.X_SMALL }}>
                                 <TextComponent type={FONT_TYPE.BOLD} style={{ color: COLORS.green, fontSize: FONT_SIZE.X_SMALL }}>
-                                    Last opened: {moment(item?.lastOpened).fromNow()}
+                                    Last opened: {moment(safeItem?.lastOpened).fromNow()}
                                 </TextComponent>
                             </View>
                         ) : null}
@@ -151,10 +187,12 @@ const ListCardLogoSM = ({ item = {} }) => {
                 </View>
             </TouchableOpacity>
         </View>
+
+
     );
 };
 
-export default ListCardLogoSM;
+export default RecentActivityCardSM;
 
 const styles = StyleSheet.create({
     cardOuterView: {

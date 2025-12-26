@@ -413,16 +413,27 @@ class AuditPage extends Component {
     }
     var recentAuditListProps = this.props.data.audits.recentAudits;
     var recentAudits = [];
-
+    const screenName = this.props?.route?.name || ROUTES.AUDIT_PAGE_SM;
+    const recentModule = screenName;
+    const auditPropWithModule = {
+      ...this.state.AuditProp,
+      recent_Module: recentModule,
+    };
     if (recentAuditListProps.length > 0) {
       var isAuditExistsInRecentList = false;
       for (var i = 0; i < recentAuditListProps.length; i++) {
         let audit = recentAuditListProps[i];
-        if (audit.ActualAuditId === AuditId)
-          recentAudits.push({...audit, cStatus: constant.StatusDownloaded});
-        else {
-          recentAudits.push(audit);
-        }
+        if (audit.ActualAuditId === AuditId) {
+                  recentAudits.push({
+                    ...audit,
+                    cStatus: constant.StatusDownloaded,
+                    recent_Module: recentModule,
+                  });
+                } else if (audit.ActualAuditId === this.state.AuditProp.ActualAuditId) {
+                  recentAudits.push({...audit, recent_Module: recentModule});
+                } else {
+                  recentAudits.push(audit);
+                }
         if (
           recentAuditListProps[i].ActualAuditId ==
           this.state.AuditProp.ActualAuditId
@@ -431,13 +442,14 @@ class AuditPage extends Component {
         }
       }
       if (!isAuditExistsInRecentList) {
-        recentAudits.push(this.state.AuditProp);
+        recentAudits.push(auditPropWithModule);
       }
     } else {
-      recentAudits.push(this.state.AuditProp);
+      recentAudits.push(auditPropWithModule);
     }
+console.log('checktheaudits---Auditpage----Auditppro',recentAudits);
 
-    this.props.updateRecentAuditList(recentAudits);
+    this.props.updateRecentAuditList(recentAudits, screenName);
   }
 
   InitVoice() {
@@ -4081,8 +4093,8 @@ const mapDispatchToProps = dispatch => {
     storeAudits: audits => dispatch({type: 'STORE_AUDITS', audits}),
     storeNCRecords: ncofiRecords =>
       dispatch({type: 'STORE_NCOFI_RECORDS', ncofiRecords}),
-    updateRecentAuditList: recentAudits =>
-      dispatch({type: 'UPDATE_RECENT_AUDIT_LIST', recentAudits}),
+    updateRecentAuditList: (recentAudits, screenName) =>
+      dispatch({type: 'UPDATE_RECENT_AUDIT_LIST', recentAudits, screenName}),
   };
 };
 

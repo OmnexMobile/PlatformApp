@@ -297,8 +297,29 @@ this.getParamsDetails();
 
   }
 
-  checkDocPro(id) {
-    var token = this.props.data.audits.token;
+  async getAccessToken() {
+    try {
+      const userDetailsString = await AsyncStorage.getItem('userDetails');
+      const userDetails = userDetailsString
+        ? JSON.parse(userDetailsString)
+        : null;
+      const accessToken = userDetails?.accessToken || null;
+
+      if (accessToken) {
+        this.setState({token: accessToken});
+      }
+
+      return accessToken;
+    } catch (e) {
+      console.log('error--->', e);
+      return null;
+    }
+  }
+
+  async checkDocPro(id) {
+    console.log('checktokkenn------>',this.props);
+    
+    // var token = this.props.data.audits.token;
     var ActualAuditId =
       this.props?.route?.params?.datapass?.ActualAuditId;
     var auditRecords = this.props.data.audits.auditRecords;
@@ -350,6 +371,17 @@ this.getParamsDetails();
         var CheckFormid = reqFormID.toString().split('[');
         var CheckFormid1 = CheckFormid[1].split(']');
         console.log('formreCpID', CheckFormid1[0]);
+        const storedToken = await this.getAccessToken();
+        const token =
+          storedToken || this.state.token || this.props?.data?.audits?.token;
+
+        console.log('getAuditDetails SuccessfullgetAuditDetails TokengetcheckDocProPublish', this.props);
+        console.log('state  TokengetcheckDocProPublish', this.state.token);
+        console.log('finnaltokengetcheckDocProPublish', token);
+        if (!token) {
+          console.log('DocPro publish check skipped: missing token');
+          return;
+        }
         if (CheckPointTemplateId || FormID) {
           var AuditIdOrder = ActualAuditId + '_' + AuditOrderId;
           var CheckPointTemplateId = CheckpId1[0];
@@ -406,14 +438,26 @@ this.getParamsDetails();
     }
     var recentAuditListProps = this.props.data.audits.recentAudits;
     var recentAudits = [];
+    const screenName = this.props?.route?.name || ROUTES.AUDIT_PAGE_SM;
+    const recentModule = screenName;
+    const auditPropWithModule = {
+      ...this.state.AuditProp,
+      recent_Module: recentModule,
+    };
 
     if (recentAuditListProps.length > 0) {
       var isAuditExistsInRecentList = false;
       for (var i = 0; i < recentAuditListProps.length; i++) {
         let audit = recentAuditListProps[i];
-        if (audit.ActualAuditId === AuditId)
-          recentAudits.push({...audit, cStatus: constant.StatusDownloaded});
-        else {
+        if (audit.ActualAuditId === AuditId) {
+          recentAudits.push({
+            ...audit,
+            cStatus: constant.StatusDownloaded,
+            recent_Module: recentModule,
+          });
+        } else if (audit.ActualAuditId === this.state.AuditProp.ActualAuditId) {
+          recentAudits.push({...audit, recent_Module: recentModule});
+        } else {
           recentAudits.push(audit);
         }
         if (
@@ -424,13 +468,14 @@ this.getParamsDetails();
         }
       }
       if (!isAuditExistsInRecentList) {
-        recentAudits.push(this.state.AuditProp);
+        recentAudits.push(auditPropWithModule);
       }
     } else {
-      recentAudits.push(this.state.AuditProp);
+      recentAudits.push(auditPropWithModule);
     }
+console.log('checktheaudits---Smmmmmm',recentAudits);
 
-    this.props.updateRecentAuditList(recentAudits);
+    this.props.updateRecentAuditList(recentAudits, screenName);
   }
 
   loadSupplierIndex = async () => {
@@ -1439,15 +1484,18 @@ this.getParamsDetails();
     }
   };
 
-  getAuditDetails() {
-    // var Token = this.state.token;
-    const token =
-    this.state.token || this.props?.data?.audits?.token;
+  async getAuditDetails() {    
+        const storedToken = await this.getAccessToken();
+        const token =
+          storedToken || this.state.token || this.props?.data?.audits?.token;
 
-    console.log('getAuditDetails SuccessfullgetAuditDetails Token', this.props);
-    console.log('state  Token', this.state.token);
-    console.log('finnaltoken', token);
-
+        console.log('getAuditDetails SuccessfullgetAuditDetails getAuditDetails', this.props);
+        console.log('state  getAuditDetails', this.state.token);
+        console.log('getAuditDetails', token);
+        if (!token) {
+          console.log('DocPro publish check skipped: missing token');
+          return;
+        }
 
     auth.getAuditReportDetails(
       this.state.AuditProp,
@@ -4233,8 +4281,8 @@ const mapDispatchToProps = dispatch => {
     storeAudits: audits => dispatch({type: 'STORE_AUDITS', audits}),
     storeNCRecords: ncofiRecords =>
       dispatch({type: 'STORE_NCOFI_RECORDS', ncofiRecords}),
-    updateRecentAuditList: recentAudits =>
-      dispatch({type: 'UPDATE_RECENT_AUDIT_LIST', recentAudits}),
+    updateRecentAuditList: (recentAudits, screenName) =>
+      dispatch({type: 'UPDATE_RECENT_AUDIT_LIST', recentAudits, screenName}),
     storeSupplierData: smdata =>
       dispatch({type: 'STORE_SUPPLIER_DATA', smdata}),
   };
