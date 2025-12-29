@@ -270,7 +270,7 @@ export default function LPAPublish(props) {
             <View style={styles.headerDiv}>
               <TouchableOpacity
                 style={{paddingRight: 10}}
-                onPress={() => props.navigation.navigate('Home')}>
+                onPress={() => props.navigation.navigate(ROUTES.AUDITPRODASHBOARD)}>
                 <Icon name="home" size={35} color="white" />
               </TouchableOpacity>
             </View>
