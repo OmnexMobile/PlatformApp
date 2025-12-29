@@ -11,6 +11,8 @@ import localStorage from 'global/localStorage';
 import AsyncStorage from '@react-native-community/async-storage';
 import { GLOBALSERVER_URL, getGlobalUrls, setGlobalUrls } from 'screens/globalConstant/globalURL';
 import { useDispatch } from 'react-redux';
+import APQPActions from 'store/APQP/apqpRedux';
+import AUDITPROActions from 'store/AuditPro/auditRedux';
 
 const menus = [];
 const versionDetails = {
@@ -24,7 +26,7 @@ const LogoutFunctional = () => {
     console.log('reach ProfileHomeFunctional')
     const [loading, setLoading] = useState(false);
     const [isActive, setIsActive] = useState(false);
-    const { profile, appSettings, handleLogout, globalURL, handleGlobalURL, globalDeviceDetails, clearSite } = useAppContext();
+    const { profile, appSettings, handleLogout, globalURL, handleGlobalURL, globalDeviceDetails, clearSite, handleRemoveActivity } = useAppContext();
     const navigation = useNavigation();
     console.log('current appSettings', appSettings)
     
@@ -52,18 +54,24 @@ const LogoutFunctional = () => {
     // };
 
     const handleLogoutFun = async () => {
+      console.log('reach here logout')
       setLoading(true);
-			handleLogout();
-			dispatch({ type: 'RESET_TO_INITIAL' });
-			successMessage({ message: 'Success', description: 'Successfully Logged Out' });
-			localStorage.storeData('appLogged', false);
-			await AsyncStorage.removeItem('userDetails');
-			const currentGlobal = getGlobalUrls().globalServerUrl || GLOBALSERVER_URL;
-			console.log('globalDeviceDetails--->2', globalDeviceDetails?.deviceDetails?.ServerUrl, '--', currentGlobal)
-			localStorage.storeData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL, currentGlobal)
-			handleGlobalURL('serverUrl', currentGlobal)
+      handleLogout();
+      dispatch({ type: 'RESET_TO_INITIAL' });
+      successMessage({ message: 'Success', description: 'Successfully Logged Out' });
+      localStorage.storeData('appLogged', false);
+      await AsyncStorage.removeItem('userDetails');
+      const currentGlobal = getGlobalUrls().globalServerUrl || GLOBALSERVER_URL;
+      console.log('globalDeviceDetails--->2', globalDeviceDetails?.deviceDetails?.ServerUrl, '--', currentGlobal)
+      localStorage.storeData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL, currentGlobal)
+      handleGlobalURL('serverUrl', currentGlobal)
       setGlobalUrls({ globalServerUrl: currentGlobal });
-			clearSite();
+      clearSite();
+      // Clear recent activity on logout
+      handleRemoveActivity(); //PS
+      dispatch(APQPActions.updateRecentActivityList([])); //APQP
+      dispatch(AUDITPROActions.clearAudits()); //AuditPro/SM
+
     }
 
 		const handleLogoutFun1 = async () => {
