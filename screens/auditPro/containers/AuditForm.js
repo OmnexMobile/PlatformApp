@@ -4079,7 +4079,7 @@ class AuditForm extends Component {
               <TouchableOpacity
                 style={{paddingHorizontal: 10}}
                 onPress={() =>
-                  this.props.navigation.navigate('AuditDashboard')
+                  this.props.navigation.navigate(ROUTES.AUDIT_DASHBOARD_LISTING)
                 }>
                 <Icon name="home" size={30} color="white" />
               </TouchableOpacity>

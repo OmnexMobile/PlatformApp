@@ -411,7 +411,7 @@ class CheckListMenu extends Component {
               <Text numberOfLines={1} style={{ fontSize: 15, color: 'white', fontFamily: 'OpenSans-Regular', }}> {this.state.breadCrumbText} </Text>
             </View>
             <View style={styles.headerDiv}>
-              <TouchableOpacity style={{paddingHorizontal: 10}} onPress={() => this.props.navigation.navigate('AuditDashboard') }>
+              <TouchableOpacity style={{paddingHorizontal: 10}} onPress={() => this.props.navigation.navigate(ROUTES.AUDIT_DASHBOARD_LISTING) }>
                 <Icon name="home" size={30} color="white" />
               </TouchableOpacity>
             </View>

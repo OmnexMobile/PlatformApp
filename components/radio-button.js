@@ -69,10 +69,10 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     radioCircle: {
-        height: RFPercentage(3),
-        width: RFPercentage(3),
+        height: RFPercentage(2),
+        width: RFPercentage(2),
         borderRadius: 100,
-        borderWidth: 2,
+        borderWidth: 1.5,
         alignItems: 'center',
         justifyContent: 'center',
         marginRight: SPACING.NORMAL,

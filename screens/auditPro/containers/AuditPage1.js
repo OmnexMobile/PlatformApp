@@ -562,6 +562,16 @@ console.log('checktheaudits---Auditpage----Auditppro',recentAudits);
     }
   }
 
+  onSpeechStart = e => {
+    const started = e && e.value ? e.value : '√';
+    this.setState({started});
+  };
+
+  onSpeechRecognized = e => {
+    const recognized = e && e.value ? e.value : '√';
+    this.setState({recognized});
+  };
+
   onSpeechError = e => {
     // eslint-disable-next-line
     console.log('onSpeechError: ', e);

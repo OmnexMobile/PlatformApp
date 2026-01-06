@@ -744,13 +744,7 @@ class CreateNC extends Component {
 
   InitVoice() {
     console.log('voice:InitVoice');
-    Voice.onSpeechStart = this.onSpeechStart;
-    Voice.onSpeechRecognized = this.onSpeechRecognized;
-    Voice.onSpeechEnd = this.onSpeechEnd;
-    Voice.onSpeechError = this.onSpeechError;
-    Voice.onSpeechResults = this.onSpeechResults;
-    Voice.onSpeechPartialResults = this.onSpeechPartialResults;
-    Voice.onSpeechVolumeChanged = this.onSpeechVolumeChanged;
+    this.ensureVoiceHandlers();
 
     this.setState(
       {
@@ -768,6 +762,16 @@ class CreateNC extends Component {
       },
     );
   }
+
+  ensureVoiceHandlers = () => {
+    Voice.onSpeechStart = this.onSpeechStart;
+    Voice.onSpeechRecognized = this.onSpeechRecognized;
+    Voice.onSpeechEnd = this.onSpeechEnd;
+    Voice.onSpeechError = this.onSpeechError;
+    Voice.onSpeechResults = this.onSpeechResults;
+    Voice.onSpeechPartialResults = this.onSpeechPartialResults;
+    Voice.onSpeechVolumeChanged = this.onSpeechVolumeChanged;
+  };
 
   componentWillUnmount() {
     if (Voice.isAvailable) Voice.destroy().then(Voice.removeAllListeners);
@@ -816,6 +820,20 @@ class CreateNC extends Component {
       });
     }
   }
+
+  onSpeechStart = e => {
+    const started = e && e.value ? e.value : '√';
+    this.setState({
+      started,
+    });
+  };
+
+  onSpeechRecognized = e => {
+    const recognized = e && e.value ? e.value : '√';
+    this.setState({
+      recognized,
+    });
+  };
 
   onSpeechError = e => {
     // eslint-disable-next-line
@@ -922,6 +940,7 @@ class CreateNC extends Component {
         console.log('flag reset');
       },
     );
+    this.ensureVoiceHandlers();
     try {
       if (this.props.data.audits.language === 'Chinese') {
         await Voice.start('zh');
