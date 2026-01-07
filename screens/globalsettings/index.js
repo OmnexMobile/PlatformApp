@@ -20,18 +20,18 @@ const menus = [
             //     iconName: 'nightlight-round',
             //     route: ROUTES.THEME_PICKER,
             // },
-            {
-                title: 'Time Settings',
-                iconType: ICON_TYPE.Octicons,
-                iconName: 'clock',
-                route: ROUTES.TIME_SETTINGS,
-            },
-            {
-                title: 'Language',
-                iconType: ICON_TYPE.Ionicons,
-                iconName: 'language',
-                route: ROUTES.PREFERRED_LANGUAGE,
-            },
+            // {
+            //     title: 'Time Settings',
+            //     iconType: ICON_TYPE.Octicons,
+            //     iconName: 'clock',
+            //     route: ROUTES.TIME_SETTINGS,
+            // },
+            // {
+            //     title: 'Language',
+            //     iconType: ICON_TYPE.Ionicons,
+            //     iconName: 'language',
+            //     route: ROUTES.PREFERRED_LANGUAGE,
+            // },
             {
                 title: 'Logout',
                 iconType: ICON_TYPE.MaterialIcons,
