@@ -622,9 +622,15 @@ const HomeDashboard = () => {
     const showAPQP = recentAPQP.length > 0 && appLicenses?.hasApqpPpapLicense;
     const showPS = recentPS.length > 0 && appLicenses?.hasProblemSolverLicense;
     const showSM = recentSM.length > 0 && appLicenses?.hasSupplierManagementLicense;
+    const showAuditPro = recentSM.length > 0 && appLicenses?.hasAuditProLicense;
 
     const hasRecentActivity = showAPQP || showPS || showSM;
     console.log('final hasRecentActivity', hasRecentActivity);
+    console.log(' hasSupplierManagementLicense', appLicenses?.hasSupplierManagementLicense);
+    console.log(' appLicenses------->', appLicenses);
+
+
+    
 
     // const orderedRecentList = [
     //   ...(showPS ? recentPS.map(item => ({ ...item, type: 'PS' })) : []),
@@ -750,16 +756,16 @@ const HomeDashboard = () => {
                     />
                     )}
 
-                    {showSM && (
-                    <HomeListRecentActivitySM
-                        statusCode={STATUS_CODES.PENDING_CONCERN}
-                        title="Recently Viewed"
-                        data={recentSM}
-                        loading={false}
-                        hideSeeAll
-                        currentName={currentName}
-                    />
-                    )}
+                   {(showSM || showAuditPro) && (
+    <HomeListRecentActivitySM
+        statusCode={STATUS_CODES.PENDING_CONCERN}
+        title="Recently Viewed"
+        data={recentSM}
+        loading={false}
+        hideSeeAll
+        currentName={currentName}
+    />
+)}
                    {!hasRecentActivity && <NoRecordFound />}
                     </View>
                 </>
