@@ -667,7 +667,10 @@ class CreateNC extends Component {
     var getpreviouspage = routes[routes.length - 2]?.name;
     console.log('previous page' + getpreviouspage);
 
-    if (CurrentPage == ROUTES.CREATE_NC) {
+    if (
+      // CurrentPage == ROUTES.CREATE_NC ||
+      CurrentPage == ROUTES.CREATE_NCLPA
+    ) {
       this.InitVoice();
       console.log(
         'exception1',
@@ -2440,358 +2443,279 @@ class CreateNC extends Component {
         if (this.state.isContainValue4 === false) {
           this.isCheckRequest = true;
         }
-        if (
+
+        const needsClauseText =
+          this.state.clauseMandatory === 1 &&
+          this.state.RouteParam === 'NC' &&
+          !this.state.isLPA;
+        const hasDisplayData =
+          this.state.displayData !== undefined &&
+          this.state.displayData !== null &&
+          String(this.state.displayData).trim().length > 0;
+        const clauseRequirementSatisfied =
+          !needsClauseText ||
+          this.state.selectedItems.length > 0 ||
+          hasDisplayData ||
+          this.state.isLPA;
+        const hasMandatoryFields =
           this.state.categoryArr &&
-          // this.state.NCresponsible &&
           this.state.selectedItemsResponse &&
           this.state.nonconfirmityText &&
-          // this.state.objEvidence &&
-          // this.state.documentRef &&
-          this.state.displayData
-        )
-        //console.log(this.state.NCcategoryt,"catenter")
-          //console.log('entering here to nc');
-        {
-          if (
-            // this.state.selectedItems.length > 0 ||
-            // this.state.selectedItems.length == 0 ||
-            this.state.isLPA == true
-          ) {
-            //console.log('passes...', this.state.fileArrayList);
-            const fileNames = this.state.fileArrayList.map(
-              file => file.fileName,
-            );
-            //console.log('########fileNames', fileNames);
-            const fileDatas = this.state.fileArrayList;
-            console.log(
-              'checkkkkkkkkkkkkkkkk----------ncccccc------------',
-              this.state.fileArrayList,
-            );
-            //console.log('stateres', this.state.selectedItemsResponse);
-            //console.log('########fileNames', fileDatas);
-            //console.log("enter here as 1")
-            const resolvedCategoryDrop =
-              this.state.NCcategoryt && this.state.NCcategoryt.id
-                ? this.state.NCcategoryt.id
-                : this.state.categoryArr &&
-                  this.state.categoryArr[0] &&
-                  this.state.categoryArr[0].id
-                ? this.state.categoryArr[0].id
-                : 0;
+          clauseRequirementSatisfied;
 
-            const resolvedUniqueKey =
-              this.state.type === 'EDIT' && this.state.ncData?.uniqueNCkey
-                ? this.state.ncData.uniqueNCkey
-                : Moment().unix();
+        if (hasMandatoryFields) {
+          const fileNames = this.state.fileArrayList.map(file => file.fileName);
+          const fileDatas = this.state.fileArrayList;
+          const resolvedCategoryDrop =
+            this.state.NCcategoryt && this.state.NCcategoryt.id
+              ? this.state.NCcategoryt.id
+              : this.state.categoryArr &&
+                this.state.categoryArr[0] &&
+                this.state.categoryArr[0].id
+              ? this.state.categoryArr[0].id
+              : 0;
+          const resolvedUniqueKey =
+            this.state.type === 'EDIT' && this.state.ncData?.uniqueNCkey
+              ? this.state.ncData.uniqueNCkey
+              : Moment().unix();
 
-            BundleArr = {
-              requiretext:
-                this.state.displayData === ''
-                  ? undefined
-                  : this.state.displayData,
-              // radioValue === 15 || 13 || 10  ? checklistName : this.state.nonconfirmityText
-              NonConfirmity:
-                this.state.nonconfirmityText === undefined
-                  ? undefined
-                  : this.state.nonconfirmityText,
-              categoryDrop: resolvedCategoryDrop,
-              ResponsibilityUser: this.state.selectedItemsResponse,
-              requestDrop: this.state.requestDropdown[0].id,
-              deptDrop: this.state.NCdept === undefined ? 0 : this.state.NCdept,
-              failureDrop:
-                this.state.NCFailure === undefined ? 0 : this.state.NCFailure,
-              filename: fileNames?.length == 0 ? [] : fileNames,
-              filedata: fileDatas?.length == 0 ? [] : fileDatas,
-              AuditID: this.state.AuditID,
-              AuditOrder: this.state.AuditOrder,
-              ChecklistID: this.state.ChecklistID,
-              Formid: this.state.Formid,
-              SiteID: this.state.SiteID,
-              auditstatus: this.state.auditstatus,
-              title: this.state.title,
-              NCNumber: this.state.auditnumber,
-              Category: 'NC',
-              OFI: this.state.ofitext,
-              uniqueNCkey: resolvedUniqueKey,
-              selectedItems: this.state.selectedItems,
-              selectedItemsProcess: this.state.selectedItemsProcess,
-              ChecklistTemplateId: this.state.templateId,
-              ncIdentifier:
-                this.state.ncIdentifier === undefined
-                  ? ''
-                  : this.state.ncIdentifier,
-              objEvidence:
-                this.state.objEvidence === undefined
-                  ? ''
-                  : this.state.objEvidence,
-              documentRef:
-                this.state.documentRef === undefined
-                  ? ''
-                  : this.state.documentRef,
-              recommAction:
-                this.state.recommAction === undefined
-                  ? ''
-                  : this.state.recommAction,
-              ProcessID:
-                this.props?.route?.params?.NCOFIDetails?.ProcessID,
-              Conformance:
-                this.props?.route?.params?.NCOFIDetails?.Conformance,
-            };
-            //console.log('Information bundled', BundleArr);
+          BundleArr = {
+            requiretext:
+              this.state.displayData === '' ? undefined : this.state.displayData,
+            NonConfirmity:
+              this.state.nonconfirmityText === undefined
+                ? undefined
+                : this.state.nonconfirmityText,
+            categoryDrop: resolvedCategoryDrop,
+            ResponsibilityUser: this.state.selectedItemsResponse,
+            requestDrop: this.state.requestDropdown[0].id,
+            deptDrop: this.state.NCdept === undefined ? 0 : this.state.NCdept,
+            failureDrop:
+              this.state.NCFailure === undefined ? 0 : this.state.NCFailure,
+            filename: fileNames?.length == 0 ? [] : fileNames,
+            filedata: fileDatas?.length == 0 ? [] : fileDatas,
+            AuditID: this.state.AuditID,
+            AuditOrder: this.state.AuditOrder,
+            ChecklistID: this.state.ChecklistID,
+            Formid: this.state.Formid,
+            SiteID: this.state.SiteID,
+            auditstatus: this.state.auditstatus,
+            title: this.state.title,
+            NCNumber: this.state.auditnumber,
+            Category: 'NC',
+            OFI: this.state.ofitext,
+            uniqueNCkey: resolvedUniqueKey,
+            selectedItems: this.state.selectedItems,
+            selectedItemsProcess: this.state.selectedItemsProcess,
+            ChecklistTemplateId: this.state.templateId,
+            ncIdentifier:
+              this.state.ncIdentifier === undefined
+                ? ''
+                : this.state.ncIdentifier,
+            objEvidence:
+              this.state.objEvidence === undefined ? '' : this.state.objEvidence,
+            documentRef:
+              this.state.documentRef === undefined ? '' : this.state.documentRef,
+            recommAction:
+              this.state.recommAction === undefined
+                ? ''
+                : this.state.recommAction,
+            ProcessID: this.props?.route?.params?.NCOFIDetails?.ProcessID,
+            Conformance:
+              this.props?.route?.params?.NCOFIDetails?.Conformance,
+          };
 
-            for (var i = 0; i < NCrecords.length; i++) {
-              if (
-                String(NCrecords[i].AuditID) === String(this.state.AuditID)
-              ) {
-                var Information = [];
-                if (NCrecords[i].Pending) {
-                  //console.log('NCrecords[i].Pending', NCrecords[i].Pending);
-                  for (var j = 0; j < NCrecords[i].Pending.length; j++) {
-                    if (
-                      this.state.type == 'EDIT' &&
-                      this.state.ncData.uniqueNCkey ==
-                        NCrecords?.[i]?.Pending?.[j]?.uniqueNCkey &&
-                      NCrecords?.[i]?.Pending?.[j]?.uniqueNCkey != undefined
-                    ) {
-                      console.log(
-                        'ncuniqkeycheck#####',
-                        this.state.ncData.uniqueNCkey,
+          for (var i = 0; i < NCrecords.length; i++) {
+            if (String(NCrecords[i].AuditID) === String(this.state.AuditID)) {
+              var Information = [];
+              if (NCrecords[i].Pending) {
+                for (var j = 0; j < NCrecords[i].Pending.length; j++) {
+                  if (
+                    this.state.type == 'EDIT' &&
+                    this.state.ncData.uniqueNCkey ==
+                      NCrecords?.[i]?.Pending?.[j]?.uniqueNCkey &&
+                    NCrecords?.[i]?.Pending?.[j]?.uniqueNCkey != undefined
+                  ) {
+                    Information.push(BundleArr);
+                  } else {
+                    Information.push({
+                      AuditID: NCrecords?.[i]?.Pending?.[j]?.AuditID,
+                      AuditOrder: NCrecords?.[i]?.Pending?.[j]?.AuditOrder,
+                      ChecklistID: NCrecords?.[i]?.Pending?.[j]?.ChecklistID,
+                      Formid: NCrecords?.[i]?.Pending?.[j]?.Formid,
+                      SiteID: NCrecords?.[i]?.Pending?.[j]?.SiteID,
+                      title: NCrecords?.[i]?.Pending?.[j]?.title,
+                      requiretext: NCrecords?.[i]?.Pending?.[j]?.requiretext,
+                      OFI: NCrecords?.[i]?.Pending?.[j]?.OFI,
+                      categoryDrop:
+                        NCrecords?.[i]?.Pending?.[j]?.categoryDrop,
+                      ResponsibilityUser:
+                        NCrecords?.[i]?.Pending?.[j]?.ResponsibilityUser,
+                      requestDrop: NCrecords?.[i]?.Pending?.[j]?.requestDrop,
+                      deptDrop: NCrecords?.[i]?.Pending?.[j]?.deptDrop,
+                      failureDrop:
+                        NCrecords?.[i]?.Pending?.[j]?.failureDrop,
+                      NCNumber: NCrecords?.[i]?.Pending?.[j]?.NCNumber,
+                      Category:
+                        NCrecords?.[i]?.Pending?.[j]?.Category,
+                      filename: NCrecords?.[i]?.Pending?.[j].filename,
+                      filedata: NCrecords?.[i]?.Pending?.[j].filedata,
+                      auditstatus:
+                        NCrecords?.[i]?.Pending?.[j]?.auditstatus,
+                      NonConfirmity:
+                        NCrecords?.[i]?.Pending?.[j]?.NonConfirmity,
+                      uniqueNCkey:
                         NCrecords?.[i]?.Pending?.[j]?.uniqueNCkey,
-                      );
-
-                      Information.push(BundleArr);
-                    } else {
-                      console.log(
-                        NCrecords?.[i]?.Pending?.[j].filename,
-                        'helloonetwo222222',
-                      );
-                      console.log(
-                        NCrecords?.[i]?.Pending?.[j],
-                        'helloonetwo11111112',
-                      );
-                      //console.log("enter here as 2")
-                      Information.push({
-                        AuditID: NCrecords?.[i]?.Pending?.[j]?.AuditID,
-                        // AuditID:NCrecords?.[i]?.Pending?.[j]?.AuditID,
-                        AuditOrder: NCrecords?.[i]?.Pending?.[j]?.AuditOrder,
-                        ChecklistID: NCrecords?.[i]?.Pending?.[j]?.ChecklistID,
-                        Formid: NCrecords?.[i]?.Pending?.[j]?.Formid,
-                        SiteID: NCrecords?.[i]?.Pending?.[j]?.SiteID,
-                        title: NCrecords?.[i]?.Pending?.[j]?.title,
-                        requiretext: NCrecords?.[i]?.Pending?.[j]?.requiretext,
-                        OFI: NCrecords?.[i]?.Pending?.[j]?.OFI,
-                        categoryDrop:
-                          NCrecords?.[i]?.Pending?.[j]?.categoryDrop,
-                        ResponsibilityUser:
-                          NCrecords?.[i]?.Pending?.[j]?.ResponsibilityUser,
-                        requestDrop: NCrecords?.[i]?.Pending?.[j]?.requestDrop,
-                        deptDrop: NCrecords?.[i]?.Pending?.[j]?.deptDrop,
-                        failureDrop: NCrecords?.[i]?.Pending?.[j]?.failureDrop,
-                        NCNumber: NCrecords?.[i]?.Pending?.[j]?.NCNumber,
-                        Category: NCrecords?.[i]?.Pending?.[j]?.Category,
-                        // filename: NCrecords?.[i]?.Pending?.[j]?.filename,
-                        // filedata: NCrecords?.[i]?.Pending?.[j]?.filedata,
-                        filename: NCrecords?.[i]?.Pending?.[j].filename,
-                        filedata: NCrecords?.[i]?.Pending?.[j].filedata,
-                        auditstatus: NCrecords?.[i]?.Pending?.[j]?.auditstatus,
-                        NonConfirmity:
-                          NCrecords?.[i]?.Pending?.[j]?.NonConfirmity,
-                        uniqueNCkey: NCrecords?.[i]?.Pending?.[j]?.uniqueNCkey,
-                        selectedItems:
-                          NCrecords?.[i]?.Pending?.[j]?.selectedItems,
-                        selectedItemsProcess:
-                          NCrecords?.[i]?.Pending?.[j]?.selectedItemsProcess,
-                        ChecklistTemplateId:
-                          NCrecords?.[i]?.Pending?.[j]?.ChecklistTemplateId,
-                        ncIdentifier:
-                          NCrecords?.[i]?.Pending?.[j]?.ncIdentifier,
-                        objEvidence: NCrecords?.[i]?.Pending?.[j]?.objEvidence,
-                        documentRef: NCrecords?.[i]?.Pending?.[j]?.documentRef,
-                        recommAction:
-                          NCrecords?.[i]?.Pending?.[j]?.recommAction,
-                      });
-                    }
+                      selectedItems:
+                        NCrecords?.[i]?.Pending?.[j]?.selectedItems,
+                      selectedItemsProcess:
+                        NCrecords?.[i]?.Pending?.[j]?.selectedItemsProcess,
+                      ChecklistTemplateId:
+                        NCrecords?.[i]?.Pending?.[j]?.ChecklistTemplateId,
+                      ncIdentifier:
+                        NCrecords?.[i]?.Pending?.[j]?.ncIdentifier,
+                      objEvidence:
+                        NCrecords?.[i]?.Pending?.[j]?.objEvidence,
+                      documentRef:
+                        NCrecords?.[i]?.Pending?.[j]?.documentRef,
+                      recommAction:
+                        NCrecords?.[i]?.Pending?.[j]?.recommAction,
+                    });
                   }
                 }
+              }
 
-                if (this.state.type == 'ADD' || this.state.isUploaded == true) {
-                  //console.log('CHEKINGDETAILS------', BundleArr);
-                  //console.log('CHEKINGDETAILS------2222222', Information);
+              if (this.state.type == 'ADD' || this.state.isUploaded == true) {
+                Information.push(BundleArr);
+              }
 
-                  Information.push(BundleArr);
-                  //console.log('CHEKINGDETAILS------', Information);
-                }
+              dupNCrecords.push({
+                AuditID: NCrecords[i]?.AuditID,
+                Uploaded: NCrecords[i]?.Uploaded,
+                Pending: Information,
+              });
+            } else {
+              dupNCrecords.push({
+                AuditID: NCrecords[i]?.AuditID,
+                Uploaded: NCrecords[i]?.Uploaded,
+                Pending: NCrecords[i]?.Pending,
+              });
+            }
+          }
 
-                dupNCrecords.push({
-                  AuditID: NCrecords[i].AuditID,
-                  Uploaded: NCrecords[i].Uploaded,
-                  Pending: Information,
+          this.setState(
+            {
+              isSaved: true,
+              MarkCat: false,
+              MarkUser: false,
+              MarkReq: false,
+              MarkClause: false,
+              MarkDept: false,
+              MarkFailure: false,
+              PageLoader: false,
+              isSavebtn: false,
+              isBuffered: true,
+            },
+            () => {
+              console.log(
+                this.state.selectedItemsProcess.length,
+                'hellothreefour1',
+              );
+              this.updateAuditStatus(this.state.AuditID);
+              this.refs.toast.show(strings.Save_Message, DURATION.LENGTH_LONG);
+              setTimeout(() => {
+                this.props.storeNCRecords(dupNCrecords);
+                var cameraCapture = [];
+                this.props.storeCameraCapture(cameraCapture);
+                this.props.navigation.goBack();
+              }, 300);
+            },
+          );
+        } else {
+          this.setState(
+            { isSaved: false, PageLoader: false, isSavebtn: false },
+            () => {
+              alert('Please Fill Mandatory Fields');
+              if (this.state.NCrequestby === undefined) {
+                this.setState(
+                  {
+                    MarkReq: true,
+                  },
+                  () => {},
+                );
+              } else {
+                this.setState(
+                  {
+                    MarkReq: false,
+                  },
+                  () => {},
+                );
+              }
+              if (this.state.NCresponsible === undefined) {
+                this.setState(
+                  {
+                    // MarkUser: true,
+                  },
+                  () => {},
+                );
+              } else {
+                this.setState(
+                  {
+                    MarkUser: false,
+                  },
+                  () => {},
+                );
+              }
+              if (this.state.NCcategoryt === undefined) {
+                this.setState({ MarkCat: true });
+              } else {
+                this.setState(
+                  {
+                    MarkCat: false,
+                  },
+                  () => {},
+                );
+              }
+              if (this.state.NCclause === undefined) {
+                this.setState({
+                  // MarkClause: true,
                 });
               } else {
-                console.log(
-                  'CHEKINGDETAILS--PENDING----',
-                  NCrecords[i].Pending,
-                );
-
-                dupNCrecords.push({
-                  AuditID: NCrecords[i].AuditID,
-                  Uploaded: NCrecords[i].Uploaded,
-                  Pending: NCrecords[i].Pending,
+                this.setState({
+                  MarkClause: false,
                 });
               }
-            }
-
-            //console.log('dupNCrecords', dupNCrecords);
-
-            // Store audit list in redux store to set it in persistant storage
-
-            this.setState(
-              {
-                isSaved: true,
-                MarkCat: false,
-                MarkUser: false,
-                MarkReq: false,
-                MarkClause: false,
-                MarkDept: false,
-                MarkFailure: false,
-                PageLoader: false,
-                isSavebtn: false,
-                isBuffered: true,
-              },
-              () => {
-                //console.log('Loader off');
-                console.log(
-                  this.state.selectedItemsProcess.length,
-                  'hellothreefour1',
+              if (this.state.NCFailure === undefined) {
+                this.setState({
+                  MarkFailure: true,
+                });
+              } else {
+                this.setState({
+                  MarkFailure: false,
+                });
+              }
+              if (this.state.ofitext === undefined) {
+                this.setState({ underline1: true }, () => {});
+              } else {
+                this.setState(
+                  {
+                    underline1: false,
+                  },
+                  () => {},
                 );
-                this.updateAuditStatus(this.state.AuditID);
-                this.refs.toast.show(
-                  strings.Save_Message,
-                  DURATION.LENGTH_LONG,
+              }
+              if (this.state.displayData === undefined) {
+                // ...
+              } else {
+                this.setState(
+                  {
+                    underline2: false,
+                  },
+                  () => {},
                 );
-                setTimeout(() => {
-                  // //console.log('AuditDashBody Props After Props Changing...', this.props)
-                  this.props.storeNCRecords(dupNCrecords);
-                  //console.log(this.props.storeNCRecords,"store redux 3");
-                  
-                  var cameraCapture = [];
-                  this.props.storeCameraCapture(cameraCapture);
-                  this.props.navigation.goBack();
-                }, 300);
-              },
-            );
-          } else {
-            // //console.log('-->',this.state.NCcategoryt,this.state.NCresponsible,this.state.NCrequestby)
-
-            this.setState(
-              { isSaved: false, PageLoader: false, isSavebtn: false },
-              () => {
-                alert('Please Fill Mandatory Fields');
-
-                if (this.state.NCrequestby === undefined) {
-                  this.setState(
-                    {
-                      MarkReq: true,
-                    },
-                    () => {
-                      // //console.log('this.state.MarkReq',this.state.MarkReq)
-                      // this.refs.toast.show(strings.Responsibility,DURATION.LENGTH_LONG)
-                    },
-                  );
-                } else {
-                  this.setState(
-                    {
-                      MarkReq: false,
-                    },
-                    () => {
-                      // //console.log('this.state.MarkReq',this.state.MarkReq)
-                    },
-                  );
-                }
-                if (this.state.NCresponsible === undefined) {
-                  this.setState(
-                    {
-                      // MarkUser: true,
-                    },
-                    () => {
-                      // //console.log('this.state.MarkUser',this.state.MarkUser)
-                      // ---> this.refs.toast.show(strings.Requested,DURATION.LENGTH_LONG)
-                    },
-                  );
-                } else {
-                  this.setState(
-                    {
-                      MarkUser: false,
-                    },
-                    () => {
-                      // //console.log('this.state.MarkUser',this.state.MarkUser)
-                    },
-                  );
-                }
-                if (this.state.NCcategoryt === undefined) {
-                  this.setState({
-                    MarkCat: true,
-                  });
-                } else {
-                  this.setState(
-                    {
-                      MarkCat: false,
-                    },
-                    () => {
-                      // //console.log('this.state.MarkCat',this.state.MarkCat)
-                    },
-                  );
-                }
-                if (this.state.NCclause === undefined) {
-                  this.setState({
-                    // MarkClause: true,
-                  });
-                } else {
-                  this.setState({
-                    MarkClause: false,
-                  });
-                }
-                if (this.state.NCFailure === undefined) {
-                  this.setState({
-                    MarkFailure: true,
-                  });
-                } else {
-                  this.setState({
-                    MarkFailure: false,
-                  });
-                }
-                if (this.state.ofitext === undefined) {
-                  //console.log('ofiundefined');
-                  this.setState({ underline1: true }, () => {
-                    // --->  this.refs.toast.show(strings.OFIfill,DURATION.LENGTH_LONG)
-                  });
-                } else {
-                  this.setState(
-                    {
-                      underline1: false,
-                    },
-                    () => {
-                      // //console.log('this.state.underline1',this.state.underline1)
-                    },
-                  );
-                }
-                if (this.state.displayData === undefined) {
-                  // this.setState({ underline2 : true },() =>{
-                  //   this.refs.toast.show(strings.Clauses,DURATION.LENGTH_LONG)
-                  // })
-                } else {
-                  this.setState(
-                    {
-                      underline2: false,
-                    },
-                    () => {
-                      // //console.log('this.state.underline2',this.state.underline2)
-                    },
-                  );
-                }
-              },
-            );
-          }
+              }
+            },
+          );
         }
       }
 
