@@ -219,9 +219,9 @@ export class DeliverableInfoScreen extends Component {
                   <Text style={styles.apqpTextStyle}>Deliverable Info</Text>
                 </View>
                 <View style={styles.backLogo}>
-                  <TouchableOpacity>
+                  {/* <TouchableOpacity>
                     <Icon name="refresh" size={30} color="white" />
-                  </TouchableOpacity>
+                  </TouchableOpacity> */}
                 </View>
               </View>
             </View>
