@@ -78,6 +78,7 @@ class CreateAttach extends React.Component {
       isErrorFound: false,
       isUrlInValid: false,
       isControllAttach: false,
+      currentUserData: [],
       selectedFormat:
         this.props.data.audits.userDateFormat === null
           ? 'DD-MM-YYYY'
@@ -153,6 +154,26 @@ class CreateAttach extends React.Component {
         },
       );
     }
+  }
+
+  async getAccessToken() {
+    try {
+      const stringifiedUserDetails = await AsyncStorage.getItem('userDetails');
+      const value = stringifiedUserDetails
+        ? JSON.parse(stringifiedUserDetails)
+        : null;
+      console.log('current userdata--->', value);
+      if (value !== null) {
+        console.log('current token2--->', value.accessToken);
+        this.setState({currentUserData: value}, () => {
+          console.log('Token set');
+        });
+      }
+      return value;
+    } catch (e) {
+      console.log('error--->', e);
+    }
+    return null;
   }
 
   getUploadOn() {
@@ -448,10 +469,20 @@ class CreateAttach extends React.Component {
             isErrorFound: false,
           },
           async () => {
+            var userDetails = await this.getAccessToken();
             var auditRecords = this.props.data.audits.auditRecords;
-            var Token = this.props.data.audits.token;
-            var SiteId = this.props.data.audits.siteId;
-            var UserId = this.props.data.audits.userId;
+            var Token =
+              userDetails?.accessToken ||
+              this.state.currentUserData?.accessToken ||
+              this.props.data.audits.token;
+            var SiteId =
+              userDetails?.siteId ||
+              this.state.currentUserData?.siteId ||
+              this.props.data.audits.siteId;
+            var UserId =
+              userDetails?.userId ||
+              this.state.currentUserData?.userId ||
+              this.props.data.audits.userId;
             var RequestParam = [];
 
             var auditRecords = this.props.data.audits.auditRecords;
@@ -615,8 +646,12 @@ class CreateAttach extends React.Component {
     console.log('forming doc pro request ...');
 
     // Dynamic fields
+    const userDetails = await this.getAccessToken();
     var AuditID = this.state.AuditID;
-    var token = this.props.data.audits.token;
+    var token =
+      userDetails?.accessToken ||
+      this.state.currentUserData?.accessToken ||
+      this.props.data.audits.token;
     var fext = this._extension;
 
     console.log('fext fext', fext);
@@ -625,8 +660,14 @@ class CreateAttach extends React.Component {
     // var ext = getExt[1]
     var regexExt = /(?:\.([^.]+))?$/;
     // var ext = fext;
-    var siteId = this.props.data.audits.siteId;
-    var UserId = this.props.data.audits.userId;
+    var siteId =
+      userDetails?.siteId ||
+      this.state.currentUserData?.siteId ||
+      this.props.data.audits.siteId;
+    var UserId =
+      userDetails?.userId ||
+      this.state.currentUserData?.userId ||
+      this.props.data.audits.userId;
     var auditRecords = this.props.data.audits.auditRecords;
     // var dname = this._filename;
     var dname = this.state.attachment;

@@ -48,6 +48,7 @@ class AuditAttach extends React.Component {
       AuditID: '',
       NetInfo: false,
       breadCrumbText: '',
+      currentUserData: [],
       selectedFormat:
         this.props.data.audits.userDateFormat === null
           ? 'DD-MM-YYYY'
@@ -94,6 +95,26 @@ class AuditAttach extends React.Component {
     );
   }
 
+  async getAccessToken() {
+    try {
+      const stringifiedUserDetails = await AsyncStorage.getItem('userDetails');
+      const value = stringifiedUserDetails
+        ? JSON.parse(stringifiedUserDetails)
+        : null;
+      console.log('current userdata--->', value);
+      if (value !== null) {
+        console.log('current token2--->', value.accessToken);
+        this.setState({currentUserData: value}, () => {
+          console.log('Token set');
+        });
+      }
+      return value;
+    } catch (e) {
+      console.log('error--->', e);
+    }
+    return null;
+  }
+
   componentWillReceiveProps() {
         var CurrentPage = this.props.route.name;
 console.log('checksreename', CurrentPage);
@@ -108,7 +129,8 @@ console.log('checksreename', CurrentPage);
     this.getHistory();
   }
 
-  getHistory() {
+  async getHistory() {
+    const userDetails = await this.getAccessToken();
     if (this.props.data.audits.isOfflineMode) {
       this.setState({pageLoad: false, NetInfo: true}, () => {
         console.log('Page load is off');
@@ -118,8 +140,14 @@ console.log('checksreename', CurrentPage);
       NetInfo.fetch().then(async isConnected => {
         if (isConnected.isConnected) {
           var auditRecords = this.props.data.audits.auditRecords;
-          var Token = this.props.data.audits.token;
-          var SiteId = this.props.data.audits.siteId;
+          var Token =
+            userDetails?.accessToken ||
+            this.state.currentUserData?.accessToken ||
+            this.props.data.audits.token;
+          var SiteId =
+            userDetails?.siteId ||
+            this.state.currentUserData?.siteId ||
+            this.props.data.audits.siteId;
           var ObjectiveEvidence = this.props.data.audits;
           console.log('objEvi==>', this.props.data.audits, ObjectiveEvidence);
           var RequestParam = [];

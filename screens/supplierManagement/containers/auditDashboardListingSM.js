@@ -139,6 +139,7 @@ applyAuditFilter = () => {
 
     this.setState({auditList: filtered});
   };
+  
   render() {
     return (
       <View style={styles.wrapper}>
@@ -350,15 +351,15 @@ applyAuditFilter = () => {
           Default = 1;
         let filterStr = '';
 
-        // if (this.state.filterID === '2') {
-        //   filterStr = 'AuditStatus IN (2)';
-        // } else if (this.state.filterID === '3') {
-        //   filterStr = 'AuditStatus IN (3)';
-        // } else if (this.state.filterID === '4') {
-        //   filterStr = 'AuditStatus IN (4)';
-        // } else if (this.state.filterID === '5') {
-        //   filterStr = 'AuditStatus IN (5)';
-        // }
+        if (this.state.filterID === '2') {
+          filterStr = 'AuditStatus IN (2)';
+        } else if (this.state.filterID === '3') {
+          filterStr = 'AuditStatus IN (3)';
+        } else if (this.state.filterID === '4') {
+          filterStr = 'AuditStatus IN (4)';
+        } else if (this.state.filterID === '5') {
+          filterStr = 'AuditStatus IN (5)';
+        }
         console.log('tret', auth.getauditlist);
         console.log('paramcheckkkk', 
           this.currentUserData.accessToken,
