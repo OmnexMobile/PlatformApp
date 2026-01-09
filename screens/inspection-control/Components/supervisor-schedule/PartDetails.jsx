@@ -13,15 +13,15 @@ const KeyValueList = ({ title = '', value = '' }) => {
                 <Text style={[styles.cardTitle]}>{title}</Text>
             </View>
             <View style={[styles.boxOne]}>
-                <Text style={[styles.cardTitle]} >{value}</Text>
+                <Text style={[styles.cardTitle]}>{value}</Text>
             </View>
         </View>
     );
 };
 
-const PartDetails = ({ visible = false, onDismiss = () => {},selectedData={} }) => {
-      const { dateFormat } = useSelector(state => state.inspection);
-        const uiDateFormat = dateFormat || 'DD/MM/YYYY';
+const PartDetails = ({ visible = false, onDismiss = () => {}, selectedData = {} }) => {
+    const { dateFormat } = useSelector(state => state.inspection);
+    const uiDateFormat = dateFormat || 'DD/MM/YYYY';
     return (
         <Modal visible={visible} onDismiss={onDismiss} contentContainerStyle={[styles.modalConatiner]}>
             <View style={[styles.modalcontainer]}>
@@ -38,7 +38,12 @@ const PartDetails = ({ visible = false, onDismiss = () => {},selectedData={} }) 
                         {/* {Boolean(selectedData?.InspectionType ==2) && <KeyValueList title="Model" value={selectedData?.ProductionLineName} />} */}
                         <KeyValueList title="Sample Frequency" value={selectedData?.SampleFrequency} />
                         <KeyValueList title="Inspector" value={selectedData?.Operator} />
-                        <KeyValueList title="Inspected Date" value={selectedData?.EnteredDate!==''?moment(new Date(selectedData?.EnteredDate)).format(`${uiDateFormat} hh:mm A`):''} />
+                        <KeyValueList
+                            title="Inspected Date"
+                            value={
+                                selectedData?.EnteredDate !== '' ? moment(new Date(selectedData?.EnteredDate)).format(`${uiDateFormat} hh:mm A`) : ''
+                            }
+                        />
                     </ScrollView>
                 </View>
                 <View>
@@ -71,11 +76,11 @@ const styles = StyleSheet.create({
         fontFamily: 'OpenSans-Bold',
         fontSize: 18,
         marginBottom: 13,
-        color:COLORS.ictextBlack
+        color: COLORS.ictextBlack,
     },
     contentBox: {
-        maxHeight:370,
-        marginVertical:15
+        maxHeight: 370,
+        marginVertical: 15,
     },
     boxConatiner: {
         flexDirection: 'row',
@@ -91,7 +96,7 @@ const styles = StyleSheet.create({
     cardTitle: {
         fontFamily: 'OpenSans-SemiBold',
         fontSize: 14,
-        color:COLORS.headerText
+        color: COLORS.headerText,
     },
     btnConatiner: {
         flexDirection: 'row',
@@ -109,7 +114,7 @@ const styles = StyleSheet.create({
     cardValue: {
         fontFamily: 'OpenSans-SemiBold',
         fontSize: 12,
-        color:COLORS.headerText
+        color: COLORS.headerText,
     },
 });
 export default PartDetails;

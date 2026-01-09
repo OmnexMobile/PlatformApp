@@ -77,14 +77,14 @@ const DynamicDropDown = ({
         setMultiValue([]);
         handleSelectedList([]);
     };
-    const handleSelectAllPress=()=>{
+    const handleSelectAllPress = () => {
         let temp = JSON.parse(JSON.stringify(listData));
-        const updatedData = temp.map(item => ({ ...item, isChecked:true }));
+        const updatedData = temp.map(item => ({ ...item, isChecked: true }));
         const filterList = updatedData.filter(item => item.isChecked);
         handleSelectedList(filterList);
         setMultiValue(filterList);
         setListData([...updatedData]);
-    }
+    };
     return (
         <Menu
             visible={visible}
@@ -136,7 +136,7 @@ const DynamicDropDown = ({
                         onPress={() => {
                             handleSelectAllPress();
                         }}>
-                            <Text style={[styles.listText,{paddingVertical:10,fontSize:16}]}>Select All</Text>
+                        <Text style={[styles.listText, { paddingVertical: 10, fontSize: 16 }]}>Select All</Text>
                     </TouchableOpacity>
                 )}
                 {Boolean(listData.length) &&

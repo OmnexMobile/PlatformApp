@@ -32,7 +32,7 @@ const DeleteModal = ({ visible = false, handleClose = () => {}, handleYesPress =
                     </ButtonComponent>
                     <ButtonComponent
                         success={true}
-                        style={{ height: 30, width: 100}}
+                        style={{ height: 30, width: 100 }}
                         onPress={() => {
                             handleYesPress();
                         }}

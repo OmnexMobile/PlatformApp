@@ -72,7 +72,7 @@ const DynamicFormField = ({
             return (
                 <View style={{ marginTop: 8 }}>
                     <DataPickerWithIcon
-                        value={value ? moment(value, 'MM/DD/YYYY').toDate() : null}
+                        value={value ? moment(new Date(value), 'MM/DD/YYYY').toDate() : null}
                         onSelectedDate={val => {
                             handleChange(val);
                         }}
@@ -145,7 +145,12 @@ const DynamicFormField = ({
         case 'TextArea':
             return (
                 <View style={{ marginTop: 8 }}>
-                    <AutoSizingTextInput isEditable={isEditable} value={value || ''} handleChange={val => handleChange(val)} placeholder={placeHolder}/>
+                    <AutoSizingTextInput
+                        isEditable={isEditable}
+                        value={value || ''}
+                        handleChange={val => handleChange(val)}
+                        placeholder={placeHolder}
+                    />
                 </View>
             );
         default:
