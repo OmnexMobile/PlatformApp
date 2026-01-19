@@ -168,10 +168,10 @@ const HomeDashboard = () => {
                 if (userDetails) {
                     setuserDetailsAudit(userDetails);
                     setaccessToken(userDetails.accessToken);
-                    if(sites?.selectedSite){
+                    if(sites?.selectedSite?.Siteid){
                         setsiteId(sites?.selectedSite?.Siteid);
                     } else {
-                    setsiteId(userDetails.siteId);
+                        setsiteId(userDetails?.siteId);
                     }
                     setuserId(userDetails.userId);
                     setCurrentUserData(userDetails);
