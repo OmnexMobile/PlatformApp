@@ -432,17 +432,19 @@ this.getParamsDetails();
     }
   }
 
-  updateRecentAuditList(AuditId, status) {
+  async updateRecentAuditList(AuditId, status) {
     if (status === null || typeof status === 'undefined') {
       status = this.state.AuditProp.cStatus;
     }
     var recentAuditListProps = this.props.data.audits.recentAudits;
     var recentAudits = [];
     const screenName = this.props?.route?.name || ROUTES.AUDIT_PAGE_SM;
+    const smIndexRaw = await AsyncStorage.getItem('supplierIndex');
     const recentModule = screenName;
     const auditPropWithModule = {
       ...this.state.AuditProp,
       recent_Module: recentModule,
+      smData: smIndexRaw ? JSON.parse(smIndexRaw) : null,
     };
 
     if (recentAuditListProps.length > 0) {
@@ -478,13 +480,19 @@ console.log('checktheaudits---Smmmmmm',recentAudits);
     this.props.updateRecentAuditList(recentAudits, screenName);
   }
 
-  loadSupplierIndex = async () => {
+  async loadSupplierIndex () {
     try {
       const smIndexRaw = await AsyncStorage.getItem('supplierIndex');
-      const smIndex = smIndexRaw ? JSON.parse(smIndexRaw) : null;
-
+      var smIndex = '';
+      if(this.props?.route?.params?.screenFrom == "Dashboard"){
+          smIndex = this.props?.route?.params?.datapass?.smData;
+      }else{
+          smIndex = smIndexRaw ? JSON.parse(smIndexRaw) : null;
+      }
       console.log('Loaded supplierIndex:', smIndex);
-      this.setState({smData: smIndex});
+      this.setState({smData: smIndex},() => {
+        console.log('checksmdatavalue------>',this.state.smData);
+      });
       if (this.props.storeSupplierData && smIndex) {
         this.props.storeSupplierData(smIndex);
       }
@@ -2454,6 +2462,7 @@ console.log('checkvalues0000',SiteID,UserId,SearchCondition,TOKEN,iAuditId,iAudP
           FailureReasonId:CheckpointsDetails[i].FailureReasonId,
           FormId: CheckpointsDetails[i].FormId,
           immediateAction: CheckpointsDetails[i].immediateAction,
+          ncOFIStatus: CheckpointsDetails[i].ByteAttachment1,
         });
       }
     }
@@ -2689,6 +2698,8 @@ console.log('checkvalues0000',SiteID,UserId,SearchCondition,TOKEN,iAuditId,iAudP
     this.props.storeNCRecords(dupNCrecords);
 
     // Update audit status in the audit list
+    console.log('checktheauditstatus------->', this.props.data.audits.audits);
+    
     var auditListOrg = this.props.data.audits.audits;
     var auditList = [];
 
@@ -3393,6 +3404,38 @@ console.log('checkvalues0000',SiteID,UserId,SearchCondition,TOKEN,iAuditId,iAudP
     );
   };
 
+  getCurrentAuditCStatus = () => {
+    const dataPass = this.props?.route?.params?.datapass;
+    const targetAuditId =
+      this.state.AuditProp?.ActualAuditId ||
+      dataPass?.ActualAuditId ||
+      this.state.AUDIT_ID ||
+      this.state.auditDetailList?.AuditId;
+
+    if (!targetAuditId) {
+      return this.state.AuditProp?.cStatus || dataPass?.cStatus;
+    }
+
+    const auditRecords = this.props?.data?.audits?.auditRecords || [];
+    const currentRecord = auditRecords.find(
+      item => `${item.AuditId}` === `${targetAuditId}`,
+    );
+    if (currentRecord?.AuditRecordStatus) {
+      return currentRecord.AuditRecordStatus;
+    }
+
+    const auditList = this.props?.data?.audits?.audits || [];
+    const currentAudit = auditList.find(
+      item => `${item.ActualAuditId}` === `${targetAuditId}`,
+    );
+
+    return (
+      currentAudit?.cStatus ||
+      this.state.AuditProp?.cStatus ||
+      dataPass?.cStatus
+    );
+  };
+
   changeDateFormat = inDate => {
     console.log('Date format ==-->', this.state.selectedFormat);
     var DefaultFormatL = this.state.selectedFormat;
@@ -3434,6 +3477,7 @@ console.log('checkvalues0000',SiteID,UserId,SearchCondition,TOKEN,iAuditId,iAudP
       {id: strings.sugesstion6},
       {id: strings.sugesstion7},
     ];
+    const currentAuditStatus = this.getCurrentAuditCStatus();
 
     // const Audit_Status = this.displayStatusNew(
     //   this.props?.route?.params?.datapass?.cStatus,
@@ -3645,10 +3689,15 @@ console.log('checkvalues0000',SiteID,UserId,SearchCondition,TOKEN,iAuditId,iAudP
                       </Text>
                     </View>
                     <View style={styles.boxCard2}>
-                    {this.props.route.params.screenFrom == "Dashboard" ? this.displayStatusNew(this.props.route.params.datapass?.AuditStatus) :
-                    this.displayStatusNew(this.props.route.params.datapass?.cStatus)}                                         
-                    </View>
+                    {/* {this.props?.route?.params?.screenFrom == "Dashboard"
+                      ? this.displayStatusNew(
+                          this.props?.route?.params?.datapass?.AuditStatus,
+                        )
+                      :  */}
+                      {this.displayStatusNew(this.getCurrentAuditCStatus())}
+                      {/* } */}
                   </View>
+                </View>
 
                   <View style={styles.card}>
                     <View style={styles.boxCard1}>
@@ -3960,8 +4009,8 @@ console.log('checkvalues0000',SiteID,UserId,SearchCondition,TOKEN,iAuditId,iAudP
                 ) : !this.state.isDownloading ? (
                   <View style={styles.footerDivContent}>
                     {this.state.checkSync === true ||
-                    this.state.AuditProp.cStatus == constant.StatusSynced ||
-                    this.state.AuditProp.cStatus == constant.StatusCompleted? (
+                    currentAuditStatus == constant.StatusSynced ||
+                    currentAuditStatus == constant.StatusCompleted ? (
                       <View style={{width: '25%'}}>
                         <TouchableOpacity
                           onPress={this.onNavigateTo.bind(this, 4)}
@@ -3997,8 +4046,8 @@ console.log('checkvalues0000',SiteID,UserId,SearchCondition,TOKEN,iAuditId,iAudP
                     <View
                       style={
                         this.state.checkSync === true ||
-                        this.state.AuditProp.cStatus == constant.StatusSynced ||
-                        this.state.AuditProp.cStatus == constant.StatusCompleted
+                        currentAuditStatus == constant.StatusSynced ||
+                        currentAuditStatus == constant.StatusCompleted
                           ? {width: '25%'}
                           : {
                               width:

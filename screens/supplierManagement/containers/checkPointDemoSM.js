@@ -3908,7 +3908,8 @@ updatecheckpointvalues_new = () => {
           SiteID: this.state.raiseID.SiteID,
           auditstatus: this.state.raiseID.auditstatus,
           title: this.state.raiseID.title,
-          NCNumber: this.state.raiseID.AUDIT_NO+'-'+id+'-'+maxOrder,
+          // NCNumber: this.state.raiseID.AUDIT_NO+'-'+id+'-'+maxOrder,
+          NCNumber: uploadedData.NCNumber,
           Category: id,
           NonConfirmity: uploadedData.NonConfirmity,
           uniqueNCkey: Moment().unix(),
@@ -3921,10 +3922,17 @@ updatecheckpointvalues_new = () => {
           recommAction: uploadedData.RecommendedAction,
         };
       }
-      if(maxOrder == 0){
-        AsyncStorage.setItem('ncNumberUpdate',this.state.raiseID.AUDIT_NO);
-      }else{
-        AsyncStorage.setItem('ncNumberUpdate',this.state.raiseID.AUDIT_NO+'-'+id+'-'+maxOrder);
+       if (maxOrder == 0) {
+        AsyncStorage.setItem("ncNumberUpdate", this.state.raiseID.AUDIT_NO);
+        console.log('check1000000if');
+        
+      } else {
+        AsyncStorage.setItem(
+          "ncNumberUpdate",uploadedData.NCNumber
+          // this.state.raiseID.AUDIT_NO + "-" + id + "-" + maxOrder
+        );
+        console.log('check1000000else');
+
       }
     }
     console.log('CheckPoint2>Odata', data);
@@ -4977,8 +4985,9 @@ this.setState({selectedindex: checkpoint});
       }
     }
   }
-  initiateDownload(attachment) {
-    var Token = this.props.data.audits.token;
+  async initiateDownload(attachment) {
+    var userDetails = await this.getAccessToken();
+    var Token = userDetails?.accessToken || this.state.currentUserData?.accessToken || this.props.data.audits.token;
     auth.downloadFile(attachment.Docid, Token, (res, data) => {
       //console.log('getFiles File download response', data);
       if (data.data.Message == 'Success') {

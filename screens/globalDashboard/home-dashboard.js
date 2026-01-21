@@ -757,15 +757,15 @@ const HomeDashboard = () => {
                     )}
 
                    {(showSM || showAuditPro) && (
-    <HomeListRecentActivitySM
-        statusCode={STATUS_CODES.PENDING_CONCERN}
-        title="Recently Viewed"
-        data={recentSM}
-        loading={false}
-        hideSeeAll
-        currentName={currentName}
-    />
-)}
+                    <HomeListRecentActivitySM
+                        statusCode={STATUS_CODES.PENDING_CONCERN}
+                        title="Recently Viewed"
+                        data={recentSM}
+                        loading={false}
+                        hideSeeAll
+                        currentName={currentName}
+                        />
+                    )}
                    {!hasRecentActivity && <NoRecordFound />}
                     </View>
                 </>

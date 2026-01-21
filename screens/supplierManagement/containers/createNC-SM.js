@@ -245,7 +245,7 @@ class CreateNC extends Component {
     this.syncSupplierIndex();
     Voice.onSpeechResults = this.onSpeechResults;
 
-   console.log('checksthispropsdata***************',this.props);
+   console.log('checksthispropsdata***************',this.props?.route?.params);
    
     if (this.props?.route?.params?.data != null) {
       console.log(
@@ -324,7 +324,6 @@ class CreateNC extends Component {
     setTimeout(() => this.LongTask(), 1000);
     this.getUserDetails();
   }
-
   syncSupplierIndex = async () => {
     try {
       const storedSupplierIndex = await AsyncStorage.getItem('supplierIndex');
@@ -342,22 +341,27 @@ class CreateNC extends Component {
   };
   
   async getUserDetails() {
-    // var userid = await AsyncStorage.getItem('userId');
-    // var username = await AsyncStorage.getItem('userName');
+    var ncNumberUpdate = await AsyncStorage.getItem('ncNumberUpdate');
+    console.log(ncNumberUpdate, 'Asyncusergetand ncNumberUpdate');
+  console.log('testing9090909090',this.props?.route?.params?.navigationfrom);
+  
     const stringifiedUserDetails = await AsyncStorage.getItem('userDetails');
     const value = JSON.parse(stringifiedUserDetails);
     console.log('current userdata--->', value)
     console.log(value.userId, value.userFullName, 'Asyncusergetand set');
     var userDetails = [];
     userDetails.push({
-      // value: username,
-      // id: userid,
       value: value.userFullName,
       id: value.userId,
     });
     console.log(userDetails, 'userdetails');
     this.setState({
       requestDropdown: userDetails,
+      NCNumberUpdate : ncNumberUpdate
+
+    },() => {
+      console.log('checkthe nc updateee',this.state.NCNumberUpdate);
+      
     });
   }
 
@@ -2437,7 +2441,7 @@ class CreateNC extends Component {
               auditstatus: this.state.auditstatus,
               title: this.state.title,
               // NCNumber: this.state.auditnumber,
-              NCNumber: this.props?.navigation?.state?.params?.navigationfrom == "checkpointDemo" ? this.state.NCNumberUpdate : this.state.auditnumber,
+              NCNumber: this.props?.route?.params?.navigationfrom == "checkpointDemo" ? this.state.NCNumberUpdate : this.state.auditnumber,
               Category: 'NC',
               OFI: this.state.ofitext,
               uniqueNCkey: Moment().unix(),
@@ -2797,7 +2801,7 @@ class CreateNC extends Component {
             SiteID: this.state.SiteID,
             auditstatus: this.state.auditstatus,
             title: this.state.title,
-            NCNumber: this.props?.navigation?.state?.params?.navigationfrom == "checkpointDemo" ? this.state.NCNumberUpdate : this.state.auditnumber,
+            NCNumber: this.props?.route?.params?.navigationfrom == "checkpointDemo" ? this.state.NCNumberUpdate : this.state.auditnumber,
             Category: 'OFI',
             // OFI: this.state.ofitext,
             NonConfirmity:

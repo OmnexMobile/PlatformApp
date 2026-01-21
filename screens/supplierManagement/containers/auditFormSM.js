@@ -1343,6 +1343,9 @@ async getparamsDetails(){
     });
   }
     setSyncCompleted() {
+    if (parseInt(this.syncStatus) >= 4) {
+      return;
+    }
     this.syncStatus = parseInt(this.syncStatus) + 1;
     this.setState(
       {
@@ -1360,10 +1363,10 @@ async getparamsDetails(){
                 await AsyncStorage.setItem(`audit_edited_${AuditID}`, 'false');
               }
               console.log('aftersyncsuccess------>');
-              await AsyncStorage.setItem('redDotActive', 'false');
+        await AsyncStorage.setItem('redDotActive', 'false');
         await AsyncStorage.setItem('redDotActive', 'false');
         console.log('Document Successfully Sequence Completed');
-        this.props.navigation.goBack();
+        this.syncResponseHandle();
       },
     );
   }
@@ -2944,9 +2947,13 @@ reDirect = () => {
             //     // isDownloaded : false
             //   });
             // }
+              const updatedDataPass = {
+                ...(this.props.route?.params?.datapassParam || {}),
+                cStatus: constants.StatusSynced,
+              };
               this.props.navigation.navigate(ROUTES.AUDIT_PAGE_SM, {
                 isSubmitted: this.state.notifyRed,
-                datapass: this.props.route?.params?.datapassParam,
+                datapass: updatedDataPass,
               });
             
             } else if (!this.isDocsAvail) {
