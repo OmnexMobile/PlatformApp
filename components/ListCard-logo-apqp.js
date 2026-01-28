@@ -73,15 +73,21 @@ const ListCardLogoApqp = ({ item = {}, statusCode }) => {
                 <Ripple
                     rippleContainerBorderRadius={SPACING.SMALL}
                     onPress={() =>
-                        statusCode === STATUS_CODES.TODAYS_TASK ?
-                        navigation.navigate(ROUTES.APQP_PPAP_MANAGER_SCREEN, {
-                            filterId: 2,
-                            title: strings.projects,
-                            todayn: 2,
+                        statusCode === STATUS_CODES.TODAY_CONCERN ?
+                        navigation.navigate(ROUTES.PERIODIC_UPDATE_SCREEN, {
+                            itemData: item,
+                            RouteParam: "Project",
+                            ProjectId: item.ProjectId,
+                            TaskID: item.TaskId,
+                            //activeTab: this.state.activeTab,
                         }) :
-                        navigation.navigate(ROUTES.TODAYS_TASK, {
-                            isFilterApplied: false,
-                        }) 
+                        navigation.navigate(ROUTES.PERIODIC_UPDATE_SCREEN, {
+                            itemData: item,
+                            RouteParam: "Project",
+                            ProjectId: item.ProjectID,
+                            TaskID: item.ActionId,
+                            //activeTab: this.state.activeTab,
+                        })
                     }
                     activeOpacity={1}
                     style={{

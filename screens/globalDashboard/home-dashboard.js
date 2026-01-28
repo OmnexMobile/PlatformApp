@@ -240,6 +240,10 @@ const HomeDashboard = () => {
             const mergedActivity = [...todaysActivitySM, ...todaysActivityPS, ...todaysActivityAPQP];
             settodaysActivity(mergedActivity);
             console.log('Final today activity------->123', mergedActivity);
+        } else { //update to handle empty states
+            const mergedActivity = [...todaysActivitySM, ...todaysActivityPS, ...todaysActivityAPQP];
+            settodaysActivity(mergedActivity);
+            console.log('Final today activity 2------->123', mergedActivity);
         }
 
         // Normalize each input to an array
@@ -670,7 +674,7 @@ const HomeDashboard = () => {
                 <HomeListComponent
                     {...{
                         statusCode: STATUS_CODES.TODAY_CONCERN,
-                        title: 'Today’s Activity/Concern',
+                        title: 'Today’s Activity',
                         data: todaysActivity,
                         // loading: todayList?.loading,
                         loading: false,

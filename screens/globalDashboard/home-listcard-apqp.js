@@ -73,9 +73,20 @@ const HomeListCardApqp = ({ item = {}, route }) => {
                                 <Ripple
                                     rippleContainerBorderRadius={SPACING.SMALL}
                                     onPress={() =>
-                                        navigation.navigate(ROUTES.EDIT_CONCERN, {
-                                            ConcernID: item?.ConcernID,
-                                            FormTypeID: 3,
+                                        statusCode === STATUS_CODES.TODAY_CONCERN ?
+                                        navigation.navigate(ROUTES.PERIODIC_UPDATE_SCREEN, {
+                                            itemData: item,
+                                            RouteParam: "Project",
+                                            ProjectId: item.ProjectId,
+                                            TaskID: item.TaskId,
+                                            //activeTab: this.state.activeTab,
+                                        }) :
+                                        navigation.navigate(ROUTES.PERIODIC_UPDATE_SCREEN, {
+                                            itemData: item,
+                                            RouteParam: "Project",
+                                            ProjectId: item.ProjectID,
+                                            TaskID: item.ActionId,
+                                            //activeTab: this.state.activeTab,
                                         })
                                     }
                                     activeOpacity={1}
