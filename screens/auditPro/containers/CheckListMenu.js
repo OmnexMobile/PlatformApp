@@ -142,14 +142,83 @@ class CheckListMenu extends Component {
     }
 
     if (parentData.length > 0) {
-      for (var i = 0; i < parentData.length; i++) {
-        displayData.push(parentData[i]);
-        var checklistParentId = parentData[i].ChecklistTemplateId;
+      const addedParentIds = new Set();
+      const seriesProductionItem = parentData.find(
+        item =>
+          item.ChecklistName &&
+          item.ChecklistName.toLowerCase() === 'series production',
+      );
+      const seriesProductionId = seriesProductionItem
+        ? seriesProductionItem.ChecklistTemplateId
+        : null;
+      const p6Item = parentData.find(
+        item =>
+          item.ChecklistName &&
+          item.ChecklistName.toLowerCase().startsWith('p6.'),
+      );
+
+      // Helper to push a parent and its checklist children once
+      const appendParentWithChildren = parentItem => {
+        displayData.push(parentItem);
+        addedParentIds.add(parentItem.ChecklistTemplateId);
+        const checklistParentId = parentItem.ChecklistTemplateId;
         for (var j = 0; j < checklistData.length; j++) {
           if (checklistData[j].ParentId == checklistParentId) {
             displayData.push(checklistData[j]);
           }
         }
+      };
+
+      for (var i = 0; i < parentData.length; i++) {
+        const parentItem = parentData[i];
+
+        // Skip if already injected (prevents duplicates when nesting)
+        if (addedParentIds.has(parentItem.ChecklistTemplateId)) {
+          continue;
+        }
+
+        const isSeriesProduction =
+          parentItem.ChecklistName &&
+          parentItem.ChecklistName.toLowerCase() === 'series production';
+
+        // Handle Series production separately to place P6 under P5
+        if (isSeriesProduction) {
+          displayData.push(parentItem);
+          addedParentIds.add(parentItem.ChecklistTemplateId);
+
+          const seriesChildren = checklistData.filter(
+            child => child.ParentId == parentItem.ChecklistTemplateId,
+          );
+
+          let p6Inserted = false;
+          for (var sc = 0; sc < seriesChildren.length; sc++) {
+            const child = seriesChildren[sc];
+            displayData.push(child);
+
+            const isP5Child =
+              child.ChecklistName &&
+              child.ChecklistName.toLowerCase().startsWith('p5.');
+
+            if (!p6Inserted && p6Item && isP5Child) {
+              appendParentWithChildren(p6Item);
+              p6Inserted = true;
+            }
+          }
+
+          // Fallback: if P5 not found, still show P6 after other series children
+          if (!p6Inserted && p6Item) {
+            appendParentWithChildren(p6Item);
+          }
+
+          continue;
+        }
+
+        // Skip P6 here; it is injected under P5 within Series production
+        if (p6Item && parentItem.ChecklistTemplateId == p6Item.ChecklistTemplateId) {
+          continue;
+        }
+
+        appendParentWithChildren(parentItem);
       }
     } else {
       for (var j = 0; j < checklistData.length; j++) {
@@ -459,7 +528,7 @@ class CheckListMenu extends Component {
                       ) : items.CompLevelId == 2 ? (
                         <TouchableOpacity style={styles.parentcardBox}>
                           <View style={{ width: '5%', height: 50, justifyContent: 'center', alignItems: 'center', }}></View>
-                          {items.ChecklistName.toLowerCase() ===
+                          {items.ChecklistName.toUpperCase() ===
                           'series production' ? null : (
                             <LinearGradient start={{x: 0, y: 0}} end={{x: 1, y: 0}} colors={['#00aed0', '#1FBFD0', '#00bec1']} style={styles.LG2}>
                               <View style={{ width: '100%', height: 50, justifyContent: 'center', }}>

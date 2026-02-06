@@ -195,8 +195,13 @@ class CheckPointDemo extends Component {
       screenWidth: Dimensions.get('window').width,
       isPickingAttachment: false,
       activeSlide: 0,
+      categoryModalVisible: false,
+      categoryModalValue: '',
+      categoryModalCheckpointIndex: null,
 
     };
+    this.pendingRadioChange = null;
+
   }
 
   // Tracks how many checkpoints have been processed at each stage
@@ -2908,6 +2913,8 @@ class CheckPointDemo extends Component {
           
           this.props.storeCameraCapture([]);
         } else {
+          this.pendingRadioChange = null;
+
           this.setState(
             {
               isAttachmentLoaded: true,
@@ -3252,6 +3259,8 @@ class CheckPointDemo extends Component {
             },
           );
         } else {
+          this.pendingRadioChange = null;
+
           this.setState(
             {
               isSaving: true,
@@ -5222,6 +5231,8 @@ this.props.navigation.setParams({ auditUpdated: true });
 
   // Clears NC-related state for the current checkpoint
   clearNcCheckpoint = () => {
+    this.pendingRadioChange = null;
+    const templateId = this.state.ncRemovalTemplateId;
     this.setState({dialogVisibleNCR: false}, async () => {
       var dupNCrecords = [];
       var NCrecords = this.props.data.audits.ncofiRecords;
@@ -5262,6 +5273,28 @@ this.props.navigation.setParams({ auditUpdated: true });
       this.ncofiBaseline = this.cloneNcofiRecords(dupNCrecords);
       //console.log(this.props.storeNCRecords, 'storeNCRecords');
       this.refs.toast.show(strings.NCremoved, DURATION.LENGTH_LONG);
+    });
+  };
+
+
+  declineNcRemoval = () => {
+    if (!this.pendingRadioChange) {
+      this.setState({dialogVisibleNCR: false});
+      return;
+    }
+    const {index, previousRecord} = this.pendingRadioChange;
+    this.pendingRadioChange = null;
+    this.setState(prevState => {
+      const restored = [...prevState.checkPointsDetails];
+      restored[index] = previousRecord;
+      return {
+        checkPointsDetails: restored,
+        dialogVisibleNCR: false,
+        isUnsavedData: true,
+        dropdownnotokvalue:
+          previousRecord?.RadioValue ?? prevState.dropdownnotokvalue,
+        radioResetKey: prevState.radioResetKey + 1,
+      };
     });
   };
 
@@ -6920,14 +6953,26 @@ this.props.navigation.setParams({ auditUpdated: true });
       .filter(item => item.ISSelection === 'True')
       .map(item => item.userid);
 
+      const auditProgramName = (this.state.AuditProgramName || '').toLowerCase();
+    const sanitizedChecklistName = (selectedChecklist.ChecklistName || '')
+      .replace(/<\/?p>/gi, '')
+      .replace(/<br\s*\/?>/gi, '\n')
+      .replace(/&nbsp;/gi, ' ')
+      .replace(/&amp;/gi, '&') + ':No';
+
+    const formId =
+      auditProgramName === 'lpa'
+        ? '-1'
+        : this.props.data?.audits?.auditrecords?.Formid ??
+        this.props.data?.audits?.auditrecords?.FormId ??
+          selectedChecklist?.FormID ??
+          selectedChecklist?.FormId ??
+          '-1';
+
     const bundleEntry = {
       requiretext: '-',
       NonConfirmity:
-        (selectedChecklist.ChecklistName || '')
-          .replace(/<\/?p>/gi, '')
-          .replace(/<br\s*\/?>/gi, '\n')
-          .replace(/&nbsp;/gi, ' ')
-          .replace(/&amp;/gi, '&') + ': No',
+      auditProgramName === 'lpa' ? sanitizedChecklistName : "-",
       categoryDrop: clauseProps.Category?.[0]?.CategoryId ?? 0,
       ResponsibilityUser: filteredData,
       requestDrop: clauseProps.RequestBy?.[0]?.AuditeeContactPersonId ?? 0,
@@ -7505,6 +7550,15 @@ this.props.navigation.setParams({ auditUpdated: true });
                                           : -1
                                       }
                                       onPress={value => {
+                                        const previousRecord = {
+                                          ...this.state.checkPointsDetails[index],
+                                        };
+                                        this.pendingRadioChange = {
+                                          index,
+                                          previousRecord,
+                                        };
+                                        let targetCheckpoint = null;
+                                        let targetCheckpointIndex = null;
 
                                        
 
@@ -7839,7 +7893,13 @@ this.props.navigation.setParams({ auditUpdated: true });
                                           : -1
                                       }
                                       onPress={value => {
-                                     
+                                        const previousRecord = {
+                                          ...this.state.checkPointsDetails[index],
+                                        };
+                                        this.pendingRadioChange = {
+                                          index,
+                                          previousRecord,
+                                        };
 
                                         //console.log('====>value', value);
                                         this.ncofisetting(value);
@@ -8099,6 +8159,8 @@ this.props.navigation.setParams({ auditUpdated: true });
                                             () => {},
                                           );
                                         } else {
+                                          this.pendingRadioChange = null;
+
                                           this.setState(
                                             {
                                               checkPointsDetails:
@@ -8203,6 +8265,14 @@ this.props.navigation.setParams({ auditUpdated: true });
                                       onPress={value => {
                                       
 
+                                        const previousRecord = {
+                                          ...this.state.checkPointsDetails[index],
+                                        };
+                                        this.pendingRadioChange = {
+                                          index,
+                                          previousRecord,
+                                        };
+                                        let targetCheckpoint = null;
                                         console.log(
                                           'Load:Category:Radio Press',
                                           value,
@@ -8581,8 +8651,14 @@ this.props.navigation.setParams({ auditUpdated: true });
                                           : -1
                                       }
                                       onPress={value => {
-
-                                      
+                                        const previousRecord = {
+                                          ...this.state.checkPointsDetails[index],
+                                        };
+                                        this.pendingRadioChange = {
+                                          index,
+                                          previousRecord,
+                                        };
+                                        let targetCheckpoint = null;
                                         console.log(
                                           'Load:Category:Radio Press',
                                           value,
@@ -10891,7 +10967,7 @@ this.props.navigation.setParams({ auditUpdated: true });
 
         <Modal
           isVisible={this.state.dialogVisibleNCR}
-          onBackdropPress={() => this.setState({dialogVisibleNCR: false})}
+          onBackdropPress={this.declineNcRemoval}
           backdropColor="rgba(0,0,0,0.5)"
           style={styles.modalOuterBox}>
           <View style={styles.ncModal}>
@@ -10924,7 +11000,7 @@ this.props.navigation.setParams({ auditUpdated: true });
               </TouchableOpacity>
 
               <TouchableOpacity
-                onPress={() => this.setState({dialogVisibleNCR: false})}>
+                onPress={this.declineNcRemoval}>
                 <View style={styles.sectionTopCancel}>
                   <View style={styles.sectionContent}>
                     <Text style={styles.boxContentClose}>{strings.no}</Text>
