@@ -176,7 +176,7 @@ const CustomHeader = ({
         }
     };
     return (
-        <SafeAreaView style={[styles.container]}>
+        <SafeAreaView style={[styles.container,{paddingBottom: insets.bottom,}]}>
             <View style={[styles.headerBox]}>
                 <TouchableOpacity
                     onPress={() => {
