@@ -1,145 +1,116 @@
-import React, { useMemo } from 'react';
-import { View, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
-import * as Animatable from 'react-native-animatable';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { TextComponent, GradientButton, ImageComponent, IconComponent, Content } from 'components';
-import { COLORS, FONT_SIZE, SPACING } from 'constants/theme-constants';
-import { FONT_TYPE, ICON_TYPE, ROUTES } from 'constants/app-constant';
-import { IMAGES } from 'assets/images';
-import { RFPercentage } from 'helpers/utils';
-import useTheme from 'theme/useTheme';
-import { useAppContext } from 'contexts/app-context';
-import ProfileMenuButton from '../../problemSolver/containers/profile/profile-home/components/profile-menu-button';
+import React, { useEffect, useState } from 'react';
+import {
+    View,
+    Text,
+    Modal,
+    TouchableOpacity,
+    StyleSheet,
+} from 'react-native';
 
-const LabelValue = React.memo(({ iconType, iconName, value }) => (
-    <View style={styles.labelContainer}>
-        <IconComponent color={COLORS.searchText} type={iconType} name={iconName} />
-        <TextComponent style={styles.labelText} fontSize={FONT_SIZE.SMALL}>
-            {value}
-        </TextComponent>
-    </View>
-));
+const LogoutPresentational = ({ navigation, handleLogout }) => {
+    const [visible, setVisible] = useState(false);
 
-const LogoutPresentational = ({ menus, navigation, versionDetails, handleLogout, profileData, loading }) => {
-    const { theme } = useTheme();
-    const { appSettings } = useAppContext();
-    const insets = useSafeAreaInsets();
-    const headerStyle = useMemo(() => ({
-        top: insets.top + 10,
-        color: theme.colors.primaryThemeColor,
-    }), [insets.top, theme.colors.primaryThemeColor]);
+    useEffect(() => {
+        setVisible(true);
+    }, []);
+
+    const onCancel = () => {
+        setVisible(false);
+        navigation.goBack();
+    };
+
+    const onConfirm = () => {
+        setVisible(false);
+        handleLogout();
+    };
 
     return (
-        
-        <Content noPadding>
-            {  console.log('current appSettings', appSettings)}
-            <TouchableOpacity
-                onPress={() => navigation.goBack()}
-                style={[styles.iconButton, { left: SPACING.NORMAL, top: headerStyle.top }]}>
-                <IconComponent name="arrowleft" type={ICON_TYPE.AntDesign} color={headerStyle.color} size={25} />
-            </TouchableOpacity>
-            {/* <TouchableOpacity
-                onPress={() => navigation.navigate(ROUTES.SETTINGS)}
-                style={[styles.iconButton, { right: SPACING.NORMAL, top: headerStyle.top }]}>
-                <IconComponent name="setting" type={ICON_TYPE.AntDesign} color={headerStyle.color} size={25} />
-            </TouchableOpacity> */}
-            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-                <Animatable.View animation="fadeIn" duration={300} style={styles.container}>
-                    <View style={[styles.section, { borderColor: theme.mode.borderColor }]}>
-                        <View style={styles.profileInfo}>
-                            <View style={[styles.profileImageContainer, { borderColor: theme.mode.borderColor }]}>
-                                <ImageComponent style={styles.profileImage} source={IMAGES.ologo} resizeMode="contain" />
-                            </View>
-                            <TextComponent style={styles.companyName} type={FONT_TYPE.BOLD}>
-                                Omnex Software Systems
-                            </TextComponent>
-                            <View>
-                                <LabelValue iconType={ICON_TYPE.Feather} iconName="globe" value={profileData?.CompanyUrl} />
-                                <LabelValue iconType={ICON_TYPE.Feather} iconName="phone" value={profileData?.Phone} />
-                                <LabelValue iconType={ICON_TYPE.Feather} iconName="map-pin" value={profileData?.Address} />
-                                <LabelValue iconType={ICON_TYPE.Feather} iconName="link" value={appSettings?.serverUrl || ''} />
-                            </View>
-                        </View>
+        <Modal
+            visible={visible}
+            transparent
+            animationType="fade"
+            onRequestClose={onCancel}
+        >
+            <View style={styles.overlay}>
+                <View style={styles.alertBox}>
+                    <Text style={styles.title}>Confirm Logout</Text>
+                    <Text style={styles.message}>
+                        Are you sure you want to logout?
+                    </Text>
+
+                    <View style={styles.buttonRow}>
+                        <TouchableOpacity
+                            style={[styles.button, styles.cancelBtn]}
+                            onPress={onCancel}
+                        >
+                            <Text style={styles.cancelText}>No</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            style={[styles.button, styles.logoutBtn]}
+                            onPress={onConfirm}
+                        >
+                            <Text style={styles.logoutText}>Yes</Text>
+                        </TouchableOpacity>
                     </View>
-                    <View>
-                        {menus.map((menu, i) => (
-                            <ProfileMenuButton key={i} {...{ navigation, menu }} />
-                        ))}
-                    </View>
-                </Animatable.View>
-                <ImageComponent
-                    source={IMAGES.PSlogo}
-                    resizeMode="contain"
-                    style={styles.logo}
-                />
-                <View style={styles.buttonContainer}>
-                    <GradientButton loading={loading} onPress={handleLogout}>
-                        Logout
-                    </GradientButton>
                 </View>
-                <TextComponent color={COLORS.lightGrey} style={styles.versionText} type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.SMALL}>
-                    Version - {versionDetails?.appVersion}
-                </TextComponent>
-            </ScrollView>
-        </Content>
+            </View>
+        </Modal>
     );
 };
 
+export default React.memo(LogoutPresentational);
+
 const styles = StyleSheet.create({
-    iconButton: {
-        position: 'absolute',
-        zIndex: 1,
-    },
-    scrollContent: {
-        flexGrow: 1,
-        paddingTop: SPACING.NORMAL,
-    },
-    container: {
+    overlay: {
         flex: 1,
-    },
-    section: {
-        borderBottomWidth: 0.2,
-    },
-    profileInfo: {
-        padding: SPACING.NORMAL,
-    },
-    profileImageContainer: {
-        width: RFPercentage(15),
-        height: RFPercentage(15),
-        alignSelf: 'center',
-        borderWidth: 3,
-        borderRadius: 100,
-        padding: SPACING.SMALL,
-    },
-    profileImage: {
-        flex: 1,
-    },
-    companyName: {
-        fontSize: FONT_SIZE.XX_LARGE,
-        paddingTop: SPACING.NORMAL,
-    },
-    labelContainer: {
-        flexDirection: 'row',
+        backgroundColor: 'rgba(0,0,0,0.4)',
+        justifyContent: 'center',
         alignItems: 'center',
-        paddingTop: SPACING.SMALL,
     },
-    labelText: {
-        paddingLeft: SPACING.SMALL,
-        color: COLORS.searchText,
+    alertBox: {
+        width: '85%',
+        backgroundColor: '#fff',
+        borderRadius: 12,
+        padding: 20,
+        elevation: 6,
     },
-    logo: {
-        height: RFPercentage(4),
-        width: '100%',
-        marginTop: SPACING.NORMAL,
+    title: {
+        fontSize: 18,
+        fontWeight: '600',
+        marginBottom: 8,
+        textAlign: 'center',
     },
-    buttonContainer: {
-        padding: SPACING.NORMAL,
-        paddingBottom: 0,
+    message: {
+        fontSize: 18,
+        color: '#555',
+        textAlign: 'center',
+        marginBottom: 20,
     },
-    versionText: {
-        alignSelf: 'center',
-        paddingVertical: SPACING.SMALL,
+    buttonRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+    },
+    button: {
+        flex: 1,
+        paddingVertical: 12,
+        borderRadius: 8,
+        alignItems: 'center',
+    },
+    cancelBtn: {
+        backgroundColor: '#E0E0E0',
+        marginRight: 10,
+    },
+    logoutBtn: {
+        backgroundColor: '#1FBFD0',
+    },
+    cancelText: {
+        color: '#333',
+        fontWeight: '500',
+    },
+    logoutText: {
+        color: '#fff',
+        fontWeight: '600',
     },
 });
 
-export default React.memo(LogoutPresentational);

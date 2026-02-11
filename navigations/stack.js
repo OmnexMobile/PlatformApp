@@ -178,7 +178,7 @@ export const AppStackData = [
     {
         name: ROUTES.GLOBAL_LOGOUT,
         component: GlobalLogout,
-        cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
+        // cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.GLOBAL_SETTINGS,
@@ -850,18 +850,30 @@ export function AppStack() {
                 headerShown: false,
             }}
             initialRouteName={ROUTES.SPLASH_SCREEN}>
-            {AppStackData.map(({ name, component, cardStyleInterpolator }, index) => (
+            {AppStackData.map(({ name, component, cardStyleInterpolator }, index) => {
+            const isLogout = name === ROUTES.GLOBAL_LOGOUT;
+            return (
                 <Stack.Screen
                     key={index}
                     {...{
                         name,
                         component,
-                        options: {
-                            cardStyleInterpolator: cardStyleInterpolator || CardStyleInterpolators.forHorizontalIOS,
-                        },
+                        // options: {
+                        //     cardStyleInterpolator: cardStyleInterpolator || CardStyleInterpolators.forHorizontalIOS,
+                        // },
+                        options: isLogout
+                            ? {
+                                  cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
+                                  cardStyle:  { backgroundColor: 'transparent' },
+                                  presentation: 'transparentModal',
+                                  animation: 'none'
+                              }
+                            : {
+                                cardStyleInterpolator: cardStyleInterpolator || CardStyleInterpolators.forHorizontalIOS,
+                            }
                     }}
-                />
-            ))}
+                />)
+            })}
         </Stack.Navigator>
     );
 }
