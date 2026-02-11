@@ -157,7 +157,7 @@ export let strings = new LocalizedStrings({
     Uploaded: "Uploaded",
     Syncing_NC: "Syncing NC/OFI records to server...",
     Create_NC: "Upload NC",
-    Upload_to_server: "Upload to server",
+    Upload_to_server: "Sync to server",
     Create_OFI: "Upload OFI",
     NC_title: "Are you sure?",
     NC_title_message:

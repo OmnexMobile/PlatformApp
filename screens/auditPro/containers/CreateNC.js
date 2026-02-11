@@ -33,14 +33,13 @@ import {connect} from 'react-redux';
 import Modal from 'react-native-modal';
 import OfflineNotice from '../components/OfflineNotice';
 import SectionedMultiSelect from 'react-native-sectioned-multi-select';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import Icon from 'react-native-vector-icons/Feather';
 import {width} from 'react-native-dimension';
 import ResponsiveImage from 'react-native-responsive-image';
 import Moment from 'moment';
 import Fonts from '../Themes/Fonts';
 import {strings} from '../language/Language';
 import {ConfirmDialog} from 'react-native-simple-dialogs';
-import GlobalHeader from '../components/shared/GlobalHeader';
 import RadioForm, {
   RadioButton,
   RadioButtonInput,
@@ -3613,18 +3612,18 @@ class CreateNC extends Component {
       <View style={styles.wrapper}>
         {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
         <OfflineNotice />
-        <ImageBackground
+        {/* <ImageBackground
           source={Images.DashboardBG}
           style={{
             resizeMode: 'stretch',
             width: '100%',
             height: 60,
-          }}>
+          }}> */}
           <View style={styles.header}>
             <TouchableOpacity onPress={() => this.goBack()}>
               <View style={styles.backlogo}>
                 {/* <ResponsiveImage source={Images.BackIconWhite} initWidth="13" initHeight="22" /> */}
-                <Icon name="angle-left" size={30} color="white" />
+                    <Icon name="arrow-left" size={25} color="#00b3d6" />
               </View>
             </TouchableOpacity>
             <View style={styles.heading}>
@@ -3642,8 +3641,8 @@ class CreateNC extends Component {
               <Text
                 numberOfLines={1}
                 style={{
-                  fontSize: 15,
-                  color: 'white',
+                  fontSize: 12,
+                  color: '#000',
                   fontFamily: 'OpenSans-Regular',
                 }}>
                 {this.state.breadCrumbText}
@@ -3656,11 +3655,11 @@ class CreateNC extends Component {
                   // this.props.navigation.navigate('Home')
                   this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)
                 }>
-                <Icon name="home" size={30} color="white" />
+                <Icon name="home" size={30} color="#00b3d6" />
               </TouchableOpacity>
             </View>
           </View>
-        </ImageBackground>
+        {/* </ImageBackground> */}
         {this.state.PageLoader === false ? (
           <KeyboardAwareScrollView extraHeight={125}>
             <View style={styles.auditPageBody}>

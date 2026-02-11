@@ -33,7 +33,7 @@ export default StyleSheet.create({
   },
   headingText: {
     fontSize: Fonts.size.h6,
-    color: '#fff',
+    color: '#000',
     textAlign: 'center',
     fontFamily: 'OpenSans-Bold',
   },

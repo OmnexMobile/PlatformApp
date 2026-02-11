@@ -22,7 +22,7 @@ import OfflineNotice from '../components/OfflineNotice';
 import ResponsiveImage from 'react-native-responsive-image';
 import {ConfirmDialog, ProgressDialog} from 'react-native-simple-dialogs';
 import Fonts from '../Themes/Fonts';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import Icon from 'react-native-vector-icons/Feather';
 import {strings} from '../language/Language';
 import Toast, {DURATION} from 'react-native-easy-toast';
 import Moment from 'moment';
@@ -32,6 +32,7 @@ import NetInfo from '@react-native-community/netinfo';
 import constant from '../constants/AppConstants';
 import localStorage from 'global/localStorage';
 import Conformacy from './Conformacy';
+import LinearGradient from 'react-native-linear-gradient';
 
 // Voice packages
 import Voice from '@react-native-community/voice';
@@ -42,7 +43,7 @@ import { ROUTES } from 'constants/app-constant';
 import { SPACING } from 'constants/theme-constants';
 import ToastNew, {ErrorToast} from 'react-native-toast-message';
 import { LogBox } from 'react-native';
-
+import GlobalHeader from 'components/GlobalHeader';
 let Window = Dimensions.get('window');
 const window_width = Dimensions.get('window').width;
 let timer = null;
@@ -3376,65 +3377,51 @@ console.log('checktheaudits---Auditpage----Auditppro',recentAudits);
       this.props?.route?.params?.datapass?.cStatus,
     );
 
+    const canShowHeaderActions =
+      !this.state.isLoading && !this.state.isDownloading;
+
+    const rightActions = canShowHeaderActions ? (
+      <View style={{flexDirection: 'row', alignItems: 'center'}}>
+        {this.state.isDownloaded ? (
+          <TouchableOpacity
+            style={styles.rightHeader}
+            onPress={() => {
+              this.setState({dialogVisible: true});
+            }}>
+            <Icon name="trash" size={25} color="#00b3d6" />
+          </TouchableOpacity>
+        ) : null}
+        <TouchableOpacity
+          onPress={() =>
+            this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)
+          }>
+          <Icon name="home" size={25} color="#00b3d6" />
+        </TouchableOpacity>
+      </View>
+    ) : (
+      <View style={{width: 36, height: 36}} />
+    );
+
     return (
       <View style={styles.wrapper}>
         {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
         <OfflineNotice />
 
         {!this.state.isLoading ? (
-          <ImageBackground
-            source={Images.DashboardBG}
-            style={{
-              resizeMode: 'stretch',
-              width: '100%',
-              height: 60,
-            }}>
-              {/* // need to check <View style={styles.header1}> */}
-            <View style={styles.header}>
-              <TouchableOpacity
-                onPress={
-                  !this.state.isLoading && !this.state.isDownloading
-                    ? () =>
-                        this.state.PreviousPage == ROUTES.ALLTABAUDITLIST
-                          ? this.props.navigation.navigate(ROUTES.ALLTABAUDITLIST)
-                          : this.props.navigation.goBack()
-                    : () => console.log('Component is not ready to goBack..')
-                }>
-                <View style={styles.backlogo}>
-                  {!this.state.isLoading && !this.state.isDownloading ? (
-                    // <ResponsiveImage source={Images.BackIconWhite} initWidth="13" initHeight="22" />
-                    <Icon name="angle-left" size={30} color="white" />
-                  ) : null}
-                </View>
-              </TouchableOpacity>
-              <View style={styles.heading}>
-                <Text style={styles.headingText}>{strings.Audit_Details}</Text>
-              </View>
-              <View style={styles.headerDiv}>
-                {!this.state.isLoading &&
-                !this.state.isDownloading &&
-                this.state.isDownloaded ? (
-                  <TouchableOpacity
-                    style={styles.rightHeader}
-                    onPress={() => {
-                      this.setState({dialogVisible: true});
-                    }}>
-                    {/* <ResponsiveImage initWidth='25' initHeight='25' source={Images.deleteIcon}/> */}
-                    <Icon name="trash" size={25} color="white" />
-                  </TouchableOpacity>
-                ) : null}
-                {!this.state.isLoading && !this.state.isDownloading ? (
-                  <TouchableOpacity
-                  //  style={{paddingRight: 10}}
-                    onPress={() =>
-                      this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)}>
-                      {/* // this.props.navigation.navigate('Home')}> */}
-                    <Icon name="home" size={30} color="white" />
-                  </TouchableOpacity>
-                ) : null}
-              </View>
-            </View>
-          </ImageBackground>
+          <GlobalHeader
+            title={strings.Audit_Details}
+            subtitle={this.state.breadCrumb}
+            onLeftPress={() => {
+              if (!this.state.isLoading && !this.state.isDownloading) {
+                this.state.PreviousPage == ROUTES.ALLTABAUDITLIST
+                  ? this.props.navigation.navigate(ROUTES.ALLTABAUDITLIST)
+                  : this.props.navigation.goBack();
+              } else {
+                console.log('Component is not ready to goBack..');
+              }
+            }}
+            rightComponent={rightActions}
+          />
         ) : null}
 
         {!this.state.isLoading ? (
@@ -3481,16 +3468,6 @@ console.log('checktheaudits---Auditpage----Auditppro',recentAudits);
                       </View>
                     </View>
                   ) : null}
-
-                  {/*<View style={styles.card}>
-                <View style={styles.boxCard1}>
-                  <Text style={styles.detailTitle}>{strings.Audit_type}</Text>
-                </View>
-                <View style={styles.boxCard2}>
-                  <Text numberOfLines={2} style={styles.detailContent}>{this.state.auditDetailList.AuditTypeName}</Text>                                
-                </View>
-            </View>*/}
-
                   <View style={styles.card}>
                     <View style={styles.boxCard1}>
                       <Text style={styles.detailTitle}>
@@ -3518,15 +3495,6 @@ console.log('checktheaudits---Auditpage----Auditppro',recentAudits);
                       </Text>
                     </View>
                   </View>
-
-                  {/* <View style={styles.card}>
-                <View style={styles.boxCard1}>
-                  <Text style={styles.detailTitle}>{strings.Cycle_short_name}</Text>
-                </View>
-                <View style={styles.boxCard2}>
-                  <Text style={styles.detailContent}>{this.state.auditDetailList.CycleShortName}</Text>
-                </View>
-              </View> */}
 
                   <View style={styles.card}>
                     <View style={styles.boxCard1}>
@@ -3782,25 +3750,16 @@ console.log('checktheaudits---Auditpage----Auditppro',recentAudits);
           <View></View>
         ) : (
           <View style={styles.footer}>
-            <ImageBackground
-              source={Images.Footer}
-              style={{
-                resizeMode: 'stretch',
-                width: '100%',
-                height: 70,
-              }}>
+            
               <View style={styles.footerDiv}>
                 {!this.state.isDownloaded && !this.state.isDownloading ? (
                   <TouchableOpacity onPress={this.downloadAuditForm.bind(this)}>
                     <View style={styles.footerDivContent1}>
-                      <ResponsiveImage
-                        source={Images.downloadCloud}
-                        initWidth="40"
-                        initHeight="40"
-                      />
+                    
+                      <Icon name ={'download-cloud'} size = {25} color={"#000"}/>
                       <Text
                         style={{
-                          color: 'white',
+                          color: '#000',
                           fontSize: Fonts.size.h5,
                         //  marginLeft: 5,
                           fontFamily: 'OpenSans-Regular',
@@ -3825,7 +3784,7 @@ console.log('checktheaudits---Auditpage----Auditppro',recentAudits);
                           <Icon
                             name="paperclip"
                             size={20}
-                            color="white"
+                            color="#000"
                             style={{marginLeft: 15}}
                           />
                           <Text style={styles.footerTextContent}>
@@ -3843,7 +3802,7 @@ console.log('checktheaudits---Auditpage----Auditppro',recentAudits);
                         <Icon
                           name="list"
                           size={20}
-                          color="white"
+                          color="#000"
                           style={{marginLeft: 15}}
                         />
                         <Text style={styles.footerTextContent}>
@@ -3866,7 +3825,7 @@ console.log('checktheaudits---Auditpage----Auditppro',recentAudits);
                           <Icon
                             name="file"
                             size={20}
-                            color="white"
+                            color="#000"
                             style={{marginLeft: 15}}
                           />
                           <Text style={styles.footerTextContent}>
@@ -3886,7 +3845,7 @@ console.log('checktheaudits---Auditpage----Auditppro',recentAudits);
                           <Icon
                             name="file"
                             size={20}
-                            color="white"
+                            color="#000000"
                             style={{marginLeft: 30}}
                           />
                           <Text style={styles.footerTextContent}>
@@ -3904,7 +3863,6 @@ console.log('checktheaudits---Auditpage----Auditppro',recentAudits);
                   </View>
                 )}
               </View>
-            </ImageBackground>
           </View>
         )}
         
@@ -3917,7 +3875,7 @@ console.log('checktheaudits---Auditpage----Auditppro',recentAudits);
                 });
               }} 
               style={styles.floatinBtn}>
-              <Icon name="microphone" size={25} color="#00b3d6" />
+              <Icon name="mic" size={25} color="#FFF" />
             </TouchableOpacity>
           </View>
         )}
@@ -4074,7 +4032,7 @@ console.log('checktheaudits---Auditpage----Auditppro',recentAudits);
                   color="#00b678"
                 />
               ) : (
-                <Icon name="microphone" size={30} color="#00b3d6" />
+                <Icon name="mic" size={30} color="#00b3d6" />
               )}
             </TouchableOpacity>
           </View>

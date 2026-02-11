@@ -25,8 +25,8 @@ export default StyleSheet.create({
     width: '100%',
     zIndex: 3000,
      flexDirection: 'row',
-     //backgroundColor: 'white',
-     padding: 5,
+     borderBottomColor: 'lightgrey',
+          padding: 5,
     alignItems: 'center',
     justifyContent: 'center',
     height: 65,
@@ -45,7 +45,7 @@ export default StyleSheet.create({
   },
   headingText: {
     fontSize: 20, // previously Fonts.size.h6
-    color: '#fff',
+    color: '#000',
     textAlign: 'center',
     fontFamily: 'OpenSans-Bold', // previously Bold
   },
@@ -53,7 +53,7 @@ export default StyleSheet.create({
   backlogo: {
     flexDirection: 'row',
     backgroundColor: 'transparent',
-    width: '25%',
+   // width: '25%',
     height: 65,
     justifyContent: 'center',
     alignItems: 'center',
@@ -86,7 +86,6 @@ export default StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     width: '100%',
-    backgroundColor: 'red',
     height: 70, // match footerDiv
   },
   footerDiv: {
@@ -95,6 +94,7 @@ export default StyleSheet.create({
     alignItems: 'center',
     width: '100%',
     height: 70,
+    borderBottomColor: 'lightgrey',
   },
   footerLoader: {
     flexDirection: 'row',
@@ -103,7 +103,7 @@ export default StyleSheet.create({
     width: '100%',
   },
   footerTextContent: {
-    color: 'white',
+    color: '#000',
     fontSize: 14,
     fontFamily: 'OpenSans-SemiBold',
    // textAlign: 'center',
@@ -429,7 +429,7 @@ marginTop: 5, },
     justifyContent: 'center',
     width: 60,
     height: 60,
-    backgroundColor: 'white',
+    backgroundColor:'#00b3d6',
     borderRadius: 100,
     zIndex: 1000,
     elevation: 15,

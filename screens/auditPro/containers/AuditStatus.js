@@ -42,6 +42,7 @@ import {debounce, once} from 'underscore';
 import AsyncStorage from '@react-native-community/async-storage';
 import { ROUTES } from 'constants/app-constant';
 import { SPACING } from 'constants/theme-constants';
+import { Header } from 'components';
 
 let Window = Dimensions.get('window');
 

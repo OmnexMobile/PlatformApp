@@ -36,16 +36,13 @@ import ScrollableTabView, {
   DefaultTabBar,
 } from 'react-native-scrollable-tab-view';
 import Icon from 'react-native-vector-icons/FontAwesome';
-//component
-// import CalendarAgenda from './../components/CalenderAgenda';
+
 import {Dropdown} from 'react-native-element-dropdown';
 import * as _ from 'lodash';
 import {NavigationEvents} from 'react-navigation';
 import ToastNew, {ErrorToast} from 'react-native-toast-message';
 import { ROUTES } from 'constants/app-constant';
 import { SPACING } from 'constants/theme-constants';
-import GlobalHeader from '../components/shared/GlobalHeader';
-import AsyncStorage from '@react-native-community/async-storage';
 
 const moment = extendMoment(Moment);
 const window_width = Dimensions.get('window').width;

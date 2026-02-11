@@ -369,7 +369,7 @@ class AuditAttach extends React.Component {
             <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
               <View style={styles.backlogo}>
                 {/* <ResponsiveImage source={Images.BackIconWhite} initWidth="13" initHeight="22" /> */}
-                <Icon name="angle-left" size={30} color="white" />
+                    <Icon name="arrow-left" size={25} color="#000000" />
               </View>
             </TouchableOpacity>
 
@@ -385,19 +385,11 @@ class AuditAttach extends React.Component {
                 {this.state.breadCrumbText}
               </Text>
             </View>
-            {/* <View style={{width:Window.width,height:20,position:'absolute',backgroundColor:'yellow'}}>
-
-            </View> */}
+          
             <View style={styles.headerDiv}>
-              {/* <ImageBackground source={Images.headerBG} style={styles.backgroundImage}></ImageBackground> */}
-              {/* <TouchableOpacity onPress={debounce(this.Refresh.bind(this),1000)} > */}
-              {/* <Icon name="refresh" size={25} color="white"/> */}
-              {/* <Text style={{color:'white',right:10}}>Refresh</Text> */}
-              {/* </TouchableOpacity>  */}
               <TouchableOpacity
                 style={{paddingHorizontal: 10}}
                 onPress={() =>
-                  // this.props.navigation.navigate('Home')
                   this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)
                 }>
                 <Icon name="home" size={30} color="white" />
