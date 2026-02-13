@@ -863,10 +863,11 @@ export function AppStack() {
                         // },
                         options: isLogout
                             ? {
-                                  cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-                                  cardStyle:  { backgroundColor: 'transparent' },
-                                  presentation: 'transparentModal',
-                                  animation: 'none'
+                                presentation: 'transparentModal',
+                                animation: 'fade',
+                                headerShown: false,
+                                gestureEnabled: false,
+                                cardStyle: { backgroundColor: 'transparent' },
                               }
                             : {
                                 cardStyleInterpolator: cardStyleInterpolator || CardStyleInterpolators.forHorizontalIOS,
