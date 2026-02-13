@@ -19,7 +19,7 @@ import {
   DeviceEventEmitter
 } from 'react-native';
 import styles from '../styles/CheckPointScreenPOCStyles';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import Icon from 'react-native-vector-icons/Feather';
 import Carousel from 'react-native-snap-carousel';
 import OfflineNotice from '../components/OfflineNotice';
 import {Images} from '../Themes/index';
@@ -68,6 +68,7 @@ import { ROUTES } from 'constants/app-constant';
 import { SPACING } from 'constants/theme-constants';
 import { RFPercentage } from 'helpers/utils';
 import RichText from '../components/RichText';
+import GlobalHeader from 'components/GlobalHeader';
 const Width = Dimensions.get('window').width;
 const Colors = {
   0: 'red',
@@ -3035,7 +3036,7 @@ class CheckPointDemo extends Component {
     for (var i = 0; i < data.length; i++) {
       const checkpoint = data[i];
       if (isVda) {
-        // For VDA-type audits, skip mandatory/asterisk logic entirely.
+        // For VDA-type audits, skip mandatory/star logic entirely.
         completed.push(checkpoint);
         continue;
       }
@@ -3047,10 +3048,10 @@ class CheckPointDemo extends Component {
       const requiresAttachment = this.isAttachmentMandatory(checkpoint);
 
       const isMandatory = requiresRemark || requiresAttachment;
-      const hasStaticAsterisk = this.hasBaseAsteriskRequirement(checkpoint);
+      const hasStaticstar = this.hasBasestarRequirement(checkpoint);
       const serverFlag = this.isServerMandatory(checkpoint, i);
 
-      if (hasStaticAsterisk || serverFlag) {
+      if (hasStaticstar || serverFlag) {
         mandatoryCheck = mandatoryCheck + 1;
       }
 
@@ -4775,8 +4776,8 @@ this.props.navigation.setParams({ auditUpdated: true });
     return requiresAttachment;
   }
 
-  // True if base asterisk requirement applies to this checkpoint
-  hasBaseAsteriskRequirement(checkpoint) {
+  // True if base star requirement applies to this checkpoint
+  hasBasestarRequirement(checkpoint) {
     if (!checkpoint) {
       return false;
     }
@@ -6902,7 +6903,7 @@ this.props.navigation.setParams({ auditUpdated: true });
     return status === '1' ? (
       <Icon name="check" size={20} color="green" />
     ) : status === '0' ? (
-      <Icon name="times" size={20} color="red" style={{marginTop: 10}} />
+      <Icon name="x" size={20} color="red" style={{marginTop: 10}} />
     ) : null;
   };
   // Toggles the failure-reason dropdown visibility
@@ -7164,57 +7165,17 @@ this.props.navigation.setParams({ auditUpdated: true });
     return (
       <View style={styles.mainContainer}>
         <OfflineNotice />
-        <ImageBackground
-          source={Images.DashboardBG}
-          style={{
-            resizeMode: 'stretch',
-            width: '100%',
-            height: 65,
-          }}>
-          <View style={styles.header}>
-            <TouchableOpacity onPress={() => this.goBackToChecklist()}>
-              <View style={styles.backlogo}>
-                {!this.state.isSaving ? (
-                  // <ResponsiveImage source={Images.BackIconWhite} initWidth="13" initHeight="22" />
-                  <Icon name="angle-left" size={30} color="white" />
-                ) : null}
-              </View>
-            </TouchableOpacity>
-
-            <View style={styles.heading}>
-              <Text
-                numberOfLines={2}
-                style={styles.headingText}
-                adjustsFontSizeToFit
-                minimumFontScale={0.75}
-                onPress={() => this.ShowToast()}>
-                {this.state.displayData}
-              </Text>
-              <Text
-                numberOfLines={1}
-                style={{
-                  fontSize: 15,
-                  color: 'white',
-                  fontFamily: 'OpenSans-Regular',
-                }}>
-                {this.state.breadCrumbText}
-              </Text>
-              {/* <Text
-                numberOfLines={1}
-                style={styles.headerStatText}>
-                {`${strings.Asterisk_Questions}: ${this.state.mandatoryCheck}`}
-              </Text> */}
-            </View>
-
-            <View style={styles.headerDiv}>
-              <TouchableOpacity
-                style={{paddingRight: 10}}
-                onPress={() => this.goHome()}>
-                <Icon name="home" size={30} color="white" />
-              </TouchableOpacity>
-            </View>
-          </View>
-        </ImageBackground>
+        <GlobalHeader
+          title={this.state.displayData}
+          subtitle={this.state.breadCrumbText}
+          onLeftPress={() => {
+            if (!this.state.isSaving) {
+              this.goBackToChecklist();
+            }
+          }}
+          hideLeft={this.state.isSaving}
+          onRightPress={() => this.goHome()}
+        />
         {/* <View style={{flex:1}}> */}
         {this.state.isContentLoaded == false && !this.state.isSaving ? (
           <View style={{flex: 1}}>
@@ -7441,7 +7402,7 @@ this.props.navigation.setParams({ auditUpdated: true });
                                           marginLeft: 5,
                                         }}>
                                         <Icon
-                                          name="circle"
+                                          name="target"
                                           size={12}
                                           color="red"
                                         />
@@ -7455,7 +7416,7 @@ this.props.navigation.setParams({ auditUpdated: true });
                                           //marginTop: 10,
                                         }}>
                                         <Icon
-                                          name="circle"
+                                          name="target"
                                           size={12}
                                           color="yellow"
                                         />
@@ -7471,7 +7432,7 @@ this.props.navigation.setParams({ auditUpdated: true });
                                           marginTop: 5,
                                         }}>
                                         <Icon
-                                          name="asterisk"
+                                          name="star"
                                           size={10}
                                           color="red"
                                         />
@@ -9076,13 +9037,13 @@ this.props.navigation.setParams({ auditUpdated: true });
                                       )}>
                                       <Icon
                                         name="paperclip"
-                                        size={25}
+                                        size={20}
                                         color="grey"
                                         style={{bottom: 2}}
                                       />
                                       {isAttachmentRequired ? (
                                         <Icon
-                                          name="asterisk"
+                                          name="star"
                                           style={{bottom: 20, right: 10}}
                                           size={8}
                                           color="red"
@@ -10648,7 +10609,7 @@ this.props.navigation.setParams({ auditUpdated: true });
 
                                   {isRemarkRequired ? (
                                     <Icon
-                                      name="asterisk"
+                                      name="star"
                                       style={{right: 10, top: 10}}
                                       size={8}
                                       color="red"
@@ -10783,7 +10744,7 @@ this.props.navigation.setParams({ auditUpdated: true });
                 borderRadius: 10,
                 alignItems: 'center',
               }}>
-              <Icon name="undo" size={20} color="white" />
+              <Icon name="rotate-ccw" size={20} color="white" />
               <Text
                 style={{
                   textAlign: 'center',
@@ -11056,7 +11017,7 @@ this.props.navigation.setParams({ auditUpdated: true });
                 <View style={styles.sectionTop}>
                   <View style={[styles.sectionContent, styles.boxContent]}>
                     <View style={{width: '12%', height: null}}>
-                      <Icon name="file-image-o" size={25} color="grey" />
+                      <Icon name="image" size={25} color="grey" />
                     </View>
                     <View style={{width: '88%', height: null}}>
                       <Text style={styles.boxContentCam}>

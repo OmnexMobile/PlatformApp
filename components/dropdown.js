@@ -92,12 +92,12 @@ const styles = StyleSheet.create({
         // marginRight: 5,
     },
     placeholderStyle: {
-        fontSize: FONT_SIZE.LARGE,
+        fontSize: FONT_SIZE.SMALL,
         fontFamily: 'OpenSans-Regular',
         color: COLORS.searchText,
     },
     selectedTextStyle: {
-        fontSize: FONT_SIZE.LARGE,
+        fontSize: FONT_SIZE.SMALL,
         fontFamily: 'OpenSans-Regular',
         // color: COLORS.themeBlack,
     },

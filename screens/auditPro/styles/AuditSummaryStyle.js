@@ -8,12 +8,12 @@ const Window = Dimensions.get('window');
 export default StyleSheet.create({
   wrapper: {
     flex: 1,
-    backgroundColor: '#F5F7FA'
+   // backgroundColor: '#F5F7FA'
   },
   header: {
     width: '100%',
     flexDirection: 'row',
-    backgroundColor: '#00BAC8',
+   // backgroundColor: '#00BAC8',
     paddingHorizontal: 10,
     alignItems: 'center',
     justifyContent: 'space-between',

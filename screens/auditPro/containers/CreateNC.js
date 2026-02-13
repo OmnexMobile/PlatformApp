@@ -33,7 +33,7 @@ import {connect} from 'react-redux';
 import Modal from 'react-native-modal';
 import OfflineNotice from '../components/OfflineNotice';
 import SectionedMultiSelect from 'react-native-sectioned-multi-select';
-import Icon from 'react-native-vector-icons/Feather';
+// import Icon from 'react-native-vector-icons/Feather';
 import {width} from 'react-native-dimension';
 import ResponsiveImage from 'react-native-responsive-image';
 import Moment from 'moment';
@@ -57,6 +57,10 @@ import constant from '../constants/AppConstants';
 // import ImagePicker from 'react-native-image-picker';
 import { ROUTES } from 'constants/app-constant';
 import { SPACING } from 'constants/theme-constants';
+import GlobalHeader from 'components/GlobalHeader';
+import NCFormInput from '../components/NCFormInput';
+import Icon from 'react-native-vector-icons/Feather';
+
 
 let Window = Dimensions.get('window');
 let timer = null;
@@ -3608,6 +3612,17 @@ class CreateNC extends Component {
       {label: strings.yes, value: 0},
     ];
 
+    const headerTitle =
+      this.state.PageLoader === false
+        ? this.state.RouteParam === 'NC'
+          ? this.state.type == 'ADD'
+            ? strings.Upload + ' ' + 'NC'
+            : strings.Edit + ' ' + 'NC'
+          : this.state.type == 'ADD'
+          ? strings.Upload + ' ' + 'OFI'
+          : strings.Edit + ' ' + 'OFI'
+        : '';
+
     return (
       <View style={styles.wrapper}>
         {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
@@ -3619,46 +3634,14 @@ class CreateNC extends Component {
             width: '100%',
             height: 60,
           }}> */}
-          <View style={styles.header}>
-            <TouchableOpacity onPress={() => this.goBack()}>
-              <View style={styles.backlogo}>
-                {/* <ResponsiveImage source={Images.BackIconWhite} initWidth="13" initHeight="22" /> */}
-                    <Icon name="arrow-left" size={25} color="#00b3d6" />
-              </View>
-            </TouchableOpacity>
-            <View style={styles.heading}>
-              {this.state.PageLoader === false ? (
-                <Text style={styles.headingText}>
-                  {this.state.RouteParam === 'NC'
-                    ? this.state.type == 'ADD'
-                      ? strings.Upload + ' ' + 'NC'
-                      : strings.Edit + ' ' + 'NC'
-                    : this.state.type == 'ADD'
-                    ? strings.Upload + ' ' + 'OFI'
-                    : strings.Edit + ' ' + 'OFI'}
-                </Text>
-              ) : null}
-              <Text
-                numberOfLines={1}
-                style={{
-                  fontSize: 12,
-                  color: '#000',
-                  fontFamily: 'OpenSans-Regular',
-                }}>
-                {this.state.breadCrumbText}
-              </Text>
-            </View>
-            <View style={styles.headerDiv}>
-            <TouchableOpacity
-                style={{paddingHorizontal: 10}}
-                onPress={() =>
-                  // this.props.navigation.navigate('Home')
-                  this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)
-                }>
-                <Icon name="home" size={30} color="#00b3d6" />
-              </TouchableOpacity>
-            </View>
-          </View>
+          <GlobalHeader
+            title={headerTitle}
+            subtitle={this.state.breadCrumbText}
+            onLeftPress={() => this.goBack()}
+            onRightPress={() =>
+              this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)
+            }
+          />
         {/* </ImageBackground> */}
         {this.state.PageLoader === false ? (
           <KeyboardAwareScrollView extraHeight={125}>
@@ -3713,7 +3696,7 @@ class CreateNC extends Component {
                         <View style={styles.check}>
                           <Icon
                             style={{left: 10, display: 'none'}}
-                            name="asterisk"
+                            name="stark"
                             size={8}
                             color="red"
                           />
@@ -3764,7 +3747,7 @@ class CreateNC extends Component {
                     <View style={styles.check}>
                       <Icon
                         style={{left: 6, top: 5}}
-                        name="asterisk"
+                        name="sun"
                         size={8}
                         color="red"
                       />
@@ -3818,7 +3801,7 @@ class CreateNC extends Component {
                         <View style={styles.check}>
                           <Icon
                             style={{left: 10, display: 'none'}}
-                            name="asterisk"
+                            name="sun"
                             size={8}
                             color="red"
                           />
@@ -3867,7 +3850,7 @@ class CreateNC extends Component {
                       this.props.data.audits.smdata !== 3 ? (
                         <Icon
                           style={{left: 6, top: 5}}
-                          name="asterisk"
+                          name="sun"
                           size={8}
                           color="red"
                         />
@@ -3940,7 +3923,7 @@ class CreateNC extends Component {
                       this.state.clauseMandatory === 1 ? (
                         <Icon
                           style={{left: 10}}
-                          name="asterisk"
+                          name="sun"
                           size={8}
                           color="red"
                         />
@@ -4107,7 +4090,7 @@ bottom:10,                              backgroundColor: 'white',
                     <View style={styles.check}>
                       <Icon
                         style={{left: 5}}
-                        name="asterisk"
+                        name="sun"
                         size={8}
                         color="red"
                       />
@@ -4182,7 +4165,7 @@ bottom:10,                              backgroundColor: 'white',
                     <View style={styles.check}>
                       <Icon
                         style={{left: 5}}
-                        name="asterisk"
+                        name="sun"
                         size={8}
                         color="red"
                       />
@@ -4278,7 +4261,7 @@ bottom:10,                              backgroundColor: 'white',
                     <View style={styles.check}>
                       <Icon
                         style={{left: 5}}
-                        name="asterisk"
+                        name="sun"
                         size={8}
                         color="red"
                       />
@@ -4497,7 +4480,7 @@ bottom:10,                              backgroundColor: 'white',
                           this.props.data.audits.smdata !== 3 ? (
                             <Icon
                               style={{right: 10}}
-                              name="asterisk"
+                              name="sun"
                               size={8}
                               color="red"
                             />
@@ -4611,7 +4594,7 @@ bottom:10,                              backgroundColor: 'white',
                           this.props.data.audits.smdata != 3 ? (
                             <Icon
                               style={{left: 10, display: 'none'}}
-                              name="asterisk"
+                              name="sun"
                               size={8}
                               color="red"
                             />
@@ -4662,7 +4645,7 @@ bottom:10,                              backgroundColor: 'white',
                       this.props.data.audits.smdata != 3 ? (
                         <Icon
                           style={{left: 6, top: 5}}
-                          name="asterisk"
+                          name="sun"
                           size={8}
                           color="red"
                         />
@@ -4790,141 +4773,88 @@ bottom:10,                              backgroundColor: 'white',
               }}>
               {strings.nc_01}
             </Text>
-            {/* <Text style={{fontSize:Fonts.size.small}}>We are loading checkpoint!</Text> */}
           </View>
         )}
 
-        {/** zzz voice */}
-        {/* <View style={styles.floatingDiv}>
-        <TouchableOpacity 
-        onPress={this.StartVoicePress.bind(this)}
-        style={this.state.startVoice === true ? 
-          [styles.floatinBtn,{backgroundColor:'#14D0AE'}]: [styles.floatinBtn,{backgroundColor:'#2EA4E2'}]}>
-        {this.state.startVoice === true ?
-            <Icon  name="assistive-listening-systems" size={25} color="white"/> :
-            <Icon  name="microphone" size={25} color="white"/>
-        }
-        </TouchableOpacity>
-        </View> */}
-
         <View style={styles.footer}>
-          <ImageBackground
+          {/* <ImageBackground
             source={Images.Footer}
             style={{
               resizeMode: 'stretch',
               width: '100%',
               height: 65,
-            }}>
+            }}> */}
             {/* <Image source={Images.Footer}/> */}
             {this.state.isSaving === false ? (
               <View style={styles.footerDiv}>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}>
-                  <View
-                    style={{
-                      paddingRight: 30,
-                      flexDirection: 'column',
-                      width: width(45),
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                    }}>
-                    <TouchableOpacity
-                      onPress={() =>
-                        debounce(this.setState({dialogVisible: true}), 700)
-                      }
-                      style={{
-                        flexDirection: 'column',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                      }}>
-                      <Icon name="undo" size={25} color="white" />
-                      <Text
-                        style={{
-                          color: 'white',
-                          fontSize: Fonts.size.regular,
-                          fontFamily: 'OpenSans-Regular',
-                        }}>
-                        {strings.Reset}
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-                {/** zzzzzzz */}
-                <View style={styles.floatingDiv}>
+                <View style={styles.footerButtonsRow}>
+                                              <View style={{ width: width(32) }}>
+                  
+                  <TouchableOpacity
+                    onPress={() =>
+                      debounce(this.setState({dialogVisible: true}), 700)
+                    }
+                    style={styles.footerButton}>
+                    <Icon name="rotate-ccw" size={20} color="#ffffff" />
+                    <Text
+                      style={
+                        styles.footerActionText}>
+                      {strings.Reset}
+                    </Text>
+                  </TouchableOpacity>
+</View>
+                            <View style={{ width: width(32) }}>
+
                   <TouchableOpacity
                     onPress={() => {
                       this.state.startVoice === false
                         ? debounce(this.StartVoicePress(), 800)
                         : debounce(this.StopVoicePress(), 800);
                     }}
-                    style={
+                    style={[
+                      styles.footerButton,
                       this.state.startVoice === true
-                        ? [styles.floatinBtn, {backgroundColor: '#14D0AE'}]
-                        : [styles.floatinBtn, {backgroundColor: 'white'}]
-                    }>
+                        ? styles.footerVoiceButtonActive
+                        : styles.footerVoiceButton,
+                    ]}>
                     {this.state.startVoice === true ? (
                       <Icon
-                        name="assistive-listening-systems"
-                        size={25}
+                        name="mic"
+                        size={20}
                         color="white"
                       />
                     ) : (
-                      <Icon name="microphone" size={25} color="#2EA4E2" />
+                      <Icon name="mic" size={20} color="#00b3d6" />
                     )}
+                    <Text
+                      style={[
+                        styles.footerActionText,
+                        this.state.startVoice === true
+                          ? null
+                          : styles.footerActionTextSecondary,
+                      ]}>
+                      {strings.Voice || 'Voice'}
+                    </Text>
                   </TouchableOpacity>
-                </View>
+</View>
+                            <View style={{ width: width(32) }}>
 
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}>
-                  <View
-                    style={{
-                      paddingLeft: 30,
-                      flexDirection: 'column',
-                      width: width(45),
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                    }}>
-                    <TouchableOpacity
-                      onPress={
-                        // this.state.isSavebtn == false
-                        //   ?
-                        debounce(this.onSave.bind(this), 600)
-                        // : // once(this.onSave.bind(this))
-
-                        //   console.log("detected")
-                      }
-                      style={{
-                        flexDirection: 'column',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                      }}>
-                      <Icon name="save" size={25} color="white" />
-                      <Text
-                        style={{
-                          color: 'white',
-                          fontSize: Fonts.size.regular,
-                          fontFamily: 'OpenSans-Regular',
-                        }}>
-                        {strings.Save}
-                      </Text>
-                    </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={debounce(this.onSave.bind(this), 600)}
+                    style={styles.footerButton}>
+                    <Icon name="save" size={20} color="white" />
+                    <Text style={styles.footerActionText}>{strings.Save}</Text>
+                  </TouchableOpacity>
                   </View>
                 </View>
+
               </View>
             ) : (
               <View style={{right: 70, position: 'absolute'}}>
                 <Pulse size={20} color="white" />
               </View>
             )}
-          </ImageBackground>
+          {/* </ImageBackground> */}
         </View>
 
         <Toast ref="toast" position="top" opacity={1} />

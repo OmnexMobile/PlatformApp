@@ -30,7 +30,7 @@ import RNFetchBlob from 'react-native-fetch-blob';
 import ResponsiveImage from 'react-native-responsive-image';
 import {ConfirmDialog} from 'react-native-simple-dialogs';
 import Fonts from '../Themes/Fonts';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import Icon from 'react-native-vector-icons/Feather';
 import {strings} from '../language/Language';
 import {debounce, once} from 'underscore';
 import DeviceInfo from 'react-native-device-info';
@@ -42,6 +42,7 @@ import { SPACING } from 'constants/theme-constants';
 import { F } from 'ramda';
 import OfflineNotice from '../components/OfflineNotice';
 import NetInfo from '@react-native-community/netinfo';
+import GlobalHeader from 'components/GlobalHeader';
 
 
 let Window = Dimensions.get('window');
@@ -1056,70 +1057,44 @@ class Conformacy extends React.Component {
           )}
           {/* {isFocused ? console.log('trigger isFocused return', isFocused) : console.log('trigger not isFocused', isFocused) }  */}
           <OfflineNotice/>
-          <ImageBackground
-            source={Images.DashboardBG}
-            style={{
-              resizeMode: 'stretch',
-              width: '100%',
-              height: 60,
-            }}>
-            <View style={styles.header} numberOfLines={1}>
-              <TouchableOpacity
-                onPress={() =>
+          <GlobalHeader
+            title={
+              this.state.EditFlag === false
+                ? strings.conframacy
+                : strings.EditAttach
+            }
+            subtitle={this.state.breadCrumbText}
+            onLeftPress={() =>
                   this.props.navigation.navigate(ROUTES.AUDIT_PAGE, {
                     AuditID: this.state.AuditID,
                     isDeleted: 0,
                     breadCrumb: this.state.breadCrumbText,
                   })
-                }>
-                <View style={styles.backlogoConformance}>
-                  {/* <ResponsiveImage source={Images.BackIconWhite} initWidth="13" initHeight="22" /> */}
-                  <Icon name="angle-left" size={30} color="white" />
-                </View>
-              </TouchableOpacity>
-
-              <View style={styles.headingConformance}>
-                <Text numberOfLines={1} style={styles.headingText}>
-                  {this.state.EditFlag === false
-                    ? strings.conframacy
-                    : strings.EditAttach}
-                </Text>
-                <Text
-                  numberOfLines={1}
-                  style={{
-                    fontSize: 15,
-                    color: 'white',
-                    fontFamily: 'OpenSans-Regular',
-                  }}>
-                  {this.state.breadCrumbText}
-                </Text>
-              </View>
-              {/* <View style={{width:Window.width,height:20,position:'absolute',backgroundColor:'yellow'}}>
- 
-             </View> */}
-              <View style={styles.headerDivConformance}>
+            }
+            rightComponent={
+              <View style={{flexDirection: 'row', alignItems: 'center'}}>
               <TouchableOpacity
                   style={{paddingHorizontal: 5}}
                   onPress={() => this.onsyncToServer()}>
-                  <Icon name="upload" size={22} color="white" />
+                  <Icon name="upload" size={22} color="#00b3d6" />
                 </TouchableOpacity>
-                {/* <ImageBackground source={Images.headerBG} style={styles.backgroundImage}></ImageBackground> */}
                 <TouchableOpacity
                   style={{paddingHorizontal: 5}}
                   onPress={() => this.refreshConformance()}>
-                  <Icon name="refresh" size={22} color="white" />
+                  <Icon name="refresh-ccw" size={22} color="#00b3d6" />
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={{paddingHorizontal: 5}}
                   onPress={() =>
-                    // this.props.navigation.navigate('Home')
                     this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)
                   }>
-                  <Icon name="home" size={25} color="white" />
+                  <Icon name="home" size={25} color="#00b3d6" />
                 </TouchableOpacity>
               </View>
-            </View>
-          </ImageBackground>
+            }
+            containerStyle={{backgroundColor: 'transparent'}}
+            
+          />
           {this.state.loading === true ? (
             <View
               style={{
@@ -1205,56 +1180,17 @@ class Conformacy extends React.Component {
           )}
         </KeyboardAvoidingView>
         {this.state.loading !== true && (
-          <View style={styles.footer}>
-            <ImageBackground
-              source={Images.Footer}
-              style={{
-                resizeMode: 'stretch',
-                width: '100%',
-                height: 70,
-              }}>
-              <TouchableOpacity
-                onPress={() => this.onsyncToServer()}
-                style={{alignItems: 'center'}}>
-                <View>
-                  {this.state.loadingSync ? (
-                    <View
-                      style={{
-                        justifyContent: 'center',
-                        flexDirection: 'row',
-                        marginTop: 10,
-                      }}>
-                      <ActivityIndicator size={20} color="#1CAFF6" />
-                    </View>
-                  ) : (
-                    <View>
-                      <View
-                        style={{
-                          justifyContent: 'center',
-                          flexDirection: 'row',
-                        }}>
-                        <ResponsiveImage
-                          source={Images.syncImg}
-                          initWidth="40"
-                          initHeight="40"
-                        />
-                      </View>
-
-                      <Text
-                        style={{
-                          color: 'white',
-                          fontSize: Fonts.size.h5,
-                          marginLeft: 5,
-                          fontFamily: 'OpenSans-Regular',
-                        }}>
-                        {strings.Sync_to_server}
-                      </Text>
-                    </View>
-                  )}
-                </View>
-              </TouchableOpacity>
-            </ImageBackground>
-          </View>
+        <View style={styles.floatingSaveButton}>
+          {this.state.loadingSync ? (
+            <ActivityIndicator size="small" color="white" />
+          ) : (
+            <TouchableOpacity
+              onPress={() => this.onsyncToServer()}
+              style={{alignItems: 'center', justifyContent: 'center'}}>
+              <Icon name="refresh-ccw" size={24} color="white" />
+            </TouchableOpacity>
+          )}
+        </View>
         )}
       </>
     );

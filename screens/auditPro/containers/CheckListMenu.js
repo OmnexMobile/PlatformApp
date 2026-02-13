@@ -23,6 +23,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import { stat } from 'react-native-fs';
 import { ROUTES } from 'constants/app-constant';
 import { SPACING} from 'constants/theme-constants';
+import GlobalHeader from 'components/GlobalHeader';
 
 import localStorage from 'global/localStorage';
 
@@ -468,33 +469,32 @@ class CheckListMenu extends Component {
     return (
       <View style={styles.wrapper}>
         <OfflineNotice />
-        <ImageBackground source={Images.DashboardBG} style={{ resizeMode: 'stretch', width: '100%', height: 60, }}>
-          <View style={styles.header}>
-            <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
-              <View style={styles.backlogo}>
-                <Icon name="angle-left" size={30} color="white" />
-              </View>
-            </TouchableOpacity>
-            <View style={styles.heading}>
-              <Text numberOfLines={1} style={styles.headingText}> {this.state.Heading} </Text>
-              <Text numberOfLines={1} style={{ fontSize: 15, color: 'white', fontFamily: 'OpenSans-Regular', }}> {this.state.breadCrumbText} </Text>
-            </View>
-            <View style={styles.headerDiv}>
-              <TouchableOpacity style={{paddingHorizontal: 10}} onPress={() => this.props.navigation.navigate(ROUTES.AUDIT_DASHBOARD_LISTING) }>
-                <Icon name="home" size={30} color="white" />
-              </TouchableOpacity>
-            </View>
-          </View>
-        </ImageBackground>
+        {/* <ImageBackground
+          source={Images.DashboardBG}
+          style={{resizeMode: 'stretch', width: '100%'}}> */}
+          <GlobalHeader
+            title={this.state.Heading}
+            subtitle={this.state.breadCrumbText}
+            onLeftPress={() => this.props.navigation.goBack()}
+            onRightPress={() =>
+              this.props.navigation.navigate(ROUTES.AUDIT_DASHBOARD_LISTING)
+            }
+            containerStyle={{backgroundColor: 'transparent'}}
+            // titleStyle={{color: '#fff'}}
+            // subtitleStyle={{color: '#fff', fontSize: 15}}
+            // leftIconColor="#fff"
+            // rightIconColor="#fff"
+          />
+        {/* </ImageBackground> */}
 
         <View style={[styles.auditPageBody, {padding: 0}]}>
-          <ImageBackground
+          {/* <ImageBackground
             source={Images.BGlayerFooter}
             style={{
               resizeMode: 'stretch',
               width: '100%',
               height: '100%',
-            }}>
+            }}> */}
             {this.state.displayData ? (
               this.state.displayData.length > 0 ? (
                 <ScrollView
@@ -598,7 +598,7 @@ class CheckListMenu extends Component {
                 </Text>
               </View>
             ) : null}
-          </ImageBackground>
+          {/* </ImageBackground> */}
         </View>
       </View>
     );

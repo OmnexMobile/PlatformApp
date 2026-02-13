@@ -2646,7 +2646,7 @@ class NCOFIPage extends Component {
                             <View style={{ width: '33%', justifyContent: 'center' }}>
                                 {this.state.syncMode === 0 && (
                                     <TouchableOpacity onPress={once(this.onNavigaTo.bind(this, 1))} style={styles.footerShadowButton}>
-                                        <Icon name={'upload-cloud'} size={25} color="#000" />
+                                        <Icon name={'upload-cloud'} size={25} color="#fff" />
                                         <Text style={styles.footerTextContent}>{strings.Create_NC}</Text>
                                     </TouchableOpacity>
                                 )}
@@ -2666,7 +2666,7 @@ class NCOFIPage extends Component {
                                             );
                                         }}
                                         style={styles.footerShadowButton}>
-                                        <Icon name={'refresh-ccw'} size={25} color="#000000" />
+                                        <Icon name={'refresh-ccw'} size={25} color="#ffffff" />
                                         <Text style={styles.footerTextContent}>{strings.Upload_to_server}</Text>
                                     </TouchableOpacity>
                                 </View>
@@ -2710,7 +2710,7 @@ class NCOFIPage extends Component {
                             <View style={{ width: width(34) }}>
                                 {this.state.syncMode === 0 && (
                                     <TouchableOpacity onPress={once(this.onNavigaTo.bind(this, 2))} style={styles.footerShadowButton}>
-                                        <Icon name={'upload-cloud'} size={25} color="#000" />
+                                        <Icon name={'upload-cloud'} size={25} color="#ffffff" />
                                         <Text style={styles.footerTextContent}>{strings.Create_OFI}</Text>
                                     </TouchableOpacity>
                                 )}

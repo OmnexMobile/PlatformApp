@@ -164,7 +164,7 @@ export default StyleSheet.create({
   },
   boxContent: {
     width: '100%',
-    color:'#485B9E', 
+   // color:'#485B9E', 
     fontSize: Fonts.size.small,
     fontFamily:'OpenSans-Regular'
   }

@@ -436,8 +436,8 @@ export default StyleSheet.create({
   },
   floatingDiv: {
     position: 'absolute',
-    // right:20,
-    // bottom:90,
+    right: 20,
+    bottom: 90,
     zIndex: 1000,
     justifyContent: 'center',
     alignItems: 'center',
@@ -455,6 +455,52 @@ export default StyleSheet.create({
     elevation: 15,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  footerButtonsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
+    paddingHorizontal: 12,
+  },
+  footerButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 8,
+    backgroundColor: '#00b3d6',
+    shadowColor: '#000',
+    shadowOpacity: 0.18,
+    shadowOffset: {width: 0, height: 2},
+    shadowRadius: 2,
+    elevation: 1,
+    margin:10
+  },
+  footerButtonPrimary: {
+    backgroundColor: '#00b3d6',
+  },
+  footerButtonSecondary: {
+    backgroundColor: 'white',
+    borderWidth: 1.2,
+    borderColor: '#00b3d6',
+  },
+  footerVoiceButton: {
+    backgroundColor: 'white',
+    borderWidth: 1,
+    borderColor: '#00b3d6',
+  },
+  footerVoiceButtonActive: {
+    backgroundColor: '#14D0AE',
+  },
+  footerActionText: {
+    color: '#ffffff',
+    fontSize: 14,
+    fontFamily: 'OpenSans-SemiBold',
+    paddingTop: 5,
+  },
+  footerActionTextSecondary: {
+    color: '#00b3d6',
   },
   modalOuterBox: {
     backgroundColor: 'rgba(0,0,0,0.8)',
@@ -609,4 +655,18 @@ export default StyleSheet.create({
     // textAlign: 'center',
     // paddingLeft: 20,
   },
+  footerShadowButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: 8,
+    backgroundColor: '#00b3d6',
+    shadowColor: '#000',
+    shadowOpacity: 0.18,
+    shadowOffset: {width: 0, height: 2},
+    shadowRadius: 2,
+    elevation: 1,
+    margin:10
+},
 });

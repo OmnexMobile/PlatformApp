@@ -39,11 +39,12 @@ import Voice from '@react-native-community/voice';
 import Tts from 'react-native-tts';
 import AsyncStorage from '@react-native-community/async-storage';
 import RNFetchBlob from 'react-native-fetch-blob';
-import { ROUTES } from 'constants/app-constant';
+import { ROUTES, ICON_TYPE } from 'constants/app-constant';
 import { SPACING } from 'constants/theme-constants';
 import ToastNew, {ErrorToast} from 'react-native-toast-message';
 import { LogBox } from 'react-native';
 import GlobalHeader from 'components/GlobalHeader';
+import FAB from 'components/fab';
 let Window = Dimensions.get('window');
 const window_width = Dimensions.get('window').width;
 let timer = null;
@@ -3746,125 +3747,124 @@ console.log('checktheaudits---Auditpage----Auditppro',recentAudits);
           </View>
         )}
 
-        {this.state.EnableDownload == false && !this.state.isDownloaded ? (
-          <View></View>
-        ) : (
+        {this.state.isDownloaded ? (
           <View style={styles.footer}>
-            
-              <View style={styles.footerDiv}>
-                {!this.state.isDownloaded && !this.state.isDownloading ? (
-                  <TouchableOpacity onPress={this.downloadAuditForm.bind(this)}>
-                    <View style={styles.footerDivContent1}>
-                    
-                      <Icon name ={'download-cloud'} size = {25} color={"#000"}/>
-                      <Text
-                        style={{
-                          color: '#000',
-                          fontSize: Fonts.size.h5,
-                        //  marginLeft: 5,
-                          fontFamily: 'OpenSans-Regular',
-                       
-                        }}>
-                        {strings.Download_Audit_Form}
+            <View style={styles.footerDiv}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}>
+                {this.state.auditDetailList.AuditProgramName !== 'LPA' ? (
+                  <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+                    <TouchableOpacity
+                      onPress={once(this.onNavigateTo.bind(this, 4))}>
+                      <Icon
+                        name="paperclip"
+                        size={20}
+                        color="#000"
+                        style={{marginLeft: 15}}
+                      />
+                      <Text style={styles.footerTextContent}>
+                        {strings.Attach}
                       </Text>
-                    </View>
-                  </TouchableOpacity>
-                ) : !this.state.isDownloading ? (
-                  <View
-                  style={{
-                    flexDirection: 'row',
-                   // flexWrap: 'wrap',
-                    justifyContent:'space-between',
-                    alignItems: 'center',
-                  }}>
-                    {this.state.auditDetailList.AuditProgramName !== 'LPA' ? (
-                      <View style={{flex: 1, alignItems: 'center',justifyContent:'center'}}>
-                        <TouchableOpacity
-                          onPress={once(this.onNavigateTo.bind(this, 4))}>
-                          <Icon
-                            name="paperclip"
-                            size={20}
-                            color="#000"
-                            style={{marginLeft: 15}}
-                          />
-                          <Text style={styles.footerTextContent}>
-                            {strings.Attach}
-                          </Text>
-                        </TouchableOpacity>
-                      </View>
-                    ) : (
-                    <></> // Placeholder
-                    )}
-
-                    <View style={{flex: 1, alignItems: 'center',justifyContent:'center'}}>
-                      <TouchableOpacity
-                        onPress={once(this.onNavigateTo.bind(this, 2))}>
-                        <Icon
-                          name="list"
-                          size={20}
-                          color="#000"
-                          style={{marginLeft: 15}}
-                        />
-                        <Text style={styles.footerTextContent}>
-                          {strings.AuditRecords}
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
-
-                    {(this.state.auditDetailList.AuditProgramName !== 'LPA' &&
-                      this.state.AuditProp.ReportId == 1) ||
-                    this.state.AuditProp.ReportId == 2 ||
-                    this.state.AuditProp.ReportId == 3 ||
-                    this.state.AuditProp.ReportId == 4 ||
-                    this.state.AuditProp.ReportId == 6 ||
-                    this.state.AuditProp.ReportId == 7 || 
-                    this.state.AuditProp.ReportId == 13 ? (
-                      <View style={{flex: 1, alignItems: 'center',justifyContent:'center'}}>
-                        <TouchableOpacity
-                          onPress={once(this.onNavigateTo.bind(this, 3))}>
-                          <Icon
-                            name="file"
-                            size={20}
-                            color="#000"
-                            style={{marginLeft: 15}}
-                          />
-                          <Text style={styles.footerTextContent}>
-                            {strings.NC_OFI}
-                          </Text>
-                        </TouchableOpacity>
-                      </View>
-                    ) : (
-                    <></>
-                    )}
-
-                    {this.state.AuditProp.ReportId == 3 ||
-                    this.state.AuditProp.ReportId == 7 ? (
-                      <View style={{flex: 1, alignItems: 'center',justifyContent:'center'}}>
-                        <TouchableOpacity
-                          onPress={once(this.onNavigateTo.bind(this, 6))}>
-                          <Icon
-                            name="file"
-                            size={20}
-                            color="#000000"
-                            style={{marginLeft: 30}}
-                          />
-                          <Text style={styles.footerTextContent}>
-                            {strings.conformance}
-                          </Text>
-                        </TouchableOpacity>
-                      </View>
-                    ) : (
-                    <></>
-                    )}
+                    </TouchableOpacity>
                   </View>
                 ) : (
-                  <View style={styles.footerLoader}>
-                    <ActivityIndicator size={20} color="white" />
+                  <></>
+                )}
+
+                <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+                  <TouchableOpacity
+                    onPress={once(this.onNavigateTo.bind(this, 2))}>
+                    <Icon
+                      name="list"
+                      size={20}
+                      color="#000"
+                      style={{marginLeft: 15}}
+                    />
+                    <Text style={styles.footerTextContent}>
+                      {strings.AuditRecords}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+
+                {(this.state.auditDetailList.AuditProgramName !== 'LPA' &&
+                  this.state.AuditProp.ReportId == 1) ||
+                this.state.AuditProp.ReportId == 2 ||
+                this.state.AuditProp.ReportId == 3 ||
+                this.state.AuditProp.ReportId == 4 ||
+                this.state.AuditProp.ReportId == 6 ||
+                this.state.AuditProp.ReportId == 7 ||
+                this.state.AuditProp.ReportId == 13 ? (
+                  <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+                    <TouchableOpacity
+                      onPress={once(this.onNavigateTo.bind(this, 3))}>
+                      <Icon
+                        name="file"
+                        size={20}
+                        color="#000"
+                        style={{marginLeft: 15}}
+                      />
+                      <Text style={styles.footerTextContent}>
+                        {strings.NC_OFI}
+                      </Text>
+                    </TouchableOpacity>
                   </View>
+                ) : (
+                  <></>
+                )}
+
+                {this.state.AuditProp.ReportId == 3 ||
+                this.state.AuditProp.ReportId == 7 ? (
+                  <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+                    <TouchableOpacity
+                      onPress={once(this.onNavigateTo.bind(this, 6))}>
+                      <Icon
+                        name="file"
+                        size={20}
+                        color="#000000"
+                        style={{marginLeft: 30}}
+                      />
+                      <Text style={styles.footerTextContent}>
+                        {strings.conformance}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                ) : (
+                  <></>
                 )}
               </View>
+            </View>
           </View>
-        )}
+        ) : null}
+
+        {!this.state.isDownloaded &&
+        this.state.EnableDownload !== false ? (
+          <View style={styles.floatingDownload}>
+            <TouchableOpacity
+              disabled={this.state.isDownloading}
+              onPress={
+                this.state.isDownloading ? null : this.downloadAuditForm.bind(this)
+              }
+              style={[
+                styles.floatinBtn,
+                this.state.isDownloading && styles.floatingBtnDisabled,
+              ]}>
+              {this.state.isDownloading ? (
+                <ActivityIndicator size={20} color="#FFF" />
+              ) : (
+                <Icon name="download-cloud" size={24} color="#FFF" />
+              )}
+            </TouchableOpacity>
+            {/* <Text style={styles.floatingLabel}>
+              {this.state.isDownloading
+                ? 'Downloading...'
+                : strings.Download_Audit_Form}
+            </Text> */}
+          </View>
+        ) : null}
         
         {!this.state.isDownloaded ? null : (
           <View style={styles.floatingDiv}>

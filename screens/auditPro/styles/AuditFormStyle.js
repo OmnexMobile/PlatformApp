@@ -102,6 +102,26 @@ export default StyleSheet.create({
     justifyContent: 'flex-start', 
     alignContent:'center'
   },
+  syncButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#00b3d6',
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    elevation: 6,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+  },
+  syncButtonText: {
+    color: 'white',
+    fontSize: Fonts.size.h5,
+    marginLeft: 8,
+    fontFamily: 'OpenSans-Regular',
+  },
 
   // Body styles
   auditPageBody: {
@@ -441,6 +461,14 @@ alignContent:'center',    borderWidth: 1,
     justifyContent:'center',
     alignItems:'center'
   },
+  floatingSync:{
+    position:'absolute',
+    right:20,
+    bottom:90,
+    zIndex:1000,
+    justifyContent:'center',
+    alignItems:'center'
+  },
   floatinBtn:{
     borderWidth:1,
     borderColor:'rgba(0,0,0,0.2)',
@@ -448,7 +476,7 @@ alignContent:'center',    borderWidth: 1,
     justifyContent:'center',
     width:60,
     height:60,
-    backgroundColor:'white',
+    backgroundColor:'#00b3d6',
     borderRadius:100,
     zIndex:1000,
     elevation:15,

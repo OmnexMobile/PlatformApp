@@ -73,6 +73,29 @@ export default StyleSheet.create({
     height:65,
     position:'absolute'
   },
+  floatingButton:{
+    position:'absolute',
+    right:20,
+    bottom:20,
+    width:60,
+    height:60,
+    borderRadius:30,
+    backgroundColor:'#00b3d6',
+    justifyContent:'center',
+    alignItems:'center',
+    elevation:8,
+    shadowColor:'#000',
+    shadowOffset:{width:0,height:2},
+    shadowOpacity:0.25,
+    shadowRadius:4,
+    zIndex:3100
+  },
+  floatingLabel:{
+    marginTop:4,
+    color:'white',
+    fontSize:Fonts.size.small,
+    fontFamily:'OpenSans-Regular',
+  },
   auditPageBody: {
   flex: 1,
   zIndex: 10,

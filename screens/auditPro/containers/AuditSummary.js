@@ -37,6 +37,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 import { ROUTES } from 'constants/app-constant';
 import { SPACING } from 'constants/theme-constants';
 import { log } from 'ramdasauce';
+import GlobalHeader from 'components/GlobalHeader';
 
 let Window = Dimensions.get('window');
 
@@ -451,98 +452,35 @@ class AuditSummary extends Component {
       <View style={styles.wrapper}>
         {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
         <OfflineNotice />
-        <ImageBackground
-          source={Images.DashboardBG}
-          style={{
-            resizeMode: 'stretch',
-            width: '100%',
-            height: 60,
-          }}>
-          <View style={styles.header}>
-            <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
-              <View style={styles.backlogo}>
-                {/* <ResponsiveImage source={Images.BackIconWhite} initWidth="13" initHeight="22" /> */}
-                <Icon name="angle-left" size={30} color="white" />
-              </View>
-            </TouchableOpacity>
-
-            <View style={styles.heading}>
-              <Text style={styles.headingText}>{strings.AudiSummary}</Text>
-              <Text
-                numberOfLines={1}
-                style={{
-                  fontSize: 15,
-                  color: 'white',
-                  fontFamily: 'OpenSans-Regular',
-                }}>
-                {this.state.breadCrumbText}
-              </Text>
-            </View>
-            {/* <View style={{width:Window.width,height:20,position:'absolute',backgroundColor:'yellow'}}>
-
-                </View> */}
-            <View style={styles.headerDiv}>
-              {/* <ImageBackground source={Images.headerBG} style={styles.backgroundImage}></ImageBackground> */}
-              {/* <TouchableOpacity onPress={this.ReadFile.bind(this)} >
-                    <Icon name="refresh" size={25} color="white"/>
-                    <Text style={{color:'white',right:10}}>Refresh</Text>
-                    </TouchableOpacity> */}
-              <TouchableOpacity
-                style={{paddingHorizontal: 10}}
-                onPress={() =>
-                  // this.props.navigation.navigate('Home')
-                  this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)
-                }>
-                <Icon name="home" size={30} color="white" />
-              </TouchableOpacity>
-            </View>
-          </View>
-        </ImageBackground>
-        {/** ---------------------- */}
-        {/* <ScrollableTabView
-            renderTabBar={() =>
-              <DefaultTabBar
-                backgroundColor='white'
-                activeTextColor='#2CB5FD'
-                inactiveTextColor='#747474'
-                underlineStyle={{ backgroundColor: '#2CB5FD', borderBottomColor: '#2CB5FD' }}
-                textStyle={{ fontSize: Fonts.size.regular }}
-              />
-            }
-            tabBarPosition='overlayTop'
-          > */}
+        <GlobalHeader
+          title={strings.AudiSummary}
+          subtitle={this.state.breadCrumbText}
+          onLeftPress={() => this.props.navigation.goBack()}
+          onRightPress={() => this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)}
+          containerStyle={{backgroundColor: 'transparent'}}
+        />
+    
         <View style={styles.subHeading}>
           <Text style={styles.subText}>{strings.audit}</Text>
         </View>
         <ScrollView style={styles.scrollViewBody}>
-          {/* <View style={{ paddingTop: 10 }}> */}
           <View style={styles.Carddiv1}>
             <View style={styles.box1}>
               <TouchableOpacity style={styles.boxcard}>
                 <Text style={styles.TextStyle}>
                   {strings.Total_Online_forms}
                 </Text>
-                {/* <Animatable.View
-                  animation={'rubberBand'}
-                  iterationDelay={1000}
-                  iterationCount={100}> */}
                   <View>
                     <Text style={styles.TextStyle1}>{this.state.Online}</Text>
                   </View>
-                {/* </Animatable.View> */}
               </TouchableOpacity>
               <TouchableOpacity style={styles.boxcard1}>
                 <Text style={styles.TextStyle}>{strings.Total_References}</Text>
-                {/* <Animatable.View
-                  animation={'rubberBand'}
-                  iterationDelay={1300}
-                  iterationCount={100}> */}
                   <View>
                     <Text style={styles.TextStyle1}>
                       {this.state.Reference}
                     </Text>
                   </View>
-                {/* </Animatable.View> */}
               </TouchableOpacity>
             </View>
 
@@ -600,43 +538,7 @@ class AuditSummary extends Component {
               </TouchableOpacity>
             </View>
           </View>
-
-          {/* <View style={styles.Carddiv1}>
-
-                            <View style={styles.box1}>
-                                <TouchableOpacity style={styles.boxcard}>
-                                    <Text style={styles.TextStyle} >{strings.Total_OFI}</Text>
-                                    <Animatable.View animation={'rubberBand'} iterationDelay={1000} iterationCount={100} >
-                                        <View>
-                                            <Text style={styles.TextStyle1} >{this.state.dTotalOFI}</Text>
-                                        </View>
-                                    </Animatable.View>
-                                </TouchableOpacity>
-                                <TouchableOpacity style={styles.boxcard1}>
-                                    <Text style={styles.TextStyle} >{strings.Process_OFI}</Text>
-                                    <Animatable.View animation={'rubberBand'} iterationDelay={1300} iterationCount={100} >
-                                        <View>
-                                            <Text style={styles.TextStyle1} >{this.state.dProcessOFI}</Text>
-                                        </View>
-                                    </Animatable.View>
-
-                                </TouchableOpacity>
-                            </View>
-
-                            <View style={[styles.box1, { justifyContent: 'center' }]}>
-                                <TouchableOpacity style={styles.boxcard31}>
-                                    <Text style={styles.TextStyle} >{strings.Total_CheckPoints}</Text>
-                                    <Animatable.View animation={'rubberBand'} iterationDelay={1400} iterationCount={100} >
-                                        <View>
-                                            <Text style={styles.TextStyle1} >{this.state.CheckPoint.length}</Text>
-                                        </View>
-                                    </Animatable.View>
-                                </TouchableOpacity>
-                            </View>
-                        </View> */}
-          {/* </View> */}
         </ScrollView>
-        {/* </ScrollableTabView> */}
       </View>
     );
   }
@@ -653,4 +555,3 @@ const mapDispatchToProps = dispatch => {
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(AuditSummary);
-

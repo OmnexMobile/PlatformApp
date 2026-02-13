@@ -391,13 +391,6 @@ class CameraCapture extends Component {
       <View style={styles.wrapper}>
         {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
         <OfflineNotice />
-        <ImageBackground
-          source={Images.DashboardBG}
-          style={{
-            resizeMode: 'stretch',
-            width: '100%',
-            height: 65,
-          }}>
           <View style={styles.header}>
             <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
               <View style={styles.backlogo}>
@@ -420,7 +413,6 @@ class CameraCapture extends Component {
             </View>
           </View>
          
-        </ImageBackground>
 
         <View style={styles.auditPageBody}>
           {this.state.captureState == 'CameraMode' &&
@@ -489,13 +481,7 @@ class CameraCapture extends Component {
           )}
         </View>     
         <View style={styles.footer}>
-          <ImageBackground
-            source={Images.Footer}
-            style={{
-              resizeMode: 'stretch',
-              width: '100%',
-              height: 70,
-            }}>
+        
             {this.state.captureState == 'Captured' ? (
               <View style={styles.footerDiv}>
                 <View
@@ -593,7 +579,6 @@ class CameraCapture extends Component {
                 )}
               </View>
             )}
-          </ImageBackground>
         </View>
       </View>
     );

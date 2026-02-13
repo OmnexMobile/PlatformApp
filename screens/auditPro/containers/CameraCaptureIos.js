@@ -411,14 +411,6 @@ class CameraCapture extends Component {
     return (
       <View style={styles.wrapper}>
         <OfflineNotice />
-
-        <ImageBackground
-          source={Images.DashboardBG}
-          style={{
-            resizeMode: 'stretch',
-            width: '100%',
-            height: 65,
-          }}>
           <View style={styles.header}>
             <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
               <View style={styles.backlogo}>
@@ -440,9 +432,6 @@ class CameraCapture extends Component {
           </View>
             </View>
           </View>
-         
-        </ImageBackground>
-
         <View style={styles.auditPageBody}>
           {this.state.captureState == 'CameraMode' &&
           this.state.devices.length > 0 ? (
@@ -545,13 +534,6 @@ class CameraCapture extends Component {
           )}
         </View>     
         <View style={styles.footer}>
-          <ImageBackground
-            source={Images.Footer}
-            style={{
-              resizeMode: 'stretch',
-              width: '100%',
-              height: 70,
-            }}>
             {this.state.captureState == 'Captured' ? (
               <View style={styles.footerDiv}>
                 <View
@@ -569,7 +551,7 @@ class CameraCapture extends Component {
                     onPress={this.retakePhoto.bind(this)}>
                     <Text
                       style={{
-                        color: 'white',
+                        color: '#000',
                         fontSize: Fonts.size.h5,
                         fontFamily: 'OpenSans-Regular',
                       }}>
@@ -607,7 +589,7 @@ class CameraCapture extends Component {
                     onPress={this.saveCapturedImage.bind(this)}>
                     <Text
                       style={{
-                        color: 'white',
+                        color: '#000',
                         fontSize: Fonts.size.h5,
                         fontFamily: 'OpenSans-Regular',
                       }}>
@@ -649,7 +631,6 @@ class CameraCapture extends Component {
                 )}
               </View>
             )}
-          </ImageBackground>
         </View>
       </View>
     );

@@ -25,7 +25,7 @@ import ScrollableTabView, {
   DefaultTabBar,
 } from 'react-native-scrollable-tab-view';
 import Fonts from '../Themes/Fonts';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import Icon from 'react-native-vector-icons/Feather';
 import {strings} from '../language/Language';
 import NetInfo from '@react-native-community/netinfo';
 import RNFetchBlob from 'react-native-fetch-blob';
@@ -34,6 +34,7 @@ import FileViewer from 'react-native-file-viewer';
 import AsyncStorage from '@react-native-community/async-storage';
 import { ROUTES } from 'constants/app-constant';
 import { SPACING } from 'constants/theme-constants';
+import GlobalHeader from 'components/GlobalHeader';
 
 let Window = Dimensions.get('window');
 
@@ -358,46 +359,16 @@ class AuditAttach extends React.Component {
       <View style={styles.wrapper}>
         {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
         <OfflineNotice />
-        <ImageBackground
-          source={Images.DashboardBG}
-          style={{
-            resizeMode: 'stretch',
-            width: '100%',
-            height: 65,
-          }}>
-          <View style={styles.header}>
-            <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
-              <View style={styles.backlogo}>
-                {/* <ResponsiveImage source={Images.BackIconWhite} initWidth="13" initHeight="22" /> */}
-                    <Icon name="arrow-left" size={25} color="#000000" />
-              </View>
-            </TouchableOpacity>
-
-            <View style={styles.heading}>
-              <Text style={styles.headingText}>{strings.AuditAttach}</Text>
-              <Text
-                numberOfLines={1}
-                style={{
-                  fontSize: 15,
-                  color: 'white',
-                  fontFamily: 'OpenSans-Regular',
-                }}>
-                {this.state.breadCrumbText}
-              </Text>
-            </View>
-          
-            <View style={styles.headerDiv}>
-              <TouchableOpacity
-                style={{paddingHorizontal: 10}}
-                onPress={() =>
-                  this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)
-                }>
-                <Icon name="home" size={30} color="white" />
-              </TouchableOpacity>
-            </View>
-          </View>
-        </ImageBackground>
-        {/** ---------------------- */}
+          <GlobalHeader
+            title={strings.AuditAttach}
+            subtitle={this.state.breadCrumbText}
+            onLeftPress={() => this.props.navigation.goBack()}
+            onRightPress={() =>
+              this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)
+            }
+            containerStyle={{backgroundColor: 'transparent'}}
+          />
+     
         <ScrollableTabView
           renderTabBar={() => (
             <DefaultTabBar
@@ -547,67 +518,22 @@ class AuditAttach extends React.Component {
           )}
 
         </ScrollableTabView>
-        {/** --------footer-------- */}
+        {/** Floating add button */}
         <TouchableOpacity
           onPress={
             this.state.NetInfo === true
               ? () => this.addOfflineMode()
               : () =>
-              this.props.navigation.navigate(ROUTES.CREATE_ATTACH, {
+                  this.props.navigation.navigate(ROUTES.CREATE_ATTACH, {
                     AuditID: this.state.AuditID,
                     Type: 'Add',
                     EditDetails: [],
                     breadCrumb: this.state.breadCrumbText,
                   })
           }
-          style={styles.footer}>
-          <ImageBackground
-            source={Images.Footer}
-            style={{
-              resizeMode: 'stretch',
-              width: '100%',
-              height: 65,
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}>
-            {this.state.NetInfo === true ? (
-              <View
-                style={{
-                  flexDirection: 'column',
-                  width: width(45),
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}>
-                <Icon name="plus" size={25} color="white" />
-                <Text
-                  style={{
-                    color: 'white',
-                    fontSize: Fonts.size.regular,
-                    fontFamily: 'OpenSans-Regular',
-                  }}>
-                  {strings.AddIcon}
-                </Text>
-              </View>
-            ) : (
-              <View
-                style={{
-                  flexDirection: 'column',
-                  width: width(45),
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}>
-                <Icon name="plus" size={20} color="white" />
-                <Text
-                  style={{
-                    color: 'white',
-                    fontSize: Fonts.size.regular,
-                    fontFamily: 'OpenSans-Regular',
-                  }}>
-                  {strings.AddIcon}
-                </Text>
-              </View>
-            )}
-          </ImageBackground>
+          style={styles.floatingButton}>
+          <Icon name="plus" size={25} color="white" />
+          {/* <Text style={styles.floatingLabel}>{strings.AddIcon}</Text> */}
         </TouchableOpacity>
         <Toast
           // ref="toast"

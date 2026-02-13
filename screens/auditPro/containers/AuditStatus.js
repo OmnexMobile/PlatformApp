@@ -31,7 +31,7 @@ import RNFetchBlob from 'react-native-fetch-blob';
 import ResponsiveImage from 'react-native-responsive-image';
 import {ConfirmDialog} from 'react-native-simple-dialogs';
 import Fonts from '../Themes/Fonts';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import Icon from 'react-native-vector-icons/Feather';
 import LinearGradient from 'react-native-linear-gradient';
 import {strings} from '../language/Language';
 import {Dropdown} from 'react-native-material-dropdown';
@@ -43,6 +43,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 import { ROUTES } from 'constants/app-constant';
 import { SPACING } from 'constants/theme-constants';
 import { Header } from 'components';
+import GlobalHeader from 'components/GlobalHeader';
 
 let Window = Dimensions.get('window');
 
@@ -815,58 +816,18 @@ class AuditStatus extends React.Component {
           }
           onCancel={() => this.setState({isVisible: false})}
         />
-        <ImageBackground
-          source={Images.DashboardBG}
-          style={{
-            resizeMode: 'stretch',
-            width: '100%',
-            height: 65,
-          }}>
-          <View style={styles.header}>
-            {this.state.pageLoad === true ? (
-              <TouchableOpacity>
-                <View style={styles.backlogo}>
-                  {/* <ResponsiveImage source={Images.BackIconWhite} initWidth="13" initHeight="22" /> */}
-                  <Icon name="angle-left" size={30} color="white" />
-                </View>
-              </TouchableOpacity>
-            ) : (
-              <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
-                <View style={styles.backlogo}>
-                  {/* <ResponsiveImage source={Images.BackIconWhite} initWidth="13" initHeight="22" /> */}
-                  <Icon name="angle-left" size={30} color="white" />
-                </View>
-              </TouchableOpacity>
-            )}
-            <View style={styles.heading}>
-              <Text style={styles.headingText}>{strings.Audit_Result}</Text>
-              <Text
-                numberOfLines={1}
-                style={{
-                  fontSize: 15,
-                  color: 'white',
-                  fontFamily: 'OpenSans-Regular',
-                }}>
-                {this.state.breadCrumbText}
-              </Text>
-            </View>
-            {/* <View style={{width:Window.width,height:20,position:'absolute',backgroundColor:'yellow'}}>
-
-            </View> */}
-            <View style={styles.headerDiv}>
-              {/* <ImageBackground source={Images.headerBG} style={styles.backgroundImage}></ImageBackground> */}
-              <TouchableOpacity
-                style={{paddingRight: 10}}
-                onPress={() =>
-                  this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)
-                  // this.props.navigation.navigate(ROUTES.HOME_FAB_VIEW)
-                }>
-                <Icon name="home" size={30} color="white" />
-              </TouchableOpacity>
-            </View>
-          </View>
-        </ImageBackground>
-        {/* --------------------- */}
+        <GlobalHeader
+          title={strings.Audit_Result}
+          subtitle={this.state.breadCrumbText}
+          onLeftPress={() => this.props.navigation.goBack()}
+          hideLeft={this.state.pageLoad === true}
+          onRightPress={() => this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)}
+          containerStyle={{backgroundColor: 'transparent'}}
+          // titleStyle={{color: '#fff'}}
+          // subtitleStyle={{color: '#fff', fontSize: 15}}
+          // leftIconColor="#fff"
+          // rightIconColor="#fff"
+        />
         <View style={styles.auditPageBody}>
           <ScrollableTabView
             onChangeTab={event => {
@@ -1500,55 +1461,32 @@ class AuditStatus extends React.Component {
 
             {/*generate report related commented complete here*/}
 
-            <ImageBackground
-              source={Images.Footer}
-              style={{
-                resizeMode: 'stretch',
-                width: '100%',
-                height: 65,
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}>
+            <View style={styles.floatingSave}>
               {this.state.pageLoad === true ? (
                 <View
-                  style={{
-                    flex: 1,
-                    flexDirection: 'column',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}>
+                  style={[
+                    styles.floatinBtn,
+                    {backgroundColor: '#00b3d6', width: 60, height: 60},
+                  ]}>
                   <Pulse size={20} color="white" />
-                  <Text
-                    style={{color: 'white', fontFamily: 'OpenSans-Regular'}}>
-                    {strings.sLoading}
-                  </Text>
                 </View>
               ) : (
-                <View
-                  style={{
-                    flexDirection: 'column',
-                    width: width(45),
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}>
-                  {this.state.disableBtn === false ? (
-                    <Icon name="save" size={25} color="white" />
-                  ) : (
-                    <Icon name="refresh" size={25} color="white" />
+                <TouchableOpacity
+                  onPress={debounce(
+                    this.state.disableBtn === false
+                      ? () => this.setState({dialogVisible: true})
+                      : () => this.Refresh(),
+                    1000,
                   )}
-                  <Text
-                    style={{
-                      color: 'white',
-                      fontSize: Fonts.size.regular,
-                      fontFamily: 'OpenSans-Regular',
-                    }}>
-                    {this.state.disableBtn === false
-                      ? strings.Save
-                      : strings.Refresh}
-                  </Text>
-                </View>
+                  style={styles.floatinBtn}>
+                  {this.state.disableBtn === false ? (
+                    <Icon name="save" size={24} color="white" />
+                  ) : (
+                    <Icon name="refresh" size={24} color="white" />
+                  )}
+                </TouchableOpacity>
               )}
-            </ImageBackground>
+            </View>
           </TouchableOpacity>
         </View>
         <View></View>

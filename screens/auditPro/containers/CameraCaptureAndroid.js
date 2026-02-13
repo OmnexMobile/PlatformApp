@@ -14,7 +14,7 @@ import {Camera} from 'react-native-vision-camera';
 import {Images} from '../Themes/index';
 import OfflineNotice from '../components/OfflineNotice';
 import Fonts from '../Themes/Fonts';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import Icon from 'react-native-vector-icons/Feather';
 import {strings} from '../language/Language';
 import {width, height} from 'react-native-dimension';
 import Moment from 'moment';
@@ -30,6 +30,7 @@ import styles from '../styles/CameraCaptureStyle';
 import { ROUTES } from 'constants/app-constant';
 import { SPACING } from 'constants/theme-constants';
 import AsyncStorage from '@react-native-community/async-storage';
+import GlobalHeader from 'components/GlobalHeader';
  
 class CameraCapture extends Component {
   constructor(props) {
@@ -407,37 +408,18 @@ class CameraCapture extends Component {
       <View style={styles.wrapper}>
         {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
         <OfflineNotice />
- 
-        <ImageBackground
-          source={Images.DashboardBG}
-          style={{
-            resizeMode: 'stretch',
-            width: '100%',
-            height: 65,
-          }}>
-          <View style={styles.header}>
-            <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
-              <View style={styles.backlogo}>
-                <Icon name="angle-left" size={30} color="white" />
-              
-              </View>
-            </TouchableOpacity>
-            <View style={styles.heading}>
-              <Text style={styles.headingText}>
-                {strings.Camera_Capture_Head}
-              </Text>
-            </View>
-            <View style={styles.headerDiv}>
-            <View style={styles.backlogo}>
-              
+        <GlobalHeader
+          title={strings.Camera_Capture_Head}
+          onLeftPress={() => this.props.navigation.goBack()}
+          rightComponent={
             <TouchableOpacity onPress={this.changeCameraType.bind(this)}>
-            <Icon name="rotate-right" size={25} color="#fff" />
+              <Icon name="refresh-ccw" size={25} color="#00b3d6" />
             </TouchableOpacity>
-          </View>
-            </View>
-          </View>
+          }
+          containerStyle={{backgroundColor: 'transparent'}}
+          hideRight={false}
+        />
          
-        </ImageBackground>
  
         <View style={styles.auditPageBody}>
           {console.log('this.state.captureState--->', this.state.captureState)}
@@ -504,108 +486,37 @@ class CameraCapture extends Component {
                     resizeMode: 'stretch',
                   }}
                 />
-              
             </View>
           )}
         </View>
  
        
         <View style={styles.footer}>
-          <ImageBackground
-            source={Images.Footer}
-            style={{
-              resizeMode: 'stretch',
-              width: '100%',
-              height: 70,
-            }}>
             {this.state.captureState == 'Captured' ? (
               <View style={styles.footerDiv}>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}>
+                <View style={styles.splitButtonRow}>
                   <TouchableOpacity
-                    style={{
-                      width: width(45),
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                    }}
+                    style={styles.splitButton}
                     onPress={this.retakePhoto.bind(this)}>
-                    <Text
-                      style={{
-                        color: 'white',
-                        fontSize: Fonts.size.h5,
-                        fontFamily: 'OpenSans-Regular',
-                      }}>
+                    <Text style={styles.splitButtonText}>
                       {strings.Camera_Retake}
                     </Text>
                   </TouchableOpacity>
-                </View>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}>
-                  <View
-                    style={{
-                      width: width(10),
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                    }}>
-                    <Image source={Images.lineIcon} />
-                  </View>
-                </View>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}>
                   <TouchableOpacity
-                    style={{
-                      width: width(45),
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                    }}
+                    style={styles.splitButton}
                     onPress={this.saveCapturedImage.bind(this)}>
-                    <Text
-                      style={{
-                        color: 'white',
-                        fontSize: Fonts.size.h5,
-                        fontFamily: 'OpenSans-Regular',
-                      }}>
-                      {strings.Save}
-                    </Text>
+                    <Text style={styles.splitButtonText}>{strings.Save}</Text>
                   </TouchableOpacity>
                 </View>
               </View>
             ) : (
               <View style={styles.footerDiv}>
                 {this.state.captureState == 'CameraMode' ? (
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                    }}>
+                  <View style={styles.floatingCapture}>
                     <TouchableOpacity
-                      style={{
-                        width: width(100),
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                      }}
+                      style={styles.captureBtn}
                       onPress={this.capturePhoto}>
-                      <Text
-                        style={{
-                          color: 'white',
-                          fontSize: Fonts.size.h5,
-                          fontFamily: 'OpenSans-Regular',
-                        }}>
-                        {strings.Camera_Capture}
-                      </Text>
+                      <Icon name="camera" size={24} color="#fff" />
                     </TouchableOpacity>
                   </View>
                 ) : (
@@ -615,7 +526,6 @@ class CameraCapture extends Component {
                 )}
               </View>
             )}
-          </ImageBackground>
         </View>
       </View>
     );

@@ -90,7 +90,7 @@ export default StyleSheet.create({
         width: '100%',
     },
     footerTextContent: {
-        color: '#000',
+        color: '#ffffff',
         fontSize: 14,
         fontFamily: 'OpenSans-SemiBold',
         paddingTop: 5,
@@ -101,7 +101,7 @@ export default StyleSheet.create({
         paddingVertical: 6,
         paddingHorizontal: 10,
         borderRadius: 8,
-        backgroundColor: '#efeff5',
+        backgroundColor: '#00b3d6',
         shadowColor: '#000',
         shadowOpacity: 0.18,
         shadowOffset: {width: 0, height: 2},

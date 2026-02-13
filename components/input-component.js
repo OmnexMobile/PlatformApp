@@ -6,7 +6,7 @@ import { FONT_TYPE, ICON_TYPE } from 'constants/app-constant';
 import { FlashMessageManager } from 'react-native-flash-message';
 import { RFPercentage } from 'helpers/utils';
 
-const InputComponent = ({ defaultValue = '', placeholder = '', label = '', name = '', onChangeText, type = '', ...rest }) => {
+const InputComponent = ({ defaultValue = '', placeholder = '', required = false, label = '', name = '', onChangeText, type = '', ...rest }) => {
     const [isFocused, setIsFocused] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const isPassword = type === 'password';
@@ -21,9 +21,17 @@ const InputComponent = ({ defaultValue = '', placeholder = '', label = '', name 
                 styles.inputContainer,
             ]}>
             <View style={{ flex: 1 }}>
-                <TextComponent color={COLORS.textDark} type={FONT_TYPE.BOLD}>
-                    {label}
-                </TextComponent>
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: SPACING.X_SMALL }}>
+                    <TextComponent style={{ fontSize: FONT_SIZE.SMALL }} type={FONT_TYPE.BOLD}>
+                        {label}
+                    </TextComponent>
+                    {required && (
+                        <TextComponent style={{ fontSize: FONT_SIZE.SMALL }} color={COLORS.ERROR}>
+                            *
+                        </TextComponent>
+                    )}
+                </View>
+
                 <TextInput
                     {...{
                         style: styles.input,
@@ -58,10 +66,11 @@ const styles = StyleSheet.create({
         // paddingHorizontal: SPACING.NORMAL,
         borderBottomWidth: 1.5,
         flexDirection: 'row',
+        marginLeft: 10,
     },
     input: {
         fontFamily: 'OpenSans-Regular',
-        fontSize: FONT_SIZE.LARGE,
+        fontSize: FONT_SIZE.SMALL,
         width: '100%',
         color: COLORS.themeBlack,
         padding: 0,
