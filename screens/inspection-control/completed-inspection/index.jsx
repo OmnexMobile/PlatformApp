@@ -2,7 +2,7 @@ import { ButtonComponent, CheckBox, RadioButton, TextComponent } from 'component
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import CustomHeader from '../Components/CustomHeader';
 import { FlatList, Platform, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { COLORS } from 'constants/theme-constants';
+import { COLORS, SPACING } from 'constants/theme-constants';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import IconA from 'react-native-vector-icons/AntDesign';
 import IconO from 'react-native-vector-icons/Octicons';
@@ -23,8 +23,9 @@ import { Bubbles } from 'react-native-loader';
 import { showMessage } from 'react-native-flash-message';
 import { deleteInspectionByUniqueId, deleteInspectionsByUniqueIds, getInspectionDataByUserAndSite } from 'store/database/inspectStorage';
 import { isArray } from 'underscore';
-import { getICList, showErrorMessage } from 'helpers/utils';
+import { getElevation, getICList, showErrorMessage } from 'helpers/utils';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import useTheme from 'theme/useTheme';
 
 const optionsList = [
     {
@@ -61,6 +62,8 @@ const optionsList = [
 
 const CompletedInspection = () => {
     const insets = useSafeAreaInsets();
+    const elevation = getElevation();
+    const { theme } = useTheme();
     const { icUserData } = useSelector(state => state.inspection);
     const [syncModal, setSyncModal] = useState(false);
     const [syncList, setSyncList] = useState([...optionsList]);
@@ -97,7 +100,7 @@ const CompletedInspection = () => {
                 .sort((a, b) => new Date(b.downloadedDate) - new Date(a.downloadedDate));
         }
         setMasterData([...filtered, ...superVisorData]);
-        await getICList(icUserData?.userData?.UserId, icUserData?.userData?.Siteid,false);
+        await getICList(icUserData?.userData?.UserId, icUserData?.userData?.Siteid, false);
         setShowSkeleton(false);
         setRefreshing(false);
     };
@@ -141,7 +144,19 @@ const CompletedInspection = () => {
     };
     const renderItem = ({ item, index }) => {
         return (
-            <View style={[styles.recordConatiner, { backgroundColor: item?.backgroundColor ? item?.backgroundColor : '#fff' }]} key={index + 1}>
+            <View
+                style={[
+                    styles.recordConatiner,
+                    {
+                        borderRadius: SPACING.SMALL,
+                        marginBottom: SPACING.NORMAL,
+                        marginTop: SPACING.X_SMALL,
+                        marginHorizontal: SPACING.X_SMALL,
+                    },
+                    elevation,
+                    { backgroundColor: item?.backgroundColor ? item?.backgroundColor : theme.mode.backgroundColor },
+                ]}
+                key={index + 1}>
                 <View style={[styles.iconBox, { backgroundColor: renderIconBgColor(item?.intInspectionTypeID) }]}>
                     <Icon name="layers-outline" size={25} color={COLORS.white} />
                 </View>
@@ -469,8 +484,8 @@ const CompletedInspection = () => {
         };
         const response = await postAPI(ApiUrl.IC_BULK_SYNC, payLoad);
         if (response?.results) {
-            const uniqueIds=masterData?.map(item=>item?.uniqueId);
-            console.log('uniqueIds',uniqueIds)
+            const uniqueIds = masterData?.map(item => item?.uniqueId);
+            console.log('uniqueIds', uniqueIds);
             setSyncModal(false);
             // const flag = await deleteInspectionByUniqueId(selectedValue.uniqueId);
             const flag = await deleteInspectionsByUniqueIds(uniqueIds);
@@ -502,7 +517,7 @@ const CompletedInspection = () => {
         setDisableBtn(false);
     };
     return (
-        <CustomHeader title="Completed Inspection" activeTabId={3} handleSyncPress={handleBulkSyncPress}>
+        <CustomHeader title="Completed Inspection" activeTabId={3} handleSyncPress={handleBulkSyncPress} showHomeIcon>
             <View style={[styles.container]}>
                 {Boolean(showSkeleton) ? (
                     <IcSkeleton type={PLACEHOLDERS.INSPECTION_CARD} />

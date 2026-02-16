@@ -712,7 +712,7 @@ const InprocessInspection = ({ route }) => {
             }}>
             <View style={[styles.conatiner]}>
                 {!showChar && (
-                    <View style={{ flex: showGeneral ? 1 : 0 }}>
+                    <View style={{ flex: showGeneral ? 1 : 0 ,marginTop:5}}>
                         <TouchableOpacity
                             style={[styles.tabStyle, { borderBottomLeftRadius: showGeneral ? 0 : 10, borderBottomRightRadius: showGeneral ? 0 : 10 }]}
                             onPress={() => {

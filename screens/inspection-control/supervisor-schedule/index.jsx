@@ -4,7 +4,7 @@ import { FlatList, Platform, RefreshControl, ScrollView, StyleSheet, Text, Touch
 import CustomHeader from '../Components/CustomHeader';
 import { useState } from 'react';
 import { Divider, Modal } from 'react-native-paper';
-import { COLORS } from 'constants/theme-constants';
+import { COLORS, SPACING } from 'constants/theme-constants';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import IconM from 'react-native-vector-icons/MaterialCommunityIcons';
 import IconI from 'react-native-vector-icons/Ionicons';
@@ -12,7 +12,7 @@ import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { PLACEHOLDERS, ROUTES } from 'constants/app-constant';
 import ICFileIcon from '../../../assets/images/svg/icFile.svg';
 import RadioButtonComponent from '../Components/RadioButtonComponent';
-import { getICList, RFPercentage } from 'helpers/utils';
+import { getElevation, getICList, RFPercentage } from 'helpers/utils';
 import PartDetails from '../Components/supervisor-schedule/PartDetails';
 import FileViewModal from '../Components/supervisor-schedule/FileViewModal';
 import IcSkeleton from '../Components/IcSkeleton';
@@ -32,6 +32,7 @@ import SingleDropDown from '../Components/SingleDropDown';
 import DynamicFormField from '../Components/DynamicFormField';
 import DataPickerWithIcon from '../Components/DataPickerWithIcon';
 import FilterWithMenu from '../Components/FilterWithMenu';
+import InputWithSearch from '../Components/InputWithSearch';
 
 const optionsList = [
     {
@@ -127,6 +128,7 @@ const searchFilterList = [
 ];
 const SupervisorSchedule = () => {
     const navigation = useNavigation();
+    const elevation = getElevation();
     const { icUserData, icSettings, dateFormat } = useSelector(state => state.inspection);
     const uiDateFormat = dateFormat || 'DD/MM/YYYY';
     const isFocused = useIsFocused();
@@ -569,7 +571,18 @@ const SupervisorSchedule = () => {
     };
     const renderItem = ({ item, index }) => {
         return (
-            <View style={[styles.recordConatiner]} key={index + 1}>
+            <View
+                style={[
+                    styles.recordConatiner,
+                    {
+                        borderRadius: SPACING.SMALL,
+                        marginBottom: SPACING.NORMAL,
+                        marginTop: SPACING.X_SMALL,
+                        marginHorizontal: SPACING.X_SMALL,
+                    },
+                    elevation,
+                ]}
+                key={index + 1}>
                 <View style={[styles.iconBox, { backgroundColor: renderIconBgColor(item?.InspectionType) }]}>
                     <Icon name="layers-outline" size={25} color={COLORS.white} />
                 </View>
@@ -712,6 +725,7 @@ const SupervisorSchedule = () => {
     };
     return (
         <CustomHeader
+            showHomeIcon
             title="Supervisor Approval"
             activeTabId={4}
             handleFilterPress={() => {
@@ -805,6 +819,17 @@ const SupervisorSchedule = () => {
                         </TouchableOpacity>
                     </View>
                 </View>
+                <View style={[styles.searchBox]}>
+                    <InputWithSearch
+                        onSearch={value => {
+                            setFilters(pre => ({ ...pre, search: value }));
+                            if (!value?.length) {
+                                setMasterData(overAllData);
+                            }
+                        }}
+                        searchValue={filters?.search}
+                    />
+                </View>
                 {Boolean(showSkeleton) ? (
                     <IcSkeleton type={PLACEHOLDERS.SUPERVISOR_CARD} />
                 ) : Boolean(masterData?.length) ? (
@@ -818,12 +843,12 @@ const SupervisorSchedule = () => {
                     <NoDataFound />
                 )}
             </View>
-            <View style={[styles.bottombox]}>
+            {/* <View style={[styles.bottombox]}>
                 <Text style={[styles.bottomText]}>Total Inspections </Text>
                 <View style={[styles.totalBox]}>
                     <Text style={[styles.bottomText, { color: COLORS.white }]}>{masterData?.length}</Text>
                 </View>
-            </View>
+            </View> */}
             <Modal visible={showFilterList} onDismiss={hideModal} contentContainerStyle={[styles.modalConatiner]}>
                 <View style={[styles.modalcontainer]}>
                     <View style={[styles.modalBoxOne]}>
@@ -1033,11 +1058,8 @@ const styles = StyleSheet.create({
     },
     recordConatiner: {
         flex: 1,
-        padding: 15,
+        padding: 10,
         flexDirection: 'row',
-        backgroundColor: '#fff',
-        marginBottom: 10,
-        borderRadius: 10,
     },
     iconBox: {
         borderRadius: 40,
@@ -1179,22 +1201,25 @@ const styles = StyleSheet.create({
         width: '23%',
     },
     overAllBox: {
-        padding: 10,
+        paddingVertical: 5,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        backgroundColor: '#fff',
-        marginBottom: 10,
+        marginBottom: 5,
         borderRadius: 10,
     },
     getDataBox: {
         height: 35,
         width: 35,
-        backgroundColor: COLORS.inputBorder,
+        backgroundColor: COLORS.white,
         alignItems: 'center',
         justifyContent: 'center',
         borderRadius: 40,
     },
+    searchBox:{
+        paddingHorizontal:1,
+        marginBottom:5
+    }
 });
 
 export default SupervisorSchedule;

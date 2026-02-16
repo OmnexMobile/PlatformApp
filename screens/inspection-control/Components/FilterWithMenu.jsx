@@ -109,6 +109,7 @@ const styles = StyleSheet.create({
         borderColor: COLORS.staysIcon,
         paddingVertical: 7,
         paddingHorizontal: 5,
+        backgroundColor: COLORS.white,
     },
     textStyle: {
         fontSize: 15,
@@ -124,7 +125,7 @@ const styles = StyleSheet.create({
         paddingVertical: 7,
         paddingHorizontal: 5,
         justifyContent: 'center',
-        backgroundColor: COLORS.icborder,
+        backgroundColor: COLORS.white,
     },
 });
 

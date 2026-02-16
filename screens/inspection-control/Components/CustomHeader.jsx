@@ -3,11 +3,11 @@ import { COLORS, FONT_SIZE } from 'constants/theme-constants';
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Animated, FlatList, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import Icon from 'react-native-vector-icons/AntDesign';
-import IconF from 'react-native-vector-icons/FontAwesome';
+import IconF from 'react-native-vector-icons/Feather';
 import IconI from 'react-native-vector-icons/Ionicons';
 import IconO from 'react-native-vector-icons/Octicons';
 import IconM from 'react-native-vector-icons/MaterialIcons';
-import InputWithSearch from './InputWithSearch';
+// import InputWithSearch from './InputWithSearch';
 import InspectionInspectionSvg from '../../../assets/images/svg/inspection-scedule.svg';
 import OperatorWorksheetSvg from '../../../assets/images/svg/operator-worksheet.svg';
 import CompletedInspectionnSvg from '../../../assets/images/svg/completed-inspection.svg';
@@ -18,6 +18,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { IconButton, Menu, Tooltip } from 'react-native-paper';
 import { useAppContext } from 'contexts/app-context';
 import { useSelector } from 'react-redux';
+import GlobalHeader from 'components/GlobalHeader';
 
 const footerList = [
     {
@@ -78,6 +79,7 @@ const CustomHeader = ({
     customBackHandler = false,
     customHandleGoBack = () => {},
     handleMultiSearch = () => {},
+    showHomeIcon = false,
 }) => {
     const { icSettings } = useSelector(state => state.inspection);
     const insets = useSafeAreaInsets();
@@ -98,7 +100,6 @@ const CustomHeader = ({
             icSettings?.TabReceivingLotScheduleNeeded || icSettings?.TabInprocessLotScheduleNeeded || icSettings?.TabFinalLotScheduleNeeded;
         if (icSettings?.SearchInspectionNeeded && icSettings?.TabSearchInspectionNeeded) {
             if (showSuperVisorPage) {
-
                 return footerListWithoutSchedule;
             }
             return footerListWithoutSuperVisorWithSearch;
@@ -174,9 +175,10 @@ const CustomHeader = ({
             });
         }
     };
+
     return (
         <SafeAreaView style={[styles.container]}>
-            <View style={[styles.headerBox]}>
+            {/* <View style={[styles.headerBox]}>
                 <TouchableOpacity
                     onPress={() => {
                         !customBackHandler ? handleGoBack() : customHandleGoBack();
@@ -242,7 +244,57 @@ const CustomHeader = ({
                         </TouchableOpacity>
                     )}
                 </View>
-            </View>
+            </View> */}
+            <GlobalHeader
+                title={title}
+                onLeftPress={() => {
+                    !customBackHandler ? handleGoBack() : customHandleGoBack();
+                }}
+                onRightPress={() => {
+                    navigation.navigate(ROUTES.GLOBAL_DASHBOARD);
+                }}
+                rightComponent={
+                    <>
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                            {showIcons && (
+                                <>
+                                    {(activeTabId == 0 || activeTabId == 4) && (
+                                        <TouchableOpacity onPress={() => handleMultiSearch()}>
+                                            <IconM name="filter-list" size={25} style={styles.iconButton} color={COLORS.apptheme} />
+                                        </TouchableOpacity>
+                                    )}
+                                    {(activeTabId == 0 || activeTabId == 4) && (
+                                        <TouchableOpacity onPress={() => handleFilterPress()}>
+                                            <Icon name="filter" size={25} style={styles.iconButton} color={COLORS.apptheme} />
+                                        </TouchableOpacity>
+                                    )}
+                                    {activeTabId == 3 && (
+                                        <TouchableOpacity
+                                            onPress={() => {
+                                                handleSyncPress();
+                                            }}>
+                                            <IconO name="sync" size={25} style={styles.iconButton} color={COLORS.apptheme} />
+                                        </TouchableOpacity>
+                                    )}
+                                </>
+                            )}
+                            {showFileIcon && (
+                                <TouchableOpacity
+                                    onPress={() => {
+                                        handleFileIconPress();
+                                    }}>
+                                    <IconI name="images" size={25} style={styles.iconButton} color={COLORS.apptheme} />
+                                </TouchableOpacity>
+                            )}
+                            {Boolean(showHomeIcon) && (
+                                <TouchableOpacity onPress={() => navigation.navigate(ROUTES.GLOBAL_DASHBOARD)}>
+                                    <IconF name="home" size={25} style={styles.iconButton} color={COLORS.apptheme} />
+                                </TouchableOpacity>
+                            )}
+                        </View>
+                    </>
+                }
+            />
             <View style={styles.contentContainer}>{children}</View>
             <View style={[styles.footerBox]}>
                 <FlatList
@@ -262,7 +314,8 @@ const styles = StyleSheet.create({
     contentContainer: {
         flex: 1,
         backgroundColor: COLORS.icBackground,
-        padding: 10,
+        paddingHorizontal: 10,
+
     },
     headerBox: {
         backgroundColor: COLORS.apptheme,
@@ -288,6 +341,8 @@ const styles = StyleSheet.create({
         height: 80,
         paddingHorizontal: 15,
         marginBottom: 20,
+        borderTopWidth: 1,
+        borderTopColor: '#e0e0e0',
     },
     tabBox: {
         alignItems: 'center',

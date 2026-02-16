@@ -2,7 +2,7 @@ import { ButtonComponent } from 'components';
 import React, { useEffect, useState } from 'react';
 import { FlatList, Platform, RefreshControl, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import CustomHeader from '../Components/CustomHeader';
-import { COLORS } from 'constants/theme-constants';
+import { COLORS, SPACING } from 'constants/theme-constants';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { PLACEHOLDERS, ROUTES } from 'constants/app-constant';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -26,7 +26,8 @@ import { deleteAllInspectionData, getInspectionDataByUserAndSite } from 'store/d
 import { Modal } from 'react-native-paper';
 import { Bubbles } from 'react-native-loader';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { getICList } from 'helpers/utils';
+import { getElevation, getICList } from 'helpers/utils';
+import InputWithSearch from '../Components/InputWithSearch';
 
 const filterList = [
     {
@@ -63,7 +64,7 @@ const moreList = [
 const InspectionSchedule = () => {
     const insets = useSafeAreaInsets();
     const { height } = useWindowDimensions();
-    const { icUserData,icSettings, dateFormat } = useSelector(state => state.inspection);
+    const { icUserData, icSettings, dateFormat } = useSelector(state => state.inspection);
     const uiDateFormat = dateFormat || 'DD/MM/YYYY';
     const dispatch = useDispatch();
     const isFocused = useIsFocused();
@@ -109,10 +110,10 @@ const InspectionSchedule = () => {
     //     console.log(list, '*********************************************list.length');
     // };
     const getOverAllSettings = async () => {
-        const formDate=new FormData();
+        const formDate = new FormData();
         formDate.append('UserID', parseInt(icUserData?.userData?.UserId));
         formDate.append('SiteID', parseInt(icUserData?.userData?.Siteid));
-        const settingsRes = await postAPI(`${ApiUrl.IC_SETTINGS}`,formDate);
+        const settingsRes = await postAPI(`${ApiUrl.IC_SETTINGS}`, formDate);
         if (settingsRes.Success) {
             const settings = {
                 ...settingsRes?.Data[0],
@@ -264,9 +265,21 @@ const InspectionSchedule = () => {
     const renderIconBgColor = value => {
         return value == '1' ? COLORS.apptheme : value == '2' ? COLORS.ipBgColor : COLORS.fiBgColor;
     };
+    const elevation = getElevation();
+
     const renderData = ({ item }) => {
         return (
-            <View style={[styles.recordConatiner]}>
+            <View
+                style={[
+                    styles.recordConatiner,
+                    {
+                        borderRadius: SPACING.SMALL,
+                        marginBottom: SPACING.NORMAL,
+                        marginTop: SPACING.X_SMALL,
+                        marginHorizontal: SPACING.X_SMALL,
+                    },
+                    elevation,
+                ]}>
                 <View style={[styles.iconBox, { backgroundColor: renderIconBgColor(item?.TypeOfInspection) }]}>
                     <Icon name="layers-outline" size={25} color={COLORS.white} />
                 </View>
@@ -372,6 +385,7 @@ const InspectionSchedule = () => {
     };
     return (
         <CustomHeader
+            showHomeIcon
             title="Inspection Schedule"
             activeTabId={1}
             handleQRPress={() => {
@@ -437,6 +451,17 @@ const InspectionSchedule = () => {
                         /> */}
                     </View>
                 </View>
+                <View style={[styles.searchBox]}>
+                    <InputWithSearch
+                        onSearch={value => {
+                            setSearch(value);
+                            if (!value?.length) {
+                                handleSearch('', filterData?.type);
+                            }
+                        }}
+                        searchValue={search}
+                    />
+                </View>
                 {showSkeleton ? (
                     <IcSkeleton type={PLACEHOLDERS.INSPECTION_CARD} />
                 ) : Boolean(masterData?.length) ? (
@@ -450,13 +475,14 @@ const InspectionSchedule = () => {
                 ) : (
                     <NoDataFound />
                 )}
-                <View style={[styles.bottombox]}>
+                {/* <View style={[styles.bottombox]}>
                     <Text style={[styles.bottomText]}>Total Inspections </Text>
                     <View style={[styles.totalBox]}>
                         <Text style={[styles.bottomText, { color: COLORS.white }]}>{masterData?.length}</Text>
                     </View>
-                </View>
+                </View> */}
             </View>
+
             {/* <View style={[styles.btnContainer]}>
                 <ButtonComponent
                     textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}
@@ -526,7 +552,6 @@ const InspectionSchedule = () => {
 const styles = StyleSheet.create({
     mainContainer: {
         flex: 1,
-        backgroundColor: COLORS.white,
         borderRadius: 10,
     },
     btnContainer: {
@@ -534,9 +559,8 @@ const styles = StyleSheet.create({
     },
     recordConatiner: {
         flex: 1,
-        padding: 10,
-        borderBottomWidth: 1,
-        borderBottomColor: COLORS.icborder,
+        paddingHorizontal: 10,
+        paddingVertical:15,
         flexDirection: 'row',
     },
     iconBox: {
@@ -602,7 +626,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     overAllBox: {
-        padding: 10,
+        paddingVertical: 10,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -610,10 +634,14 @@ const styles = StyleSheet.create({
     getDataBox: {
         height: 35,
         width: 35,
-        backgroundColor: COLORS.inputBorder,
+        backgroundColor: COLORS.white,
         alignItems: 'center',
         justifyContent: 'center',
         borderRadius: 40,
+    },
+    searchBox: {
+        paddingHorizontal: 1,
+        marginBottom:5
     },
 });
 

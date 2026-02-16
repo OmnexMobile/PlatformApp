@@ -2,12 +2,12 @@ import { ButtonComponent } from 'components';
 import React, { useEffect, useState } from 'react';
 import CustomHeader from '../Components/CustomHeader';
 import { FlatList, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { COLORS } from 'constants/theme-constants';
+import { COLORS, SPACING } from 'constants/theme-constants';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { PLACEHOLDERS, ROUTES } from 'constants/app-constant';
 import { Divider, Modal } from 'react-native-paper';
-import { getICList, RFPercentage, showErrorMessage } from 'helpers/utils';
+import { getElevation, getICList, RFPercentage, showErrorMessage } from 'helpers/utils';
 import DeleteModal from '../Components/DeleteModal';
 import NoDataFound from '../Components/NoDataFound';
 import { useDispatch, useSelector } from 'react-redux';
@@ -28,6 +28,7 @@ const OperatorWorksheet = () => {
     const [selectedValue, setSelectedValue] = useState(null);
     const isFocused = useIsFocused();
     const dispatch = useDispatch();
+    const elevation = getElevation();
 
     // getting a data from SQLite
     const handleGetSQliteList = async () => {
@@ -44,7 +45,7 @@ const OperatorWorksheet = () => {
                 .sort((a, b) => new Date(b.downloadedDate) - new Date(a.downloadedDate));
         }
         setInspectionList([...filtered, ...superVisorData]);
-        await getICList(icUserData?.userData?.UserId, icUserData?.userData?.Siteid,false);
+        await getICList(icUserData?.userData?.UserId, icUserData?.userData?.Siteid, false);
         setShowSkeleton(false);
     };
     const handleCIbtnpress = () => {
@@ -67,7 +68,7 @@ const OperatorWorksheet = () => {
         const formDate = new FormData();
         formDate.append('UserID', parseInt(icUserData?.userData?.UserId));
         formDate.append('SiteID', parseInt(icUserData?.userData?.Siteid));
-        const settingsRes = await postAPI(`${ApiUrl.IC_SETTINGS}`,formDate);
+        const settingsRes = await postAPI(`${ApiUrl.IC_SETTINGS}`, formDate);
         if (settingsRes?.Success) {
             const settings = {
                 ...settingsRes?.Data[0],
@@ -141,10 +142,22 @@ const OperatorWorksheet = () => {
             showErrorMessage('Error deleting inspection');
         }
     };
+    
     const renderItem = ({ item }) => {
         const { status, colorCode } = rendetBtnText(item);
         return (
-            <View style={[styles.recordConatiner, { backgroundColor: item?.backgroundColor ? item?.backgroundColor : '#fff' }]}>
+            <View
+                style={[
+                    styles.recordConatiner,
+                    {
+                        borderRadius: SPACING.SMALL,
+                        marginBottom: SPACING.NORMAL,
+                        marginTop: SPACING.X_SMALL,
+                        marginHorizontal: SPACING.X_SMALL,
+                    },
+                    elevation,
+                    { backgroundColor: item?.backgroundColor ? item?.backgroundColor : '#fff' },
+                ]}>
                 <View style={[styles.iconBox, { backgroundColor: renderIconBgColor(item?.intInspectionTypeID) }]}>
                     <Icon name="layers-outline" size={25} color={COLORS.white} />
                 </View>
@@ -179,7 +192,7 @@ const OperatorWorksheet = () => {
         );
     };
     return (
-        <CustomHeader title="Operator Worksheet" activeTabId={2}>
+        <CustomHeader title="Operator Worksheet" activeTabId={2} showHomeIcon>
             {/* <ICScrollTab /> */}
             <View style={[styles.container]}>
                 {showSkeleton ? (

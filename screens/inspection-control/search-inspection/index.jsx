@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { FlatList, Platform, RefreshControl, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View, ScrollView } from 'react-native';
 import CustomHeader from '../Components/CustomHeader';
-import { COLORS } from 'constants/theme-constants';
+import { COLORS, SPACING } from 'constants/theme-constants';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { PLACEHOLDERS, ROUTES } from 'constants/app-constant';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -29,7 +29,8 @@ import { addInspectionData, getInspectionDataByUserAndSite } from 'store/databas
 import ICCheckBox from '../Components/ICCheckBox';
 import SingleDropDown from '../Components/SingleDropDown';
 import DynamicFormField from '../Components/DynamicFormField';
-import { getICList } from 'helpers/utils';
+import { getElevation, getICList } from 'helpers/utils';
+import InputWithSearch from '../Components/InputWithSearch';
 
 const filterList = [
     {
@@ -126,6 +127,7 @@ const SearchInspection = () => {
     const { icUserData, dateFormat } = useSelector(state => state.inspection);
     const uiDateFormat = dateFormat || 'DD/MM/YYYY';
     const dispatch = useDispatch();
+    const elevation = getElevation();
     const isFocused = useIsFocused();
     const {
         profile,
@@ -465,7 +467,7 @@ const SearchInspection = () => {
 
                 await addInspectionData(selectedSite?.UserId, selectedSite?.Siteid, inspectObj.uniqueId, inspectObj);
                 handleListFetch(false, false);
-                await getICList(icUserData?.userData?.UserId, icUserData?.userData?.Siteid,false);
+                await getICList(icUserData?.userData?.UserId, icUserData?.userData?.Siteid, false);
                 showMessage({
                     message: 'Form Downloaded Successfully',
                     backgroundColor: COLORS.SUCCESS,
@@ -567,7 +569,17 @@ const SearchInspection = () => {
     };
     const renderData = ({ item }) => {
         return (
-            <View style={[styles.recordConatiner]}>
+            <View
+                style={[
+                    styles.recordConatiner,
+                    {
+                        borderRadius: SPACING.SMALL,
+                        marginBottom: SPACING.NORMAL,
+                        marginTop: SPACING.X_SMALL,
+                        marginHorizontal: SPACING.X_SMALL,
+                    },
+                    elevation,
+                ]}>
                 <View style={[styles.iconBox, { backgroundColor: renderIconBgColor(item?.InspectionType) }]}>
                     <Icon name="layers-outline" size={25} color={COLORS.white} />
                 </View>
@@ -657,7 +669,6 @@ const SearchInspection = () => {
             }
         });
         handleDoMultiFilter(temp);
-        console.log(temp, 'selectedSeachOptions');
     };
     const handleDoMultiFilter = (criteria = []) => {
         if (!Array.isArray(criteria) || criteria.length === 0) {
@@ -676,9 +687,9 @@ const SearchInspection = () => {
 
         setMasterData([...temp]);
     };
-    console.log(searchList, 'searchList');
     return (
         <CustomHeader
+            showHomeIcon
             title="Search Inspection"
             activeTabId={0}
             hideSearch={isFocused}
@@ -769,6 +780,17 @@ const SearchInspection = () => {
                         </TouchableOpacity>
                     </View>
                 </View>
+                <View style={[styles.searchBox]}>
+                    <InputWithSearch
+                        onSearch={value => {
+                            setSearchFilter(pre => ({ ...pre, searchText: value }));
+                            if (value?.length == 0) {
+                                handleSearchList('', searchFilter.searchBy);
+                            }
+                        }}
+                        searchValue={searchFilter.searchText}
+                    />
+                </View>
                 {showSkeleton ? (
                     <IcSkeleton type={PLACEHOLDERS.INSPECTION_CARD} />
                 ) : Boolean(masterData?.length) ? (
@@ -783,12 +805,12 @@ const SearchInspection = () => {
                     <NoDataFound />
                 )}
             </View>
-            <View style={[styles.bottombox]}>
+            {/* <View style={[styles.bottombox]}>
                 <Text style={[styles.bottomText]}>Total Inspections </Text>
                 <View style={[styles.totalBox]}>
                     <Text style={[styles.bottomText, { color: COLORS.white }]}>{masterData?.length}</Text>
                 </View>
-            </View>
+            </View> */}
             {Boolean(showFileModal) && (
                 <FileViewModal
                     selectedValue={selectedData}
@@ -1003,7 +1025,7 @@ const SearchInspection = () => {
 const styles = StyleSheet.create({
     mainContainer: {
         flex: 1,
-        backgroundColor: COLORS.white,
+        // backgroundColor: COLORS.white,
         borderRadius: 10,
     },
     btnContainer: {
@@ -1012,8 +1034,6 @@ const styles = StyleSheet.create({
     recordConatiner: {
         flex: 1,
         padding: 10,
-        borderBottomWidth: 1,
-        borderBottomColor: COLORS.icborder,
         flexDirection: 'row',
     },
     iconBox: {
@@ -1088,15 +1108,18 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     overAllBox: {
-        padding: 10,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
+        // backgroundColor: COLORS.white,
+        borderRadius: 10,
+        marginBottom:5,
+        paddingVertical:5
     },
     getDataBox: {
         height: 35,
         width: 35,
-        backgroundColor: COLORS.inputBorder,
+        backgroundColor: COLORS.white,
         alignItems: 'center',
         justifyContent: 'center',
         borderRadius: 40,
@@ -1158,6 +1181,10 @@ const styles = StyleSheet.create({
         marginHorizontal: 5,
     },
     filterBox3: {},
+    searchBox:{
+        paddingHorizontal:1,
+        marginBottom:10
+    }
 });
 
 export default SearchInspection;
