@@ -45,11 +45,12 @@ export default StyleSheet.create({
         justifyContent: 'center', 
         alignItems:'center', 
         width: width(70),
-        height: 65
+        height: 65,
+        color:"black"
     },
     headingText:{
         fontSize: 18,
-        color: '#fff',
+        color: 'black',
         textAlign: 'center',
         // fontWeight:'bold'
         fontFamily:'OpenSans-Bold' 

@@ -246,6 +246,7 @@ class AllTabAuditList extends Component {
         console.log('Audit List SM Component Focused!');
   
         const filterArr = this.props?.route?.params?.filter_Arr;
+  console.log('checking---0000000>>>>>>>>>',this.props);
   
         if (filterArr) {
           console.log('Filter Applied:', filterArr);
@@ -2401,12 +2402,16 @@ class AllTabAuditList extends Component {
     });
   }
   
-  getYearAudit() {
+  async getYearAudit() {
     const token = this.state.accessToken;
     const siteid = this.state.siteId;
     const userid = this.state.userId;
-
-    auth.getYearAudit(siteid, userid, token, (res, data) => {
+    const stringifiedUserDetails = await AsyncStorage.getItem('userDetails');
+    const value = stringifiedUserDetails ? JSON.parse(stringifiedUserDetails) : null;
+    console.log('checkinguserSiteselectiongetYearAudits', value);
+    console.log('getYearAudits---->', value?.siteId, value?.userId, value?.accessToken);
+    auth.getYearAudit(value?.siteId, value?.userId, value?.accessToken, (res, data) => {
+    // auth.getYearAudit(siteid, userid, token, (res, data) => {
       // console.log('Calender filter api is called',data)
       if (data?.data?.Message == 'Success') {
         var GrossAudits = data.data.Data;
@@ -2492,11 +2497,16 @@ class AllTabAuditList extends Component {
     }
   };
 
-  getYearAudits() {
+  async getYearAudits() {
     this.keyVal = 0;
     // const {userId, token} = this.props.data.audits;
     // const siteId = this.props.data.audits.siteId;
 
+    const stringifiedUserDetails = await AsyncStorage.getItem('userDetails');
+    const value = stringifiedUserDetails ? JSON.parse(stringifiedUserDetails) : null;
+    console.log('checkinguserSiteselectiongetYearAuditsallltabauditsmmmm---->>>>', value);
+    console.log('getYearAudits---->', value?.siteId, value?.userId, value?.accessToken);
+    
     const token = this.state.accessToken || this.props.data.audits.token;
     const siteId = this.state.siteId || this.props.data.audits.siteId;
     const userId = this.state.userId || this.props.data.audits.userId;

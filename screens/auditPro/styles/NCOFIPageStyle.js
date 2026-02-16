@@ -72,7 +72,7 @@ export default StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         width: '100%',
-       // backgroundColor: 'transparent',
+    //    backgroundColor: 'red',
         height: 65,
     },
     footerDiv: {

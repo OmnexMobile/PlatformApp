@@ -8,7 +8,6 @@ import {
   Dimensions,
   ScrollView,
   FlatList,
-  ImageBackground,
   Button,
   Platform,
   KeyboardAvoidingView,
@@ -778,12 +777,15 @@ class CreateAttach extends React.Component {
     });
   }
 
-  resetForm() {
+  async resetForm() {
     this.setState({dialogVisible: false}, () => {
       console.log('dialog offf');
     });
-    var Token = this.props.data.audits.token;
-    auth.deleteAttach(this.state.AttachID, Token, (res, data) => {
+ var userDetails = await this.getAccessToken();
+            var Token =
+              userDetails?.accessToken ||
+              this.state.currentUserData?.accessToken ||
+              this.props.data.audits.token;    auth.deleteAttach(this.state.AttachID, Token, (res, data) => {
       console.log('data', data);
       if (data.data) {
         if (data.data.Message == 'Success') {
@@ -852,13 +854,7 @@ class CreateAttach extends React.Component {
 
     return (
       <KeyboardAvoidingView style={styles.wrapper}>
-        <ImageBackground
-          source={Images.DashboardBG}
-          style={{
-            resizeMode: 'stretch',
-            width: '100%',
-            height: 60,
-          }}>
+       
           <View style={styles.header} numberOfLines={1}>
             <TouchableOpacity
               onPress={() =>
@@ -870,7 +866,7 @@ class CreateAttach extends React.Component {
               }>
               <View style={styles.backlogo}>
                 {/* <ResponsiveImage source={Images.BackIconWhite} initWidth="13" initHeight="22" /> */}
-                <Icon name="angle-left" size={40} color="white" />
+                <Icon name="arrow-left" size={25} color="#00b3d6" />
               </View>
             </TouchableOpacity>
 
@@ -884,7 +880,7 @@ class CreateAttach extends React.Component {
                 numberOfLines={1}
                 style={{
                   fontSize: 15,
-                  color: 'white',
+                  color: 'black',
                   fontFamily: 'OpenSans-Regular',
                 }}>
                 {this.state.breadCrumbText}
@@ -900,11 +896,10 @@ class CreateAttach extends React.Component {
                 onPress={() =>
                   this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)
                 }>
-                <Icon name="home" size={35} color="white" />
+                <Icon name="home" size={35} color="#00b3d6" />
               </TouchableOpacity>
             </View>
           </View>
-        </ImageBackground>
         {/** ---------------------- */}
         <View style={styles.auditPageBody}>
           {this.state.EditFlag === true ? (
@@ -1397,124 +1392,39 @@ class CreateAttach extends React.Component {
           <View></View>
         </View>
 
-        {/** --------footer-------- */}
-        <View style={styles.footer}>
-          <ImageBackground
-            source={Images.Footer}
-            style={{
-              resizeMode: 'stretch',
-              width: '100%',
-              height: 65,
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}>
-            {this.props.route?.params.Type == 'Edit' ? (
-              <View
-                style={{
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                }}>
-                <TouchableOpacity
-                  style={{
-                    flexDirection: 'column',
-                    width: width(45),
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}
-                  onPress={() => this.setState({dialogVisible: true})}>
-                  <Icon name="trash" size={25} color="white" />
-                  <Text
-                    style={{
-                      color: 'white',
-                      fontSize: Fonts.size.regular,
-                      fontFamily: 'OpenSans-Regular',
-                    }}>
-                    {strings.Delete}
-                  </Text>
-                </TouchableOpacity>
+        {/** Floating Delete FAB (Edit mode only) */}
+        {this.props.route?.params?.Type == 'Edit' ? (
+          <TouchableOpacity
+            style={[
+              styles.floatingSaveButton,
+              {
+                right: 96,
+                bottom: Platform.OS === 'ios' ? 52 : 30,
+                backgroundColor: '#E45A5A',
+              },
+            ]}
+            onPress={() => this.setState({dialogVisible: true})}>
+            <Icon name="trash" size={24} color="white" />
+          </TouchableOpacity>
+        ) : null}
 
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}>
-                  <View
-                    style={{
-                      width: width(10),
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                    }}>
-                    <Image source={Images.lineIcon} />
-                  </View>
-                </View>
-
-                <TouchableOpacity
-                  style={{
-                    flexDirection: 'column',
-                    width: width(45),
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}
-                  onPress={debounce(this.onSave.bind(this), 1000)}>
-                  <Icon name="save" size={25} color="white" />
-                  <Text
-                    style={{
-                      color: 'white',
-                      fontSize: Fonts.size.regular,
-                      fontFamily: 'OpenSans-Regular',
-                    }}>
-                    {strings.Save}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            ) : (
-              <View
-                style={{
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                }}>
-                {!this.state.saveLoader ? (
-                  <TouchableOpacity
-                    style={{
-                      flexDirection: 'column',
-                      width: width(100),
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                    }}
-                    onPress={debounce(this.onSave.bind(this), 1000)}>
-                    <Icon name="save" size={25} color="white" />
-                    <Text
-                      style={{
-                        color: 'white',
-                        fontSize: Fonts.size.regular,
-                        fontFamily: 'OpenSans-Regular',
-                      }}>
-                      {strings.Save}
-                    </Text>
-                  </TouchableOpacity>
-                ) : (
-                  <View
-                    style={{
-                      width: '100%',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                    }}>
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        width: '100%',
-                      }}>
-            <ActivityIndicator size = "small" color = "#fff" />
-                    </View>
-                  </View>
-                )}
-              </View>
-            )}
-          </ImageBackground>
-        </View>
+        {/** Floating Save FAB */}
+        <TouchableOpacity
+          style={[
+            styles.floatingSaveButton,
+            {
+              bottom: Platform.OS === 'ios' ? 52 : 30,
+              right: 22,
+            },
+          ]}
+          disabled={this.state.saveLoader}
+          onPress={debounce(this.onSave.bind(this), 1000)}>
+          {this.state.saveLoader ? (
+            <ActivityIndicator size="small" color="#fff" />
+          ) : (
+            <Icon name="save" size={25} color="white" />
+          )}
+        </TouchableOpacity>
 
         <ConfirmDialog
           title={strings.Confirm}

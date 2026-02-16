@@ -22,6 +22,7 @@ import {ActivityIndicator} from 'react-native';
 import {Dropdown} from 'react-native-element-dropdown';
 import { SPACING } from 'constants/theme-constants';
 import { ROUTES } from 'constants/app-constant';
+import AsyncStorage from '@react-native-community/async-storage';
 
 // const nodeColors = ["rgb(168,224,166)", "rgb(255,206,101)", "rgb(252,151,96)", "#138D75",
 //     "#E59866", "#5D6D7E", "#9B59B6", "#E74C3C", "#48C9B0", "#FA8072", "#FF00FF", "#000080"]
@@ -70,7 +71,7 @@ const yearList = [
  
 ];
 const monthList = [
-  {label: 'jan', value: '01'},
+  {label: 'Jan', value: '01'},
   {label: 'Feb', value: '02'},
   {label: 'Mar', value: '03'},
   {label: 'Apr', value: '04'},
@@ -133,13 +134,24 @@ class CalandarList extends Component {
     var ID = this.props.data.audits.userId;
     var type = 3;
     var path = '';
-    const deviceId = await AsyncStorage.getItem('loginDeviceId');
+    const loginDeviceId = await AsyncStorage.getItem('loginDeviceId');
+    const fallbackDeviceId = await AsyncStorage.getItem('deviceid');
+    const stringifiedUserDetails = await AsyncStorage.getItem('userDetails');
+    const value = stringifiedUserDetails ? JSON.parse(stringifiedUserDetails) : null;
+    console.log('checkinguserSiteselection', value);
 
     var RegisterDevice = this.props.data.audits.deviceid;
-    console.log(userid, token, deviceId, RegisterDevice);
-  
+    const resolvedDeviceId = loginDeviceId || fallbackDeviceId || RegisterDevice;
+    if (!loginDeviceId && fallbackDeviceId) {
+      await AsyncStorage.setItem('loginDeviceId', fallbackDeviceId);
+    }
+    console.log('checkUsercalendarlist---->', resolvedDeviceId);
+
+    const resolvedUserId = value?.userId || userid;
+    const resolvedToken = value?.accessToken || token;
+
     // auth.getCheckUser(userid,RegisterDevice,token, (res, data) => {
-    auth.getCheckUser(userid, deviceId, token, (res, data) => {
+    auth.getCheckUser(resolvedUserId, resolvedDeviceId, resolvedToken, (res, data) => {
       console.log('User information', data);
       if (data.data.Message == 'Success') {
         console.log('Checking User status', data.data.Data.ActiveStatus);
@@ -202,12 +214,18 @@ class CalandarList extends Component {
     });
   }
 
-  getYearAudits() {
+  async getYearAudits() {
     const {userId, token} = this.props.data.audits;
     const siteId = this.props.data.audits.siteId;
+
+    const stringifiedUserDetails = await AsyncStorage.getItem('userDetails');
+    const value = stringifiedUserDetails ? JSON.parse(stringifiedUserDetails) : null;
+    console.log('checkinguserSiteselectiongetYearAudits', value);
+    console.log('getYearAudits---->', value?.siteId, value?.userId, value?.accessToken);
+    
     NetInfo.fetch().then(netState => {
       if (netState.isConnected) {
-        auth.getYearAudit(siteId, userId, token, (response, data) => {
+        auth.getYearAudit(value?.siteId, value?.userId, value?.accessToken, (response, data) => {
           if (data.data) {
             if (data.data.Message === 'Success') {
               if (data.data.Data && data.data.Data.length > 0) {
@@ -499,13 +517,14 @@ this.setState({
               borderRadius:10,borderColor:"#20b1d2",borderWidth:2
             }}>
             <View style={{}}>
-              <Text style={{fontWeight:'bold'}}>Month</Text>
+              <Text style={{fontWeight:'bold',color:'black'}}>Month</Text>
             </View>
             <View style={{marginLeft: '5%', width: '50%'}}>
               <Dropdown
                 style={styles.dropdown}
-                placeholderStyle={styles.placeholderStyle}
-                selectedTextStyle={styles.selectedTextStyle}
+                placeholderStyle={{color:'black'}}
+                selectedTextStyle={{color:'black'}}
+                itemTextStyle={{color:'black'}}
                 inputSearchStyle={styles.inputSearchStyle}
                 iconStyle={styles.iconStyle}
                 data={monthList}
@@ -515,6 +534,7 @@ this.setState({
                 valueField="value"
                 placeholder="Month"
                 // searchPlaceholder="Search..."
+                color = 'black'
                 value={this.state.monthValue}
                 onChange={item => {
                   console.log('mmm2@@@@@@@@', item);
@@ -534,13 +554,14 @@ this.setState({
               borderRadius:10,borderColor:'#20b1d2',borderWidth:2
             }}>
             <View style={{}}>
-              <Text style={{fontWeight:'bold'}}>Year</Text>
+              <Text style={{fontWeight:'bold',color:'black'}}>Year</Text>
             </View>
-            <View style={{marginLeft: '5%', width: '50%'}}>
+            <View style={{marginLeft: '5%', width: '60%'}}>
               <Dropdown
                 style={styles.dropdown}
-                placeholderStyle={styles.placeholderStyle}
-                selectedTextStyle={styles.selectedTextStyle}
+                placeholderStyle={{color:'black'}}
+                selectedTextStyle={{color:'black'}}
+                itemTextStyle={{color:'black'}}
                 inputSearchStyle={styles.inputSearchStyle}
                 iconStyle={styles.iconStyle}
                 data={yearList}
@@ -675,7 +696,8 @@ this.setState({
 
           console.log('========>start', StartDateTimeStamp, EndDateTimeStamp);
           console.log('========>end', EndDateTimeStamp);
-
+            var Filter_StartDate = '';
+            var Filter_EndDate = '';
           if (StartDateTimeStamp > EndDateTimeStamp) {
             console.log(
               'reve correcrtStartDateTimeStamp < EndDateTimeStamp',
@@ -696,7 +718,7 @@ this.setState({
             Filter_EndDate = this.state.endDate;
           }
 
-          this.props.navigation.navigate(ROUTES.ALLTABAUDITLIST, {
+          this.props.navigation.navigate(ROUTES.ALLTABAUDITLIST_SM, {
             navagationPage: ROUTES?.CALENDER_LIST,
             filter_Arr: [
               {
@@ -785,7 +807,7 @@ this.setState({
           // console.log("year diff startdtae is", startDate)
           // console.log("year diff endDate is", endDate)
 
-          this.props.navigation.push('AllTabAuditList', {
+          this.props.navigation.navigate(ROUTES.ALLTABAUDITLIST_SM, {
             navagationPage: "CalandarList",
             filter_Arr: [
               {
@@ -808,7 +830,7 @@ this.setState({
           // console.log("startdtae is", startDate)
           // console.log("endDate is", endDate)
 
-          this.props.navigation.push('AllTabAuditList', {
+          this.props.navigation.navigate(ROUTES.ALLTABAUDITLIST_SM, {
             navagationPage: "CalandarList",
             filter_Arr: [
               {

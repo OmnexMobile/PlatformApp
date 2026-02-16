@@ -31,7 +31,7 @@ import OfflineNotice from '../../auditPro/components/OfflineNotice';
 import ResponsiveImage from 'react-native-responsive-image';
 import {ConfirmDialog} from 'react-native-simple-dialogs';
 import Fonts from '../../auditPro/Themes/Fonts';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import Icon from 'react-native-vector-icons/Feather';
 import {strings} from '../../auditPro/language/Language';
 import {debounce, once} from 'underscore';
 import NetInfo from '@react-native-community/netinfo';
@@ -44,6 +44,7 @@ import FileViewer from 'react-native-file-viewer';
 import { ROUTES } from 'constants/app-constant';
 import AsyncStorage from '@react-native-community/async-storage';
 import { SPACING } from 'constants/theme-constants';
+import GlobalHeader from 'components/GlobalHeader';
 
 var RNFS = require('react-native-fs');
 
@@ -2730,56 +2731,17 @@ console.log('heckdata--------,',this.props);
       <View style={styles.wrapper}>
         {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
         <OfflineNotice />
-        <ImageBackground
-          source={Images.DashboardBG}
-          style={{
-            resizeMode: 'stretch',
-            width: '100%',
-            height: 60,
-          }}>
-            {/* ui check */}
-          {/* <View style={{flex:1,flexDirection:'row',justifyContent:'space-between',alignContent:'center',margin:5}}><Text>1</Text>
-            <Text>2</Text>
-            <Text>3</Text></View> */}
-          <View style={styles.header}>
-            <TouchableOpacity
-              onPress={() => {
-                this.state.syncMode === 0 && this.props.navigation.goBack();
-              }}>
-              <View style={styles.backlogo}>
-                <Icon name="angle-left" size={30} color="#fff" />
-              </View>
-            </TouchableOpacity>
-            <View style={styles.heading}>
-              <Text style={styles.headingText}>
-                {strings.NC}/{strings.OFI}
-              </Text>
-              <Text
-                numberOfLines={1}
-                style={{
-                  fontSize: 15,
-                  color: 'white',
-                  fontFamily: 'OpenSans-Regular',
-                }}>
-                {this.state.breadCrumbText}
-              </Text>
-            </View>
-
-            <View style={styles.headerDiv}>
-              <TouchableOpacity
-                style={{paddingHorizontal: 10}}
-                // style={{}}
-                // {/* ui check */}
-                onPress={() => {
-                  this.CheckSync();
-                  this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)}
-                }>
-                <Icon name="home" size={30} color="white" />
-              </TouchableOpacity>
-            </View>
-          </View>
-        </ImageBackground>
-
+      <GlobalHeader
+                          title={`${strings.NC}/${strings.OFI}`}
+                          subtitle={this.state.breadCrumbText}
+                          onLeftPress={() => {
+                              this.state.syncMode === 0 && this.props.navigation.goBack();
+                          }}
+                          onRightPress={() => {
+                            this.CheckSync();
+                            this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)
+                          }}
+                      />
         <View style={[styles.auditPageBody, {paddingTop: 10}]}>
           {this.state.isLoaderVisible === false ? (
             <ScrollableTabView
@@ -2977,137 +2939,185 @@ console.log('heckdata--------,',this.props);
           )}
         </View>
 
-        <View style={styles.footer}>
-          <ImageBackground
-            source={Images.Footer}
-            style={{
-              resizeMode: 'stretch',
-              width: '100%',
-              height: 65,
-            }}>
-            {/* <Image source={Images.Footer}/> */}
-            <View style={styles.footerDiv}>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}>
-                {/* ui check <View style={{width: width(34), justifyContent: 'center'}}></View> */}
-                <View style={{width: '33%', justifyContent: 'center'}}>
-                  {this.state.syncMode === 0 && (
-                    <TouchableOpacity
-                      onPress={once(this.onNavigaTo.bind(this, 1))}
-                      style={{alignItems: 'center'}}>
-                      <ResponsiveImage
-                        source={Images.uploadToServerIcon}
-                        initWidth="50"
-                        initHeight="40"
-                      />
-                      <Text
-                        style={{
-                          color: 'white',
-                          fontSize: Fonts.size.medium,
-                          fontFamily: 'OpenSans-Regular',
-                        }}>
-                        {strings.Create_NC}
-                      </Text>
-                    </TouchableOpacity>
-                  )}
-                </View>
-                {/* Sync */}
-                {this.state.syncMode === 0 ? (
-                  <View style={{width: '34%'}}>
-                    <TouchableOpacity
-                      onPress={() => {
-                        this.setState(
-                          {
-                            dialogVisible: true,
-                          },
-                          () => {
-                            console.log('Sync Dialog');
-                          },
-                        );
-                      }}
-                      style={{alignItems: 'center'}}>
-                      <ResponsiveImage
-                        source={Images.syncImg}
-                        initWidth="40"
-                        initHeight="40"
-                      />
-                      <Text
-                        style={{
-                          color: 'white',
-                          fontSize: Fonts.size.medium,
-                          fontFamily: 'OpenSans-Regular',
-                        }}>
-                        {strings.Upload_to_server}
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-                ) : this.state.syncMode === 2 || this.state.syncMode === 4 ? (
-                  <View style={{width: '33%'}}>
-                    <View
+        <View
+          style={[
+            styles.footer,
+            {
+              height: 88,
+              paddingBottom: Platform.OS === 'ios' ? 8 : 6,
+            },
+          ]}>
+          <View
+            style={[
+              styles.footerDiv,
+              {
+                width: '100%',
+                height: 88,
+                paddingHorizontal: 10,
+              },
+            ]}>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                width: '100%',
+              }}>
+              <View style={{width: width(30.5), justifyContent: 'center'}}>
+                {this.state.syncMode === 0 && (
+                  <TouchableOpacity
+                    onPress={once(this.onNavigaTo.bind(this, 1))}
+                    style={{
+                      height: 66,
+                      borderRadius: 18,
+                      backgroundColor: '#00b3d6',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      shadowColor: '#000',
+                      shadowOpacity: 0.18,
+                      shadowOffset: {width: 0, height: 3},
+                      shadowRadius: 4,
+                      elevation: 4,
+                    }}>
+                    <Icon name="upload-cloud" size={25} color="white" />
+                    <Text
                       style={{
-                        borderColor: '#CED0CE',
-                        justifyContent: 'center',
-                        alignItems: 'center',
+                        color: 'white',
+                        fontSize: Fonts.size.medium,
+                        fontFamily: 'OpenSans-SemiBold',
+                        marginTop: 6,
                       }}>
-                      <TouchableOpacity
-                        style={{alignItems: 'center'}}
-                        onPress={this.CheckSync.bind(this)}>
-                        <Icon name="check-square-o" size={35} color="white" />
-                        <Text
-                          style={{
-                            color: 'white',
-                            fontSize: Fonts.size.medium,
-                            marginTop: 2,
-                            fontFamily: 'OpenSans-Regular',
-                          }}>
-                          {'Proceed'}
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-                ) : (
-                  <View style={{width: '33%'}}>
-                    <View
-                      style={{
-                        paddingVertical: 20,
-                        borderTopWidth: 1,
-                        borderColor: '#CED0CE',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                      }}>
-                      <ActivityIndicator size={20} color="#1CAFF6" />
-                    </View>
-                  </View>
+                      {strings.Create_NC}
+                    </Text>
+                  </TouchableOpacity>
                 )}
-                {/* End Sync */}
-                <View style={{width: width(34)}}>
-                  {this.state.syncMode === 0 && (
-                    <TouchableOpacity
-                      onPress={once(this.onNavigaTo.bind(this, 2))}
-                      style={{alignItems: 'center'}}>
-                      <ResponsiveImage
-                        source={Images.uploadToServerIcon}
-                        initWidth="50"
-                        initHeight="40"
-                      />
-                      <Text
-                        style={{
-                          color: 'white',
-                          fontSize: Fonts.size.medium,
-                          fontFamily: 'OpenSans-Regular',
-                        }}>
-                        {strings.Create_OFI}
-                      </Text>
-                    </TouchableOpacity>
-                  )}
+              </View>
+
+              {this.state.syncMode === 0 ? (
+                <View style={{width: width(30.5), justifyContent: 'center'}}>
+                  <TouchableOpacity
+                    onPress={() => {
+                      this.setState(
+                        {
+                          dialogVisible: true,
+                        },
+                        () => {
+                          console.log('Sync Dialog');
+                        },
+                      );
+                    }}
+                    style={{
+                      height: 66,
+                      borderRadius: 18,
+                      backgroundColor: '#00b3d6',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      shadowColor: '#000',
+                      shadowOpacity: 0.18,
+                      shadowOffset: {width: 0, height: 3},
+                      shadowRadius: 4,
+                      elevation: 4,
+                    }}>
+                    <Icon name="refresh-ccw" size={25} color="white" />
+                    <Text
+                      style={{
+                        color: 'white',
+                        fontSize: Fonts.size.medium,
+                        fontFamily: 'OpenSans-SemiBold',
+                        marginTop: 6,
+                      }}>
+                      {strings.Upload_to_server}
+                    </Text>
+                  </TouchableOpacity>
                 </View>
+              ) : this.state.syncMode === 2 || this.state.syncMode === 4 ? (
+                <View style={{width: width(30.5), justifyContent: 'center'}}>
+                  <TouchableOpacity
+                    onPress={this.CheckSync.bind(this)}
+                    style={{
+                      height: 66,
+                      borderRadius: 18,
+                      backgroundColor: '#00b3d6',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      shadowColor: '#000',
+                      shadowOpacity: 0.18,
+                      shadowOffset: {width: 0, height: 3},
+                      shadowRadius: 4,
+                      elevation: 4,
+                    }}>
+                    <Icon name="check-square-o" size={30} color="white" />
+                    <Text
+                      style={{
+                        color: 'white',
+                        fontSize: Fonts.size.medium,
+                        marginTop: 6,
+                        fontFamily: 'OpenSans-SemiBold',
+                      }}>
+                      {'Proceed'}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                <View style={{width: width(30.5), justifyContent: 'center'}}>
+                  <View
+                    style={{
+                      height: 66,
+                      borderRadius: 18,
+                      backgroundColor: '#00b3d6',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      shadowColor: '#000',
+                      shadowOpacity: 0.18,
+                      shadowOffset: {width: 0, height: 3},
+                      shadowRadius: 4,
+                      elevation: 4,
+                    }}>
+                    <ActivityIndicator size={20} color="white" />
+                    <Text
+                      style={{
+                        color: 'white',
+                        fontSize: Fonts.size.medium,
+                        marginTop: 6,
+                        fontFamily: 'OpenSans-SemiBold',
+                      }}>
+                      {strings.Upload_to_server}
+                    </Text>
+                  </View>
+                </View>
+              )}
+
+              <View style={{width: width(30.5), justifyContent: 'center'}}>
+                {this.state.syncMode === 0 && (
+                  <TouchableOpacity
+                    onPress={once(this.onNavigaTo.bind(this, 2))}
+                    style={{
+                      height: 66,
+                      borderRadius: 18,
+                      backgroundColor: '#00b3d6',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      shadowColor: '#000',
+                      shadowOpacity: 0.18,
+                      shadowOffset: {width: 0, height: 3},
+                      shadowRadius: 4,
+                      elevation: 4,
+                    }}>
+                    <Icon name="upload-cloud" size={25} color="white" />
+                    <Text
+                      style={{
+                        color: 'white',
+                        fontSize: Fonts.size.medium,
+                        fontFamily: 'OpenSans-SemiBold',
+                        marginTop: 6,
+                      }}>
+                      {strings.Create_OFI}
+                    </Text>
+                  </TouchableOpacity>
+                )}
               </View>
             </View>
-          </ImageBackground>
+          </View>
         </View>
 
         <Toast ref="toast" position="top" opacity={0.8} />

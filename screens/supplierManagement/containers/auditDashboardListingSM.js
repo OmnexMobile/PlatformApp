@@ -21,6 +21,8 @@ import {DoubleBounce} from 'react-native-loader';
 import {connect} from 'react-redux';
 //assets
 import {Fonts, Images} from '../../auditPro/Themes';
+import { IMAGES } from 'assets/images'
+
 import Icon from 'react-native-vector-icons/FontAwesome';
 //services
 import auth from '../../../services/SupplierMgnt-Auth';
@@ -146,57 +148,28 @@ applyAuditFilter = () => {
         {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
         {/* Offline notification */}
         <OfflineNotice />
-        <ImageBackground
-          source={Images.DashboardBG}
-          style={{
-            resizeMode: 'stretch',
-            width: '100%',
-            height: 60,
-          }}>
-          {/* <View style={styles.header}>
-            <TouchableOpacity
-              onPress={() => this.props.navigation.goBack()}
-              style={styles.backlogo}>
-              <Icon name="angle-left" size={30} color="white" />
-            </TouchableOpacity>
-            <View style={styles.heading}>
-              <Text numberOfLines={1} style={styles.headingText}>
-                {this.props.navigation.getParam('title')}
-              </Text>
-            </View>
-            <View style={styles.headerDiv}>
-              <TouchableOpacity
-              
-                onPress={() =>
-                  this.props.navigation.navigate('AuditDashboard')
-                }>
-                <Icon name="home" size={30} color="white" />
-              </TouchableOpacity>
-            </View>
-          </View> */}
-          <View style={{flex:1,
-            flexDirection:'row',justifyContent:'space-between',marginRight:30,marginLeft:30,marginTop:20,marginBottom:10}}>
-            <View> 
-              <TouchableOpacity
-              onPress={() => this.props.navigation.goBack()}
-                // onPress={() => this.props.navigation.navigate(ROUTES.AUDITPRODASHBOARD_SM) }/
-             >
-              <Icon name="angle-left" size={30} color="white" />
-            </TouchableOpacity></View>
-          <View>
-            <Text numberOfLines={1} style={styles.headingText}>
-                {/* {this.props.navigation.getParam('title')} */}
-                {this.props?.route?.params?.title || this.state.projectData?.auditTitle}
-              </Text></View>
-              <View> 
-                <TouchableOpacity
-              onPress={() =>
-                // this.props.navigation.navigate('AuditDashboard')
-                this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)
-              }>
-              <Icon name="home" size={30} color="white" />
-            </TouchableOpacity></View></View>
-        </ImageBackground>
+    
+                 <View style={styles.header}>
+                   <TouchableOpacity
+                     onPress={() => this.props.navigation.goBack()}
+                     style={styles.backlogo}>
+                     <Icon name="arrow-left" size={25} color="#00b3d6" />
+                   </TouchableOpacity>
+                   <View style={styles.heading}>
+                     <Text numberOfLines={1} style={styles.headingText}>
+                       {'Audits'}
+                     </Text>
+                   </View>
+                   <View style={styles.headerDiv}>
+                     <TouchableOpacity
+                       style={{paddingRight: 10}}
+                       onPress={() =>
+                         this.props.navigation.navigate('AuditDashboard')
+                       }>
+                       <Icon name="home" size={25} color="#00b3d6" />
+                     </TouchableOpacity>
+                   </View>
+                 </View>
         <View style={styles.auditPageBody}>
            <ListSearch
                       searchKey={this.state.searchKey}

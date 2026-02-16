@@ -3730,15 +3730,21 @@ console.log('checckkreddoticon',this.state.redDotID);
       <View style={styles.wrapper}>
         <OfflineNotice />
 
-        <ImageBackground
-          source={Images.DashboardBG}
-          style={{
-            resizeMode: 'stretch',
-            width: '100%',
-            height: 65,
-          }}>
-          <View style={styles.header}>
+          <View
+            style={[
+              styles.header,
+              {
+                alignItems: 'center',
+                paddingHorizontal: 8,
+              },
+            ]}>
             <TouchableOpacity
+              style={{
+                width: 44,
+                height: 44,
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
               onPress={
                 this.state.isLoaderVisible === false
                   ? () => this.props.navigation.goBack()
@@ -3746,34 +3752,52 @@ console.log('checckkreddoticon',this.state.redDotID);
                       console.log('please wait');
                     }
               }>
-              <View style={styles.backlogo}>
-                <Icon name="angle-left" size={30} color="white" />
-              </View>
+              <Icon name="arrow-left" size={25} color="#00b3d6" />
             </TouchableOpacity>
-            <View style={styles.heading}>
+            <View
+              style={[
+                styles.heading,
+                {
+                  flex: 1,
+                  width: 'auto',
+                  height: 'auto',
+                  marginHorizontal: 6,
+                },
+              ]}>
               <Text style={styles.headingText}>{strings.Audit_Records}</Text>
               <Text
                 numberOfLines={1}
                 style={{
                   fontSize: 15,
-                  color: 'white',
+                  color: 'black',
                   fontFamily: 'OpenSans-Regular',
                 }}>
                 {this.state.breadCrumbText}
               </Text>
             </View>
 
-            <View style={styles.headerDiv}>
+            <View
+              style={[
+                styles.headerDiv,
+                {
+                  width: 44,
+                  height: 44,
+                },
+              ]}>
               <TouchableOpacity
-                style={{paddingHorizontal: 10}}
+                style={{
+                  width: 44,
+                  height: 44,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}
                 onPress={() =>
                   this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)
                 }>
-                <Icon name="home" size={30} color="white" />
+                <Icon name="home" size={30} color="#00b3d6" />
               </TouchableOpacity>
             </View>
           </View>
-        </ImageBackground>
       
         {this.state.uploadSpeed && (
   <Text style={{ fontSize: 14, color: 'green', marginVertical: 4 }}>
@@ -4917,7 +4941,7 @@ console.log('checckkreddoticon',this.state.redDotID);
                   });
                 }}
                 style={styles.floatinBtn}>
-                <Icon name="align-justify" size={20} color="#00b3d6" />
+                <Icon name="bars" size={24} color="white" />
               </TouchableOpacity>
             </View>
           </View>
@@ -4949,82 +4973,32 @@ console.log('checckkreddoticon',this.state.redDotID);
             </View>
           </View>
         )}
-        <View style={styles.footer}>
-          <ImageBackground
-            source={Images.Footer}
-            style={{
-              resizeMode: 'stretch',
-              width: '100%',
-              height: 65,
-            }}>
-            <View style={styles.footerDiv}>
-              {!this.state.isSyncing ? (
-                <TouchableOpacity onPress={() => this.checkoffline()}>
-                  {this.state.redDotID === 'true' ? (
-                    <View style={{left: 0, top: 2}}>
-                      <Icon name="circle" size={10} color="red" />
-                    </View>
-                  ) : (
-                    <View></View>
-                  )}
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                    }}>
-                    <ResponsiveImage
-                      source={Images.uploadToServerIcon}
-                      initWidth="50"
-                      initHeight="40"
-                    />
-                    <Text
-                      style={{
-                        color: 'white',
-                        fontSize: Fonts.size.h5,
-                        marginLeft: 5,
-                        fontFamily: 'OpenSans-Regular',
-                      }}>
-                      {strings.Sync_to_server}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              ) : this.state.syncMode !== 4 ? (
-                <View
-                  style={{
-                    paddingVertical: 20,
-                    borderTopWidth: 1,
-                    borderColor: '#CED0CE',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}>
-                  <ActivityIndicator size={20} color="#1CAFF6" />
+        <View
+          style={[
+            styles.floatingSync,
+            {
+              bottom: Platform.OS === 'ios' ? 96 : 84,
+              right: 22,
+            },
+          ]}>
+          {!this.state.isSyncing ? (
+            <TouchableOpacity onPress={() => this.checkoffline()} style={styles.floatinBtn}>
+              {this.state.redDotID === 'true' ? (
+                <View style={{position: 'absolute', top: 8, right: 8}}>
+                  <Icon name="circle" size={10} color="red" />
                 </View>
-              ) : (
-                <View
-                  style={{
-                    borderColor: '#CED0CE',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}>
-                  <TouchableOpacity
-                    style={{alignItems: 'center'}}
-                    onPress={() => this.syncResponseHandle()}>
-                    <Icon name="check-square-o" size={35} color="white" />
-                    <Text
-                      style={{
-                        color: 'white',
-                        fontSize: Fonts.size.medium,
-                        //marginLeft: 5,
-                        fontFamily: 'OpenSans-Regular',
-                      }}>
-                      {'Proceed'}
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              )}
+              ) : null}
+              <Icon name="refresh" size={24} color="white" />
+            </TouchableOpacity>
+          ) : this.state.syncMode !== 4 ? (
+            <View style={styles.floatinBtn}>
+              <ActivityIndicator size={20} color="white" />
             </View>
-          </ImageBackground>
+          ) : (
+            <TouchableOpacity style={styles.floatinBtn} onPress={() => this.syncResponseHandle()}>
+              <Icon name="check-square-o" size={28} color="white" />
+            </TouchableOpacity>
+          )}
         </View>
 
         <Toast

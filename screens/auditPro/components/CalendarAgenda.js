@@ -13,8 +13,8 @@ import Moment from "moment";
 //services
 // import auth from "../Services/Auth";
 //strings
-import { strings } from "../Language/Language";
-import constant from "../Constants/AppConstants";
+import { strings } from "../language/Language";
+import constant from "../constants/AppConstants";
 
 const {
   whitneyBook_10,

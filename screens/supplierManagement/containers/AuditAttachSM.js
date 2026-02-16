@@ -5,7 +5,6 @@ import {
   TouchableOpacity,
   Dimensions,
   FlatList,
-  ImageBackground,
   Linking,
   Platform,
   ActivityIndicator,
@@ -14,7 +13,6 @@ import {
 // import { Dialog, ProgressDialog } from 'react-native-simple-dialogs';
 import {Images} from '../../auditPro/Themes';
 import styles from '../../auditPro/styles/AuditAttachStyle';
-import {width} from 'react-native-dimension';
 import Moment from 'moment';
 import {connect} from 'react-redux';
 import Toast, {DURATION} from 'react-native-easy-toast';
@@ -386,18 +384,12 @@ console.log('Auditcheck-----AuditOrder',RequestParam[0].AuditOrder);
     return (
       <View style={styles.wrapper}>
         <OfflineNotice />
-        <ImageBackground
-          source={Images.DashboardBG}
-          style={{
-            resizeMode: 'stretch',
-            width: '100%',
-            height: 65,
-          }}>
+        
           <View style={styles.header}>
             <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
               <View style={styles.backlogo}>
                 {/* <ResponsiveImage source={Images.BackIconWhite} initWidth="13" initHeight="22" /> */}
-                <Icon name="angle-left" size={30} color="white" />
+                <Icon name="arrow-left" size={25} color="#00b3d6" />
               </View>
             </TouchableOpacity>
 
@@ -407,7 +399,7 @@ console.log('Auditcheck-----AuditOrder',RequestParam[0].AuditOrder);
                 numberOfLines={1}
                 style={{
                   fontSize: 15,
-                  color: 'white',
+                  color: 'black',
                   fontFamily: 'OpenSans-Regular',
                   textAlign:'center'
                 }}>
@@ -428,11 +420,10 @@ console.log('Auditcheck-----AuditOrder',RequestParam[0].AuditOrder);
                 onPress={() =>
                   this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)
                 }>
-                <Icon name="home" size={30} color="white" />
+                <Icon name="home" size={30} color="#00b3d6" />
               </TouchableOpacity>
             </View>
           </View>
-        </ImageBackground>
         {/** ---------------------- */}
         <ScrollableTabView
           renderTabBar={() => (
@@ -585,7 +576,7 @@ console.log('Auditcheck-----AuditOrder',RequestParam[0].AuditOrder);
           )}
 
         </ScrollableTabView>
-        {/** --------footer-------- */}
+        {/** Floating add button */}
         <TouchableOpacity
           onPress={
             this.state.NetInfo === true
@@ -598,54 +589,14 @@ console.log('Auditcheck-----AuditOrder',RequestParam[0].AuditOrder);
                     breadCrumb: this.state.breadCrumbText,
                   })
           }
-          style={styles.footer}>
-          <ImageBackground
-            source={Images.Footer}
-            style={{
-              resizeMode: 'stretch',
-              width: '100%',
-              height: 65,
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}>
-            {this.state.NetInfo === true ? (
-              <View
-                style={{
-                  flexDirection: 'column',
-                  width: width(45),
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}>
-                <Icon name="plus" size={25} color="white" />
-                <Text
-                  style={{
-                    color: 'white',
-                    fontSize: Fonts.size.regular,
-                    fontFamily: 'OpenSans-Regular',
-                  }}>
-                  {strings.AddIcon}
-                </Text>
-              </View>
-            ) : (
-              <View
-                style={{
-                  flexDirection: 'column',
-                  width: width(45),
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}>
-                <Icon name="plus" size={20} color="white" />
-                <Text
-                  style={{
-                    color: 'white',
-                    fontSize: Fonts.size.regular,
-                    fontFamily: 'OpenSans-Regular',
-                  }}>
-                  {strings.AddIcon}
-                </Text>
-              </View>
-            )}
-          </ImageBackground>
+          style={[
+            styles.floatingButton,
+            {
+              bottom: Platform.OS === 'ios' ? 52 : 30,
+              right: 22,
+            },
+          ]}>
+          <Icon name="plus" size={25} color="white" />
         </TouchableOpacity>
         <Toast
           ref="toast"

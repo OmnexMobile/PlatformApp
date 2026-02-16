@@ -60,9 +60,10 @@ export default StyleSheet.create({
   },
   headingText: {
     fontSize: Math.min(Fonts.size.mediump, width(6)),
-    color: '#fff',
+    color: 'black',
     textAlign: 'center',
     fontFamily: Fonts.type.bold,
+    fontWeight: 'bold',
     width: '100%',
   },
   headerStatText: {

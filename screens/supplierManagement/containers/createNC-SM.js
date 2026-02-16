@@ -3440,54 +3440,47 @@ class CreateNC extends Component {
     return (
       <View style={styles.wrapper}>
         <OfflineNotice />
-        <ImageBackground
-          source={Images.DashboardBG}
-          style={{
-            resizeMode: 'stretch',
-            width: '100%',
-            height: 60,
-          }}>
-          <View style={styles.header}>
-            <TouchableOpacity onPress={() => this.goBack()}>
-              <View style={styles.backlogo}>
-                {/* <ResponsiveImage source={Images.BackIconWhite} initWidth="13" initHeight="22" /> */}
-                <Icon name="angle-left" size={30} color="white" />
-              </View>
-            </TouchableOpacity>
-            <View style={styles.heading}>
-              {this.state.PageLoader === false ? (
-                <Text style={styles.headingText}>
-                  {this.state.RouteParam === 'NC'
-                    ? this.state.type == 'ADD'
-                      ? strings.Upload + ' ' + 'NC'
-                      : strings.Edit + ' ' + 'NC'
-                    : this.state.type == 'ADD'
-                    ? strings.Upload + ' ' + 'OFI'
-                    : strings.Edit + ' ' + 'OFI'}
-                </Text>
-              ) : null}
-              <Text
-                numberOfLines={1}
-                style={{
-                  fontSize: 15,
-                  color: 'white',
-                  fontFamily: 'OpenSans-Regular',
-                }}>
-                {this.state.breadCrumbText}
-              </Text>
-            </View>
-            <View style={styles.headerDiv}>
-              {/* <ImageBackground source={Images.headerBG} style={styles.backgroundImage}></ImageBackground> */}
-              <TouchableOpacity
-                style={{paddingHorizontal: 10}}
-                onPress={() =>
-                  this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)
-                }>
-                <Icon name="home" size={30} color="white" />
-              </TouchableOpacity>
-            </View>
-          </View>
-        </ImageBackground>
+         <View style={styles.header}>
+                    <TouchableOpacity onPress={() => this.goBack()}>
+                      <View style={styles.backlogo}>
+                        {/* <ResponsiveImage source={Images.BackIconWhite} initWidth="13" initHeight="22" /> */}
+                            <Icon name="arrow-left" size={25} color="#00b3d6" />
+                      </View>
+                    </TouchableOpacity>
+                    <View style={styles.heading}>
+                      {this.state.PageLoader === false ? (
+                        <Text style={styles.headingText}>
+                          {this.state.RouteParam === 'NC'
+                            ? this.state.type == 'ADD'
+                              ? strings.Upload + ' ' + 'NC'
+                              : strings.Edit + ' ' + 'NC'
+                            : this.state.type == 'ADD'
+                            ? strings.Upload + ' ' + 'OFI'
+                            : strings.Edit + ' ' + 'OFI'}
+                        </Text>
+                      ) : null}
+                      <Text
+                        numberOfLines={1}
+                        style={{
+                          fontSize: 12,
+                          color: '#000',
+                          fontFamily: 'OpenSans-Regular',
+                        }}>
+                        {this.state.breadCrumbText}
+                      </Text>
+                    </View>
+                    <View style={styles.headerDiv}>
+                    <TouchableOpacity
+                        style={{paddingHorizontal: 10}}
+                        onPress={() =>
+                          // this.props.navigation.navigate('Home')
+                          this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)
+                        }> 
+                        <Icon name="home" size={30} color="#00b3d6" />
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+        
         {this.state.PageLoader === false ? (
           <KeyboardAwareScrollView
             extraHeight={125}
@@ -4607,137 +4600,92 @@ class CreateNC extends Component {
           </View>
         )}
 
-        {/** zzz voice */}
-        {/* <View style={styles.floatingDiv}>
-        <TouchableOpacity 
-        onPress={this.StartVoicePress.bind(this)}
-        style={this.state.startVoice === true ? 
-          [styles.floatinBtn,{backgroundColor:'#14D0AE'}]: [styles.floatinBtn,{backgroundColor:'#2EA4E2'}]}>
-        {this.state.startVoice === true ?
-            <Icon  name="assistive-listening-systems" size={25} color="white"/> :
-            <Icon  name="microphone" size={25} color="white"/>
-        }
-        </TouchableOpacity>
-        </View> */}
-
-        <View style={styles.footer}>
-          <ImageBackground
-            source={Images.Footer}
-            style={{
-              resizeMode: 'stretch',
-              width: '100%',
-              height: 65,
-            }}>
-            {/* <Image source={Images.Footer}/> */}
-            {this.state.isSaving === false ? (
-              <View style={styles.footerDiv}>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}>
-                  <View
-                    style={{
-                      paddingRight: 30,
-                      flexDirection: 'column',
-                      width: width(45),
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                    }}>
-                    <TouchableOpacity
-                      onPress={() =>
-                        debounce(this.setState({dialogVisible: true}), 700)
-                      }
-                      style={{
-                        flexDirection: 'column',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                      }}>
-                      <Icon name="undo" size={25} color="white" />
-                      <Text
-                        style={{
-                          color: 'white',
-                          fontSize: Fonts.size.regular,
-                          fontFamily: 'OpenSans-Regular',
-                        }}>
-                        {strings.Reset}
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-                {/** zzzzzzz */}
-                {/* <View style={styles.floatingDiv}>
+        <View
+          style={[
+            styles.footer,
+            {
+              height: 100,
+              paddingBottom: Platform.OS === 'ios' ? 8 : 6,
+            },
+          ]}>
+          {this.state.isSaving === false ? (
+            <View
+              style={[
+                styles.footerDiv,
+                {
+                  width: '100%',
+                  height: 100,
+                  paddingHorizontal: 10,
+                },
+              ]}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'space-around',
+                  width: '100%',
+                }}>
+                <View style={{width: width(45)}}>
                   <TouchableOpacity
-                    onPress={ () => {
-                      (this.state.startVoice === false ? debounce(this.StartVoicePress(), 800) : 
-                      debounce(this.StopVoicePress(), 800))
-                    }
-                    }
-                    style={
-                      this.state.startVoice === true
-                        ? [styles.floatinBtn, {backgroundColor: '#14D0AE'}]
-                        : [styles.floatinBtn, {backgroundColor: 'white'}]
-                    }>
-                    {this.state.startVoice === true ? (
-                      <Icon
-                        name="assistive-listening-systems"
-                        size={25}
-                        color="white"
-                      />
-                    ) : (
-                      <Icon name="microphone" size={25} color="#2EA4E2" />
-                    )}
-                  </TouchableOpacity>
-                </View> */}
-
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}>
-                  <View
+                    onPress={() => this.setState({dialogVisible: true})}
                     style={{
-                      paddingLeft: 30,
-                      flexDirection: 'column',
-                      width: width(45),
+                      height: 78,
+                      borderRadius: 18,
+                      backgroundColor: '#00b3d6',
                       justifyContent: 'center',
                       alignItems: 'center',
+                      shadowColor: '#000',
+                      shadowOpacity: 0.18,
+                      shadowOffset: {width: 0, height: 3},
+                      shadowRadius: 4,
+                      elevation: 4,
                     }}>
-                    <TouchableOpacity
-                      onPress={
-                        // this.state.isSavebtn == false
-                        //   ?
-                        debounce(this.onSave.bind(this), 600)
-                        // : // once(this.onSave.bind(this))
-
-                        //   console.log("detected")
-                      }
+                    <Icon name="undo" size={25} color="white" />
+                    <Text
                       style={{
-                        flexDirection: 'column',
-                        justifyContent: 'center',
-                        alignItems: 'center',
+                        color: 'white',
+                        fontSize: Fonts.size.medium,
+                        fontFamily: 'OpenSans-SemiBold',
+                        marginTop: 6,
                       }}>
-                      <Icon name="save" size={25} color="white" />
-                      <Text
-                        style={{
-                          color: 'white',
-                          fontSize: Fonts.size.regular,
-                          fontFamily: 'OpenSans-Regular',
-                        }}>
-                        {strings.Save}
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
+                      {strings.Reset}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+                <View style={{width: width(45)}}>
+                  <TouchableOpacity
+                    onPress={debounce(this.onSave.bind(this), 600)}
+                    style={{
+                      height: 78,
+                      borderRadius: 18,
+                      backgroundColor: '#00b3d6',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      shadowColor: '#000',
+                      shadowOpacity: 0.18,
+                      shadowOffset: {width: 0, height: 3},
+                      shadowRadius: 4,
+                      elevation: 4,
+                    }}>
+                    <Icon name="save" size={25} color="white" />
+                    <Text
+                      style={{
+                        color: 'white',
+                        fontSize: Fonts.size.medium,
+                        fontFamily: 'OpenSans-SemiBold',
+                        marginTop: 6,
+                      }}>
+                      {strings.Save}
+                    </Text>
+                  </TouchableOpacity>
                 </View>
               </View>
-            ) : (
-              <View style={{right: 70, position: 'absolute'}}>
-                <Pulse size={20} color="white" />
-              </View>
-            )}
-          </ImageBackground>
+            </View>
+          ) : (
+            <View style={{right: 70, position: 'absolute'}}>
+              <Pulse size={20} color="white" />
+            </View>
+          )}
         </View>
 
         <Toast ref="toast" position="top" opacity={1} />

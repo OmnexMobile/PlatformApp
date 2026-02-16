@@ -2452,6 +2452,90 @@ class CheckPointDemo extends Component {
           }
         }
 
+        if (checkPointsDetails.length > 0) {
+          var ncofiStatusByTemplate = {};
+          var scoreTypesByTemplate = {};
+          if (checkPoints && checkPoints.length > 0) {
+            for (var i = 0; i < checkPoints.length; i++) {
+              var templateId = checkPoints?.[i]?.ChecklistTemplateId;
+              if (templateId != null) {
+                var status =
+                  checkPoints?.[i]?.ncOFIStatus ??
+                  checkPoints?.[i]?.ByteAttachment1;
+                if (status != null) {
+                  ncofiStatusByTemplate[templateId] = status;
+                }
+              }
+            }
+          }
+
+          if (checkPointList && checkPointList.length > 0) {
+            for (var i = 0; i < checkPointList.length; i++) {
+              var templateId = checkPointList?.[i]?.ChecklistTemplateId;
+              if (
+                templateId != null &&
+                checkPointList?.[i]?.scoreTypesData
+              ) {
+                scoreTypesByTemplate[templateId] =
+                  checkPointList[i].scoreTypesData;
+              }
+            }
+          }
+
+          for (var i = 0; i < checkPointsDetails.length; i++) {
+            if (
+              checkPointsDetails?.[i]?.scoreTypesData == null &&
+              checkPointsDetails?.[i]?.ChecklistTemplateId != null &&
+              scoreTypesByTemplate[checkPointsDetails[i].ChecklistTemplateId]
+            ) {
+              checkPointsDetails[i].scoreTypesData =
+                scoreTypesByTemplate[checkPointsDetails[i].ChecklistTemplateId];
+            }
+
+            if (
+              checkPointsDetails?.[i]?.show_nc_ofi_status == null &&
+              checkPointsDetails?.[i]?.scoreTypesData
+            ) {
+              var scoreTypesData = checkPointsDetails[i].scoreTypesData;
+              var scoreText = checkPointsDetails[i].Scoretext;
+              var scoreVal =
+                checkPointsDetails?.[i]?.Score != null
+                  ? String(checkPointsDetails[i].Score)
+                  : '';
+              var byText = scoreTypesData.find(
+                item => item.value == scoreText,
+              );
+              var byScore = scoreTypesData.find(
+                item => item.id == scoreVal || item.value == scoreVal,
+              );
+              var derivedStatus =
+                byText?.status != null ? byText.status : byScore?.status;
+              if (derivedStatus != null) {
+                checkPointsDetails[i].show_nc_ofi_status = derivedStatus;
+              }
+            }
+
+            if (checkPointsDetails?.[i]?.ncOFIStatus == null) {
+              if (checkPointsDetails?.[i]?.ByteAttachment1 != null) {
+                checkPointsDetails[i].ncOFIStatus =
+                  checkPointsDetails[i].ByteAttachment1;
+              } else {
+                var templateId = checkPointsDetails?.[i]?.ChecklistTemplateId;
+                if (
+                  templateId != null &&
+                  ncofiStatusByTemplate[templateId] != null
+                ) {
+                  checkPointsDetails[i].ncOFIStatus =
+                    ncofiStatusByTemplate[templateId];
+                } else if (checkPointsDetails?.[i]?.show_nc_ofi_status != null) {
+                  checkPointsDetails[i].ncOFIStatus =
+                    checkPointsDetails[i].show_nc_ofi_status;
+                }
+              }
+            }
+          }
+        }
+
         //console.log('checkPointsDetails updated2', temppp, checkPointsDetails);
         //console.log(checkPointList, 'checkpointslist');
         this.countStatistics(checkPointsDetails);
@@ -3044,6 +3128,9 @@ updatecheckpointvalues_new = () => {
                         Score: auditRecordsOrg[p].Listdata[q].Score,
                         Scoretext: auditRecordsOrg[p].Listdata[q].Scoretext,
                         show_nc_ofi_status: auditRecordsOrg[p].Listdata[q].show_nc_ofi_status,
+                        ncOFIStatus:
+                          auditRecordsOrg[p].Listdata[q].ncOFIStatus ??
+                          auditRecordsOrg[p].Listdata[q].ByteAttachment1,
                         RemarkforNc:
                           auditRecordsOrg[p].Listdata[q].RemarkforNc,
                         AttachforOfi:
@@ -3127,6 +3214,9 @@ updatecheckpointvalues_new = () => {
                         Score: checkPointsDetails[j].Score,
                         Scoretext: checkPointsDetails[j].Scoretext,
                         show_nc_ofi_status: checkPointsDetails[j].show_nc_ofi_status,
+                        ncOFIStatus:
+                          checkPointsDetails[j].ncOFIStatus ??
+                          listDataArr[i].ncOFIStatus,
                         IsComplete: checkPointsDetails[j]?.IsComplete,
                         RemarkforNc: checkPointsDetails[j].RemarkforNc,
                         AttachforOfi: checkPointsDetails[j].AttachforOfi,
@@ -3517,9 +3607,70 @@ updatecheckpointvalues_new = () => {
     if (checkPointDetail.Score == '1'){
       checkPointDetail.show_nc_ofi_status = 3
     }
+    const auditId = this.state.auditId;
+    const templateId = checkPointDetail?.ChecklistTemplateId;
+    const formId = checkPointDetail?.FormId;
+    const useFormId = formId != null && formId !== -2;
+    const checkpointItem = (this.state.checkpointList || []).find(item => {
+      if (useFormId) {
+        return (
+          item.ChecklistTemplateId == templateId && item.FormID == formId
+        );
+      }
+      return item.ChecklistTemplateId == templateId;
+    });
+
+    const ncOfiStatusFromList = (() => {
+      if (templateId == null) {
+        return undefined;
+      }
+      const auditRecords = this.props.data?.audits?.auditRecords || [];
+      const auditRecord = auditRecords.find(record => record.AuditId == auditId);
+      const listData = auditRecord?.Listdata || [];
+      const match = listData.find(item => {
+        if (useFormId) {
+          return (
+            item.ChecklistTemplateId == templateId && item.FormId == formId
+          );
+        }
+        return item.ChecklistTemplateId == templateId;
+      });
+      return match?.ncOFIStatus ?? match?.ByteAttachment1;
+    })();
+    const ncOfiStatusFromScoreTypes = (() => {
+      if (templateId == null) {
+        return undefined;
+      }
+      const scoreTypesData =
+        checkPointDetail?.scoreTypesData || checkpointItem?.scoreTypesData;
+      if (!scoreTypesData || scoreTypesData.length === 0) {
+        return undefined;
+      }
+      const byScoreText = scoreTypesData.find(
+        item => item.value == checkPointDetail?.Scoretext,
+      );
+      if (byScoreText?.status != null) {
+        return byScoreText.status;
+      }
+      const scoreVal =
+        checkPointDetail?.Score != null ? String(checkPointDetail.Score) : '';
+      const byScore = scoreTypesData.find(
+        item => item.id == scoreVal || item.value == scoreVal,
+      );
+      return byScore?.status;
+    })();
+    const ncOfiStatus =
+      checkPointDetail?.ncOFIStatus ??
+      checkPointDetail?.ByteAttachment1 ??
+      ncOfiStatusFromList ??
+      ncOfiStatusFromScoreTypes ??
+      checkPointDetail?.show_nc_ofi_status;
+    if (checkPointDetail?.ncOFIStatus == null && ncOfiStatus != null) {
+      checkPointDetail.ncOFIStatus = ncOfiStatus;
+    }
     console.log(
-      'checkPointDetailpopup2222' ,
-        checkPointDetail,
+      'checkPointDetailpopup2ncOfiStatus' ,
+        ncOfiStatus,
     );
     this.setState(
       {
@@ -5676,19 +5827,13 @@ isFailureReasonValid(failureReasonId, categoryId) {
       <View style={styles.mainContainer}>
         {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
         <OfflineNotice />
-        <ImageBackground
-          source={Images.DashboardBG}
-          style={{
-            resizeMode: 'stretch',
-            width: '100%',
-            height: 65,
-          }}>
+       
           <View style={styles.header}>
             <TouchableOpacity onPress={() => this.goBackToChecklist()}>
               <View style={styles.backlogo}>
                 {!this.state.isSaving ? (
                   // <ResponsiveImage source={Images.BackIconWhite} initWidth="13" initHeight="22" />
-                  <Icon name="angle-left" size={30} color="white" />
+                  <Icon name="arrow-left" size={25} color="#00b3d6" />
                 ) : null}
               </View>
             </TouchableOpacity>
@@ -5704,7 +5849,7 @@ isFailureReasonValid(failureReasonId, categoryId) {
                 numberOfLines={1}
                 style={{
                   fontSize: 15,
-                  color: 'white',
+                  color: 'black',
                   fontFamily: 'OpenSans-Regular',
                 }}>
                 {this.state.breadCrumbText}
@@ -5715,11 +5860,10 @@ isFailureReasonValid(failureReasonId, categoryId) {
               <TouchableOpacity
                 style={{paddingRight: 10}}
                 onPress={() => this.goHome()}>
-                <Icon name="home" size={30} color="white" />
+                <Icon name="home" size={30} color="#00b3d6" />
               </TouchableOpacity>
             </View>
           </View>
-        </ImageBackground>
         {/* <View style={{flex:1}}> */}
         {this.state.isContentLoaded == false && !this.state.isSaving ? (
           <View style={{flex: 1}}>
@@ -9296,6 +9440,7 @@ isFailureReasonValid(failureReasonId, categoryId) {
               style={{
                 fontSize: Fonts.size.regular,
                 fontFamily: 'OpenSans-Regular',
+                color:'black',
               }}>
               {strings.cp_01}
             </Text>
@@ -9303,6 +9448,7 @@ isFailureReasonValid(failureReasonId, categoryId) {
               style={{
                 fontSize: Fonts.size.small,
                 fontFamily: 'OpenSans-Regular',
+                color:'black'
               }}>
               {strings.cp_02}
             </Text>

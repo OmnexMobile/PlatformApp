@@ -312,7 +312,7 @@ const HomeDashboard = () => {
             if (netState.isConnected) {
                 const pageNo = 1;
                 const filterStr = '';
-                const pageSize = 10;
+                const pageSize = 100;
                 const GlobalFilter = '';
                 const StartDate = '';
                 const EndDate = '';

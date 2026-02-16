@@ -3489,13 +3489,7 @@ console.log('checkvalues0000',SiteID,UserId,SearchCondition,TOKEN,iAuditId,iAudP
        <OfflineNotice />
 
         {!this.state.isLoading ? (
-          <ImageBackground
-            source={Images.DashboardBG}
-            style={{
-              resizeMode: 'stretch',
-              width: '100%',
-              height: 60,
-            }}>
+         
             <View style={styles.header}>
               <TouchableOpacity
                 onPress={
@@ -3509,7 +3503,7 @@ console.log('checkvalues0000',SiteID,UserId,SearchCondition,TOKEN,iAuditId,iAudP
                 <View style={styles.backlogo}>
                   {!this.state.isLoading && !this.state.isDownloading ? (
                     // <ResponsiveImage source={Images.BackIconWhite} initWidth="13" initHeight="22" />
-                    <Icon name="angle-left" size={30} color="white" />
+                    <Icon name="arrow-left" size={25} color="#00b3d6" />
                   ) : null}
                 </View>
               </TouchableOpacity>
@@ -3526,7 +3520,7 @@ console.log('checkvalues0000',SiteID,UserId,SearchCondition,TOKEN,iAuditId,iAudP
                       this.setState({dialogVisible: true,downloadAsync:false});
                     }}>
                     {/* <ResponsiveImage initWidth='25' initHeight='25' source={Images.deleteIcon}/> */}
-                    <Icon name="trash" size={25} color="white" />
+                    <Icon name="trash" size={25} color="#00b3d6" />
                   </TouchableOpacity>
                 ) : null}
 
@@ -3541,7 +3535,7 @@ console.log('checkvalues0000',SiteID,UserId,SearchCondition,TOKEN,iAuditId,iAudP
                       this.setState({dialogVisibleRefresh: true, webToMob: true, downloadAsync: true });
                     }}>
                   {/* <ResponsiveImage initWidth='25' initHeight='25' source={Images.deleteIcon}/> */}
-                    <Icon name="refresh" size={25} color="white" />
+                    <Icon name="refresh" size={25} color="#00b3d6" />
                   </TouchableOpacity>
                 ) : null} 
                 {/* Refresh button removed as per new design endddd*/}
@@ -3552,12 +3546,11 @@ console.log('checkvalues0000',SiteID,UserId,SearchCondition,TOKEN,iAuditId,iAudP
                     onPress={() =>
                       this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)
                     }>
-                    <Icon name="home" size={30} color="white" />
+                    <Icon name="home" size={25} color="#00b3d6" />
                   </TouchableOpacity>
                 ) : null}
               </View>
             </View>
-          </ImageBackground>
         ) : null}
 
         {!this.state.isLoading ? (
@@ -3969,44 +3962,41 @@ console.log('checkvalues0000',SiteID,UserId,SearchCondition,TOKEN,iAuditId,iAudP
 
         {this.state.EnableDownload == false && !this.state.isDownloaded ? (
           <View></View>
+        ) : !this.state.isDownloaded ? (
+          <View
+            style={[
+              styles.floatingDownload,
+              {
+                bottom: Platform.OS === 'ios' ? 52 : 30,
+                right: 22,
+              },
+            ]}>
+            <TouchableOpacity
+              disabled={this.state.isDownloading}
+              onPress={() => {
+                this.downloadAuditForm();
+                this.getParamsDetails();
+              }}
+              style={[
+                styles.floatingDownloadBtn,
+                this.state.isDownloading ? styles.floatingBtnDisabled : null,
+              ]}>
+              <View style={styles.fabCenterContent}>
+                {this.state.isDownloading ? (
+                  <ActivityIndicator size={20} color="white" />
+                ) : (
+                  <Icon name="download" size={24} color="white" />
+                )}
+              </View>
+            </TouchableOpacity>
+          </View>
         ) : (
           <View style={styles.footer}>
-            <ImageBackground
-              source={Images.Footer}
-              style={{
-                resizeMode: 'stretch',
-                width: '100%',
-                height: 70,
-              }}>
+           
               {/* <Image source={Images.Footer}/> */}
 
               <View style={styles.footerDiv}>
-                {!this.state.isDownloaded && !this.state.isDownloading ? (
-                  <TouchableOpacity onPress={() => {
-                    this.downloadAuditForm();
-                    this.getParamsDetails();
-                  }}>
-                    
-                    {/* <View style={styles.footerDivContent}> */}
-                      {/* need to check */}
-                    <View style={styles.footerDivContent1}>
-                      <ResponsiveImage
-                        source={Images.downloadCloud}
-                        initWidth="40"
-                        initHeight="40"
-                      />
-                      <Text
-                        style={{
-                          color: 'white',
-                          fontSize: Fonts.size.h5,
-                          marginLeft: 5,
-                          fontFamily: 'OpenSans-Regular',
-                        }}>
-                        {strings.Download_Audit_Form}
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
-                ) : !this.state.isDownloading ? (
+                {!this.state.isDownloading ? (
                   <View style={styles.footerDivContent}>
                     {this.state.checkSync === true ||
                     currentAuditStatus == constant.StatusSynced ||
@@ -4018,7 +4008,7 @@ console.log('checkvalues0000',SiteID,UserId,SearchCondition,TOKEN,iAuditId,iAudP
                             alignItems: 'center',
                           }}>
                           {/* <ResponsiveImage source={Images.BTN5} initWidth="26" initHeight="25"/> */}
-                          <Icon name="paperclip" size={20} color="white" />
+                          <Icon name="paperclip" size={20} color="black" />
                           <Text style={styles.footerTextContent}>
                             {strings.Attach}
                           </Text>
@@ -4033,7 +4023,7 @@ console.log('checkvalues0000',SiteID,UserId,SearchCondition,TOKEN,iAuditId,iAudP
                               onPress={this.onNavigateTo.bind(this, 4)}
                               style={{alignItems: 'center',}}>
                               {/* <ResponsiveImage source={Images.BTN5} initWidth="26" initHeight="25"/> */}
-                              <Icon name="paperclip" size={20} color="white" />
+                              <Icon name="paperclip" size={20} color="black" />
                               <Text style={styles.footerTextContent}>
                                 {strings.Attach}
                               </Text>
@@ -4061,7 +4051,7 @@ console.log('checkvalues0000',SiteID,UserId,SearchCondition,TOKEN,iAuditId,iAudP
                         onPress={this.onNavigateTo.bind(this, 2)}
                         style={{alignItems: 'center'}}>
                         {/* <ResponsiveImage source={Images.BTN2} initWidth="26" initHeight="25"/> */}
-                        <Icon name="list" size={20} color="white" />
+                        <Icon name="list" size={20} color="black" />
                         <Text style={styles.footerTextContent}>
                           {strings.AuditRecords}
                         </Text>
@@ -4080,7 +4070,7 @@ console.log('checkvalues0000',SiteID,UserId,SearchCondition,TOKEN,iAuditId,iAudP
                           onPress={once(this.onNavigateTo.bind(this, 3))}
                           style={{alignItems: 'center'}}>
                           {/* <ResponsiveImage source={Images.BTN5} initWidth="26" initHeight="25"/> */}
-                          <Icon name="file" size={20} color="white" />
+                          <Icon name="file" size={20} color="black" />
                           <Text style={styles.footerTextContent}>
                             {strings.NC_OFI}
                           </Text>
@@ -4094,7 +4084,7 @@ console.log('checkvalues0000',SiteID,UserId,SearchCondition,TOKEN,iAuditId,iAudP
                           onPress={once(this.onNavigateTo.bind(this, 6))}
                           style={{alignItems: 'center'}}>
                           {/* <ResponsiveImage source={Images.BTN5} initWidth="26" initHeight="25"/> */}
-                          <Icon name="file" size={20} color="white" />
+                          <Icon name="file" size={20} color="black" />
                           <Text style={styles.footerTextContent}>
                             Conformance
                           </Text>
@@ -4118,7 +4108,6 @@ console.log('checkvalues0000',SiteID,UserId,SearchCondition,TOKEN,iAuditId,iAudP
                   </View>
                 )}
               </View>
-            </ImageBackground>
           </View>
         )}
 
@@ -4246,7 +4235,7 @@ console.log('checkvalues0000',SiteID,UserId,SearchCondition,TOKEN,iAuditId,iAudP
                   }}>
                   <View
                     style={{justifyContent: 'center', alignItems: 'center'}}>
-                    <Icon name="user-circle" size={20} color="#00b3d6" />
+                    <Icon name="user-circle" size={15} color="#00b3d6" />
                   </View>
                   <View style={styles.speechTextBlock}>
                     <Text style={{fontFamily: 'OpenSans-Regular'}}>

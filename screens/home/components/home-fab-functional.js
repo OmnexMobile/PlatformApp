@@ -4,15 +4,13 @@ import { FONT_TYPE, ICON_TYPE, LOCAL_STORAGE_VARIABLES, ROUTES } from 'constants
 import TabsView from './home-tab-view'
 import TabsCard from './home-tab-card';
 import localStorage from 'global/localStorage';
-import { Platform, Pressable, View } from 'react-native';
+import { Platform, Pressable, View, TouchableOpacity } from 'react-native';
 import { COLORS, FONT_SIZE, SPACING } from 'constants/theme-constants';
 import { useAppContext } from 'contexts/app-context';
 import { useNavigation } from '@react-navigation/native';
 import { RFPercentage } from 'helpers/utils';
-import { TouchableOpacity } from 'react-native';
 import useTheme from 'theme/useTheme';
 import { TouchableHighlight } from 'react-native';
-
 
 const HomeFabFunctional = ({ countDetails }) => {
   const [currentName, setCurrentName] = useState("");
@@ -35,6 +33,12 @@ const HomeFabFunctional = ({ countDetails }) => {
     navigations.navigate(ROUTES.GLOBAL_DASHBOARD);
   }
 
+  const handleCalendar = () => {
+    console.log('checkkinglist----->', sites?.selectedSite?.Siteid,  '++++++++++++++', sites?.selectedSite?.UserId );
+    
+    navigations.navigate(ROUTES.CALENDER_LIST);
+  };
+
   const navigateToSettings = () => {
     console.log('click settings')
     navigations.navigate(ROUTES.GLOBAL_SETTINGS);
@@ -46,19 +50,19 @@ const HomeFabFunctional = ({ countDetails }) => {
     <Content noPadding>
 
        {/* Header */}
-       <View style={{ padding: SPACING.SMALL, flexDirection: 'row', maxHeight: '12%', backgroundColor: COLORS.white }}>
-            {/* <TextComponent style={{ width: '80%', marginRight: '4%', height: RFPercentage(8) }} type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.XLARGE} color={COLORS.white}>
-              {'Welcome '}&nbsp;{sites?.selectedSite?.FullName || currentName}
-            </TextComponent>
-            <Pressable style={{ width: '10%', marginRight: '1%' }} onPress={() => console.log('search')}>
-              <IconComponent name="search" type={ICON_TYPE.FontAwesome} size={FONT_SIZE.XXLARGE} color={COLORS.white} />
-            </Pressable> 
-            <Pressable style={{ width: '10%' }} onPress={() => navigateToSettings()}>
-              <IconComponent name="cog" type={ICON_TYPE.FontAwesome} size={FONT_SIZE.XXLARGE} color={COLORS.white} />
-            </Pressable> */}
-            <Pressable hitSlop={{top: 100, bottom: 100, left: 100, right: 100}} style={{ width: '10%', marginRight: '1%'}} onPress={() => handleDashboard()}>
-              <IconComponent name="arrowleft" type={ICON_TYPE.AntDesign} size={FONT_SIZE.XXLARGE} color='#05BFDB' />
+       <View style={{ padding: SPACING.SMALL, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', maxHeight: '12%', backgroundColor: COLORS.white }}>
+            <Pressable
+              hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+              onPress={() => handleDashboard()}
+            >
+             <IconComponent name="arrowleft" type={ICON_TYPE.AntDesign} size={FONT_SIZE.XXLARGE} color="#05BFDB" />
             </Pressable>
+             {/*<TouchableOpacity
+              hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+              onPress={handleCalendar}
+            >
+              <IconComponent name="calendar" type={ICON_TYPE.FontAwesome} size={FONT_SIZE.XXLARGE} color="#05BFDB" />
+            </TouchableOpacity>*/}
 
            
       </View>

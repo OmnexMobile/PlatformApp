@@ -373,18 +373,12 @@ return(
       <View style={styles.wrapper}>
         {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
         <OfflineNotice />
-        <ImageBackground
-          source={Images.DashboardBG}
-          style={{
-            resizeMode: 'stretch',
-            width: '100%',
-            height: 60,
-          }}>
+        
           <View style={styles.header}>
             <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
               <View style={styles.backlogo}>
                 {/* <ResponsiveImage source={Images.BackIconWhite} initWidth="13" initHeight="22" /> */}
-                <Icon name="angle-left" size={30} color="white" />
+                <Icon name="arrow-left" size={25} color="#00b3d6" />
               </View>
             </TouchableOpacity>
             <View style={styles.heading}>
@@ -395,7 +389,7 @@ return(
                 numberOfLines={1}
                 style={{
                   fontSize: 15,
-                  color: 'white',
+                  color: 'black',
                   fontFamily: 'OpenSans-Regular',
                 }}>
                 {this.state.breadCrumbText}
@@ -409,11 +403,10 @@ return(
                   // this.props.navigation.navigate('Home')
                   this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)
                 }>
-                <Icon name="home" size={30} color="white" />
+                <Icon name="home" size={30} color="#00b3d6" />
               </TouchableOpacity>
             </View>
           </View>
-        </ImageBackground>
 
         <View style={[styles.auditPageBody, {padding: 0}]}>
           <ImageBackground

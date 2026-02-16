@@ -24,7 +24,6 @@ export default StyleSheet.create({
     shadowColor: 'lightgrey',
     shadowOpacity: 0.5,
     shadowRadius: 4,
-    flex: 1,
   },
   backlogo: {
     flexDirection: 'row',
@@ -58,12 +57,12 @@ export default StyleSheet.create({
   },
   headingText: {
     fontSize: Fonts.size.mediump,
-    color: '#fff',
+    color: 'black',
     textAlign: 'center',
     fontFamily: 'OpenSans-Bold',
   },
   headerDiv: {
-    width: width(15),
+    // width: width(15),
     height: 65,
     flexDirection: 'row',
     justifyContent: 'center',

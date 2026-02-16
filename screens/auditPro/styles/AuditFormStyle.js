@@ -15,15 +15,15 @@ export default StyleSheet.create({
    padding: 5,
     justifyContent: 'flex-start',
     alignContent:'center',
-    height: 65,
-    elevation: 4,
-    shadowOffset: { width: 2, height: 10 },
-    shadowColor: "lightgrey",
-    shadowOpacity: 0.5,
+    height: 80,
+    // elevation: 4,
+    // shadowOffset: { width: 2, height: 10 },
+    // shadowColor: "lightgrey",
+    // shadowOpacity: 0.5,
     shadowRadius: 4,
-    flex:1,
+    // flex:1,
     marginRight:10,
-    marginLeft:10
+    // marginLeft:5,
   },
   heading:{
     flexDirection: 'column',
@@ -35,7 +35,7 @@ export default StyleSheet.create({
   headingText:{
     fontSize: Fonts.size.h6,
     fontFamily : Fonts.type.base,
-    color: '#fff',
+    color: 'black',
     textAlign: 'center',
     fontFamily:'OpenSans-Bold'
   },
