@@ -1,6 +1,6 @@
 import { connect } from "react-redux";
 // Styles
-import { DeliverableInfoScreen } from "./DeliverableInfoScreen1";
+import { DeliverableInfoScreen } from "./DeliverableInfo";
 
 const mapStateToProps = (state) => {
   return {

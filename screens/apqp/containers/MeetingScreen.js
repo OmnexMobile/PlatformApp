@@ -37,6 +37,7 @@ import { Bubbles, DoubleBounce, Bars, Pulse } from "react-native-loader";
 import OfflineNotice from "../components/OfflineNotice";
 import { ROUTES } from "constants/app-constant";
 import { SPACING } from "constants/theme-constants";
+import GlobalHeader from "components/GlobalHeader";
 let window = Dimensions.get("window");
 const window_width = Dimensions.get("window").width;
 
@@ -689,30 +690,38 @@ class MeetingScreen extends Component {
 
   renderHeader() {
     return (
-      <ImageBackground source={Images.headerBG} style={styles.header}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
-            <View style={styles.backLogo}>
-              <View style={styles.headerDiv}>
-                <Icon name="angle-left" size={40} color="white" />
-                <Text style={styles.LabelText}>{strings.Back}</Text>
-              </View>
-            </View>
-          </TouchableOpacity>
+      // <ImageBackground source={Images.headerBG} style={styles.header}>
+      //   <View style={styles.header}>
+      //     <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
+      //       <View style={styles.backLogo}>
+      //         <View style={styles.headerDiv}>
+      //           <Icon name="angle-left" size={40} color="white" />
+      //           <Text style={styles.LabelText}>{strings.Back}</Text>
+      //         </View>
+      //       </View>
+      //     </TouchableOpacity>
 
-          <View style={styles.heading}>
-            <Text style={styles.headingText}>{strings.meetings}</Text>
-          </View>
-          <View style={(styles.headerDiv, { backgroundColor: "transparent" })}>
-            <TouchableOpacity
-              style={{ paddingRight: 10, backgroundColor: "transparent" }}
-              onPress={() => this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)}
-            >
-              <Icon name="home" size={35} color="white" />
-            </TouchableOpacity>
-          </View>
-        </View>
-      </ImageBackground>
+      //     <View style={styles.heading}>
+      //       <Text style={styles.headingText}>{strings.meetings}</Text>
+      //     </View>
+      //     <View style={(styles.headerDiv, { backgroundColor: "transparent" })}>
+      //       <TouchableOpacity
+      //         style={{ paddingRight: 10, backgroundColor: "transparent" }}
+      //         onPress={() => this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)}
+      //       >
+      //         <Icon name="home" size={35} color="white" />
+      //       </TouchableOpacity>
+      //     </View>
+      //   </View>
+      // </ImageBackground>
+      <>
+        <GlobalHeader
+          title={strings.meetings}
+          onLeftPress={() => this.props.navigation.goBack()}
+          onRightPress={() => this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)}
+          showBackButton={true}
+        /> 
+      </>
     );
   }
 

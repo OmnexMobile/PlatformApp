@@ -39,6 +39,7 @@ import OfflineNotice from "../components/OfflineNotice";
 import { ROUTES } from "constants/app-constant";
 import { SPACING } from "constants/theme-constants";
 import NetInfo from "@react-native-community/netinfo";
+import GlobalHeader from "components/GlobalHeader";
 let Window = Dimensions.get("window");
 
 const Reset = "Reset";
@@ -828,7 +829,8 @@ class RiskScreen extends Component {
 
   renderHeader() {
     return (
-      <ImageBackground source={Images.headerBG} style={styles.header}>
+      <>
+      {/* <ImageBackground source={Images.headerBG} style={styles.header}>
         <View style={styles.header}>
           <TouchableOpacity onPress={() => this.handleBack()}>
             <View style={styles.backLogo}>
@@ -851,7 +853,14 @@ class RiskScreen extends Component {
             </TouchableOpacity>
           </View>
         </View>
-      </ImageBackground>
+      </ImageBackground> */}
+        <GlobalHeader
+          title={strings.risks}
+          onLeftPress={() => this.handleBack()}
+          onRightPress={() => this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)}
+          showBackButton={false}
+        />
+      </>
     );
   }
 

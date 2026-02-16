@@ -30,10 +30,12 @@ import { strings } from "../language/Language";
 import styles from "./styles/PeriodicUpdateStyles";
 import { DoubleBounce } from "react-native-loader";
 import Moment from "moment";
-import { ROUTES } from "constants/app-constant";
+import { ICON_TYPE, ROUTES } from "constants/app-constant";
 import { SPACING } from "constants/theme-constants";
 // import Reactotron from "reactotron-react-native";
 import { NavigationEvents } from 'react-navigation';
+import GlobalHeader from "components/GlobalHeader";
+import { FAB } from "components";
 
 const window_width = Dimensions.get("window").width;
 
@@ -485,7 +487,8 @@ class PeriodicUpdateScreen extends Component {
 
   renderHeader() {
     return (
-      <ImageBackground source={Images.headerBG} style={styles.header}>
+      <>
+      {/* <ImageBackground source={Images.headerBG} style={styles.header}>
         <View style={styles.header}>
           <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
             <View style={styles.backLogo}>
@@ -519,7 +522,17 @@ class PeriodicUpdateScreen extends Component {
           </View>
         </View>
         </View>
-      </ImageBackground>
+      </ImageBackground> */}
+      
+        <GlobalHeader
+          title={strings.Progress_Update}
+          onLeftPress={() => this.props.navigation.goBack()}
+          hideRight={true}
+          extraRightIcon="upload"
+          onExtraRightPress={() => this.openDeliveryInfo()}
+          showBackButton={true}
+        />
+      </>
     );
   }
 
@@ -665,15 +678,9 @@ class PeriodicUpdateScreen extends Component {
             )}
           </View>
         )}
-        <View style={styles.footerDiv}>
-          {/* <View style={styles.footerMenuItem}> */}
+        {/* <View style={styles.footerDiv}>
           <View style={styles.footerContainer}>
             <View style={styles.footerButton1}>
-              {/* {this.ProjectOwnerCheck == 0 ||
-              this.ProjectOwnerCheck == undefined ||
-              this.ProjectOwnerCheck == null ? ( */}
-
-              {/* ||this.TaskOwnerCheck != null  */}
               {this.TaskOwnerCheck == 1 ? (
                 <TouchableOpacity
                   onPress={() => {
@@ -703,17 +710,10 @@ class PeriodicUpdateScreen extends Component {
                 </View>
               )}
             </View>
-            {/* <View style={styles.separatorSection}>
-              
-              </View> */}
-            {/* <View style={styles.footerButton1}>
-                <TouchableOpacity onPress={this.onPressHist.bind(this)}>
-                  <Icon name="history" size={30} color="#00BAC8" />
-                </TouchableOpacity>
-                <Text style={{ color: "#00BAC8" }}>History</Text>
-              </View> */}
           </View>
-          {/* </View> */}
+        </View> */}
+        <View style={styles.footerDiv}>
+          <FAB iconName="plus" iconType={ICON_TYPE.Feather} onPress={() => this.onPressedit(this, "Add")} />
         </View>
         <Toast
           ref="toast"

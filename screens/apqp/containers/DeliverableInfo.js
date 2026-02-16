@@ -16,9 +16,11 @@ import RenderHtml from "react-native-render-html";
 import RNFetchBlob from "react-native-fetch-blob";
 import DocumentPicker from "react-native-document-picker";
 import styles from "./styles/DeliverableInfoStyles";
-import { ROUTES } from "constants/app-constant";
+import { ICON_TYPE, ROUTES } from "constants/app-constant";
 import { SPACING } from "constants/theme-constants";
 import { strings } from "../language/Language";
+import GlobalHeader from "components/GlobalHeader";
+import { FAB } from "components";
 // import { OpenDocument } from "./OpenDocumentScreen";
 export class DeliverableInfoScreen extends Component {
   TaskId = "";
@@ -194,7 +196,7 @@ export class DeliverableInfoScreen extends Component {
       <View style={styles.mainContainer}>
         {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
         <View style={styles.apqpTextView}>
-          <ImageBackground
+          {/* <ImageBackground
             source={Images.headerBG}
             style={{
               width: "100%",
@@ -219,13 +221,19 @@ export class DeliverableInfoScreen extends Component {
                   <Text style={styles.apqpTextStyle}>Deliverable Info</Text>
                 </View>
                 <View style={styles.backLogo}>
-                  {/* <TouchableOpacity>
+                  <TouchableOpacity>
                     <Icon name="refresh" size={30} color="white" />
-                  </TouchableOpacity> */}
+                  </TouchableOpacity>
                 </View>
               </View>
             </View>
-          </ImageBackground>
+          </ImageBackground> */}
+          <GlobalHeader
+            title={'Deliverable Info'}
+            onLeftPress={() => this.props.navigation.goBack()}
+            hideRight={true}
+            showBackButton={false}
+           />
         </View>
 
         <View style={styles.flatListWholeView}>
@@ -356,7 +364,7 @@ export class DeliverableInfoScreen extends Component {
         </View>
 
         <View style={styles.footerDiv}>
-          <ImageBackground
+          {/* <ImageBackground
             source={Images.headerBG}
             style={{
               resizeMode: "stretch",
@@ -384,7 +392,10 @@ export class DeliverableInfoScreen extends Component {
                 </View>
               </TouchableOpacity>
             </View>
-          </ImageBackground>
+          </ImageBackground> */}
+          <>
+            <FAB iconName="paperclip" iconType={ICON_TYPE.Feather}  onPress={this.onPressAttach.bind(this, "ADL", null)} />
+          </>
         </View>
 
         <Toast

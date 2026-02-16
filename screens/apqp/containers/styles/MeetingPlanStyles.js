@@ -286,9 +286,9 @@ export default StyleSheet.create({
     position: "absolute",
     // bottom: 20 + android15FooterPadding,
     bottom: 0,
-    borderTopColor: "lightgrey",
-    borderWidth: 0.5,
-    borderBottomColor: "transparent",
+    // borderTopColor: "lightgrey",
+    // borderWidth: 0.5,
+    // borderBottomColor: "transparent",
   },
   footerButton2: {
     width: "50%",

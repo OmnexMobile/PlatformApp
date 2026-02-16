@@ -17,6 +17,10 @@ const GlobalHeader = ({
   hideLeft = false,
   hideRight = false,
   rightComponent,
+  extraRightIcon,
+  onExtraRightPress,
+  extraRightIconColor = '#00b3d6',
+  hideExtraRight = false,
 }) => {
   const renderLeft = () =>
     hideLeft || !leftIcon ? (
@@ -40,6 +44,15 @@ const GlobalHeader = ({
     );
   };
 
+  const renderExtraRight = () =>
+    hideExtraRight || !extraRightIcon ? (
+      <View  />
+    ) : (
+      <TouchableOpacity onPress={onExtraRightPress} style={styles.iconButton}>
+        <Icon name={extraRightIcon} size={24} color={extraRightIconColor} />
+      </TouchableOpacity>
+    );
+
   return (
     <View style={[styles.container, containerStyle]}>
       {renderLeft()}
@@ -52,6 +65,7 @@ const GlobalHeader = ({
         ) : null}
       </View>
       {renderRight()}
+      {renderExtraRight()}
     </View>
   );
 };

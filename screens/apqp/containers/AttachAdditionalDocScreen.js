@@ -26,9 +26,11 @@ import { Bubbles, DoubleBounce, Bars, Pulse } from "react-native-loader";
 import styles from "./styles/AttachAdditionalDocStyles";
 import { DeviceUniqueId } from "../config/Utils";
 import RNFS from "react-native-fs";
-import { ROUTES } from "constants/app-constant";
+import { ICON_TYPE, ROUTES } from "constants/app-constant";
 import { SPACING } from "constants/theme-constants";
 import { strings } from "../language/Language";
+import { FAB } from "components";
+import GlobalHeader from "components/GlobalHeader";
 
 // import RNBlobUtil from "react-native-blob-util";
 
@@ -720,7 +722,7 @@ class AttachAdditionalDocScreen extends Component {
         <Image source={Images.apqpmanagerbg} style={styles.bgImage} />
 
         <View style={styles.apqpTextView}>
-          <ImageBackground
+          {/* <ImageBackground
             source={Images.headerBG}
             style={{
               width: "100%",
@@ -749,7 +751,17 @@ class AttachAdditionalDocScreen extends Component {
               </View>
               <View style={styles.backLogo} />
             </View>
-          </ImageBackground>
+          </ImageBackground> */}
+          <GlobalHeader
+            title= {this.comType == "ADL"
+                    ? "Attach Additional Doc"
+                    : this.attItem?.OPDocName == ""
+                    ? "Attach Output Document"
+                    : "Revise Output Document"}
+            onLeftPress={this.onPressBack.bind(this)}
+            hideRight={true}
+            showBackButton={false}
+          />
         </View>
 
         {this.state.loader === true ? (
@@ -892,7 +904,7 @@ class AttachAdditionalDocScreen extends Component {
 
         {this.state.loader === true ? null : (
           <View style={styles.footerDiv}>
-            <ImageBackground
+            {/* <ImageBackground
               source={Images.headerBG}
               style={{
                 resizeMode: "stretch",
@@ -917,7 +929,10 @@ class AttachAdditionalDocScreen extends Component {
                   </TouchableOpacity>
                 </View>
               </View>
-            </ImageBackground>
+            </ImageBackground> */}
+            <>
+              <FAB iconName="save" iconType={ICON_TYPE.Feather} onPress={this.uploadattachments.bind(this)} />
+            </>
           </View>
         )}
 

@@ -28,8 +28,10 @@ import AsyncStorage from "@react-native-community/async-storage";
 import styles from "./styles/RiskActionStyles";
 import Moment from "moment";
 import { extendMoment } from "moment-range";
-import { ROUTES } from "constants/app-constant";
+import { ICON_TYPE, ROUTES } from "constants/app-constant";
 import { SPACING } from "constants/theme-constants";
+import { FAB } from "components";
+import GlobalHeader from "components/GlobalHeader";
 const moment = extendMoment(Moment);
 // import { Bubbles, DoubleBounce, Bars, Pulse } from "react-native-loader";
 
@@ -222,31 +224,40 @@ getData = async (userdata) => {
 
   renderHeader() {
     return (
-      <ImageBackground source={Images.headerBG} style={styles.header}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
-            <View style={styles.backLogo}>
-              <View style={styles.headerDiv}>
-                <Icon name="angle-left" size={40} color="white" />
-                <Text style={styles.LabelText}>{strings.Back}</Text>
-              </View>
-            </View>
-          </TouchableOpacity>
+      // <ImageBackground source={Images.headerBG} style={styles.header}>
+      //   <View style={styles.header}>
+      //     <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
+      //       <View style={styles.backLogo}>
+      //         <View style={styles.headerDiv}>
+      //           <Icon name="angle-left" size={40} color="white" />
+      //           <Text style={styles.LabelText}>{strings.Back}</Text>
+      //         </View>
+      //       </View>
+      //     </TouchableOpacity>
 
-          <View style={styles.heading}>
-            <Text style={styles.headingText}>{strings.Risk_Action}</Text>
-          </View>
+      //     <View style={styles.heading}>
+      //       <Text style={styles.headingText}>{strings.Risk_Action}</Text>
+      //     </View>
 
-          <View style={(styles.headerDiv, { backgroundColor: "transparent" })}>
-            <TouchableOpacity
-              style={{ paddingRight: 10, backgroundColor: "transparent" }}
-              onPress={() => this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)}
-            >
-              <Icon name="home" size={35} color="white" />
-            </TouchableOpacity>
-          </View>
-        </View>
-      </ImageBackground>
+      //     <View style={(styles.headerDiv, { backgroundColor: "transparent" })}>
+      //       <TouchableOpacity
+      //         style={{ paddingRight: 10, backgroundColor: "transparent" }}
+      //         onPress={() => this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)}
+      //       >
+      //         <Icon name="home" size={35} color="white" />
+      //       </TouchableOpacity>
+      //     </View>
+      //   </View>
+      // </ImageBackground>
+      <>
+        <GlobalHeader
+          title={strings.Risk_Action}
+          onLeftPress={() => this.props.navigation.goBack()}
+          onRightPress={() => this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)}
+          hideRight={false}
+          showBackButton={true}
+        />
+      </>
     );
   }
 
@@ -342,7 +353,7 @@ getData = async (userdata) => {
         </ScrollView>
 
         <View style={styles.footerDiv}>
-          <View style={styles.footerContainer}>
+          {/* <View style={styles.footerContainer}>
             <View style={styles.footerButton1}>
               <TouchableOpacity
                 onPress={() => this.onSavePress()}
@@ -357,7 +368,10 @@ getData = async (userdata) => {
                 <Text style={{ color: "#00BAC8" }}>Save</Text>
               </TouchableOpacity>
             </View>
-          </View>
+          </View> */}
+          <>
+            <FAB iconName="save" iconType={ICON_TYPE.Feather} onPress={() => this.onSavePress()} />
+          </>
         </View>
 
         <ConfirmDialog

@@ -25,6 +25,7 @@ import OfflineNotice from "../components/OfflineNotice";
 import { CheckBox } from "react-native-elements";
 import { ROUTES } from "constants/app-constant";
 import { SPACING } from "constants/theme-constants";
+import GlobalHeader from "components/GlobalHeader";
 
 let PreviousPage = "";
 class FilterSection extends Component {
@@ -98,21 +99,29 @@ class FilterSection extends Component {
 
   renderHeader() {
     return (
-      <ImageBackground source={Images.headerBG} style={styles.header}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={this.onPressBack.bind(this)}>
-            <View style={styles.backLogo}>
-              <View style={styles.headerDiv}>
-                <Icon name="angle-left" size={40} color="white" />
-                <Text style={styles.LabelText}>{strings.Back}</Text>
-              </View>
-            </View>
-          </TouchableOpacity>
-          <View style={styles.heading}>
-            <Text style={styles.headingText}>{strings.filter}</Text>
-          </View>
-        </View>
-      </ImageBackground>
+      // <ImageBackground source={Images.headerBG} style={styles.header}>
+      //   <View style={styles.header}>
+      //     <TouchableOpacity onPress={this.onPressBack.bind(this)}>
+      //       <View style={styles.backLogo}>
+      //         <View style={styles.headerDiv}>
+      //           <Icon name="angle-left" size={40} color="white" />
+      //           <Text style={styles.LabelText}>{strings.Back}</Text>
+      //         </View>
+      //       </View>
+      //     </TouchableOpacity>
+      //     <View style={styles.heading}>
+      //       <Text style={styles.headingText}>{strings.filter}</Text>
+      //     </View>
+      //   </View>
+      // </ImageBackground>
+      <>
+        <GlobalHeader
+          title={strings.filter}
+          onLeftPress={() => this.onPressBack()}
+          hideRight={true}
+          showBackButton={true}
+        />
+      </>
     );
   }
 
@@ -140,7 +149,7 @@ class FilterSection extends Component {
     getCurrentPage = this.props?.route?.name;
     // PreviousPage = getCurrentPage[getCurrentPage.length - 2].routeName;
     var routesAll = this.props.navigation.getState().routes;
-    var PreviousPage = routesAll[routesAll.length - 2]?.name;
+    PreviousPage = routesAll[routesAll.length - 2]?.name;
     console.log('previous page' + PreviousPage);
     
     const { routes, index } = this.props.navigation.getState();

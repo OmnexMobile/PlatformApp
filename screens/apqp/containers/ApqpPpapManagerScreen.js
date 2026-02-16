@@ -38,6 +38,7 @@ import ScrollableTabView, {
 } from "react-native-scrollable-tab-view";
 import { ROUTES } from "constants/app-constant";
 import { SPACING } from "constants/theme-constants";
+import GlobalHeader from "components/GlobalHeader";
 // import Reactotron from "reactotron-react-native";
 const moment = extendMoment(Moment);
 const window_width = Dimensions.get("window").width;
@@ -1457,50 +1458,14 @@ class ApqpPpapManagerScreen extends Component {
 
   renderHeader() {
     return (
-      <ImageBackground source={Images.headerBG} style={styles.header}>
-        <View style={styles.header}>
-          <TouchableOpacity
-            onPress={() => this.props.navigation.goBack()}
-          >
-            <View style={styles.backlogo}>
-              {!this.state.loader ? (
-                // <ResponsiveImage source={Images.BackIconWhite} initWidth="13" initHeight="22" />
-                <View style={styles.headerDiv}>
-                  <Icon name="angle-left" size={40} color="white" />
-                  <Text style={styles.LabelText}>{strings.Back}</Text>
-                </View>
-              ) : null}
-            </View>
-          </TouchableOpacity>
-          <View style={styles.heading}>
-            <Text style={styles.headingText}>{strings.APQPManager}</Text>
-          </View>
-          <View style={(styles.headerDiv, { backgroundColor: "transparent" })}>
-            <TouchableOpacity
-              style={{ paddingRight: 10, backgroundColor: "transparent" }}
-              onPress={() => this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)}
-            >
-              <Icon name="home" size={35} color="white" />
-            </TouchableOpacity>
-          </View>
-          {/* <View style={styles.headerDiv}>
-            <TouchableOpacity
-              style={{ paddingRight: 10 }}
-              onPress={() => this.props.navigation.navigate("DashboardScreen")}
-            >
-              <Icon name="home" size={35} color="white" />
-            </TouchableOpacity>
-          </View> */}
-          {/* <View style={(styles.headerDiv, { backgroundColor: "transparent" })}>
-            <TouchableOpacity
-              style={{ paddingRight: 10, backgroundColor: "transparent" }}
-              onPress={() => this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)}
-            >
-              <Icon name="home" size={35} color="white" />
-            </TouchableOpacity>
-          </View> */}
-        </View>
-      </ImageBackground>
+      <>
+        <GlobalHeader
+          title={strings.APQPManager}
+          onLeftPress={() => this.props.navigation.goBack()}
+          onRightPress={() => this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)}
+          showBackButton={true}
+        />
+      </>
     );
   }
 
@@ -1622,12 +1587,12 @@ class ApqpPpapManagerScreen extends Component {
       <View style={styles.filterCont}>
         <TouchableOpacity
           style={styles.filterBox}
-          // onPress={() =>
-          //   this.props.navigation.navigate(ROUTES.FILTER_SCREEN_APQP, {
-          //     callback_flag:
-          //       this.state.filterArrSplit.length == 0 ? false : true,
-          //   })
-          // }
+          onPress={() =>
+            this.props.navigation.navigate(ROUTES.FILTER_SCREEN_APQP, {
+              callback_flag:
+                this.state.filterArrSplit.length == 0 ? false : true,
+            })
+          }
         >
           <Icon name="filter" size={20} color="#89888A" />
           <Text

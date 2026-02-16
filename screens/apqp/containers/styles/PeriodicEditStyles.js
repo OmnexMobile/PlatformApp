@@ -99,8 +99,8 @@ export default StyleSheet.create({
     position: "absolute",
     // bottom: 20 + android15FooterPadding ,
     bottom: 0,
-    borderTopColor: "lightgrey",
-    borderTopWidth: 0.5,
+    // borderTopColor: "lightgrey",
+    // borderTopWidth: 0.5,
   },
   footerContainer: {
     width: "100%",

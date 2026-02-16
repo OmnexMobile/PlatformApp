@@ -35,8 +35,10 @@ import Moment from "moment";
 import { extendMoment } from "moment-range";
 
 import SwitchToggle from "../components/SwitchToggle";
-import { ROUTES } from "constants/app-constant";
+import { ICON_TYPE, ROUTES } from "constants/app-constant";
 import { SPACING } from "constants/theme-constants";
+import { FAB } from "components";
+import GlobalHeader from "components/GlobalHeader";
 
 const moment = extendMoment(Moment);
 // import { Bubbles, DoubleBounce, Bars, Pulse } from "react-native-loader";
@@ -529,26 +531,34 @@ class PeriodicEditScreen extends Component {
 
   renderHeader() {
     return (
-      <ImageBackground source={Images.headerBG} style={styles.header}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={this.onPressBack.bind(this)}>
-            <View style={styles.backLogo}>
-              <View style={styles.headerDiv}>
-                <Icon name="angle-left" size={40} color="white" />
-                <Text style={styles.LabelText}>{strings.Back}</Text>
-              </View>
-            </View>
-          </TouchableOpacity>
+      // <ImageBackground source={Images.headerBG} style={styles.header}>
+      //   <View style={styles.header}>
+      //     <TouchableOpacity onPress={this.onPressBack.bind(this)}>
+      //       <View style={styles.backLogo}>
+      //         <View style={styles.headerDiv}>
+      //           <Icon name="angle-left" size={40} color="white" />
+      //           <Text style={styles.LabelText}>{strings.Back}</Text>
+      //         </View>
+      //       </View>
+      //     </TouchableOpacity>
 
-          <View style={styles.heading}>
-            <Text style={styles.headingText}>
-              {this.state.RouteParam == "Edit"
-                ? strings.Title_Periodic_Edit
-                : strings.Title_Periodic_Add}
-            </Text>
-          </View>
-        </View>
-      </ImageBackground>
+      //     <View style={styles.heading}>
+      //       <Text style={styles.headingText}>
+      //         {this.state.RouteParam == "Edit"
+      //           ? strings.Title_Periodic_Edit
+      //           : strings.Title_Periodic_Add}
+      //       </Text>
+      //     </View>
+      //   </View>
+      // </ImageBackground>
+      <>
+        <GlobalHeader
+          title={this.state.RouteParam == "Edit" ? strings.Title_Periodic_Edit : strings.Title_Periodic_Add}
+          onLeftPress={() => this.onPressBack()}
+          hideRight={true}
+          showBackButton={true}
+        />
+      </>
     );
   }
 
@@ -998,13 +1008,9 @@ class PeriodicEditScreen extends Component {
           </View>
         </Modal>
 
-        <View style={styles.footerDiv}>
+        {/* <View style={styles.footerDiv}>
           <View style={styles.footerContainer}>
             <View style={styles.footerButton11}>
-              {/* {this.ProjectOwnerCheck == 0 ||
-              this.ProjectOwnerCheck == undefined ||
-              this.ProjectOwnerCheck == null ? ( */}
-              {/* || this.TaskOwnerCheck != null */}
 
               {this.TaskOwnerCheck == 1 ? (
                 <TouchableOpacity
@@ -1021,77 +1027,7 @@ class PeriodicEditScreen extends Component {
                   <Icon name="save" size={30} color="#00BAC8" />
                   <Text style={{ color: "#00BAC8" ,margin:1}}>{strings.Save}</Text>
                 </TouchableOpacity>
-              //   <View
-              //   style={{
-              //     width: "100%",
-              //     height: 70,
-              //     justifyContent: "center",
-              //     flexDirection:"row",
-              //     marginEnd:20,
-              //     // alignItems: "center",
-              //   }}>
-                  
-              //   <TouchableOpacity onPress={() => this.onSavePress()} 
-                  
-              //     style={{
-              //       width: "50%",
-              //       height: 70,
-              //       justifyContent: "center",
-              //       flexDirection:"row",
-              //       // marginEnd:20,
-              //       alignItems: "center",
-              //     }}
-              //     >
-              //   <Icon name="save" size={30} color="#00BAC8" />
-              //   <Text style={{ color: "#00BAC8" ,alignContent:"center",marginLeft:10  }}>{strings.Save}</Text>
-              // </TouchableOpacity>
-
-              // <Text style={styles.vertBorder} />
-
-              // <TouchableOpacity onPress={this.onSavePress()}
-              // style={{
-              //   width: "50%",
-              //   height: 70,
-              //   justifyContent: "center",
-              //   flexDirection:"row",
-              //   // marginLeft:20,
-              //   alignItems: "center",
-              // }}
-              // >
-              // {/* <Icon name= {Images.publishIcon} size={30} color="#00BAC8" /> */}
-
-              // <Image
-              // source={(Images.publishIcon)}
-              // style={{ width: 30, height: 30 }}
-              // />
-              // <Text style={{ color: "#00BAC8" ,alignContent:"center",marginLeft:10 }}>{strings.Publish}</Text>
-              // </TouchableOpacity>
-              // </View>
               ) : (
-              //   <View 
-              //   style={{
-              //     width: "100%",
-              //     height: 70,
-              //     flexDirection:"row",
-              //     justifyContent: "center",
-              //     // alignItems: "center",
-              //   }}>
-              
-              // <Icon name="save" size={30} color="lightgrey" />
-              // <Text style={{ color: "lightgrey" ,alignContent:"center" }}>{strings.Save}</Text>
-             
-              // <Text style={styles.vertBorder} />
-
-              // {/* <Icon name={Images.publishIcon} size={30} color="lightgrey" /> */}
-
-              // <Image
-              // source={(Images.publishIcon)}
-              // style={{ width: 30, height: 30 }}
-              // />
-
-              // <Text style={{ color: "lightgrey",alignContent:"center" }}>{strings.Publish}</Text>
-            
-              // </View>
                 <View
                   style={{
                     width: "100%",
@@ -1107,6 +1043,18 @@ class PeriodicEditScreen extends Component {
               )}
             </View>
           </View>
+        </View> */}
+
+        <View style={styles.footerDiv}>
+          {this.TaskOwnerCheck == 1 ? (
+            <>
+              <FAB iconName="save" iconType={ICON_TYPE.Feather} onPress={() => this.onSavePress()} />
+            </>
+          ) : (
+          <>
+            <FAB iconName="save" iconType={ICON_TYPE.Feather} />
+          </>
+          )}
         </View>
 
         <Toast
