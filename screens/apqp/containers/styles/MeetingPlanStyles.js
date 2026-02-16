@@ -49,6 +49,7 @@ export default StyleSheet.create({
     padding: 5,
     flexDirection: "column",
     backgroundColor: "white",
+    marginLeft: "2%",
   },
   flatList: {
     width: "100%",

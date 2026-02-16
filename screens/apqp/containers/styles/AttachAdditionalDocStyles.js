@@ -69,6 +69,7 @@ export default StyleSheet.create({
     marginTop: 70,
     padding: 8,
     flexDirection: "column",
+    marginLeft: '3%',
   },
 
   loaderView: {
@@ -183,8 +184,9 @@ export default StyleSheet.create({
     color: "#1d1d1d",
   },
   completedTextStyle: {
-    fontSize: Fonts.size.medium,
+    fontSize: Fonts.size.regular,
     padding: 2,
+    // color: "black",
   },
   startDateTextStyle: {
     fontSize: Fonts.size.medium,
@@ -204,7 +206,10 @@ export default StyleSheet.create({
   },
   textInputStyle: {
     borderBottomWidth: 0.5,
-    fontSize: Fonts.size.input,
+    fontSize: Fonts.size.regular,
+    // color: "#000",
+    // backgroundColor: "red",
+    marginRight: '3%',
   },
 
   sectionTop: {

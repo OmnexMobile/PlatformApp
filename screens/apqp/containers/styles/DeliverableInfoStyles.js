@@ -70,6 +70,7 @@ export default StyleSheet.create({
     //position: 'absolute',
     //marginTop: 70,
     padding: 10,
+    marginLeft: '3%',
   },
   boxView: {
     width: "100%",
@@ -100,12 +101,13 @@ export default StyleSheet.create({
     flexWrap: "wrap",
   },
   listText: {
-    color: "#AFAAAC",
-    fontSize: Fonts.size.medium,
+    color: "black",
+    fontSize: Fonts.size.regular,
     padding: 2,
   },
   listNextText: {
-    fontSize: Fonts.size.regular,
+    color: "black",
+    fontSize: 16,
     padding: 2,
   },
 

@@ -81,6 +81,7 @@ export default StyleSheet.create({
     backgroundColor: "white",
     position: "absolute",
     padding: 3,
+    marginLeft: '4%'
   },
   flatList: {
     width: "100%",
@@ -110,7 +111,13 @@ export default StyleSheet.create({
     flexDirection: "row",
   },
   listText: {
-    color: "#AFAAAC",
+    color: "black",
+    fontSize: Fonts.size.regular,
+    padding: 6,
+    textAlignVertical: "top",
+  },
+  listText1: {
+    // color: "#1FBFD0",
     fontSize: Fonts.size.regular,
     padding: 6,
     textAlignVertical: "top",
@@ -157,12 +164,12 @@ export default StyleSheet.create({
     //width: "85%",
   },
   deliveryTypeTextStyleHours: {
-    color: "green",
+    color: "#1FBFD0",
     fontSize: Fonts.size.regular,
     //width: "85%",
   },
   deliveryTypeTextStylePercent: {
-    color: "#485B9E",
+    color: "#1FBFD0",
     fontSize: Fonts.size.regular,
     width: "85%",
   },

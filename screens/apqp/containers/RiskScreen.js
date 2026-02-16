@@ -1000,7 +1000,7 @@ class RiskScreen extends Component {
                       <View style={styles.flatListInsideView}>
                         <Text style={styles.listText}>Period :</Text>
                         <Text
-                          style={[styles.dateTextStyle, { color: "#4C8048" }]}
+                          style={[styles.dateTextStyle, { color: "#1FBFD0" }]}
                           numberOfLines={1}
                         >
                           {this.changeDateFormatCard(item.ActionCreatedDate)} -{" "}
@@ -1018,11 +1018,11 @@ class RiskScreen extends Component {
                             item.DueByDays > 0
                               ? [
                                   styles.actionTypeTextStyle,
-                                  { fontSize: 22, color: "green" },
+                                  { fontSize: 20, color: "green" },
                                 ]
                               : [
                                   styles.actionTypeTextStyle,
-                                  { fontSize: 22, color: "red" },
+                                  { fontSize: 20, color: "red" },
                                 ]
                           }
                           numberOfLines={1}

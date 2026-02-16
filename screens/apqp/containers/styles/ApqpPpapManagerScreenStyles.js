@@ -497,7 +497,8 @@ export default StyleSheet.create({
     justifyContent: "flex-start",
     //width: width(75),
     padding: 5,
-    backgroundColor:'#fff'
+    backgroundColor:'#fff',
+    marginLeft: '4%',
     //   borderColor: "green",
     //   borderWidth: 2,
   },

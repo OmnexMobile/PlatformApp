@@ -49,7 +49,7 @@ export default StyleSheet.create({
     padding: 2,
   },
   listText: {
-    color: "#AFAAAC",
+    color: "black",
     fontSize: Fonts.size.medium,
     padding: 2,
     fontFamily: "OpenSans-Regular",
@@ -279,6 +279,7 @@ export default StyleSheet.create({
     alignItems: "center",
     //backgroundColor: 'yellow',
     height: 25,
+    marginLeft:'3%',
   },
   actionTypeTextStylecb: {
     color: "#485B9E",
@@ -287,7 +288,7 @@ export default StyleSheet.create({
   },
   actionTypeTextStyle: {
     color: "#7F7D7D",
-    fontSize: Fonts.size.regular,
+    fontSize: Fonts.size.medium,
     fontFamily: "OpenSans-Regular",
   },
   dateTextStyle: {
