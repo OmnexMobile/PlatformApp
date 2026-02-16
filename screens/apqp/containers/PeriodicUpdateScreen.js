@@ -570,7 +570,7 @@ class PeriodicUpdateScreen extends Component {
         {this.state.isLoading ? (
           this.renderBounce()
         ) : (
-          <View style={[styles.flatListWholeView, {marginTop: Platform.OS === 'ios' ? 100 : 100}]}>
+          <View style={[styles.flatListWholeView, {marginTop: 100}]}>
             <View>
               <View style={styles.textHeader}>
                 <Text style={styles.listText}>Project Name :</Text>
@@ -580,6 +580,8 @@ class PeriodicUpdateScreen extends Component {
                     flex: 1,
                     flexDirection: "column",
                     flexWrap: "wrap",
+                    color: "black",
+                    fontSize: Fonts.size.regular,
                   }}
                 >
                   {this.ProjectName}
@@ -588,7 +590,10 @@ class PeriodicUpdateScreen extends Component {
               <View style={styles.textHeader}>
                 <Text style={styles.listText}>Task Name :</Text>
                 <Text
-                  style={(styles.listText, { flexWrap: "wrap", width: "69%" })}
+                  style={(styles.listText1, { flexWrap: "wrap", width: "69%" ,marginLeft: 5,
+                    flex: 1,
+                    fontSize: Fonts.size.regular,
+                    color: "black",})}
                 >
                   {this.TaskName}
                 </Text>
@@ -597,7 +602,7 @@ class PeriodicUpdateScreen extends Component {
                 <Text style={styles.listText}>Period :</Text>
                 <Text
                   style={
-                    (styles.listText, { flexWrap: "wrap", color: "#4C8048" })
+                    (styles.listText, { flexWrap: "wrap", color: "black", fontSize: 15 })
                   }
                 >
                   {this.changeDateFormatCard(this.StartDate)} -{" "}
@@ -631,7 +636,7 @@ class PeriodicUpdateScreen extends Component {
                       <View style={styles.flatListInsideView}>
                         <Text style={styles.listText}>Period :</Text>
                         <Text
-                          style={[styles.dateTextStyle, { color: "#4C8048" }]}
+                          style={[styles.dateTextStyle, { color: "#1FBFD0" }]}
                           numberOfLines={1}
                         >
                           {this.changeDateFormatCard(item.StartDate)} -{" "}
@@ -661,6 +666,7 @@ class PeriodicUpdateScreen extends Component {
                               fontSize: 16,
                               flexWrap: "wrap",
                               width: "80%",
+                              color: "grey",
                             })
                             //  style={{width: "70%",borderBottomWidth: 0.5,fontSize: 18,}}
                             //marginLeft:5,flex:1,flexDirection:'column', flexWrap:'wrap'

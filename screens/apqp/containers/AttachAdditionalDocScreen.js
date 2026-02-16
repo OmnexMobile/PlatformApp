@@ -776,7 +776,7 @@ class AttachAdditionalDocScreen extends Component {
               ) : null}
               <TextInput
                 placeholder={"Doc Name"}
-                style={styles.textInputStyle}
+                style={[styles.textInputStyle, { color: "#000" }]}
                 value={this.state.docName}
                 onChangeText={(text) => {
                   this.setState({ docName: text });

@@ -581,6 +581,8 @@ class PeriodicEditScreen extends Component {
                   flex: 1,
                   flexDirection: "column",
                   flexWrap: "wrap",
+                  color: "black",
+                  fontSize: 17,
                 }}
               >
                 {this.ProjectName ? this.ProjectName : "  -  "}
@@ -597,7 +599,9 @@ class PeriodicEditScreen extends Component {
             <View style={styles.textHeader}>
               <Text style={styles.listText}>Task Name :</Text>
               <Text
-                style={(styles.listText, { flexWrap: "wrap", width: "69%" })}
+                style={(styles.listText, { flexWrap: "wrap", width: "69%", 
+                  color: "black",
+                  fontSize: 17, })}
               >
                 {this.TaskName ? this.TaskName : "  -  "}
               </Text>
@@ -606,7 +610,7 @@ class PeriodicEditScreen extends Component {
               <Text style={styles.listText}>Period :</Text>
               <Text
                 style={
-                  (styles.listText, { flexWrap: "wrap", color: "#4C8048" })
+                  (styles.listText, { flexWrap: "wrap", color: "#1FBFD0", fontSize: 16 })
                 }
               >
                 {this.StartDate

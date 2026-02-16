@@ -49,8 +49,8 @@ export default StyleSheet.create({
     padding: 2,
   },
   listText: {
-    color: "#AFAAAC",
-    fontSize: Fonts.size.medium,
+    color: "black",
+    fontSize: Fonts.size.regular,
     fontFamily: "OpenSans-Regular",
     padding: 2,
   },
@@ -296,6 +296,7 @@ export default StyleSheet.create({
     alignItems: "center",
     //backgroundColor: 'yellow',
     height: 25,
+    marginLeft:'3%'
   },
 
   floattext: {
@@ -317,7 +318,7 @@ export default StyleSheet.create({
     justifyContent: "center",
   },
   actionTypeTextStylecb: {
-    color: "#485B9E",
+    color: "#1FBFD0",
     fontSize: Fonts.size.regular,
     fontFamily: "OpenSans-Regular",
   },

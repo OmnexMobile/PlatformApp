@@ -86,6 +86,7 @@ export default StyleSheet.create({
     padding: 8,
     flexDirection: "column",
     marginBottom: 10,
+    marginLeft: '3%',
   },
 
   apqpTextStyle: {
@@ -190,8 +191,9 @@ export default StyleSheet.create({
     color: "#1d1d1d",
   },
   completedTextStyle: {
-    fontSize: Fonts.size.medium,
+    fontSize: Fonts.size.regular,
     padding: 2,
+    color: "black",
   },
   startDateTextStyle: {
     fontSize: Fonts.size.medium,
@@ -211,7 +213,7 @@ export default StyleSheet.create({
   },
   textInputStyle: {
     borderBottomWidth: 0.5,
-    fontSize: Fonts.size.input,
+    fontSize: Fonts.size.medium,
   },
 
   sectionTop: {
@@ -279,9 +281,11 @@ export default StyleSheet.create({
   sec1: {
     width: "100%",
     height: 75,
+    marginLeft: '1%',
   },
   remark: {
     width: "100%",
+    marginLeft: '1%',
   },
   calendarDiv: {
     width: "100%",
@@ -334,7 +338,7 @@ export default StyleSheet.create({
     borderTopWidth: 0.5,
   },
   listText: {
-    color: "#AFAAAC",
+    color: "black",
     fontSize: Fonts.size.regular,
     padding: 6,
     textAlignVertical: "top",
@@ -346,7 +350,7 @@ export default StyleSheet.create({
     height: 40,
     //textAlign: "right",
     width: 40,
-    right: 0,
+    right: '2%',
     borderRadius: 40,
     borderColor: "#00BAC8",
     borderWidth: 0.7,

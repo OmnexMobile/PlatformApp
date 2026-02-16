@@ -238,11 +238,11 @@ export class DeliverableInfoScreen extends Component {
 
         <View style={styles.flatListWholeView}>
           <View style={styles.listViewTop}>
-            <Text style={styles.listText}>Deliverable Name</Text>
+            <Text style={styles.listText}>Deliverable Name :</Text>
             <Text style={styles.listNextText}>{this.DeliverableName}</Text>
           </View>
           <View style={styles.listViewTop}>
-            <Text style={styles.listText}>Completed %</Text>
+            <Text style={styles.listText}>Completed % :</Text>
             <Text style={styles.listNextText}>{this.ResourcePercent}</Text>
           </View>
 
@@ -260,6 +260,7 @@ export class DeliverableInfoScreen extends Component {
                 justifyContent: "center",
                 alignItems: "center",
                 fontSize: 18,
+                color: "black",
               }}
             >
               Attachments

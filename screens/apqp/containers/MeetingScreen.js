@@ -838,7 +838,7 @@ class MeetingScreen extends Component {
               data={this.dropdata}
               containerStyle={{ flex: 1 }}
               itemPadding={5}
-              dropdownOffset={{ top: 2, left: 0 }}
+              dropdownOffset={{ top: 15, left: 0 }}
               width={300}
               baseColor="lightgrey"
               itemTextStyle={{ fontFamily: "OpenSans-Regular" }}
@@ -1022,7 +1022,7 @@ class MeetingScreen extends Component {
             <View style={styles.flatListInsideView}>
               <Text style={styles.listText}>Period :</Text>
               <Text
-                style={[styles.dateTextStyle, { color: "#4C8048" }]}
+                style={[styles.dateTextStyle, { color: "#1FBFD0" }]}
                 numberOfLines={1}
               >
                 {this.changeDateFormatCard(item.ActionCreatedDate)} -{" "}

@@ -2117,7 +2117,8 @@ class ApqpPpapManagerScreen extends Component {
                 marginLeft: 30,
                 //padding: 3,
                 fontSize: Fonts.size.regular,
-                color: "grey",
+                fontWeight: "bold",
+                color: "black",
                 fontFamily: "OpenSans-Regular",
               }}
             >
@@ -2137,9 +2138,9 @@ class ApqpPpapManagerScreen extends Component {
                     numberOfLines={1}
                     style={{
                       marginLeft: 20,
-                      padding: 3,
+                      padding: 1,
                       fontSize: Fonts.size.regular,
-                      color: "#485B9E",
+                      color: "#1FBFD0",
                       fontFamily: "OpenSans-Regular",
                     }}
                   >
@@ -2151,8 +2152,8 @@ class ApqpPpapManagerScreen extends Component {
                     style={{
                       marginLeft: 20,
                       padding: 3,
-                      fontSize: Fonts.size.small,
-                      color: "#A6A6A6",
+                      fontSize: Fonts.size.medium,
+                      color: "black",
                       fontFamily: "OpenSans-Regular",
                     }}
                     numberOfLines={1}
@@ -2167,7 +2168,7 @@ class ApqpPpapManagerScreen extends Component {
                       marginLeft: 20,
                       padding: 3,
                       fontSize: Fonts.size.medium,
-                      color: "#545454",
+                      color: "black",
                       fontFamily: "OpenSans-Regular",
                     }}
                     numberOfLines={1}
@@ -2178,7 +2179,7 @@ class ApqpPpapManagerScreen extends Component {
                 <View style={styles.flatListInsideView}>
                   <Text
                     style={
-                      (styles.listText, { color: "#545454", marginLeft: 23 })
+                      (styles.listText, { color: "black", marginLeft: 23 })
                     }
                   >
                     Due by Days :
@@ -2221,7 +2222,7 @@ class ApqpPpapManagerScreen extends Component {
                     percent={item.ResourcePercent}
                     radius={25}
                     borderWidth={4}
-                    color="#48BCF7"
+                    color="#1FBFD0"
                     shadowColor="lightgrey"
                     bgColor="#fff"
                   >
