@@ -249,7 +249,7 @@ paddingTop:5 },
     fontSize: 16,
     color: '#1d1d1d',
     fontFamily: 'OpenSans-Regular',
-    marginTop: 5, },
+marginTop: 5, },
   
   detailContent1: {
     fontSize: 15,
@@ -259,8 +259,8 @@ paddingTop:5 },
   },
   
   detailTitle: {
-    fontSize: 17, // previously Fonts.size.medium
-    color: '#000', // less faded than #A6A6A6
+    fontSize: 16, // previously Fonts.size.medium
+    color: '#5c5c5c', // less faded than #A6A6A6
     fontFamily: 'OpenSans-SemiBold', // previously Medium
   },
   
@@ -430,6 +430,35 @@ paddingTop:5 },
     zIndex: 1000,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  floatingDownloadBtn: {
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 72,
+    height: 72,
+    backgroundColor: '#00b3d6',
+    borderRadius: 36,
+    zIndex: 1000,
+    elevation: 15,
+  },
+  fabCenterContent: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  circularTextContainer: {
+    position: 'absolute',
+    width: 72,
+    height: 72,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  circularTextChar: {
+    position: 'absolute',
+    color: '#ffffff',
+    fontFamily: 'OpenSans-SemiBold',
+    fontSize: 8,
   },
   floatingLabel: {
     marginTop: 6,
