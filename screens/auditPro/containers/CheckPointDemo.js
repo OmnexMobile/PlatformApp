@@ -6729,23 +6729,23 @@ this.props.navigation.setParams({ auditUpdated: true });
         : 'file';
     switch (type) {
       case 'pdf': {
-        icon = 'file-pdf-o';
+        icon = 'file';
         break;
       }
       case 'doc':
       case 'docx': {
-        icon = 'file-word-o';
+        icon = 'file';
         break;
       }
       case 'ppt':
       case 'pps': {
-        icon = 'file-powerpoint-o';
+        icon = 'file';
         break;
       }
       case 'xls':
       case 'xlsx':
       case 'xlsm': {
-        icon = 'file-excel-o';
+        icon = 'file';
         break;
       }
       case 'video':
@@ -11094,9 +11094,9 @@ this.props.navigation.setParams({ auditUpdated: true });
               <View style={{backgroundColor: 'transparent', top: 18}}>
                 <Icon
                   style={{left: 8}}
-                  name="times-circle"
+                  name="x-circle"
                   size={40}
-                  color="white"
+                  color="#fff"
                 />
               </View>
             </TouchableOpacity>

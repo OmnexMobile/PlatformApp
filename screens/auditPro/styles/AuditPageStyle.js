@@ -249,7 +249,7 @@ paddingTop:5 },
     fontSize: 16,
     color: '#1d1d1d',
     fontFamily: 'OpenSans-Regular',
-marginTop: 5, },
+    marginTop: 5, },
   
   detailContent1: {
     fontSize: 15,
@@ -259,8 +259,8 @@ marginTop: 5, },
   },
   
   detailTitle: {
-    fontSize: 16, // previously Fonts.size.medium
-    color: '#5c5c5c', // less faded than #A6A6A6
+    fontSize: 17, // previously Fonts.size.medium
+    color: '#000', // less faded than #A6A6A6
     fontFamily: 'OpenSans-SemiBold', // previously Medium
   },
   

@@ -6,7 +6,17 @@ import { FONT_TYPE, ICON_TYPE } from 'constants/app-constant';
 import { FlashMessageManager } from 'react-native-flash-message';
 import { RFPercentage } from 'helpers/utils';
 
-const InputComponent = ({ defaultValue = '', placeholder = '', required = false, label = '', name = '', onChangeText, type = '', ...rest }) => {
+const InputComponent = ({
+    defaultValue = '',
+    placeholder = '',
+    required = false,
+    label = '',
+    name = '',
+    onChangeText,
+    type = '',
+    inputRef,
+    ...rest
+}) => {
     const [isFocused, setIsFocused] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const isPassword = type === 'password';
@@ -34,9 +44,9 @@ const InputComponent = ({ defaultValue = '', placeholder = '', required = false,
 
                 <TextInput
                     {...{
+                        ref: inputRef,
                         style: styles.input,
                         placeholder,
-                        onChangeText,
                         defaultValue,
                         ...(isPassword && { secureTextEntry: !showPassword }),
                         onFocus: () => setIsFocused(true),

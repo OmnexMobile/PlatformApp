@@ -1506,23 +1506,23 @@ class AuditForm extends Component {
         let type = filename !== '' ? filename.substring(filename.lastIndexOf('.') + 1) : 'file';
         switch (type) {
             case 'pdf': {
-                icon = 'file-pdf-o';
+                icon = 'file';
                 break;
             }
             case 'doc':
             case 'docx': {
-                icon = 'file-word-o';
+                icon = 'file';
                 break;
             }
             case 'ppt':
             case 'pps': {
-                icon = 'file-powerpoint-o';
+                icon = 'file';
                 break;
             }
             case 'xls':
             case 'xlsx':
             case 'xlsm': {
-                icon = 'file-excel-o';
+                icon = 'file';
                 break;
             }
             case 'video':
@@ -4422,7 +4422,7 @@ class AuditForm extends Component {
                         </View>
                     ) : (
                         <TouchableOpacity style={[styles.floatinBtn, { backgroundColor: '#14D0AE' }]} onPress={() => this.syncResponseHandle()}>
-                            <Icon name="check-square-o" size={24} color="white" />
+                            <Icon name="arrow-right-circle" size={24} color="white" />
                         </TouchableOpacity>
                     )}
                 </View>

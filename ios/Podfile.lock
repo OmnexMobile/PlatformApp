@@ -860,7 +860,7 @@ SPEC CHECKSUMS:
   react-native-compressor: ab6e873f94d65dd0f4fc696fc7d4b650c206b73c
   react-native-document-picker: a338165804b1a14c8e408448115dc0edfd7b73ca
   react-native-fetch-blob: 77898160945cb307c0b855e686910b3ab73c5270
-  react-native-flipper: e8f174ec25ddab9c44d076fbcfa828af6a77d7ab
+  react-native-flipper: 69501c31034dbb2671e76a7288947d50c4207de3
   react-native-geocoder: bc977303c9c53cce36bcdb3c6f17e6832f86beb6
   react-native-image-marker: 63e22229eba0bbd3cfeac6f0eb26a337c598dc88
   react-native-image-picker: 9cc620a366422349445e009fb83682e920e02610

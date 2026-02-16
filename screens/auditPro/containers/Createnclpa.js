@@ -61,8 +61,8 @@ function generateUniqueID() {
     return Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
 }
 const formatToIconMapping = {
-    pdf: 'file-pdf-o',
-    png: 'file-image-o',
+    pdf: 'file',
+    png: 'image',
     xls: '',
     xlsx: '',
     doc: '',
@@ -394,7 +394,7 @@ class CreateNC extends Component {
 
         const iconColor = color && color.substr(0, 1) === '#' ? `${color.substr(1)}/` : '';
 
-        const Down = <Icon name="caret-down" size={20} color="grey" />;
+        const Down = <Icon name="chevron-down" size={20} color="grey" />;
 
         switch (name) {
             case 'keyboard-arrow-down':
@@ -938,24 +938,24 @@ class CreateNC extends Component {
         let type = filename !== '' ? filename.substring(filename.lastIndexOf('.') + 1).toLowerCase() : 'file';
         switch (type) {
             case 'pdf': {
-                icon = 'file-pdf-o';
+                icon = 'file';
                 break;
             }
             case 'doc':
             case 'docx': {
-                icon = 'file-word-o';
+                icon = 'file';
                 break;
             }
             case 'ppt':
             case 'pptx':
             case 'pps': {
-                icon = 'file-powerpoint-o';
+                icon = 'file';
                 break;
             }
             case 'xls':
             case 'xlsx':
             case 'xlsm': {
-                icon = 'file-excel-o';
+                icon = 'file';
                 break;
             }
             case 'mp4':
@@ -2162,7 +2162,7 @@ class CreateNC extends Component {
             () => {
                 //console.log('checklistamevalue4', this.state.nonconfirmityText);
 
-                this.refs.toast.show(strings.FormVal, 6000);
+                this.refs.toast.show(strings.FormVal, 5000);
             },
         );
     };
@@ -3226,9 +3226,9 @@ class CreateNC extends Component {
                                             </View>
                                         ) : (
                                             <View style={styles.input02}>
-                                                <View style={styles.check}>
+                                                {/* <View style={styles.check}>
                                                     <Icon style={{ left: 10, display: 'none' }} name="asterisk" size={8} color="red" />
-                                                </View>
+                                                </View> */}
                                                 <InputComponent
                                                     name="ofitext"
                                                     label={strings.Opportunity_ApproachL}
@@ -3248,9 +3248,9 @@ class CreateNC extends Component {
                                                 />
                                             </View>
                                         )}
-                                        <View style={styles.check}>
+                                        {/* <View style={styles.check}>
                                             <Icon style={{ left: 6, top: 5 }} name="asterisk" size={8} color="red" />
-                                        </View>
+                                        </View> */}
                                     </View>
                                     <View style={styles.div1}>
                                         {this.state.RouteParam === 'NC' ? (
@@ -3270,9 +3270,9 @@ class CreateNC extends Component {
                                             </View>
                                         ) : (
                                             <View style={styles.input02}>
-                                                <View style={styles.check}>
+                                                {/* <View style={styles.check}>
                                                     <Icon style={{ left: 10, display: 'none' }} name="asterisk" size={8} color="red" />
-                                                </View>
+                                                </View> */}
                                                 <InputComponent
                                                     name="objEvidence"
                                                     label={strings.Objective_Evidence}
@@ -3286,13 +3286,13 @@ class CreateNC extends Component {
                                             </View>
                                         )}
 
-                                        <View style={styles.check}>
+                                        {/* <View style={styles.check}>
                                             {this.props.data.audits.smdata !== 2 &&
                                             this.props.data.audits.smdata !== 3 &&
                                             !(this.state.RouteParam === 'NC' && this.state.type === 'EDIT') ? (
                                                 <Icon style={{ left: 6, top: 5 }} name="asterisk" size={8} color="red" />
                                             ) : null}
-                                        </View>
+                                        </View> */}
                                     </View>
                                     <View style={styles.input02}>
                                         <Text
@@ -3341,13 +3341,6 @@ class CreateNC extends Component {
                                                     }}
                                                 />
                                             </View>
-                                        </View>
-                                        <View style={this.state.isLPA ? { display: 'none' } : styles.check}>
-                                            {this.props.data.audits.smdata !== 3 &&
-                                            this.state.RouteParam !== 'OFI' &&
-                                            this.state.clauseMandatory === 1 ? (
-                                                <Icon style={{ left: 10 }} name="asterisk" size={8} color="red" />
-                                            ) : null}
                                         </View>
                                     </View>
                                     <View
@@ -3445,7 +3438,7 @@ class CreateNC extends Component {
                                                         right: 10,
                                                         zIndex: 20,
                                                     }}>
-                                                    <Icon name="times-circle" size={20} color="black" />
+                                                    <Icon name="delete" size={20} color="black" />
                                                 </TouchableOpacity>
                                             )}
                                             <DropdownComponent
@@ -3505,9 +3498,9 @@ class CreateNC extends Component {
                                                     }}
                                                 />
                                             </View>
-                                            <View style={styles.check}>
+                                            {/* <View style={styles.check}>
                                                 <Icon style={{ left: 5 }} name="asterisk" size={8} color="red" />
-                                            </View>
+                                            </View> */}
                                         </View>
                                     </View>
 
@@ -3558,13 +3551,13 @@ class CreateNC extends Component {
                                                     />
                                                 ) : null}
 
-                                                <View style={this.state.RouteParam == 'OFI' || this.state.isLPA ? { display: 'none' } : styles.check}>
+                                                {/* <View style={this.state.RouteParam == 'OFI' || this.state.isLPA ? { display: 'none' } : styles.check}>
                                                     {this.props.data.audits.smdata !== 2 &&
                                                     this.props.data.audits.smdata !== 3 &&
                                                     !(this.state.RouteParam === 'NC' && this.state.type === 'EDIT') ? (
                                                         <Icon style={{ right: 10 }} name="asterisk" size={8} color="red" />
                                                     ) : null}
-                                                </View>
+                                                </View> */}
                                                 <View style={{ paddingLeft: 10, flexDirection: 'column' }}>
                                                     <Text
                                                         ref="dummyFocus"
@@ -3628,11 +3621,11 @@ class CreateNC extends Component {
                                             </View>
                                         ) : (
                                             <View style={styles.input02}>
-                                                <View style={styles.check}>
+                                                {/* <View style={styles.check}>
                                                     {this.props.data.audits.smdata != 2 && this.props.data.audits.smdata != 3 ? (
                                                         <Icon style={{ left: 10, display: 'none' }} name="asterisk" size={8} color="red" />
                                                     ) : null}
-                                                </View>
+                                                </View> */}
 
                                                 <InputComponent
                                                     name="documentRef"
@@ -3647,14 +3640,14 @@ class CreateNC extends Component {
                                             </View>
                                         )}
 
-                                        <View style={styles.check}>
+                                        {/* <View style={styles.check}>
                                             {this.state.RouteParam === 'NC' &&
                                             this.props.data.audits.smdata != 2 &&
                                             this.props.data.audits.smdata != 3 &&
                                             !(this.state.RouteParam === 'NC' && this.state.type === 'EDIT') ? (
                                                 <Icon style={{ left: 6, top: 5 }} name="asterisk" size={8} color="red" />
                                             ) : null}
-                                        </View>
+                                        </View> */}
                                     </View>
 
                                     <View style={styles.div1}>
@@ -3768,7 +3761,13 @@ class CreateNC extends Component {
                     {/* </ImageBackground> */}
                 </View>
 
-                <Toast ref="toast" position="top" opacity={1} />
+                <Toast
+                    ref="toast"
+                    position="top"
+                    opacity={1}
+                    style={{ backgroundColor: 'red' }}
+                    textStyle={{ color: 'white' }}
+                />
 
                 <Modal isVisible={this.state.isVisible} onBackdropPress={() => this.setState({ isVisible: false })} style={styles.modalOuterBox}>
                     <View>
@@ -3925,7 +3924,7 @@ class CreateNC extends Component {
                                 <View style={styles.sectionTop}>
                                     <View style={[styles.sectionContent, styles.boxContent]}>
                                         <View style={{ width: '12%', height: null }}>
-                                            <Icon name="file-image-o" size={25} color="grey" />
+                                            <Icon name="image" size={25} color="grey" />
                                         </View>
                                         <View style={{ width: '88%', height: null }}>
                                             <Text style={styles.boxContentCam}>{strings.Camera_Browse_Files}</Text>

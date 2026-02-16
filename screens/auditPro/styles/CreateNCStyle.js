@@ -302,7 +302,7 @@ export default StyleSheet.create({
   inputhigh: {
     backgroundColor: 'transparent',
     width: '96%',
-    // paddingLeft:3,
+     paddingLeft:7,
     // backgroundColor:'red'
     // height:'80%',
     // left:5,
@@ -331,42 +331,44 @@ export default StyleSheet.create({
   },
   div2: {
     width: '100%',
-    // height:height(10),
     backgroundColor: 'transparent',
-    // marginTop:10,
-    // alignItems:'center',
-    // justifyContent:'center',
     flexDirection: 'row',
-    //marginBottom:30
-    //backgroundColor:'red'
+    // marginLeft:5
+    paddingLeft:5
+  },
+  formSection: {
+    width: '100%',
+  //  padding: 5,
+  },
+  formSection1: {
+    width: '100%',
+    padding: 10,
   },
 
   check: {
     position: 'absolute',
-    // height:'0%',
     width: '10%',
     backgroundColor: 'transparent',
-    // backgroundColor:'grey',
     right: 0,
   },
   input01: {
     backgroundColor: 'transparent',
     width: '90%',
     height: '80%',
+   // paddingLeft: 7,
+
   },
   input001: {
     backgroundColor: 'transparent',
     width: '90%',
     height: '90%',
-    paddingLeft: 4,
+   // paddingLeft: 7,
+
   },
   input002: {
     backgroundColor: 'transparent',
     width: '90%',
     height: '90%',
-   // paddingLeft: 4,
-  //  paddingVertical: Platform.OS === 'ios' ? 10 : null,
-    // marginLeft:6
   },
   placeholderT: {
     fontSize: Fonts.size.regular,
@@ -374,32 +376,36 @@ export default StyleSheet.create({
   },
   input02: {
     backgroundColor: 'transparent',
-    width: '95%',
-    // height:'100%',
-    paddingLeft: 3,
-    marginTop: 5,
+    width: '100%',
+    // paddingLeft: 3,
+   // marginTop: 5,
     paddingVertical: Platform.OS === 'ios' ? 10 : null,
-    // borderBottomWidth:1
-    // backgroundColor:'red'
+  },
+  fieldLabel: {
+    marginBottom: 6,
+    fontSize: Fonts.size.regular,
+    color: '#000000',
+    fontFamily: 'OpenSans-Regular',
+    marginLeft: 0,
+    paddingLeft:5
   },
   input03: {
     backgroundColor: 'transparent',
-    width: '95%',
+    width: '100%',
     height: '80%',
-    paddingLeft: 7,
+    paddingLeft: 5,
   },
   input04: {
     backgroundColor: 'transparent',
-    width: '95%',
+    width: '100%',
     height: '80%',
-    paddingLeft: 7,
-    //backgroundColor:'red'
+    paddingLeft: 5,
   },
   input05: {
     backgroundColor: 'transparent',
-    width: '95%',
+    width: '100%',
     height: '80%',
-    paddingLeft: 7,
+    paddingLeft: 5,
   },
   input06: {
     backgroundColor: 'yellow',
@@ -409,9 +415,9 @@ export default StyleSheet.create({
   },
   input07: {
     backgroundColor: 'transparent',
-    width: '95%',
+    width: '100%',
     height: '80%',
-    paddingLeft: 7,
+    paddingLeft: 5,
   },
   uploadButton: {
     backgroundColor: 'transparent',
@@ -500,7 +506,7 @@ export default StyleSheet.create({
     paddingTop: 5,
   },
   footerActionTextSecondary: {
-    color: '#00b3d6',
+    color: '#fff',
   },
   modalOuterBox: {
     backgroundColor: 'rgba(0,0,0,0.8)',

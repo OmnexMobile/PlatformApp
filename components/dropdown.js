@@ -6,7 +6,7 @@ import { COLORS, FONT_SIZE, SPACING } from 'constants/theme-constants';
 import { FONT_TYPE } from 'constants/app-constant';
 import useTheme from 'theme/useTheme';
 
-const DropdownComponent = ({ name, label, value, onChange, data = [], required = false, containerStyle = {}, editable = true, search = false }) => {
+const DropdownComponent = ({ name, label, value, onChange, data = [], required = false, containerStyle = {}, editable = true, search = false, dropdownRef }) => {
     const { theme } = useTheme();
     return (
         <View
@@ -31,6 +31,7 @@ const DropdownComponent = ({ name, label, value, onChange, data = [], required =
                 )}
             </View>
             <Dropdown
+                ref={dropdownRef}
                 style={styles.dropdown}
                 placeholderStyle={styles.placeholderStyle}
                 selectedTextStyle={[styles.selectedTextStyle, { color: theme.mode.textColor }]}

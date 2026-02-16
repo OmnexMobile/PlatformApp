@@ -1,4 +1,3 @@
-import { TextInput } from 'react-native';
 import React, { Component } from 'react';
 import {
     View,
@@ -32,7 +31,6 @@ import { ConfirmDialog } from 'react-native-simple-dialogs';
 import Fonts from '../Themes/Fonts';
 import Icon from 'react-native-vector-icons/Feather';
 import { strings } from '../language/Language';
-import { Dropdown } from 'react-native-element-dropdown';
 import { debounce, once } from 'underscore';
 import DeviceInfo from 'react-native-device-info';
 import RNFS from 'react-native-fs';
@@ -42,6 +40,8 @@ import { SPACING } from 'constants/theme-constants';
 import FileViewer from 'react-native-file-viewer';
 import NetInfo from '@react-native-community/netinfo';
 import GlobalHeader from 'components/GlobalHeader';
+import DropdownComponent from 'components/dropdown';
+import InputComponent from 'components/input-component';
 
 let Window = Dimensions.get('window');
 
@@ -264,18 +264,19 @@ class CreateAttach extends React.Component {
     }
 
     FormType() {
-        var Type = [];
-        Type.push(
+        const Type = [
             {
+                label: 'Attachment',
                 value: 'Attachment',
                 id: 1,
             },
             {
+                label: 'Link',
                 value: 'Link',
                 id: 2,
             },
-        );
-        this.setState({ attachType: Type }, () => {});
+        ];
+        this.setState({ attachType: Type });
     }
 
     getFieldValue(item) {
@@ -847,25 +848,25 @@ class CreateAttach extends React.Component {
         let type = filename !== '' ? filename.substring(filename.lastIndexOf('.') + 1).toLowerCase() : 'file';
         switch (type) {
             case 'pdf': {
-                icon = 'file-pdf-o';
+                icon = 'file';
                 break;
             }
             case 'doc':
             case 'docx': {
-                icon = 'file-word-o';
+                icon = 'file';
                 break;
             }
             case 'ppt':
             case 'pptx':
             case 'pps': {
-                icon = 'file-powerpoint-o';
+                icon = 'file';
                 break;
             }
             case 'xls':
             case 'xlsx':
             case 'numbers':
             case 'xlsm': {
-                icon = 'file-excel-o';
+                icon = 'file';
                 break;
             }
             case 'mp4':
@@ -1220,7 +1221,7 @@ class CreateAttach extends React.Component {
                                 <View style={styles.sectionTop}>
                                     <View style={[styles.sectionContent, styles.boxContent]}>
                                         <View style={{ width: '12%', height: null }}>
-                                            <Icon name="file-image-o" size={25} color="grey" />
+                                            <Icon name="image" size={25} color="grey" />
                                         </View>
                                         <View style={{ width: '88%', height: null }}>
                                             <Text style={styles.boxContentCam}>{strings.Camera_Browse_Files}</Text>
@@ -1250,22 +1251,13 @@ class CreateAttach extends React.Component {
                                         width: '100%',
                                         height: 60,
                                     }}>
-                                    <Dropdown
+                                    <DropdownComponent
                                         data={attach}
                                         label={strings.DropType}
                                         value={this.state.attachText}
-                                        labelField="value"
-                                        valueField="value"
-                                        fontSize={Fonts.size.regular}
-                                        labelFontSize={Fonts.size.small}
-                                        baseColor={'#A6A6A6'}
-                                        selectedItemColor="lightgrey"
-                                        textColor="lightgrey"
-                                        itemColor="#000"
-                                        itemPadding={5}
-                                        dropdownOffset={{ top: 10, left: 0 }}
-                                        disable={true}
-                                        itemTextStyle={{ fontFamily: 'OpenSans-Regular' }}
+                                        editable={false}
+                                        required
+                                        containerStyle={{ paddingHorizontal: 0, marginBottom: 0 }}
                                     />
                                     {this.state.isErrorFound && this.state.TypeID == '' ? (
                                         <Text
@@ -1281,7 +1273,7 @@ class CreateAttach extends React.Component {
                                 </View>
 
                                 <View style={styles.check}>
-                                    <Icon name="asterisk" style={{ bottom: 25, right: 0 }} size={8} color="red" />
+                                    <Icon name="sun" style={{ bottom: 25, right: 0 }} size={8} color="green" />
                                 </View>
                             </View>
                         ) : (
@@ -1292,27 +1284,19 @@ class CreateAttach extends React.Component {
                                         width: '90%',
                                         height: 60,
                                     }}>
-                                    <Dropdown
+                                    <DropdownComponent
                                         data={attach}
                                         label={strings.DropType}
                                         value={this.state.attachText}
-                                        fontSize={Fonts.size.regular}
-                                        labelFontSize={Fonts.size.small}
-                                        baseColor={'#A6A6A6'}
-                                        selectedItemColor="#000"
-                                        textColor="#000"
-                                        itemColor="#000"
-                                        labelField="value"
-                                        valueField="value"
-                                        itemPadding={5}
-                                        dropdownOffset={{ top: 10, left: 0 }}
-                                        itemTextStyle={{ fontFamily: 'OpenSans-Regular' }}
-                                        onChange={text => {
-                                            console.log('text1', text);
+                                        required
+                                        containerStyle={{ paddingHorizontal: 0, marginBottom: 0 }}
+                                        onChange={selectedValue => {
+                                            const selectedType = attach.find(item => item.value === selectedValue);
+                                            console.log('selectedType', selectedType);
                                             this.setState(
                                                 {
-                                                    attachText: text.value,
-                                                    TypeID: text.id,
+                                                    attachText: selectedType?.value || '',
+                                                    TypeID: selectedType?.id || '',
                                                     ShowTypeDiv: true,
                                                     comments: '',
                                                     attachment: '',
@@ -1336,9 +1320,9 @@ class CreateAttach extends React.Component {
                                     ) : null}
                                 </View>
 
-                                <View style={styles.check}>
-                                    <Icon name="asterisk" style={{ bottom: 25, right: 0 }} size={8} color="red" />
-                                </View>
+                                {/* <View style={styles.check}>
+                                    <Icon name="sun" style={{ bottom: 25, right: 0 }} size={8} color="green" />
+                                </View> */}
                             </View>
                         )}
 
@@ -1442,63 +1426,39 @@ class CreateAttach extends React.Component {
                                                     style={{ right: 8, top: 10 }}
                                                     source={Images.AttachIcon}
                                                 />
-                                                <Icon name="asterisk" style={{ bottom: 25, right: 8 }} size={8} color="red" />
+                                                <Icon name="sun" style={{ bottom: 25, right: 8 }} size={8} color="red" />
                                             </View>
                                         )}
                                     </TouchableOpacity>
                                 ) : (
                                     <View style={styles.manFields}>
-                                        <View
-                                            style={{
-                                                backgroundColor: 'transparent',
-                                                width: '100%',
-                                                height: 65,
-                                            }}>
-                                            {this.state.TypeID != '' ? (
-                                                <View style={styles.boxCard1}>
-                                                    <Text style={styles.detailTitle}>{strings.UncontrolledLink}</Text>
-                                                </View>
-                                            ) : (
-                                                <View></View>
-                                            )}
-
-                                            <View style={{ color: 'red' }}>
-                                                <TextInput
-                                                    style={{
-                                                        marginTop: 10,
-                                                        fontSize: 18,
-                                                        marginLeft: 5,
-                                                        bottom: 10,
-                                                        fontFamily: 'OpenSans-Regular',
-                                                    }}
-                                                    value={this.state.attachment}
-                                                    onChangeText={text =>
-                                                        this.setState({ attachment: text }, () => {
-                                                            console.log('printing', this.state.attachment);
-                                                        })
-                                                    }
-                                                    onBlur={() => {
-                                                        console.log('this.state.AppreciableComments', this.state.attachment);
-                                                    }}
-                                                />
-                                                {this.state.isErrorFound && (this.state.attachment == '' || this.state.isUrlInValid) ? (
-                                                    <Text
-                                                        style={{
-                                                            bottom: Platform.OS === 'android' ? 20 : null,
-                                                            marginLeft: 10,
-                                                            color: 'red',
-                                                            fontSize: Fonts.size.small,
-                                                            fontFamily: 'OpenSans-Regular',
-                                                        }}>
-                                                        {strings.UrlMissing}{' '}
-                                                    </Text>
-                                                ) : null}
-                                            </View>
-                                        </View>
-                                        <View style={styles.check}>
-                                            <Icon style={{ top: 5, right: 3 }} name="edit" size={20} color="lightgrey" />
-                                            <Icon name="asterisk" style={{ bottom: 25, right: 3 }} size={8} color="red" />
-                                        </View>
+                                        <InputComponent
+                                            label={strings.UncontrolledLink}
+                                            name="attachment"
+                                            required
+                                            value={this.state.attachment}
+                                            placeholder={strings.UncontrolledLink}
+                                            autoCapitalize="none"
+                                            keyboardType="url"
+                                            containerStyle={{ width: '100%', marginBottom: 0, paddingHorizontal: 0 }}
+                                            onChangeText={(field, value) =>
+                                                this.setState({ attachment: value }, () => {
+                                                    console.log('printing', this.state.attachment);
+                                                })
+                                            }
+                                        />
+                                        {this.state.isErrorFound && (this.state.attachment == '' || this.state.isUrlInValid) ? (
+                                            <Text
+                                                style={{
+                                                    bottom: Platform.OS === 'android' ? 20 : null,
+                                                    marginLeft: 10,
+                                                    color: 'red',
+                                                    fontSize: Fonts.size.small,
+                                                    fontFamily: 'OpenSans-Regular',
+                                                }}>
+                                                {strings.UrlMissing}{' '}
+                                            </Text>
+                                        ) : null}
                                     </View>
                                 )}
                             </View>
@@ -1525,19 +1485,18 @@ class CreateAttach extends React.Component {
                                     ) : (
                                         <View></View>
                                     )}
-                                    <View style={[styles.boxCard]}>
-                                        <TextInput
-                                            style={{ width: '100%', fontFamily: 'OpenSans-Regular' }}
-                                            value={this.state.comments === null || this.state.comments == 'null' ? '' : this.state.comments}
-                                            fontSize={Fonts.size.h6}
-                                            onChangeText={text => this.setState({ comments: text })}
-                                            returnKeyType="default"
-
-                                            // editable={false}
-                                            // style={{color:'lightgrey'}}
-                                        />
-                                        <View style={styles.check}></View>
-                                    </View>
+                                    <InputComponent
+                                        label={strings.AttachComments}
+                                        name="comments"
+                                        required
+                                        value={this.state.comments === null || this.state.comments == 'null' ? '' : this.state.comments}
+                                        multiline
+                                        numberOfLines={3}
+                                        placeholder={strings.AttachComments}
+                                        containerStyle={{ width: '100%', marginBottom: 0, paddingHorizontal: 0 }}
+                                        onChangeText={(field, value) => this.setState({ comments: value })}
+                                        returnKeyType="default"
+                                    />
                                     {this.state.commentFlag == false && this.state.comments === '' ? (
                                         <Text
                                             style={{
@@ -1563,38 +1522,29 @@ class CreateAttach extends React.Component {
                                     {this.state.comments != '' || this.state.comments == '' ? (
                                         //Add Comment
                                         <View style={styles.boxCard}>
-                                            <Text style={styles.detailTitle}>{strings.AttachComments}</Text>
+                                            {/* <Text style={styles.detailTitle}>{strings.AttachComments}</Text> */}
 
                                             <View style={styles.check1}>
                                                 <Icon style={{ top: 8, right: 15, bottom: 0 }} name="edit" size={20} color="lightgrey" />
                                             </View>
                                         </View>
                                     ) : null}
-                                    <TextInput
-                                        style={{
-                                            marginLeft: Platform.OS === 'android' ? null : 5,
-                                            marginTop: Platform.OS === 'android' ? null : 5,
-                                            width: '88%',
-                                            height: null,
-                                            fontFamily: 'OpenSans-Regular',
-                                        }}
+                                    <InputComponent
+                                        label={strings.AttachComments}
+                                        name="comments"
+                                        required
                                         value={this.state.comments === null || this.state.comments == 'null' ? '' : this.state.comments}
-                                        //placeholder={strings.AttachComments}
-                                        fontSize={Fonts.size.h6}
-                                        // onBlur={() => Keyboard.dismiss()}
-                                        onChangeText={text =>
-                                            this.setState({ comments: text }, () => {
+                                        placeholder={strings.AttachComments}
+                                        containerStyle={{ width: '100%', marginBottom: 0, paddingHorizontal: 0 }}
+                                        multiline
+                                        numberOfLines={3}
+                                        onChangeText={(field, value) =>
+                                            this.setState({ comments: value }, () => {
                                                 console.log('printing');
                                             })
                                         }
-                                        onBlur={() => {
-                                            console.log('this.state.comments', this.state.comments);
-                                        }}
                                         returnKeyType="default"
                                     />
-                                    <View style={styles.check}>
-                                        <Icon name="asterisk" style={{ bottom: 25, right: 0 }} size={8} color="red" />
-                                    </View>
                                     {this.state.commentFlag == false && this.state.comments == '' ? (
                                         <Text
                                             style={{
@@ -1614,23 +1564,14 @@ class CreateAttach extends React.Component {
                         {this.state.Uploadedon != '' && this.props?.route?.params?.Type == 'Edit' ? (
                             // this.props.navigation.state.params.Type == 'Edit' ? (
                             <View style={styles.manFields}>
-                                <View
-                                    style={{
-                                        backgroundColor: 'transparent',
-                                        width: '95%',
-                                        height: 65,
-                                    }}>
-                                    <View style={[styles.boxCard1]}>
-                                        <Text style={styles.detailTitle}>{strings.UploadedOn}</Text>
-                                        <TextInput
-                                            style={{ fontFamily: 'OpenSans-Regular' }}
-                                            value={this.state.Uploadedon}
-                                            placeholder={strings.UploadedOn}
-                                            fontSize={Fonts.size.h6}
-                                            editable={false}
-                                        />
-                                    </View>
-                                </View>
+                                <InputComponent
+                                    label={strings.UploadedOn}
+                                    name="uploadedOn"
+                                    value={this.state.Uploadedon}
+                                    placeholder={strings.UploadedOn}
+                                    editable={false}
+                                    containerStyle={{ width: '95%', marginBottom: 0, paddingHorizontal: 0 }}
+                                />
                                 <View style={styles.check}>
                                     <Icon style={{ top: 5, right: 13 }} name="calendar" size={20} color="lightgrey" />
                                 </View>

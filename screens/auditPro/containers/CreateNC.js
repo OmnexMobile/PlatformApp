@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   Dimensions,
   ScrollView,
-  TextInput,
   Keyboard,
   ImageBackground,
   FlatList,
@@ -22,8 +21,6 @@ import {
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {Images} from '../Themes/index';
 import styles from '../styles/CreateNCStyle';
-// import {Dropdown} from 'react-native-element-dropdown';
-import {Dropdown} from 'react-native-material-dropdown';
 import Toast, {DURATION} from 'react-native-easy-toast';
 import DocumentPicker from 'react-native-document-picker';
 import RNFetchBlob from 'react-native-fetch-blob';
@@ -60,6 +57,8 @@ import { SPACING } from 'constants/theme-constants';
 import GlobalHeader from 'components/GlobalHeader';
 import NCFormInput from '../components/NCFormInput';
 import Icon from 'react-native-vector-icons/Feather';
+import DropdownComponent from 'components/dropdown';
+import InputComponent from 'components/input-component';
 
 
 let Window = Dimensions.get('window');
@@ -74,8 +73,8 @@ function generateUniqueID() {
   return Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
 }
 const formatToIconMapping = {
-  pdf: 'file-pdf-o',
-  png: 'file-image-o',
+  pdf: 'file',
+  png: 'image',
   xls: '',
   xlsx: '',
   doc: '',
@@ -331,8 +330,7 @@ class CreateNC extends Component {
     console.log(value.userId, value.userFullName, 'Asyncusergetand set');
     var userDetails = [];
     userDetails.push({
-      // value: username,
-      // id: userid,
+      label: value.userFullName,
       value: value.userFullName,
       id: value.userId,
     });
@@ -1030,24 +1028,24 @@ class CreateNC extends Component {
         : 'file';
     switch (type) {
       case 'pdf': {
-        icon = 'file-pdf-o';
+        icon = 'file';
         break;
       }
       case 'doc':
       case 'docx': {
-        icon = 'file-word-o';
+        icon = 'file';
         break;
       }
       case 'ppt':
       case 'pptx':
       case 'pps': {
-        icon = 'file-powerpoint-o';
+        icon = 'file';
         break;
       }
       case 'xls':
       case 'xlsx':
       case 'xlsm': {
-        icon = 'file-excel-o';
+        icon = 'file';
         break;
       }
       case 'mp4':
@@ -1127,7 +1125,7 @@ class CreateNC extends Component {
           this.VoiceRequesFill = false;
           this.VoiceResp = false;
           this.VoiceOFIcategory = false;
-          this.refs.docRefTxtField.blur();
+          this.docRefTxtField?.blur?.();
           this._stopRecognizing();
           Voice.removeAllListeners();
           this.InitVoice();
@@ -1234,7 +1232,7 @@ class CreateNC extends Component {
           this.VoiceRequesFill = false;
           this.VoiceResp = false;
           this.VoiceOFIcategory = false;
-          this.refs.objEviTxtField.blur();
+          this.objEviTxtField?.blur?.();
           this._stopRecognizing();
           Voice.removeAllListeners();
           this.InitVoice();
@@ -1293,7 +1291,7 @@ class CreateNC extends Component {
           this.VoiceRequesFill = false;
           this.VoiceResp = false;
           this.VoiceOFIcategory = false;
-          this.refs.categoryTxtField.blur();
+          this.categoryTxtField?.close?.();
           this._stopRecognizing();
           Voice.removeAllListeners();
           this.InitVoice();
@@ -1329,7 +1327,7 @@ class CreateNC extends Component {
           this.VoiceResp = false;
           this.VoiceOFIcategory = false;
 
-          this.refs.categoryTxtField.blur();
+          this.categoryTxtField?.close?.();
           this._stopRecognizing();
           Voice.removeAllListeners();
           this.InitVoice();
@@ -1366,7 +1364,7 @@ class CreateNC extends Component {
           this.VoiceOFIcategory = false;
 
           if (this.state.departArr.length > 0) {
-            this.refs.departmentTxtField.blur();
+            this.departmentTxtField?.close?.();
             this._stopRecognizing();
             Voice.removeAllListeners();
             this.InitVoice();
@@ -1401,7 +1399,7 @@ class CreateNC extends Component {
           this.VoiceRequesFill = false;
           this.VoiceResp = false;
           this.VoiceOFIcategory = false;
-          this.refs.responsibleTxtField.blur();
+          this.responsibleTxtField?.close?.();
           this._stopRecognizing();
           Voice.removeAllListeners();
           this.InitVoice();
@@ -1435,7 +1433,7 @@ class CreateNC extends Component {
           this.VoiceRequesFill = false;
           this.VoiceResp = false;
           this.VoiceOFIcategory = false;
-          this.refs.requestTxtField.blur();
+          this.requestTxtField?.close?.();
           this._stopRecognizing();
           Voice.removeAllListeners();
           this.InitVoice();
@@ -1486,7 +1484,7 @@ class CreateNC extends Component {
         this.VoiceResp = false;
         this.VoiceOFIcategory = false;
 
-        this.refs.ncTxtField.focus();
+        this.ncTxtField?.focus?.();
         Tts.setDucking(true).then(() => {
           Tts.speak(strings.va_rep03);
         });
@@ -1512,7 +1510,7 @@ class CreateNC extends Component {
         Tts.setDucking(true).then(() => {
           Tts.speak(strings.va_rep04);
         });
-        this.refs.responsibleTxtField.focus();
+        this.responsibleTxtField?.focus?.();
         this._stopRecognizing();
         Voice.removeAllListeners();
         this.InitVoice();
@@ -1539,7 +1537,7 @@ class CreateNC extends Component {
         Tts.setDucking(true).then(() => {
           Tts.speak(strings.va_rep05);
         });
-        this.refs.requestTxtField.focus();
+        this.requestTxtField?.focus?.();
         this._stopRecognizing();
         Voice.removeAllListeners();
         this.InitVoice();
@@ -1567,7 +1565,7 @@ class CreateNC extends Component {
         Tts.setDucking(true).then(() => {
           Tts.speak(strings.va_rep06);
         });
-        this.refs.categoryTxtField.focus();
+        this.categoryTxtField?.focus?.();
         this._stopRecognizing();
         Voice.removeAllListeners();
         this.InitVoice();
@@ -1596,7 +1594,7 @@ class CreateNC extends Component {
         Tts.setDucking(true).then(() => {
           Tts.speak(strings.va_rep06);
         });
-        this.refs.categoryTxtField.focus();
+        this.categoryTxtField?.focus?.();
         this._stopRecognizing();
         Voice.removeAllListeners();
         this.InitVoice();
@@ -1627,7 +1625,7 @@ class CreateNC extends Component {
           Tts.setDucking(true).then(() => {
             Tts.speak('Please selectd the Failure Category');
           });
-          this.refs.departmentTxtField.focus();
+          this.departmentTxtField?.focus?.();
           this._stopRecognizing();
           Voice.removeAllListeners();
           this.InitVoice();
@@ -1652,7 +1650,7 @@ class CreateNC extends Component {
         this.VoiceResp = false;
         this.VoiceOFIcategory = false;
 
-        this.refs.ncidentifierTxtField.focus();
+        this.ncidentifierTxtField?.focus?.();
         Tts.setDucking(true).then(() => {
           Tts.speak(strings.va_Uni_rep08);
         });
@@ -1671,8 +1669,8 @@ class CreateNC extends Component {
         this.VoiceRequesFill = false;
         this.VoiceResp = false;
         this.VoiceOFIcategory = false;
-        this.refs.objEviTxtField.focus();
-        //this.refs.objEvidence.focus();
+        this.objEviTxtField?.focus?.();
+        //this.objEvidence?.focus?.();
         Tts.setDucking(true).then(() => {
           Tts.speak(strings.va_Uni_rep08);
         });
@@ -1696,7 +1694,7 @@ class CreateNC extends Component {
         this.VoiceResp = false;
         this.VoiceOFIcategory = false;
 
-        this.refs.recomTxtField.focus();
+        this.recomTxtField?.focus?.();
         Tts.setDucking(true).then(() => {
           Tts.speak(strings.va_Uni_rep08);
         });
@@ -1719,7 +1717,7 @@ class CreateNC extends Component {
         this.VoiceResp = false;
         this.VoiceOFIcategory = false;
 
-        this.refs.ofiTxtField.focus();
+        this.ofiTxtField?.focus?.();
         Tts.setDucking(true).then(() => {
           Tts.speak(strings.va_Uni_rep08);
         });
@@ -1741,7 +1739,7 @@ class CreateNC extends Component {
         this.VoiceRequesFill = false;
         this.VoiceResp = false;
         this.VoiceOFIcategory = false;
-        this.refs.docRefTxtField.focus();
+        this.docRefTxtField?.focus?.();
         Tts.setDucking(true).then(() => {
           Tts.speak(strings.va_Uni_rep08);
         });
@@ -2182,7 +2180,13 @@ class CreateNC extends Component {
     }
     if (Data.FailureCategory) {
       for (var i = 0; i < Data.FailureCategory.length; i++) {
-        FailureCategory.push(Data.FailureCategory[i]);
+        const fc = Data.FailureCategory[i];
+        FailureCategory.push({
+          ...fc,
+          label: fc.FailureCategoryName,
+          value: fc.FailureCategoryId,
+          id: fc.FailureCategoryId,
+        });
       }
     }
 
@@ -2198,6 +2202,7 @@ class CreateNC extends Component {
         User.push(Data.Users[i]);
         if (Data.Users[i].userid == this.props.data.audits.userId) {
           NCresponsible = {
+            label: Data.Users[i].Name,
             value: Data.Users[i].Name,
             id: Data.Users[i].userid,
           };
@@ -2211,21 +2216,24 @@ class CreateNC extends Component {
 
     for (var i = 0; i < Category.length; i++) {
       categoryArr.push({
+        label: Category[i].CategoryName,
         value: Category[i].CategoryName,
         id: Category[i].CategoryId,
       });
     }
     for (var i = 0; i < Department.length; i++) {
       departArr.push({
+        label: Department[i].DepartmentName,
         value: Department[i].DepartmentName,
         id: Department[i].DepartmentId,
       });
     }
     for (var i = 0; i < User.length; i++) {
-      UserArr.push({value: User[i].Name, id: User[i].userid});
+      UserArr.push({label: User[i].Name, value: User[i].Name, id: User[i].userid});
     }
     for (var i = 0; i < Request.length; i++) {
       RequestArr.push({
+        label: Request[i].AuditeeContactPersonName,
         value: Request[i].AuditeeContactPersonName,
         id: Request[i].AuditeeContactPersonId,
       });
@@ -2304,7 +2312,7 @@ class CreateNC extends Component {
         fileArrayList: [],
       },
       () => {
-        this.refs.toast.show(strings.FormVal, 6000);
+        this.refs.toast.show(strings.FormVal, 5000);
       },
     );
   };
@@ -2333,7 +2341,7 @@ class CreateNC extends Component {
             'hellothreefour2',
           );
           this.updateAuditStatus(this.state.AuditID);
-          this.refs.toast.show(strings.Save_Message, DURATION.LENGTH_LONG);
+                this.refs.toast.show(strings.Save_Message, DURATION.LENGTH_LONG);
           setTimeout(() => {
             // console.log('AuditDashBody Props After Props Changing...', this.props)
             this.props.storeNCRecords(dupNCrecords);
@@ -2642,7 +2650,7 @@ class CreateNC extends Component {
                 PageLoader: false,
                 isSavebtn: false,
               });
-              alert('Please select all mandatory fields');
+              this.refs.toast.show(strings.FormVal, 5000);
             }
           } else {
             this.setState({isSaved: false}, () => {
@@ -2769,7 +2777,7 @@ class CreateNC extends Component {
               // this.setState({ underline2: true }, () => {
               //this.refs.toast.show(strings.Clauses,3000)
               // this.refs.toast.show("Please select all mandatory fields.", 4000);
-              alert('Please select all mandatory fields');
+              this.refs.toast.show(strings.FormVal, 5000);
 
               // })
             } else {
@@ -3627,13 +3635,6 @@ class CreateNC extends Component {
       <View style={styles.wrapper}>
         {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
         <OfflineNotice />
-        {/* <ImageBackground
-          source={Images.DashboardBG}
-          style={{
-            resizeMode: 'stretch',
-            width: '100%',
-            height: 60,
-          }}> */}
           <GlobalHeader
             title={headerTitle}
             subtitle={this.state.breadCrumbText}
@@ -3642,13 +3643,12 @@ class CreateNC extends Component {
               this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)
             }
           />
-        {/* </ImageBackground> */}
         {this.state.PageLoader === false ? (
           <KeyboardAwareScrollView extraHeight={125}>
             <View style={styles.auditPageBody}>
               <ScrollView showsVerticalScrollIndicator={false}>
                 <View style={{marginBottom: 50}}>
-                  <View style={styles.div1}>
+                  <View style={styles.formSection}>
                     {this.state.RouteParam === 'NC' ? (
                       <View style={styles.input02}>
                         {this.state.nonconfirmityText ? (
@@ -3663,44 +3663,27 @@ class CreateNC extends Component {
                             {strings.Non_confirmityL}
                           </Text>
                         ) : null}
-                        <TextInput
-                          ref="ncTxtField"
+                        <InputComponent
+                          label={strings.Non_confirmityL}
+                          name="nonconfirmityText"
+                          required
                           value={this.state.nonconfirmityText}
-                          multiline={true}
-                          autoCapitalize="sentences"
-                          // onBlur={() => Keyboard.dismiss()}
-                          style={
-                            this.state.nonconfirmityText
-                              ? styles.placeholderT1Label
-                              : styles.placeholderT1
-                          }
                           placeholder={strings.Non_confirmityL}
-                          placeholderTextColor={
-                            this.state.underline1 === true ? 'red' : '#A9A9A9'
-                          }
-                          baseColor={
-                            this.state.underline1 === false ? '#A6A6A6' : 'red'
-                          }
-                          textColor="#747474"
-                          // underlineColorAndroid={this.state.underline1 === true ? 'red': '#A9A9A9'}
-                          onChangeText={text => {
-                            this.setState({nonconfirmityText: text}, () => {
-                              // console.log('---->',this.state.nonconfirmityText)
+                          multiline
+                          numberOfLines={3}
+                          autoCapitalize="sentences"
+                          inputRef={ref => (this.ncTxtField = ref)}
+                          containerStyle={{paddingHorizontal: 0, marginBottom: 0}}
+                          onChangeText={(field, value) => {
+                            this.setState({nonconfirmityText: value}, () => {
                               this.isCheck5 = true;
                             });
                           }}
                         />
                       </View>
                     ) : (
+                      <View style = {styles.div1}>
                       <View style={styles.input02}>
-                        <View style={styles.check}>
-                          <Icon
-                            style={{left: 10, display: 'none'}}
-                            name="stark"
-                            size={8}
-                            color="red"
-                          />
-                        </View>
                         {this.state.ofitext ? (
                           <Text
                             style={{
@@ -3713,46 +3696,29 @@ class CreateNC extends Component {
                             {strings.Opportunity_ApproachL}
                           </Text>
                         ) : null}
-                        <TextInput
-                          ref="ofiTxtField"
-                          multiline={true}
+                        <InputComponent
+                          label={strings.Opportunity_ApproachL}
+                          name="ofitext"
+                          required
                           value={this.state.ofitext}
-                          style={
-                            this.state.ofitext
-                              ? styles.placeholderT1Label
-                              : styles.placeholderT1
-                          }
                           placeholder={strings.Opportunity_ApproachL}
-                          placeholderTextColor={
-                            this.state.underline1 === true ? 'red' : '#A9A9A9'
-                          }
-                          baseColor={
-                            this.state.underline1 === false ? '#A6A6A6' : 'red'
-                          }
-                          textColor="#747474"
-                          // underlineColorAndroid={this.state.underline1 === true ? 'red': '#A9A9A9'}
-                          // onChangeText={text => {
-                          //   this.setState({ofitext: text}, () => {
-                          //     this.isCheck3 = true;
-                          //   });
-                          // }}
-                          onChangeText={text => {
-                            this.setState({ofitext: text}, () => {
+                          multiline
+                          numberOfLines={3}
+                          autoCapitalize="sentences"
+                          inputRef={ref => (this.ofiTxtField = ref)}
+                          containerStyle={{paddingHorizontal: 0, marginBottom: 0}}
+                          onChangeText={(field, value) => {
+                            this.setState({ofitext: value}, () => {
                               this.isCheck3 = true;
                             });
                           }}
                         />
                       </View>
+                      </View>
+
                     )}
-                    <View style={styles.check}>
-                      <Icon
-                        style={{left: 6, top: 5}}
-                        name="sun"
-                        size={8}
-                        color="red"
-                      />
                     </View>
-                  </View>
+                  
                   <View style={styles.div1}>
                     {this.state.RouteParam === 'NC' ? (
                       <View style={styles.input02}>
@@ -3768,29 +3734,19 @@ class CreateNC extends Component {
                             {strings.Objective_Evidence}
                           </Text>
                         ) : null}
-                        <TextInput
-                          ref="objEviTxtField"
+                        <InputComponent
+                          label={strings.Objective_Evidence}
+                          name="objEvidence"
+                          required
                           value={this.state.objEvidence}
-                          multiline={true}
-                          autoCapitalize="sentences"
-                          // onBlur={() => Keyboard.dismiss()}
-                          style={
-                            this.state.objEvidence
-                              ? styles.placeholderT1Label
-                              : styles.placeholderT1
-                          }
                           placeholder={strings.Objective_Evidence}
-                          placeholderTextColor={
-                            this.state.underline1 === true ? 'red' : '#A9A9A9'
-                          }
-                          baseColor={
-                            this.state.underline1 === false ? '#A6A6A6' : 'red'
-                          }
-                          textColor="#747474"
-                          // underlineColorAndroid={this.state.underline1 === true ? 'red': '#A9A9A9'}
-                          onChangeText={text => {
-                            this.setState({objEvidence: text}, () => {
-                              // console.log('---->',this.state.nonconfirmityText)
+                          multiline
+                          numberOfLines={3}
+                          autoCapitalize="sentences"
+                          inputRef={ref => (this.objEviTxtField = ref)}
+                          containerStyle={{paddingHorizontal: 0, marginBottom: 0}}
+                          onChangeText={(field, value) => {
+                            this.setState({objEvidence: value}, () => {
                               this.isCheck5 = true;
                             });
                           }}
@@ -3798,14 +3754,14 @@ class CreateNC extends Component {
                       </View>
                     ) : (
                       <View style={styles.input02}>
-                        <View style={styles.check}>
+                        {/* <View style={styles.check}>
                           <Icon
                             style={{left: 10, display: 'none'}}
                             name="sun"
                             size={8}
                             color="red"
                           />
-                        </View>
+                        </View> */}
                         {this.state.objEvidence ? (
                           <Text
                             style={{
@@ -3818,34 +3774,27 @@ class CreateNC extends Component {
                             {strings.Objective_Evidence}
                           </Text>
                         ) : null}
-                        <TextInput
-                          ref="objEviTxtField"
-                          multiline={true}
+                        <InputComponent
+                          label={strings.Objective_Evidence}
+                          name="objEvidence"
+                          required
                           value={this.state.objEvidence}
-                          style={
-                            this.state.objEvidence
-                              ? styles.placeholderT1Label
-                              : styles.placeholderT1
-                          }
                           placeholder={strings.Objective_Evidence}
-                          placeholderTextColor={
-                            this.state.underline1 === true ? 'red' : '#A9A9A9'
-                          }
-                          baseColor={
-                            this.state.underline1 === false ? '#A6A6A6' : 'red'
-                          }
-                          textColor="#747474"
-                          // underlineColorAndroid={this.state.underline1 === true ? 'red': '#A9A9A9'}
-                          onChangeText={text => {
-                            this.setState({objEvidence: text}, () => {
-                               this.isCheck5 = true;
+                          multiline
+                          numberOfLines={3}
+                          autoCapitalize="sentences"
+                          inputRef={ref => (this.objEviTxtField = ref)}
+                          containerStyle={{paddingHorizontal: 0, marginBottom: 0}}
+                          onChangeText={(field, value) => {
+                            this.setState({objEvidence: value}, () => {
+                              this.isCheck5 = true;
                             });
                           }}
                         />
                       </View>
                     )}
 
-                    <View style={styles.check}>
+                    {/* <View style={styles.check}>
                       {this.props.data.audits.smdata !== 2 &&
                       this.props.data.audits.smdata !== 3 ? (
                         <Icon
@@ -3855,24 +3804,22 @@ class CreateNC extends Component {
                           color="red"
                         />
                       ) : null}
-                    </View>
+                    </View> */}
                   </View>
-                  <View style={styles.input02}>
+                  <View style={styles.formSection1}>
                     <Text
-                      style={{
-                        color:
-                          this.state.clauseMandatory === 1 &&
-                          this.state.RouteParam === 'NC' &&
-                          this.state.MarkClause == false
-                            ? '#A6A6A6'
-                            : '#000000',
-                      }}>
+                      style={[
+                        styles.fieldLabel,
+                        this.state.clauseMandatory === 1 &&
+                        this.state.RouteParam === 'NC' &&
+                        this.state.MarkClause == false
+                          ? {color: '#A6A6A6'}
+                          : null,
+                      ]}>
                       {strings.ClausesL}
                     </Text>
-                  </View>
-                  <View style={styles.div2}>
-                    <View style={styles.inputhigh}>
-                      <View>
+                    <View style={[styles.div2, {marginTop: 4}]}>
+                      <View style={styles.inputhigh}>
                         <SectionedMultiSelect
                           IconRenderer={this.icon}
                           ref={clauseListField =>
@@ -3894,7 +3841,6 @@ class CreateNC extends Component {
                           onSelectedItemsChange={this.onSelectedItemsChange}
                           selectedItems={this.state.selectedItems}
                           expandDropDowns={true}
-                          // alwaysShowSelectText={true}
                           placeholderTextColor="#A6A6A6"
                           itemNumberOfLines={3}
                           selectLabelNumberOfLines={3}
@@ -3913,21 +3859,6 @@ class CreateNC extends Component {
                           }}
                         />
                       </View>
-                    </View>
-                    <View
-                      style={
-                        this.state.isLPA ? {display: 'none'} : styles.check
-                      }>
-                      {this.props.data.audits.smdata !== 3 &&
-                      this.state.RouteParam !== 'OFI' &&
-                      this.state.clauseMandatory === 1 ? (
-                        <Icon
-                          style={{left: 10}}
-                          name="sun"
-                          size={8}
-                          color="red"
-                        />
-                      ) : null}
                     </View>
                   </View>
                   <View style={{flexDirection:'row',justifyContent:'space-between',alignContent:'space-between'}}>
@@ -3967,24 +3898,22 @@ class CreateNC extends Component {
                         </Text>
                       ) : null}
                       <View style={{flexDirection: 'row'}}>
-                        <TextInput
-                          multiline={true}
-                          placeholder={strings.StandardRequirementsL}
-                          placeholderTextColor={
-                            this.state.underline2 == true ? 'red' : '#A6A6A6'
-                          }
-                          textColor="#747474"
-                          numberOfLines={1}
+                        <InputComponent
+                          label={strings.StandardRequirementsL}
+                          name="standardRequirements"
                           value={
                             this.state.displayData
                               ? this.state.displayData.length > 40
-                                ? this.state.displayData.substring(0, 40) +
-                                  '...'
+                                ? this.state.displayData.substring(0, 40) + '...'
                                 : this.state.displayData
                               : ''
                           }
+                          placeholder={strings.StandardRequirementsL}
                           editable={false}
-                          onFocus={() => this.setState({isVisible: true})}
+                          multiline
+                          numberOfLines={1}
+                          containerStyle={{paddingHorizontal: 0, marginBottom: 0}}
+                          onTouchStart={() => this.setState({isVisible: true})}
                         />
                         {/* {this.state.displayData != '' &&
                         this.state.displayData != undefined ? (
@@ -4017,255 +3946,127 @@ bottom:10,                              backgroundColor: 'white',
                   </View>
                   <View style={styles.div1}>
                     <View style={styles.input03}>
-                      {this.state.isContainValue1 === true ? (
-                        <Dropdown
-                          ref="categoryTxtField"
-                          value={
-                            this.state.NCcategoryt
-                              ? this.state.NCcategoryt.value
-                              : ''
+                      <DropdownComponent
+                        data={category}
+                        label={
+                          this.state.RouteParam === 'NC'
+                            ? 'NC' + ' ' + strings.CategoryL
+                            : 'OFI' + ' ' + strings.CategoryL
+                        }
+                        value={
+                          this.state.NCcategoryt
+                            ? this.state.NCcategoryt.value
+                            : ''
+                        }
+                        required
+                        editable={this.state.isContainValue1}
+                        dropdownRef={ref => (this.categoryTxtField = ref)}
+                        containerStyle={{paddingHorizontal: 0, marginBottom: 0}}
+                        onChange={value => {
+                          console.log('*****', value);
+                          const CategoryID = this.state.categoryArr.find(
+                            item => item.value === value,
+                          );
+                          if (CategoryID == null) {
+                            this.isCheckCategory = false;
+                          } else {
+                            this.isCheckCategory = true;
+                            this.setState({NCcategoryt: CategoryID});
                           }
-                          baseColor={
-                            this.state.MarkCat === false ? '#A6A6A6' : 'red'
-                          }
-                          selectedItemColor="black"
-                          textColor="black"
-                          itemColor="black"
-                          data={category}
-                          label={
-                            this.state.RouteParam === 'NC'
-                              ? 'NC' + ' ' + strings.CategoryL
-                              : 'OFI' + ' ' + strings.CategoryL
-                          }
-                          fontSize={Fonts.size.regular}
-                          labelFontSize={Fonts.size.small}
-                          itemPadding={5}
-                          dropdownOffset={{top: 10, left: 0}}
-                          itemTextStyle={{fontFamily: 'OpenSans-Regular'}}
-                          onChangeText={value => {
-                            console.log('*****', value);
-                            var CategoryID = null;
-                            for (
-                              var i = 0;
-                              i < this.state.categoryArr.length;
-                              i++
-                            ) {
-                              if (value === this.state.categoryArr[i].value) {
-                                CategoryID = this.state.categoryArr[i];
-                              }
-                            }
-                            if (CategoryID == null) {
-                              this.isCheckCategory = false;
-                            } else if (CategoryID) {
-                              this.isCheckCategory = true;
-                              this.setState(
-                                {NCcategoryt: CategoryID},
-                                () => {},
-                              );
-                            }
-                          }}
-                        />
-                      ) : (
-                        <Dropdown
-                          ref="categoryTxtField"
-                          label={
-                            this.state.RouteParam === 'NC'
-                              ? 'NC' + ' ' + strings.CategoryL
-                              : 'OFI' + ' ' + strings.CategoryL
-                          }
-                          baseColor={
-                            this.state.MarkCat === false ? '#A6A6A6' : 'red'
-                          }
-                          selectedItemColor="black"
-                          textColor="black"
-                          itemColor="black"
-                          fontSize={Fonts.size.regular}
-                          labelFontSize={Fonts.size.small}
-                          itemPadding={5}
-                          dropdownOffset={{top: 10, left: 0}}
-                          itemTextStyle={{fontFamily: 'OpenSans-Regular'}}
-                        />
-                      )}
+                        }}
+                      />
                     </View>
-                    <View style={styles.check}>
+                    {/* <View style={styles.check}>
                       <Icon
                         style={{left: 5}}
                         name="sun"
                         size={8}
                         color="red"
                       />
-                    </View>
+                    </View> */}
                   </View>
                   <View style={styles.div1}>
                     <View style={styles.input05}>
-                      {this.state.isContainValue4 === true ? (
-                        <Dropdown
-                          ref="responsibleTxtField"
-                          value={
-                            this.state.NCrequestby
-                              ? this.state.NCrequestby.value
-                              : ''
+                      <DropdownComponent
+                        data={request}
+                        label={strings.ResponsibilityL}
+                        value={
+                          this.state.NCrequestby
+                            ? this.state.NCrequestby.value
+                            : ''
+                        }
+                        required
+                        editable={this.state.isContainValue4}
+                        dropdownRef={ref => (this.responsibleTxtField = ref)}
+                        containerStyle={{paddingHorizontal: 0, marginBottom: 0}}
+                        onChange={value => {
+                          let RequestID = this.state.UserArr.find(
+                            item => item.value === value,
+                          );
+                          if (RequestID == null) {
+                            this.isCheckRequest = false;
+                          } else {
+                            this.setState({NCrequestby: RequestID}, () => {
+                              this.isCheckRequest = true;
+                            });
                           }
-                          label={strings.ResponsibilityL}
-                          data={request}
-                          baseColor={
-                            this.state.MarkReq === false ? '#A6A6A6' : 'red'
-                          }
-                          selectedItemColor="black"
-                          textColor="black"
-                          itemColor="black"
-                          fontSize={Fonts.size.regular}
-                          labelFontSize={Fonts.size.small}
-                          itemPadding={5}
-                          dropdownOffset={{top: 10, left: 0}}
-                          itemTextStyle={{fontFamily: 'OpenSans-Regular'}}
-                          onChangeText={value => {
-                            // console.log('*****',value)
-                            var RequestID = null;
-                            //for (var i = 0; i < this.state.RequestArr.length; i++) {
-                            for (
-                              var i = 0;
-                              i < this.state.UserArr.length;
-                              i++
-                            ) {
-                              if (value === this.state.UserArr[i].value) {
-                                RequestID = this.state.UserArr[i];
-                              }
-                            }
-
-                            if (RequestID == null) {
-                              this.isCheckRequest = false;
-                            } else if (RequestID) {
-                              this.setState({NCrequestby: RequestID}, () => {
-                                this.isCheckRequest = true;
-                                // console.log('RequestID',this.state.NCrequestby)
-                                // console.log('Category id',this.isCheckRequest)
-                              });
-                            }
-                          }}
-                        />
-                      ) : (
-                        <Dropdown
-                          ref="responsibleTxtField"
-                          label={strings.ResponsibilityL}
-                          baseColor={
-                            this.state.MarkReq === false ? '#A6A6A6' : 'red'
-                          }
-                          selectedItemColor="black"
-                          textColor="black"
-                          itemColor="black"
-                          fontSize={Fonts.size.regular}
-                          labelFontSize={Fonts.size.small}
-                          itemPadding={5}
-                          dropdownOffset={{top: 10, left: 0}}
-                          itemTextStyle={{fontFamily: 'OpenSans-Regular'}}
-                        />
-                      )}
+                        }}
+                      />
                     </View>
-                    <View style={styles.check}>
+                    {/* <View style={styles.check}>
                       <Icon
                         style={{left: 5}}
                         name="sun"
                         size={8}
                         color="red"
                       />
-                    </View>
+                    </View> */}
                   </View>
 
                   <View style={styles.div1}>
                     <View style={styles.input04}>
-                      {this.state.isContainValue3 === true ? (
-                        <Dropdown
-                          ref="requestTxtField"
-                          // value={
-                          //   this.state.NCresponsible
-                          //     ? this.state.NCresponsible.value
-                          //     : ''
-                          // }
-                          value={
-                            this.state.requestDropdown &&
-                            this.state.requestDropdown.length >= 1
+                      <DropdownComponent
+                        data={user}
+                        label={strings.RequestedL}
+                        value={
+                          this.state.NCresponsible
+                            ? this.state.NCresponsible.value
+                            : this.state.requestDropdown &&
+                              this.state.requestDropdown.length >= 1
                               ? this.state.requestDropdown[0].value
                               : ''
-                          }
-                          label={strings.RequestedL}
-                          data={user}
-                          baseColor={
-                            this.state.MarkUser === false ? '#A6A6A6' : 'red'
-                          }
-                          selectedItemColor="black"
-                          textColor="black"
-                          itemColor="black"
-                          fontSize={Fonts.size.regular}
-                          labelFontSize={Fonts.size.small}
-                          itemPadding={5}
-                          dropdownOffset={{top: 10, left: 0}}
-                          itemTextStyle={{fontFamily: 'OpenSans-Regular'}}
-                          onChangeText={value => {
-                            // console.log('*****',value)
-                            var UserID = null;
-                            for (
-                              var i = 0;
-                              i < this.state.UserArr.length;
-                              i++
-                            ) {
-                              if (value === this.state.UserArr[i].value) {
-                                UserID = this.state.UserArr[i];
-                              }
-                            }
+                        }
+                        required
+                        editable={this.state.isContainValue3}
+                        dropdownRef={ref => (this.requestTxtField = ref)}
+                        containerStyle={{paddingHorizontal: 0, marginBottom: 0}}
+                        onChange={value => {
+                          let UserID =
+                            this.state.UserArr.find(
+                              item => item.value === value,
+                            ) ||
+                            this.state.RequestArr.find(
+                              item => item.value === value,
+                            );
 
-                            for (
-                              var i = 0;
-                              i < this.state.RequestArr.length;
-                              i++
-                            ) {
-                              if (value === this.state.RequestArr[i].value) {
-                                UserID = this.state.RequestArr[i];
-                              }
-                            }
-
-                            if (UserID == null) {
-                              // this.isCheck5 = false
-                              this.isCheckUser = false;
-                            } else if (UserID) {
-                              this.setState({NCresponsible: UserID}, () => {
-                                console.log(
-                                  'ncc---->',
-                                  this.state.NCresponsible,
-                                );
-                                // this.isCheck5 = true
-                                this.isCheckUser = true;
-                                // console.log('UserID',this.state.NCresponsible)
-                                // console.log('UserID',this.isCheckUser)
-                              });
-                            }
-                          }}
-                        />
-                      ) : (
-                        <Dropdown
-                          label={strings.RequestedL}
-                          baseColor={
-                            this.state.MarkUser === false ? '#A6A6A6' : 'red'
+                          if (UserID == null) {
+                            this.isCheckUser = false;
+                          } else {
+                            this.setState({NCresponsible: UserID}, () => {
+                              this.isCheckUser = true;
+                            });
                           }
-                          selectedItemColor="black"
-                          textColor="black"
-                          itemColor="black"
-                          fontSize={Fonts.size.regular}
-                          labelFontSize={Fonts.size.small}
-                          itemPadding={5}
-                          dropdownOffset={{top: 10, left: 0}}
-                          itemTextStyle={{fontFamily: 'OpenSans-Regular'}}
-                        />
-                      )}
+                        }}
+                      />
                     </View>
-                    <View style={styles.check}>
+                    {/* <View style={styles.check}>
                       <Icon
                         style={{left: 5}}
                         name="sun"
                         size={8}
                         color="red"
                       />
-                    </View>
+                    </View> */}
                   </View>
                   <View style={styles.div1}>
                     <View style={styles.input07}>
@@ -4303,99 +4104,52 @@ bottom:10,                              backgroundColor: 'white',
                             </TouchableOpacity>
                           )}
 
-                          <Dropdown
-                            ref="departmentTxtField"
+                          <DropdownComponent
+                            data={array}
+                            label={strings.FailureCategory}
                             value={
                               this.state.NCFailure
                                 ? this.state.NCFailure.value
                                 : ''
                             }
-                            label={strings.FailureCategory}
-                            data={array}
-                            fontSize={Fonts.size.regular}
-                            labelFontSize={Fonts.size.small}
-                            baseColor={'#A6A6A6'}
-                            selectedItemColor="black"
-                            textColor="black"
-                            itemColor="black"
-                            itemPadding={5}
-                            dropdownOffset={{top: 10, left: 0}}
-                            itemTextStyle={{fontFamily: 'OpenSans-Regular'}}
-                            onChangeText={value => {
-                              // console.log('*****',value)
-
-                              var FailureID = null;
-                              for (var i = 0; i < array.length; i++) {
-                                console.log(
-                                  'faliurecategoryone',
-                                  this.state.FailureCategory[i],
-                                  value,
-                                );
-                                if (value === array[i].value) {
-                                  FailureID = array[i];
-                                }
-                              }
+                            required
+                            editable={this.state.isContainValue4}
+                            dropdownRef={ref => (this.departmentTxtField = ref)}
+                            containerStyle={{paddingHorizontal: 0, marginBottom: 0}}
+                            onChange={value => {
+                              let FailureID = array.find(item => item.value === value);
                               if (FailureID == null) {
                                 this.isCheckFailure = false;
-                              } else if (FailureID) {
-                                this.isCheckFailure = false;
-                                this.setState({NCFailure: FailureID}, () => {
-                                  this.isCheckFailure = true;
-                                  // console.log('DeptID',this.state.NCdept)
-                                  // console.log('Dept id',this.isCheckDepart)
-                                });
+                              } else {
+                                this.isCheckFailure = true;
+                                this.setState({NCFailure: FailureID});
                               }
                             }}
                           />
                         </View>
                       ) : (
                         <View>
-                          <Dropdown
+                          <DropdownComponent
+                            data={FailureCategory}
                             label={strings.FailureCategory}
                             value={
                               this.state.NCFailure
                                 ? this.state.NCFailure.value
                                 : ''
                             }
-                            fontSize={Fonts.size.regular}
-                            data={FailureCategory}
-                            labelFontSize={Fonts.size.small}
-                            baseColor={
-                              this.state.MarkFailure === false
-                                ? '#A6A6A6'
-                                : 'red'
-                            }
-                            selectedItemColor="black"
-                            textColor="black"
-                            itemColor="black"
-                            itemPadding={5}
-                            dropdownOffset={{top: 10, left: 0}}
-                            itemTextStyle={{fontFamily: 'OpenSans-Regular'}}
-                            onChangeText={value => {
-                              var FailureID = null;
-                              for (
-                                var i = 0;
-                                i < this.state.FailureCategory.length;
-                                i++
-                              ) {
-                                console.log(
-                                  'faliurecategoryone',
-                                  this.state.FailureCategory[i].value,
-                                  value,
-                                );
-                                if (value === FailureCategory[i].value) {
-                                  FailureID = FailureCategory[i];
-                                }
-                              }
+                            required
+                            editable={this.state.isContainValue4}
+                            dropdownRef={ref => (this.departmentTxtField = ref)}
+                            containerStyle={{paddingHorizontal: 0, marginBottom: 0}}
+                            onChange={value => {
+                              let FailureID = this.state.FailureCategory.find(
+                                item => item.value === value,
+                              );
                               if (FailureID == null) {
                                 this.isCheckFailure = false;
-                              } else if (FailureID) {
-                                this.isCheckFailure = false;
-                                this.setState({NCFailure: FailureID}, () => {
-                                  this.isCheckFailure = true;
-                                  // console.log('DeptID',this.state.NCdept)
-                                  // console.log('Dept id',this.isCheckDepart)
-                                });
+                              } else {
+                                this.isCheckFailure = true;
+                                this.setState({NCFailure: FailureID});
                               }
                             }}
                           />
@@ -4404,9 +4158,9 @@ bottom:10,                              backgroundColor: 'white',
                     </View>
                   </View>
 
-                  <View style={styles.div2}>
-                    <View style={styles.inputhigh}>
-                      <View>
+                  <View style={styles.formSection}>
+                    <View style={[styles.div2, {marginTop: 4}]}>
+                      <View style={styles.inputhigh}>
                         {this.state.selectedItemsProcess ? (
                           <SectionedMultiSelect //single={multiprocess == "1" ? true : false}
                             IconRenderer={this.icon}
@@ -4421,7 +4175,6 @@ bottom:10,                              backgroundColor: 'white',
                                 ? strings.ProcessL
                                 : 'No process(s) found'
                             }
-                            //alwaysShowSelectText={multiprocess == "1" ? false : true}
                             renderSelectText={() => strings.ProcessL}
                             baseColor={
                               this.state.MarkProcess == false
@@ -4476,7 +4229,7 @@ bottom:10,                              backgroundColor: 'white',
                               ? {display: 'none'}
                               : styles.check
                           }>
-                          {this.props.data.audits.smdata !== 2 &&
+                          {/* {this.props.data.audits.smdata !== 2 &&
                           this.props.data.audits.smdata !== 3 ? (
                             <Icon
                               style={{right: 10}}
@@ -4484,7 +4237,7 @@ bottom:10,                              backgroundColor: 'white',
                               size={8}
                               color="red"
                             />
-                          ) : null}
+                          ) : null} */}
                         </View>
                         <View
                           style={{paddingLeft: 10, flexDirection: 'column'}}>
@@ -4528,60 +4281,34 @@ bottom:10,                              backgroundColor: 'white',
                   </View>
                   <View style={[styles.div1, {display: 'none'}]}>
                     <View style={styles.input07}>
-                      <Dropdown
+                      <DropdownComponent
+                        data={[]}
                         label={strings.Auditee_Approach}
-                        fontSize={Fonts.size.regular}
-                        labelFontSize={Fonts.size.small}
-                        baseColor={'#A6A6A6'}
-                        selectedItemColor="black"
-                        textColor="black"
-                        itemColor="black"
-                        itemPadding={5}
-                        dropdownOffset={{top: 10, left: 0}}
-                        itemTextStyle={{fontFamily: 'OpenSans-Regular'}}
+                        value={''}
+                        editable={false}
+                        containerStyle={{paddingHorizontal: 0, marginBottom: 0}}
                       />
                     </View>
                   </View>
                   <View style={styles.div1}>
                     {this.state.RouteParam === 'NC' ? (
                       <View style={styles.input02}>
-                        {this.state.documentRef &&
-                        this.props.data.audits.smdata != 2 &&
-                        this.props.data.audits.smdata != 3 ? (
-                          <Text
-                            style={{
-                              padding: 0,
-                              margin: 0,
-                              fontSize: Fonts.size.small,
-                              color: '#A6A6A6',
-                              fontFamily: 'OpenSans-Regular',
-                            }}>
-                            {strings.Document_reference}
-                          </Text>
-                        ) : null}
-                        <TextInput
-                          ref="docRefTxtField"
+                        <InputComponent
+                          label={strings.Document_reference}
+                          name="documentRef"
+                          required={
+                            this.props.data.audits.smdata != 2 &&
+                            this.props.data.audits.smdata != 3
+                          }
                           value={this.state.documentRef}
-                          multiline={true}
-                          autoCapitalize="sentences"
-                          // onBlur={() => Keyboard.dismiss()}
-                          style={
-                            this.state.documentRef
-                              ? styles.placeholderT1Label
-                              : styles.placeholderT1
-                          }
                           placeholder={strings.Document_reference}
-                          placeholderTextColor={
-                            this.state.underline1 === true ? 'red' : '#A9A9A9'
-                          }
-                          baseColor={
-                            this.state.underline1 === false ? '#A6A6A6' : 'red'
-                          }
-                          textColor="#747474"
-                          // underlineColorAndroid={this.state.underline1 === true ? 'red': '#A9A9A9'}
-                          onChangeText={text => {
-                            this.setState({documentRef: text}, () => {
-                              // console.log('---->',this.state.nonconfirmityText)
+                          multiline
+                          numberOfLines={3}
+                          autoCapitalize="sentences"
+                          inputRef={ref => (this.docRefTxtField = ref)}
+                          containerStyle={{paddingHorizontal: 0, marginBottom: 0}}
+                          onChangeText={(field, value) => {
+                            this.setState({documentRef: value}, () => {
                               this.isCheck5 = true;
                             });
                           }}
@@ -4589,7 +4316,7 @@ bottom:10,                              backgroundColor: 'white',
                       </View>
                     ) : (
                       <View style={styles.input02}>
-                        <View style={styles.check}>
+                        {/* <View style={styles.check}>
                           {this.props.data.audits.smdata != 2 &&
                           this.props.data.audits.smdata != 3 ? (
                             <Icon
@@ -4599,96 +4326,30 @@ bottom:10,                              backgroundColor: 'white',
                               color="red"
                             />
                           ) : null}
-                        </View>
-                        {this.state.documentRef ? (
-                          <Text
-                            style={{
-                              padding: 0,
-                              margin: 0,
-                              fontSize: Fonts.size.small,
-                              color: '#A6A6A6',
-                              fontFamily: 'OpenSans-Regular',
-                            }}>
-                            {strings.Document_reference}
-                          </Text>
-                        ) : null}
-                        <TextInput
-                          ref="docRefTxtField"
-                          multiline={true}
+                        </View> */}
+                        <InputComponent
+                          label={strings.Document_reference}
+                          name="documentRef"
                           value={this.state.documentRef}
-                          style={
-                            this.state.documentRef
-                              ? styles.placeholderT1Label
-                              : styles.placeholderT1
-                          }
                           placeholder={strings.Document_reference}
-                          placeholderTextColor={'#A9A9A9'}
-                          textColor="#747474"
-                          // underlineColorAndroid={this.state.underline1 === true ? 'red': '#A9A9A9'}
-                          onChangeText={text => {
-                            this.setState({documentRef: text}, () => {
+                          multiline
+                          numberOfLines={3}
+                          autoCapitalize="sentences"
+                          inputRef={ref => (this.docRefTxtField = ref)}
+                          containerStyle={{paddingHorizontal: 0, marginBottom: 0}}
+                          onChangeText={(field, value) => {
+                            this.setState({documentRef: value}, () => {
                               // this.isCheck3 = true;
                             });
                           }}
                         />
                       </View>
                     )}
-                    {/* {(this.state.nonconfirmityText || this.state.ofitext) ?
-                  <TouchableOpacity style={{ right: 40,position:'absolute'}} onPress={() => this.setState({ NCtxtFlag: true, isVisible: true })}>
-                    <Icon name="eye" size={20} color="black" />
-                  </TouchableOpacity> : null
-
-                } */}
-                    <View style={styles.check}>
-                      {this.state.RouteParam === 'NC' &&
-                      this.props.data.audits.smdata != 2 &&
-                      this.props.data.audits.smdata != 3 ? (
-                        <Icon
-                          style={{left: 6, top: 5}}
-                          name="sun"
-                          size={8}
-                          color="red"
-                        />
-                      ) : null}
-                    </View>
+                  
                   </View>
-                  {/* <View>
-        <Button title="Pick Image" onPress={this.handleImagePick} />
-        <Button title="Pick File" onPress={this.handleFilePick} />
-      </View> */}
+               
                   <View style={styles.div1}>
-                    {/* <View style={styles.uploadButton}>
-                      <Text style={{ fontSize: Fonts.size.regular, color: '#A6A6A6' }}>{strings.Attach_EvidenceL}</Text>
-                    </View>
-                    <View style={{width:'40%',height:'70%',alignItems:'flex-end',paddingRight:12}}>
-                    {this.state.fileName ? */}
-                    <Text
-                      style={{
-                        fontSize: Fonts.size.regular,
-                        color: '#A6A6A6',
-                        left: 10,
-                        fontFamily: 'OpenSans-Regular',
-                      }}>
-                      {strings.Attach_EvidenceL}
-                    </Text>
-                    {/* <View style={{ flexDirection: 'row',justifyContent:'space-between',width:'30%',backgroundColor:'grey'}}> */}
-                    {/* {this.state.missingfile ?
-                      <Text style={{ left: 5, color: 'red',width:"70%" }}>{this.state.missingfile}</Text> :null
-                      // <Text style={{ left: 10,backgroundColor:'red' }}>{this.state.fileName}</Text>
-                    } */}
-                    {/* {this.state.fileName ? (
-                      <TouchableOpacity
-                        onPress={() => this.deleteAttachments()}
-                        style={{
-                          width: '10%',
-                          right: 20,
-                          position: 'absolute',
-                          marginRight: 20,
-                        }}>
-                        <Icon name="trash" size={20} color={'red'} />
-                      </TouchableOpacity>
-                    ) : null} */}
-                    {/* </View> */}
+                    <Text style={styles.fieldLabel}>{strings.Attach_EvidenceL}</Text>
                     <TouchableOpacity
                       onPress={() =>
                         this.setState({AttachModal: true}, () => {
@@ -4706,16 +4367,7 @@ bottom:10,                              backgroundColor: 'white',
                       />
                     </TouchableOpacity>
                   </View>
-                  {/* FlatList for Media */}
-                  {/* <View style={{ flex: 1 }}>
-                    <FlatList
-                      data={this.state.fileArrayList}
-                      renderItem={this.renderItem}
-                      keyExtractor={item => item.filename}
-                      horizontal={true}
-                      style={{ marginTop: 10 }}
-                    />
-                  </View> */}
+                 
                   {this.state.fileArrayList != null &&
                   this.state.fileArrayList.length > 0 ? (
                     <View style={{flex: 1}}>
@@ -4728,25 +4380,7 @@ bottom:10,                              backgroundColor: 'white',
                       />
                     </View>
                   ) : null}
-                  {/*}   <View style={{flex: 1}}>
-                      <FlatList
-                        data={this.state.fileArrayList}
-                        renderItem={this.renderItem}
-                        keyExtractor={item => item.id}
-                        horizontal={true}
-                        style={{marginTop: 10}}
-                      />
-                    </View>
-                 )}*/}
-
-                  {/* {this.state.isView === true ? 
-                  <View style={styles.optionBox}>
-                  <TouchableOpacity onPress={() => this.setState({ isView : false })}>
-                  <Text style={{fontSize: Fonts.size.small,color:'#00a1e2',textDecorationLine:'underline'}}>Less</Text>
-                  </TouchableOpacity>
-                  </View>:
-                  <View></View>
-                  } */}
+                
                 </View>
               </ScrollView>
             </View>
@@ -4814,8 +4448,7 @@ bottom:10,                              backgroundColor: 'white',
                     style={[
                       styles.footerButton,
                       this.state.startVoice === true
-                        ? styles.footerVoiceButtonActive
-                        : styles.footerVoiceButton,
+                   
                     ]}>
                     {this.state.startVoice === true ? (
                       <Icon
@@ -4824,7 +4457,7 @@ bottom:10,                              backgroundColor: 'white',
                         color="white"
                       />
                     ) : (
-                      <Icon name="mic" size={20} color="#00b3d6" />
+                      <Icon name="mic" size={20} color="#fff" />
                     )}
                     <Text
                       style={[
@@ -4857,7 +4490,13 @@ bottom:10,                              backgroundColor: 'white',
           {/* </ImageBackground> */}
         </View>
 
-        <Toast ref="toast" position="top" opacity={1} />
+        <Toast
+          ref="toast"
+          position="top"
+          opacity={1}
+          style={{backgroundColor: 'red'}}
+          textStyle={{color: 'white'}}
+        />
         <Modal
           isVisible={this.state.isVisible}
           onBackdropPress={() => this.setState({isVisible: false})}
@@ -5048,29 +4687,12 @@ bottom:10,                              backgroundColor: 'white',
                   </View>
                 </View>
               </TouchableOpacity>
-              {/* <TouchableOpacity
-                  onPress={this.cameraAction.bind(this, 'Video')}>
-                  <View style={styles.sectionTop}>
-                    <View style={[styles.sectionContent, styles.boxContent]}>
-                      <View style={{width: '12%', height: null}}>
-                        <Icon name="video-camera" size={25} color="grey" />
-                      </View>
-                      <View
-                        style={{
-                          width: '88%',
-                          height: null,
-                          justifyContent: 'flex-start',
-                        }}>
-                        <Text style={styles.boxContentCam}>Video</Text>
-                      </View>
-                    </View>
-                  </View>
-                </TouchableOpacity> */}
+            
               <TouchableOpacity onPress={() => this.attachFiles()}>
                 <View style={styles.sectionTop}>
                   <View style={[styles.sectionContent, styles.boxContent]}>
                     <View style={{width: '12%', height: null}}>
-                      <Icon name="file-image-o" size={25} color="grey" />
+                      <Icon name="image" size={25} color="grey" />
                     </View>
                     <View style={{width: '88%', height: null}}>
                       <Text style={styles.boxContentCam}>
