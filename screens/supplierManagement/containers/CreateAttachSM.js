@@ -860,15 +860,15 @@ class CreateAttach extends React.Component {
                     title={this.state.EditFlag === false ? strings.HeadingTitle : strings.EditAttach}
                     subtitle={this.state.breadCrumbText}
                     onLeftPress={() =>
-                        this.props.navigation.navigate(
-                            ROUTES.AUDIT_ATTACH,
-                            {
-                                AuditID: this.state.AuditID,
-                                isDeleted: 0,
-                                breadCrumb: this.state.breadCrumbText,
-                            },
-                            // this.deleteAttachments(),
-                        )
+                      this.props.navigation.navigate({
+                        name: ROUTES.AUDIT_ATTACHSM,
+                        params: {
+                          AuditID: this.state.AuditID,
+                          isDeleted: 0,
+                          breadCrumb: this.state.breadCrumbText,
+                        },
+                        merge: true,
+                      })
                     }
                     onRightPress={() => this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)}
                     containerStyle={{ backgroundColor: 'transparent', paddingVertical: 12 }}
