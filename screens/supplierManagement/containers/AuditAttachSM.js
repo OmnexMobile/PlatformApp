@@ -32,6 +32,7 @@ import FileViewer from 'react-native-file-viewer';
 import AsyncStorage from '@react-native-community/async-storage';
 import { ROUTES } from 'constants/app-constant';
 import { SPACING } from 'constants/theme-constants';
+import GlobalHeader from 'components/GlobalHeader';
 
 let Window = Dimensions.get('window');
 
@@ -385,45 +386,15 @@ console.log('Auditcheck-----AuditOrder',RequestParam[0].AuditOrder);
       <View style={styles.wrapper}>
         <OfflineNotice />
         
-          <View style={styles.header}>
-            <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
-              <View style={styles.backlogo}>
-                {/* <ResponsiveImage source={Images.BackIconWhite} initWidth="13" initHeight="22" /> */}
-                <Icon name="arrow-left" size={25} color="#00b3d6" />
-              </View>
-            </TouchableOpacity>
-
-            <View style={styles.heading}>
-              <Text style={styles.headingText}>{strings.AuditAttach}</Text>
-              <Text
-                numberOfLines={1}
-                style={{
-                  fontSize: 15,
-                  color: 'black',
-                  fontFamily: 'OpenSans-Regular',
-                  textAlign:'center'
-                }}>
-                {this.state.breadCrumbText}
-              </Text>
-            </View>
-            {/* <View style={{width:Window.width,height:20,position:'absolute',backgroundColor:'yellow'}}>
-
-            </View> */}
-            <View style={styles.headerDiv}>
-              {/* <ImageBackground source={Images.headerBG} style={styles.backgroundImage}></ImageBackground> */}
-              {/* <TouchableOpacity onPress={debounce(this.Refresh.bind(this),1000)} > */}
-              {/* <Icon name="refresh" size={25} color="white"/> */}
-              {/* <Text style={{color:'white',right:10}}>Refresh</Text> */}
-              {/* </TouchableOpacity>  */}
-              <TouchableOpacity
-                style={{paddingHorizontal: 10}}
-                onPress={() =>
-                  this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)
-                }>
-                <Icon name="home" size={30} color="#00b3d6" />
-              </TouchableOpacity>
-            </View>
-          </View>
+         <GlobalHeader
+            title={strings.AuditAttach}
+            subtitle={this.state.breadCrumbText}
+            onLeftPress={() => this.props.navigation.goBack()}
+            onRightPress={() =>
+              this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)
+            }
+            containerStyle={{backgroundColor: 'transparent'}}
+          />
         {/** ---------------------- */}
         <ScrollableTabView
           renderTabBar={() => (

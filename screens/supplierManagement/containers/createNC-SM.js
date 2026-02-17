@@ -55,6 +55,7 @@ import constant from '../../auditPro/constants/AppConstants';
 import { ROUTES } from 'constants/app-constant';
 import { SPACING } from 'constants/theme-constants';
 import RadioGroup from './RadioGroup';
+import GlobalHeader from 'components/GlobalHeader';
 
 let Window = Dimensions.get('window');
 let timer = null;
@@ -3378,6 +3379,17 @@ class CreateNC extends Component {
   }
 
   render() {
+     const headerTitle =
+          this.state.PageLoader === false
+            ? this.state.RouteParam === 'NC'
+              ? this.state.type == 'ADD'
+                ? strings.Upload + ' ' + 'NC'
+                : strings.Edit + ' ' + 'NC'
+              : this.state.type == 'ADD'
+              ? strings.Upload + ' ' + 'OFI'
+              : strings.Edit + ' ' + 'OFI'
+            : '';
+    
     console.log(
       'one:Navigation,PARAMS',
       this.props.route?.params.data,
@@ -3440,47 +3452,14 @@ class CreateNC extends Component {
     return (
       <View style={styles.wrapper}>
         <OfflineNotice />
-         <View style={styles.header}>
-                    <TouchableOpacity onPress={() => this.goBack()}>
-                      <View style={styles.backlogo}>
-                        {/* <ResponsiveImage source={Images.BackIconWhite} initWidth="13" initHeight="22" /> */}
-                            <Icon name="arrow-left" size={25} color="#00b3d6" />
-                      </View>
-                    </TouchableOpacity>
-                    <View style={styles.heading}>
-                      {this.state.PageLoader === false ? (
-                        <Text style={styles.headingText}>
-                          {this.state.RouteParam === 'NC'
-                            ? this.state.type == 'ADD'
-                              ? strings.Upload + ' ' + 'NC'
-                              : strings.Edit + ' ' + 'NC'
-                            : this.state.type == 'ADD'
-                            ? strings.Upload + ' ' + 'OFI'
-                            : strings.Edit + ' ' + 'OFI'}
-                        </Text>
-                      ) : null}
-                      <Text
-                        numberOfLines={1}
-                        style={{
-                          fontSize: 12,
-                          color: '#000',
-                          fontFamily: 'OpenSans-Regular',
-                        }}>
-                        {this.state.breadCrumbText}
-                      </Text>
-                    </View>
-                    <View style={styles.headerDiv}>
-                    <TouchableOpacity
-                        style={{paddingHorizontal: 10}}
-                        onPress={() =>
-                          // this.props.navigation.navigate('Home')
-                          this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)
-                        }> 
-                        <Icon name="home" size={30} color="#00b3d6" />
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-        
+         <GlobalHeader
+                    title={headerTitle}
+                    subtitle={this.state.breadCrumbText}
+                    onLeftPress={() => this.goBack()}
+                    onRightPress={() =>
+                      this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)
+                    }
+                  />
         {this.state.PageLoader === false ? (
           <KeyboardAwareScrollView
             extraHeight={125}

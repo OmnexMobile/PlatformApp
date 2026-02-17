@@ -50,6 +50,7 @@ import constants from '../../auditPro/constants/AppConstants';
 import { ROUTES } from 'constants/app-constant';
 import AsyncStorage from '@react-native-community/async-storage';
 import { SPACING } from 'constants/theme-constants';
+import GlobalHeader from 'components/GlobalHeader';
 
 let Window = Dimensions.get('window');
 
@@ -3730,74 +3731,13 @@ console.log('checckkreddoticon',this.state.redDotID);
       <View style={styles.wrapper}>
         <OfflineNotice />
 
-          <View
-            style={[
-              styles.header,
-              {
-                alignItems: 'center',
-                paddingHorizontal: 8,
-              },
-            ]}>
-            <TouchableOpacity
-              style={{
-                width: 44,
-                height: 44,
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}
-              onPress={
-                this.state.isLoaderVisible === false
-                  ? () => this.props.navigation.goBack()
-                  : () => {
-                      console.log('please wait');
-                    }
-              }>
-              <Icon name="arrow-left" size={25} color="#00b3d6" />
-            </TouchableOpacity>
-            <View
-              style={[
-                styles.heading,
-                {
-                  flex: 1,
-                  width: 'auto',
-                  height: 'auto',
-                  marginHorizontal: 6,
-                },
-              ]}>
-              <Text style={styles.headingText}>{strings.Audit_Records}</Text>
-              <Text
-                numberOfLines={1}
-                style={{
-                  fontSize: 15,
-                  color: 'black',
-                  fontFamily: 'OpenSans-Regular',
-                }}>
-                {this.state.breadCrumbText}
-              </Text>
-            </View>
-
-            <View
-              style={[
-                styles.headerDiv,
-                {
-                  width: 44,
-                  height: 44,
-                },
-              ]}>
-              <TouchableOpacity
-                style={{
-                  width: 44,
-                  height: 44,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}
-                onPress={() =>
-                  this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)
-                }>
-                <Icon name="home" size={30} color="#00b3d6" />
-              </TouchableOpacity>
-            </View>
-          </View>
+          <GlobalHeader
+                             title={strings.Audit_Records}
+                             subtitle={this.state.breadCrumbText}
+                             onLeftPress={() => (this.state.isLoaderVisible === false ? this.props.navigation.goBack() : console.log('please wait'))}
+                             onRightPress={() => this.props.navigation.navigate(ROUTES.AUDIT_DASHBOARD_LISTING)}
+                             containerStyle={{ backgroundColor: 'transparent' }}
+                         />
       
         {this.state.uploadSpeed && (
   <Text style={{ fontSize: 14, color: 'green', marginVertical: 4 }}>

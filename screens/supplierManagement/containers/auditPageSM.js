@@ -39,6 +39,7 @@ import RNFetchBlob from 'react-native-fetch-blob';
 import ToastNew, {ErrorToast} from 'react-native-toast-message';
 import { ROUTES } from 'constants/app-constant';
 import { SPACING } from 'constants/theme-constants';
+import GlobalHeader from 'components/GlobalHeader';
 
 let Window = Dimensions.get('window');
 const window_width = Dimensions.get('window').width;
@@ -3489,68 +3490,16 @@ console.log('checkvalues0000',SiteID,UserId,SearchCondition,TOKEN,iAuditId,iAudP
        <OfflineNotice />
 
         {!this.state.isLoading ? (
-         
-            <View style={styles.header}>
-              <TouchableOpacity
-                onPress={
-                  !this.state.isLoading && !this.state.isDownloading
-                    ? () =>
-                        this.state.PreviousPage == ROUTES.ALLTABAUDITLIST
-                          ? this.props.navigation.navigate(ROUTES.ALLTABAUDITLIST)
-                          : this.props.navigation.goBack()
-                    : () => console.log('Component is not ready to goBack..')
-                }>
-                <View style={styles.backlogo}>
-                  {!this.state.isLoading && !this.state.isDownloading ? (
-                    // <ResponsiveImage source={Images.BackIconWhite} initWidth="13" initHeight="22" />
-                    <Icon name="arrow-left" size={25} color="#00b3d6" />
-                  ) : null}
-                </View>
-              </TouchableOpacity>
-              <View style={styles.heading}>
-                <Text style={styles.headingText}>{strings.Audit_Details}</Text>
-              </View>
-              <View style={styles.headerDiv}>
-                {!this.state.isLoading &&
-                !this.state.isDownloading &&
-                this.state.isDownloaded ? (
-                  <TouchableOpacity
-                    style={styles.rightHeader}
-                    onPress={() => {
-                      this.setState({dialogVisible: true,downloadAsync:false});
-                    }}>
-                    {/* <ResponsiveImage initWidth='25' initHeight='25' source={Images.deleteIcon}/> */}
-                    <Icon name="trash" size={25} color="#00b3d6" />
-                  </TouchableOpacity>
-                ) : null}
-
-                {/* Refresh button removed as per new design */}
-
-                {!this.state.isLoading &&
-                !this.state.isDownloading &&
-                this.state.isDownloaded ? (
-                  <TouchableOpacity
-                    style={{paddingRight:10}}
-                    onPress={() => {
-                      this.setState({dialogVisibleRefresh: true, webToMob: true, downloadAsync: true });
-                    }}>
-                  {/* <ResponsiveImage initWidth='25' initHeight='25' source={Images.deleteIcon}/> */}
-                    <Icon name="refresh" size={25} color="#00b3d6" />
-                  </TouchableOpacity>
-                ) : null} 
-                {/* Refresh button removed as per new design endddd*/}
-
-                {!this.state.isLoading && !this.state.isDownloading ? (
-                  <TouchableOpacity
-                    style={{paddingRight: 10}}
-                    onPress={() =>
-                      this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)
-                    }>
-                    <Icon name="home" size={25} color="#00b3d6" />
-                  </TouchableOpacity>
-                ) : null}
-              </View>
-            </View>
+                  <GlobalHeader
+                    title={
+                        'Audits Details'
+                    }
+                    onLeftPress={() => this.props.navigation.goBack()}
+                    onRightPress={() => this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)}
+                    containerStyle={{ backgroundColor: 'transparent' }}
+                    titleStyle={{ color: '#000' }}
+                    leftIconColor="#00b3d6"
+                />
         ) : null}
 
         {!this.state.isLoading ? (

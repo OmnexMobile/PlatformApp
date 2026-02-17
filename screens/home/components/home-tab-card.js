@@ -194,15 +194,15 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
         }
       ] : [],
     },
-    {
-      id: 4,
-      title: tabIndex === 0 ? strings.documentPro : null,
-      detail: tabIndex === 0 ? [
-        { images: IMAGES.inProgressConcerns, category: strings.documentLevels, status: 0 },
-        { images: IMAGES.inProgressConcerns, category: strings.actionList, status: 0 },
-        { images: IMAGES.inProgressConcerns, category: strings.adminActions, status: 0 }
-      ] : [],
-    },
+    // {
+    //   id: 4,
+    //   title: tabIndex === 0 ? strings.documentPro : null,
+    //   detail: tabIndex === 0 ? [
+    //     { images: IMAGES.inProgressConcerns, category: strings.documentLevels, status: 0 },
+    //     { images: IMAGES.inProgressConcerns, category: strings.actionList, status: 0 },
+    //     { images: IMAGES.inProgressConcerns, category: strings.adminActions, status: 0 }
+    //   ] : [],
+    // },
     {
       id: 5,
       title: tabIndex === 0 ? strings.inspectionControl : null,
@@ -721,14 +721,16 @@ const dataSet = React.useMemo(() => {
           currentUserData: currentUserData, // pass the array here
         });
       // DOCUMENT PRO //
-      }  else if (title === strings.documentPro) {
-        if (category == 'Document\nLevels') {
-          navigations.navigate(ROUTES.DOCPRO_DOCUMENTFOLDER);
-        } else if (category == 'Actions\nList') {
-          navigations.navigate(ROUTES.DOCPRO_ACTION);
-        }
-      // INSPECTION CONTROL //
-      } else if (title === strings.inspectionControl) {
+      } 
+      //  else if (title === strings.documentPro) {
+      //   if (category == 'Document\nLevels') {
+      //     navigations.navigate(ROUTES.DOCPRO_DOCUMENTFOLDER);
+      //   } else if (category == 'Actions\nList') {
+      //     navigations.navigate(ROUTES.DOCPRO_ACTION);
+      //   }
+      // // INSPECTION CONTROL //
+      // } 
+      else if (title === strings.inspectionControl) {
         console.log('IC API URL--->', globalDeviceDetails?.deviceDetails?.ICApiURL, IC_URL)
         currentGlobalURL = globalDeviceDetails?.deviceDetails?.ICApiURL ? globalDeviceDetails?.deviceDetails?.ICApiURL: IC_URL;
         localStorage.storeData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL, currentGlobalURL);

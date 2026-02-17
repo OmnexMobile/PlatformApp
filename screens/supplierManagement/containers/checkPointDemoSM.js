@@ -61,6 +61,7 @@ import Fonts from '../../auditPro/Themes/Fonts';
 // import { RichEditor} from 'react-native-pell-rich-editor';
 import { ROUTES } from 'constants/app-constant';
 import { SPACING } from 'constants/theme-constants';
+import GlobalHeader from 'components/GlobalHeader';
 
 const Width = Dimensions.get('window').width;
 const Colors = {
@@ -5828,42 +5829,17 @@ isFailureReasonValid(failureReasonId, categoryId) {
         {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
         <OfflineNotice />
        
-          <View style={styles.header}>
-            <TouchableOpacity onPress={() => this.goBackToChecklist()}>
-              <View style={styles.backlogo}>
-                {!this.state.isSaving ? (
-                  // <ResponsiveImage source={Images.BackIconWhite} initWidth="13" initHeight="22" />
-                  <Icon name="arrow-left" size={25} color="#00b3d6" />
-                ) : null}
-              </View>
-            </TouchableOpacity>
-
-            <View style={styles.heading}>
-              <Text
-                numberOfLines={2}
-                style={styles.headingText}
-                onPress={() => this.ShowToast()}>
-                {this.state.displayData}
-              </Text>
-              <Text
-                numberOfLines={1}
-                style={{
-                  fontSize: 15,
-                  color: 'black',
-                  fontFamily: 'OpenSans-Regular',
-                }}>
-                {this.state.breadCrumbText}
-              </Text>
-            </View>
-
-            <View style={styles.headerDiv}>
-              <TouchableOpacity
-                style={{paddingRight: 10}}
-                onPress={() => this.goHome()}>
-                <Icon name="home" size={30} color="#00b3d6" />
-              </TouchableOpacity>
-            </View>
-          </View>
+          <GlobalHeader
+                   title={this.state.displayData}
+                   subtitle={this.state.breadCrumbText}
+                   onLeftPress={() => {
+                     if (!this.state.isSaving) {
+                       this.goBackToChecklist();
+                     }
+                   }}
+                   hideLeft={this.state.isSaving}
+                   onRightPress={() => this.goHome()}
+                 />
         {/* <View style={{flex:1}}> */}
         {this.state.isContentLoaded == false && !this.state.isSaving ? (
           <View style={{flex: 1}}>

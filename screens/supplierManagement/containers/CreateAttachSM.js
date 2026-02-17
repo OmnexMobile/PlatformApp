@@ -41,6 +41,7 @@ import { SPACING } from 'constants/theme-constants';
 import FileViewer from 'react-native-file-viewer';
 import NetInfo from '@react-native-community/netinfo';
 import { ThemeContext } from 'theme/ThemeProvider';
+import GlobalHeader from 'components/GlobalHeader';
 
 let Window = Dimensions.get('window');
 
@@ -855,51 +856,27 @@ class CreateAttach extends React.Component {
     return (
       <KeyboardAvoidingView style={styles.wrapper}>
        
-          <View style={styles.header} numberOfLines={1}>
-            <TouchableOpacity
-              onPress={() =>
-                this.props.navigation.navigate(ROUTES.AUDIT_ATTACHSM, {
-                  AuditID: this.state.AuditID,
-                  isDeleted: 0,
-                  breadCrumb: this.state.breadCrumbText,
-                })
-              }>
-              <View style={styles.backlogo}>
-                {/* <ResponsiveImage source={Images.BackIconWhite} initWidth="13" initHeight="22" /> */}
-                <Icon name="arrow-left" size={25} color="#00b3d6" />
-              </View>
-            </TouchableOpacity>
-
-            <View style={styles.heading}>
-              <Text numberOfLines={1} style={styles.headingText}>
-                {this.state.EditFlag === false
-                  ? strings.HeadingTitle
-                  : strings.EditAttach}
-              </Text>
-              <Text
-                numberOfLines={1}
-                style={{
-                  fontSize: 15,
-                  color: 'black',
-                  fontFamily: 'OpenSans-Regular',
-                }}>
-                {this.state.breadCrumbText}
-              </Text>
-            </View>
-            {/* <View style={{width:Window.width,height:20,position:'absolute',backgroundColor:'yellow'}}>
-   
-               </View> */}
-            <View style={styles.headerDiv}>
-              {/* <ImageBackground source={Images.headerBG} style={styles.backgroundImage}></ImageBackground> */}
-              <TouchableOpacity
-                style={{paddingHorizontal: 10}}
-                onPress={() =>
-                  this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)
-                }>
-                <Icon name="home" size={35} color="#00b3d6" />
-              </TouchableOpacity>
-            </View>
-          </View>
+           <GlobalHeader
+                    title={this.state.EditFlag === false ? strings.HeadingTitle : strings.EditAttach}
+                    subtitle={this.state.breadCrumbText}
+                    onLeftPress={() =>
+                        this.props.navigation.navigate(
+                            ROUTES.AUDIT_ATTACH,
+                            {
+                                AuditID: this.state.AuditID,
+                                isDeleted: 0,
+                                breadCrumb: this.state.breadCrumbText,
+                            },
+                            // this.deleteAttachments(),
+                        )
+                    }
+                    onRightPress={() => this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)}
+                    containerStyle={{ backgroundColor: 'transparent', paddingVertical: 12 }}
+                    // titleStyle={{color: '#fff'}}
+                    // subtitleStyle={{color: '#fff', fontSize: 15}}
+                    // leftIconColor="#fff"
+                    // rightIconColor="#fff"
+                />
         {/** ---------------------- */}
         <View style={styles.auditPageBody}>
           {this.state.EditFlag === true ? (

@@ -35,6 +35,7 @@ import { ROUTES } from 'constants/app-constant';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import AuditCardSM from 'screens/auditPro/components/AuditCardSM';
 import { Content, Header, ListSearch } from 'components';
+import GlobalHeader from 'components/GlobalHeader';
 
 const {whitneyBook_18} = Fonts.style;
 const {blackGrey} = Fonts.colors;
@@ -149,7 +150,7 @@ applyAuditFilter = () => {
         {/* Offline notification */}
         <OfflineNotice />
     
-                 <View style={styles.header}>
+                 {/* <View style={styles.header}>
                    <TouchableOpacity
                      onPress={() => this.props.navigation.goBack()}
                      style={styles.backlogo}>
@@ -169,7 +170,17 @@ applyAuditFilter = () => {
                        <Icon name="home" size={25} color="#00b3d6" />
                      </TouchableOpacity>
                    </View>
-                 </View>
+                 </View> */}
+                 <GlobalHeader
+                    title={
+                        'Audits'
+                    }
+                    onLeftPress={() => this.props.navigation.goBack()}
+                    onRightPress={() => this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)}
+                    containerStyle={{ backgroundColor: 'transparent' }}
+                    titleStyle={{ color: '#000' }}
+                    leftIconColor="#00b3d6"
+                />
         <View style={styles.auditPageBody}>
            <ListSearch
                       searchKey={this.state.searchKey}

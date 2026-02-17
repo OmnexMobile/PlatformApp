@@ -24,6 +24,7 @@ import { stat } from 'react-native-fs';
 import { ROUTES } from 'constants/app-constant';
 import { SPACING } from 'constants/theme-constants';
 import localStorage from 'global/localStorage';
+import GlobalHeader from 'components/GlobalHeader';
 
 let Window = Dimensions.get('window');
 
@@ -374,39 +375,19 @@ return(
         {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
         <OfflineNotice />
         
-          <View style={styles.header}>
-            <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
-              <View style={styles.backlogo}>
-                {/* <ResponsiveImage source={Images.BackIconWhite} initWidth="13" initHeight="22" /> */}
-                <Icon name="arrow-left" size={25} color="#00b3d6" />
-              </View>
-            </TouchableOpacity>
-            <View style={styles.heading}>
-              <Text numberOfLines={1} style={styles.headingText}>
-                {this.state.Heading}
-              </Text>
-              <Text
-                numberOfLines={1}
-                style={{
-                  fontSize: 15,
-                  color: 'black',
-                  fontFamily: 'OpenSans-Regular',
-                }}>
-                {this.state.breadCrumbText}
-              </Text>
-            </View>
-            <View style={styles.headerDiv}>
-              {/* <ImageBackground source={Images.headerBG} style={styles.backgroundImage}></ImageBackground> */}
-              <TouchableOpacity
-                style={{paddingHorizontal: 10}}
-                onPress={() =>
-                  // this.props.navigation.navigate('Home')
-                  this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)
-                }>
-                <Icon name="home" size={30} color="#00b3d6" />
-              </TouchableOpacity>
-            </View>
-          </View>
+          <GlobalHeader
+            title={this.state.Heading}
+            subtitle={this.state.breadCrumbText}
+            onLeftPress={() => this.props.navigation.goBack()}
+            onRightPress={() =>
+              this.props.navigation.navigate(ROUTES.AUDIT_DASHBOARD_LISTING)
+            }
+            containerStyle={{backgroundColor: 'transparent'}}
+            // titleStyle={{color: '#fff'}}
+            // subtitleStyle={{color: '#fff', fontSize: 15}}
+            // leftIconColor="#fff"
+            // rightIconColor="#fff"
+          />
 
         <View style={[styles.auditPageBody, {padding: 0}]}>
           <ImageBackground
