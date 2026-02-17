@@ -282,7 +282,9 @@ class CreateNC extends Component {
         // console.log('combinedData----------------------- Data:', combinedData);
 
         const selectedItems =
-        this.props?.route?.params?.data.selectedItemsProcess; // Example array with undefined elements
+          Array.isArray(this.props?.route?.params?.data.selectedItemsProcess)
+            ? this.props?.route?.params?.data.selectedItemsProcess
+            : []; // ensure array
 
         // Filter out undefined elements
         const filteredItems = selectedItems.filter(item => item !== undefined);
@@ -363,7 +365,7 @@ class CreateNC extends Component {
     const iconColor =
       color && color.substr(0, 1) === '#' ? `${color.substr(1)}/` : '';
 
-    const Down = <Icon name="caret-down" size={20} color="grey" />;
+    const Down = <Icon name="chevron-down" size={20} color="grey" />;
 
     switch (name) {
       case 'keyboard-arrow-down':
@@ -497,10 +499,12 @@ class CreateNC extends Component {
           clauseRecords: this.props.data.audits.auditRecords,
           type: this.props?.route?.params?.type,
           ncData: this.props?.route?.params?.data,
-          selectedItems: this.props?.route?.params?.data
+          selectedItems: Array.isArray(this.props?.route?.params?.data?.selectedItems)
             ? this.props?.route?.params?.data.selectedItems
             : [],
-          selectedItemsProcess: this.props?.route?.params?.data
+          selectedItemsProcess: Array.isArray(
+            this.props?.route?.params?.data?.selectedItemsProcess,
+          )
             ? this.props?.route?.params?.data.selectedItemsProcess
             : [],
           displayData: this.props?.route?.params?.data
@@ -2397,7 +2401,9 @@ class CreateNC extends Component {
       this.setState({
         documentRef: true,
         objEvidence: true,
-        selectedItemsProcess: true,
+        selectedItemsProcess: Array.isArray(this.state.selectedItemsProcess)
+          ? this.state.selectedItemsProcess
+          : [],
       });
     }
 
@@ -3839,7 +3845,11 @@ class CreateNC extends Component {
                           showDropDowns={true}
                           readOnlyHeadings={true}
                           onSelectedItemsChange={this.onSelectedItemsChange}
-                          selectedItems={this.state.selectedItems}
+                          selectedItems={
+                            Array.isArray(this.state.selectedItems)
+                              ? this.state.selectedItems
+                              : []
+                          }
                           expandDropDowns={true}
                           placeholderTextColor="#A6A6A6"
                           itemNumberOfLines={3}
@@ -4201,7 +4211,11 @@ bottom:10,                              backgroundColor: 'white',
                             onSelectedItemsChange={
                               this.onSelectedItemsProcessChange
                             }
-                            selectedItems={this.state.selectedItemsProcess}
+                            selectedItems={
+                              Array.isArray(this.state.selectedItemsProcess)
+                                ? this.state.selectedItemsProcess
+                                : []
+                            }
                             expandDropDowns={true}
                             //  alwaysShowSelectText={true}
                             placeholderTextColor="#A6A6A6"
@@ -4420,68 +4434,53 @@ bottom:10,                              backgroundColor: 'white',
             }}> */}
             {/* <Image source={Images.Footer}/> */}
             {this.state.isSaving === false ? (
-              <View style={styles.footerDiv}>
-                <View style={styles.footerButtonsRow}>
-                                              <View style={{ width: width(32) }}>
-                  
-                  <TouchableOpacity
-                    onPress={() =>
-                      debounce(this.setState({dialogVisible: true}), 700)
-                    }
-                    style={styles.footerButton}>
-                    <Icon name="rotate-ccw" size={20} color="#ffffff" />
-                    <Text
-                      style={
-                        styles.footerActionText}>
-                      {strings.Reset}
-                    </Text>
-                  </TouchableOpacity>
-</View>
-                            <View style={{ width: width(32) }}>
-
-                  <TouchableOpacity
-                    onPress={() => {
-                      this.state.startVoice === false
-                        ? debounce(this.StartVoicePress(), 800)
-                        : debounce(this.StopVoicePress(), 800);
-                    }}
-                    style={[
-                      styles.footerButton,
-                      this.state.startVoice === true
-                   
-                    ]}>
-                    {this.state.startVoice === true ? (
-                      <Icon
-                        name="mic"
-                        size={20}
-                        color="white"
-                      />
-                    ) : (
-                      <Icon name="mic" size={20} color="#fff" />
-                    )}
-                    <Text
-                      style={[
-                        styles.footerActionText,
-                        this.state.startVoice === true
-                          ? null
-                          : styles.footerActionTextSecondary,
-                      ]}>
-                      {strings.Voice || 'Voice'}
-                    </Text>
-                  </TouchableOpacity>
-</View>
-                            <View style={{ width: width(32) }}>
-
-                  <TouchableOpacity
-                    onPress={debounce(this.onSave.bind(this), 600)}
-                    style={styles.footerButton}>
-                    <Icon name="save" size={20} color="white" />
-                    <Text style={styles.footerActionText}>{strings.Save}</Text>
-                  </TouchableOpacity>
+                <View style={styles.footerDiv}>
+                  <View style={styles.footerButtonsRow}>
+                    <View style={styles.footerButtonWrapper}>
+                      <TouchableOpacity
+                        onPress={() =>
+                          debounce(this.setState({dialogVisible: true}), 700)
+                        }
+                        style={styles.footerButton}>
+                        <Icon name="rotate-ccw" size={20} color="#ffffff" />
+                        <Text style={styles.footerActionText}>{strings.Reset}</Text>
+                      </TouchableOpacity>
+                    </View>
+                    <View style={styles.footerButtonWrapper}>
+                      <TouchableOpacity
+                        onPress={() => {
+                          this.state.startVoice === false
+                            ? debounce(this.StartVoicePress(), 800)
+                            : debounce(this.StopVoicePress(), 800);
+                        }}
+                        style={[
+                          styles.footerButton,
+                          this.state.startVoice === true
+                            ? styles.footerVoiceButtonActive
+                            : styles.footerVoiceButton,
+                        ]}>
+                        <Icon name="mic" size={20} color="#fff" />
+                        <Text
+                          style={[
+                            styles.footerActionText,
+                            this.state.startVoice === true
+                              ? null
+                              : styles.footerActionTextSecondary,
+                          ]}>
+                          {strings.Voice || 'Voice'}
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                    <View style={styles.footerButtonWrapper}>
+                      <TouchableOpacity
+                        onPress={debounce(this.onSave.bind(this), 600)}
+                        style={styles.footerButton}>
+                        <Icon name="save" size={20} color="white" />
+                        <Text style={styles.footerActionText}>{strings.Save}</Text>
+                      </TouchableOpacity>
+                    </View>
                   </View>
                 </View>
-
-              </View>
             ) : (
               <View style={{right: 70, position: 'absolute'}}>
                 <Pulse size={20} color="white" />
@@ -4627,45 +4626,22 @@ bottom:10,                              backgroundColor: 'white',
             </View>
           </View>
         </Modal>
-        {/* <Modal isVisible={this.state.dialogVisible}
-          onBackdropPress={() => this.setState({ dialogVisible: false })}
-          style={styles.modalOuterBox}
-          >
-          <View style={styles.modalbodyReset}>
-             <View style={styles.modalCont}>
-             <Text style={{fontSize:Fonts.size.regular,color:'black'}}>{strings.NC_title}</Text>
-             <Text style={{fontSize:Fonts.size.medium,paddingTop:5,color:'grey'}}>{strings.ResetText}</Text>
-             </View>
-             <View style={styles.modalcont2}>
-             <TouchableOpacity 
-             onPress={()=>{this.resetForm()}}
-             style={styles.modalTouch}>
-             <Text style={{fontSize:Fonts.size.medium,color:'blue'}}>{strings.yes}</Text>
-             </TouchableOpacity>
-             <TouchableOpacity 
-             onPress={()=>{this.setState({dialogVisible: false})}}
-             style={styles.modalTouch}>
-             <Text style={{fontSize:Fonts.size.medium,color:'blue'}}>{strings.no}</Text>
-             </TouchableOpacity>
-             </View>
-          </View>
-
-          </Modal> */}
+        
           {this.renderModel(
-          <View style={styles.ncModal}>
-            <View /* style={styles.modalBody} */>
-              <View style={styles.modalheading}>
-                <View style={{justifyContent: 'center', alignItems: 'center'}}>
-                  <Text
-                    style={{
-                      color: 'black',
-                      fontSize: Fonts.size.regular,
-                      fontFamily: 'OpenSans-Regular',
-                    }}>
-                    {strings.Make_your_selection}
-                  </Text>
+            <View style={styles.ncModal}>
+              <View /* style={styles.modalBody} */>
+                <View style={styles.modalheading}>
+                  <View style={{justifyContent: 'center', alignItems: 'center'}}>
+                    <Text
+                      style={{
+                        color: 'black',
+                        fontSize: Fonts.size.regular,
+                        fontFamily: 'OpenSans-Regular',
+                      }}>
+                      {strings.Make_your_selection}
+                    </Text>
+                  </View>
                 </View>
-              </View>
 
               <TouchableOpacity
                 onPress={this.cameraAction.bind(this, 'Camera')}>
@@ -4712,7 +4688,7 @@ bottom:10,                              backgroundColor: 'white',
                 </View>
               </TouchableOpacity>
             </View>
-          </View>,
+          </View>
         )}
 
         <Modal

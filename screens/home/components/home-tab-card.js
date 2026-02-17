@@ -13,15 +13,17 @@ import {
   Modal,
   ScrollView,
   ActivityIndicator,
+  TextInput,
 } from 'react-native';
 // import { Card, IconButton } from 'react-native-paper';
 import { COLORS, FONT_SIZE, SPACING } from 'constants/theme-constants';
 import strings from 'config/localization';
 import { ImageComponent, TextComponent } from 'components';
+import IconComponent from 'components/icon-component';
 import { IMAGES } from 'assets/images';
 import FastImage from 'react-native-fast-image';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
-import { FONT_TYPE, LOCAL_STORAGE_VARIABLES, ROUTES, APP_VARIABLES, STATUS_CODES } from 'constants/app-constant';
+import { FONT_TYPE, LOCAL_STORAGE_VARIABLES, ROUTES, APP_VARIABLES, STATUS_CODES, ICON_TYPE } from 'constants/app-constant';
 import { RFPercentage } from 'helpers/utils';
 import AsyncStorage from '@react-native-community/async-storage';
 import Toast from "react-native-simple-toast";
@@ -39,6 +41,7 @@ import { showMessage } from 'react-native-flash-message';
 import { Images } from 'theme/Apqp';
 import { APQP_URL, AUDITPRO_URL, GLOBAL_BASE_URL, PROBLEMSOLVING_URL, IC_URL, ensureTrailingSlash } from 'screens/globalConstant/globalURL';
 import LinearGradient from 'react-native-linear-gradient';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
   const screenWidth = Dimensions.get("window").width;
   const SECTION_HORIZONTAL_PADDING = 16;
@@ -66,6 +69,27 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
   const { icSettings } = useSelector(state => state.inspection);
   const [icCount,setIcCount]= useState(null);
   const [moduleLicenses, setModuleLicenses] = useState(null);
+  const [filterText, setFilterText] = useState('');
+  const filterInputRef = React.useRef(null);
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+  const [rangeModalVisible, setRangeModalVisible] = useState(false);
+  const [tempStartDate, setTempStartDate] = useState(new Date());
+  const [tempEndDate, setTempEndDate] = useState(new Date());
+  const [showFromPicker, setShowFromPicker] = useState(false);
+  const [showToPicker, setShowToPicker] = useState(false);
+
+  const openRangeModal = () => {
+    setTempStartDate(startDate || new Date());
+    // if no end date pick today
+    const baseEnd = endDate || new Date();
+    // ensure end is not before start
+    setTempEndDate(startDate && baseEnd < startDate ? startDate : baseEnd);
+    setShowFromPicker(false);
+    setShowToPicker(false);
+    setRangeModalVisible(true);
+  };
+  const [showDatePicker, setShowDatePicker] = useState(false);
  
   const psCounts = useSelector (state => state?.homeRedux?.dashboardConcernCounts?.countDetails ?? null);
   // console.log('PS Counts:', psCounts);
@@ -424,6 +448,36 @@ const dataSet = React.useMemo(() => {
       return tabData.filter(item => licensedIds.includes(item.id));
     }, [data, currentUser, icSettings?.SearchInspectionNeeded, moduleLicenses?.hasSupplierManagementLicense, moduleLicenses?.hasAuditProLicense, 
       moduleLicenses?.hasApqpPpapLicense, moduleLicenses?.hasProblemSolverLicense, moduleLicenses?.hasInspectionControlLicense, moduleLicenses?.hasDocumentProLicense]);
+
+  const filteredDataSet = React.useMemo(() => {
+    const query = filterText.trim().toLowerCase();
+    const applyTextFilter = section => {
+      if (!query) return section.detail;
+      return section?.detail?.filter(item =>
+        (item?.category || '').toLowerCase().includes(query) ||
+        (section?.title || '').toLowerCase().includes(query),
+      );
+    };
+
+    const applyDateFilter = items => {
+      if (!startDate && !endDate) return items;
+      return items?.filter(item => {
+        if (!item?.lastUpdated) return true; // keep if no date metadata
+        const itemDate = new Date(item.lastUpdated);
+        if (startDate && itemDate < startDate) return false;
+        if (endDate && itemDate > endDate) return false;
+        return true;
+      });
+    };
+
+    return dataSet
+      .map(section => {
+        const afterText = applyTextFilter(section);
+        const afterDate = applyDateFilter(afterText);
+        return {...section, detail: afterDate};
+      })
+      .filter(section => section.detail && section.detail.length > 0);
+  }, [dataSet, filterText, startDate, endDate]);
 
   const redirectToPage = async (title, status, category, countValue) => {
     // Reset supplier index to default whenever redirecting from this card
@@ -1114,9 +1168,134 @@ const dataSet = React.useMemo(() => {
       </Modal>
       ) : null }
       
-      {dataSet?.length > 0 && (
+      <View style={styles.filterRow}>
+        <View style={{flexDirection: 'row', alignItems: 'center', flex: 1}}>
+          <TouchableOpacity
+            style={styles.filterIcon}
+            onPress={() => {
+              // focus handled by next frame
+              filterInputRef?.current?.focus?.();
+            }}>
+            <IconComponent type={ICON_TYPE.FontAwesome} name="filter" size={18} color={COLORS.themeBlack} />
+          </TouchableOpacity>
+          <TextInput
+            ref={filterInputRef}
+            value={filterText}
+            onChangeText={setFilterText}
+            placeholder="Filter modules (e.g., concern)"
+            style={styles.filterInput}
+            placeholderTextColor={COLORS.searchText}
+          />
+        </View>
+        {/* Calendar icon hidden as requested */}
+      </View>
+
+      <Modal
+        visible={rangeModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setRangeModalVisible(false)}>
+        <View style={styles.rangeModalBackdrop}>
+          <View style={styles.rangeModalBox}>
+            <Text style={styles.rangeTitle}>Select date range</Text>
+
+            <TouchableOpacity
+              style={styles.rangeRow}
+              onPress={() => {
+                setShowFromPicker(true);
+                setShowToPicker(false);
+              }}>
+              <Text style={styles.rangeLabel}>From</Text>
+              <Text style={styles.rangeValue}>
+                {tempStartDate ? tempStartDate.toDateString() : 'Pick date'}
+              </Text>
+            </TouchableOpacity>
+            {showFromPicker && (
+              <DateTimePicker
+                value={tempStartDate || new Date()}
+                mode="date"
+                display="default"
+                maximumDate={tempEndDate || undefined}
+                onChange={(event, date) => {
+                  setShowFromPicker(false);
+                  if (date) setTempStartDate(date);
+                }}
+              />
+            )}
+
+            <TouchableOpacity
+              style={styles.rangeRow}
+              onPress={() => {
+                setShowToPicker(true);
+                setShowFromPicker(false);
+              }}>
+              <Text style={styles.rangeLabel}>To</Text>
+              <Text style={styles.rangeValue}>
+                {tempEndDate ? tempEndDate.toDateString() : 'Pick date'}
+              </Text>
+            </TouchableOpacity>
+            {showToPicker && (
+              <DateTimePicker
+                value={tempEndDate || new Date()}
+                mode="date"
+                display="default"
+                minimumDate={tempStartDate || undefined}
+                onChange={(event, date) => {
+                  setShowToPicker(false);
+                  if (date) setTempEndDate(date);
+                }}
+              />
+            )}
+
+            <View style={styles.rangeActions}>
+              <TouchableOpacity
+                style={styles.rangeActionBtn}
+                onPress={() => {
+                  setShowFromPicker(false);
+                  setShowToPicker(false);
+                  setRangeModalVisible(false);
+                }}>
+                <Text style={styles.rangeActionText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.rangeActionBtnPrimary}
+                onPress={() => {
+                  setStartDate(tempStartDate);
+                  setEndDate(tempEndDate);
+                  setRangeModalVisible(false);
+
+                  const filteredModules = dataSet
+                    .map(section => {
+                      const detail = section.detail?.filter(item => {
+                        if (!item?.lastUpdated) return true;
+                        const itemDate = new Date(item.lastUpdated);
+                        if (tempStartDate && itemDate < tempStartDate) return false;
+                        if (tempEndDate && itemDate > tempEndDate) return false;
+                        return true;
+                      });
+                      return detail && detail.length > 0 ? {...section, detail} : null;
+                    })
+                    .filter(Boolean);
+
+                  requestAnimationFrame(() => {
+                    const params = {
+                      startDate: tempStartDate?.toISOString?.(),
+                      endDate: tempEndDate?.toISOString?.(),
+                      filteredModules,
+                    };
+                    navigations.navigate(ROUTES.FILTERED_LIST_SCREEN, params);
+                  });
+                }}>
+                <Text style={styles.rangeActionTextPrimary}>Apply</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {filteredDataSet?.length > 0 && (
         <FlatList
-          data={dataSet}
+          data={filteredDataSet}
           renderItem={({ item }) => item?.title === null ?  null :  <Item detail={item?.detail} title={item?.title} />}
           keyExtractor={item => String(item?.id)}
           contentContainerStyle={styles.listContentContainer}
@@ -1207,6 +1386,94 @@ const styles = StyleSheet.create({
   listContentContainer: {
     paddingTop: SPACING.SMALL,
     paddingBottom: SPACING.X_LARGE,
+  },
+  filterRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: SPACING.NORMAL,
+    marginTop: SPACING.SMALL,
+    marginBottom: SPACING.SMALL,
+  },
+  filterIcon: {
+    padding: SPACING.SMALL,
+  },
+  filterInput: {
+    flex: 1,
+    height: 40,
+    borderWidth: 1,
+    borderColor: COLORS.whiteGrey,
+    borderRadius: 10,
+    paddingHorizontal: SPACING.NORMAL,
+    fontFamily: 'OpenSans-Regular',
+    fontSize: FONT_SIZE.SMALL,
+    color: COLORS.themeBlack,
+    backgroundColor: COLORS.white,
+  },
+  calendarIcon: {
+    padding: SPACING.SMALL,
+    marginLeft: SPACING.SMALL,
+  },
+  rangeModalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.35)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  rangeModalBox: {
+    width: '86%',
+    backgroundColor: COLORS.white,
+    borderRadius: 12,
+    padding: SPACING.LARGE,
+    elevation: 6,
+  },
+  rangeTitle: {
+    fontFamily: 'OpenSans-SemiBold',
+    fontSize: FONT_SIZE.MEDIUM,
+    color: COLORS.themeBlack,
+    marginBottom: SPACING.MEDIUM,
+  },
+  rangeRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: SPACING.SMALL,
+  },
+  rangeLabel: {
+    fontFamily: 'OpenSans-Regular',
+    fontSize: FONT_SIZE.SMALL,
+    color: COLORS.themeBlack,
+  },
+  rangeValue: {
+    fontFamily: 'OpenSans-SemiBold',
+    fontSize: FONT_SIZE.SMALL,
+    color: COLORS.themeBlack,
+  },
+  rangeActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: SPACING.MEDIUM,
+  },
+  rangeActionBtn: {
+    paddingVertical: SPACING.SMALL,
+    paddingHorizontal: SPACING.NORMAL,
+    alignItems: 'center',
+  },
+  rangeActionBtnPrimary: {
+    paddingVertical: SPACING.SMALL,
+    paddingHorizontal: SPACING.NORMAL,
+    backgroundColor: COLORS.primary || '#00b3d6',
+    borderRadius: 8,
+    marginLeft: SPACING.SMALL,
+    alignItems: 'center',
+    minWidth: 90,
+  },
+  rangeActionText: {
+    fontFamily: 'OpenSans-SemiBold',
+    color: COLORS.themeBlack,
+  },
+  rangeActionTextPrimary: {
+    fontFamily: 'OpenSans-SemiBold',
+    color: COLORS.white || '#fff',
   },
 });
 
