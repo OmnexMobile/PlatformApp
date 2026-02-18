@@ -62,7 +62,7 @@ export let strings = new LocalizedStrings({
     audittype: "Audit Type",
     PleasechoosestartDateandEndDatefromcalendar:
       "Please choose Start Date and End Date from calendar",
-
+    Select_item: "Select item",
     /** Camera **/
     Camera_Capture_Head: "Take a photo",
     Camera_Capture: "Capture",
@@ -1233,7 +1233,7 @@ export let strings = new LocalizedStrings({
     va_cmd802: "保存",
     va_rep10: "it is good! I am saving your data!",
     // v_Key_Opening_NC:''
-
+    Select_item:'选择项',
     // audit summary
     AudiSummary: "总结报告",
     Tab1: "审计摘要",

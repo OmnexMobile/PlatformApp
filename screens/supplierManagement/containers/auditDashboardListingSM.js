@@ -1,15 +1,5 @@
-import React, {Component} from 'react';
-import {
-  View,
-  ImageBackground,
-  TouchableOpacity,
-  Text,
-  FlatList,
-  Platform,
-  ActivityIndicator,
-  Image,
-  LogBox,
-} from 'react-native';
+import React, { Component } from 'react';
+import { View, ImageBackground, TouchableOpacity, Text, FlatList, Platform, ActivityIndicator, Image, LogBox } from 'react-native';
 //styles
 import styles from '../../auditPro/styles/AuditDashboardListingStyle';
 //components
@@ -17,17 +7,17 @@ import OfflineNotice from '../../auditPro/components/OfflineNotice';
 //library
 import * as _ from 'lodash';
 import NetInfo from '@react-native-community/netinfo';
-import {DoubleBounce} from 'react-native-loader';
-import {connect} from 'react-redux';
+import { DoubleBounce } from 'react-native-loader';
+import { connect } from 'react-redux';
 //assets
-import {Fonts, Images} from '../../auditPro/Themes';
-import { IMAGES } from 'assets/images'
+import { Fonts, Images } from '../../auditPro/Themes';
+import { IMAGES } from 'assets/images';
 
-import Icon from 'react-native-vector-icons/FontAwesome';
+import Icon from 'react-native-vector-icons/Feather';
 //services
 import auth from '../../../services/SupplierMgnt-Auth';
 //strings
-import {strings} from '../../auditPro/language/Language';
+import { strings } from '../../auditPro/language/Language';
 //const
 import constant from '../../../constants/SupplierMgnt/AppConstants';
 import { SPACING } from 'constants/theme-constants';
@@ -37,120 +27,116 @@ import AuditCardSM from 'screens/auditPro/components/AuditCardSM';
 import { Content, Header, ListSearch } from 'components';
 import GlobalHeader from 'components/GlobalHeader';
 
-const {whitneyBook_18} = Fonts.style;
-const {blackGrey} = Fonts.colors;
+const { whitneyBook_18 } = Fonts.style;
+const { blackGrey } = Fonts.colors;
 
 class AuditDashboardListing extends Component {
-  constructor(props) {
-    super(props);
-    console.log('get props---->', props)
-    this.pageSize = 10;
-    this.pageNo = 1;    
-    this.onEndReachedCalledDuringMomentum = false;
-    // this.filterId = this.props.navigation.getParam('filterId');
+    constructor(props) {
+        super(props);
+        console.log('get props---->', props);
+        this.pageSize = 10;
+        this.pageNo = 1;
+        this.onEndReachedCalledDuringMomentum = false;
+        // this.filterId = this.props.navigation.getParam('filterId');
         this.currentUserData = this.props?.route?.params?.currentUserData;
-    console.log("Received User Data --->", this.props);
+        console.log('Received User Data --->', this.props);
 
-    this.state = {
-      listEndReached: false,
-      loader: true,
-      error: false,
-      subLoader: false,
-      auditList: [],
-      auditListAll: [],
-      filterID: 0,
-      SM: 0
-    };
-  }
+        this.state = {
+            listEndReached: false,
+            loader: true,
+            error: false,
+            subLoader: false,
+            auditList: [],
+            auditListAll: [],
+            filterID: 0,
+            SM: 0,
+        };
+    }
 
-  async componentDidMount() {
-    LogBox.ignoreLogs(["componentWillReceiveProps has been renamed"])
+    async componentDidMount() {
+        LogBox.ignoreLogs(['componentWillReceiveProps has been renamed']);
         // this.currentUserData = this.props?.route?.params?.currentUserData;
-    console.log('checkfilterID--------------------',this.props?.route?.params?.filterId);
-    console.log('checkfilterID--------------------smmdata',this.props);
+        console.log('checkfilterID--------------------', this.props?.route?.params?.filterId);
+        console.log('checkfilterID--------------------smmdata', this.props);
 
-    var filterIDasync = await AsyncStorage.getItem('FILTERIDLIST'); 
-    var SMDATAraw = await AsyncStorage.getItem('supplierIndex'); 
-    const SMDATA = SMDATAraw ? JSON.parse(SMDATAraw) : null;
-    console.log('checkingsmdatvalllll', SMDATA);
+        var filterIDasync = await AsyncStorage.getItem('FILTERIDLIST');
+        var SMDATAraw = await AsyncStorage.getItem('supplierIndex');
+        const SMDATA = SMDATAraw ? JSON.parse(SMDATAraw) : null;
+        console.log('checkingsmdatvalllll', SMDATA);
 
-    if (this.props.data.audits.language === 'Chinese') {
-      this.setState({ChineseScript: true}, () => {
-        strings.setLanguage('zh');
-        this.setState({});
-      });
-    } else if (
-      this.props.data.audits.language === null ||
-      this.props.data.audits.language === 'English'
-    ) {
-      this.setState({ChineseScript: false}, () => {
-        strings.setLanguage('en-US');
-        this.setState({});
-      });
-    }
-     this.setState(
-      {
-        filterID: filterIDasync,
-        SM: SMDATA,
-      },
-      () => {
-        // Keep Redux copy in sync so consumers reading smdata from props get the latest selection
-        if (SMDATA !== null) {
-          this.props.dispatch({type: 'STORE_SUPPLIER_DATA', smdata: SMDATA});
+        if (this.props.data.audits.language === 'Chinese') {
+            this.setState({ ChineseScript: true }, () => {
+                strings.setLanguage('zh');
+                this.setState({});
+            });
+        } else if (this.props.data.audits.language === null || this.props.data.audits.language === 'English') {
+            this.setState({ ChineseScript: false }, () => {
+                strings.setLanguage('en-US');
+                this.setState({});
+            });
         }
-        console.log('FILTERIDCHECK*****************smmmm', this.state.filterID, this.state.SM);
-        this.refreshAudits();
-      },
-    ); 
-    this.focusListener = this.props.navigation.addListener('focus', () => {
-        console.log('AuditDashboardListing focused');
-        this.refreshAudits();
-      });
-  }
-
-  componentWillUnmount() {
-    if (this.focusListener) {
-      this.focusListener();
-    }
-  }
-applyAuditFilter = () => {
-    const {searchKey, auditListAll} = this.state;
-    if (!auditListAll || auditListAll.length === 0) {
-      return;
-    }
-
-    const query = (searchKey || '').toLowerCase().trim();
-
-    if (!query) {
-      this.setState({auditList: auditListAll});
-      return;
+        this.setState(
+            {
+                filterID: filterIDasync,
+                SM: SMDATA,
+            },
+            () => {
+                // Keep Redux copy in sync so consumers reading smdata from props get the latest selection
+                if (SMDATA !== null) {
+                    this.props.dispatch({ type: 'STORE_SUPPLIER_DATA', smdata: SMDATA });
+                }
+                console.log('FILTERIDCHECK*****************smmmm', this.state.filterID, this.state.SM);
+                this.refreshAudits();
+            },
+        );
+        this.focusListener = this.props.navigation.addListener('focus', () => {
+            console.log('AuditDashboardListing focused');
+            this.refreshAudits();
+        });
     }
 
-    const filtered = auditListAll.filter(item => {
-      const auditNumber = (item.AuditNumber || '').toString().toLowerCase();
-      const auditee = (item.Auditee || '').toString().toLowerCase();
-      const startDate = (item.StartDate || '').split('T')[0].toLowerCase();
-      const endDate = (item.EndDate || '').split('T')[0].toLowerCase();
+    componentWillUnmount() {
+        if (this.focusListener) {
+            this.focusListener();
+        }
+    }
+    applyAuditFilter = () => {
+        const { searchKey, auditListAll } = this.state;
+        if (!auditListAll || auditListAll.length === 0) {
+            return;
+        }
 
-      return (
-        auditNumber.includes(query) ||
-        auditee.includes(query) ||
-        startDate.includes(query) ||
-        endDate.includes(query)
-      );
-    });
+        const query = (searchKey || '').toLowerCase().trim();
 
-    this.setState({auditList: filtered});
-  };
-  
-  render() {
-    return (
-      <View style={styles.wrapper}>
-        {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
-        {/* Offline notification */}
-        <OfflineNotice />
-    
-                 {/* <View style={styles.header}>
+        if (!query) {
+            this.setState({ auditList: auditListAll });
+            return;
+        }
+
+        const filtered = auditListAll.filter(item => {
+            const auditNumber = (item.AuditNumber || '').toString().toLowerCase();
+            const auditee = (item.Auditee || '').toString().toLowerCase();
+            const startDate = (item.StartDate || '').split('T')[0].toLowerCase();
+            const endDate = (item.EndDate || '').split('T')[0].toLowerCase();
+
+            return auditNumber.includes(query) || auditee.includes(query) || startDate.includes(query) || endDate.includes(query);
+        });
+
+        this.setState({ auditList: filtered });
+    };
+
+    render() {
+        return (
+            <View style={styles.wrapper}>
+                {Platform.OS === 'ios' ? (
+                    <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }} />
+                ) : (
+                    <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }} />
+                )}
+                {/* Offline notification */}
+                <OfflineNotice />
+
+                {/* <View style={styles.header}>
                    <TouchableOpacity
                      onPress={() => this.props.navigation.goBack()}
                      style={styles.backlogo}>
@@ -171,416 +157,396 @@ applyAuditFilter = () => {
                      </TouchableOpacity>
                    </View>
                  </View> */}
-                 <GlobalHeader
-                    title={
-                        'Audits'
-                    }
+                <GlobalHeader
+                    title={'Audits'}
                     onLeftPress={() => this.props.navigation.goBack()}
                     onRightPress={() => this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)}
                     containerStyle={{ backgroundColor: 'transparent' }}
                     titleStyle={{ color: '#000' }}
                     leftIconColor="#00b3d6"
                 />
-        <View style={styles.auditPageBody}>
-           <ListSearch
-                      searchKey={this.state.searchKey}
-                      setSearchKey={searchKey =>
-                        this.setState({searchKey, AuditSearch: searchKey}, () => {
-                          this.applyAuditFilter();
-                        })
-                      }
-                      placeholder="search by audit no, auditee or date (YYYY-MM-DD)"
+                <View style={styles.auditPageBody}>
+                    <ListSearch
+                        searchKey={this.state.searchKey}
+                        setSearchKey={searchKey =>
+                            this.setState({ searchKey, AuditSearch: searchKey }, () => {
+                                this.applyAuditFilter();
+                            })
+                        }
+                        placeholder="search by audit no, auditee or date (YYYY-MM-DD)"
                     />
-          {this.state.loader ? (
-            <View style={styles.loaderParent}>
-              <ActivityIndicator size={20} color="#1CAFF6" />
+                    {this.state.loader ? (
+                        <View style={styles.loaderParent}>
+                            <ActivityIndicator size={20} color="#1CAFF6" />
+                        </View>
+                    ) : this.state.error ? (
+                        <View style={styles.errorWrapper}>
+                            <View
+                                style={{
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    marginRight: -25,
+                                    marginVertical: 10,
+                                }}>
+                                <Image source={Images.emptybox} style={{ height: 65, resizeMode: 'contain' }} />
+                            </View>
+                            <Text style={[whitneyBook_18, blackGrey, { fontFamily: 'OpenSans-Regular' }]}>{strings.No_records_found}</Text>
+                        </View>
+                    ) : (
+                        this.renderFlatList()
+                    )}
+                </View>
             </View>
-          ) : this.state.error ? (
-            <View style={styles.errorWrapper}>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems:"center",
-                  justifyContent: 'center',
-                  marginRight:-25,
-                  marginVertical: 10,
-                }}>
-                <Image
-                  source={Images.emptybox}
-                  style={{height: 65, resizeMode: 'contain'}}
-                />
-              </View>
-              <Text
-                style={[
-                  whitneyBook_18,
-                  blackGrey,
-                  {fontFamily: 'OpenSans-Regular'},
-                ]}>
-                {strings.No_records_found}
-              </Text>
-            </View>
-          ) : (
-            this.renderFlatList()
-          )}
-        </View>
-      </View>
-    );
-  }
-
-  renderFlatList() {
-
-    return (
-      <FlatList
-        contentContainerStyle={styles.listPadding}
-        data={this.state.auditList}
-        showsVerticalScrollIndicator={false}
-        showsHorizontalScrollIndicator={false}
-        keyExtractor={(item, index) => index.toString()}
-        renderItem={({item, index}) => (
-          <AuditCardSM
-            dateFormat={this.props.data.audits.userDateFormat}
-            item={item}
-            index={index}
-            length={this.state.auditList.length + 1}
-            naviData={this.props.navigation}
-            smData={this.state.SM}
-          />
-        
-        )}
-        onEndReached={({distanceFromEnd}) => {
-          /** we use this condition because will receive too many events after scroll end */
-          if (!this.onEndReachedCalledDuringMomentum) {
-            /** settng true user keep on dragging will elimintae unnecessary call */
-            this.onEndReachedCalledDuringMomentum = true;
-            this.setState({subLoader: true});
-            this.getAudits();
-          }
-        }}
-        onEndReachedThreshold={Platform.OS === 'ios' ? 0 : 0.5}
-        onMomentumScrollBegin={() => {
-          this.onEndReachedCalledDuringMomentum = false;
-        }}
-        ListFooterComponent={this.listFooter.bind(this)}
-      />
-    );
-  }
-
-  listFooter() {
-    if (this.state.subLoader) {
-      return (
-        <View style={styles.subLoaderWrap}>
-          <ActivityIndicator size={20} color="#1CAFF6" />
-        </View>
-      );
-    } else {
-      return null;
+        );
     }
-  }
 
-  refreshAudits = () => {
-    this.pageSize = 10;
-    this.pageNo = 1;
-    this.onEndReachedCalledDuringMomentum = false;
-
-    this.setState(
-      {
-        auditList: [],
-        auditListAll: [],
-        loader: true,
-        error: false,
-        subLoader: false,
-        listEndReached: false,
-      },
-      () => this.getAudits(),
-    );
-  };
-
-  getAudits(startDate, endDate) {
-     this.setState(
-      {
-        loading: true,
-        startDateFilter: startDate || '',
-        endDateFilter: endDate || '',
-      },
-    );
-    if (this.props?.data?.audits?.isOfflineMode) {
-      // this.refs.toast.show(strings.Audit_List_Failed, DURATION.LENGTH_LONG)
-      this.setState(
-        {
-          auditList: this.props?.data?.audits?.audits,
-          auditListAll: this.props?.data?.audits?.audits,
-          loading: false,
-          isRefreshing: false,
-          isLazyLoading: false,
-          isLazyLoadingRequired: false,
-          isPageEmpty: false,
-          isMounted: true,
-        },
-        () => {
-          this.applyAuditFilter();
-        },
-      );
-    }
-    NetInfo.fetch().then(netState => {
-      if (netState.isConnected) {
-        const {userId, token} = this.props.data.audits;
-        const siteId = this.props.data.audits.siteId;
-
-        var SM = this.props.data.audits.smdata;
-        var GlobalFilter = '',
-          StartDate = '',
-          EndDate = '';
-        var SortBy = '',
-          SortOrder = '',
-          Default = 1;
-        let filterStr = '';
-
-        if (this.state.filterID === '2') {
-          filterStr = 'AuditStatus IN (2)';
-        } else if (this.state.filterID === '3') {
-          filterStr = 'AuditStatus IN (3)';
-        } else if (this.state.filterID === '4') {
-          filterStr = 'AuditStatus IN (4)';
-        } else if (this.state.filterID === '5') {
-          filterStr = 'AuditStatus IN (5)';
-        }
-        console.log('tret', auth.getauditlist);
-        console.log('paramcheckkkk', 
-          this.currentUserData.accessToken,
-          this.currentUserData.userId,
-          this.currentUserData.siteId,
-          this.pageNo,
-          this.pageSize,
-          filterStr,
-          GlobalFilter,
-          StartDate,
-          EndDate,
-          SortBy,
-          SortOrder,
-          this.state.SM,);
-        
-        auth.getauditlist(
-          this.currentUserData.accessToken,
-          this.currentUserData.userId,
-          this.currentUserData.siteId,
-          this.pageNo,
-          this.pageSize,
-          filterStr,
-          GlobalFilter,
-          StartDate,
-          EndDate,
-          SortBy,
-          SortOrder,
-          this.state.SM,
-          Default,
-          (response, data) => {
-            console.log('get audit list', data);
-            if (data.data) {
-              if (data.data.Message === 'Success') {
-                if (data.data.Data && data.data.Data.length === 0) {
-                  if (this.state.auditList.length === 0) {
-                    this.setState({
-                      loader: false,
-                      error: true,
-                      subLoader: false,
-                      listEndReached: false,
-                    });
-                  } else {
-                    this.setState({
-                      loader: false,
-                      error: false,
-                      subLoader: false,
-                      listEndReached: false,
-                    });
-                  }
-                  this.onEndReachedCalledDuringMomentum = true;
-                } else {
-                  /** Validating api returns same amount of data */
-                  if (this.state.auditList.length === data.data.Data.length) {
-                    this.onEndReachedCalledDuringMomentum = true;
-                    this.setState({
-                      loader: false,
-                      error: false,
-                      subLoader: false,
-                      listEndReached: true,
-                    });
-                  } else {
-                    //we are incrementing the next request form data
-                    this.pageSize = this.pageSize + 10;
-                    /** We have succes api repsonse we need to populate in UI */
-                    this.transformAudits(data.data.Data);
+    renderFlatList() {
+        return (
+            <FlatList
+                contentContainerStyle={styles.listPadding}
+                data={this.state.auditList}
+                showsVerticalScrollIndicator={false}
+                showsHorizontalScrollIndicator={false}
+                keyExtractor={(item, index) => index.toString()}
+                renderItem={({ item, index }) => (
+                    <AuditCardSM
+                        dateFormat={this.props.data.audits.userDateFormat}
+                        item={item}
+                        index={index}
+                        length={this.state.auditList.length + 1}
+                        naviData={this.props.navigation}
+                        smData={this.state.SM}
+                    />
+                )}
+                onEndReached={({ distanceFromEnd }) => {
+                    /** we use this condition because will receive too many events after scroll end */
+                    if (!this.onEndReachedCalledDuringMomentum) {
+                        /** settng true user keep on dragging will elimintae unnecessary call */
+                        this.onEndReachedCalledDuringMomentum = true;
+                        this.setState({ subLoader: true });
+                        this.getAudits();
+                    }
+                }}
+                onEndReachedThreshold={Platform.OS === 'ios' ? 0 : 0.5}
+                onMomentumScrollBegin={() => {
                     this.onEndReachedCalledDuringMomentum = false;
-                  }
+                }}
+                ListFooterComponent={this.listFooter.bind(this)}
+            />
+        );
+    }
+
+    listFooter() {
+        if (this.state.subLoader) {
+            return (
+                <View style={styles.subLoaderWrap}>
+                    <ActivityIndicator size={20} color="#1CAFF6" />
+                </View>
+            );
+        } else {
+            return null;
+        }
+    }
+
+    refreshAudits = () => {
+        this.pageSize = 10;
+        this.pageNo = 1;
+        this.onEndReachedCalledDuringMomentum = false;
+
+        this.setState(
+            {
+                auditList: [],
+                auditListAll: [],
+                loader: true,
+                error: false,
+                subLoader: false,
+                listEndReached: false,
+            },
+            () => this.getAudits(),
+        );
+    };
+
+    getAudits(startDate, endDate) {
+        this.setState({
+            loading: true,
+            startDateFilter: startDate || '',
+            endDateFilter: endDate || '',
+        });
+        if (this.props?.data?.audits?.isOfflineMode) {
+            // this.refs.toast.show(strings.Audit_List_Failed, DURATION.LENGTH_LONG)
+            this.setState(
+                {
+                    auditList: this.props?.data?.audits?.audits,
+                    auditListAll: this.props?.data?.audits?.audits,
+                    loading: false,
+                    isRefreshing: false,
+                    isLazyLoading: false,
+                    isLazyLoadingRequired: false,
+                    isPageEmpty: false,
+                    isMounted: true,
+                },
+                () => {
+                    this.applyAuditFilter();
+                },
+            );
+        }
+        NetInfo.fetch().then(netState => {
+            if (netState.isConnected) {
+                const { userId, token } = this.props.data.audits;
+                const siteId = this.props.data.audits.siteId;
+
+                var SM = this.props.data.audits.smdata;
+                var GlobalFilter = '',
+                    StartDate = '',
+                    EndDate = '';
+                var SortBy = '',
+                    SortOrder = '',
+                    Default = 1;
+                let filterStr = '';
+
+                if (this.state.filterID === '2') {
+                    filterStr = 'AuditStatus IN (2)';
+                } else if (this.state.filterID === '3') {
+                    filterStr = 'AuditStatus IN (3)';
+                } else if (this.state.filterID === '4') {
+                    filterStr = 'AuditStatus IN (4)';
+                } else if (this.state.filterID === '5') {
+                    filterStr = 'AuditStatus IN (5)';
                 }
-              } else {
-                /**
-                 * Failure response checking the list already having data
-                 * If list having data we just hide the loader
-                 * else there is no data for first request we have to show error
-                 */
-                if (this.state.auditList.length === 0) {
-                  this.setState({
+                console.log('tret', auth.getauditlist);
+                console.log(
+                    'paramcheckkkk',
+                    this.currentUserData.accessToken,
+                    this.currentUserData.userId,
+                    this.currentUserData.siteId,
+                    this.pageNo,
+                    this.pageSize,
+                    filterStr,
+                    GlobalFilter,
+                    StartDate,
+                    EndDate,
+                    SortBy,
+                    SortOrder,
+                    this.state.SM,
+                );
+
+                auth.getauditlist(
+                    this.currentUserData.accessToken,
+                    this.currentUserData.userId,
+                    this.currentUserData.siteId,
+                    this.pageNo,
+                    this.pageSize,
+                    filterStr,
+                    GlobalFilter,
+                    StartDate,
+                    EndDate,
+                    SortBy,
+                    SortOrder,
+                    this.state.SM,
+                    Default,
+                    (response, data) => {
+                        console.log('get audit list', data);
+                        if (data.data) {
+                            if (data.data.Message === 'Success') {
+                                if (data.data.Data && data.data.Data.length === 0) {
+                                    if (this.state.auditList.length === 0) {
+                                        this.setState({
+                                            loader: false,
+                                            error: true,
+                                            subLoader: false,
+                                            listEndReached: false,
+                                        });
+                                    } else {
+                                        this.setState({
+                                            loader: false,
+                                            error: false,
+                                            subLoader: false,
+                                            listEndReached: false,
+                                        });
+                                    }
+                                    this.onEndReachedCalledDuringMomentum = true;
+                                } else {
+                                    /** Validating api returns same amount of data */
+                                    if (this.state.auditList.length === data.data.Data.length) {
+                                        this.onEndReachedCalledDuringMomentum = true;
+                                        this.setState({
+                                            loader: false,
+                                            error: false,
+                                            subLoader: false,
+                                            listEndReached: true,
+                                        });
+                                    } else {
+                                        //we are incrementing the next request form data
+                                        this.pageSize = this.pageSize + 10;
+                                        /** We have succes api repsonse we need to populate in UI */
+                                        this.transformAudits(data.data.Data);
+                                        this.onEndReachedCalledDuringMomentum = false;
+                                    }
+                                }
+                            } else {
+                                /**
+                                 * Failure response checking the list already having data
+                                 * If list having data we just hide the loader
+                                 * else there is no data for first request we have to show error
+                                 */
+                                if (this.state.auditList.length === 0) {
+                                    this.setState({
+                                        loader: false,
+                                        error: true,
+                                        subLoader: false,
+                                        listEndReached: true,
+                                    });
+                                } else {
+                                    /** Api error but we have data in the list */
+                                    this.onEndReachedCalledDuringMomentum = false;
+                                    this.setState({
+                                        loader: false,
+                                        error: false,
+                                        subLoader: false,
+                                        listEndReached: false,
+                                    });
+                                }
+                            }
+                        } else {
+                            /**
+                             * Failure response checking the list already having data
+                             * If list having data we just hide the loader
+                             * else there is no data for first request we have to show error
+                             */
+                            if (this.state.auditList.length === 0) {
+                                this.setState({
+                                    loader: false,
+                                    error: true,
+                                    subLoader: false,
+                                    listEndReached: true,
+                                });
+                            } else {
+                                /** Api error but we have data in the list */
+                                this.onEndReachedCalledDuringMomentum = false;
+                                this.setState({
+                                    loader: false,
+                                    error: false,
+                                    subLoader: false,
+                                    listEndReached: false,
+                                });
+                            }
+                        }
+                    },
+                );
+            } else {
+                /** Users is offline */
+                this.setState({
                     loader: false,
                     error: true,
-                    subLoader: false,
-                    listEndReached: true,
-                  });
-                } else {
-                  /** Api error but we have data in the list */
-                  this.onEndReachedCalledDuringMomentum = false;
-                  this.setState({
-                    loader: false,
-                    error: false,
-                    subLoader: false,
-                    listEndReached: false,
-                  });
-                }
-              }
-            } else {
-              /**
-               * Failure response checking the list already having data
-               * If list having data we just hide the loader
-               * else there is no data for first request we have to show error
-               */
-              if (this.state.auditList.length === 0) {
-                this.setState({
-                  loader: false,
-                  error: true,
-                  subLoader: false,
-                  listEndReached: true,
                 });
-              } else {
-                /** Api error but we have data in the list */
-                this.onEndReachedCalledDuringMomentum = false;
-                this.setState({
-                  loader: false,
-                  error: false,
-                  subLoader: false,
-                  listEndReached: false,
-                });
-              }
             }
-          },
-        );
-      } else {
-        /** Users is offline */
-        this.setState({
-          loader: false,
-          error: true,
         });
-      }
-    });
-  }
-
-  transformAudits(audits) {
-    var auditList = [];
-    var auditListProps = this.props.data.audits.auditRecords;
-    console.log('AuditListProps', auditListProps);
-
-    for (var i = 0; i < audits.length; i++) {
-      var auditInfo = audits[i];
-      auditInfo['color'] = '#1081de';
-      auditInfo['cStatus'] = constant.StatusScheduled;
-      auditInfo['key'] = this.keyVal + 1;
-      // ensure downstream screens receive consistent id shape
-      auditInfo['AuditId'] = audits[i]?.ActualAuditId || audits[i]?.AuditId;
-
-      // Set Audit Status
-
-      // Set Audit Status
-      if (audits[i].AuditStatus == 3 && (audits[i].CloseOutStatus == "9" || audits[i].CloseOutStatus == "7")) {
-        auditInfo['cStatus'] = constant.StatusCompleted;
-      } else {
-        if (audits[i].AuditStatus == 3 && audits[i].CloseOutStatus !== "9" && audits[i].CloseOutStatus !== "7") {
-          auditInfo['cStatus'] = constant.Completed;
-        } else if (
-          audits[i].AuditStatus == 2 &&
-          audits[i].PerformStarted == 0
-        ) {
-          auditInfo['cStatus'] = constant.StatusScheduled;
-        } else if (
-          audits[i].AuditStatus == 2 &&
-          audits[i].PerformStarted == 1
-        ) {
-          auditInfo['cStatus'] = constant.StatusProcessing;
-        } else if (audits[i].AuditStatus == 4) {
-          auditInfo['cStatus'] = constant.StatusDV;
-        } else if (audits[i].AuditStatus == 5) {
-          auditInfo['cStatus'] = constant.StatusDVC;
-        }
-      }
-      for (var j = 0; j < auditListProps.length; j++) {
-        if (
-          parseInt(auditListProps[j].AuditId) ==
-          parseInt(audits[i].ActualAuditId)
-        ) {
-          // Update Audit Status
-          if (
-            auditListProps[j].AuditRecordStatus == constant.StatusDownloaded ||
-            auditListProps[j].AuditRecordStatus == constant.StatusNotSynced ||
-            auditListProps[j].AuditRecordStatus == constant.StatusSynced
-          ) {
-            auditInfo['cStatus'] = auditListProps[j].AuditRecordStatus;
-          }
-          break;
-        }
-      }
-
-      // Set Audit Card color by checking its Status
-      switch (auditInfo['cStatus']) {
-        case constant.StatusScheduled:
-          auditInfo['color'] = '#1081de';
-          break;
-        case constant.StatusDownloaded:
-          auditInfo['color'] = '#cd8cff';
-          break;
-        case constant.StatusNotSynced:
-          auditInfo['color'] = '#2ec3c7';
-          break;
-        case constant.StatusProcessing:
-          auditInfo['color'] = '#e88316';
-          break;
-        case constant.StatusSynced:
-          auditInfo['color'] = '#48bcf7';
-          break;
-        case constant.StatusCompleted:
-          auditInfo['color'] = '#000';
-          break;
-        case constant.Completed:
-          auditInfo['color'] = 'green';
-          break;
-        case constant.StatusDV:
-          auditInfo['color'] = 'red';
-          break;
-        case constant.StatusDVC:
-          auditInfo['color'] = 'green';
-          break;
-        default:
-          auditInfo['color'] = '#000';
-          break;
-      }
-
-      auditList.push(auditInfo);
-      this.keyVal = this.keyVal + 1;
     }
 
-    this.setState({
-      auditList: auditList,
-      auditListAll: auditList,
-      loader: false,
-      error: false,
-      subLoader: false,
-      listEndReached: false,
-    },()=>{
-      this.applyAuditFilter();
-    });
-  }
+    transformAudits(audits) {
+        var auditList = [];
+        var auditListProps = this.props.data.audits.auditRecords;
+        console.log('AuditListProps', auditListProps);
+
+        for (var i = 0; i < audits.length; i++) {
+            var auditInfo = audits[i];
+            auditInfo['color'] = '#1081de';
+            auditInfo['cStatus'] = constant.StatusScheduled;
+            auditInfo['key'] = this.keyVal + 1;
+            // ensure downstream screens receive consistent id shape
+            auditInfo['AuditId'] = audits[i]?.ActualAuditId || audits[i]?.AuditId;
+
+            // Set Audit Status
+
+            // Set Audit Status
+            if (audits[i].AuditStatus == 3 && (audits[i].CloseOutStatus == '9' || audits[i].CloseOutStatus == '7')) {
+                auditInfo['cStatus'] = constant.StatusCompleted;
+            } else {
+                if (audits[i].AuditStatus == 3 && audits[i].CloseOutStatus !== '9' && audits[i].CloseOutStatus !== '7') {
+                    auditInfo['cStatus'] = constant.Completed;
+                } else if (audits[i].AuditStatus == 2 && audits[i].PerformStarted == 0) {
+                    auditInfo['cStatus'] = constant.StatusScheduled;
+                } else if (audits[i].AuditStatus == 2 && audits[i].PerformStarted == 1) {
+                    auditInfo['cStatus'] = constant.StatusProcessing;
+                } else if (audits[i].AuditStatus == 4) {
+                    auditInfo['cStatus'] = constant.StatusDV;
+                } else if (audits[i].AuditStatus == 5) {
+                    auditInfo['cStatus'] = constant.StatusDVC;
+                }
+            }
+            for (var j = 0; j < auditListProps.length; j++) {
+                if (parseInt(auditListProps[j].AuditId) == parseInt(audits[i].ActualAuditId)) {
+                    // Update Audit Status
+                    if (
+                        auditListProps[j].AuditRecordStatus == constant.StatusDownloaded ||
+                        auditListProps[j].AuditRecordStatus == constant.StatusNotSynced ||
+                        auditListProps[j].AuditRecordStatus == constant.StatusSynced
+                    ) {
+                        auditInfo['cStatus'] = auditListProps[j].AuditRecordStatus;
+                    }
+                    break;
+                }
+            }
+
+            // Set Audit Card color by checking its Status
+            switch (auditInfo['cStatus']) {
+                case constant.StatusScheduled:
+                    auditInfo['color'] = '#1081de';
+                    break;
+                case constant.StatusDownloaded:
+                    auditInfo['color'] = '#cd8cff';
+                    break;
+                case constant.StatusNotSynced:
+                    auditInfo['color'] = '#2ec3c7';
+                    break;
+                case constant.StatusProcessing:
+                    auditInfo['color'] = '#e88316';
+                    break;
+                case constant.StatusSynced:
+                    auditInfo['color'] = '#48bcf7';
+                    break;
+                case constant.StatusCompleted:
+                    auditInfo['color'] = '#000';
+                    break;
+                case constant.Completed:
+                    auditInfo['color'] = 'green';
+                    break;
+                case constant.StatusDV:
+                    auditInfo['color'] = 'red';
+                    break;
+                case constant.StatusDVC:
+                    auditInfo['color'] = 'green';
+                    break;
+                default:
+                    auditInfo['color'] = '#000';
+                    break;
+            }
+
+            auditList.push(auditInfo);
+            this.keyVal = this.keyVal + 1;
+        }
+
+        this.setState(
+            {
+                auditList: auditList,
+                auditListAll: auditList,
+                loader: false,
+                error: false,
+                subLoader: false,
+                listEndReached: false,
+            },
+            () => {
+                this.applyAuditFilter();
+            },
+        );
+    }
 }
 
 const mapStateToProps = state => {
-  return {
-    data: state,
-  };
+    return {
+        data: state,
+    };
 };
 
 export default connect(mapStateToProps)(AuditDashboardListing);
