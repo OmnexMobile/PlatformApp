@@ -54,6 +54,26 @@ const AppProvider = ({ children }) => {
     const [globalDeviceDetails, setGlobalDeviceDetails] = useState({
         deviceDetails: [],
     });
+
+    const resolveSelectedSite = (siteList = [], storedSiteDetails, storedSiteId) => {
+        if (storedSiteDetails && typeof storedSiteDetails === 'object' && !Array.isArray(storedSiteDetails)) {
+            return storedSiteDetails;
+        }
+
+        const normalizedStoredId = storedSiteId?.Siteid || storedSiteId?.SiteId || storedSiteId?.SiteID || storedSiteId;
+
+        if (normalizedStoredId && Array.isArray(siteList)) {
+            const matchedSite = siteList.find(site => {
+                const candidateId = site?.Siteid || site?.SiteId || site?.SiteID || site?.id;
+                return candidateId != null && candidateId.toString() === normalizedStoredId.toString();
+            });
+            if (matchedSite) {
+                return matchedSite;
+            }
+        }
+
+        return Array.isArray(siteList) && siteList.length ? siteList[0] : null;
+    };
     useEffect(() => {
         (async () => {
             try {
@@ -193,14 +213,24 @@ const AppProvider = ({ children }) => {
     // };
 
     const handleSite = async selectedSite => {
-        // console.log('🚀 ~ file: app-context.js:--79 ~ handleSite ~ selectedSite:', selectedSite, selectedSite?.length);
-        console.log('🚀 ~ file: app-context.js:--80 ~ handleSite1111 ~ selectedSite:', selectedSite,'--', selectedSite?.[0], '--', selectedSite?.length);
-        await localStorage.storeData(LOCAL_STORAGE_VARIABLES.SiteDetails, selectedSite);
-        await localStorage.storeData(LOCAL_STORAGE_VARIABLES.SiteId, selectedSite);
+        const normalizedSelectedSite = Array.isArray(selectedSite) ? selectedSite?.[0] : selectedSite;
+
+        if (!normalizedSelectedSite) {
+            await localStorage.removeItem(LOCAL_STORAGE_VARIABLES.SiteId);
+            await localStorage.removeItem(LOCAL_STORAGE_VARIABLES.SiteDetails);
+            setSites({
+                ...sites,
+                selectedSite: null,
+            });
+            return;
+        }
+
+        console.log('🚀 ~ file: app-context.js:--80 ~ handleSite1111 ~ selectedSite:', normalizedSelectedSite, '--', normalizedSelectedSite?.Siteid, '--', normalizedSelectedSite?.length);
+        await localStorage.storeData(LOCAL_STORAGE_VARIABLES.SiteDetails, normalizedSelectedSite);
+        await localStorage.storeData(LOCAL_STORAGE_VARIABLES.SiteId, normalizedSelectedSite);
         setSites({
             ...sites,
-            selectedSite: selectedSite?.length ? selectedSite?.[0] : selectedSite,
-            // typeof selectedSite?.length === 'undefined'
+            selectedSite: normalizedSelectedSite,
         });
     };
 
@@ -225,17 +255,22 @@ const AppProvider = ({ children }) => {
     //     });
     // };
        const handleSiteList = async (siteList, selectedSite) => {
+        const resolvedSite = resolveSelectedSite(
+            siteList,
+            typeof selectedSite === 'object' && !Array.isArray(selectedSite) ? selectedSite : sites?.selectedSite,
+            selectedSite,
+        );
+
         await localStorage.storeData(LOCAL_STORAGE_VARIABLES.SITES, siteList);
-        if (selectedSite) {
-            await localStorage.storeData(LOCAL_STORAGE_VARIABLES.SiteId, selectedSite);
-            await localStorage.storeData(LOCAL_STORAGE_VARIABLES.SiteDetails, selectedSite);
-        } else {
-            !sites?.selectedSite && (await localStorage.storeData(LOCAL_STORAGE_VARIABLES.SiteId, siteList?.[0]));
-            !sites?.selectedSite && (await localStorage.storeData(LOCAL_STORAGE_VARIABLES.SiteDetails, siteList?.[0]));
+
+        if (resolvedSite) {
+            await localStorage.storeData(LOCAL_STORAGE_VARIABLES.SiteId, resolvedSite);
+            await localStorage.storeData(LOCAL_STORAGE_VARIABLES.SiteDetails, resolvedSite);
         }
+
         setSites({
             ...sites,
-            selectedSite: selectedSite ? selectedSite : siteList?.[0],
+            selectedSite: resolvedSite,
             siteList,
         });
     };
@@ -305,10 +340,8 @@ const AppProvider = ({ children }) => {
             deviceStatusSettings,
         });
         setTimeSettings(timeSettings);
-        let getSites = SiteId ? SiteId : SiteList?.[0];
-        handleSiteList(SiteList,getSites);
-        SiteDetails && handleSite(SiteDetails);
-        // SiteId && handleSite(SiteId);
+        const resolvedSite = resolveSelectedSite(SiteList, SiteDetails, SiteId);
+        await handleSiteList(SiteList, resolvedSite);
     };
 
     const getRecentActivity = async () => {
@@ -331,6 +364,13 @@ const AppProvider = ({ children }) => {
     useEffect(() => {
         handleLanguage();
     }, []);
+
+    useEffect(() => {
+        if (sites?.selectedSite) {
+            localStorage.storeData(LOCAL_STORAGE_VARIABLES.SiteId, sites.selectedSite);
+            localStorage.storeData(LOCAL_STORAGE_VARIABLES.SiteDetails, sites.selectedSite);
+        }
+    }, [sites?.selectedSite]);
 
     return (
         <AppContext.Provider

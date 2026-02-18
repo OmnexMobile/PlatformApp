@@ -3765,7 +3765,7 @@ class CreateNC extends Component {
                     ref="toast"
                     position="top"
                     opacity={1}
-                    style={{ backgroundColor: 'red' }}
+                    style={{ backgroundColor: 'black' }}
                     textStyle={{ color: 'white' }}
                 />
 

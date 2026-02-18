@@ -1242,7 +1242,10 @@ class CreateAttach extends React.Component {
                 )}
                 {/** ---------------------- */}
                 <View style={styles.auditPageBody}>
-                    <ScrollView>
+                    <ScrollView
+                        keyboardShouldPersistTaps="handled"
+                        nestedScrollEnabled
+                        contentContainerStyle={{ paddingBottom: 140 }}>
                         {this.state.EditFlag === true ? (
                             <View style={styles.manFields}>
                                 <View
@@ -1257,18 +1260,10 @@ class CreateAttach extends React.Component {
                                         value={this.state.attachText}
                                         editable={false}
                                         required
-                                        containerStyle={{ paddingHorizontal: 0, marginBottom: 0 }}
+                                        containerStyle={{ paddingHorizontal: 0, marginBottom: 0, zIndex: 1000, elevation: 1000 }}
                                     />
                                     {this.state.isErrorFound && this.state.TypeID == '' ? (
-                                        <Text
-                                            style={{
-                                                color: 'red',
-                                                fontSize: Fonts.size.small,
-                                                width: '100%',
-                                                fontFamily: 'OpenSans-Regular',
-                                            }}>
-                                            {strings.TypeMissing}{' '}
-                                        </Text>
+                                        toast(strings.TypeMissing, '', TOAST_STATUS.ERROR)
                                     ) : null}
                                 </View>
 
@@ -1289,7 +1284,7 @@ class CreateAttach extends React.Component {
                                         label={strings.DropType}
                                         value={this.state.attachText}
                                         required
-                                        containerStyle={{ paddingHorizontal: 0, marginBottom: 0 }}
+                                        containerStyle={{ paddingHorizontal: 0, marginBottom: 0, zIndex: 1000, elevation: 1000 }}
                                         onChange={selectedValue => {
                                             const selectedType = attach.find(item => item.value === selectedValue);
                                             console.log('selectedType', selectedType);
@@ -1315,7 +1310,7 @@ class CreateAttach extends React.Component {
                                                 width: '100%',
                                                 fontFamily: 'OpenSans-Regular',
                                             }}>
-                                            {strings.TypeMissing}{' '}
+                                            {strings.TypeMissing}
                                         </Text>
                                     ) : null}
                                 </View>
