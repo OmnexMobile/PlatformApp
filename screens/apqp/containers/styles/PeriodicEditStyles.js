@@ -194,6 +194,7 @@ export default StyleSheet.create({
     fontSize: Fonts.size.regular,
     padding: 2,
     color: "black",
+    fontWeight: "bold",
   },
   startDateTextStyle: {
     fontSize: Fonts.size.medium,
@@ -213,7 +214,7 @@ export default StyleSheet.create({
   },
   textInputStyle: {
     borderBottomWidth: 0.5,
-    fontSize: Fonts.size.medium,
+    fontSize: Fonts.size.regular,
   },
 
   sectionTop: {
@@ -342,6 +343,7 @@ export default StyleSheet.create({
     fontSize: Fonts.size.regular,
     padding: 6,
     textAlignVertical: "top",
+    fontWeight: "bold",
   },
   roundView: {
     position: "absolute",

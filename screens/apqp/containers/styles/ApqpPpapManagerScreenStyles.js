@@ -496,9 +496,10 @@ export default StyleSheet.create({
     flexDirection: "column",
     justifyContent: "flex-start",
     //width: width(75),
-    padding: 5,
+    padding: 10,
     backgroundColor:'#fff',
-    marginLeft: '4%',
+    right: '4%',
+    // marginLeft: '2%',
     //   borderColor: "green",
     //   borderWidth: 2,
   },
@@ -563,4 +564,29 @@ export default StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  sectionHeaderContainer: {
+    backgroundColor: '#fff',
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    flexDirection: "column",
+    justifyContent: "flex-start",
+    left: '4%',
+    width: width(93),
+  },
+
+  sectionHeader: {
+    backgroundColor: '#e6f7f8',
+    borderRadius: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderLeftWidth: 4,
+    borderLeftColor: '#1FBFD0',
+  },
+
+  sectionHeaderText: {
+    fontSize: Fonts.size.h5,
+    fontWeight: "bold",
+    color: '#1FBFD0',
+  },
+
 });

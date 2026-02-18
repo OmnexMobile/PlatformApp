@@ -315,49 +315,49 @@ console.log("HI old", Array);
           {this.state.apqpMeetingPlanList.length > 0 ? (
             <View>
               <View style={styles.line1}>
-                <Text style={{ color: "grey" }}>Action Created Date</Text>
-                <Text style={{ fontSize: 18, color: "#000" }}>
+                <Text style={styles.flatListContent}>Action Created Date</Text>
+                <Text style={styles.flatListContent1}>
                   {this.changeDateFormat(
                     this.state.apqpMeetingPlanList[0].ActionCreatedDate
                   )}
                 </Text>
               </View>
               <View style={styles.line1}>
-                <Text style={{ color: "grey" }}>ActionType</Text>
-                <Text style={{ fontSize: 18, color: "#000" }}>
+                <Text style={styles.flatListContent}>ActionType</Text>
+                <Text style={styles.flatListContent1}>
                   {this.state.apqpMeetingPlanList[0].ActionType}
                 </Text>
               </View>
               <View style={styles.line1}>
-                <Text style={{ color: "grey" }}>Action</Text>
-                <Text style={{ fontSize: 18, color: "#000" }}>
+                <Text style={styles.flatListContent}>Action</Text>
+                <Text style={styles.flatListContent1}>
                   {this.state.apqpMeetingPlanList[0].Actions}
                 </Text>
               </View>
               <View style={styles.line1}>
-                <Text style={{ color: "grey" }}>Description</Text>
-                <Text style={{ fontSize: 18, color: "#000" }}>
+                <Text style={styles.flatListContent1}>Description</Text>
+                <Text style={styles.flatListContent1}>
                   {this.state.apqpMeetingPlanList[0].Description}
                 </Text>
               </View>
               <View style={styles.line1}>
-                <Text style={{ color: "grey" }}>Due By Days</Text>
-                <Text style={{ fontSize: 18, color: "#000" }}>
+                <Text style={styles.flatListContent}>Due By Days</Text>
+                <Text style={styles.flatListContent1}>
                   {this.props?.route?.params?.MeetingDetails?.DueByDays
                     ? this.props?.route?.params?.MeetingDetails?.DueByDays
                     : "-"}
                 </Text>
               </View>
               <View style={styles.line1}>
-                <Text style={{ color: "grey" }}>Due Date</Text>
-                <Text style={{ fontSize: 18, color: "#000" }}>
+                <Text style={styles.flatListContent}>Due Date</Text>
+                <Text style={styles.flatListContent1}>
                   {this.changeDateFormat(
                     this.state.apqpMeetingPlanList[0].DueDate
                   )}
                 </Text>
               </View>
               <View style={styles.line1}>
-                <Text style={{ color: "grey" }}>Site</Text>
+                <Text style={styles.flatListContent}>Site</Text>
                 <Text style={{ fontSize: 18, color: "#000" }}>
                   {this.state.apqpMeetingPlanList[0].Site}
                 </Text>
@@ -367,6 +367,11 @@ console.log("HI old", Array);
                   <Dropdown
                     label="Status"
                     data={data}
+                    baseColor="#000"
+                    labelTextStyle={{
+                      fontWeight: 'bold',   // 👈 make bold
+                    }}
+                    textColor="#000"
                     onChangeText={(value) => {
                       for (var i = 0; i < data.length; i++) {
                         if (value == data[i].value) {

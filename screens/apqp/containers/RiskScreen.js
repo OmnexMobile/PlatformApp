@@ -40,6 +40,7 @@ import { ROUTES } from "constants/app-constant";
 import { SPACING } from "constants/theme-constants";
 import NetInfo from "@react-native-community/netinfo";
 import GlobalHeader from "components/GlobalHeader";
+import RiskCard from "../components/RiskCard";
 let Window = Dimensions.get("window");
 
 const Reset = "Reset";
@@ -379,12 +380,11 @@ class RiskScreen extends Component {
       <View style={styles.filterCont}>
         <TouchableOpacity
           style={styles.filterBox}
-          onPress={() =>
-            this.props.navigation.navigate(ROUTES.FILTER_SCREEN_APQP, {
-              callback_flag:
-                this.state.filterArrSplit.length == 0 ? false : true,
-            })
-          }
+          // onPress={() =>
+          //   this.props.navigation.navigate(ROUTES.FILTER_SCREEN_APQP, {
+          //     callback_flag:
+          //       this.state.filterArrSplit.length == 0 ? false : true,
+          // })}
         >
           <Icon name="filter" size={20} color="#89888A" />
           <Text
@@ -950,22 +950,12 @@ class RiskScreen extends Component {
                 onEndReached={this.handleEnd.bind(this)}
                 onEndReachedThreshold={0.5}
                 renderItem={({ item }) => (
-                  <TouchableOpacity
+                  <>
+                  <RiskCard item={item} handleClickCard={this.onPressRiskAction.bind(this, item)}  />
+                   {/* <TouchableOpacity
                     onPress={this.onPressRiskAction.bind(this, item)}
                     style={styles.flatListWholeView}
                   >
-                    {/* <View style={styles.flatListInsideView}>
-                       <Text style={styles.listText}>Risk Name :</Text> 
-                      <Text
-                        style={[
-                          styles.actionTypeTextStylecb,
-                          { width: "100%" },
-                        ]}
-                        numberOfLines={1}
-                      >
-                        {item.RiskName}
-                      </Text>
-                    </View> */}
                     <View style={styles.flatListInsideView}>
                       <Text style={styles.listText}>Mitigation Action :</Text>
                       <Text
@@ -1032,7 +1022,8 @@ class RiskScreen extends Component {
                         <Text style={styles.listText}>Due by Days</Text>
                       </View>
                     </View>
-                  </TouchableOpacity>
+                  </TouchableOpacity> */}
+                  </>
                 )}
               />
             ) : (

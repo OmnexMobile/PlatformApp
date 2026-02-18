@@ -120,6 +120,7 @@ export const FONT_SIZE = {
 };
 
 export const SPACING = {
+    XXX_SMALL: RFPercentage(0.15),
     XX_SMALL: RFPercentage(0.25),
     X_SMALL: RFPercentage(0.5),
     SMALL: RFPercentage(1),

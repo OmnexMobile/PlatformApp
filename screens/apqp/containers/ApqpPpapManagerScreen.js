@@ -39,6 +39,7 @@ import ScrollableTabView, {
 import { ROUTES } from "constants/app-constant";
 import { SPACING } from "constants/theme-constants";
 import GlobalHeader from "components/GlobalHeader";
+import CardList from "../components/CardList";
 // import Reactotron from "reactotron-react-native";
 const moment = extendMoment(Moment);
 const window_width = Dimensions.get("window").width;
@@ -1587,13 +1588,12 @@ class ApqpPpapManagerScreen extends Component {
       <View style={styles.filterCont}>
         <TouchableOpacity
           style={styles.filterBox}
-          onPress={() =>
-            this.props.navigation.navigate(ROUTES.FILTER_SCREEN_APQP, {
-              callback_flag:
-                this.state.filterArrSplit.length == 0 ? false : true,
-            })
-          }
-        >
+          // onPress={() =>
+          //   this.props.navigation.navigate(ROUTES.FILTER_SCREEN_APQP, {
+          //     callback_flag:
+          //       this.state.filterArrSplit.length == 0 ? false : true,
+          //   })}
+          >
           <Icon name="filter" size={20} color="#89888A" />
           <Text
             style={{
@@ -2105,156 +2105,155 @@ class ApqpPpapManagerScreen extends Component {
         onEndReachedThreshold={0.01}
         ListFooterComponent={this.listFooter.bind(this)}
         renderSectionHeader={({ section: { title } }) => (
-          <View style={styles.projectBoxContent}>
-            <View>
-              <Image
-                source={Images.apqpModuleIcon}
-                style={styles.apqpTypeIcon}
-              />
+           <View style={styles.sectionHeaderContainer}>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionHeaderText}>
+                {title}
+              </Text>
             </View>
-            <Text
-              style={{
-                marginLeft: 30,
-                //padding: 3,
-                fontSize: Fonts.size.regular,
-                fontWeight: "bold",
-                color: "black",
-                fontFamily: "OpenSans-Regular",
-              }}
-            >
-              {title}
-            </Text>
           </View>
+
+          // <View style={styles.projectBoxContent}>
+          //   <Text
+          //     style={{
+          //       marginLeft: 30,
+          //       fontSize: Fonts.size.h5,
+          //       fontWeight: "bold",
+          //       color: '#1FBFD0',
+          //       fontFamily: "OpenSans-Regular",
+          //     }}
+          //   >
+          //     {title}
+          //   </Text>
+          // </View>
         )}
         renderItem={({ item, index, section }) => (
-          <View key={index} style={styles.flatListView}>
-            <View style={styles.flatListTouchableView}>
-              <TouchableOpacity
-                onPress={this.onPressed.bind(this, item)}
-                style={{ width: "80%", backgroundColor: "white" }}
-              >
-                <View style={styles.flatListInsideView}>
-                  <Text
-                    numberOfLines={1}
-                    style={{
-                      marginLeft: 20,
-                      padding: 1,
-                      fontSize: Fonts.size.regular,
-                      color: "#1FBFD0",
-                      fontFamily: "OpenSans-Regular",
-                    }}
-                  >
-                    {item.Description}
-                  </Text>
-                </View>
-                <View style={styles.flatListInsideView}>
-                  <Text
-                    style={{
-                      marginLeft: 20,
-                      padding: 3,
-                      fontSize: Fonts.size.medium,
-                      color: "black",
-                      fontFamily: "OpenSans-Regular",
-                    }}
-                    numberOfLines={1}
-                  >
-                    {this.changeDateFormatCard(item.StartDate)} -{" "}
-                    {this.changeDateFormatCard(item.DueDate)}
-                  </Text>
-                </View>
-                <View style={styles.flatListInsideView}>
-                  <Text
-                    style={{
-                      marginLeft: 20,
-                      padding: 3,
-                      fontSize: Fonts.size.medium,
-                      color: "black",
-                      fontFamily: "OpenSans-Regular",
-                    }}
-                    numberOfLines={1}
-                  >
-                    {item.site}
-                  </Text>
-                </View>
-                <View style={styles.flatListInsideView}>
-                  <Text
-                    style={
-                      (styles.listText, { color: "black", marginLeft: 23 })
-                    }
-                  >
-                    Due by Days :
-                  </Text>
-                  <Text
-                    style={
-                      item.DueByDays > 0
-                        ? [
-                            styles.actionTypeTextStyle,
-                            { fontSize: 15, color: "green" },
-                          ]
-                        : [
-                            styles.actionTypeTextStyle,
-                            { fontSize: 15, color: "red" },
-                          ]
-                    }
-                  >
-                    {item.DueByDays}
-                  </Text>
-                </View>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => this.toggleModal(item)}
-                style={{
-                  width: "20%",
-                  backgroundColor: "white",
-                  height: "100%",
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                <View
-                  style={{
-                    flexDirection: "column",
-                    justifyContent: "center",
-                    alignItems: "center",
-                  }}
-                >
-                  <ProgressCircle
-                    percent={item.ResourcePercent}
-                    radius={25}
-                    borderWidth={4}
-                    color="#1FBFD0"
-                    shadowColor="lightgrey"
-                    bgColor="#fff"
-                  >
-                    <Text style={{ fontSize: 14 }}>
-                      {item.ResourcePercent + "%"}
-                    </Text>
-                  </ProgressCircle>
-                </View>
-                <View
-                  style={{
-                    // width: '100%',
-                    //  height: '100%',
-                    flexDirection: "column",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    paddingTop: 5,
-                  }}
-                >
-                  <Text
-                    style={
-                      (styles.dullTextOverall,
-                      { color: "#545454", fontSize: 11 })
-                    }
-                  >
-                    Overall
-                    {/* {item.Percentage + " %"} */}
-                    {" " + item.Percentage + "%"}
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            </View>
-          </View>
+          <CardList item={item} handleClickCard={this.onPressed.bind(this, item)} />
+          // <View key={index} style={styles.flatListView}>
+          //   <View style={styles.flatListTouchableView}>
+          //     <TouchableOpacity
+          //       onPress={this.onPressed.bind(this, item)}
+          //       style={{ width: "80%", backgroundColor: "white" }}
+          //     >
+          //       <View style={styles.flatListInsideView}>
+          //         <Text
+          //           numberOfLines={1}
+          //           style={{
+          //             marginLeft: 20,
+          //             padding: 1,
+          //             fontSize: Fonts.size.regular,
+          //             color: "#1FBFD0",
+          //             fontFamily: "OpenSans-Regular",
+          //           }}
+          //         >
+          //           {item.Description}
+          //         </Text>
+          //       </View>
+          //       <View style={styles.flatListInsideView}>
+          //         <Text
+          //           style={{
+          //             marginLeft: 20,
+          //             padding: 3,
+          //             fontSize: Fonts.size.medium,
+          //             color: "black",
+          //             fontFamily: "OpenSans-Regular",
+          //           }}
+          //           numberOfLines={1}
+          //         >
+          //           {this.changeDateFormatCard(item.StartDate)} -{" "}
+          //           {this.changeDateFormatCard(item.DueDate)}
+          //         </Text>
+          //       </View>
+          //       <View style={styles.flatListInsideView}>
+          //         <Text
+          //           style={{
+          //             marginLeft: 20,
+          //             padding: 3,
+          //             fontSize: Fonts.size.medium,
+          //             color: "black",
+          //             fontFamily: "OpenSans-Regular",
+          //           }}
+          //           numberOfLines={1}
+          //         >
+          //           {item.site}
+          //         </Text>
+          //       </View>
+          //       <View style={styles.flatListInsideView}>
+          //         <Text
+          //           style={
+          //             (styles.listText, { color: "black", marginLeft: 23 })
+          //           }
+          //         >
+          //           Due by Days :
+          //         </Text>
+          //         <Text
+          //           style={
+          //             item.DueByDays > 0
+          //               ? [
+          //                   styles.actionTypeTextStyle,
+          //                   { fontSize: 15, color: "green" },
+          //                 ]
+          //               : [
+          //                   styles.actionTypeTextStyle,
+          //                   { fontSize: 15, color: "red" },
+          //                 ]
+          //           }
+          //         >
+          //           {item.DueByDays}
+          //         </Text>
+          //       </View>
+          //     </TouchableOpacity>
+          //     <TouchableOpacity
+          //       onPress={() => this.toggleModal(item)}
+          //       style={{
+          //         width: "20%",
+          //         backgroundColor: "white",
+          //         height: "100%",
+          //         justifyContent: "center",
+          //         alignItems: "center",
+          //       }}
+          //     >
+          //       <View
+          //         style={{
+          //           flexDirection: "column",
+          //           justifyContent: "center",
+          //           alignItems: "center",
+          //         }}
+          //       >
+          //         <ProgressCircle
+          //           percent={item.ResourcePercent}
+          //           radius={25}
+          //           borderWidth={4}
+          //           color="#1FBFD0"
+          //           shadowColor="lightgrey"
+          //           bgColor="#fff"
+          //         >
+          //           <Text style={{ fontSize: 14 }}>
+          //             {item.ResourcePercent + "%"}
+          //           </Text>
+          //         </ProgressCircle>
+          //       </View>
+          //       <View
+          //         style={{
+          //           flexDirection: "column",
+          //           justifyContent: "center",
+          //           alignItems: "center",
+          //           paddingTop: 5,
+          //         }}
+          //       >
+          //         <Text
+          //           style={
+          //             (styles.dullTextOverall,
+          //             { color: "#545454", fontSize: 11 })
+          //           }
+          //         >
+          //           Overall
+          //           {" " + item.Percentage + "%"}
+          //         </Text>
+          //       </View>
+          //     </TouchableOpacity>
+          //   </View>
+          // </View>
         )}
       />
     );

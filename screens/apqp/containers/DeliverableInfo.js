@@ -235,42 +235,54 @@ export class DeliverableInfoScreen extends Component {
             showBackButton={false}
            />
         </View>
+        {/* style={styles.flatListWholeView} */}
+        <View >
+          <View style={styles.sectionHeaderContainer}>
+            <View style={styles.sectionHeader}>
+              <View style={styles.listViewTop}>
+                <Text style={styles.listText}>Deliverable Name :</Text>
+                <Text style={styles.listNextText}>{this.DeliverableName}</Text>
+              </View>
+              <View style={styles.listViewTop}>
+                <Text style={styles.listText}>Completed % :</Text>
+                <Text style={styles.listNextText}>{this.ResourcePercent}</Text>
+              </View>
+            
+           
+              <View
+                style={{
+                  justifyContent: "center",
+                  alignItems: "center",
+                  width: "100%",
+                  height: 40,
+                  padding: 5,
+                }}
+              >
+                <Text
+                  style={{
+                    width: "100%",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    fontSize: 17,
+                    color: "black",
+                    fontWeight: "bold",
+                  }}
+                >
+                  Attachments
+                </Text>
+              </View>
 
-        <View style={styles.flatListWholeView}>
-          <View style={styles.listViewTop}>
-            <Text style={styles.listText}>Deliverable Name :</Text>
-            <Text style={styles.listNextText}>{this.DeliverableName}</Text>
+               </View>
           </View>
-          <View style={styles.listViewTop}>
-            <Text style={styles.listText}>Completed % :</Text>
-            <Text style={styles.listNextText}>{this.ResourcePercent}</Text>
-          </View>
-
-          <View
-            style={{
-              justifyContent: "center",
-              alignItems: "center",
-              width: "100%",
-              height: 40,
-            }}
-          >
-            <Text
-              style={{
-                width: "100%",
-                justifyContent: "center",
-                alignItems: "center",
-                fontSize: 18,
-                color: "black",
-              }}
-            >
-              Attachments
-            </Text>
-          </View>
+            
+          
+          {/* <View style={styles.sectionHeaderContainer1}>
+            <View style={styles.sectionHeader2}> */}
 
           {this.state.apqpDeliverableInfoList &&
             this.state.apqpDeliverableInfoList.length > 0 ? (
             <FlatList
-              style={{ marginHorizontal: 15 }}
+              style={{ marginLeft: '4%', padding: 5 }}
               data={this.state.apqpDeliverableInfoList}
 
               renderItem={({ item }) => {
@@ -283,19 +295,19 @@ export class DeliverableInfoScreen extends Component {
                       // onPress={this.onPressBack.bind(this)}
                     >
                       <View style={styles.listView}>
-                        <Text style={styles.listText}>Doc Status:</Text>
+                        <Text style={styles.listText1}>Doc Status : </Text>
                         <Text style={styles.deliveryTypeTextHeaderStyle}>
                           {item.OPStatus}
                         </Text>
                       </View>
                       <View style={styles.listView}>
-                        <Text style={styles.listText}>Input Doc :</Text>
+                        <Text style={styles.listText1}>Input Doc : </Text>
                         <Text style={styles.deliveryTypeTextStyle}>
                           {item.IPDocName ? item.IPDocName : "NA"}
                         </Text>
                       </View>
                       <View style={styles.listView}>
-                        <Text style={styles.listText}>Output Doc:</Text>
+                        <Text style={styles.listText1}>Output Doc : </Text>
                         {item.OPDocName == "" ? (
                           <View style={{ flexDirection: "row" }}>
                             <Icon name="paperclip" size={20} color="grey" />
@@ -322,15 +334,15 @@ export class DeliverableInfoScreen extends Component {
                               { flexDirection: "row" },
                             ]}
                           >
-                            <Text style={{ paddingRight: 5 }}>
+                            <Text style={{ paddingRight: 5, color: '#1FBFD0', fontSize: 16, }}>
                               {item.OPDocName}
                             </Text>
-                            <Icon name="edit" size={20} color="grey" />
+                            <Icon name="edit" size={20} color="#1FBFD0" />
                           </View>
                         )}
                       </View>
                       <View style={styles.listView}>
-                        <Text style={styles.listText}>Comments:</Text>
+                        <Text style={styles.listText1}>Comments:</Text>
                         <Text style={styles.commentsTextStyle}>
                           {item.OPComments == "" && " - "}
                         </Text>

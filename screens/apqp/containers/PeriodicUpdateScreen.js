@@ -36,6 +36,7 @@ import { SPACING } from "constants/theme-constants";
 import { NavigationEvents } from 'react-navigation';
 import GlobalHeader from "components/GlobalHeader";
 import { FAB } from "components";
+import CardProgress from "../components/CardProgress";
 
 const window_width = Dimensions.get("window").width;
 
@@ -571,7 +572,8 @@ class PeriodicUpdateScreen extends Component {
           this.renderBounce()
         ) : (
           <View style={[styles.flatListWholeView, {marginTop: 100}]}>
-            <View>
+            <CardProgress ProjectName={this.ProjectName} TaskName={this.TaskName} StartDate={this.StartDate} EndDate={this.EndDate} />
+            {/* <View>
               <View style={styles.textHeader}>
                 <Text style={styles.listText}>Project Name :</Text>
                 <Text
@@ -609,7 +611,7 @@ class PeriodicUpdateScreen extends Component {
                   {this.changeDateFormatCard(this.EndDate)}
                 </Text>
               </View>
-            </View>
+            </View> */}
 
             {this.state.apqpPeriodicList.length > 0 ? (
               <FlatList
@@ -620,39 +622,33 @@ class PeriodicUpdateScreen extends Component {
                 onEndReachedThreshold={0.01}
                 onEndReached={this.handleEnd.bind(this)}
                 renderItem={({ item }) => (
-                  <View style={styles.flatListFullSideView}>
-                    <TouchableOpacity
-                      onPress={this.onPressedit.bind(this, item, "Edit")}
-                    >
-                      <View style={styles.flatListInsideView}>
-                        <Text style={styles.listText}>Completed % :</Text>
-                        <Text
-                          numberOfLines={1}
-                          style={styles.deliveryTypeTextStylePercent}
-                        >
-                          {item.Percentage}
-                        </Text>
+                  <View style={styles.sectionHeaderContainer}>
+                    <View style={styles.sectionHeader}>
+                      <TouchableOpacity
+                        onPress={this.onPressedit.bind(this, item, "Edit")}
+                      >
+                        <View style={styles.flatListInsideView}>
+                          <Text style={styles.listText}>Completed % :</Text>
+                          <Text style={styles.deliveryTypeTextStylePercent}>
+                            {item.Percentage}
+                          </Text>
+                        </View>
+                        <View style={styles.flatListInsideView}>
+                          <Text style={styles.listText}>Period :</Text>
+                          <Text
+                            style={[styles.dateTextStyle, { color: "#1FBFD0" }]}
+                            numberOfLines={1}
+                          >
+                            {this.changeDateFormatCard(item.StartDate)} -{" "}
+                            {this.changeDateFormatCard(item.Enddate)}
+                          </Text>
                       </View>
-                      <View style={styles.flatListInsideView}>
-                        <Text style={styles.listText}>Period :</Text>
-                        <Text
-                          style={[styles.dateTextStyle, { color: "#1FBFD0" }]}
-                          numberOfLines={1}
-                        >
-                          {this.changeDateFormatCard(item.StartDate)} -{" "}
-                          {this.changeDateFormatCard(item.Enddate)}
-                        </Text>
-                      </View>
-
-                      {/* //------------------------------------Modified_for_Commercial_Use--------- lock------// */}
-
                       <View style={styles.flatListInsideView}>
                         <Text style={styles.listText}>{strings.Hours} :</Text>
                         <Text style={styles.deliveryTypeTextStyleHours}>
                           {item.Hours}
                         </Text>
                       </View>
-                      {/* //------------------------------------Modified_for_Commercial_Use------- lock--------// */}
                       <View style={styles.flatListInsideView}>
                         <Text style={styles.listText}>{strings.Remarks}:</Text>
                       </View>
@@ -668,15 +664,71 @@ class PeriodicUpdateScreen extends Component {
                               width: "80%",
                               color: "grey",
                             })
-                            //  style={{width: "70%",borderBottomWidth: 0.5,fontSize: 18,}}
-                            //marginLeft:5,flex:1,flexDirection:'column', flexWrap:'wrap'
                           }
                         >
                           {item.Remarks}
                         </Text>
                       </View>
-                    </TouchableOpacity>
+                      </TouchableOpacity>
+                    </View>
                   </View>
+                  // <View style={styles.flatListFullSideView}>
+                  //   <TouchableOpacity
+                  //     onPress={this.onPressedit.bind(this, item, "Edit")}
+                  //   >
+                  //     <View style={styles.flatListInsideView}>
+                  //       <Text style={styles.listText}>Completed % :</Text>
+                  //       <Text
+                  //         numberOfLines={1}
+                  //         style={styles.deliveryTypeTextStylePercent}
+                  //       >
+                  //         {item.Percentage}
+                  //       </Text>
+                  //     </View>
+                      // <View style={styles.flatListInsideView}>
+                      //   <Text style={styles.listText}>Period :</Text>
+                      //   <Text
+                      //     style={[styles.dateTextStyle, { color: "#1FBFD0" }]}
+                      //     numberOfLines={1}
+                      //   >
+                      //     {this.changeDateFormatCard(item.StartDate)} -{" "}
+                      //     {this.changeDateFormatCard(item.Enddate)}
+                      //   </Text>
+                      // </View>
+
+                  //     {/* //------------------------------------Modified_for_Commercial_Use--------- lock------// */}
+
+                      // <View style={styles.flatListInsideView}>
+                      //   <Text style={styles.listText}>{strings.Hours} :</Text>
+                      //   <Text style={styles.deliveryTypeTextStyleHours}>
+                      //     {item.Hours}
+                      //   </Text>
+                      // </View>
+                  //     {/* //------------------------------------Modified_for_Commercial_Use------- lock--------// */}
+                      // <View style={styles.flatListInsideView}>
+                      //   <Text style={styles.listText}>{strings.Remarks}:</Text>
+                      // </View>
+                      // <View style={styles.flatListInsideView}>
+                      //   <Text
+                      //     style={
+                      //       (styles.deliveryTypeTextStyle,
+                      //       {
+                      //         paddingLeft: 8,
+                      //         marginRight: 25,
+                      //         fontSize: 16,
+                      //         flexWrap: "wrap",
+                      //         width: "80%",
+                      //         color: "grey",
+                      //       })
+                      //       //  style={{width: "70%",borderBottomWidth: 0.5,fontSize: 18,}}
+                      //       //marginLeft:5,flex:1,flexDirection:'column', flexWrap:'wrap'
+                      //     }
+                      //   >
+                      //     {item.Remarks}
+                      //   </Text>
+                      // </View>
+                  //   </TouchableOpacity>
+                  // </View>
                 )}
               />
             ) : (

@@ -2,6 +2,7 @@ import { StyleSheet, Dimensions } from "react-native";
 import { Metrics, ApplicationStyles } from "../../themes";
 import Fonts from "../../themes/Fonts";
 import { width, height } from "react-native-dimension";
+import { FONT_TYPE } from "constants/app-constant";
 // import { android15HeaderPadding, android15FooterPadding, android15FooterOffset } from  '../../../auditPro/Themes/AndroidInsets';  
 
 let Window = Dimensions.get("window");
@@ -138,7 +139,7 @@ export default StyleSheet.create({
     flex: 1,
     flexDirection: "row",
     padding: 10,
-    marginLeft: 5,
+    marginLeft: 20,
     marginRight: 8,
     marginBottom: 0,
     // borderWidth: 1,
@@ -336,5 +337,36 @@ export default StyleSheet.create({
     backgroundColor: "lightgrey",
     marginTop: 10,
     marginBottom: 10,
+  },
+
+  sectionHeaderContainer: {
+    backgroundColor: '#fff',
+    paddingVertical: 3,
+    paddingHorizontal: 10,
+    flexDirection: "column",
+    justifyContent: "flex-start",
+    left: '4%',
+    width: width(93),
+  },
+
+  sectionHeader: {
+    // backgroundColor: '#e6f7f8',
+    borderRadius: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderLeftWidth: 4,
+    borderColor: '#1FBFD0',
+    // borderTopWidth: 1,
+    borderBottomWidth: 1,
+    // shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    // elevation: 5,
+  },
+
+  sectionHeaderText: {
+    fontSize: Fonts.size.h5,
+    fontWeight: "bold",
+    color: '#1FBFD0',
   },
 });

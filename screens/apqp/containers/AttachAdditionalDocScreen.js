@@ -769,134 +769,139 @@ class AttachAdditionalDocScreen extends Component {
             <Bubbles size={10} color="#8CE7DC" />
           </View>
         ) : (
-          <View style={styles.flatListWholeView}>
-            <View style={styles.sec1}>
-              {this.state.docName != "" ? (
-                <Text style={styles.completedTextStyle}>Doc Name</Text>
-              ) : null}
-              <TextInput
-                placeholder={"Doc Name"}
-                style={[styles.textInputStyle, { color: "#000" }]}
-                value={this.state.docName}
-                onChangeText={(text) => {
-                  this.setState({ docName: text });
-                }}
-              />
-              <View style={styles.check}>
-                <Icon
-                  style={{ left: 10 }}
-                  name="asterisk"
-                  size={8}
-                  color="red"
+          // <View style={styles.flatListWholeView}>
+          <View style={styles.sectionHeaderContainer}>
+            <View style={styles.sectionHeader}>
+              <View style={styles.sec1}>
+                {this.state.docName != "" ? (
+                  <Text style={styles.completedTextStyle}>Doc Name</Text>
+                ) : null}
+                <TextInput
+                  placeholder={"Doc Name"}
+                  placeholderTextColor= "#000"
+                  style={[styles.textInputStyle, { color: "#000" }]}
+                  value={this.state.docName}
+                  onChangeText={(text) => {
+                    this.setState({ docName: text });
+                  }}
                 />
+                <View style={styles.check}>
+                  <Icon
+                    style={{ left: 10 }}
+                    name="asterisk"
+                    size={8}
+                    color="red"
+                  />
+                </View>
               </View>
-            </View>
 
-            <View style={styles.sec1}>
-              {this.state.comments != "" ? (
-                <Text style={styles.completedTextStyle}>Comments</Text>
-              ) : null}
-              <TextInput
-                placeholder={"Comments"}
-                style={styles.textInputStyle}
-                value={this.state.comments.replace(regex, "")}
-                onChangeText={(text) => {
-                  this.setState({ comments: text });
-                }}
-              />
-              <View style={styles.check}>
-                <Icon
-                  style={{ left: 10 }}
-                  name="asterisk"
-                  size={8}
-                  color="red"
+              <View style={styles.sec1}>
+                {this.state.comments != "" ? (
+                  <Text style={styles.completedTextStyle}>Comments</Text>
+                ) : null}
+                <TextInput
+                  placeholder={"Comments"}
+                  placeholderTextColor= "#000"
+                  style={styles.textInputStyle}
+                  value={this.state.comments.replace(regex, "")}
+                  onChangeText={(text) => {
+                    this.setState({ comments: text });
+                  }}
                 />
+                <View style={styles.check}>
+                  <Icon
+                    style={{ left: 10 }}
+                    name="asterisk"
+                    size={8}
+                    color="red"
+                  />
+                </View>
               </View>
-            </View>
-            <View style={styles.sec1}>
-              <Text style={styles.completedTextStyle}>Attach File</Text>
-              <TouchableOpacity
-                onPress={this.handleDocumentSelection.bind(this)}
-              >
-                <Text numberOfLines={1} style={styles.boxContent}>
-                  {this.state.attachedDocName}
-                </Text>
-                <Icon name="paperclip" size={20} color="grey" />
-              </TouchableOpacity>
+              <View style={styles.sec1}>
+                <Text style={styles.completedTextStyle}>Attach File</Text>
+                <TouchableOpacity
+                  onPress={this.handleDocumentSelection.bind(this)}
+                >
+                  <Text numberOfLines={1} style={styles.boxContent}>
+                    {this.state.attachedDocName}
+                  </Text>
+                  <Icon name="paperclip" size={20} color="black" />
+                </TouchableOpacity>
 
-              {/* <TouchableOpacity onPress={() => {
-                   // iPhone/Android
-                   if (Platform.OS == 'android') {
-                       DocumentPicker.show({
-                           // filetype: [DocumentPickerUtil.allFiles()],
-                       }, (error, res) => {
-                           console.log('File upload error:', error)
-                           console.log('Document response:', res)
-                           if (res) {
-                               RNFetchBlob.fs.readFile(res.uri, 'base64')
-                                   .then((data) => {
-                                       // handle the data ..
-                                       res.data = data
-                                       // Android
-                                       console.log(
-                                           res.uri,
-                                           res.type, // mime type
-                                           res.fileName,
-                                           res.fileSize,
-                                           res.data
-                                       );
+                {/* <TouchableOpacity onPress={() => {
+                    // iPhone/Android
+                    if (Platform.OS == 'android') {
+                        DocumentPicker.show({
+                            // filetype: [DocumentPickerUtil.allFiles()],
+                        }, (error, res) => {
+                            console.log('File upload error:', error)
+                            console.log('Document response:', res)
+                            if (res) {
+                                RNFetchBlob.fs.readFile(res.uri, 'base64')
+                                    .then((data) => {
+                                        // handle the data ..
+                                        res.data = data
+                                        // Android
+                                        console.log(
+                                            res.uri,
+                                            res.type, // mime type
+                                            res.fileName,
+                                            res.fileSize,
+                                            res.data
+                                        );
 
-                                       this.setState({
-                                           attachedDocName: res.fileName,
-                                           attachedDoc: res.data
-                                       })
-                                   })
-                           }
-                       });
-                   } else {
-                       DocumentPicker.show({
-                           filetype: ['public.content'],
-                       }, (error, res) => {
-                           console.log('File upload error:', error)
-                           console.log('Document response:', res)
-                           if (res) {
-                               var getURI = res.uri
-                               var uridata = getURI.slice(7)
-                               console.log('uridata', uridata)
-                               RNFetchBlob.fs.readFile(uridata, 'base64')
-                                   .then((data) => {
-                                       // handle the data ..
-                                       res.data = data
-                                       // Android
-                                       console.log(
-                                           res.uri,
-                                           res.type, // mime type
-                                           res.fileName,
-                                           res.fileSize,
-                                           res.data
-                                       );
-                                       this.setState({
-                                           attachedDocName: res.fileName,
-                                           attachedDoc: res.data
-                                       })
-                                   })
-                           }
-                       });
-                   }
-               }}>
-                   <Text numberOfLines={1} style={styles.boxContent}>
-                       {this.state.attachedDocName}
-                   </Text>
-                   <Icon name="paperclip" size={20} color="grey" />
-               </TouchableOpacity> */}
+                                        this.setState({
+                                            attachedDocName: res.fileName,
+                                            attachedDoc: res.data
+                                        })
+                                    })
+                            }
+                        });
+                    } else {
+                        DocumentPicker.show({
+                            filetype: ['public.content'],
+                        }, (error, res) => {
+                            console.log('File upload error:', error)
+                            console.log('Document response:', res)
+                            if (res) {
+                                var getURI = res.uri
+                                var uridata = getURI.slice(7)
+                                console.log('uridata', uridata)
+                                RNFetchBlob.fs.readFile(uridata, 'base64')
+                                    .then((data) => {
+                                        // handle the data ..
+                                        res.data = data
+                                        // Android
+                                        console.log(
+                                            res.uri,
+                                            res.type, // mime type
+                                            res.fileName,
+                                            res.fileSize,
+                                            res.data
+                                        );
+                                        this.setState({
+                                            attachedDocName: res.fileName,
+                                            attachedDoc: res.data
+                                        })
+                                    })
+                            }
+                        });
+                    }
+                }}>
+                    <Text numberOfLines={1} style={styles.boxContent}>
+                        {this.state.attachedDocName}
+                    </Text>
+                    <Icon name="paperclip" size={20} color="grey" />
+                </TouchableOpacity> */}
 
-              <View style={styles.check}>
-                <Icon
-                  style={{ left: 10 }}
-                  name="asterisk"
-                  size={8}
-                  color="red"
-                />
+                <View style={styles.check}>
+                  <Icon
+                    style={{ left: 10 }}
+                    name="asterisk"
+                    size={8}
+                    color="red"
+                  />
+                </View>
               </View>
             </View>
           </View>

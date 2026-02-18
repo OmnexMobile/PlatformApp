@@ -362,4 +362,14 @@ export default StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  flatListContent:{
+    fontSize: 17,
+    color: "#000",
+    fontWeight:'bold',
+    paddingBottom: 2,
+  },
+  flatListContent1:{
+    fontSize: 17,
+    color: "#000",
+  },
 });

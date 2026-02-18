@@ -38,6 +38,7 @@ import OfflineNotice from "../components/OfflineNotice";
 import { ROUTES } from "constants/app-constant";
 import { SPACING } from "constants/theme-constants";
 import GlobalHeader from "components/GlobalHeader";
+import MeetingCard from "../components/MeetingCard";
 let window = Dimensions.get("window");
 const window_width = Dimensions.get("window").width;
 
@@ -811,12 +812,11 @@ class MeetingScreen extends Component {
       <View style={styles.filterCont}>
         <TouchableOpacity
           style={styles.filterBox}
-          onPress={() =>
-            this.props.navigation.navigate(ROUTES.FILTER_SCREEN_APQP, {
-              callback_flag:
-                this.state.filterArrSplit.length == 0 ? false : true,
-            })
-          }
+          // onPress={() =>
+          //   this.props.navigation.navigate(ROUTES.FILTER_SCREEN_APQP, {
+          //     callback_flag:
+          //       this.state.filterArrSplit.length == 0 ? false : true,
+          // })}
         >
           <Icon name="filter" size={20} color="#89888A" />
           <Text
@@ -979,7 +979,10 @@ class MeetingScreen extends Component {
         onEndReached={this.handleEnd.bind(this)}
         onEndReachedThreshold={0.5}
         renderItem={({ item }) => (
-          <TouchableOpacity
+          <>
+            <MeetingCard item={item} handleClickCard={this.onPressMeeting.bind(this, item)}  />
+
+          {/* <TouchableOpacity
             onPress={this.onPressMeeting.bind(this, item)}
             style={styles.flatListWholeView}
           >
@@ -1075,7 +1078,8 @@ class MeetingScreen extends Component {
                 <Text style={styles.listText}>{strings.DueByDays}</Text>
               </View>
             </View>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
+          </>
         )}
       />
     );

@@ -582,7 +582,7 @@ class PeriodicEditScreen extends Component {
                   flexDirection: "column",
                   flexWrap: "wrap",
                   color: "black",
-                  fontSize: 17,
+                  fontSize: 16,
                 }}
               >
                 {this.ProjectName ? this.ProjectName : "  -  "}
@@ -601,7 +601,8 @@ class PeriodicEditScreen extends Component {
               <Text
                 style={(styles.listText, { flexWrap: "wrap", width: "69%", 
                   color: "black",
-                  fontSize: 17, })}
+                  fontSize: 16,
+                 })}
               >
                 {this.TaskName ? this.TaskName : "  -  "}
               </Text>
@@ -693,7 +694,7 @@ class PeriodicEditScreen extends Component {
             ) : null}
             <TextInput
               placeholder={strings.StartDate}
-              style={(styles.textInputStyle, { color: "#000000" })}
+              style={(styles.textInputStyle, { color: "#000000", fontSize: 17 })}
               value={this.state.startdate}
               onChangeText={(text) => {
                 this.setState({ startdate: text });
@@ -725,7 +726,7 @@ class PeriodicEditScreen extends Component {
             ) : null}
             <TextInput
               placeholder={strings.EndDate}
-              style={(styles.textInputStyle, { color: "#000000" })}
+              style={(styles.textInputStyle, { color: "#000000", fontSize: 17 })}
               value={this.state.endate}
               onChangeText={(text) => {
                 this.setState({ endate: text });

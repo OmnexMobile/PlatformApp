@@ -70,6 +70,16 @@ export default StyleSheet.create({
     marginTop: 60,
     paddingLeft: 8,
   },
+  flatListContent:{
+    fontSize: 17,
+    color: "#000",
+    fontWeight:'bold',
+    paddingBottom: 2,
+  },
+  flatListContent1:{
+    fontSize: 17,
+    color: "#000",
+  },
   flatListView2: {
     flex: 1,
     padding: 3,

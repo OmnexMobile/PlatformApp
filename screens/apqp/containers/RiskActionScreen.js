@@ -286,44 +286,44 @@ getData = async (userdata) => {
           {this.state.apqpRiskActionList.length > 0 ? (
             <View>
               <View style={styles.line1}>
-                <Text style={{ color: "grey" }}>Risk Number </Text>
-                <Text style={{ fontSize: 18, color: "#000" }}>
+                <Text style={styles.flatListContent}>Risk Number </Text>
+                <Text style={styles.flatListContent1}>
                   {this.state.apqpRiskActionList[0].RiskNumber}
                 </Text>
               </View>
               <View style={styles.line1}>
-                <Text style={{ color: "grey" }}>Risk Name </Text>
-                <Text style={{ fontSize: 18, color: "#000" }}>
+                <Text style={styles.flatListContent}>Risk Name </Text>
+                <Text style={styles.flatListContent1}>
                   {this.state.apqpRiskActionList[0].RiskName}
                 </Text>
               </View>
               <View style={styles.line1}>
-                <Text style={{ color: "grey" }}>Mitigation Action</Text>
-                <Text style={{ fontSize: 18, color: "#000" }}>
+                <Text style={styles.flatListContent }>Mitigation Action</Text>
+                <Text style={styles.flatListContent1}>
                   {this.state.apqpRiskActionList[0].ActionType}
                 </Text>
               </View>
               <View style={styles.line1}>
-                <Text style={{ color: "grey" }}>DeadLine Date</Text>
-                <Text style={{ fontSize: 18, color: "#000" }}>
+                <Text style={styles.flatListContent}>DeadLine Date</Text>
+                <Text style={styles.flatListContent1}>
                   {this.state.apqpRiskActionList[0].DeadlineDate}
                 </Text>
               </View>
               <View style={styles.line1}>
-                <Text style={{ color: "grey" }}>Phase Deadline</Text>
-                <Text style={{ fontSize: 18, color: "#000" }}>
+                <Text style={styles.flatListContent}>Phase Deadline</Text>
+                <Text style={styles.flatListContent1}>
                   {this.state.apqpRiskActionList[0].PhaseDeadline}
                 </Text>
               </View>
               <View style={styles.line1}>
-                <Text style={{ color: "grey" }}>Implementation Date</Text>
-                <Text style={{ fontSize: 18, color: "#000" }}>
+                <Text style={styles.flatListContent}>Implementation Date</Text>
+                <Text style={styles.flatListContent1}>
                   {this.state.apqpRiskActionList[0].ImplementationDate}
                 </Text>
               </View>
               <View style={styles.line1}>
-                <Text style={{ color: "grey" }}>Verification Date</Text>
-                <Text style={{ fontSize: 18, color: "#000" }}>
+                <Text style={styles.flatListContent}>Verification Date</Text>
+                <Text style={styles.flatListContent1}>
                   {this.state.apqpRiskActionList[0].VerificationDate}
                 </Text>
               </View>
@@ -333,6 +333,11 @@ getData = async (userdata) => {
                   <Dropdown
                     label="Status"
                     data={data}
+                    baseColor="#000"
+                    labelFontSize={17}
+                    labelTextStyle={{
+                      fontWeight: 'bold',   // 👈 make bold
+                    }}
                     value={this.StatusVal}
                     onChangeText={(value) => {
                       for (var i = 0; i < data.length; i++) {

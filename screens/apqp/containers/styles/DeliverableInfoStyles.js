@@ -70,7 +70,7 @@ export default StyleSheet.create({
     //position: 'absolute',
     //marginTop: 70,
     padding: 10,
-    marginLeft: '3%',
+    marginLeft: '2%',
   },
   boxView: {
     width: "100%",
@@ -83,9 +83,10 @@ export default StyleSheet.create({
   },
 
   listViewTop: {
-    flexDirection: "column",
-    //padding:6,
-    borderBottomWidth: 0.5,
+    flexDirection: "row",
+    padding:4,
+    // borderBottomWidth: 0.5,
+
     borderBottomColor: "lightgrey",
   },
 
@@ -104,6 +105,14 @@ export default StyleSheet.create({
     color: "black",
     fontSize: Fonts.size.regular,
     padding: 2,
+    fontWeight: "bold",
+  },
+
+  listText1: {
+    color: "black",
+    fontSize: Fonts.size.regular,
+    padding: 2,
+    // fontWeight: "bold",
   },
   listNextText: {
     color: "black",
@@ -112,34 +121,36 @@ export default StyleSheet.create({
   },
 
   flatListFullSideView: {
-    width: "100%",
+    width: "93%",
     // height: 110,
     // borderWidth: 0.5,
     // borderTopColor: "lightgrey",
     // borderLeftWidth: 0,
     // borderLeftColor: "green",
-    padding: 5,
-    borderWidth: 1,
-    borderColor: "#cfcfcf",
-    borderRadius: 1,
+    // padding: 5,
+    paddingHorizontal: 10,
+    paddingBottom: 10,
     backgroundColor: "white",
     marginBottom: 10,
     flexDirection: "row",
-    shadowColor: "#171717",
-    shadowOffset: { width: -2, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
+    borderLeftWidth: 4,
+    borderColor: '#1FBFD0',
+    // borderTopWidth: 1,
+    borderBottomWidth: 1,
+    // borderRightWidth: 1,
+    borderRadius: 8,
+    marginLeft: '7%',
   },
 
   deliveryTypeTextHeaderStyle: {
     // color: "#485B9E",
-    color: "#7F7D7D",
-    fontSize: Fonts.size.regular,
+    color: '#1FBFD0',
+    fontSize: 16,
     width: "85%",
   },
   deliveryTypeTextStyle: {
-    color: "#7F7D7D",
-    fontSize: Fonts.size.regular,
+    color: '#1FBFD0',
+    fontSize: 16,
     width: "85%",
   },
   commentsTextStyle: {
@@ -271,5 +282,32 @@ export default StyleSheet.create({
     height: 70,
     backgroundColor: "transparent",
     flexDirection: "row",
+  },
+
+  sectionHeaderContainer: {
+    backgroundColor: '#fff',
+    // paddingVertical: 10,
+    paddingTop: 10,
+    paddingHorizontal: 10,
+    flexDirection: "column",
+    justifyContent: "flex-start",
+    left: '4%',
+    width: width(93),
+  },
+
+  sectionHeader: {
+    // backgroundColor: '#e6f7f8',
+    borderRadius: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderLeftWidth: 4,
+    borderColor: '#1FBFD0',
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderRightWidth: 1,
+    // shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    // elevation: 5,
   },
 });

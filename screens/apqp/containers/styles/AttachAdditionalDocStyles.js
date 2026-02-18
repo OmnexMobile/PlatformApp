@@ -186,7 +186,7 @@ export default StyleSheet.create({
   completedTextStyle: {
     fontSize: Fonts.size.regular,
     padding: 2,
-    // color: "black",
+    color: "black",
   },
   startDateTextStyle: {
     fontSize: Fonts.size.medium,
@@ -302,5 +302,33 @@ export default StyleSheet.create({
     alignItems: "center",
     borderTopColor: "lightgrey",
     borderTopWidth: 0.5,
+  },
+
+  sectionHeaderContainer: {
+    backgroundColor: '#fff',
+    // paddingVertical: 10,
+    // marginTop: 10,
+    paddingTop: 10,
+    paddingHorizontal: 10,
+    flexDirection: "column",
+    justifyContent: "flex-start",
+    left: '4%',
+    width: width(93),
+  },
+
+  sectionHeader: {
+    // backgroundColor: '#e6f7f8',
+    borderRadius: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderLeftWidth: 4,
+    borderColor: '#1FBFD0',
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderRightWidth: 1,
+    // shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    // elevation: 5,
   },
 });
