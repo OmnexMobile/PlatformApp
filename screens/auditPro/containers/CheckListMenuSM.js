@@ -380,7 +380,7 @@ return(
             subtitle={this.state.breadCrumbText}
             onLeftPress={() => this.props.navigation.goBack()}
             onRightPress={() =>
-              this.props.navigation.navigate(ROUTES.AUDIT_DASHBOARD_LISTING)
+              this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)
             }
             containerStyle={{backgroundColor: 'transparent'}}
             // titleStyle={{color: '#fff'}}

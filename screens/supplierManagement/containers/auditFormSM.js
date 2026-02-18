@@ -3735,7 +3735,7 @@ console.log('checckkreddoticon',this.state.redDotID);
                              title={strings.Audit_Records}
                              subtitle={this.state.breadCrumbText}
                              onLeftPress={() => (this.state.isLoaderVisible === false ? this.props.navigation.goBack() : console.log('please wait'))}
-                             onRightPress={() => this.props.navigation.navigate(ROUTES.AUDIT_DASHBOARD_LISTING)}
+                             onRightPress={() => this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)}
                              containerStyle={{ backgroundColor: 'transparent' }}
                          />
       
