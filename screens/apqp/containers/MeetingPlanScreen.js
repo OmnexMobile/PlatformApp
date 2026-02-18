@@ -335,7 +335,7 @@ console.log("HI old", Array);
                 </Text>
               </View>
               <View style={styles.line1}>
-                <Text style={styles.flatListContent1}>Description</Text>
+                <Text style={styles.flatListContent}>Description</Text>
                 <Text style={styles.flatListContent1}>
                   {this.state.apqpMeetingPlanList[0].Description}
                 </Text>
