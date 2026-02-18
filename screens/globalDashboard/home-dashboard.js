@@ -628,7 +628,7 @@ const HomeDashboard = () => {
     const showSM = recentSM.length > 0 && appLicenses?.hasSupplierManagementLicense;
     const showAuditPro = recentSM.length > 0 && appLicenses?.hasAuditProLicense;
 
-    const hasRecentActivity = showAPQP || showPS || showSM;
+    const hasRecentActivity = showAPQP || showPS || showSM || showAuditPro;
     console.log('final hasRecentActivity', hasRecentActivity);
     console.log(' hasSupplierManagementLicense', appLicenses?.hasSupplierManagementLicense);
     console.log(' appLicenses------->', appLicenses);

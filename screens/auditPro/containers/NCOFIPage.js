@@ -2637,15 +2637,12 @@ class NCOFIPage extends Component {
             }}> */}
                     {/* <Image source={Images.Footer}/> */}
                     <View style={styles.footerDiv}>
-                        <View
-                            style={{
-                                flexDirection: 'row',
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                            }}>
-                            <View style={{ width: '33%', justifyContent: 'center' }}>
+                        <View style={styles.footerButtonsRow}>
+                            <View style={styles.footerButtonWrapper}>
                                 {this.state.syncMode === 0 && (
-                                    <TouchableOpacity onPress={once(this.onNavigaTo.bind(this, 1))} style={styles.footerShadowButton}>
+                                    <TouchableOpacity
+                                        onPress={once(this.onNavigaTo.bind(this, 1))}
+                                        style={styles.footerShadowButton}>
                                         <Icon name={'upload-cloud'} size={25} color="#fff" />
                                         <Text style={styles.footerTextContent}>{strings.Create_NC}</Text>
                                     </TouchableOpacity>
@@ -2653,7 +2650,7 @@ class NCOFIPage extends Component {
                             </View>
                             {/* Sync */}
                             {this.state.syncMode === 0 ? (
-                                <View style={{ width: '34%' }}>
+                                <View style={styles.footerButtonWrapper}>
                                     <TouchableOpacity
                                         onPress={() => {
                                             this.setState(
@@ -2671,7 +2668,7 @@ class NCOFIPage extends Component {
                                     </TouchableOpacity>
                                 </View>
                             ) : this.state.syncMode === 2 || this.state.syncMode === 4 ? (
-                                <View style={{ width: '33%' }}>
+                                <View style={styles.footerButtonWrapper}>
                                     <View
                                         style={{
                                             borderColor: '#CED0CE',
@@ -2693,7 +2690,7 @@ class NCOFIPage extends Component {
                                     </View>
                                 </View>
                             ) : (
-                                <View style={{ width: '33%' }}>
+                                <View style={styles.footerButtonWrapper}>
                                     <View
                                         style={{
                                             paddingVertical: 20,
@@ -2707,9 +2704,11 @@ class NCOFIPage extends Component {
                                 </View>
                             )}
                             {/* End Sync */}
-                            <View style={{ width: width(34) }}>
+                            <View style={styles.footerButtonWrapper}>
                                 {this.state.syncMode === 0 && (
-                                    <TouchableOpacity onPress={once(this.onNavigaTo.bind(this, 2))} style={styles.footerShadowButton}>
+                                    <TouchableOpacity
+                                        onPress={once(this.onNavigaTo.bind(this, 2))}
+                                        style={styles.footerShadowButton}>
                                         <Icon name={'upload-cloud'} size={25} color="#ffffff" />
                                         <Text style={styles.footerTextContent}>{strings.Create_OFI}</Text>
                                     </TouchableOpacity>

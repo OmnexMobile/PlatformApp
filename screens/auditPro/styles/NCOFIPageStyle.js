@@ -72,16 +72,15 @@ export default StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         width: '100%',
-    //    backgroundColor: 'red',
-        height: 65,
+        // backgroundColor: 'red',
+        paddingVertical: 8,
+        paddingHorizontal: 10,
     },
     footerDiv: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
+        justifyContent: 'center',
         alignContent: 'center',
         width: '100%',
-        height: 65,
-        position: 'absolute',
     },
     footerLoader: {
         flexDirection: 'row',
@@ -98,8 +97,8 @@ export default StyleSheet.create({
     footerShadowButton: {
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 6,
-        paddingHorizontal: 10,
+        paddingVertical: 12,
+        paddingHorizontal: 12,
         borderRadius: 8,
         backgroundColor: '#00b3d6',
         shadowColor: '#000',
@@ -107,12 +106,24 @@ export default StyleSheet.create({
         shadowOffset: {width: 0, height: 2},
         shadowRadius: 2,
         elevation: 1,
-        margin:10
+        width: '100%',
     },
     footerDivContent: {
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    footerButtonsRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        width: '100%',
+        paddingHorizontal: 6,
+    },
+    footerButtonWrapper: {
+        flex: 1,
+        minWidth: 0,
+        marginHorizontal: 4,
     },
 
     // Body styles

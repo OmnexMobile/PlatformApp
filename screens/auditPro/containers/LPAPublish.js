@@ -251,13 +251,13 @@ export default function LPAPublish(props) {
       <View style={styles.wrapper}>
       {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
         <OfflineNotice />
-        <ImageBackground
+        {/* <ImageBackground
           source={Images.DashboardBG}
           style={{
             resizeMode: 'stretch',
             width: '100%',
             height: 60,
-          }}>
+          }}> */}
           <View style={styles.header}>
             <TouchableOpacity onPress={() => props.navigation.goBack()}>
               <View style={styles.backlogo}>
@@ -275,7 +275,7 @@ export default function LPAPublish(props) {
               </TouchableOpacity>
             </View>
           </View>
-        </ImageBackground>
+        {/* </ImageBackground> */}
         <ScrollView horizontal={true}>
           <RenderHtml source={htmlsource} contentWidth={width} />
         </ScrollView>

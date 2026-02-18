@@ -74,16 +74,16 @@ export default StyleSheet.create({
     alignItems: 'center',
     width: '100%',
     backgroundColor: 'transparent',
-    height: 65,
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    minHeight: 76,
     zIndex: 3000,
   },
   footerDiv: {
     flexDirection: 'row',
-    justifyContent: 'space-evenly',
+    justifyContent: 'center',
     alignItems: 'center',
-    width: '80%',
-    height: 65,
-    position: 'absolute',
+    width: '100%',
     // shadowOffset: {width: 2, height: 10},
     // shadowColor: 'lightgrey',
     // shadowOpacity: 0.5,
@@ -305,7 +305,7 @@ export default StyleSheet.create({
   },
   inputhigh: {
     backgroundColor: 'transparent',
-    width: '96%',
+    width: '100%',
     // paddingLeft:3,
     // backgroundColor:'red'
     // height:'80%',
@@ -378,9 +378,9 @@ export default StyleSheet.create({
   },
   input02: {
     backgroundColor: 'transparent',
-    width: '95%',
+    width: '100%',
     // height:'100%',
-    paddingLeft: 3,
+    paddingLeft: 0,
     marginTop: 5,
     paddingVertical: Platform.OS === 'ios' ? 10 : null,
     // borderBottomWidth:1
@@ -388,22 +388,22 @@ export default StyleSheet.create({
   },
   input03: {
     backgroundColor: 'transparent',
-    width: '95%',
+    width: '100%',
     height: '80%',
-    paddingLeft: 7,
+    paddingLeft: 0,
   },
   input04: {
     backgroundColor: 'transparent',
-    width: '95%',
+    width: '100%',
     height: '80%',
-    paddingLeft: 7,
+    paddingLeft: 0,
     //backgroundColor:'red'
   },
   input05: {
     backgroundColor: 'transparent',
-    width: '95%',
+    width: '100%',
     height: '80%',
-    paddingLeft: 7,
+    paddingLeft: 0,
   },
   input06: {
     backgroundColor: 'yellow',
@@ -413,9 +413,9 @@ export default StyleSheet.create({
   },
   input07: {
     backgroundColor: 'transparent',
-    width: '95%',
+    width: '100%',
     height: '80%',
-    paddingLeft: 7,
+    paddingLeft: 0,
   },
   uploadButton: {
     backgroundColor: 'transparent',
@@ -431,12 +431,28 @@ export default StyleSheet.create({
     zIndex: 10,
     marginLeft: 0,
     marginRight: 0,
-    padding: 5,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
     backgroundColor: 'white',
     justifyContent: 'center',
     paddingBottom: 0,
     marginBottom: 0,
     alignSelf: 'stretch',
+  },
+  formSection: {
+    width: '100%',
+    marginBottom: 16,
+  },
+  formSection1: {
+    width: '100%',
+    marginBottom: 16,
+  },
+  fieldLabel: {
+    fontSize: Fonts.size.regular,
+    fontFamily: 'OpenSans-SemiBold',
+    color: '#4A4A4A',
+    marginBottom: 6,
+    marginLeft: 0,
   },
   floatingDiv: {
     position: 'absolute',
@@ -465,12 +481,17 @@ export default StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     width: '100%',
-    paddingHorizontal: 12,
+    paddingHorizontal: 6,
+  },
+  footerButtonWrapper: {
+    flex: 1,
+    minWidth: 0,
+    marginHorizontal: 4,
   },
   footerButton: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 6,
+    paddingVertical: 12,
     paddingHorizontal: 10,
     borderRadius: 8,
     backgroundColor: '#00b3d6',
@@ -479,7 +500,8 @@ export default StyleSheet.create({
     shadowOffset: {width: 0, height: 2},
     shadowRadius: 2,
     elevation: 1,
-    margin:10
+    marginHorizontal: 0,
+    width: '100%',
   },
   footerButtonPrimary: {
     backgroundColor: '#00b3d6',
