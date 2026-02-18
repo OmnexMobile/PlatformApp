@@ -3657,7 +3657,7 @@ class CreateNC extends Component {
                   <View style={styles.formSection}>
                     {this.state.RouteParam === 'NC' ? (
                       <View style={styles.input02}>
-                        {this.state.nonconfirmityText ? (
+                        {/* {this.state.nonconfirmityText ? (
                           <Text
                             style={{
                               padding: 0,
@@ -3668,7 +3668,7 @@ class CreateNC extends Component {
                             }}>
                             {strings.Non_confirmityL}
                           </Text>
-                        ) : null}
+                        ) : null} */}
                         <InputComponent
                           label={strings.Non_confirmityL}
                           name="nonconfirmityText"
@@ -3690,7 +3690,7 @@ class CreateNC extends Component {
                     ) : (
                       <View style = {styles.div1}>
                       <View style={styles.input02}>
-                        {this.state.ofitext ? (
+                        {/* {this.state.ofitext ? (
                           <Text
                             style={{
                               padding: 0,
@@ -3701,7 +3701,7 @@ class CreateNC extends Component {
                             }}>
                             {strings.Opportunity_ApproachL}
                           </Text>
-                        ) : null}
+                        ) : null} */}
                         <InputComponent
                           label={strings.Opportunity_ApproachL}
                           name="ofitext"
@@ -3728,7 +3728,7 @@ class CreateNC extends Component {
                   <View style={styles.div1}>
                     {this.state.RouteParam === 'NC' ? (
                       <View style={styles.input02}>
-                        {this.state.objEvidence ? (
+                        {/* {this.state.objEvidence ? (
                           <Text
                             style={{
                               padding: 0,
@@ -3739,7 +3739,7 @@ class CreateNC extends Component {
                             }}>
                             {strings.Objective_Evidence}
                           </Text>
-                        ) : null}
+                        ) : null} */}
                         <InputComponent
                           label={strings.Objective_Evidence}
                           name="objEvidence"
@@ -3768,7 +3768,7 @@ class CreateNC extends Component {
                             color="red"
                           />
                         </View> */}
-                        {this.state.objEvidence ? (
+                        {/* {this.state.objEvidence ? (
                           <Text
                             style={{
                               padding: 0,
@@ -3779,7 +3779,7 @@ class CreateNC extends Component {
                             }}>
                             {strings.Objective_Evidence}
                           </Text>
-                        ) : null}
+                        ) : null} */}
                         <InputComponent
                           label={strings.Objective_Evidence}
                           name="objEvidence"
@@ -3886,12 +3886,6 @@ class CreateNC extends Component {
                     <View
                       style={[
                         styles.input002,
-                        // this.state.underline2 == true
-                        //   ? {borderBottomColor: 'red', borderBottomWidth: 0.5}
-                        //   : {
-                        //       borderBottomColor: 'lightgrey',
-                        //       borderBottomWidth: 0.7,
-                        //     },
                       ]}
                       onPress={() => this.setState({isVisible: true})}>
                       {this.state.displayData ? (
@@ -3925,25 +3919,6 @@ class CreateNC extends Component {
                           containerStyle={{paddingHorizontal: 0, marginBottom: 0}}
                           onTouchStart={() => this.setState({isVisible: true})}
                         />
-                        {/* {this.state.displayData != '' &&
-                        this.state.displayData != undefined ? (
-                          <TouchableOpacity
-                            style={{
-                              right: 0,
-                              left: 11,
-bottom:10,                              backgroundColor: 'white',
-                              width: "7%",
-                              justifyContent:'flex-end',
-                              alignItems:'flex-end',
-                            }}
-                            onPress={() =>
-                              this.setState({NCtxtFlag: false, isVisible: true})
-                            }>
-                            <Icon name="eye" size={20} color="black" />
-                          </TouchableOpacity>
-                        ) : (
-                          <View></View>
-                        )} */}
                       </View>
                     </View>
                     <View
@@ -3986,14 +3961,7 @@ bottom:10,                              backgroundColor: 'white',
                         }}
                       />
                     </View>
-                    {/* <View style={styles.check}>
-                      <Icon
-                        style={{left: 5}}
-                        name="sun"
-                        size={8}
-                        color="red"
-                      />
-                    </View> */}
+                  
                   </View>
                   <View style={styles.div1}>
                     <View style={styles.input05}>
@@ -4023,14 +3991,7 @@ bottom:10,                              backgroundColor: 'white',
                         }}
                       />
                     </View>
-                    {/* <View style={styles.check}>
-                      <Icon
-                        style={{left: 5}}
-                        name="sun"
-                        size={8}
-                        color="red"
-                      />
-                    </View> */}
+                  
                   </View>
 
                   <View style={styles.div1}>
@@ -4069,14 +4030,7 @@ bottom:10,                              backgroundColor: 'white',
                         }}
                       />
                     </View>
-                    {/* <View style={styles.check}>
-                      <Icon
-                        style={{left: 5}}
-                        name="sun"
-                        size={8}
-                        color="red"
-                      />
-                    </View> */}
+                  
                   </View>
                   <View style={styles.div1}>
                     <View style={styles.input07}>
@@ -4096,9 +4050,7 @@ bottom:10,                              backgroundColor: 'white',
                                 height: 20,
                                 width: 20,
                                 zIndex: 9,
-                                //  borderWidth: 2,
                                 borderColor: '#A6A6A6',
-                                // borderRadius: 100,
                               }}>
                               <View
                                 style={{
@@ -4106,7 +4058,7 @@ bottom:10,                              backgroundColor: 'white',
                                   top: 18,
                                 }}>
                                 <Icon
-                                  name="times-circle"
+                                  name="delete"
                                   size={20}
                                   color="black"
                                 />
@@ -4169,7 +4121,7 @@ bottom:10,                              backgroundColor: 'white',
                   </View>
 
                   <View style={styles.formSection}>
-                    <View style={[styles.div2, {marginTop: 4}]}>
+                    <View style={[styles.div2]}>
                       <View style={styles.inputhigh}>
                         {this.state.selectedItemsProcess ? (
                           <SectionedMultiSelect //single={multiprocess == "1" ? true : false}
@@ -4217,7 +4169,6 @@ bottom:10,                              backgroundColor: 'white',
                                 : []
                             }
                             expandDropDowns={true}
-                            //  alwaysShowSelectText={true}
                             placeholderTextColor="#A6A6A6"
                             itemNumberOfLines={3}
                             selectLabelNumberOfLines={3}
@@ -4243,15 +4194,7 @@ bottom:10,                              backgroundColor: 'white',
                               ? {display: 'none'}
                               : styles.check
                           }>
-                          {/* {this.props.data.audits.smdata !== 2 &&
-                          this.props.data.audits.smdata !== 3 ? (
-                            <Icon
-                              style={{right: 10}}
-                              name="sun"
-                              size={8}
-                              color="red"
-                            />
-                          ) : null} */}
+                        
                         </View>
                         <View
                           style={{paddingLeft: 10, flexDirection: 'column'}}>
@@ -4330,17 +4273,7 @@ bottom:10,                              backgroundColor: 'white',
                       </View>
                     ) : (
                       <View style={styles.input02}>
-                        {/* <View style={styles.check}>
-                          {this.props.data.audits.smdata != 2 &&
-                          this.props.data.audits.smdata != 3 ? (
-                            <Icon
-                              style={{left: 10, display: 'none'}}
-                              name="sun"
-                              size={8}
-                              color="red"
-                            />
-                          ) : null}
-                        </View> */}
+                    
                         <InputComponent
                           label={strings.Document_reference}
                           name="documentRef"
@@ -4353,7 +4286,6 @@ bottom:10,                              backgroundColor: 'white',
                           containerStyle={{paddingHorizontal: 0, marginBottom: 0}}
                           onChangeText={(field, value) => {
                             this.setState({documentRef: value}, () => {
-                              // this.isCheck3 = true;
                             });
                           }}
                         />
@@ -4456,18 +4388,15 @@ bottom:10,                              backgroundColor: 'white',
                         style={[
                           styles.footerButton,
                           this.state.startVoice === true
-                            ? styles.footerVoiceButtonActive
-                            : styles.footerVoiceButton,
                         ]}>
                         <Icon name="mic" size={20} color="#fff" />
                         <Text
                           style={[
                             styles.footerActionText,
                             this.state.startVoice === true
-                              ? null
-                              : styles.footerActionTextSecondary,
+                            
                           ]}>
-                          {strings.Voice || 'Voice'}
+                          {'Voice'}
                         </Text>
                       </TouchableOpacity>
                     </View>

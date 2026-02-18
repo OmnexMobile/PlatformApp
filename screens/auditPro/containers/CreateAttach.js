@@ -32,6 +32,8 @@ import Fonts from '../Themes/Fonts';
 import Icon from 'react-native-vector-icons/Feather';
 import { strings } from '../language/Language';
 import { debounce, once } from 'underscore';
+import { toast } from 'helpers/utils';
+import { TOAST_STATUS } from 'constants/app-constant';
 import DeviceInfo from 'react-native-device-info';
 import RNFS from 'react-native-fs';
 import AsyncStorage from '@react-native-community/async-storage';
@@ -615,16 +617,23 @@ class CreateAttach extends React.Component {
             if (this.state.attachment == '') {
                 isValid = false;
             }
-            if (this.state.comments == '') {
+            let errorMessage = '';
+            if (this.state.TypeID == '') {
                 isValid = false;
+                errorMessage = strings.TypeMissing;
+            } else if (this.state.attachment == '') {
+                isValid = false;
+                errorMessage = strings.AttachMissing || strings.TypeMissing;
+            } else if (this.state.comments == '') {
+                isValid = false;
+                errorMessage = strings.commentMessage;
                 this.setState({
                     commentFlag: false,
                 });
-                // this.commentFlag = false
-            }
-            if (this.state.TypeID == 2 && !this.isUrlValid(this.state.attachment)) {
+            } else if (this.state.TypeID == 2 && !this.isUrlValid(this.state.attachment)) {
                 isValid = false;
                 isUrlInValid = true;
+                errorMessage = strings.UrlMissing;
             }
 
             if (!isValid) {
@@ -633,6 +642,9 @@ class CreateAttach extends React.Component {
                     isUrlInValid: isUrlInValid,
                     saveLoader: false,
                 });
+                if (errorMessage) {
+                    toast(errorMessage, '', TOAST_STATUS.ERROR);
+                }
             } else {
                 this.setState(
                     {
@@ -640,10 +652,7 @@ class CreateAttach extends React.Component {
                     },
                     () => {
                         var auditRecords = this.props.data.audits.auditRecords;
-                        // var Token = this.props.data.audits.token;
                         var Token = this.state.currentUserData?.accessToken;
-                        // var SiteId = this.props.data.audits.siteId;
-                        // var UserId = this.props.data.audits.userId;
                         var SiteId = this.state.currentUserData?.siteId;
                         var UserId = this.state.currentUserData?.userId;
                         var RequestParam = [];
@@ -788,19 +797,6 @@ class CreateAttach extends React.Component {
                         {this.state.fileName}
                     </Text>
                 </View>
-                {/* {this.state.fileName ? (
-          <TouchableOpacity
-            onPress={() => this.deleteAttachments()}
-            style={{
-              width: '10%',
-              right: 10,
-              top: 10,
-              position: 'absolute',
-              // marginRight: 20,
-            }}>
-            <Icon name="trash" size={20} color={'red'} />
-          </TouchableOpacity>
-        ) : null} */}
             </View>
         );
     };
@@ -1248,20 +1244,20 @@ class CreateAttach extends React.Component {
                         contentContainerStyle={{ paddingBottom: 140 }}>
                         {this.state.EditFlag === true ? (
                             <View style={styles.manFields}>
-                                <View
-                                    style={{
-                                        backgroundColor: 'transparent',
-                                        width: '100%',
-                                        height: 60,
-                                    }}>
-                                    <DropdownComponent
-                                        data={attach}
-                                        label={strings.DropType}
-                                        value={this.state.attachText}
-                                        editable={false}
-                                        required
-                                        containerStyle={{ paddingHorizontal: 0, marginBottom: 0, zIndex: 1000, elevation: 1000 }}
-                                    />
+                                        <View
+                                            style={{
+                                                backgroundColor: 'transparent',
+                                                width: '100%',
+                                                height: 60,
+                                            }}>
+                                            <DropdownComponent
+                                                data={attach}
+                                                label={strings.DropType}
+                                                value={this.state.attachText}
+                                                editable={false}
+                                                required
+                                                containerStyle={{ paddingHorizontal: 0, marginBottom: 0, zIndex: 1000, elevation: 1000 }}
+                                            />
                                     {this.state.isErrorFound && this.state.TypeID == '' ? (
                                         toast(strings.TypeMissing, '', TOAST_STATUS.ERROR)
                                     ) : null}
@@ -1273,18 +1269,18 @@ class CreateAttach extends React.Component {
                             </View>
                         ) : (
                             <View style={styles.manFields}>
-                                <View
-                                    style={{
-                                        backgroundColor: 'transparent',
-                                        width: '90%',
-                                        height: 60,
-                                    }}>
-                                    <DropdownComponent
-                                        data={attach}
-                                        label={strings.DropType}
-                                        value={this.state.attachText}
-                                        required
-                                        containerStyle={{ paddingHorizontal: 0, marginBottom: 0, zIndex: 1000, elevation: 1000 }}
+                                        <View
+                                            style={{
+                                                backgroundColor: 'transparent',
+                                                width: '100%',
+                                                height: 60,
+                                            }}>
+                                            <DropdownComponent
+                                                data={attach}
+                                                label={strings.DropType}
+                                                value={this.state.attachText}
+                                                required
+                                                containerStyle={{ paddingHorizontal: 0, marginBottom: 0, zIndex: 1000, elevation: 1000 }}
                                         onChange={selectedValue => {
                                             const selectedType = attach.find(item => item.value === selectedValue);
                                             console.log('selectedType', selectedType);
@@ -1302,22 +1298,8 @@ class CreateAttach extends React.Component {
                                             );
                                         }}
                                     />
-                                    {this.state.isErrorFound && this.state.TypeID == '' ? (
-                                        <Text
-                                            style={{
-                                                color: 'red',
-                                                fontSize: Fonts.size.small,
-                                                width: '100%',
-                                                fontFamily: 'OpenSans-Regular',
-                                            }}>
-                                            {strings.TypeMissing}
-                                        </Text>
-                                    ) : null}
+                                  
                                 </View>
-
-                                {/* <View style={styles.check}>
-                                    <Icon name="sun" style={{ bottom: 25, right: 0 }} size={8} color="green" />
-                                </View> */}
                             </View>
                         )}
 
@@ -1366,7 +1348,7 @@ class CreateAttach extends React.Component {
                                                     numberOfLines={1}>
                                                     {this.state.attachment}
                                                 </Text>
-                                                {this.state.isErrorFound && this.state.attachment == '' ? (
+                                                {/* {this.state.isErrorFound && this.state.attachment == '' ? (
                                                     <Text
                                                         style={{
                                                             color: 'red',
@@ -1375,7 +1357,7 @@ class CreateAttach extends React.Component {
                                                         }}>
                                                         {strings.AttachMissing}
                                                     </Text>
-                                                ) : null}
+                                                ) : null} */}
                                             </View>
                                         ) : this.state.fileloaded ? (
                                             <View
@@ -1396,7 +1378,7 @@ class CreateAttach extends React.Component {
 
                                                 {this.renderItem()}
 
-                                                {this.state.isErrorFound && this.state.attachment == '' ? (
+                                                {/* {this.state.isErrorFound && this.state.attachment == '' ? (
                                                     <Text
                                                         style={{
                                                             color: 'red',
@@ -1406,7 +1388,7 @@ class CreateAttach extends React.Component {
                                                         }}>
                                                         {strings.AttachMissing}
                                                     </Text>
-                                                ) : null}
+                                                ) : null} */}
                                             </View>
                                         ) : (
                                             this.renderAttachmentLoading()
@@ -1442,18 +1424,7 @@ class CreateAttach extends React.Component {
                                                 })
                                             }
                                         />
-                                        {this.state.isErrorFound && (this.state.attachment == '' || this.state.isUrlInValid) ? (
-                                            <Text
-                                                style={{
-                                                    bottom: Platform.OS === 'android' ? 20 : null,
-                                                    marginLeft: 10,
-                                                    color: 'red',
-                                                    fontSize: Fonts.size.small,
-                                                    fontFamily: 'OpenSans-Regular',
-                                                }}>
-                                                {strings.UrlMissing}{' '}
-                                            </Text>
-                                        ) : null}
+                                        {this.state.isErrorFound && (this.state.attachment == '' || this.state.isUrlInValid) ? null : null}
                                     </View>
                                 )}
                             </View>
@@ -1474,7 +1445,7 @@ class CreateAttach extends React.Component {
                                         <View style={styles.boxCard}>
                                             <Text style={styles.detailTitle}>{strings.AttachComments}</Text>
                                             <View style={styles.check1}>
-                                                <Icon style={{ top: 5, right: 30, bottom: 7 }} name="edit" size={20} color="lightgrey" />
+                                                <Icon style={{ top: 5, right: 0, bottom: 7 }} name="edit" size={20} color="lightgrey" />
                                             </View>
                                         </View>
                                     ) : (
@@ -1492,18 +1463,7 @@ class CreateAttach extends React.Component {
                                         onChangeText={(field, value) => this.setState({ comments: value })}
                                         returnKeyType="default"
                                     />
-                                    {this.state.commentFlag == false && this.state.comments === '' ? (
-                                        <Text
-                                            style={{
-                                                bottom: 10,
-                                                marginLeft: 10,
-                                                color: 'red',
-                                                fontSize: Fonts.size.small,
-                                                fontFamily: 'OpenSans-Regular',
-                                            }}>
-                                            {strings.commentMessage}
-                                        </Text>
-                                    ) : null}
+                                    {this.state.commentFlag == false && this.state.comments === '' ? null : null}
                                 </View>
                             </View>
                         ) : (
@@ -1540,18 +1500,7 @@ class CreateAttach extends React.Component {
                                         }
                                         returnKeyType="default"
                                     />
-                                    {this.state.commentFlag == false && this.state.comments == '' ? (
-                                        <Text
-                                            style={{
-                                                bottom: Platform.OS === 'android' ? 15 : null,
-                                                color: 'red',
-                                                marginLeft: 10,
-                                                fontSize: Fonts.size.small,
-                                                fontFamily: 'OpenSans-Regular',
-                                            }}>
-                                            {/* {strings.commentMessage} */}
-                                        </Text>
-                                    ) : null}
+                                    {this.state.commentFlag == false && this.state.comments == '' ? null : null}
                                 </View>
                             </View>
                         )}

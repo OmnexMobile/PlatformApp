@@ -327,7 +327,7 @@ export default StyleSheet.create({
     width: '100%',
     //height:height(10),
     backgroundColor: 'transparent',
-    marginTop: 10,
+  //  marginTop: 10,
     // alignItems:'center',
     // justifyContent:'center',
     flexDirection: 'row',
@@ -368,9 +368,6 @@ export default StyleSheet.create({
     backgroundColor: 'transparent',
     width: '90%',
     height: '90%',
-   // paddingLeft: 4,
-  //  paddingVertical: Platform.OS === 'ios' ? 10 : null,
-    // marginLeft:6
   },
   placeholderT: {
     fontSize: Fonts.size.regular,
@@ -378,13 +375,9 @@ export default StyleSheet.create({
   },
   input02: {
     backgroundColor: 'transparent',
-    width: '100%',
-    // height:'100%',
-    paddingLeft: 0,
-    marginTop: 5,
+    width: '90%',
+
     paddingVertical: Platform.OS === 'ios' ? 10 : null,
-    // borderBottomWidth:1
-    // backgroundColor:'red'
   },
   input03: {
     backgroundColor: 'transparent',
@@ -397,7 +390,6 @@ export default StyleSheet.create({
     width: '100%',
     height: '80%',
     paddingLeft: 0,
-    //backgroundColor:'red'
   },
   input05: {
     backgroundColor: 'transparent',
@@ -441,7 +433,7 @@ export default StyleSheet.create({
   },
   formSection: {
     width: '100%',
-    marginBottom: 16,
+    marginBottom: 5,
   },
   formSection1: {
     width: '100%',
