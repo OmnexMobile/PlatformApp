@@ -44,6 +44,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 import { SPACING } from 'constants/theme-constants';
 import GlobalHeader from 'components/GlobalHeader';
 import CommonAlertModal from 'components/common_alert_modal';
+import IconAwesome from 'react-native-vector-icons/FontAwesome';
 
 var RNFS = require('react-native-fs');
 
@@ -2955,6 +2956,7 @@ class NCOFIPage extends Component {
                                         color: 'black',
                                         fontSize: 23,
                                         fontFamily: 'OpenSans-Regular',
+                                        fontWeight: 'bold',
                                     }}>
                                     {/* {strings.NC_OFI_Detail} */}
                                     {this.state.CheckNC === 0 ? 'NC Detail' : 'OFI Detail'}
@@ -3051,7 +3053,7 @@ class NCOFIPage extends Component {
                                                         alignItems: 'center',
                                                         flexDirection: 'column',
                                                     }}>
-                                                    <Icon name="hourglass" size={20} color="black" />
+                                                    <IconAwesome name="hourglass" size={20} color="black" />
                                                     <Text style={{ fontFamily: 'OpenSans-Regular' }}>{strings.Loading}</Text>
                                                 </View>
                                             </View>
@@ -3072,7 +3074,7 @@ class NCOFIPage extends Component {
                                                 alignItems: 'center',
                                                 flexDirection: 'column',
                                             }}>
-                                            <Icon name="spinner" size={20} color="black" />
+                                            <IconAwesome name="spinner" size={20} color="black" />
                                             <Text>{strings.failed}</Text>
                                         </View>
                                     </View>
@@ -3085,9 +3087,10 @@ class NCOFIPage extends Component {
                                 <Text
                                     style={{
                                         fontSize: Fonts.size.regular,
-                                        color: '#00a1e2',
+                                        color: 'red',
                                         top: 20,
                                         fontFamily: 'OpenSans-Regular',
+                                        fontWeight: 'bold',
                                     }}>
                                     {strings.Close}
                                 </Text>

@@ -183,15 +183,17 @@ export default StyleSheet.create({
     },
     boxHeader: {
         width: '100%',
-        color: '#A6A6A6',
-        fontSize: Fonts.size.small,
+        color: 'black',
+        fontSize: Fonts.size.regular,
         fontFamily: 'OpenSans-Regular',
+        fontWeight: 'bold',
     },
     boxContent: {
         width: '100%',
-        color: '#485B9E',
+        color: '#20B8C8',
         fontSize: Fonts.size.regular,
         fontFamily: 'OpenSans-Regular',
+        fontWeight:"bold"
     },
 
     body: {
