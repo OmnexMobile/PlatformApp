@@ -10,11 +10,16 @@ const InputComponent = ({
     defaultValue = '',
     placeholder = '',
     required = false,
+    error = false,
     label = '',
     name = '',
     onChangeText,
     type = '',
     inputRef,
+    containerStyle = {},
+    inputStyle = {},
+    placeholderTextColor = COLORS.searchText,
+    style: textInputStyle,
     ...rest
 }) => {
     const [isFocused, setIsFocused] = useState(false);
@@ -26,13 +31,14 @@ const InputComponent = ({
             style={[
                 {
                     ...(isPassword && { paddingRight: 0 }),
-                    borderColor: isFocused ? COLORS.primaryLightThemeColor : COLORS.whiteGrey,
+                    borderColor: error ? COLORS.ERROR : isFocused ? COLORS.primaryLightThemeColor : COLORS.whiteGrey,
                 },
                 styles.inputContainer,
+                containerStyle,
             ]}>
             <View style={{ flex: 1 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: SPACING.X_SMALL }}>
-                    <TextComponent style={{ fontSize: FONT_SIZE.SMALL }} type={FONT_TYPE.BOLD}>
+                    <TextComponent style={{ fontSize: FONT_SIZE.SMALL }} type={FONT_TYPE.BOLD} color={error ? COLORS.ERROR : null}>
                         {label}
                     </TextComponent>
                     {required && (
@@ -45,8 +51,9 @@ const InputComponent = ({
                 <TextInput
                     {...{
                         ref: inputRef,
-                        style: styles.input,
+                        style: [styles.input, inputStyle, textInputStyle],
                         placeholder,
+                        placeholderTextColor,
                         defaultValue,
                         ...(isPassword && { secureTextEntry: !showPassword }),
                         onFocus: () => setIsFocused(true),

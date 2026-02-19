@@ -6,7 +6,19 @@ import { COLORS, FONT_SIZE, SPACING } from 'constants/theme-constants';
 import { FONT_TYPE } from 'constants/app-constant';
 import useTheme from 'theme/useTheme';
 
-const DropdownComponent = ({ name, label, value, onChange, data = [], required = false, containerStyle = {}, editable = true, search = false, dropdownRef }) => {
+const DropdownComponent = ({
+    name,
+    label,
+    value,
+    onChange,
+    data = [],
+    required = false,
+    error = false,
+    containerStyle = {},
+    editable = true,
+    search = false,
+    dropdownRef,
+}) => {
     const { theme } = useTheme();
     return (
         <View
@@ -21,7 +33,7 @@ const DropdownComponent = ({ name, label, value, onChange, data = [], required =
                 containerStyle,
             ]}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <TextComponent style={{ fontSize: FONT_SIZE.SMALL }} type={FONT_TYPE.BOLD}>
+                <TextComponent style={{ fontSize: FONT_SIZE.SMALL }} type={FONT_TYPE.BOLD} color={error ? COLORS.ERROR : null}>
                     {label}
                 </TextComponent>
                 {required && (
@@ -32,7 +44,7 @@ const DropdownComponent = ({ name, label, value, onChange, data = [], required =
             </View>
             <Dropdown
                 ref={dropdownRef}
-                style={styles.dropdown}
+                style={[styles.dropdown, error ? styles.dropdownError : null]}
                 placeholderStyle={styles.placeholderStyle}
                 selectedTextStyle={[styles.selectedTextStyle, { color: theme.mode.textColor }]}
                 inputSearchStyle={styles.inputSearchStyle}
@@ -88,6 +100,9 @@ const styles = StyleSheet.create({
         // borderWidth: 1,
         // margin: 16,
         // height: 50,
+    },
+    dropdownError: {
+        borderColor: COLORS.ERROR,
     },
     icon: {
         // marginRight: 5,

@@ -58,7 +58,8 @@ import Fonts from '../../auditPro/Themes/Fonts';
 import { ROUTES } from 'constants/app-constant';
 import { SPACING } from 'constants/theme-constants';
 import GlobalHeader from 'components/GlobalHeader';
-
+import CommonAlertModal from 'components/common_alert_modal';
+import AttachmentSelectionModal from 'components/attachment-selection-modal';
 const Width = Dimensions.get('window').width;
 const Colors = {
     0: 'red',
@@ -4732,23 +4733,23 @@ class CheckPointDemo extends Component {
         let type = filename !== '' ? filename.substring(filename.lastIndexOf('.') + 1) : 'file';
         switch (type) {
             case 'pdf': {
-                icon = 'file-pdf-o';
+                icon = 'file-text';
                 break;
             }
             case 'doc':
             case 'docx': {
-                icon = 'file-word-o';
+                icon = 'file-text';
                 break;
             }
             case 'ppt':
             case 'pps': {
-                icon = 'file-powerpoint-o';
+                icon = 'file-text';
                 break;
             }
             case 'xls':
             case 'xlsx':
             case 'xlsm': {
-                icon = 'file-excel-o';
+                icon = 'file-text';
                 break;
             }
             case 'video':
@@ -6613,7 +6614,12 @@ class CheckPointDemo extends Component {
                                                                         <View style={styles.attachIcon}>
                                                                             <TouchableOpacity
                                                                                 onPress={this.chooseCameraOption.bind(this, item, index)}>
-                                                                                <Icon name="plus" size={25} color="grey" style={{ bottom: 2 }} />
+                                                                                <Icon
+                                                                                    name="paperclip"
+                                                                                    size={20}
+                                                                                    color="black"
+                                                                                    style={{ bottom: 2 }}
+                                                                                />
                                                                                 {item.AttachforNc == 1 || item.AttachforOfi ? (
                                                                                     <Icon
                                                                                         name="asterisk"
@@ -7976,7 +7982,7 @@ class CheckPointDemo extends Component {
                                                 end={{ x: 1, y: 0 }}
                                                 colors={FOOTER_BUTTON_GRADIENT}
                                                 style={styles.footerGradientButton}>
-                                                <Icon name="undo" size={20} color="white" />
+                                                <Icon name="rotate-ccw" size={20} color="white" />
                                                 <Text numberOfLines={1} style={styles.footerActionText}>
                                                     {strings.Reset}
                                                 </Text>
@@ -8006,123 +8012,49 @@ class CheckPointDemo extends Component {
                         </View>
                     ) : null}
 
-                    <Modal
-                        isVisible={this.state.dialogVisibleNC}
-                        onBackdropPress={() => this.setState({ dialogVisibleNC: false })}
-                        // animationIn="slideInUp"
-                        // animationOut="slideOutDown"
-                        // transparent={true}
-                        // backdropColor="rgba(0,0,0,0.5)"
-                        style={styles.modalOuterBox}>
-                        <View style={styles.ncModal}>
-                            <View /* style={styles.modalBody} */>
-                                <View style={styles.modalheading}>
-                                    <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                                        <Text
-                                            style={{
-                                                color: 'black',
-                                                fontSize: Fonts.size.regular,
-                                                fontFamily: 'OpenSans-Regular',
-                                            }}>
-                                            {strings.Make_your_selection}
-                                        </Text>
-                                    </View>
-                                </View>
-
-                                {
-                                    //this.state.isNCAllowed ? (
-                                    this.state.radiovalue_ncofi == 9 ||
-                                    this.state.radiovalue_ncofi == 10 ||
-                                    this.state.radiovalue_ncofi == 14 ||
-                                    this.state.radiovalue_ncofi == 15 ||
-                                    this.state.Status_nc_ofi == 1 ||
-                                    this.state.Status_nc_ofi == 2 ? (
-                                        <TouchableOpacity onPress={this.navigateTo.bind(this, 'NC')}>
-                                            <View style={styles.sectionTop}>
-                                                <View style={styles.sectionContent}>
-                                                    <Text style={styles.boxContent}>{strings.NC}</Text>
-                                                </View>
-                                            </View>
-                                        </TouchableOpacity>
-                                    ) : null
-                                }
-
-                                {this.state.radiovalue_ncofi == 9 ||
-                                this.state.radiovalue_ncofi == 10 ||
-                                this.state.radiovalue_ncofi == 14 ||
-                                this.state.radiovalue_ncofi == 15 ||
-                                this.state.Status_nc_ofi == 3 ||
-                                this.state.Status_nc_ofi == 2 ? (
-                                    <TouchableOpacity onPress={this.navigateTo.bind(this, 'OFI')}>
-                                        <View style={styles.sectionTop}>
-                                            <View style={styles.sectionContent}>
-                                                <Text style={styles.boxContent}>{strings.OFI}</Text>
-                                            </View>
-                                        </View>
-                                    </TouchableOpacity>
-                                ) : null}
-
-                                <TouchableOpacity onPress={() => this.setState({ dialogVisibleNC: false })}>
-                                    <View style={styles.sectionTopCancel}>
-                                        <View style={styles.sectionContent}>
-                                            <Text style={styles.boxContentClose}>{strings.Cancel}</Text>
-                                        </View>
-                                    </View>
-                                </TouchableOpacity>
-                            </View>
-                        </View>
-                    </Modal>
+                    <AttachmentSelectionModal
+                        visible={this.state.dialogVisibleNC}
+                        title={strings.Make_your_selection}
+                        firstOptionText={strings.NC}
+                        secondOptionText={strings.OFI}
+                        cancelText={strings.Cancel}
+                        showFirstOption={
+                            this.state.radiovalue_ncofi == 9 ||
+                            this.state.radiovalue_ncofi == 10 ||
+                            this.state.radiovalue_ncofi == 14 ||
+                            this.state.radiovalue_ncofi == 15 ||
+                            this.state.Status_nc_ofi == 1 ||
+                            this.state.Status_nc_ofi == 2
+                        }
+                        showSecondOption={
+                            this.state.radiovalue_ncofi == 9 ||
+                            this.state.radiovalue_ncofi == 10 ||
+                            this.state.radiovalue_ncofi == 14 ||
+                            this.state.radiovalue_ncofi == 15 ||
+                            this.state.Status_nc_ofi == 3 ||
+                            this.state.Status_nc_ofi == 2
+                        }
+                        showFirstOptionIcon={false}
+                        showSecondOptionIcon={false}
+                        onFirstOptionPress={() => this.navigateTo('NC')}
+                        onSecondOptionPress={() => this.navigateTo('OFI')}
+                        onCancel={() => this.setState({ dialogVisibleNC: false })}
+                    />
                     {/* Modal */}
-
-                    <Modal
-                        isVisible={this.state.dialogVisible}
-                        onBackdropPress={() => this.setState({ dialogVisible: false, go_home: false })}
-                        backdropColor="rgba(0,0,0,0.5)"
-                        style={styles.modalOuterBox}>
-                        <View style={styles.ncModal}>
-                            <View /* style={styles.modalBody} */>
-                                <View style={styles.modalheading}>
-                                    <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                                        <Text
-                                            style={{
-                                                color: 'black',
-                                                fontSize: Fonts.size.regular,
-                                                fontFamily: 'OpenSans-Regular',
-                                            }}>
-                                            {strings.Confirm}
-                                        </Text>
-                                    </View>
-                                </View>
-
-                                <View style={styles.sectionTop}>
-                                    <View style={styles.sectionContent}>
-                                        <Text style={styles.boxContent}>{strings.Confirm_message}</Text>
-                                    </View>
-                                </View>
-
-                                <TouchableOpacity onPress={this.updateCheckPointsValues.bind(this)}>
-                                    <View style={styles.sectionBtn}>
-                                        <Text style={styles.boxContent}>{strings.yes}</Text>
-                                    </View>
-                                </TouchableOpacity>
-
-                                <TouchableOpacity
-                                    onPress={() =>
-                                        this.setState({ dialogVisible: false }, () => {
-                                            this.state.go_home
-                                                ? this.props.navigation.navigate(ROUTES.AUDIT_DASHBOARD_LISTING)
-                                                : this.props.navigation.goBack();
-                                        })
-                                    }>
-                                    <View style={styles.sectionTopCancel}>
-                                        <View style={styles.sectionContent}>
-                                            <Text style={styles.boxContentClose}>{strings.no}</Text>
-                                        </View>
-                                    </View>
-                                </TouchableOpacity>
-                            </View>
-                        </View>
-                    </Modal>
+                    <CommonAlertModal
+                        visible={this.state.dialogVisible}
+                        title={strings.Confirm}
+                        message={strings.Confirm_message}
+                        showCancel
+                        confirmText={strings.yes}
+                        cancelText={strings.no}
+                        onConfirm={this.updateCheckPointsValues.bind(this)}
+                        onCancel={() =>
+                            this.setState({ dialogVisible: false }, () => {
+                                this.state.go_home ? this.props.navigation.navigate(ROUTES.AUDIT_DASHBOARD_LISTING) : this.props.navigation.goBack();
+                            })
+                        }
+                    />
 
                     <Modal
                         isVisible={this.state.dialogVisibleNCR}
@@ -8167,109 +8099,27 @@ class CheckPointDemo extends Component {
                         </View>
                     </Modal>
 
-                    {/* Modal design */}
-                    <Modal
-                        isVisible={this.state.dialogVisibleCamera}
-                        onBackdropPress={() => this.setState({ dialogVisibleCamera: false })}
-                        style={styles.modalOuterBox}>
-                        <View style={styles.ncModal}>
-                            <View /* style={styles.modalBody} */>
-                                <View style={styles.modalheading}>
-                                    <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                                        <Text
-                                            style={{
-                                                color: 'black',
-                                                fontSize: Fonts.size.regular,
-                                                fontFamily: 'OpenSans-Regular',
-                                            }}>
-                                            {strings.Make_your_selection}
-                                        </Text>
-                                    </View>
-                                </View>
+                    <AttachmentSelectionModal
+                        visible={this.state.dialogVisibleCamera}
+                        title={strings.Make_your_selection}
+                        takePhotoText={strings.Camera_Capture_Head}
+                        browseText={strings.Camera_Browse_Files}
+                        cancelText={strings.Cancel}
+                        onTakePhoto={() => this.cameraAction('Camera')}
+                        onBrowseFiles={() => this.cameraAction('Browse')}
+                        onCancel={() => this.setState({ dialogVisibleCamera: false })}
+                    />
 
-                                <TouchableOpacity onPress={this.cameraAction.bind(this, 'Camera')}>
-                                    <View style={styles.sectionTop}>
-                                        <View style={[styles.sectionContent, styles.boxContent]}>
-                                            <View style={{ width: '12%', height: null }}>
-                                                <Icon name="camera" size={25} color="grey" />
-                                            </View>
-                                            <View
-                                                style={{
-                                                    width: '88%',
-                                                    height: null,
-                                                    justifyContent: 'flex-start',
-                                                }}>
-                                                <Text style={styles.boxContentCam}>{strings.Camera_Capture_Head}</Text>
-                                            </View>
-                                        </View>
-                                    </View>
-                                </TouchableOpacity>
-                                <TouchableOpacity onPress={this.cameraAction.bind(this, 'Browse')}>
-                                    <View style={styles.sectionTop}>
-                                        <View style={[styles.sectionContent, styles.boxContent]}>
-                                            <View style={{ width: '12%', height: null }}>
-                                                <Icon name="file-image-o" size={25} color="grey" />
-                                            </View>
-                                            <View style={{ width: '88%', height: null }}>
-                                                <Text style={styles.boxContentCam}>{strings.Camera_Browse_Files}</Text>
-                                            </View>
-                                        </View>
-                                    </View>
-                                </TouchableOpacity>
-
-                                <TouchableOpacity onPress={() => this.setState({ dialogVisibleCamera: false })}>
-                                    <View style={styles.sectionTopCancel}>
-                                        <View style={styles.sectionContent}>
-                                            <Text style={styles.boxContentClose}>{strings.Cancel}</Text>
-                                        </View>
-                                    </View>
-                                </TouchableOpacity>
-                            </View>
-                        </View>
-                    </Modal>
-                    <Modal
-                        isVisible={this.state.dialogVisibleReset}
-                        onBackdropPress={() => this.setState({ dialogVisibleReset: false })}
-                        backdropColor="rgba(0,0,0,0.5)"
-                        style={styles.modalOuterBox}>
-                        <View style={styles.ncModal}>
-                            <View>
-                                <View style={styles.modalheading}>
-                                    <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                                        <Text
-                                            style={{
-                                                color: 'black',
-                                                fontSize: Fonts.size.regular,
-                                                fontFamily: 'OpenSans-Regular',
-                                            }}>
-                                            {strings.Confirm}
-                                        </Text>
-                                    </View>
-                                </View>
-
-                                <View style={styles.sectionTop}>
-                                    <View style={styles.sectionContent}>
-                                        <Text style={styles.boxContent}>{strings.ResetField}</Text>
-                                    </View>
-                                </View>
-
-                                <TouchableOpacity onPress={this.clearCheckpoints}>
-                                    <View style={styles.sectionBtn}>
-                                        <Text style={styles.boxContent}>{strings.yes}</Text>
-                                    </View>
-                                </TouchableOpacity>
-
-                                <TouchableOpacity onPress={() => this.setState({ dialogVisibleReset: false })}>
-                                    <View style={styles.sectionTopCancel}>
-                                        <View style={styles.sectionContent}>
-                                            <Text style={styles.boxContentClose}>{strings.no}</Text>
-                                        </View>
-                                    </View>
-                                </TouchableOpacity>
-                            </View>
-                        </View>
-                    </Modal>
-
+                    <CommonAlertModal
+                        visible={this.state.dialogVisibleReset}
+                        title={strings.Confirm}
+                        message={strings.ResetField}
+                        showCancel
+                        confirmText={strings.yes}
+                        cancelText={strings.no}
+                        onConfirm={this.clearCheckpoints}
+                        onCancel={() => this.setState({ dialogVisibleReset: false })}
+                    />
                     <Modal
                         isVisible={this.state.dialogVisibleAttach}
                         onBackdropPress={() => this.setState({ dialogVisibleAttach: false })}

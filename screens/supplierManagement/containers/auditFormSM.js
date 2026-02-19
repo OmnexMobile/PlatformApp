@@ -49,7 +49,7 @@ import { ROUTES } from 'constants/app-constant';
 import AsyncStorage from '@react-native-community/async-storage';
 import { SPACING } from 'constants/theme-constants';
 import GlobalHeader from 'components/GlobalHeader';
-
+import CommonAlertModal from 'components/common_alert_modal';
 let Window = Dimensions.get('window');
 
 // Form type -1- Online
@@ -4275,22 +4275,16 @@ class AuditForm extends Component {
                     textStyle={{ color: 'white' }}
                 />
 
-                <ConfirmDialog
+                
+                <CommonAlertModal
+                    visible={this.state.dialogVisible}
                     title={strings.Sync_title}
                     message={strings.Sync_message}
-                    titleStyle={{ fontFamily: 'OpenSans-SemiBold' }}
-                    messageStyle={{ fontFamily: 'OpenSans-Regular' }}
-                    visible={this.state.dialogVisible}
-                    onTouchOutside={() => this.setState({ dialogVisible: false })}
-                    supportedOrientations={['portrait', 'portrait-upside-down', 'landscape', 'landscape-left', 'landscape-right']}
-                    positiveButton={{
-                        title: strings.yes,
-                        onPress: this.StartSyncProcess.bind(this),
-                    }}
-                    negativeButton={{
-                        title: strings.no,
-                        onPress: () => this.setState({ dialogVisible: false }),
-                    }}
+                    showCancel
+                    confirmText={strings.yes}
+                    cancelText={strings.no}
+                    onConfirm={this.StartSyncProcess.bind(this)}
+                    onCancel={() => this.setState({ dialogVisible: false })}
                 />
                 <Modal isVisible={this.state.confirmpwd} onBackdropPress={() => this.setState({ confirmpwd: false })}>
                     <View

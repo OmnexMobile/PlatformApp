@@ -43,6 +43,7 @@ import { ROUTES } from 'constants/app-constant';
 import AsyncStorage from '@react-native-community/async-storage';
 import { SPACING } from 'constants/theme-constants';
 import GlobalHeader from 'components/GlobalHeader';
+import CommonAlertModal from 'components/common_alert_modal';
 
 var RNFS = require('react-native-fs');
 
@@ -2749,7 +2750,7 @@ class NCOFIPage extends Component {
                                             shadowRadius: 4,
                                             elevation: 4,
                                         }}>
-                                        <Icon name="check-square-o" size={30} color="white" />
+                                        <Icon name="check-square" size={30} color="white" />
                                         <Text
                                             style={{
                                                 color: 'white',
@@ -2825,46 +2826,28 @@ class NCOFIPage extends Component {
 
                 <Toast ref="toast" position="top" opacity={0.8} />
 
-                <ConfirmDialog
+                <CommonAlertModal
+                    visible={this.state.dialogVisible}
                     title={strings.NC_title}
                     message={strings.NC_title_message}
-                    titleStyle={{ fontFamily: 'OpenSans-SemiBold' }}
-                    messageStyle={{ fontFamily: 'OpenSans-Regular' }}
-                    visible={this.state.dialogVisible}
-                    supportedOrientations={['portrait', 'portrait-upside-down', 'landscape', 'landscape-left', 'landscape-right']}
-                    onTouchOutside={() => this.setState({ dialogVisible: false, syncMode: 0 })}
-                    positiveButton={{
-                        title: strings.yes,
-                        onPress: () => {
-                            this.setState({ syncMode: 1 }, () => {
-                                this.CheckInternetConnectivityNCOFI();
-                            });
-                        },
-                        // onPress: () =>
-                        //   this.setState({confirmpwd: true, dialogVisible: false}),
+                    showCancel
+                    confirmText={strings.yes}
+                    cancelText={strings.no}
+                    onConfirm={() => {
+                        this.setState({ syncMode: 1 }, () => {
+                            this.CheckInternetConnectivityNCOFI();
+                        });
                     }}
-                    negativeButton={{
-                        title: strings.no,
-                        onPress: () => this.setState({ dialogVisible: false, syncMode: 0 }),
-                    }}
+                    onCancel={() => this.setState({ dialogVisible: false, syncMode: 0 })}
                 />
-
-                <ConfirmDialog
-                    title={strings.ConfirmDelete}
-                    // message={strings.Confirm_delete_message}
+                <CommonAlertModal
                     visible={this.state.deleteDialogVisible}
-                    titleStyle={{ fontFamily: 'OpenSans-SemiBold' }}
-                    messageStyle={{ fontFamily: 'OpenSans-Regular' }}
-                    onTouchOutside={() => this.setState({ deleteDialogVisible: false })}
-                    supportedOrientations={['portrait', 'portrait-upside-down', 'landscape', 'landscape-left', 'landscape-right']}
-                    positiveButton={{
-                        title: strings.yes,
-                        onPress: this.removeNC.bind(this),
-                    }}
-                    negativeButton={{
-                        title: strings.no,
-                        onPress: () => this.setState({ deleteDialogVisible: false }),
-                    }}
+                    title={strings.ConfirmDelete}
+                    showCancel
+                    confirmText={strings.yes}
+                    cancelText={strings.no}
+                    onConfirm={this.removeNC.bind(this)}
+                    onCancel={() => this.setState({ deleteDialogVisible: false })}
                 />
 
                 <Modal isVisible={this.state.isMissingFindings} onBackdropPress={() => this.setState({ isMissingFindings: false })}>
@@ -3044,14 +3027,6 @@ class NCOFIPage extends Component {
                                                     <Text style={styles.boxContent}>{this.state.DocumentReference}</Text>
                                                 </View>
                                                 {this.renderAttachment()}
-
-                                                {/*
-                        <View style={styles.commoncard}>
-                          <Text style={[styles.boxHeader, { marginTop: 5 }]}>{strings.ResponseLD}</Text>
-                          <Text style={styles.boxContent}>{this.state.Response != "-"  && this.state.Response? this.changeDateFormat(this.state.Response) != '' ? this.changeDateFormat(this.state.Response) : '-' : '-'}</Text>
-                        </View>
-                    */}
-
                                                 <View style={styles.commoncard}>
                                                     <Text style={[styles.boxHeader, { marginTop: 5 }]}>{strings.ClausesL}</Text>
                                                     <Text style={styles.boxContent}>{this.state.Clause}</Text>

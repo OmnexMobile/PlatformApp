@@ -42,7 +42,7 @@ import FileViewer from 'react-native-file-viewer';
 import NetInfo from '@react-native-community/netinfo';
 import { ThemeContext } from 'theme/ThemeProvider';
 import GlobalHeader from 'components/GlobalHeader';
-
+import CommonAlertModal from 'components/common_alert_modal';
 let Window = Dimensions.get('window');
 
 class CreateAttach extends React.Component {
@@ -1303,7 +1303,7 @@ class CreateAttach extends React.Component {
                     {this.state.saveLoader ? <ActivityIndicator size="small" color="#fff" /> : <Icon name="save" size={25} color="white" />}
                 </TouchableOpacity>
 
-                <ConfirmDialog
+                {/* <ConfirmDialog
                     title={strings.Confirm}
                     message={strings.DeleteAtt}
                     titleStyle={{ fontFamily: 'OpenSans-SemiBold' }}
@@ -1318,6 +1318,15 @@ class CreateAttach extends React.Component {
                         title: strings.no,
                         onPress: () => this.setState({ dialogVisible: false }),
                     }}
+                /> */}
+                <CommonAlertModal
+                    visible={this.state.dialogVisible}
+                    title={strings.DeleteAtt}
+                    showCancel
+                    confirmText={strings.yes}
+                    cancelText={strings.no}
+                    onConfirm={this.resetForm.bind(this)}
+                    onCancel={() => this.setState({ dialogVisible: false })}
                 />
                 <Toast
                     ref="toast"

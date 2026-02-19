@@ -23,7 +23,6 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { Images } from '../../auditPro/Themes/index';
 import styles from '../../auditPro/styles/CreateNCStyle';
 // import {Dropdown} from 'react-native-element-dropdown';
-import { Dropdown } from 'react-native-material-dropdown';
 import Toast, { DURATION } from 'react-native-easy-toast';
 import DocumentPicker from 'react-native-document-picker';
 import RNFetchBlob from 'react-native-fetch-blob';
@@ -33,7 +32,8 @@ import { connect } from 'react-redux';
 import Modal from 'react-native-modal';
 import OfflineNotice from '../../auditPro//components/OfflineNotice';
 import SectionedMultiSelect from 'react-native-sectioned-multi-select';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import Icon from 'react-native-vector-icons/Feather';
+import IconAwesome from 'react-native-vector-icons/FontAwesome';
 import { width } from 'react-native-dimension';
 import ResponsiveImage from 'react-native-responsive-image';
 import Moment from 'moment';
@@ -52,6 +52,10 @@ import { ROUTES } from 'constants/app-constant';
 import { SPACING } from 'constants/theme-constants';
 import RadioGroup from './RadioGroup';
 import GlobalHeader from 'components/GlobalHeader';
+import InputComponent from 'components/input-component';
+import DropdownComponent from 'components/dropdown';
+import CommonAlertModal from 'components/common_alert_modal';
+import AttachmentSelectionModal from 'components/attachment-selection-modal';
 
 let Window = Dimensions.get('window');
 let timer = null;
@@ -223,6 +227,9 @@ class CreateNC extends Component {
                 { label: 'Yes', value: 0 },
             ],
             supplierIndex: null,
+            commonAlertVisible: false,
+            commonAlertTitle: 'Alert',
+            commonAlertMessage: 'Please fill the mandatory fields.',
         };
         Voice.onSpeechStart = this.onSpeechStart;
         Voice.onSpeechRecognized = this.onSpeechRecognized;
@@ -265,37 +272,32 @@ class CreateNC extends Component {
                 console.log('Original Data:', this.state.fileArrayList);
                 // console.log('Updated Data:', updatedData);
                 // console.log('combinedData----------------------- Data:', combinedData);
-                console.log('XSDASDASDASD321233', this.props.route?.params.data);
-                if (this.props.route?.params.data.selectedItemsProcess === true) {
-                } else {
-                    const selectedItems = this.props.route?.params.data.selectedItemsProcess; // Example array with undefined elements
 
-                    // Filter out undefined elements
-                    const filteredItems = selectedItems.filter(item => item !== undefined);
+                const selectedItems = Array.isArray(this.props?.route?.params?.data.selectedItemsProcess)
+                    ? this.props?.route?.params?.data.selectedItemsProcess
+                    : [];
+                const filteredItems = selectedItems.filter(item => item !== undefined);
 
-                    console.log('Filtered items:', filteredItems);
-                    //PROCESS   Selected items:----
+                console.log('Filtered items:', filteredItems);
+                //PROCESS   Selected items:----
 
-                    //SelectedArray--->
-                    const arr1 = this.props.route?.params.data.selectedItemsProcess;
-                    //Default array--->
-                    const arr2 = this.state.processdata;
-                    // console.log("this.state.processdatathis.state.processdata",arr1 );
-                    console.log('this.state.processdatathis.state.processdata123', this.state.selectedItemsProcessDumm);
-                    const matchingItems = [];
+                //SelectedArray--->
+                const arr1 = selectedItems;
+                //Default array--->
+                const arr2 = this.state.processdata;
+                // console.log("this.state.processdatathis.state.processdata",arr1 );
+                console.log('this.state.processdatathis.state.processdata123', this.state.selectedItemsProcessDumm);
+                const matchingItems = [];
 
-                    for (let i = 0; i < arr1.length; i++) {
-                        if (arr2.includes(arr1[i]?.id)) {
-                            matchingItems.push(arr1[i]);
-                        }
+                for (let i = 0; i < arr1.length; i++) {
+                    if (arr2.includes(arr1[i]?.id)) {
+                        matchingItems.push(arr1[i]);
                     }
-                    console.log('Matching items:', matchingItems);
-                    this.setState({
-                        selectedItemsProcess: filteredItems,
-                    });
                 }
+                console.log('Matching items:', matchingItems);
                 this.setState({
                     fileArrayList: originalData,
+                    selectedItemsProcess: filteredItems,
                 });
 
                 // Display the matching items
@@ -333,6 +335,7 @@ class CreateNC extends Component {
         console.log(value.userId, value.userFullName, 'Asyncusergetand set');
         var userDetails = [];
         userDetails.push({
+            label: value.userFullName,
             value: value.userFullName,
             id: value.userId,
         });
@@ -361,16 +364,41 @@ class CreateNC extends Component {
         if (!NCresponsible) {
             return '';
         }
-        if (typeof NCresponsible === 'object' && NCresponsible.value) {
-            return NCresponsible.value;
+
+        if (typeof NCresponsible === 'object') {
+            return NCresponsible.value || NCresponsible.label || '';
         }
-        const matchedRecord = UserArr.find(user => user.id === NCresponsible) || RequestArr.find(req => req.id === NCresponsible);
-        return matchedRecord ? matchedRecord.value : '';
+
+        if (typeof NCresponsible === 'string' && Number.isNaN(Number(NCresponsible))) {
+            return NCresponsible;
+        }
+
+        const selectedId = String(NCresponsible);
+        const matchedRecord = UserArr.find(user => String(user.id) === selectedId) || RequestArr.find(req => String(req.id) === selectedId);
+
+        if (matchedRecord) {
+            return matchedRecord.value || matchedRecord.label || '';
+        }
+
+        const fallbackRequestedBy = this.state.requestDropdown?.[0];
+        if (fallbackRequestedBy && String(fallbackRequestedBy.id) === selectedId) {
+            return fallbackRequestedBy.value || fallbackRequestedBy.label || '';
+        }
+
+        return '';
     };
 
-    // onSpeechResults = (e) => {this.setState({ nonconfirmityText: e.value[0] });};
+    showCommonAlert = message => {
+        this.setState({
+            commonAlertVisible: true,
+            commonAlertTitle: 'Alert',
+            commonAlertMessage: message || 'Please fill the mandatory fields.',
+        });
+    };
 
-    // handleInputChange = (text) => {     this.setState({ PrevNonConformity: this.state.nonconfirmityText, : text });   };
+    hideCommonAlert = () => {
+        this.setState({ commonAlertVisible: false });
+    };
 
     componentWillMount() {
         if (Platform.OS === 'ios') {
@@ -390,7 +418,7 @@ class CreateNC extends Component {
 
         const iconColor = color && color.substr(0, 1) === '#' ? `${color.substr(1)}/` : '';
 
-        const Down = <Icon name="caret-down" size={20} color="grey" />;
+        const Down = <IconAwesome name="caret-down" size={20} color="grey" />;
 
         switch (name) {
             case 'keyboard-arrow-down':
@@ -560,13 +588,7 @@ class CreateNC extends Component {
                     documentRef: this.props.route?.params.documentRef,
                 },
                 () => {
-                    // console.log('Setting up dropdown values',this.state.dropvalues)
-                    // console.log('Route value',this.state.RouteParam)
-                    // console.log('this.state.dropvalues',this.state.dropvalues)
-                    // console.log('fetching clause details...',this.state.clauseRecords)
-                    // this.getDropDownData(this.state.dropvalues)
                     this.getDropValue();
-                    // this.setProcessList()
                 },
             );
         }
@@ -588,18 +610,12 @@ class CreateNC extends Component {
         const stringifiedCameraCapture = await AsyncStorage.getItem('cameraCapture');
         const value = JSON.parse(stringifiedCameraCapture);
         console.log('current cameraCapture async--->', value);
-        // const {navigation} = this.props;
-        // const cancelled = navigation.getParam('cancelpressed', 'empty');
-        // const uri_details = navigation.getParam('Uri', 'empty');
-        // const video_name = navigation.getParam('Name', 'empty');
-        // const video_type = navigation.getParam('Type', 'empty');
         const cancelled = this.props?.route?.params?.cancelpressed || 'empty';
         const uri_details = this.props?.route?.params?.Uri || 'empty';
         const video_name = this.props?.route?.params?.Name || 'empty';
         const video_type = this.props?.route?.params?.Type || 'empty';
         console.log(cancelled + 'value');
 
-        // Use the current route name instead of relying on redux navigation state
         const CurrentPage = this.props?.route?.name;
         const routes = this.props.navigation.getState().routes;
         const getpreviouspage = routes[routes.length - 2]?.name;
@@ -1611,10 +1627,6 @@ class CreateNC extends Component {
                 this._stopRecognizing();
                 Voice.removeAllListeners();
                 this.InitVoice();
-                // setTimeout(() => {
-                // console.log("open attachment");
-                //this.evidenceField.focus()
-                // }, 1000);
             } else if (txt.toLowerCase().includes(strings.va_cmd802)) {
                 Tts.setDucking(true).then(() => {
                     Tts.speak(strings.va_rep10);
@@ -1697,7 +1709,6 @@ class CreateNC extends Component {
         this.setState({ clausedata: Clausedropdown }, () => {
             console.log('Clause dropdown', this.state.clausedata);
             this.onSelectedItemsChange(this.state.selectedItems);
-            // this.onSelectedItemsProcessChange(this.state.selectedItemsProcess)
             this.setProcessList();
         });
     };
@@ -1727,8 +1738,6 @@ class CreateNC extends Component {
                                     }
                                 }
                                 processList.push({
-                                    // id: this.state.ProcessListAll.lstProcessSelection[i]
-                                    //   .KeyProcessId,
                                     id: newProcessdata[i].ProcessID,
                                     name: newProcessdata[i].ProcessName,
                                 });
@@ -1740,14 +1749,6 @@ class CreateNC extends Component {
                             if (this.state.ProcessListAll.lstProcessSelectionEmpty) {
                                 for (var i = 0; i < this.state.ProcessListAll.lstProcessSelectionEmpty.length; i++) {
                                     processList.push({
-                                        // id: this.state.ProcessListAll.lstProcessSelectionEmpty[i]
-                                        //   .KeyProcessId,
-                                        // name:
-                                        //   this.state.ProcessListAll.lstProcessSelectionEmpty[i]
-                                        //     .ProcessName +
-                                        //   ' - ' +
-                                        //   this.state.ProcessListAll.lstProcessSelectionEmpty[i]
-                                        //     .ProcessScope,
                                         id: newProcessdata[i].ProcessID,
                                         name: newProcessdata[i].ProcessName,
                                     });
@@ -1767,10 +1768,6 @@ class CreateNC extends Component {
                         () => {
                             console.log('Prcessdta===>', this.state.processdata);
                             this.onSelectedItemsProcessChange(this.state.selectedItemsProcess);
-                            // if (this.state.type == 'EDIT') {
-                            //   // this.state.selectedItemsProcess
-                            //   // this.setEditValues()
-                            // }
                         },
                     );
                 },
@@ -1814,9 +1811,7 @@ class CreateNC extends Component {
             }
             console.log('Process List:', processList);
             console.log('this.state.selectedItemsProces123', processList);
-            // this.setState({
-            //   selectedItemsProcessDumm: processList,
-            // });
+
             this.setState(
                 {
                     processdata: processList,
@@ -1824,10 +1819,6 @@ class CreateNC extends Component {
                 },
                 () => {
                     this.onSelectedItemsProcessChange(this.state.selectedItemsProcess);
-                    // if (this.state.type == 'EDIT') {
-                    //   // this.state.selectedItemsProcess
-                    //   // this.setEditValues()
-                    // }
                 },
             );
         }
@@ -1982,7 +1973,13 @@ class CreateNC extends Component {
         }
         if (Data.FailureCategory) {
             for (var i = 0; i < Data.FailureCategory.length; i++) {
-                FailureCategory.push(Data.FailureCategory[i]);
+                const fc = Data.FailureCategory[i];
+                FailureCategory.push({
+                    ...fc,
+                    label: fc.FailureCategoryName,
+                    value: fc.FailureCategoryId,
+                    id: fc.FailureCategoryId,
+                });
             }
         }
 
@@ -1998,34 +1995,33 @@ class CreateNC extends Component {
                 User.push(Data.Users[i]);
                 if (Data.Users[i].userid == this.props.data.audits.userId) {
                     NCresponsible = {
+                        label: Data.Users[i].Name,
                         value: Data.Users[i].Name,
                         id: Data.Users[i].userid,
                     };
                 }
             }
         }
-        // console.log('Category arr',Category)
-        // console.log('Department arr',Department)
-        // console.log('Request arr',Request)
-        // console.log('User arr',User)
-
         for (var i = 0; i < Category.length; i++) {
             categoryArr.push({
+                label: Category[i].CategoryName,
                 value: Category[i].CategoryName,
                 id: Category[i].CategoryId,
             });
         }
         for (var i = 0; i < Department.length; i++) {
             departArr.push({
+                label: Department[i].DepartmentName,
                 value: Department[i].DepartmentName,
                 id: Department[i].DepartmentId,
             });
         }
         for (var i = 0; i < User.length; i++) {
-            UserArr.push({ value: User[i].Name, id: User[i].userid });
+            UserArr.push({ label: User[i].Name, value: User[i].Name, id: User[i].userid });
         }
         for (var i = 0; i < Request.length; i++) {
             RequestArr.push({
+                label: Request[i].AuditeeContactPersonName,
                 value: Request[i].AuditeeContactPersonName,
                 id: Request[i].AuditeeContactPersonId,
             });
@@ -2039,8 +2035,6 @@ class CreateNC extends Component {
                 RequestArr: RequestArr,
                 FailureCategory: FailureCategory,
                 NCresponsible: this.state.NCresponsible || NCresponsible,
-                // NCresponsible: (this.state.NCresponsible) ? this.state.NCresponsible : NCresponsible
-                // PageLoader: false
             },
             () => {
                 console.log('this.state.categoryArr', this.state.categoryArr);
@@ -2152,33 +2146,49 @@ class CreateNC extends Component {
         console.log(this.state.clausedata, 'marcclause');
         console.log(this.state.selectedItemsProcess.length, 'selecteditemprocess', this.state.selectedItemsProcess);
 
-        // if(this.props.data.smdata !==2 && this.props.data.smdata !==3 ){
-        //   this.setState({
-        //     documentRef:true
-        //   })
-        // }
-        if (this.state.selectedItemsProcess.length === 0 && this.state.RouteParam == 'NC') {
+        if (this.state.RouteParam === 'NC') {
+            const isNonConformityFilled =
+                typeof this.state.nonconfirmityText === 'string' ? this.state.nonconfirmityText.trim().length > 0 : !!this.state.nonconfirmityText;
+            const isCategoryFilled = !!this.state.NCcategoryt;
+            const isResponsibilityFilled = !!this.state.NCrequestby;
+            const isRequestedByFilled = !!this.state.NCresponsible;
+            const isMandatoryValid = isNonConformityFilled && isCategoryFilled && isResponsibilityFilled && isRequestedByFilled;
+
+            if (!isMandatoryValid) {
+                this.setState(
+                    {
+                        isSaved: false,
+                        PageLoader: false,
+                        isSavebtn: false,
+                        underline1: !isNonConformityFilled,
+                        MarkCat: !isCategoryFilled,
+                        MarkReq: !isResponsibilityFilled,
+                        MarkUser: !isRequestedByFilled,
+                        MarkClause: false,
+                        MarkProcess: false,
+                        MarkFailure: false,
+                        MarkDept: false,
+                    },
+                    () => {
+                        this.showCommonAlert('Please fill the mandatory fields.');
+                    },
+                );
+                return;
+            }
+
             this.setState({
-                MarkProcess: true,
-            });
-        }
-        if (this.state.clauseMandatory === 1 && this.state.selectedItems.length === 0 && this.state.RouteParam == 'NC') {
-            this.setState({
-                MarkClause: true,
+                underline1: false,
+                MarkCat: false,
+                MarkReq: false,
+                MarkUser: false,
+                MarkClause: false,
+                MarkProcess: false,
             });
         }
 
         if (this.props.data.audits.smdata === 2 || this.props.data.audits.smdata === 3) {
-            this.setState({
-                // documentRef:true,
-                // objEvidence: true,
-                // selectedItemsProcess: true,
-            });
+            this.setState({});
         }
-
-        // if (this.props.data.audits.smdata === 3) {
-        //   this.setState({displayData: true});
-        // }
 
         console.log(this.state.MarkClausedrop, 'marsk');
         this.setState({ PageLoader: true, isSavebtn: true, isSaved: false }, () => {
@@ -2213,23 +2223,12 @@ class CreateNC extends Component {
 
                 let bcontinue = true;
                 let pcontinue = true;
-                // if (this.state.selectedItems.length == 0 && this.state.clauseMandatory === 1 && this.state.RouteParam == "NC"){
-                //   bcontinue = true;
-                // }
-
-                // if (this.state.selectedItemsProcess.length == 0){
-                //   pcontinue = true;
-                // }
                 if (
                     this.state.NCcategoryt &&
                     this.state.NCresponsible &&
                     this.state.NCrequestby &&
                     // bcontinue &&
                     this.state.nonconfirmityText
-                    //  this.state.objEvidence &&
-                    // this.state.documentRef &&
-                    // pcontinue
-                    // this.state.displayData
                 ) {
                     if (this.state.selectedItems.length > 0 || this.state.selectedItems.length == 0 || this.state.isLPA == true) {
                         console.log('passes...', this.state.fileArrayList);
@@ -2378,7 +2377,7 @@ class CreateNC extends Component {
                 } else {
                     // console.log('-->',this.state.NCcategoryt,this.state.NCresponsible,this.state.NCrequestby)
                     console.log('########fileNames-----------', this.state.NCcategoryt, this.state.NCrequestby);
-                    alert('Please select all mandatory fields');
+                    this.showCommonAlert('Please fill the mandatory fields.');
 
                     this.setState({ isSaved: false, PageLoader: false }, () => {
                         if (this.state.NCrequestby === undefined) {
@@ -2483,10 +2482,7 @@ class CreateNC extends Component {
                             // ||
                             // this.state.selectedItemsProcess.length == 0
                         ) {
-                            /** disabling standard requirement field */
-                            // this.setState({ underline2: true }, () => {
-                            //this.refs.toast.show(strings.Clauses,3000)
-                            alert('Please select all mandatory fields');
+                            this.showCommonAlert('Please fill the mandatory fields.');
 
                             // })
                         } else {
@@ -2681,7 +2677,7 @@ class CreateNC extends Component {
                     // console.log('-->',this.state.NCcategoryt,this.state.NCresponsible,this.state.NCrequestby)
 
                     this.setState({ isSaved: false, PageLoader: false, isSavebtn: false }, () => {
-                        alert('Please select all mandatory fields');
+                        this.showCommonAlert('Please fill the mandatory fields.');
 
                         if (this.state.NCrequestby === undefined) {
                             this.setState(
@@ -2896,88 +2892,6 @@ class CreateNC extends Component {
             <View>
                 <TouchableOpacity onPress={this.openAttachmentFile.bind(this, filepath)}>
                     {this.getFileIcon(item.fileName, item.fileData)}
-
-                    {/* {format.indexOf('image') === 0 ? (
-            <View
-              style={{
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                paddingVertical: 10,
-                margin: 2,
-                borderColor: '#2a4944',
-                borderWidth: 1,
-              }}>
-              <View>
-                <Image
-                  source={{
-                     uri: filepath,                   
-                  }}
-                  style={{
-                    width: width(70),
-                    height: 200,
-                    resizeMode: 'stretch',
-                    alignSelf: 'center',
-                  }}
-                />
-              </View>
-              <Text style={{marginBottom: 10}}>{item.fileName}</Text>
-            </View>
-          ) : (
-            <View
-              style={{
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                paddingVertical: 10,
-                margin: 2,
-                borderColor: '#2a4944',
-                borderWidth: 1,
-                height: '90%',
-              }}>
-              <View
-                style={{
-                  width: width(70),
-                  height: 200,
-                  flexDirection: 'column',
-                  justifyContent: 'center',
-                }}>
-                <Icon
-                  name={this.getFileIcon(item.fileName,filepath)}
-                  size={30}
-                  style={{
-                    flex: 1,
-                    alignSelf: 'center',
-                    marginTop: '25%',
-                  }}
-                />
-
-                <Text
-                  style={{
-                    marginBottom: 10,
-                    justifyContent: 'center',
-                    alignContent: 'center',
-                    alignItems: 'center',
-                    alignSelf: 'center',
-                  }}>
-                  {item.fileName}
-                </Text>
-              </View>
-            </View>
-          )}
-          {item.fileName ? (
-            <TouchableOpacity
-              onPress={() => this.deleteAttachments(item.id)}
-              style={{
-                width: '10%',
-                right: 10,
-                top: 10,
-                position: 'absolute',
-                // marginRight: 20,
-              }}>
-              <Icon name="trash" size={20} color={'red'} />
-            </TouchableOpacity>
-          ) : null} */}
                 </TouchableOpacity>
             </View>
         );
@@ -3105,15 +3019,16 @@ class CreateNC extends Component {
         const department = this.state.departArr;
         const request = this.state.UserArr;
         const user = this.state.RequestArr;
-        const FailureCategory = this.state.FailureCategory;
+        const FailureCategory = (this.state.FailureCategory || []).map(obj => ({
+            ...obj,
+            label: obj?.label || obj?.FailureCategoryName,
+            value: obj?.value ?? obj?.FailureCategoryId,
+            id: obj?.id ?? obj?.FailureCategoryId,
+        }));
         console.log('ncDATRA', this.state.ncData);
         console.log('ofidata', this.props.navigation);
         console.log('objevi', this.state.objEvidence);
-        const array = this.state.FailureCategory?.map(obj => ({
-            label: obj?.FailureCategoryName,
-
-            value: obj?.FailureCategoryId,
-        }));
+        const array = FailureCategory;
         console.log('Failcat', array);
         console.log(this.state.clausedata, 'marcclause');
         const items = [
@@ -3154,115 +3069,75 @@ class CreateNC extends Component {
                         <View style={styles.auditPageBody}>
                             <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
                                 <View style={{ marginBottom: 50 }}>
-                                    <View style={styles.div1}>
+                                    <View style={styles.formSection}>
                                         {this.state.RouteParam === 'NC' ? (
                                             <View style={styles.input02}>
-                                                {this.state.nonconfirmityText ? (
-                                                    <Text
-                                                        style={{
-                                                            padding: 0,
-                                                            margin: 0,
-                                                            fontSize: Fonts.size.small,
-                                                            color: '#A6A6A6',
-                                                            fontFamily: 'OpenSans-Regular',
-                                                        }}>
-                                                        {strings.Non_confirmityL}
-                                                    </Text>
-                                                ) : null}
-                                                <TextInput
-                                                    ref="ncTxtField"
+                                                <InputComponent
+                                                    label={strings.Non_confirmityL}
+                                                    name="nonconfirmityText"
+                                                    required
+                                                    error={this.state.underline1}
                                                     value={this.state.nonconfirmityText}
-                                                    multiline={true}
-                                                    autoCapitalize="sentences"
-                                                    // onBlur={() => Keyboard.dismiss()}
-                                                    style={this.state.nonconfirmityText ? styles.placeholderT1Label : styles.placeholderT1}
                                                     placeholder={strings.Non_confirmityL}
-                                                    placeholderTextColor={this.state.underline1 === true ? 'red' : '#A9A9A9'}
-                                                    baseColor={this.state.underline1 === false ? '#A6A6A6' : 'red'}
-                                                    textColor="#747474"
-                                                    // underlineColorAndroid={this.state.underline1 === true ? 'red': '#A9A9A9'}
-                                                    onChangeText={text => {
-                                                        this.setState({ nonconfirmityText: text }, () => {
-                                                            // console.log('---->',this.state.nonconfirmityText)
+                                                    placeholderTextColor="#A6A6A6"
+                                                    inputStyle={{ paddingHorizontal: 0 }}
+                                                    multiline
+                                                    numberOfLines={3}
+                                                    autoCapitalize="sentences"
+                                                    inputRef={ref => (this.ncTxtField = ref)}
+                                                    containerStyle={{ paddingHorizontal: 0, marginBottom: 0, marginLeft: 0 }}
+                                                    onChangeText={(field, value) => {
+                                                        const hasValue = typeof value === 'string' ? value.trim().length > 0 : !!value;
+                                                        this.setState({ nonconfirmityText: value }, () => {
+                                                            this.setState({ underline1: !hasValue });
                                                             this.isCheck5 = true;
                                                         });
                                                     }}
                                                 />
                                             </View>
                                         ) : (
-                                            <View style={styles.input02}>
-                                                <View style={styles.check}>
-                                                    <Icon style={{ left: 10, display: 'none' }} name="asterisk" size={8} color="red" />
+                                            <View style={styles.div1}>
+                                                <View style={styles.input02}>
+                                                    <InputComponent
+                                                        label={strings.Opportunity_ApproachL}
+                                                        name="ofitext"
+                                                        required
+                                                        value={this.state.ofitext}
+                                                        placeholder={strings.Opportunity_ApproachL}
+                                                        inputStyle={{ paddingHorizontal: 0 }}
+                                                        multiline
+                                                        numberOfLines={3}
+                                                        autoCapitalize="sentences"
+                                                        inputRef={ref => (this.ofiTxtField = ref)}
+                                                        containerStyle={{ paddingHorizontal: 0, marginBottom: 0, marginLeft: 0 }}
+                                                        onChangeText={(field, value) => {
+                                                            this.setState({ ofitext: value }, () => {
+                                                                this.isCheck3 = true;
+                                                            });
+                                                        }}
+                                                    />
                                                 </View>
-                                                {this.state.ofitext ? (
-                                                    <Text
-                                                        style={{
-                                                            padding: 0,
-                                                            margin: 0,
-                                                            fontSize: Fonts.size.small,
-                                                            color: '#A6A6A6',
-                                                            fontFamily: 'OpenSans-Regular',
-                                                        }}>
-                                                        {strings.Opportunity_ApproachL}
-                                                    </Text>
-                                                ) : null}
-                                                <TextInput
-                                                    ref="ofiTxtField"
-                                                    multiline={true}
-                                                    value={this.state.ofitext}
-                                                    style={this.state.ofitext ? styles.placeholderT1Label : styles.placeholderT1}
-                                                    placeholder={strings.Opportunity_ApproachL}
-                                                    placeholderTextColor={this.state.underline1 === true ? 'red' : '#A9A9A9'}
-                                                    baseColor={this.state.underline1 === false ? '#A6A6A6' : 'red'}
-                                                    textColor="#747474"
-                                                    // underlineColorAndroid={this.state.underline1 === true ? 'red': '#A9A9A9'}
-                                                    // onChangeText={text => {
-                                                    //   this.setState({ofitext: text}, () => {
-                                                    //     this.isCheck3 = true;
-                                                    //   });
-                                                    // }}
-                                                    onChangeText={text => {
-                                                        this.setState({ ofitext: text }, () => {
-                                                            this.isCheck3 = true;
-                                                        });
-                                                    }}
-                                                />
                                             </View>
                                         )}
-                                        <View style={styles.check}>
-                                            <Icon style={{ left: 6, top: 5 }} name="asterisk" size={8} color="red" />
-                                        </View>
                                     </View>
                                     <View style={styles.div1}>
                                         {this.state.RouteParam === 'NC' ? (
                                             <View style={styles.input02}>
-                                                {this.state.objEvidence ? (
-                                                    <Text
-                                                        style={{
-                                                            padding: 0,
-                                                            margin: 0,
-                                                            fontSize: Fonts.size.small,
-                                                            color: '#A6A6A6',
-                                                            fontFamily: 'OpenSans-Regular',
-                                                        }}>
-                                                        {strings.Objective_Evidence}
-                                                    </Text>
-                                                ) : null}
-                                                <TextInput
-                                                    ref="objEviTxtField"
+                                                <InputComponent
+                                                    label={strings.Objective_Evidence}
+                                                    name="objEvidence"
+                                                    required={false}
                                                     value={this.state.objEvidence}
-                                                    multiline={true}
-                                                    autoCapitalize="sentences"
-                                                    // onBlur={() => Keyboard.dismiss()}
-                                                    style={this.state.objEvidence ? styles.placeholderT1Label : styles.placeholderT1}
                                                     placeholder={strings.Objective_Evidence}
-                                                    placeholderTextColor={this.state.underline1 === true ? 'red' : '#A9A9A9'}
-                                                    baseColor={this.state.underline1 === false ? '#A6A6A6' : 'red'}
-                                                    textColor="#747474"
-                                                    // underlineColorAndroid={this.state.underline1 === true ? 'red': '#A9A9A9'}
-                                                    onChangeText={text => {
-                                                        this.setState({ objEvidence: text }, () => {
-                                                            console.log('---->objEvidence', this.state.objEvidence);
+                                                    placeholderTextColor="#A6A6A6"
+                                                    inputStyle={{ paddingHorizontal: 0 }}
+                                                    multiline
+                                                    numberOfLines={3}
+                                                    autoCapitalize="sentences"
+                                                    inputRef={ref => (this.objEviTxtField = ref)}
+                                                    containerStyle={{ paddingHorizontal: 0, marginBottom: 0, marginLeft: 0 }}
+                                                    onChangeText={(field, value) => {
+                                                        this.setState({ objEvidence: value }, () => {
                                                             this.isCheck5 = true;
                                                         });
                                                     }}
@@ -3270,56 +3145,34 @@ class CreateNC extends Component {
                                             </View>
                                         ) : (
                                             <View style={styles.input02}>
-                                                <View style={styles.check}>
-                                                    <Icon style={{ left: 10, display: 'none' }} name="asterisk" size={8} color="red" />
-                                                </View>
-                                                {this.state.objEvidence ? (
-                                                    <Text
-                                                        style={{
-                                                            padding: 0,
-                                                            margin: 0,
-                                                            fontSize: Fonts.size.small,
-                                                            color: '#A6A6A6',
-                                                            fontFamily: 'OpenSans-Regular',
-                                                        }}>
-                                                        {strings.Objective_Evidence}
-                                                    </Text>
-                                                ) : null}
-                                                <TextInput
-                                                    ref="objEviTxtField"
-                                                    multiline={true}
+                                                <InputComponent
+                                                    label={strings.Objective_Evidence}
+                                                    name="objEvidence"
+                                                    required={false}
                                                     value={this.state.objEvidence}
-                                                    style={this.state.objEvidence ? styles.placeholderT1Label : styles.placeholderT1}
                                                     placeholder={strings.Objective_Evidence}
-                                                    placeholderTextColor={this.state.underline1 === true ? 'red' : '#A9A9A9'}
-                                                    baseColor={this.state.underline1 === false ? '#A6A6A6' : 'red'}
-                                                    textColor="#747474"
-                                                    // underlineColorAndroid={this.state.underline1 === true ? 'red': '#A9A9A9'}
-                                                    onChangeText={text => {
-                                                        this.setState({ objEvidence: text }, () => {
-                                                            // this.isCheck3 = true;
-                                                            console.log('---->objEvidence222', this.state.objEvidence);
+                                                    placeholderTextColor="#A6A6A6"
+                                                    inputStyle={{ paddingHorizontal: 0 }}
+                                                    multiline
+                                                    numberOfLines={3}
+                                                    autoCapitalize="sentences"
+                                                    inputRef={ref => (this.objEviTxtField = ref)}
+                                                    containerStyle={{ paddingHorizontal: 0, marginBottom: 0, marginLeft: 0 }}
+                                                    onChangeText={(field, value) => {
+                                                        this.setState({ objEvidence: value }, () => {
+                                                            this.isCheck5 = true;
                                                         });
                                                     }}
                                                 />
                                             </View>
                                         )}
 
-                                        <View style={styles.check}>
-                                            {this.props.data.audits.smdata !== 2 && this.props.data.audits.smdata !== 3 ? (
-                                                <Icon style={{ left: 6, top: 5 }} name="asterisk" size={8} color="red" />
-                                            ) : null}
-                                        </View>
+                                        <View style={{ display: 'none' }} />
                                     </View>
                                     <View style={styles.input02}>
                                         <Text
                                             style={{
-                                                color:
-                                                    this.state.clauseMandatory === 1 &&
-                                                    this.state.RouteParam === 'NC' &&
-                                                    this.state.MarkClause == false
-                                                        ? '#A6A6A6'
-                                                        : '#000000',
+                                                color: '#A6A6A6',
                                             }}>
                                             {strings.ClausesL}
                                         </Text>
@@ -3335,8 +3188,8 @@ class CreateNC extends Component {
                                                     subKey="children"
                                                     single
                                                     selectText={strings.SelectClauses}
-                                                    baseColor={this.state.MarkClause == false ? '#A6A6A6' : 'red'}
-                                                    textColor={this.state.MarkClause == false ? '#A6A6A6' : 'red'}
+                                                    baseColor="#A6A6A6"
+                                                    textColor="#A6A6A6"
                                                     showDropDowns={true}
                                                     readOnlyHeadings={true}
                                                     onSelectedItemsChange={this.onSelectedItemsChange}
@@ -3354,18 +3207,12 @@ class CreateNC extends Component {
                                                     colors={{
                                                         text: '#A6A6A6',
                                                         subText: '#A6A6A6',
-                                                        selectToggleTextColor: this.state.MarkClause == false ? '#A6A6A6' : 'red',
+                                                        selectToggleTextColor: '#A6A6A6',
                                                     }}
                                                 />
                                             </View>
                                         </View>
-                                        <View style={this.state.isLPA ? { display: 'none' } : styles.check}>
-                                            {this.props.data.audits.smdata !== 3 &&
-                                            this.state.RouteParam !== 'OFI' &&
-                                            this.state.clauseMandatory === 1 ? (
-                                                <Icon style={{ left: 10 }} name="asterisk" size={8} color="red" />
-                                            ) : null}
-                                        </View>
+                                        <View style={{ display: 'none' }} />
                                     </View>
                                     <View style={styles.div01}>
                                         <View style={styles.input002}>
@@ -3383,17 +3230,9 @@ class CreateNC extends Component {
 
                                             {/* Container for TextInput + Eye Icon */}
                                             <View style={{ position: 'relative', minHeight: 40 }}>
-                                                <TextInput
-                                                    style={{
-                                                        fontSize: Fonts.size.regular,
-                                                        fontFamily: 'OpenSans-Regular',
-                                                        color: '#747474',
-                                                        paddingRight: 35, // space for eye icon
-                                                    }}
-                                                    multiline
-                                                    placeholder={strings.StandardRequirementsL}
-                                                    placeholderTextColor="#A6A6A6"
-                                                    editable={false}
+                                                <InputComponent
+                                                    // label={strings.StandardRequirementsL}
+                                                    name="standardRequirements"
                                                     value={
                                                         this.state.displayData
                                                             ? this.state.displayData.length > 40
@@ -3401,10 +3240,13 @@ class CreateNC extends Component {
                                                                 : this.state.displayData
                                                             : ''
                                                     }
-                                                    onFocus={() => this.setState({ isVisible: true })}
+                                                    placeholder={strings.StandardRequirementsL}
+                                                    editable={false}
+                                                    multiline
+                                                    numberOfLines={1}
+                                                    containerStyle={{ paddingHorizontal: 0, marginBottom: 0, marginLeft: 0 }}
+                                                    onTouchStart={() => this.setState({ isVisible: true })}
                                                 />
-
-                                                {/* EYE ICON FIXED RIGHT */}
                                                 <TouchableOpacity
                                                     onPress={() => this.setState({ NCtxtFlag: false, isVisible: true })}
                                                     style={{
@@ -3423,198 +3265,120 @@ class CreateNC extends Component {
 
                                     <View style={styles.div1}>
                                         <View style={styles.input03}>
-                                            {this.state.isContainValue1 === true ? (
-                                                <Dropdown
-                                                    ref="categoryTxtField"
-                                                    value={this.state.NCcategoryt ? this.state.NCcategoryt.value : ''}
-                                                    baseColor={this.state.MarkCat === false ? '#A6A6A6' : 'red'}
-                                                    selectedItemColor="black"
-                                                    textColor="black"
-                                                    itemColor="black"
-                                                    data={category}
-                                                    label={
-                                                        this.state.RouteParam === 'NC'
-                                                            ? 'NC' + ' ' + strings.CategoryL
-                                                            : 'OFI' + ' ' + strings.CategoryL
-                                                    }
-                                                    fontSize={Fonts.size.regular}
-                                                    labelFontSize={Fonts.size.small}
-                                                    itemPadding={5}
-                                                    dropdownOffset={{ top: 10, left: 0 }}
-                                                    itemTextStyle={{ fontFamily: 'OpenSans-Regular' }}
-                                                    onChangeText={value => {
-                                                        console.log('*****', value);
-                                                        var CategoryID = null;
-                                                        for (var i = 0; i < this.state.categoryArr.length; i++) {
-                                                            if (value === this.state.categoryArr[i].value) {
-                                                                CategoryID = this.state.categoryArr[i];
-                                                            }
+                                            <DropdownComponent
+                                                data={category}
+                                                label={
+                                                    this.state.RouteParam === 'NC' ? 'NC' + ' ' + strings.CategoryL : 'OFI' + ' ' + strings.CategoryL
+                                                }
+                                                value={this.state.NCcategoryt ? this.state.NCcategoryt.value : ''}
+                                                required
+                                                error={this.state.MarkCat}
+                                                editable={this.state.isContainValue1}
+                                                dropdownRef={ref => (this.categoryTxtField = ref)}
+                                                containerStyle={{ paddingHorizontal: 0, marginBottom: 0, marginLeft: 0 }}
+                                                onChange={value => {
+                                                    console.log('*****', value);
+                                                    var CategoryID = null;
+                                                    for (var i = 0; i < this.state.categoryArr.length; i++) {
+                                                        if (value === this.state.categoryArr[i].value) {
+                                                            CategoryID = this.state.categoryArr[i];
                                                         }
-                                                        if (CategoryID == null) {
-                                                            this.isCheckCategory = false;
-                                                        } else if (CategoryID) {
-                                                            this.isCheckCategory = true;
-                                                            this.setState({ NCcategoryt: CategoryID }, () => {
-                                                                // console.log('CategoryID',this.state.NCcategoryt)
-                                                                // console.log('Category id',this.isCheckCategory)
-                                                            });
-                                                        }
-                                                    }}
-                                                />
-                                            ) : (
-                                                <Dropdown
-                                                    ref="categoryTxtField"
-                                                    label={
-                                                        this.state.RouteParam === 'NC'
-                                                            ? 'NC' + ' ' + strings.CategoryL
-                                                            : 'OFI' + ' ' + strings.CategoryL
                                                     }
-                                                    baseColor={this.state.MarkCat === false ? '#A6A6A6' : 'red'}
-                                                    selectedItemColor="black"
-                                                    textColor="black"
-                                                    itemColor="black"
-                                                    fontSize={Fonts.size.regular}
-                                                    labelFontSize={Fonts.size.small}
-                                                    itemPadding={5}
-                                                    dropdownOffset={{ top: 10, left: 0 }}
-                                                    itemTextStyle={{ fontFamily: 'OpenSans-Regular' }}
-                                                />
-                                            )}
-                                        </View>
-                                        <View style={styles.check}>
-                                            <Icon style={{ left: 5 }} name="asterisk" size={8} color="red" />
+                                                    if (CategoryID == null) {
+                                                        this.isCheckCategory = false;
+                                                        this.setState({ MarkCat: true });
+                                                    } else if (CategoryID) {
+                                                        this.isCheckCategory = true;
+                                                        this.setState({ NCcategoryt: CategoryID }, () => {
+                                                            this.setState({ MarkCat: false });
+                                                            // console.log('CategoryID',this.state.NCcategoryt)
+                                                            // console.log('Category id',this.isCheckCategory)
+                                                        });
+                                                    }
+                                                }}
+                                            />
                                         </View>
                                     </View>
                                     <View style={styles.div1}>
                                         <View style={styles.input05}>
-                                            {this.state.isContainValue4 === true ? (
-                                                <Dropdown
-                                                    ref="responsibleTxtField"
-                                                    value={this.state.NCrequestby ? this.state.NCrequestby.value : ''}
-                                                    label={strings.ResponsibilityL}
-                                                    data={request}
-                                                    baseColor={this.state.MarkReq === false ? '#A6A6A6' : 'red'}
-                                                    selectedItemColor="black"
-                                                    textColor="black"
-                                                    itemColor="black"
-                                                    fontSize={Fonts.size.regular}
-                                                    labelFontSize={Fonts.size.small}
-                                                    itemPadding={5}
-                                                    dropdownOffset={{ top: 10, left: 0 }}
-                                                    itemTextStyle={{ fontFamily: 'OpenSans-Regular' }}
-                                                    onChangeText={value => {
-                                                        // console.log('*****',value)
-                                                        var RequestID = null;
-                                                        //for (var i = 0; i < this.state.RequestArr.length; i++) {
-                                                        for (var i = 0; i < this.state.UserArr.length; i++) {
-                                                            if (value === this.state.UserArr[i].value) {
-                                                                RequestID = this.state.UserArr[i];
-                                                            }
+                                            <DropdownComponent
+                                                data={request}
+                                                label={strings.ResponsibilityL}
+                                                value={this.state.NCrequestby ? this.state.NCrequestby.value : ''}
+                                                required
+                                                error={this.state.MarkReq}
+                                                editable={this.state.isContainValue4}
+                                                dropdownRef={ref => (this.responsibleTxtField = ref)}
+                                                containerStyle={{ paddingHorizontal: 0, marginBottom: 0, marginLeft: 0 }}
+                                                onChange={value => {
+                                                    // console.log('*****',value)
+                                                    var RequestID = null;
+                                                    //for (var i = 0; i < this.state.RequestArr.length; i++) {
+                                                    for (var i = 0; i < this.state.UserArr.length; i++) {
+                                                        if (value === this.state.UserArr[i].value) {
+                                                            RequestID = this.state.UserArr[i];
                                                         }
+                                                    }
 
-                                                        if (RequestID == null) {
-                                                            this.isCheckRequest = false;
-                                                        } else if (RequestID) {
-                                                            this.setState({ NCrequestby: RequestID }, () => {
-                                                                this.isCheckRequest = true;
-                                                                // console.log('RequestID',this.state.NCrequestby)
-                                                                // console.log('Category id',this.isCheckRequest)
-                                                            });
-                                                        }
-                                                    }}
-                                                />
-                                            ) : (
-                                                <Dropdown
-                                                    ref="responsibleTxtField"
-                                                    label={strings.ResponsibilityL}
-                                                    baseColor={this.state.MarkReq === false ? '#A6A6A6' : 'red'}
-                                                    selectedItemColor="black"
-                                                    textColor="black"
-                                                    itemColor="black"
-                                                    fontSize={Fonts.size.regular}
-                                                    labelFontSize={Fonts.size.small}
-                                                    itemPadding={5}
-                                                    dropdownOffset={{ top: 10, left: 0 }}
-                                                    itemTextStyle={{ fontFamily: 'OpenSans-Regular' }}
-                                                />
-                                            )}
-                                        </View>
-                                        <View style={styles.check}>
-                                            <Icon style={{ left: 5 }} name="asterisk" size={8} color="red" />
+                                                    if (RequestID == null) {
+                                                        this.isCheckRequest = false;
+                                                        this.setState({ MarkReq: true });
+                                                    } else if (RequestID) {
+                                                        this.setState({ NCrequestby: RequestID }, () => {
+                                                            this.isCheckRequest = true;
+                                                            this.setState({ MarkReq: false });
+                                                            // console.log('RequestID',this.state.NCrequestby)
+                                                            // console.log('Category id',this.isCheckRequest)
+                                                        });
+                                                    }
+                                                }}
+                                            />
                                         </View>
                                     </View>
-
                                     <View style={styles.div1}>
                                         <View style={styles.input04}>
-                                            {this.state.isContainValue3 === true ? (
-                                                <Dropdown
-                                                    ref="requestTxtField"
-                                                    // value={
-                                                    //   this.state.NCresponsible
-                                                    //     ? this.state.NCresponsible.value
-                                                    //     : ''
-                                                    // }
-                                                    value={this.getRequestedByValue()}
-                                                    label={strings.RequestedL}
-                                                    data={user}
-                                                    baseColor={this.state.MarkUser === false ? '#A6A6A6' : 'red'}
-                                                    selectedItemColor="black"
-                                                    textColor="black"
-                                                    itemColor="black"
-                                                    fontSize={Fonts.size.regular}
-                                                    labelFontSize={Fonts.size.small}
-                                                    itemPadding={5}
-                                                    dropdownOffset={{ top: 10, left: 0 }}
-                                                    itemTextStyle={{ fontFamily: 'OpenSans-Regular' }}
-                                                    onChangeText={value => {
-                                                        // console.log('*****',value)
-                                                        var UserID = null;
-                                                        for (var i = 0; i < this.state.UserArr.length; i++) {
-                                                            if (value === this.state.UserArr[i].value) {
-                                                                UserID = this.state.UserArr[i];
-                                                            }
+                                            <DropdownComponent
+                                                data={user}
+                                                label={strings.RequestedL}
+                                                value={this.getRequestedByValue()}
+                                                required
+                                                error={this.state.MarkUser}
+                                                editable={this.state.isContainValue3}
+                                                dropdownRef={ref => (this.requestTxtField = ref)}
+                                                containerStyle={{ paddingHorizontal: 0, marginBottom: 0, marginLeft: 0 }}
+                                                onChange={value => {
+                                                    // console.log('*****',value)
+                                                    var UserID = null;
+                                                    for (var i = 0; i < this.state.UserArr.length; i++) {
+                                                        if (value === this.state.UserArr[i].value) {
+                                                            UserID = this.state.UserArr[i];
                                                         }
+                                                    }
 
-                                                        for (var i = 0; i < this.state.RequestArr.length; i++) {
-                                                            if (value === this.state.RequestArr[i].value) {
-                                                                UserID = this.state.RequestArr[i];
-                                                            }
+                                                    for (var i = 0; i < this.state.RequestArr.length; i++) {
+                                                        if (value === this.state.RequestArr[i].value) {
+                                                            UserID = this.state.RequestArr[i];
                                                         }
+                                                    }
 
-                                                        if (UserID == null) {
-                                                            // this.isCheck5 = false
-                                                            this.isCheckUser = false;
-                                                        } else if (UserID) {
-                                                            this.setState({ NCresponsible: UserID }, () => {
-                                                                console.log('ncc---->', this.state.NCresponsible);
-                                                                // this.isCheck5 = true
-                                                                this.isCheckUser = true;
-                                                                // console.log('UserID',this.state.NCresponsible)
-                                                                // console.log('UserID',this.isCheckUser)
-                                                            });
-                                                        }
-                                                    }}
-                                                />
-                                            ) : (
-                                                <Dropdown
-                                                    label={strings.RequestedL}
-                                                    baseColor={this.state.MarkUser === false ? '#A6A6A6' : 'red'}
-                                                    selectedItemColor="black"
-                                                    textColor="black"
-                                                    itemColor="black"
-                                                    fontSize={Fonts.size.regular}
-                                                    labelFontSize={Fonts.size.small}
-                                                    itemPadding={5}
-                                                    dropdownOffset={{ top: 10, left: 0 }}
-                                                    itemTextStyle={{ fontFamily: 'OpenSans-Regular' }}
-                                                />
-                                            )}
-                                        </View>
-                                        <View style={styles.check}>
-                                            <Icon style={{ left: 5 }} name="asterisk" size={8} color="red" />
+                                                    if (UserID == null) {
+                                                        // this.isCheck5 = false
+                                                        this.isCheckUser = false;
+                                                        this.setState({ MarkUser: true });
+                                                    } else if (UserID) {
+                                                        this.setState({ NCresponsible: UserID }, () => {
+                                                            console.log('ncc---->', this.state.NCresponsible);
+                                                            // this.isCheck5 = true
+                                                            this.isCheckUser = true;
+                                                            this.setState({ MarkUser: false });
+                                                            // console.log('UserID',this.state.NCresponsible)
+                                                            // console.log('UserID',this.isCheckUser)
+                                                        });
+                                                    }
+                                                }}
+                                            />
                                         </View>
                                     </View>
-                                    {/* FailureCategory remmoved for supplier */}
                                     {this.props.data.audits.smdata !== 2 && this.props.data.audits.smdata !== 3 ? (
                                         <View style={styles.div1}>
                                             <View style={styles.input07}>
@@ -3648,75 +3412,42 @@ class CreateNC extends Component {
                                                             </TouchableOpacity>
                                                         )}
 
-                                                        <Dropdown
-                                                            ref="departmentTxtField"
-                                                            value={this.state.NCFailure ? this.state.NCFailure.value : ''}
-                                                            label={strings.FailureCategory}
+                                                        <DropdownComponent
                                                             data={array}
-                                                            fontSize={Fonts.size.regular}
-                                                            labelFontSize={Fonts.size.small}
-                                                            baseColor={'#A6A6A6'}
-                                                            selectedItemColor="black"
-                                                            textColor="black"
-                                                            itemColor="black"
-                                                            itemPadding={5}
-                                                            dropdownOffset={{ top: 10, left: 0 }}
-                                                            itemTextStyle={{ fontFamily: 'OpenSans-Regular' }}
-                                                            onChangeText={value => {
-                                                                // console.log('*****',value)
-
-                                                                var FailureID = null;
-                                                                for (var i = 0; i < array.length; i++) {
-                                                                    console.log('faliurecategoryone', this.state.FailureCategory[i], value);
-                                                                    if (value === array[i].value) {
-                                                                        FailureID = array[i];
-                                                                    }
-                                                                }
+                                                            label={strings.FailureCategory}
+                                                            value={this.state.NCFailure ? this.state.NCFailure.value : ''}
+                                                            required
+                                                            editable={this.state.isContainValue4}
+                                                            dropdownRef={ref => (this.departmentTxtField = ref)}
+                                                            containerStyle={{ paddingHorizontal: 0, marginBottom: 0, marginLeft: 0 }}
+                                                            onChange={value => {
+                                                                let FailureID = array.find(item => item.value === value);
                                                                 if (FailureID == null) {
                                                                     this.isCheckFailure = false;
-                                                                } else if (FailureID) {
-                                                                    this.isCheckFailure = false;
-                                                                    this.setState({ NCFailure: FailureID }, () => {
-                                                                        this.isCheckFailure = true;
-                                                                        // console.log('DeptID',this.state.NCdept)
-                                                                        // console.log('Dept id',this.isCheckDepart)
-                                                                    });
+                                                                } else {
+                                                                    this.isCheckFailure = true;
+                                                                    this.setState({ NCFailure: FailureID });
                                                                 }
                                                             }}
                                                         />
                                                     </View>
                                                 ) : (
                                                     <View>
-                                                        <Dropdown
+                                                        <DropdownComponent
+                                                            data={FailureCategory}
                                                             label={strings.FailureCategory}
                                                             value={this.state.NCFailure ? this.state.NCFailure.value : ''}
-                                                            fontSize={Fonts.size.regular}
-                                                            data={FailureCategory}
-                                                            labelFontSize={Fonts.size.small}
-                                                            baseColor={this.state.MarkFailure === false ? '#A6A6A6' : 'red'}
-                                                            selectedItemColor="black"
-                                                            textColor="black"
-                                                            itemColor="black"
-                                                            itemPadding={5}
-                                                            dropdownOffset={{ top: 10, left: 0 }}
-                                                            itemTextStyle={{ fontFamily: 'OpenSans-Regular' }}
-                                                            onChangeText={value => {
-                                                                var FailureID = null;
-                                                                for (var i = 0; i < this.state.FailureCategory.length; i++) {
-                                                                    console.log('faliurecategoryone', this.state.FailureCategory[i].value, value);
-                                                                    if (value === FailureCategory[i].value) {
-                                                                        FailureID = FailureCategory[i];
-                                                                    }
-                                                                }
+                                                            required
+                                                            editable={this.state.isContainValue4}
+                                                            dropdownRef={ref => (this.departmentTxtField = ref)}
+                                                            containerStyle={{ paddingHorizontal: 0, marginBottom: 0, marginLeft: 0 }}
+                                                            onChange={value => {
+                                                                let FailureID = FailureCategory.find(item => item.value === value);
                                                                 if (FailureID == null) {
                                                                     this.isCheckFailure = false;
-                                                                } else if (FailureID) {
-                                                                    this.isCheckFailure = false;
-                                                                    this.setState({ NCFailure: FailureID }, () => {
-                                                                        this.isCheckFailure = true;
-                                                                        // console.log('DeptID',this.state.NCdept)
-                                                                        // console.log('Dept id',this.isCheckDepart)
-                                                                    });
+                                                                } else {
+                                                                    this.isCheckFailure = true;
+                                                                    this.setState({ NCFailure: FailureID });
                                                                 }
                                                             }}
                                                         />
@@ -3730,7 +3461,7 @@ class CreateNC extends Component {
                                     <View style={styles.div2}>
                                         <View style={styles.inputhigh}>
                                             <View>
-                                                <View style={{ paddingLeft: 10, flexDirection: 'column' }}>
+                                                <View style={{ paddingLeft: 0, flexDirection: 'column' }}>
                                                     <Text
                                                         ref="dummyFocus"
                                                         style={{
@@ -3743,28 +3474,7 @@ class CreateNC extends Component {
                                                         }}>
                                                         {strings.ProcessAll}
                                                     </Text>
-                                                    {/* <RadioForm
-                            ref={processRadioField =>
-                              (this.processRadioField = processRadioField)
-                            }
-                            // radio_props={this.state.radio_values}
-                            initial={0}
-                            onPress={(value, index) => {
-                              //console.log(index, 'valueindex');
-                              this.setState(
-                                {
-                                  ProcessType: value,
-                                },
-                                () => {
-                                  this.setProcessList(1);
-                                },
-                              );
-                            }}
-                            formHorizontal={true}
-                            labelHorizontal={true}
-                            buttonSize={15}
-                            labelStyle={{color: 'black', paddingRight: 12}}
-                          /> */}
+
                                                     <RadioGroup
                                                         data={this.state.radio_values}
                                                         selectedValue={this.state.ProcessType}
@@ -3778,106 +3488,93 @@ class CreateNC extends Component {
                                                     />
                                                 </View>
                                                 {this.state.selectedItemsProcess ? (
-                                                    <SectionedMultiSelect //single={multiprocess == "1" ? true : false}
-                                                        IconRenderer={this.icon}
-                                                        ref={processListField => (this.processListField = processListField)}
-                                                        items={itemsProcess}
-                                                        uniqueKey="id"
-                                                        subKey="children"
-                                                        selectText={this.state.processdata.length > 0 ? strings.ProcessL : 'No process(s) found'}
-                                                        //alwaysShowSelectText={multiprocess == "1" ? false : true}
-                                                        renderSelectText={() => strings.ProcessL}
-                                                        baseColor={this.state.MarkProcess == false ? '#A6A6A6' : 'A6A6A6'}
-                                                        textColor={this.state.MarkProcess == false ? '#A6A6A6' : 'A6A6A6'}
-                                                        showDropDowns={true}
-                                                        readOnlyHeadings={true}
-                                                        selectedIconComponent={
-                                                            <Icon
-                                                                name="check"
-                                                                size={18}
-                                                                style={{
-                                                                    color: '#4caf50',
-                                                                    paddingLeft: 10,
-                                                                }}
-                                                            />
-                                                        }
-                                                        onSelectedItemsChange={this.onSelectedItemsProcessChange}
-                                                        selectedItems={this.state.selectedItemsProcess}
-                                                        expandDropDowns={true}
-                                                        //  alwaysShowSelectText={true}
-                                                        placeholderTextColor="#A6A6A6"
-                                                        itemNumberOfLines={3}
-                                                        selectLabelNumberOfLines={3}
-                                                        styles={{
-                                                            chipText: {
-                                                                maxWidth: Dimensions.get('screen').width - 90,
-                                                            },
-                                                        }}
-                                                        colors={{
-                                                            text: '#A6A6A6',
-                                                            subText: '#A6A6A6',
-                                                            selectToggleTextColor: this.state.MarkProcess == false ? '#A6A6A6' : 'A6A6A6',
-                                                        }}
-                                                    />
+                                                    <View style={{}}>
+                                                        <SectionedMultiSelect //single={multiprocess == "1" ? true : false}
+                                                            IconRenderer={this.icon}
+                                                            ref={processListField => (this.processListField = processListField)}
+                                                            items={itemsProcess}
+                                                            uniqueKey="id"
+                                                            subKey="children"
+                                                            selectText={this.state.processdata.length > 0 ? strings.ProcessL : 'No process(s) found'}
+                                                            //alwaysShowSelectText={multiprocess == "1" ? false : true}
+                                                            renderSelectText={() => strings.ProcessL}
+                                                            baseColor="#A6A6A6"
+                                                            textColor="#A6A6A6"
+                                                            showDropDowns={true}
+                                                            readOnlyHeadings={true}
+                                                            selectedIconComponent={
+                                                                <Icon
+                                                                    name="check"
+                                                                    size={18}
+                                                                    style={{
+                                                                        color: '#4caf50',
+                                                                        paddingLeft: 10,
+                                                                    }}
+                                                                />
+                                                            }
+                                                            onSelectedItemsChange={this.onSelectedItemsProcessChange}
+                                                            selectedItems={
+                                                                Array.isArray(this.state.selectedItemsProcess) ? this.state.selectedItemsProcess : []
+                                                            }
+                                                            expandDropDowns={true}
+                                                            //  alwaysShowSelectText={true}
+                                                            placeholderTextColor="#A6A6A6"
+                                                            itemNumberOfLines={3}
+                                                            selectLabelNumberOfLines={3}
+                                                            styles={{
+                                                                chipText: {
+                                                                    maxWidth: Dimensions.get('screen').width - 90,
+                                                                },
+                                                                selectToggle: {
+                                                                    paddingLeft: 0,
+                                                                    paddingRight: 0,
+                                                                },
+                                                                selectToggleText: {
+                                                                    marginLeft: 0,
+                                                                },
+                                                            }}
+                                                            colors={{
+                                                                text: '#A6A6A6',
+                                                                subText: '#A6A6A6',
+                                                                selectToggleTextColor: '#A6A6A6',
+                                                            }}
+                                                        />
+                                                    </View>
                                                 ) : null}
 
-                                                <View style={this.state.RouteParam == 'OFI' || this.state.isLPA ? { display: 'none' } : styles.check}>
-                                                    {this.props.data.audits.smdata !== 2 && this.props.data.audits.smdata !== 3 ? (
-                                                        <Icon style={{ left: 10 }} name="asterisk" size={8} color="red" />
-                                                    ) : null}
-                                                </View>
+                                                <View style={{ display: 'none' }} />
                                             </View>
                                         </View>
                                     </View>
+
                                     <View style={[styles.div1, { display: 'none' }]}>
                                         <View style={styles.input07}>
-                                            <Dropdown
+                                            <DropdownComponent
+                                                data={[]}
                                                 label={strings.Auditee_Approach}
-                                                fontSize={Fonts.size.regular}
-                                                labelFontSize={Fonts.size.small}
-                                                baseColor={'#A6A6A6'}
-                                                selectedItemColor="black"
-                                                textColor="black"
-                                                itemColor="black"
-                                                itemPadding={5}
-                                                dropdownOffset={{ top: 10, left: 0 }}
-                                                itemTextStyle={{ fontFamily: 'OpenSans-Regular' }}
+                                                value={''}
+                                                editable={false}
+                                                containerStyle={{ paddingHorizontal: 0, marginBottom: 0, marginLeft: 0 }}
                                             />
                                         </View>
                                     </View>
                                     <View style={styles.div1}>
                                         {this.state.RouteParam === 'NC' ? (
                                             <View style={styles.input02}>
-                                                {this.state.documentRef &&
-                                                this.props.data.audits.smdata != 2 &&
-                                                this.props.data.audits.smdata != 3 ? (
-                                                    <Text
-                                                        style={{
-                                                            padding: 0,
-                                                            margin: 0,
-                                                            fontSize: Fonts.size.small,
-                                                            color: '#A6A6A6',
-                                                            fontFamily: 'OpenSans-Regular',
-                                                        }}>
-                                                        {strings.Document_reference}
-                                                    </Text>
-                                                ) : null}
-                                                <TextInput
-                                                    ref="docRefTxtField"
+                                                <InputComponent
+                                                    label={strings.Document_reference}
+                                                    name="documentRef"
+                                                    required={false}
                                                     value={this.state.documentRef}
-                                                    multiline={true}
-                                                    autoCapitalize="sentences"
-                                                    // onBlur={() => Keyboard.dismiss()}
-                                                    style={this.state.documentRef ? styles.placeholderT1Label : styles.placeholderT1}
                                                     placeholder={strings.Document_reference}
-                                                    placeholderTextColor={this.state.underline1 === true ? 'red' : '#A9A9A9'}
-                                                    baseColor={this.state.underline1 === false ? '#A6A6A6' : 'red'}
-                                                    textColor="#000000"
-                                                    selectionColor="#000000"
-                                                    // underlineColorAndroid={this.state.underline1 === true ? 'red': '#A9A9A9'}
-                                                    onChangeText={text => {
-                                                        this.setState({ documentRef: text }, () => {
-                                                            // console.log('---->',this.state.nonconfirmityText)
+                                                    inputStyle={{ paddingHorizontal: 0 }}
+                                                    multiline
+                                                    numberOfLines={3}
+                                                    autoCapitalize="sentences"
+                                                    inputRef={ref => (this.docRefTxtField = ref)}
+                                                    containerStyle={{ paddingHorizontal: 0, marginBottom: 0, marginLeft: 0 }}
+                                                    onChangeText={(field, value) => {
+                                                        this.setState({ documentRef: value }, () => {
                                                             this.isCheck5 = true;
                                                         });
                                                     }}
@@ -3885,87 +3582,26 @@ class CreateNC extends Component {
                                             </View>
                                         ) : (
                                             <View style={styles.input02}>
-                                                <View style={styles.check}>
-                                                    {this.props.data.audits.smdata != 2 && this.props.data.audits.smdata != 3 ? (
-                                                        <Icon style={{ left: 10, display: 'none' }} name="asterisk" size={8} color="red" />
-                                                    ) : null}
-                                                </View>
-                                                {this.state.documentRef ? (
-                                                    <Text
-                                                        style={{
-                                                            padding: 0,
-                                                            margin: 0,
-                                                            fontSize: Fonts.size.small,
-                                                            color: '#A6A6A6',
-                                                            fontFamily: 'OpenSans-Regular',
-                                                        }}>
-                                                        {strings.Document_reference}
-                                                    </Text>
-                                                ) : null}
-                                                <TextInput
-                                                    ref="docRefTxtField"
-                                                    multiline={true}
+                                                <InputComponent
+                                                    label={strings.Document_reference}
+                                                    name="documentRef"
                                                     value={this.state.documentRef}
-                                                    style={this.state.documentRef ? styles.placeholderT1Label : styles.placeholderT1}
                                                     placeholder={strings.Document_reference}
-                                                    placeholderTextColor={'#A9A9A9'}
-                                                    textColor="#747474"
-                                                    // underlineColorAndroid={this.state.underline1 === true ? 'red': '#A9A9A9'}
-                                                    onChangeText={text => {
-                                                        this.setState({ documentRef: text }, () => {
-                                                            // this.isCheck3 = true;
-                                                        });
+                                                    inputStyle={{ paddingHorizontal: 0 }}
+                                                    multiline
+                                                    numberOfLines={3}
+                                                    autoCapitalize="sentences"
+                                                    inputRef={ref => (this.docRefTxtField = ref)}
+                                                    containerStyle={{ paddingHorizontal: 0, marginBottom: 0, marginLeft: 0 }}
+                                                    onChangeText={(field, value) => {
+                                                        this.setState({ documentRef: value }, () => {});
                                                     }}
                                                 />
                                             </View>
                                         )}
-                                        {/* {(this.state.nonconfirmityText || this.state.ofitext) ?
-                  <TouchableOpacity style={{ right: 40,position:'absolute'}} onPress={() => this.setState({ NCtxtFlag: true, isVisible: true })}>
-                    <Icon name="eye" size={20} color="black" />
-                  </TouchableOpacity> : null
-
-                } */}
-                                        <View style={styles.check}>
-                                            {this.state.RouteParam === 'NC' &&
-                                            this.props.data.audits.smdata != 2 &&
-                                            this.props.data.audits.smdata != 3 ? (
-                                                <Icon style={{ left: 6, top: 5 }} name="asterisk" size={8} color="red" />
-                                            ) : null}
-                                        </View>
                                     </View>
                                     <View style={styles.div1}>
-                                        {/* <View style={styles.uploadButton}>
-                      <Text style={{ fontSize: Fonts.size.regular, color: '#A6A6A6' }}>{strings.Attach_EvidenceL}</Text>
-                    </View>
-                    <View style={{width:'40%',height:'70%',alignItems:'flex-end',paddingRight:12}}>
-                    {this.state.fileName ? */}
-                                        <Text
-                                            style={{
-                                                fontSize: Fonts.size.regular,
-                                                color: '#A6A6A6',
-                                                left: 10,
-                                                fontFamily: 'OpenSans-Regular',
-                                            }}>
-                                            {strings.Attach_EvidenceL}
-                                        </Text>
-                                        {/* <View style={{ flexDirection: 'row',justifyContent:'space-between',width:'30%',backgroundColor:'grey'}}> */}
-                                        {/* {this.state.missingfile ?
-                      <Text style={{ left: 5, color: 'red',width:"70%" }}>{this.state.missingfile}</Text> :null
-                      // <Text style={{ left: 10,backgroundColor:'red' }}>{this.state.fileName}</Text>
-                    } */}
-                                        {/* {this.state.fileName ? (
-                      <TouchableOpacity
-                        onPress={() => this.deleteAttachments()}
-                        style={{
-                          width: '10%',
-                          right: 20,
-                          position: 'absolute',
-                          marginRight: 20,
-                        }}>
-                        <Icon name="trash" size={20} color={'red'} />
-                      </TouchableOpacity>
-                    ) : null} */}
-                                        {/* </View> */}
+                                        <Text style={styles.fieldLabel}>{strings.Attach_EvidenceL}</Text>
                                         <TouchableOpacity
                                             onPress={() =>
                                                 this.setState({ AttachModal: true }, () => {
@@ -3974,19 +3610,9 @@ class CreateNC extends Component {
                                             }
                                             ref={evidenceField => (this.evidenceField = evidenceField)}
                                             style={styles.check}>
-                                            <ResponsiveImage initWidth="24" initHeight="22" source={Images.AttachIcon} />
+                                            <ResponsiveImage initWidth="24" initHeight="22" source={Images.AttachIcon} backgroundColor={'black'} />
                                         </TouchableOpacity>
                                     </View>
-                                    {/* FlatList for Media */}
-                                    {/* <View style={{ flex: 1 }}>
-                    <FlatList
-                      data={this.state.fileArrayList}
-                      renderItem={this.renderItem}
-                      keyExtractor={item => item.filename}
-                      horizontal={true}
-                      style={{ marginTop: 10 }}
-                    />
-                  </View> */}
                                     {this.state.fileArrayList != null && this.state.fileArrayList.length > 0 ? (
                                         <View style={{ flex: 1 }}>
                                             <FlatList
@@ -3998,25 +3624,6 @@ class CreateNC extends Component {
                                             />
                                         </View>
                                     ) : null}
-                                    {/*}   <View style={{flex: 1}}>
-                      <FlatList
-                        data={this.state.fileArrayList}
-                        renderItem={this.renderItem}
-                        keyExtractor={item => item.id}
-                        horizontal={true}
-                        style={{marginTop: 10}}
-                      />
-                    </View>
-                 )}*/}
-
-                                    {/* {this.state.isView === true ? 
-                  <View style={styles.optionBox}>
-                  <TouchableOpacity onPress={() => this.setState({ isView : false })}>
-                  <Text style={{fontSize: Fonts.size.small,color:'#00a1e2',textDecorationLine:'underline'}}>Less</Text>
-                  </TouchableOpacity>
-                  </View>:
-                  <View></View>
-                  } */}
                                 </View>
                             </ScrollView>
                         </View>
@@ -4068,11 +3675,11 @@ class CreateNC extends Component {
                                     justifyContent: 'space-around',
                                     width: '100%',
                                 }}>
-                                <View style={{ width: width(45) }}>
+                                <View style={{ width: width(35) }}>
                                     <TouchableOpacity
                                         onPress={() => this.setState({ dialogVisible: true })}
                                         style={{
-                                            height: 78,
+                                            height: 65,
                                             borderRadius: 18,
                                             backgroundColor: '#00b3d6',
                                             justifyContent: 'center',
@@ -4083,7 +3690,7 @@ class CreateNC extends Component {
                                             shadowRadius: 4,
                                             elevation: 4,
                                         }}>
-                                        <Icon name="undo" size={25} color="white" />
+                                        <Icon name="rotate-ccw" size={25} color="white" />
                                         <Text
                                             style={{
                                                 color: 'white',
@@ -4095,11 +3702,11 @@ class CreateNC extends Component {
                                         </Text>
                                     </TouchableOpacity>
                                 </View>
-                                <View style={{ width: width(45) }}>
+                                <View style={{ width: width(35) }}>
                                     <TouchableOpacity
                                         onPress={debounce(this.onSave.bind(this), 600)}
                                         style={{
-                                            height: 78,
+                                            height: 65,
                                             borderRadius: 18,
                                             backgroundColor: '#00b3d6',
                                             justifyContent: 'center',
@@ -4132,6 +3739,14 @@ class CreateNC extends Component {
                 </View>
 
                 <Toast ref="toast" position="top" opacity={1} />
+                <CommonAlertModal
+                    visible={this.state.commonAlertVisible}
+                    title={this.state.commonAlertTitle}
+                    message={this.state.commonAlertMessage}
+                    confirmText={strings.ok}
+                    onConfirm={this.hideCommonAlert}
+                    onCancel={this.hideCommonAlert}
+                />
 
                 <Modal isVisible={this.state.isVisible} onBackdropPress={() => this.setState({ isVisible: false })} style={styles.modalOuterBox}>
                     <View>
@@ -4208,154 +3823,27 @@ class CreateNC extends Component {
                         </View>
                     </View>
                 </Modal>
+                <CommonAlertModal
+                    visible={this.state.dialogVisible}
+                    title={strings.Confirm}
+                    message={strings.ResetField}
+                    showCancel
+                    confirmText={strings.yes}
+                    cancelText={strings.no}
+                    onConfirm={() => this.resetForm()}
+                    onCancel={() => this.setState({ dialogVisible: false })}
+                />
 
-                <Modal
-                    isVisible={this.state.dialogVisible}
-                    onBackdropPress={() => this.setState({ dialogVisible: false })}
-                    // animationIn="slideInUp"
-                    // animationOut="slideOutDown"
-                    // transparent={true}
-                    backdropColor="rgba(0,0,0,0.5)"
-                    style={styles.modalOuterBox}>
-                    <View style={styles.ncModal}>
-                        <View>
-                            <View style={styles.modalheading}>
-                                <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                                    <Text
-                                        style={{
-                                            color: 'black',
-                                            fontSize: Fonts.size.regular,
-                                            fontFamily: 'OpenSans-Regular',
-                                        }}>
-                                        {strings.Confirm}
-                                    </Text>
-                                </View>
-                            </View>
-
-                            <View style={styles.sectionTop}>
-                                <View style={styles.sectionContent}>
-                                    <Text style={styles.boxContent}>{strings.ResetField}</Text>
-                                </View>
-                            </View>
-
-                            <TouchableOpacity
-                                onPress={() => {
-                                    this.resetForm();
-                                }}>
-                                <View style={styles.sectionBtn}>
-                                    <Text style={styles.boxContent}>{strings.yes}</Text>
-                                </View>
-                            </TouchableOpacity>
-
-                            <TouchableOpacity onPress={() => this.setState({ dialogVisible: false })}>
-                                <View style={styles.sectionTopCancel}>
-                                    <View style={styles.sectionContent}>
-                                        <Text style={styles.boxContentClose}>{strings.no}</Text>
-                                    </View>
-                                </View>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                </Modal>
-                {/* <Modal isVisible={this.state.dialogVisible}
-          onBackdropPress={() => this.setState({ dialogVisible: false })}
-          style={styles.modalOuterBox}
-          >
-          <View style={styles.modalbodyReset}>
-             <View style={styles.modalCont}>
-             <Text style={{fontSize:Fonts.size.regular,color:'black'}}>{strings.NC_title}</Text>
-             <Text style={{fontSize:Fonts.size.medium,paddingTop:5,color:'grey'}}>{strings.ResetText}</Text>
-             </View>
-             <View style={styles.modalcont2}>
-             <TouchableOpacity 
-             onPress={()=>{this.resetForm()}}
-             style={styles.modalTouch}>
-             <Text style={{fontSize:Fonts.size.medium,color:'blue'}}>{strings.yes}</Text>
-             </TouchableOpacity>
-             <TouchableOpacity 
-             onPress={()=>{this.setState({dialogVisible: false})}}
-             style={styles.modalTouch}>
-             <Text style={{fontSize:Fonts.size.medium,color:'blue'}}>{strings.no}</Text>
-             </TouchableOpacity>
-             </View>
-          </View>
-
-          </Modal> */}
-
-                {this.renderModel(
-                    <View style={styles.ncModal}>
-                        <View /* style={styles.modalBody} */>
-                            <View style={styles.modalheading}>
-                                <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                                    <Text
-                                        style={{
-                                            color: 'black',
-                                            fontSize: Fonts.size.regular,
-                                            fontFamily: 'OpenSans-Regular',
-                                        }}>
-                                        {strings.Make_your_selection}
-                                    </Text>
-                                </View>
-                            </View>
-
-                            <TouchableOpacity onPress={this.cameraAction.bind(this, 'Camera')}>
-                                <View style={styles.sectionTop}>
-                                    <View style={[styles.sectionContent, styles.boxContent]}>
-                                        <View style={{ width: '12%', height: null }}>
-                                            <Icon name="camera" size={25} color="grey" />
-                                        </View>
-                                        <View
-                                            style={{
-                                                width: '88%',
-                                                height: null,
-                                                justifyContent: 'flex-start',
-                                            }}>
-                                            <Text style={styles.boxContentCam}>{strings.Camera_Capture_Head}</Text>
-                                        </View>
-                                    </View>
-                                </View>
-                            </TouchableOpacity>
-                            {/* <TouchableOpacity
-                  onPress={this.cameraAction.bind(this, 'Video')}>
-                  <View style={styles.sectionTop}>
-                    <View style={[styles.sectionContent, styles.boxContent]}>
-                      <View style={{width: '12%', height: null}}>
-                        <Icon name="video-camera" size={25} color="grey" />
-                      </View>
-                      <View
-                        style={{
-                          width: '88%',
-                          height: null,
-                          justifyContent: 'flex-start',
-                        }}>
-                        <Text style={styles.boxContentCam}>Video</Text>
-                      </View>
-                    </View>
-                  </View>
-                </TouchableOpacity> */}
-                            <TouchableOpacity onPress={() => this.attachFiles()}>
-                                <View style={styles.sectionTop}>
-                                    <View style={[styles.sectionContent, styles.boxContent]}>
-                                        <View style={{ width: '12%', height: null }}>
-                                            <Icon name="file-image-o" size={25} color="grey" />
-                                        </View>
-                                        <View style={{ width: '88%', height: null }}>
-                                            <Text style={styles.boxContentCam}>{strings.Camera_Browse_Files}</Text>
-                                        </View>
-                                    </View>
-                                </View>
-                            </TouchableOpacity>
-
-                            <TouchableOpacity onPress={() => this.setState({ AttachModal: false })}>
-                                <View style={styles.sectionTopCancel}>
-                                    <View style={styles.sectionContent}>
-                                        <Text style={styles.boxContentClose}>{strings.Cancel}</Text>
-                                    </View>
-                                </View>
-                            </TouchableOpacity>
-                        </View>
-                    </View>,
-                )}
+                <AttachmentSelectionModal
+                    visible={this.state.AttachModal}
+                    title={strings.Make_your_selection}
+                    takePhotoText={strings.Camera_Capture_Head}
+                    browseText={strings.Camera_Browse_Files}
+                    cancelText={strings.Cancel}
+                    onTakePhoto={() => this.cameraAction('Camera')}
+                    onBrowseFiles={() => this.attachFiles()}
+                    onCancel={() => this.setState({ AttachModal: false })}
+                />
 
                 <Modal
                     isVisible={this.state.suggestionPopUp}
@@ -4415,33 +3903,6 @@ class CreateNC extends Component {
                     </View>
                 </Modal>
             </View>
-        );
-    }
-
-    renderModel(children) {
-        return Platform.OS == 'ios' ? (
-            <Modal
-                transparent="false"
-                isVisible={this.state.AttachModal}
-                onBackdropPress={() =>
-                    this.setState({ AttachModal: false }, () => {
-                        console.log('modal closed');
-                    })
-                }
-                style={styles.modalOuterBox}>
-                {children}
-            </Modal>
-        ) : (
-            <Modal
-                isVisible={this.state.AttachModal}
-                onBackdropPress={() =>
-                    this.setState({ AttachModal: false }, () => {
-                        console.log('modal closed');
-                    })
-                }
-                style={styles.modalOuterBox}>
-                {children}
-            </Modal>
         );
     }
 

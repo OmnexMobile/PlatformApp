@@ -42,6 +42,8 @@ import TreeViewPickerComponent from './tree-view-picker';
 import AgendaCalender from './agenda-calender';
 import RenderInputs from './render-inputs';
 import ConfirmModal from './confirm-modal';
+import CommonAlertModal from './common_alert_modal';
+import AttachmentSelectionModal from './attachment-selection-modal';
 import ErrorComponent from './error-component';
 import ListSearch from './list-search';
 import ProjectCard from './project-card';
@@ -102,6 +104,8 @@ export {
     AgendaCalender,
     RenderInputs,
     ConfirmModal,
+    CommonAlertModal,
+    AttachmentSelectionModal,
     ErrorComponent,
     ListSearch,
     ProjectCard,

@@ -41,7 +41,7 @@ import ToastNew, { ErrorToast } from 'react-native-toast-message';
 import { ROUTES } from 'constants/app-constant';
 import { SPACING } from 'constants/theme-constants';
 import GlobalHeader from 'components/GlobalHeader';
-
+import CommonAlertModal from 'components/common_alert_modal';
 let Window = Dimensions.get('window');
 const window_width = Dimensions.get('window').width;
 let timer = null;
@@ -52,15 +52,7 @@ const toastConfig = {
             {...props}
             text1Style={{
                 fontSize: 12,
-                // color: 'white',
-                // textAlign: 'center',
             }}
-            // style={{
-            //   backgroundColor: '#313131',
-            //   borderLeftWidth: 0,
-            //   height: 40,
-            //   borderRadius: 10,
-            // }}
         />
     ),
 };
@@ -501,25 +493,14 @@ class AuditPage extends Component {
             this.deleteAuditRecord.bind(this);
         }
 
-        // const isSubmitted = this.props?.route?.params?.isSubmitted;
-
-        // console.log(isSubmitted, 'issubmittedrec');
-
-        // if (isSubmitted == true) {
-        //   console.log('enteringdeletaudit');
-        //   this.deleteAuditRecord;
-        // }
         var getCurrentPage = [];
         var CurrentPage = this.props.route.name;
-        // getCurrentPage = this.props.data.nav.routes;
-        // var CurrentPage = getCurrentPage[getCurrentPage.length - 1].routeName;
         console.log('--CurrentPage--->', CurrentPage);
 
         if (CurrentPage == ROUTES.AUDIT_PAGE_SM) {
             console.log('Audit summary page focussed!');
             console.log('--AuditPage-PROPS-->', props);
             console.log('--AuditPage-this.PROPS-->', this.props, 'cstatus', this.props?.route?.params?.datapass?.cStatus);
-            // AsyncStorage.setItem('CSTATUS',this.props?.route?.params?.datapass?.cStatus);
             this.InitVoice();
             var Data = props.data.audits.audits;
             for (var i = 0; i < Data.length; i++) {
@@ -537,9 +518,6 @@ class AuditPage extends Component {
                     }
                 }
             }
-            // const Audit_Status = await AsyncStorage.getItem('CSTATUS');
-            // console.log('90900000000',Audit_Status);
-
             this.setState(
                 {
                     recognized: '',
@@ -665,9 +643,6 @@ class AuditPage extends Component {
                     console.log('cloded');
                 });
                 setTimeout(() => {
-                    // this._stopRecognizing()
-                    // Voice.removeAllListeners();
-                    // this.InitVoice();
                     this._destroyRecognizer();
                     this.props.navigation.navigate(ROUTES.CREATE_NC, {
                         CheckpointRoute: 'OFI',
@@ -697,13 +672,6 @@ class AuditPage extends Component {
                         isVisible: false,
                         startVoice: false,
                         // recognized: '',
-                        // pitch: '',
-                        // error: '',
-                        // started: '',
-                        // results: [],
-                        // partialResults: [],
-                        // end: '',
-                        // startVoice:false,
                         voicePopUp: false,
                         // isVisible:false,
                         suggestionText: '',
@@ -762,10 +730,6 @@ class AuditPage extends Component {
                             breadCrumb: this.state.auditDetailList.Auditee,
                         },
                         SpeechCommand: 'Template',
-                        // DropDownVal : this.state.DropDownProps
-                        // ChecklistProp : this.state.CheckListPropData,
-                        // FormDetails : this.state.Formdata,
-                        // Checkpointlogic : this.state.CheckpointLogic,
                     });
                 }, 2000);
             } else if (txt.includes(strings.va_cmd25) || txt.includes(strings.va_cmd025)) {
@@ -796,10 +760,6 @@ class AuditPage extends Component {
                             breadCrumb: this.state.auditDetailList.Auditee,
                         },
                         SpeechCommand: 'Reference',
-                        // DropDownVal : this.state.DropDownProps
-                        // ChecklistProp : this.state.CheckListPropData,
-                        // FormDetails : this.state.Formdata,
-                        // Checkpointlogic : this.state.CheckpointLogic,
                     });
                 }, 2000);
             } else if (txt.toLowerCase().includes(strings.va_cmd26)) {
@@ -823,10 +783,6 @@ class AuditPage extends Component {
                             AuditProgramId: this.state.AUDITPROG_ID,
                             breadCrumb: this.state.auditDetailList.Auditee,
                         },
-                        // DropDownVal : this.state.DropDownProps
-                        // ChecklistProp : this.state.CheckListPropData,
-                        // FormDetails : this.state.Formdata,
-                        // Checkpointlogic : this.state.CheckpointLogic,
                     });
                 }, 2000);
             }
@@ -842,8 +798,6 @@ class AuditPage extends Component {
     };
 
     onSpeechVolumeChanged = e => {
-        // eslint-disable-next-line
-        // console.log('onSpeechVolumeChanged: ', e);
         this.setState({
             pitch: e.value,
         });
@@ -927,23 +881,7 @@ class AuditPage extends Component {
                     });
                 }, 500);
             });
-        }
-        // else if (item == strings.sugesstion7) {
-        //   Tts.setDucking(true).then(() => {
-        //     Tts.speak(strings.va_reply7);
-        //   });
-        //   this.setState(
-        //     {
-        //       suggestionText: strings.sugesstion7,
-        //       isVisible: false,
-        //       dialogVisible: true,
-        //     },
-        //     () => {
-        //       console.log('triggrered');
-        //     },
-        //   );
-        // }
-        else if (item == strings.sugesstion4) {
+        } else if (item == strings.sugesstion4) {
             Tts.setDucking(true).then(() => {
                 Tts.speak(strings.va_reply8);
             });
@@ -968,10 +906,6 @@ class AuditPage extends Component {
                         breadCrumb: this.state.auditDetailList.Auditee,
                     },
                     SpeechCommand: 'Template',
-                    // DropDownVal : this.state.DropDownProps
-                    // ChecklistProp : this.state.CheckListPropData,
-                    // FormDetails : this.state.Formdata,
-                    // Checkpointlogic : this.state.CheckpointLogic,
                 });
             }, 500);
         } else if (item == strings.sugesstion5) {
@@ -999,10 +933,6 @@ class AuditPage extends Component {
                         breadCrumb: this.state.auditDetailList.Auditee,
                     },
                     SpeechCommand: 'Reference',
-                    // DropDownVal : this.state.DropDownProps
-                    // ChecklistProp : this.state.CheckListPropData,
-                    // FormDetails : this.state.Formdata,
-                    // Checkpointlogic : this.state.CheckpointLogic,
                 });
             }, 500);
         } else if (item == strings.sugesstion6) {
@@ -1029,10 +959,6 @@ class AuditPage extends Component {
                         AuditProgramId: this.state.AUDITPROG_ID,
                         breadCrumb: this.state.auditDetailList.Auditee,
                     },
-                    // DropDownVal : this.state.DropDownProps
-                    // ChecklistProp : this.state.CheckListPropData,
-                    // FormDetails : this.state.Formdata,
-                    // Checkpointlogic : this.state.CheckpointLogic,
                 });
             }, 500);
         }
@@ -1263,15 +1189,6 @@ class AuditPage extends Component {
                     var auditStatus = '';
                     console.log('checkk838838383', this.props.route?.params?.datapass);
 
-                    // for (var i = 0; i < auditRecords.length; i++) {
-                    //     console.log('checkinngggg-------insidelooppppp');
-
-                    //   if (auditRecords[i].AuditId == this.state.AuditProp.ActualAuditId) {
-                    //     auditDetailList = auditRecords[i];
-                    //     console.log('checkinngggg-------',auditRecords[i]);
-
-                    //   }
-                    // }
                     console.log('auditRecords.AuditId', auditRecords?.AuditId);
                     console.log('this.state.AuditProp.ActualAuditId', targetAuditId);
 
@@ -1371,9 +1288,6 @@ class AuditPage extends Component {
             var auditId = data.data.Data[0].AuditNumber;
             await AsyncStorage.setItem('AgendaURL' + auditId, webview);
             console.log('webview', webview);
-            // const uri = data.data.Data[0].AuditAgendaUrl;
-            // var arr = uri.split("/");
-            // console.log(arr[3], "split5");
             if (data.data) {
                 if (resp === true) {
                     if (data.data.Message === 'Success') {
@@ -1982,17 +1896,11 @@ class AuditPage extends Component {
                     AuditProgramId: this.state.AUDITPROG_ID,
                     breadCrumb: this.state.auditDetailList.Auditee,
                 },
-                // DropDownVal : this.state.DropDownProps
-                // ChecklistProp : this.state.CheckListPropData,
-                // FormDetails : this.state.Formdata,
-                // Checkpointlogic : this.state.CheckpointLogic,
             });
         } else if (id === 3) {
             console.log('this.state.AUDITYPE_ORDER', this.state.AUDITYPE_ORDER);
             console.log('this.state.auditstatus', this.state.auditstatus);
             this.props.navigation.navigate(ROUTES.NC_OFI_PAGE_SM, {
-                // DropDownVal : this.state.DropDownProps,
-                // NCdetails: this.state.NCdetailsprops,
                 CreateNCdataBundle: {
                     AuditID: this.state.AUDIT_ID,
                     AuditOrder: this.state.AUDITYPE_ORDER,
@@ -2050,24 +1958,11 @@ class AuditPage extends Component {
         ).groups;
 
         const WebviewUrl = agendaurlview;
-        // const WebviewUrl = this.props.data.audits.agendaUrl;
-
-        // const WebviewUrl =
-        //   response?.protocol +
-        //   response?.fqdn +
-        //   ':' +
-        //   response?.port +
-        //   '/' +
-        //   this.state.agendaUrl;
-        // console.log(WebviewUrl, 'webviewurl');
-        // console.log(this.state.agendaUrl, 'webviewurl');
         console.log(uri, 'helloserverurl');
         console.log('webviewurl', this.state.AuditAgendaUrl, WebviewUrl, this.state.agendaUrl);
         console.log('webviewurl1', this.state.agendaUrl);
         this.props.navigation.navigate(ROUTES.AUDIT_WEBVIEW, {
             AuditID: this.state.AUDIT_ID,
-            //   Url: this.props.data.audits.serverUrl,
-            // agendaUrl: this.state.AuditAgendaUrl,
             WebviewUrl,
             isShowModal: true,
         });
@@ -2527,11 +2422,6 @@ class AuditPage extends Component {
                     //mode : 'EMPTY',
                     FileType: this.getImageType(extn),
                 });
-                // FileContent.push({
-                //   Attachment: attachmentObj[i].Attachment,
-                //   FileUri: uripath,
-                // })
-
                 console.log('Attachment:-attachment', AttachmentList);
                 //async () => { await this.WriteAttachments(uripath, attachmentObj[0].Attachment);}
             }
@@ -2825,10 +2715,6 @@ class AuditPage extends Component {
     }
 
     displayStatus = (AuditStatus, PerformStarted) => {
-        // var status =
-        //   this.props.navigation.state.params.auditStatusPass !== ''
-        //     ? this.props.navigation.state.params.auditStatusPass
-        //     : '';
         var status = '';
         var auditColor = '';
 
@@ -2851,30 +2737,6 @@ class AuditPage extends Component {
         } else if (AuditStatus == 5) {
             status = constant.StatusDVC;
         }
-
-        // Set Audit Status
-        // if (AuditStatus == 3 && PerformStarted == 1) {
-        //   status = constant.StatusCompleted;
-        // } else if (
-        //   AuditStatus == 3 &&
-        //   PerformStarted == 0 &&
-        //   (CloseOutStatus == '7' || CloseOutStatus == '9')
-        // ) {
-        //   status = constant.StatusCompleted;
-        // } else if (AuditStatus == 3 && PerformStarted == 0) {
-        //   status = constant.Completed;
-        // } else if (AuditStatus == 2 && PerformStarted == 0) {
-        //   status = constant.StatusScheduled;
-        // } else if (AuditStatus == 2) {
-        //   status = constant.StatusProcessing;
-        // } else if (AuditStatus == 4) {
-        //   status = constant.StatusDV;
-        // } else if (AuditStatus == 5) {
-        //   status = constant.StatusDVC;
-        // }
-        // else if(AuditStatus == 2 && !PerformStarted){
-        //   status = constant.StatusDownloaded
-        // }
 
         console.log('status===>', status);
 
@@ -2992,8 +2854,6 @@ class AuditPage extends Component {
                 break;
         }
 
-        // If a local statusCheck value is present, allow it to
-        // override the color mapping (e.g. future offline cases).
         if (this.state.statusCheck) {
             switch (this.state.statusCheck) {
                 case constant.StatusScheduled:
@@ -3085,6 +2945,7 @@ class AuditPage extends Component {
     handleDimensionChange = ({ window }) => {
         this.setState({ screenWidth: window.width });
     };
+
     render() {
         console.log(this.state.auditDetailList, 'AuditDetailsList');
         console.log(this.props?.route?.params, 'venkat12345');
@@ -3098,10 +2959,35 @@ class AuditPage extends Component {
             { id: strings.sugesstion7 },
         ];
         const currentAuditStatus = this.getCurrentAuditCStatus();
-
-        // const Audit_Status = this.displayStatusNew(
-        //   this.props?.route?.params?.datapass?.cStatus,
-        // )
+        const canShowHeaderActions = !this.state.isLoading && !this.state.isDownloading;
+        const rightActions = canShowHeaderActions ? (
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                {this.state.isDownloaded ? (
+                    <>
+                        <TouchableOpacity
+                            style={styles.rightHeader}
+                            onPress={() => {
+                                this.setState({ dialogVisible: true });
+                            }}>
+                            <Icon name="trash" size={25} color="#00b3d6" />
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={{ paddingRight: 10 }}
+                            onPress={() => {
+                                this.setState({ dialogVisibleRefresh: true, webToMob: true, downloadAsync: true });
+                            }}>
+                            {/* <ResponsiveImage initWidth='25' initHeight='25' source={Images.deleteIcon}/> */}
+                            <Icon name="refresh-cw" size={25} color="#00b3d6" />
+                        </TouchableOpacity>
+                    </>
+                ) : null}
+                <TouchableOpacity onPress={() => this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)}>
+                    <Icon name="home" size={25} color="#00b3d6" />
+                </TouchableOpacity>
+            </View>
+        ) : (
+            <View style={{ width: 36, height: 36 }} />
+        );
 
         return (
             <View style={styles.wrapper}>
@@ -3114,12 +3000,18 @@ class AuditPage extends Component {
 
                 {!this.state.isLoading ? (
                     <GlobalHeader
-                        title={'Audits Details'}
-                        onLeftPress={() => this.props.navigation.goBack()}
-                        onRightPress={() => this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)}
-                        containerStyle={{ backgroundColor: 'transparent' }}
-                        titleStyle={{ color: '#000' }}
-                        leftIconColor="#00b3d6"
+                        title={strings.Audit_Details}
+                        subtitle={this.state.breadCrumb}
+                        onLeftPress={() => {
+                            if (!this.state.isLoading && !this.state.isDownloading) {
+                                this.state.PreviousPage == ROUTES.ALLTABAUDITLIST
+                                    ? this.props.navigation.navigate(ROUTES.ALLTABAUDITLIST)
+                                    : this.props.navigation.goBack();
+                            } else {
+                                console.log('Component is not ready to goBack..');
+                            }
+                        }}
+                        rightComponent={rightActions}
                     />
                 ) : null}
 
@@ -3159,15 +3051,6 @@ class AuditPage extends Component {
                                         </View>
                                     ) : null}
 
-                                    {/*<View style={styles.card}>
-                <View style={styles.boxCard1}>
-                  <Text style={styles.detailTitle}>{strings.Audit_type}</Text>
-                </View>
-                <View style={styles.boxCard2}>
-                  <Text numberOfLines={2} style={styles.detailContent}>{this.state.auditDetailList.AuditTypeName}</Text>                                
-                </View>
-            </View>*/}
-
                                     <View style={styles.card}>
                                         <View style={styles.boxCard1}>
                                             <Text style={styles.detailTitle}>{strings.Start_date}</Text>
@@ -3185,16 +3068,6 @@ class AuditPage extends Component {
                                             <Text style={styles.detailContent}>{this.changeDateFormat(this.state.auditDetailList.EndDate)}</Text>
                                         </View>
                                     </View>
-
-                                    {/* <View style={styles.card}>
-                <View style={styles.boxCard1}>
-                  <Text style={styles.detailTitle}>{strings.Cycle_short_name}</Text>
-                </View>
-                <View style={styles.boxCard2}>
-                  <Text style={styles.detailContent}>{this.state.auditDetailList.CycleShortName}</Text>
-                </View>
-              </View> */}
-
                                     <View style={styles.card}>
                                         <View style={styles.boxCard1}>
                                             <Text style={styles.detailTitle}>{strings.Lead_Auditor}</Text>
@@ -3221,11 +3094,6 @@ class AuditPage extends Component {
                                             <Text style={styles.detailTitle}>{strings.Audit_Status}</Text>
                                         </View>
                                         <View style={styles.boxCard2}>
-                                            {/* {this.props?.route?.params?.screenFrom == "Dashboard"
-                      ? this.displayStatusNew(
-                          this.props?.route?.params?.datapass?.AuditStatus,
-                        )
-                      :  */}
                                             {this.displayStatusNew(this.getCurrentAuditCStatus())}
                                             {/* } */}
                                         </View>
@@ -3281,16 +3149,6 @@ class AuditPage extends Component {
                                             </View>
                                         </View>
                                     ) : null}
-                                    {/*for SM ends*/}
-                                    {/*<View style={styles.card}>
-                <View style={styles.boxCard1}>
-                  <Text style={styles.detailTitle}>{strings.Audit_cycle}</Text>
-                </View>
-                <View style={styles.boxCard2}>
-                  <Text numberOfLines={2} style={styles.detailContent}>{this.state.auditDetailList.AuditCycleName}</Text>
-                </View>
-          </View>*/}
-
                                     {this.state.auditDetailList.AuditProgramName !== 'LPA' && this.state.smData === 3 ? (
                                         <View style={styles.lastCard}>
                                             <View style={styles.boxCard1}>
@@ -3374,61 +3232,6 @@ class AuditPage extends Component {
                                             <View style={{ marginBottom: 40 }} />
                                         </View>
                                     ) : null}
-
-                                    {/* <View style={styles.card1}>
-                <View style={styles.boxCard1}>
-                  <Text style={styles.detailTitle}>{strings.Audit_template}</Text>
-                </View>
-                <View style={styles.boxCard2}>
-                  <Text style={styles.detailContent}>{this.state.auditDetailList.AuditTemplateName}</Text>
-                    <Text numberOfLines={2} style={styles.detailContent}>{this.state.auditDetailList.SeniAuditor}</Text>
-                </View>
-              </View> */}
-
-                                    {/* <View style={styles.card}>
-                <View style={styles.boxCard1}>
-                  <Text style={styles.detailTitle}>{strings.Associate_name}</Text>
-                </View>
-                <View style={styles.boxCard2}>
-                  <Text style={styles.detailContent}>{(this.state.auditDetailList.AssociatesName) ? this.state.auditDetailList.AssociatesName : ' - '}</Text>
-                </View>
-              </View> */}
-
-                                    {/* <View style={styles.card1}>
-                <View style={styles.boxCard1}>
-                  <Text style={styles.detailTitle}>{strings.Assign_route}</Text>
-                </View>
-                <View style={styles.boxCard2}>
-                  <Text style={styles.detailContent}>{this.state.auditDetailList.AssignedTaskRoutes}</Text>
-                </View>
-              </View> */}
-
-                                    {/* <View style={styles.card1}>
-                <View style={styles.boxCard1}>
-                  <Text style={styles.detailTitle}>{strings.Scheduler}</Text>
-                </View>
-                <View style={styles.boxCard2}>
-                  <Text style={styles.detailContent}>{(this.state.auditDetailList.SchedulerName) ? this.state.auditDetailList.SchedulerName : ' - '}</Text>
-                </View>
-              </View> */}
-
-                                    {/* <View style={styles.card1}>
-                <View style={styles.boxCard1}>
-                  <Text style={styles.detailTitle}>{strings.Progress_group}</Text>
-                </View>
-                <View style={styles.boxCard2}>
-                  <Text style={styles.detailContent}>{(this.state.auditDetailList.ProcessGroupsName) ? this.state.auditDetailList.ProcessGroupsName : ' - '}</Text>
-                </View>
-              </View> */}
-
-                                    {/* <View style={styles.card1}>
-                <View style={styles.boxCard1}>
-                  <Text style={styles.detailTitle}>{strings.Progress_category}</Text>
-                </View>
-                <View style={styles.boxCard2}>
-                  <Text style={styles.detailContent}>{(this.state.auditDetailList.ProcessCategorysName) ? this.state.auditDetailList.ProcessCategorysName : ' - '}</Text>
-                </View>
-              </View> */}
                                 </View>
                             ) : (
                                 <View
@@ -3544,13 +3347,6 @@ class AuditPage extends Component {
                                             <Text style={styles.footerTextContent}>{strings.AuditRecords}</Text>
                                         </TouchableOpacity>
                                     </View>
-
-                                    {/*(this.state.checkSync === true || this.state.AuditProp.cStatus == constant.StatusSynced || this.state.AuditProp.cStatus == constant.StatusCompleted || this.state.auditDetailList.VDA != true) ?
-              //changes here!
-              */}
-                                    {/* {(this.state.auditDetailList.AuditProgramName !== 'LPA' &&
-                      this.state.AuditProp.ReportId == 3) || this.state.AuditProp.ReportId !== '5' ||
-                    this.state.AuditProp.ReportId == 7 ? ( */}
                                     <View style={{ width: '22%' }}>
                                         <TouchableOpacity onPress={once(this.onNavigateTo.bind(this, 3))} style={{ alignItems: 'center' }}>
                                             {/* <ResponsiveImage source={Images.BTN5} initWidth="26" initHeight="25"/> */}
@@ -3568,16 +3364,6 @@ class AuditPage extends Component {
                                             </TouchableOpacity>
                                         </View>
                                     ) : null}
-
-                                    {/*
-                :  <View style={{width: '30%'}}>
-                  <TouchableOpacity onPress={once(this.onNavigateTo.bind(this,3))} style={{alignItems: 'center'}}>
-                    {/* <ResponsiveImage source={Images.BTN5} initWidth="26" initHeight="25"/> *}
-                    <Icon  name="file" size={20} color="white"/>
-                    <Text style={styles.footerTextContent}>{strings.NC_OFI}</Text>
-                  </TouchableOpacity>
-                </View>
-             */}
                                 </View>
                             ) : (
                                 <View style={styles.footerLoader}>
@@ -3587,22 +3373,6 @@ class AuditPage extends Component {
                         </View>
                     </View>
                 )}
-
-                {/** zzz voice  */}
-                {/* {!this.state.isDownloaded ? null : (
-          <View style={styles.floatingDiv}>
-            <TouchableOpacity
-              onPress={() => {
-                this.setState({isVisible: true}, () => {
-                  // this._stopRecognizing
-                });
-              }}
-              style={styles.floatinBtn}>
-              <Icon name="microphone" size={25} color="#00b3d6" />
-            </TouchableOpacity>
-          </View>
-        )} */}
-
                 <Toast
                     ref="toast"
                     style={{ backgroundColor: 'black', margin: 20 }}
@@ -3613,40 +3383,25 @@ class AuditPage extends Component {
                     opacity={0.8}
                     textStyle={{ color: 'white' }}
                 />
-
-                <ConfirmDialog
-                    title={strings.Confirm_delete}
-                    // message={strings.Confirm_delete_message}
+                <CommonAlertModal
                     visible={this.state.dialogVisible}
-                    titleStyle={{ fontFamily: 'OpenSans-SemiBold' }}
-                    messageStyle={{ fontFamily: 'OpenSans-Regular' }}
-                    onTouchOutside={() => this.setState({ dialogVisible: false })}
-                    positiveButton={{
-                        title: strings.yes,
-                        onPress: this.deleteAuditRecord.bind(this),
-                        // onPress: this.deleteNCOFI.bind(this)
-                    }}
-                    negativeButton={{
-                        title: strings.no,
-                        onPress: () => this.setState({ dialogVisible: false }),
-                    }}
+                    title={'Confirm'}
+                    message={strings.Confirm_delete}
+                    showCancel
+                    confirmText={strings.yes}
+                    cancelText={strings.no}
+                    onConfirm={this.deleteAuditRecord.bind(this)}
+                    onCancel={() => this.setState({ deleteDialogVisible: false })}
                 />
-                <ConfirmDialog
-                    title={strings.Confirm_refresh}
-                    // message={strings.Confirm_delete_message}
+                <CommonAlertModal
                     visible={this.state.dialogVisibleRefresh}
-                    titleStyle={{ fontFamily: 'OpenSans-SemiBold' }}
-                    messageStyle={{ fontFamily: 'OpenSans-Regular' }}
-                    onTouchOutside={() => this.setState({ dialogVisibleRefresh: false })}
-                    positiveButton={{
-                        title: strings.yes,
-                        onPress: this.deleteAuditRecord.bind(this),
-                        // onPress: this.deleteNCOFI.bind(this)
-                    }}
-                    negativeButton={{
-                        title: strings.no,
-                        onPress: () => this.setState({ dialogVisibleRefresh: false }),
-                    }}
+                    title={strings.Confirm_delete}
+                    message={strings.Confirm_refresh}
+                    showCancel
+                    confirmText={strings.yes}
+                    cancelText={strings.no}
+                    onConfirm={this.deleteAuditRecord.bind(this)}
+                    onCancel={() => this.setState({ dialogVisibleRefresh: false })}
                 />
                 {/** yyy voice modal */}
                 <Modal isVisible={this.state.isVisible} onBackdropPress={() => this.setState({ isVisible: false })}>
