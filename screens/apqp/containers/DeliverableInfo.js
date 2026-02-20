@@ -355,7 +355,7 @@ export class DeliverableInfoScreen extends Component {
                             flexWrap: "wrap",
                           }}
                         >
-                          <RenderHtml source={comments} />
+                          <RenderHtml baseStyle={{ color: '#000' }} source={comments} />
                         </View>
                       )}
                     </TouchableOpacity>

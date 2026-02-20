@@ -802,7 +802,7 @@ class AttachAdditionalDocScreen extends Component {
                 <TextInput
                   placeholder={"Comments"}
                   placeholderTextColor= "#000"
-                  style={styles.textInputStyle}
+                  style={[styles.textInputStyle, { color: "#000" }]}
                   value={this.state.comments.replace(regex, "")}
                   onChangeText={(text) => {
                     this.setState({ comments: text });

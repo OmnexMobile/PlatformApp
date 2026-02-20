@@ -672,104 +672,15 @@ class PeriodicUpdateScreen extends Component {
                       </TouchableOpacity>
                     </View>
                   </View>
-                  // <View style={styles.flatListFullSideView}>
-                  //   <TouchableOpacity
-                  //     onPress={this.onPressedit.bind(this, item, "Edit")}
-                  //   >
-                  //     <View style={styles.flatListInsideView}>
-                  //       <Text style={styles.listText}>Completed % :</Text>
-                  //       <Text
-                  //         numberOfLines={1}
-                  //         style={styles.deliveryTypeTextStylePercent}
-                  //       >
-                  //         {item.Percentage}
-                  //       </Text>
-                  //     </View>
-                      // <View style={styles.flatListInsideView}>
-                      //   <Text style={styles.listText}>Period :</Text>
-                      //   <Text
-                      //     style={[styles.dateTextStyle, { color: "#1FBFD0" }]}
-                      //     numberOfLines={1}
-                      //   >
-                      //     {this.changeDateFormatCard(item.StartDate)} -{" "}
-                      //     {this.changeDateFormatCard(item.Enddate)}
-                      //   </Text>
-                      // </View>
-
-                  //     {/* //------------------------------------Modified_for_Commercial_Use--------- lock------// */}
-
-                      // <View style={styles.flatListInsideView}>
-                      //   <Text style={styles.listText}>{strings.Hours} :</Text>
-                      //   <Text style={styles.deliveryTypeTextStyleHours}>
-                      //     {item.Hours}
-                      //   </Text>
-                      // </View>
-                  //     {/* //------------------------------------Modified_for_Commercial_Use------- lock--------// */}
-                      // <View style={styles.flatListInsideView}>
-                      //   <Text style={styles.listText}>{strings.Remarks}:</Text>
-                      // </View>
-                      // <View style={styles.flatListInsideView}>
-                      //   <Text
-                      //     style={
-                      //       (styles.deliveryTypeTextStyle,
-                      //       {
-                      //         paddingLeft: 8,
-                      //         marginRight: 25,
-                      //         fontSize: 16,
-                      //         flexWrap: "wrap",
-                      //         width: "80%",
-                      //         color: "grey",
-                      //       })
-                      //       //  style={{width: "70%",borderBottomWidth: 0.5,fontSize: 18,}}
-                      //       //marginLeft:5,flex:1,flexDirection:'column', flexWrap:'wrap'
-                      //     }
-                      //   >
-                      //     {item.Remarks}
-                      //   </Text>
-                      // </View>
-                  //   </TouchableOpacity>
-                  // </View>
                 )}
               />
+              
             ) : (
               this.NoRecordsFound()
             )}
+             <View style={{ height: 50 }} />
           </View>
         )}
-        {/* <View style={styles.footerDiv}>
-          <View style={styles.footerContainer}>
-            <View style={styles.footerButton1}>
-              {this.TaskOwnerCheck == 1 ? (
-                <TouchableOpacity
-                  onPress={() => {
-                    this.onPressedit(this, "Add");
-                  }}
-                  style={{
-                    width: "100%",
-                    height: 70,
-                    justifyContent: "center",
-                    alignItems: "center",
-                  }}
-                >
-                  <Icon name="plus-circle" size={30} color="#00BAC8" />
-                  <Text style={{ color: "#00BAC8" }}>ADD</Text>
-                </TouchableOpacity>
-              ) : (
-                <View
-                  style={{
-                    width: "100%",
-                    height: 70,
-                    justifyContent: "center",
-                    alignItems: "center",
-                  }}
-                >
-                  <Icon name="plus-circle" size={30} color="lightgrey" />
-                  <Text style={{ color: "lightgrey" }}>ADD</Text>
-                </View>
-              )}
-            </View>
-          </View>
-        </View> */}
         <View style={styles.footerDiv}>
           <FAB iconName="plus" iconType={ICON_TYPE.Feather} onPress={() => this.onPressedit(this, "Add")} />
         </View>

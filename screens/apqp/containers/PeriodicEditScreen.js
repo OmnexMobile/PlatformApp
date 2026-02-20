@@ -9,6 +9,7 @@ import {
   Button,
   FlatList,
   ImageBackground,
+  Platform
 } from "react-native";
 import { Images } from "../themes";
 // import ResponsiveImage from "react-native-responsive-image";
@@ -82,6 +83,8 @@ class PeriodicEditScreen extends Component {
       timePassed: false,
       switch1Value: false,
       defaultText: "",
+      inputHeight: 65,
+      
     };
     this.onDateChange = this.onDateChange.bind(this);
     this.onEndDateChange = this.onEndDateChange.bind(this);
@@ -567,7 +570,7 @@ class PeriodicEditScreen extends Component {
     console.log('today--->', today)
     return (
       <View style={styles.mainContainer}>
-        {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
+        <View style={{ padding: Platform.OS === 'ios' ? SPACING.MEDIUM : SPACING.NORMAL, flexDirection: 'row' }} />
         <OfflineNotice />
         {this.renderHeader()}
 
@@ -646,7 +649,7 @@ class PeriodicEditScreen extends Component {
           <View style={styles.sec1}>
             {this.state.completedtext != "" ? (
               <View style={{ flexDirection: "row" }}>
-                <Text style={styles.completedTextStyle}>
+                <Text style={[styles.completedTextStyle, {marginTop: '1%'}]}>
                   {strings.completed + "%"}
                 </Text>
                 <Text style={{ color: "red" }}>*</Text>
@@ -654,6 +657,7 @@ class PeriodicEditScreen extends Component {
             ) : null}
             <TextInput
               placeholder={strings.completed + "%"}
+              placeholderTextColor="#000"
               keyboardType="numeric"
               style={styles.textInputStyle}
               value={this.state.completedtext}
@@ -682,10 +686,10 @@ class PeriodicEditScreen extends Component {
             onPress={() =>
               this.setState({ isstartDateVisible: true, isValid: true })
             }
-            style={styles.sec1}
+            style={[styles.sec1, { marginTop: this.state.completedtext == "" ? -10 : '5%'}]}
           >
             {this.state.startdate != "" ? (
-              <View style={{ flexDirection: "row" }}>
+              <View style={{ flexDirection: "row", }}>
                 <Text style={styles.completedTextStyle}>
                   {strings.StartDate}
                 </Text>
@@ -700,6 +704,7 @@ class PeriodicEditScreen extends Component {
                 this.setState({ startdate: text });
               }}
               editable={false}
+              pointerEvents="none"
             />
             {this.state.startdate == "" ? (
               <View style={styles.check}>
@@ -726,12 +731,14 @@ class PeriodicEditScreen extends Component {
             ) : null}
             <TextInput
               placeholder={strings.EndDate}
+              placeholderTextColor="#000"
               style={(styles.textInputStyle, { color: "#000000", fontSize: 17 })}
               value={this.state.endate}
               onChangeText={(text) => {
                 this.setState({ endate: text });
               }}
               editable={false}
+              pointerEvents="none"
             />
             {this.state.endate == "" ? (
               <View style={styles.endDatecheck}>
@@ -754,6 +761,7 @@ class PeriodicEditScreen extends Component {
             ) : null}
             <TextInput
               placeholder={strings.Hours}
+              placeholderTextColor="#000"
               keyboardType="numeric"
               style={styles.textInputStyle}
               value={this.state.hourstext}
@@ -776,7 +784,7 @@ class PeriodicEditScreen extends Component {
             ) : null}
           </View>
 
-          <View style={styles.textHeader}>
+          <View style={[styles.textHeader, { marginTop: this.state.hourstext == "" ? 0 : '6%', marginBottom: '1.2%' }]}>
             <Text style={styles.listText}>Default Remarks :</Text>
             <SwitchToggle
               toggleSwitch1={this.toggleSwitch1}
@@ -787,31 +795,34 @@ class PeriodicEditScreen extends Component {
           {/* //------------------------------------Modified_For_Commericial_Use--------- lock------// */}
           {this.props?.route?.params?.RouteParam != "Edit" ? (
             <View>
-              <View style={styles.sec1}>
-                {this.state.remarktext != "" ? (
-                  <Text style={styles.completedTextStyle}>
+              <View style={[styles.remark, { marginTop: this.state.ClientName == "" ? -10 : 0, marginBottom: this.state.ClientName == "" ? 0 : '2%' }]}>
+                {this.state.ClientName != "" ? (
+                  <Text style={[styles.completedTextStyle1, { marginLeft: '0.5%' }]}>
                     {strings.ClientName}
                   </Text>
                 ) : null}
                 <TextInput
                   placeholder={strings.ClientName}
-                  style={styles.textInputStyle}
+                  placeholderTextColor="#000"
+                  style={[styles.textInputStyle, { height: this.state.ClientName == "" ? 65 : 50}]}
                   value={this.state.ClientName}
+                  numberOfLines={4}
+                  multiline={true}
                   onChangeText={(text) => {
                     this.setState({ ClientName: text });
                   }}
                 />
               </View>
-
-              <View style={styles.remark}>
-                {this.state.remarktext != "" ? (
-                  <Text style={styles.completedTextStyle}>
+              <View style={[styles.remark, { marginTop: this.state.TypeofWorkConducted == "" ? 0 : '2.5%', marginBottom: this.state.TypeofWorkConducted == "" ? 0 : '2%' }]}>
+                {this.state.TypeofWorkConducted != "" ? (
+                  <Text style={[styles.completedTextStyle1, { marginLeft: '0.5%' }]}>
                     {strings.TypeofWorkConducted}
                   </Text>
                 ) : null}
                 <TextInput
                   placeholder={strings.TypeofWorkConducted}
-                  style={styles.textInputStyle}
+                  placeholderTextColor="#000"
+                  style={[styles.textInputStyle, { height: this.state.TypeofWorkConducted == "" ? 65 : 50}]}
                   value={this.state.TypeofWorkConducted}
                   numberOfLines={4}
                   multiline={true}
@@ -820,15 +831,16 @@ class PeriodicEditScreen extends Component {
                   }}
                 />
               </View>
-              <View style={styles.remark}>
-                {this.state.remarktext != "" ? (
-                  <Text style={styles.completedTextStyle}>
+              <View style={[styles.remark, { marginTop: this.state.AnyOpportunities == "" ? 0 : '2.5%', marginBottom: this.state.AnyOpportunities == "" ? 0 : '2%' }]}>
+                {this.state.AnyOpportunities != "" ? (
+                  <Text style={[styles.completedTextStyle1, { marginLeft: '0.5%' }]}>
                     {strings.AnyOpportunities}
                   </Text>
                 ) : null}
                 <TextInput
                   placeholder={strings.AnyOpportunities}
-                  style={styles.textInputStyle}
+                  placeholderTextColor="#000"
+                  style={[styles.textInputStyle, { height: this.state.AnyOpportunities == "" ? 65 : 50}]}
                   value={this.state.AnyOpportunities}
                   numberOfLines={4}
                   multiline={true}
@@ -837,15 +849,16 @@ class PeriodicEditScreen extends Component {
                   }}
                 />
               </View>
-              <View style={styles.remark}>
-                {this.state.remarktext != "" ? (
-                  <Text style={styles.completedTextStyle}>
+              <View style={[styles.remark, { marginTop: this.state.IssueFaced == "" ? 0 : '2.5%', marginBottom: this.state.IssueFaced == "" ? 0 : '2%' }]}>
+                {this.state.IssueFaced != "" ? (
+                  <Text style={[styles.completedTextStyle1, { marginLeft: '0.5%' }]}>
                     {strings.IssueFaced}
                   </Text>
                 ) : null}
                 <TextInput
                   placeholder={strings.IssueFaced}
-                  style={styles.textInputStyle}
+                  placeholderTextColor="#000"
+                  style={[styles.textInputStyle, { height: this.state.IssueFaced == "" ? 65 : 50}]}
                   value={this.state.IssueFaced}
                   numberOfLines={4}
                   multiline={true}
@@ -858,11 +871,11 @@ class PeriodicEditScreen extends Component {
           ) : null}
           {/* //------------------------------------Modified_For_Commericial_Use-------- lock-------// */}
 
-          <View style={styles.remark}>
-            {this.state.remarktext != "" ? (
+          <View style={[styles.remark, { marginTop: this.state.remarktext == "" ? 0 : '2.5%', marginBottom: this.state.remarktext == "" ? 0 : '2%' }]}>
+                {this.state.remarktext != "" ? (
               <View>
                 <View style={{ flexDirection: "row" }}>
-                  <Text style={styles.completedTextStyle}>
+                  <Text style={[styles.completedTextStyle1, { marginLeft: '0.5%' }]}>
                     {strings.Remarks}
                   </Text>
                   <Text style={{ color: "red" }}>*</Text>
@@ -881,12 +894,19 @@ class PeriodicEditScreen extends Component {
             ) : null}
             <TextInput
               placeholder={strings.Remarks}
-              style={styles.textInputStyle}
+              placeholderTextColor="#000"
+              style={[styles.textInputStyle1, { height: this.state.remarktext === "" ? 65 : this.state.inputHeight }]}
               value={this.state.remarktext}
               numberOfLines={4}
               multiline={true}
               onChangeText={(text) => {
                 this.setState({ remarktext: text });
+              }}
+              onContentSizeChange={(event) => {
+                const newHeight = event.nativeEvent.contentSize.height;
+                this.setState({
+                  inputHeight: Math.max(65, newHeight + 12), 
+                });
               }}
             />
             {this.state.remarktext == "" ? (
@@ -901,6 +921,7 @@ class PeriodicEditScreen extends Component {
             ) : // this.setState({ remarktext: "." })
             null}
           </View>
+          <View style={{ height: 50 }} />
         </ScrollView>
         <Modal
           isVisible={this.state.isstartDateVisible}

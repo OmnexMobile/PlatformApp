@@ -196,6 +196,11 @@ export default StyleSheet.create({
     color: "black",
     fontWeight: "bold",
   },
+  completedTextStyle1: {
+    fontSize: Fonts.size.regular,
+    color: "black",
+    fontWeight: "bold",
+  },
   startDateTextStyle: {
     fontSize: Fonts.size.medium,
     padding: 2,
@@ -215,6 +220,14 @@ export default StyleSheet.create({
   textInputStyle: {
     borderBottomWidth: 0.5,
     fontSize: Fonts.size.regular,
+    color: "black",
+  },
+  textInputStyle1: {
+    borderBottomWidth: 0.5,
+    fontSize: Fonts.size.regular,
+    color: "black",
+    textAlignVertical: 'top',
+    minHeight: 65,
   },
 
   sectionTop: {
