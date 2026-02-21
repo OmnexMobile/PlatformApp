@@ -3,6 +3,13 @@ import { width } from 'react-native-dimension'
 import Fonts from '../Themes/Fonts'
 
 let Window = Dimensions.get('window')
+const screenWidth = Dimensions.get('window').width
+const screenHeight = Dimensions.get('window').height
+const isTablet = Math.min(screenWidth, screenHeight) >= 768
+const circleSize = isTablet
+  ? Math.min(screenWidth, screenHeight) * 0.05
+  : Math.min(screenWidth, screenHeight) * 0.08
+const circleFontSize = circleSize * 0.28
 
 export default StyleSheet.create({
   statCard1:{
@@ -338,7 +345,123 @@ export default StyleSheet.create({
     elevation:5,
     justifyContent:'center',
     padding:10
-    }
+    },
+  auditPageBodyNoPadding: {
+    padding: 0,
+  },
+  scrollContent: {
+    flexGrow: 1,
+  },
+  listWrapper: {
+    marginTop: 10,
+  },
+  titleWrapper: {
+    width: '100%',
+    height: 50,
+    justifyContent: 'center',
+  },
+  parentTitleText: {
+    color: 'white',
+    fontFamily: 'OpenSans-Bold',
+    fontSize: Fonts.size.mediump,
+  },
+  childSpacer: {
+    width: '5%',
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  itemIconWrapper: {
+    width: '10%',
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  itemRow: {
+    flex: 1,
+    flexDirection: 'row',
+  },
+  statusSpacer: {
+    flex: 0.1,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  itemTextWrapper: {
+    flex: 5,
+    flexDirection: 'row',
+  },
+  itemText: {
+    color: '#00bec1',
+    fontSize: Fonts.size.small,
+    fontFamily: 'OpenSans-Regular',
+  },
+  emptyOverlay: {
+    paddingVertical: 20,
+    borderTopWidth: 1,
+    backgroundColor: 'white',
+    opacity: 0.5,
+    width: Window.width,
+    height: Window.height,
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'absolute',
+  },
+  emptyText: {
+    fontFamily: 'OpenSans-Regular',
+  },
+  loaderWrapper: {
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%',
+    height: '100%',
+  },
+  loaderText: {
+    fontSize: Fonts.size.regular,
+    fontFamily: 'OpenSans-Regular',
+  },
+  globalHeaderTransparent: {
+    backgroundColor: 'transparent',
+  },
+  statusContainer: {
+    flex: 0.8,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'flex-end',
+  },
+  statusBadge: {
+    width: 30,
+    height: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'row',
+    marginLeft: 5,
+  },
+  statusBadgeInner: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  statusCircle: {
+    width: circleSize,
+    height: circleSize,
+    borderRadius: circleSize,
+    backgroundColor: 'white',
+    borderWidth: 1,
+    borderColor: '#00bec1',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 2,
+  },
+  statusCircleText: {
+    fontSize: circleFontSize,
+    fontWeight: 'bold',
+  },
 
 
 

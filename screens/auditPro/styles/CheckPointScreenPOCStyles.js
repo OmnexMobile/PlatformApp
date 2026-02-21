@@ -170,6 +170,9 @@ export default StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
   },
+  backBtnDisabled: {
+    backgroundColor: 'lightgrey',
+  },
   nextBtn: {
     flex: 0.5,
                 backgroundColor: '#00BAC8',
@@ -177,6 +180,14 @@ export default StyleSheet.create({
                 paddingVertical: 12,
                 borderRadius: 10,
                 alignItems: 'center',
+  },
+  backBtnText: {
+    fontSize: 16,
+    color: 'white',
+    fontFamily: 'OpenSans-Regular',
+  },
+  buttonDisabledText: {
+    color: 'grey',
   },
   quesText: {
     fontSize: Fonts.size.mediump,
@@ -208,6 +219,10 @@ export default StyleSheet.create({
     backgroundColor: '#00BFFF',
     borderRadius: 20,
     bottom: 0,
+  },
+  ncofiLabel: {
+    color: 'white',
+    fontFamily: 'OpenSans-Regular',
   },
   boxsecImageDisplay: {
     width: '50%',
@@ -519,6 +534,466 @@ export default StyleSheet.create({
     fontSize: Fonts.size.h5,
     paddingTop: 40,
     color: 'grey',
+    fontFamily: 'OpenSans-Regular',
+  },
+
+  // Attachments
+  attachmentFailedCard: {
+    flexDirection: 'row',
+    borderColor: 'darkgrey',
+    paddingVertical: 10,
+    margin: 2,
+    borderWidth: 1,
+    borderRadius: 5,
+  },
+  row: {
+    flexDirection: 'row',
+  },
+  attachmentFilenameWrap: {
+    width: width(65),
+    marginTop: 5,
+    alignContent: 'center',
+    alignItems: 'center',
+    alignSelf: 'center',
+  },
+  attachmentCard: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 10,
+    margin: 2,
+    borderColor: 'darkgrey',
+    borderWidth: 1,
+    height: '90%',
+    borderRadius: 5,
+  },
+  attachmentInnerPadding: {
+    paddingVertical: 10,
+    margin: 2,
+  },
+  attachmentImage: {
+    width: width(65),
+    height: 200,
+    resizeMode: 'cover',
+    marginRight: 15,
+  },
+  hiddenView: {
+    display: 'none',
+  },
+  attachmentDocCard: {
+    flexDirection: 'row',
+    borderColor: 'darkgrey',
+    borderWidth: 1,
+    borderRadius: 5,
+    height: '90%',
+    paddingVertical: 10,
+    margin: 2,
+  },
+
+  // Loader
+  loaderContainer: {
+    backgroundColor: 'white',
+    width: '100%',
+    height: 100,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  // Download icon
+  downloadIndicator: {
+    paddingTop: 70,
+    height: 200,
+    zIndex: 1,
+    flex: 1,
+    justifyContent: 'center',
+    alignSelf: 'center',
+  },
+  downloadFileNameWrap: {
+    width: width(65),
+    marginTop: 5,
+    alignContent: 'center',
+    alignItems: 'center',
+    alignSelf: 'center',
+  },
+  downloadOverlayIcon: {
+    position: 'absolute',
+    paddingTop: 85,
+    zIndex: 1,
+    flex: 1,
+    justifyContent: 'center',
+    alignSelf: 'center',
+  },
+  attachmentIconLarge: {
+    paddingTop: 70,
+    height: 200,
+    flex: 1,
+    justifyContent: 'center',
+    alignSelf: 'center',
+  },
+  attachmentFailedLabel: {
+    zIndex: 1,
+    position: 'absolute',
+    paddingTop: 135,
+    flex: 1,
+    color: 'red',
+    justifyContent: 'center',
+    alignSelf: 'center',
+  },
+  paperclipIcon: {
+    bottom: 2,
+  },
+  attachmentStarIcon: {
+    bottom: 20,
+    right: 10,
+  },
+  sliderColumn: {
+    flexDirection: 'column',
+  },
+  sliderControl: {
+    width: '80%',
+  },
+  sliderThumbStyle: {
+    elevation: 5,
+    backgroundColor: 'white',
+    borderColor: 'black',
+    borderWidth: 0.5,
+  },
+  sliderValueRow: {
+    padding: 6,
+    bottom: 12,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '80%',
+  },
+  sliderValueText: {
+    fontFamily: 'OpenSans-Regular',
+  },
+  sliderValueRowAlt: {
+    padding: 5,
+    bottom: 15,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '80%',
+  },
+  scoreLabelText: {
+    color: 'black',
+  },
+  circleIconWrapper: {
+    marginHorizontal: 5,
+  },
+  dropdownLabel: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  dropdownTextStyle: {
+    numberOfLines: 2,
+  },
+  scoreTypesContainer: {
+    padding: 15,
+    flexDirection: 'column',
+  },
+  scoreTypesHidden: {
+    padding: 15,
+    flexDirection: 'column',
+    backgroundColor: 'lightgrey',
+    width: '80%',
+    borderRadius: 10,
+    display: 'none',
+  },
+  scoreLabel: {
+    padding: 0,
+    margin: 0,
+    color: '#A6A6A6',
+    width: '90%',
+    fontSize: Fonts.size.medium,
+    fontFamily: 'OpenSans-Regular',
+  },
+  scoreLabelInvalid: {
+    color: 'red',
+  },
+  scoreMaxText: {
+    fontSize: Fonts.size.regular,
+    fontFamily: 'OpenSans-Regular',
+  },
+  scoreSmallLabel: {
+    padding: 0,
+    margin: 0,
+    color: '#A6A6A6',
+    width: '90%',
+    fontSize: Fonts.size.small,
+    fontFamily: 'OpenSans-Regular',
+  },
+  fullWidth: {
+    width: '100%',
+  },
+  rowCenter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  dropdownOffset: {
+    top: 10,
+    left: 0,
+  },
+  dropdownItemText: {
+    fontFamily: 'OpenSans-Regular',
+  },
+  immediateDeleteButton: {
+    marginLeft: 10,
+    marginTop: 5,
+    padding: 5,
+  },
+  dropdownAngleIcon: {
+    marginLeft: 6,
+    marginTop: 5,
+  },
+  bottomSpacer: {
+    width: '100%',
+    height: 400,
+  },
+  remarkStarIcon: {
+    right: 10,
+    top: 10,
+  },
+  sectionSpacer: {
+    marginTop: 5,
+  },
+  dropdownContainer: {
+    paddingTop: 5,
+  },
+
+  // Attachment loading
+  attachmentLoadingRow: {
+    flexDirection: 'row',
+    paddingBottom: 10,
+  },
+  hourglassIcon: {
+    padding: 5,
+  },
+  attachmentLoadingText: {
+    color: '#A6A6A6',
+    fontFamily: 'OpenSans-Regular',
+    alignSelf: 'flex-start',
+    padding: 5,
+  },
+
+  // Content loader
+  contentLoaderContainer: {
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%',
+    height: '100%',
+  },
+  contentLoaderTitle: {
+    fontSize: Fonts.size.regular,
+    fontFamily: 'OpenSans-Regular',
+  },
+  contentLoaderSubtitle: {
+    fontSize: Fonts.size.small,
+    fontFamily: 'OpenSans-Regular',
+  },
+
+  // Action buttons
+  actionBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    paddingHorizontal: 5,
+    paddingVertical: 5,
+  },
+  resetButton: {
+    flex: 0.45,
+    backgroundColor: '#00BAC8',
+    marginHorizontal: 2,
+    paddingVertical: 12,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  saveButton: {
+    flex: 0.45,
+    backgroundColor: '#00BAC8',
+    marginHorizontal: 2,
+    paddingVertical: 12,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  saveButtonDisabled: {
+    opacity: 0.7,
+  },
+  actionButtonText: {
+    textAlign: 'center',
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#fff',
+  },
+
+  listMarginTop: {
+    marginTop: 55,
+  },
+
+  // Modal heading
+  centerAlignedRow: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalHeadingText: {
+    color: 'black',
+    fontSize: Fonts.size.regular,
+    fontFamily: 'OpenSans-Regular',
+  },
+
+  // Transparent close buttons
+  transparentCloseButton: {
+    backgroundColor: 'transparent',
+    height: 60,
+    width: 80,
+  },
+  transparentCloseInner: {
+    backgroundColor: 'transparent',
+    top: 18,
+  },
+  closeIconOffset: {
+    left: 8,
+  },
+
+  // Video modal
+  videoContainer: {
+    backgroundColor: 'black',
+    flex: 1,
+  },
+  videoInner: {
+    height: '80%',
+  },
+  videoPlayer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+
+  // Toast
+  toastContainer: {
+    backgroundColor: 'black',
+    margin: 20,
+  },
+  toastText: {
+    color: 'white',
+  },
+
+  // Generic helpers
+  flexOne: {
+    flex: 1,
+  },
+  iconOffsetTop: {
+    marginTop: 10,
+  },
+
+  // Stats
+  statLabel: {
+    fontSize: 14,
+    fontFamily: 'OpenSans-Regular',
+  },
+  statValue: {
+    fontSize: Fonts.size.h5,
+    fontFamily: 'OpenSans-Regular',
+  },
+
+  // Checkpoint list
+  checkpointListWrapper: {
+    flex: 1,
+    height: '100%',
+    marginTop: 5,
+    bottom: 5,
+  },
+  leftBtnLabelWrapper: {
+    width: '90%',
+  },
+  checkpointSerialText: {
+    fontSize: 16,
+    textAlign: 'center',
+    fontFamily: 'OpenSans-Regular',
+  },
+  checkpointSerialTextActive: {
+    color: 'white',
+  },
+  checkpointSerialTextInactive: {
+    color: 'black',
+  },
+  requirementIconCol: {
+    width: '10%',
+    marginRight: 5,
+  },
+  requirementIconWrapper: {
+    bottom: 15,
+  },
+  requirementIconWrapperSmall: {
+    bottom: 5,
+  },
+  requirementIconWrapperIos: {
+    marginLeft: 2,
+  },
+
+  carouselWrapper: {
+    flex: 4,
+    height: '100%',
+    marginBottom: 10,
+  },
+  checkpointScroll: {
+    flex: 1,
+    marginBottom: 20,
+  },
+
+  checkpointHeaderRow: {
+    flexDirection: 'row',
+    width: '90%',
+  },
+  checkpointHeaderCol: {
+    width: '100%',
+  },
+  checkpointTitleRow: {
+    flexDirection: 'row',
+  },
+  targetIconWrapper: {
+    marginLeft: 5,
+  },
+  vetoIconWrapper: {
+    justifyContent: 'flex-start',
+    marginLeft: 10,
+    marginTop: 5,
+  },
+  statusSpacer: {
+    alignItems: 'flex-end',
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    height: 5,
+    width: '100%',
+    marginLeft: 40,
+  },
+
+  scoreRow: {
+    flexDirection: 'row',
+    width: '15%',
+  },
+  scoreLabel: {
+    padding: 0,
+    margin: 0,
+    color: '#A6A6A6',
+    width: '90%',
+    fontSize: Fonts.size.medium,
+    fontFamily: 'OpenSans-Regular',
+  },
+  scoreValue: {
+    paddingLeft: 10,
+    fontFamily: 'OpenSans-Regular',
+  },
+  attachmentLabel: {
+    paddingBottom: 10,
+    margin: 0,
+    color: '#A6A6A6',
+    width: '90%',
+    fontSize: Fonts.size.medium,
     fontFamily: 'OpenSans-Regular',
   },
 });

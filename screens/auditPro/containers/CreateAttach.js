@@ -6,9 +6,6 @@ import {
     TouchableOpacity,
     Dimensions,
     ScrollView,
-    FlatList,
-    ImageBackground,
-    Button,
     Platform,
     KeyboardAvoidingView,
     ActivityIndicator,
@@ -16,12 +13,10 @@ import {
 } from 'react-native';
 import { Images } from '../Themes/index';
 import styles from '../styles/CreateAttachStyle';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { width } from 'react-native-dimension';
 import Moment from 'moment';
 import { connect } from 'react-redux';
 import Toast, { DURATION } from 'react-native-easy-toast';
-import { Bubbles, DoubleBounce, Bars, Pulse } from 'react-native-loader';
 import auth from '../../../services/Auditpro-Auth';
 import DocumentPicker from 'react-native-document-picker';
 import RNFetchBlob from 'react-native-fetch-blob';
@@ -134,10 +129,8 @@ class CreateAttach extends React.Component {
             this.setState(
                 {
                     breadCrumbText: this.props?.route?.params?.breadCrumb,
-                    // breadCrumbText: this.props?.route?.params.breadCrumb.length > 30 ? this.props?.route?.params.breadCrumb.slice(0, 30) + '...' : this.props?.route?.params.breadCrumb,
                     EditFlag: true,
                     AuditID: this.props?.route?.params?.AuditID,
-                    // isControllAttach: this.props?.route?.params.EditDetails.Type == 'Controlled' ? true : false,\
                     isControllAttach: false,
                     type: this.props?.route?.params?.Type,
                     attachText: this.props?.route?.params?.Type,
@@ -447,15 +440,11 @@ class CreateAttach extends React.Component {
         );
     }
     async checkUser() {
-        // console.log('user id', this.props.data.audits.userId);
         console.log('user id', this.state.currentUserData?.userId);
-        // var userid = this.props.data.audits.userId;
         var userid = this.state.currentUserData?.userId;
-        // var token = this.props.data.audits.token;
         var token = this.state.currentUserData?.accessToken;
         var UserStatus = '';
         var serverUrl = this.props.data.audits.serverUrl;
-        // var ID = this.props.data.audits.userId;
         var ID = this.state.currentUserData?.userId;
         var type = 3;
         var path = '';
@@ -466,7 +455,6 @@ class CreateAttach extends React.Component {
         var RegisterDevice = this.props?.data?.audits?.deviceid;
         console.log(userid, token, deviceId, RegisterDevice);
 
-        // auth.getCheckUser(userid,RegisterDevice,token, (res, data) => {
         auth.getCheckUser(userid, deviceId, token, (res, data) => {
             // auth.getCheckUser(userid, token, (res, data) => {
             console.log('User information', data);
@@ -479,10 +467,6 @@ class CreateAttach extends React.Component {
                 } else {
                     NetInfo.fetch().then(netState => {
                         if (netState.isConnected) {
-                            // this.props.navigation.navigate('AuditPage', {
-                            //   datapass: iAuditDetails,
-                            //   auditStatusPass: this.props.item.cStatus,
-                            // });
                         } else {
                             this.toast.show(strings.No_Internet, DURATION.LENGTH_LONG);
                         }
@@ -506,8 +490,6 @@ class CreateAttach extends React.Component {
                     if (Platform.OS == 'android') {
                         path =
                             '/data/user/0/com.omnex.auditpro/cache/AuditUser' +
-                            // '/data/user/0/com.Omnex.IntegratedApp/cache/AuditUser' +
-                            //  //data/user/0/com.reactnativeboilerplatev70/files/AuditFiles/CapturedImage_1710838397.jpg
                             '/' +
                             this.propsServerUrl +
                             ID;
@@ -523,7 +505,6 @@ class CreateAttach extends React.Component {
                 } else if (UserStatus == 0) {
                     Alert.alert('Your session has expired,Please login again.');
                     this.toast.show(strings.user_inactive_text, DURATION.LENGTH_SHORT);
-                    // this.props.navigation.navigate('LoginUIScreen');
                     this.props.navigation.navigate(ROUTES.GLOBAL_LOGIN);
                 }
             }
@@ -665,7 +646,6 @@ class CreateAttach extends React.Component {
                                 AttachmentType: this.state.attachText === 'Attachment' ? 'Controlled' : this.state.attachText,
                                 File:
                                     this.state.attachText === 'Attachment' &&
-                                    // this.props.navigation.state.params.Type == 'Add'
                                     this.props?.route?.params?.Type == 'Add'
                                         ? this.state.fileData == undefined
                                             ? ''
@@ -673,7 +653,6 @@ class CreateAttach extends React.Component {
                                         : '',
                                 Filename:
                                     this.state.attachText === 'Attachment' &&
-                                    // this.props.navigation.state.params.Type == 'Add'
                                     this.props?.route?.params?.Type == 'Add'
                                         ? this.state.attachment.toLowerCase()
                                         : '',
@@ -691,8 +670,6 @@ class CreateAttach extends React.Component {
                                 UploadedOn: this.state.Uploadedon,
                                 VersionNo: 6,
                                 AttachmentType: this.state.attachText === 'Attachment' ? 'Controlled' : this.state.attachText,
-                                //   File: this.state.attachText === 'Controlled' ? (this.state.fileData == undefined) ? '' : this.state.fileData  : null,
-                                //   Filename : this.state.attachText === 'Controlled' ? this.state.attachment.toLowerCase() : null,
                                 Id: this.state.AttachID,
                             });
                             console.log('Paramnnnnnn-->', param);
@@ -744,8 +721,6 @@ class CreateAttach extends React.Component {
                     alignItems: 'center',
                     paddingVertical: 10,
                     margin: 2,
-                    //borderColor: '#2a4944',
-                    //borderWidth: 1,
                     height: '90%',
                 }}>
                 <View>
@@ -885,24 +860,15 @@ class CreateAttach extends React.Component {
 
         // Dynamic fields
         var AuditID = this.state.AuditID;
-        // var token = this.props.data.audits.token;
         var token = this.state.currentUserData?.accessToken;
         var fext = this._extension;
-
         console.log('fext fext', fext);
-        // var getExt = fext.split('/');
-
-        // var ext = getExt[1]
         var regexExt = /(?:\.([^.]+))?$/;
-        // var ext = fext;
-        // var siteId = this.props.data.audits.siteId;
-        // var UserId = this.props.data.audits.userId;
+      
         var siteId = this.state.currentUserData?.siteId;
         var UserId = this.state.currentUserData?.userId;
         var auditRecords = this.props.data.audits.auditRecords;
-        // var dname = this._filename;
         var dname = this.state.attachment;
-        // var filename = this._filename;
         var filename = this.state.attachment;
         var obj = this.documentID;
         var siteid = 'sit' + siteId;
@@ -910,15 +876,7 @@ class CreateAttach extends React.Component {
         var effectivedate = this.state.Uploadedon;
         var revdate = this.state.Uploadedon;
         var deviceId = await DeviceInfo.getUniqueId();
-        // var filecontent =
-        //   this.state.attachText === 'Controlled'
-        //     ? this.state.fileData == undefined
-        //       ? ''
-        //       : this.state.fileData
-        //     : null;
         var filecontent = this.state.fileData;
-        // var ext = ext;
-        // var ext = this.state.attachedFileExt;
         var ext = regexExt.exec(this.state.attachment)[1];
         console.log(ext, 'fileextensioncheck');
         for (var i = 0; i < auditRecords.length; i++) {
@@ -994,7 +952,6 @@ class CreateAttach extends React.Component {
                     },
                     () => {
                         this.deleteAttachments();
-                        // this.toast.show(strings.AttachUpload, DURATION.LENGTH_LONG)
                         this.props.navigation.navigate(ROUTES.AUDIT_ATTACH, {
                             AuditID: this.state.AuditID,
                             isDeleted: 2,
@@ -1014,7 +971,6 @@ class CreateAttach extends React.Component {
         this.setState({ dialogVisible: false }, () => {
             console.log('dialog offf');
         });
-        // var Token = this.props.data.audits.token;
         var Token = this.state.currentUserData?.accessToken;
         auth.deleteAttach(this.state.AttachID, Token, (res, data) => {
             console.log('data', data);
@@ -1059,7 +1015,6 @@ class CreateAttach extends React.Component {
                     });
                     console.log(this.state.fileData, 'helloyes');
                     console.log('this.state:', this.state);
-                    //console.log(fileData,"filedata")
                 }
             }
         } catch (err) {
@@ -1070,14 +1025,7 @@ class CreateAttach extends React.Component {
     openAttachmentFile = path => {
         console.log(path, 'Attachment:path');
         if (path == null || typeof path == 'undefined' || path == '') return;
-        // const fpath = FileViewer.open('file:/' + path) // absolute-path-to-my-local-file.
-        //   .then(() => {
-        //     console.log('Attachmentfile opened');
-        //   })
-        //   .catch(err => {
-        //     console.log('Attachmentfile opened error', err);
-        //   });
-
+    
         FileViewer.open(path, { showOpenWithDialog: true })
             .then(() => {
                 // success
@@ -1118,12 +1066,7 @@ class CreateAttach extends React.Component {
                 ) : (
                     <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }} />
                 )}
-                {/* <ImageBackground
-          source={Images.DashboardBG}
-          style={{
-            resizeMode: 'stretch',
-            width: '100%',
-          }}> */}
+             
                 <GlobalHeader
                     title={this.state.EditFlag === false ? strings.HeadingTitle : strings.EditAttach}
                     subtitle={this.state.breadCrumbText}
@@ -1140,13 +1083,7 @@ class CreateAttach extends React.Component {
                     }
                     onRightPress={() => this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)}
                     containerStyle={{ backgroundColor: 'transparent', paddingVertical: 12 }}
-                    // titleStyle={{color: '#fff'}}
-                    // subtitleStyle={{color: '#fff', fontSize: 15}}
-                    // leftIconColor="#fff"
-                    // rightIconColor="#fff"
                 />
-                {/* </ImageBackground> */}
-
                 <AttachmentSelectionModal
                     visible={this.state.AttachModal}
                     title={strings.Make_your_selection}
@@ -1235,9 +1172,6 @@ class CreateAttach extends React.Component {
                                                       this.toast.show(strings.NavErr, DURATION.LENGTH_SHORT);
                                                   }
                                                 : () => {
-                                                      // iPhone/Android
-                                                      // this.handleDocumentSelection();
-                                                      // this.props.navigation.state.params.Type == 'Add' &&
                                                       this.props?.route?.params?.Type == 'Add' &&
                                                           this.setState({ AttachModal: true }, () => {
                                                               console.log('opoened');
@@ -1269,16 +1203,6 @@ class CreateAttach extends React.Component {
                                                     numberOfLines={1}>
                                                     {this.state.attachment}
                                                 </Text>
-                                                {/* {this.state.isErrorFound && this.state.attachment == '' ? (
-                                                    <Text
-                                                        style={{
-                                                            color: 'red',
-                                                            fontSize: Fonts.size.small,
-                                                            fontFamily: 'OpenSans-Regular',
-                                                        }}>
-                                                        {strings.AttachMissing}
-                                                    </Text>
-                                                ) : null} */}
                                             </View>
                                         ) : this.state.fileloaded ? (
                                             <View
@@ -1299,24 +1223,12 @@ class CreateAttach extends React.Component {
 
                                                 {this.renderItem()}
 
-                                                {/* {this.state.isErrorFound && this.state.attachment == '' ? (
-                                                    <Text
-                                                        style={{
-                                                            color: 'red',
-                                                            bottom: 10,
-                                                            fontSize: Fonts.size.small,
-                                                            fontFamily: 'OpenSans-Regular',
-                                                        }}>
-                                                        {strings.AttachMissing}
-                                                    </Text>
-                                                ) : null} */}
                                             </View>
                                         ) : (
                                             this.renderAttachmentLoading()
                                         )}
 
                                         {this.props?.route?.params?.Type == 'Add' && (
-                                            // this.props.navigation.state.params.Type == 'Add' && (
                                             <View style={styles.check}>
                                                 <ResponsiveImage
                                                     initWidth="24"
@@ -1398,8 +1310,6 @@ class CreateAttach extends React.Component {
                                     {this.state.comments != '' || this.state.comments == '' ? (
                                         //Add Comment
                                         <View style={styles.boxCard}>
-                                            {/* <Text style={styles.detailTitle}>{strings.AttachComments}</Text> */}
-
                                             <View style={styles.check1}>
                                                 <Icon style={{ top: 8, right: 15, bottom: 0 }} name="edit" size={20} color="lightgrey" />
                                             </View>

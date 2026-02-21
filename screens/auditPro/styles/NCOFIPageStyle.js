@@ -1,69 +1,72 @@
-import { StyleSheet, Dimensions } from 'react-native';
+import { StyleSheet, Dimensions, Platform } from 'react-native';
 import Fonts from '../Themes/Fonts';
 import { width, height } from 'react-native-dimension';
+import { SPACING } from 'constants/theme-constants';
 
 let Window = Dimensions.get('window');
+const loaderMarginTop = Window.height / 2 - 200;
+const attachmentHeight = loaderMarginTop + 100;
 
 export default StyleSheet.create({
-    // Header styles
-    header: {
-        width: '100%',
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        //alignContent:'center',
-        height: 65,
-        elevation: 4,
-        shadowOffset: { width: 2, height: 10 },
-        shadowColor: 'lightgrey',
-        shadowOpacity: 0.5,
-        shadowRadius: 4,
-    },
-    header1: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignContent: 'center',
-    },
-    heading: {
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        width: '60%',
-        height: 65,
-    },
-    headingText: {
-        fontSize: Fonts.size.mediump,
-        color: '#000000',
-        textAlign: 'center',
-        fontFamily: 'OpenSans-Bold',
-    },
-    backlogo: {
-        flexDirection: 'row',
-        backgroundColor: 'transparent',
-        width: '35%',
-        height: 65,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    headerDiv: {
-        width: '15%',
-        height: 65,
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    rightHeader: {
-        flexDirection: 'row',
-        justifyContent: 'flex-end',
-        alignItems: 'center',
-        right: 10,
-        height: 80,
-    },
-    backgroundImage: {
-        resizeMode: 'stretch',
-        width: width(30),
-        height: 80,
-        zIndex: 0,
-    },
+    // // Header styles
+    // header: {
+    //     width: '100%',
+    //     flexDirection: 'row',
+    //     justifyContent: 'space-between',
+    //     //alignContent:'center',
+    //     height: 65,
+    //     elevation: 4,
+    //     shadowOffset: { width: 2, height: 10 },
+    //     shadowColor: 'lightgrey',
+    //     shadowOpacity: 0.5,
+    //     shadowRadius: 4,
+    // },
+    // header1: {
+    //     flexDirection: 'row',
+    //     justifyContent: 'space-between',
+    //     alignContent: 'center',
+    // },
+    // heading: {
+    //     flexDirection: 'column',
+    //     justifyContent: 'center',
+    //     alignItems: 'center',
+    //     width: '60%',
+    //     height: 65,
+    // },
+    // headingText: {
+    //     fontSize: Fonts.size.mediump,
+    //     color: '#000000',
+    //     textAlign: 'center',
+    //     fontFamily: 'OpenSans-Bold',
+    // },
+    // backlogo: {
+    //     flexDirection: 'row',
+    //     backgroundColor: 'transparent',
+    //     width: '35%',
+    //     height: 65,
+    //     justifyContent: 'center',
+    //     alignItems: 'center',
+    // },
+    // headerDiv: {
+    //     width: '15%',
+    //     height: 65,
+    //     flexDirection: 'row',
+    //     justifyContent: 'center',
+    //     alignItems: 'center',
+    // },
+    // rightHeader: {
+    //     flexDirection: 'row',
+    //     justifyContent: 'flex-end',
+    //     alignItems: 'center',
+    //     right: 10,
+    //     height: 80,
+    // },
+    // backgroundImage: {
+    //     resizeMode: 'stretch',
+    //     width: width(30),
+    //     height: 80,
+    //     zIndex: 0,
+    // },
 
     // Footer styles
     footer: {
@@ -385,38 +388,14 @@ export default StyleSheet.create({
         backgroundColor: 'transparent',
         right: 0,
     },
-    /* footer:{
-    //flex:1,
-    position : 'absolute',
-    bottom:0,
-    flexDirection:'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    width:width(100),
-    backgroundColor:'transparent',
-    height: 65
-  },
-  footerDiv:{
-    //flex:1,
-    flexDirection:'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    width:width(100),
-    height:65,
-    //top:height(1),
-    position:'absolute',
-    // resizeMode:'cover',
-
-  }, */
+ 
     ncModal: {
         justifyContent: 'center',
         alignItems: 'center',
-        //  width: width(90),
         height: 500,
         backgroundColor: 'white',
         borderRadius: 10,
         flexDirection: 'column',
-        // margin: 10,
         padding: 10,
     },
     ModalBox: {
@@ -596,5 +575,349 @@ export default StyleSheet.create({
         height: '100%',
         justifyContent: 'center',
         alignItems: 'center',
+    },
+
+    // Spacers
+    topSpacerIos: {
+        padding: SPACING.MEDIUM,
+        flexDirection: 'row',
+    },
+    topSpacerAndroid: {
+        padding: SPACING.NORMAL,
+        flexDirection: 'row',
+    },
+
+    // Layout helpers
+    auditPageBodyPadded: {
+        paddingTop: 10,
+    },
+    listMarginTop: {
+        marginTop: 55,
+    },
+    row: {
+        flexDirection: 'row',
+    },
+    deleteIconContainer: {
+        flex: 1,
+        flexDirection: 'row',
+        alignSelf: 'flex-end',
+    },
+    emptyStateWrapper: {
+        marginTop: '20%',
+    },
+    emptyStateRow: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+    },
+    emptyStateImage: {
+        height: 50,
+        resizeMode: 'contain',
+    },
+    flexOne: {
+        flex: 1,
+    },
+
+    // Attachments
+    attachmentList: {
+        marginTop: 10,
+    },
+    loadingRow: {
+        flexDirection: 'row',
+        paddingBottom: 10,
+    },
+    hourglassIcon: {
+        padding: 5,
+    },
+    loadingText: {
+        color: '#A6A6A6',
+        fontFamily: 'OpenSans-Regular',
+        alignSelf: 'flex-start',
+        padding: 5,
+    },
+    attachmentItem: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingVertical: 10,
+        margin: 2,
+        borderColor: '#2a4944',
+        borderWidth: 1,
+        height: '90%',
+    },
+    columnFlex: {
+        flexDirection: 'column',
+    },
+    attachmentFilenameWrapper: {
+        width: width(65),
+        marginTop: 1,
+        alignContent: 'center',
+        alignItems: 'center',
+        alignSelf: 'center',
+    },
+    attachmentImage: {
+        width: width(65),
+        height: 200,
+        resizeMode: 'cover',
+        alignSelf: 'center',
+    },
+    attachmentIcon: {
+        paddingTop: 70,
+        height: 200,
+        flex: 1,
+        justifyContent: 'center',
+        alignSelf: 'center',
+    },
+    syncFileIcon: {
+        padding: 6,
+        justifyContent: 'center',
+        alignSelf: 'center',
+    },
+    uploadStatusHeader: {
+        paddingBottom: 10,
+        fontWeight: 'bold',
+        alignItems: 'center',
+        alignSelf: 'center',
+    },
+    uploadItemRow: {
+        flex: 1,
+        flexDirection: 'row',
+        borderBottomWidth: 1,
+        minHeight: 40,
+        maxHeight: 60,
+        borderBottomColor: 'lightgrey',
+    },
+    uploadIconWrapper: {
+        justifyContent: 'center',
+        width: '5%',
+    },
+    uploadFileNameWrapper: {
+        width: '85%',
+        justifyContent: 'center',
+    },
+    uploadFileName: {
+        justifyContent: 'center',
+        flexShrink: 1,
+        paddingLeft: 2,
+        color: 'black',
+    },
+    uploadFileNameMissing: {
+        color: 'red',
+    },
+    uploadStatusWrapper: {
+        width: '10%',
+        height: 30,
+        justifyContent: 'center',
+        alignItems: 'center',
+        alignSelf: 'center',
+    },
+    retryWrapper: {
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    retryText: {
+        fontSize: 10,
+        color: 'red',
+    },
+    boxHeaderMarginTop: {
+        marginTop: 5,
+    },
+
+    // Loader / sync
+    loaderContainer: {
+        alignItems: 'center',
+        marginTop: loaderMarginTop,
+    },
+    loaderText: {
+        textAlign: 'center',
+        fontFamily: 'OpenSans-Regular',
+    },
+    attachmentStatusContainer: {
+        alignItems: 'center',
+        paddingTop: 20,
+        height: attachmentHeight,
+    },
+    proceedWrapper: {
+        borderColor: '#CED0CE',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    proceedButton: {
+        alignItems: 'center',
+    },
+    proceedText: {
+        color: '#00b3d6',
+        fontSize: Fonts.size.medium,
+        marginTop: 2,
+        fontFamily: 'OpenSans-Regular',
+    },
+    activityWrapper: {
+        paddingVertical: 20,
+        borderTopWidth: 1,
+        borderColor: '#CED0CE',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+
+    // Missing attachment modal
+    missingTitle: {
+        fontSize: 22,
+        color: '#2EA4E2',
+        fontFamily: 'OpenSans-Regular',
+    },
+    missingLabel: {
+        fontFamily: 'OpenSans-Regular',
+    },
+    missingNCNumber: {
+        fontSize: 15,
+        color: '#37057E',
+        fontFamily: 'OpenSans-Regular',
+    },
+    missingNCText: {
+        fontSize: 15,
+        color: '#070F6E',
+        fontFamily: 'OpenSans-Regular',
+    },
+    goBackText: {
+        fontSize: 20,
+        color: 'red',
+        fontFamily: 'OpenSans-Regular',
+    },
+    skipText: {
+        fontSize: 20,
+        color: 'green',
+        fontFamily: 'OpenSans-Regular',
+    },
+
+    // Detail modal
+    modalHeaderContent: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 10,
+    },
+    modalTitle: {
+        color: 'black',
+        fontSize: 23,
+        fontFamily: 'OpenSans-Regular',
+    },
+    detailTopSpacing: {
+        marginTop: 10,
+    },
+    loadingCard: {
+        width: '100%',
+        height: 200,
+        justifyContent: 'center',
+        alignContent: 'center',
+    },
+    loadingCardInner: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        flexDirection: 'column',
+    },
+    loadingCardText: {
+        fontFamily: 'OpenSans-Regular',
+    },
+    errorCard: {
+        width: '100%',
+        top: 90,
+        height: 200,
+        justifyContent: 'center',
+        alignContent: 'center',
+    },
+    closeButtonWrapper: {
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    closeButtonText: {
+        fontSize: Fonts.size.regular,
+        color: '#00a1e2',
+        top: 20,
+        fontFamily: 'OpenSans-Regular',
+    },
+
+    // Confirm password modal
+    confirmModal: {
+        width: '100%',
+        height: 350,
+        backgroundColor: 'white',
+        borderRadius: 15,
+        padding: 10,
+    },
+    confirmTitle: {
+        textAlign: 'center',
+        fontSize: 20,
+        color: '#2EA4E2',
+        fontFamily: 'OpenSans-Bold',
+    },
+    closeIcon: {
+        alignSelf: 'flex-end',
+    },
+    centeredFlex: {
+        flex: 1,
+    },
+    centeredFlexRow: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    inputLabel: {
+        fontSize: 16,
+        color: 'grey',
+        fontFamily: 'OpenSans-Regular',
+    },
+    textInputBase: {
+        fontSize: 20,
+        fontFamily: 'OpenSans-Bold',
+        borderBottomColor: 'lightgrey',
+        borderBottomWidth: 0.7,
+    },
+    textInputReadonly: {
+        color: 'lightgrey',
+    },
+    textInputEditable: {
+        color: 'black',
+    },
+    inputError: {
+        fontSize: 16,
+        color: 'red',
+        fontFamily: 'OpenSans-Regular',
+    },
+    confirmButtonContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    confirmButton: {
+        width: null,
+        height: 50,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#2EA4E2',
+        borderRadius: 30,
+        padding: 10,
+    },
+    confirmButtonText: {
+        fontFamily: 'OpenSans-Bold',
+        fontSize: 20,
+        color: 'white',
+    },
+    confirmDialogTitle: {
+        fontFamily: 'OpenSans-SemiBold',
+    },
+    confirmDialogMessage: {
+        fontFamily: 'OpenSans-Regular',
+    },
+
+    // Tabs
+    tabUnderline: {
+        backgroundColor: '#2CB5FD',
+        borderBottomColor: '#2CB5FD',
+        height: Platform.select({
+            android: 0,
+            ios: 5,
+        }),
+    },
+    tabText: {
+        fontSize: Fonts.size.h5,
+        fontFamily: 'OpenSans-Regular',
     },
 });

@@ -24,11 +24,9 @@ import auth from '../../../services/Auditpro-Auth';
 import Toast, { DURATION } from 'react-native-easy-toast';
 import { Bubbles, DoubleBounce, Bars, Pulse } from 'react-native-loader';
 import Moment from 'moment';
-import { width, height } from 'react-native-dimension';
 import OfflineNotice from '../components/OfflineNotice';
 import ResponsiveImage from 'react-native-responsive-image';
 import { ConfirmDialog } from 'react-native-simple-dialogs';
-import Fonts from '../Themes/Fonts';
 import Icon from 'react-native-vector-icons/Feather';
 import { strings } from '../language/Language';
 import { debounce, once } from 'underscore';
@@ -41,15 +39,10 @@ import CryptoJS from 'crypto-js';
 import FileViewer from 'react-native-file-viewer';
 import { ROUTES } from 'constants/app-constant';
 import AsyncStorage from '@react-native-community/async-storage';
-import { SPACING } from 'constants/theme-constants';
 import GlobalHeader from 'components/GlobalHeader';
 var RNFS = require('react-native-fs');
 
 let Window = Dimensions.get('window');
-// const getFileFormat = filename => {
-//   const parts = filename.split('.');
-//   return parts[parts.length - 1].toLowerCase();
-// };
 
 const fileFormatToIcon = {
     txt: 'file-text-o',
@@ -171,12 +164,10 @@ class NCOFIPage extends Component {
         console.log('NCOFI mounted', this.props?.route?.params);
         this.setState(
             {
-                // dropdownprops:this?.props?.route?.params?.DropDownVal,
                 CreateNCpass: this?.props?.route?.params?.CreateNCdataBundle,
                 AUDIT_ID: this?.props?.route?.params?.CreateNCdataBundle?.AuditID,
                 SITEID: this?.props?.route?.params?.CreateNCdataBundle?.SiteID,
                 breadCrumbText: this?.props?.route?.params?.CreateNCdataBundle?.breadCrumb,
-                // breadCrumbText: this?.props?.route?.params?.CreateNCdataBundle.breadCrumb.length > 30 ? this?.props?.route?.params?.CreateNCdataBundle.breadCrumb.slice(0, 30) + '...' : this?.props?.route?.params?.CreateNCdataBundle.breadCrumb,
                 NCdetails: this.props.data.audits?.ncofiRecords,
                 AuditOrder: this?.props?.route?.params?.CreateNCdataBundle?.AuditOrder,
                 RouteParam: this?.props?.route?.params?.RouteValue,
@@ -212,10 +203,6 @@ class NCOFIPage extends Component {
     }
 
     componentWillReceiveProps() {
-        // var getCurrentPage = [];
-        // getCurrentPage = this.props.data.nav.routes;
-        // var CurrentPage = getCurrentPage[getCurrentPage.length - 1].routeName;
-        // console.log('--CurrentPage--->', CurrentPage);
         var CurrentPage = this.props.route.name;
         console.log('--CurrentPage--->', CurrentPage);
         if (CurrentPage == 'NC_OFI_PAGE') {
@@ -420,9 +407,7 @@ class NCOFIPage extends Component {
     };
 
     fetchNCdetails() {
-        // var token = this.props.data.audits.token;
         var token = this.state.currentUserData?.accessToken;
-        // var Data = this.props.data.audits.audits
         var Data = this.props.data.audits.auditRecords;
         console.log('forming sds:fetchnc', token, this.state.AUDIT_ID, Data);
 
@@ -440,21 +425,11 @@ class NCOFIPage extends Component {
 
         auth.getAllNCDetails(CorrectiveId, CorrectiveOrder, token, (res, data) => {
             console.log('incoming:fetchnc', res, data);
-            // if (!res.ok) {
-            //   throw new Error('Something went wrong!');
-            // }
-
             if (data?.data) {
                 console.log('entering:fetchnc', data.data);
                 if (data?.data?.Message === 'Success') {
                     console.log('response:fetchnc', data.data.Message);
                     console.log('all nc details:fetchnc', data);
-                    // console.log(
-                    //   'data?.data?.Data?.NcDetails:fetchnc',
-                    //   data?.data?.Data?.FailureCategory[0]?.FailureCategoryName,
-                    //   data?.data?.Data?.NcDetails[0],
-                    // );
-                    // console.log("attachment:fetchnc",data?.data?.Data?.NCAttachment[0].Attachment,data?.data?.Data?.RequestedBy[0].RequestedBy)
                     console.log(':fetchnc', data.data.Message);
                     console.log(':fetchncsss reach1', data?.data?.Data?.ResponseDate?.length, data?.data?.Data?.NcDetails?.length);
                     if (data?.data?.Data?.ResponseDate && data?.data?.Data?.NcDetails) {
@@ -523,8 +498,6 @@ class NCOFIPage extends Component {
                         );
 
                         this.WriteAttachments(fileData);
-                        // console.log("filepath",filepath)
-                        // console.log('ncdetails:nc text reah set', NCtext)
                         this.setState(
                             {
                                 UploadDate: UploadDate,
@@ -565,9 +538,6 @@ class NCOFIPage extends Component {
                         );
                     }
                 } else {
-                    /* this.setState({ miniLoading : true },() =>{
-            console.log('cant reach server',this.state.miniLoading)
-          }) */
                     this.toast.show(strings.Audit_NCOFI_Failed, DURATION.LENGTH_LONG);
                 }
             } else {
@@ -615,7 +585,6 @@ class NCOFIPage extends Component {
                 auditDetailsList: this.props?.route?.params?.auditDetailsList,
                 CheckpointRoute: 'NC',
                 AuditID: this?.props?.route?.params?.CreateNCdataBundle?.AuditID,
-                // AuditID: this.state.AUDIT_ID,
                 NCOFIDetails: this.state.CreateNCpass,
                 templateId: 0,
                 type: 'ADD',
@@ -691,7 +660,6 @@ class NCOFIPage extends Component {
     checkUser = async () => {
         console.log('user id', this.props.data.audits.userId);
         var userid = this.state.currentUserData?.userId;
-        // var token = this.props.data.audits.token;
         var token = this.state.currentUserData?.accessToken;
         var UserStatus = '';
         var serverUrl = this.props.data.audits.serverUrl;
@@ -703,7 +671,6 @@ class NCOFIPage extends Component {
         var RegisterDevice = this.props.data.audits.deviceid;
         console.log(userid, token, deviceId, RegisterDevice);
 
-        // auth.getCheckUser(userid,RegisterDevice,token, (res, data) => {
         auth.getCheckUser(userid, deviceId, token, (res, data) => {
             console.log('User information', data);
             if (data.data.Message == 'Success') {
@@ -722,7 +689,6 @@ class NCOFIPage extends Component {
                     this.propsServerUrl = formatURL;
 
                     console.log('cleanURL', this.propsServerUrl);
-                    // var ID = this.props.data.audits.userId
                     console.log('path', this.propsServerUrl + ID);
 
                     if (Platform.OS == 'android') {
@@ -733,17 +699,12 @@ class NCOFIPage extends Component {
                         path = iOSpath + '/' + this.propsServerUrl + ID;
                     }
                     console.log('*** path', path);
-                    // this.deleteUserFile(path)
                     this.refs.toast.show(strings.user_disabled_text, DURATION.LENGTH_SHORT);
-                    // this.props.navigation.navigate('LoginUIScreen');
-                    // this.props.navigation.navigate(ROUTES.AUDIT_PAGE);
                     this.props.navigation.navigate(ROUTES.GLOBAL_LOGIN);
                 } else if (UserStatus == 0) {
                     Alert.alert('Your session has expired,Please login again.');
 
                     this.refs.toast.show(strings.user_inactive_text, DURATION.LENGTH_SHORT);
-                    // this.props.navigation.navigate(ROUTES.AUDIT_PAGE);
-                    // this.props.navigation.navigate('LoginUIScreen');
                     this.props.navigation.navigate(ROUTES.GLOBAL_LOGIN);
                 }
             }
@@ -919,7 +880,6 @@ class NCOFIPage extends Component {
                             console.log('Processing...', this.state.dialogVisible);
                         });
                         console.log('one:getting local unsaved data', this.props.data.audits.ncofiRecords);
-                        // var token = this.props.data.audits.token;
                         var token = this.state.currentUserData?.accessToken;
                         var formRequest = [];
                         var dataArr = this.props.data.audits.ncofiRecords;
@@ -929,10 +889,8 @@ class NCOFIPage extends Component {
                                     if (dataArr?.[i]?.Pending?.[j]?.ChecklistTemplateId == 0) {
                                         if (dataArr?.[i]?.Pending?.[j]?.Category == 'NC') {
                                             const finalFileName = [...dataArr?.[i]?.Pending?.[j]?.filename].join(', ');
-                                            // // dataArr?.[i]?.Pending?.[j]?.filename.concat(); // Concatenate the array
                                             const finalFileData = [...dataArr?.[i]?.Pending?.[j]?.filedata.map(item => item.fileData)].join(', ');
                                             console.log(finalFileName, '----one:concatenatedData1');
-                                            // , dataArr?.[i]?.Pending?.[j]?.filename, dataArr?.[i]?.Pending?.[j]?.filename[0])
                                             console.log(finalFileData, dataArr?.[i]?.Pending?.[j]?.filedata, '----one:concatenatedData2');
                                             console.log('one:into NC targeted arr', [i], dataArr[i].Pending[j]);
                                             let reqBy = dataArr?.[i]?.Pending?.[j]?.requestDrop;
@@ -987,7 +945,6 @@ class NCOFIPage extends Component {
                                                         : dataArr?.[i]?.Pending?.[j]?.documentRef,
                                                 Conformance: this?.props?.route?.params?.CreateNCdataBundle?.Conformance,
                                                 ProcessID: this?.props?.route?.params?.CreateNCdataBundle?.ProcessID,
-                                                // AttachEvidence:dataArr?.[i]?.Pending?.[j]?.filedata,
                                             });
                                         } else if (dataArr?.[i]?.Pending?.[j]?.Category == 'OFI') {
                                             const finalFileName = [...dataArr?.[i]?.Pending?.[j]?.filename].join(', ');
@@ -1044,7 +1001,6 @@ class NCOFIPage extends Component {
                                                         : dataArr?.[i]?.Pending?.[j]?.documentRef,
                                                 Conformance: this?.props?.route?.params?.CreateNCdataBundle?.Conformance,
                                                 ProcessID: this?.props?.route?.params?.CreateNCdataBundle?.ProcessID,
-                                                // AttachEvidence:dataArr?.[i]?.Pending?.[j]?.filedata,
                                             });
                                             console.log(formRequest, 'one:formrqstarrayone');
                                         }
@@ -1084,13 +1040,8 @@ class NCOFIPage extends Component {
             console.log('one:syncNCToServer data', data);
             if (data.data) {
                 if (data.data.Message === 'Success') {
-                    // this.setState({ isLoaderVisible: false }, function () {
-                    //this.refs.toast.show(strings.NCSuccess, DURATION.LENGTH_LONG);
                     var responseData = data.data.Data;
                     this.checkFindingAttachment(responseData);
-                    //this.AfterSyncdone();
-                    // this.upLoadList()
-                    // })
                 } else {
                     this.setState({ isLoaderVisible: false, syncMode: 0, syncStatusLabel: '' }, function () {
                         this.refs.toast.show(strings.NCFAiled, DURATION.LENGTH_LONG);
@@ -1106,7 +1057,6 @@ class NCOFIPage extends Component {
 
     async checkFindingAttachment(responseData) {
         try {
-            // var token = this.props.data.audits.token;
             var token = this.state.currentUserData?.accessToken;
             var AUDIT_ID = this.state.AUDIT_ID;
             var ncofiRecords = this.props.data.audits.ncofiRecords;
@@ -1164,9 +1114,6 @@ class NCOFIPage extends Component {
             this.setState({
                 filepathArray: fileArray,
             });
-
-            // this.attatchedFindings = attatchedFindings
-            // var formRequestObj = []
             var today = new Date();
             var dd = String(today.getDate()).padStart(2, '0');
             var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
@@ -1177,10 +1124,7 @@ class NCOFIPage extends Component {
             //dynamic value
 
             var AuditID = this.state.AUDIT_ID;
-            //   var token = this.props.data.audits.token;
             var token = this.state.currentUserData?.accessToken;
-            // var siteId = this.props.data.audits.siteId;
-            // var UserId = this.props.data.audits.userId;
             var siteId = this.state.currentUserData?.siteId;
             var UserId = this.state.currentUserData?.userId;
             var auditRecords = this.props.data.audits.auditRecords;
@@ -1212,7 +1156,6 @@ class NCOFIPage extends Component {
             var chgs_reqd = '';
             var spublic = 0;
             var ModEmailConFig = 0;
-            // var token = this.props.data.audits.token;
             var token = this.state.currentUserData?.accessToken;
             let allattachments = [];
             if (attatchedFindings) {
@@ -1223,7 +1166,6 @@ class NCOFIPage extends Component {
                             for (var k = 0; k < attatchedFindings[i].filedata.length; k++) {
                                 console.log('one:==-->attachfindings.filename', attatchedFindings[i].filedata[k]);
                                 let fileContents = '';
-                                // for (let l = 0;l < attatchedFindings[i]?.filedata?.length;l++) {
                                 try {
                                     const filePath = 'file:/' + attatchedFindings[i]?.filedata[k].fileData;
                                     fileContents = await RNFS.readFile(filePath, 'base64');
@@ -1235,21 +1177,12 @@ class NCOFIPage extends Component {
                                 }
                                 //}
                                 loopCount++;
-
-                                //console.log('Base64-encoded files:', base64Array);
-
                                 console.log('one:==-->', attatchedFindings[i]);
 
                                 let combinedString = attatchedFindings[i].filename;
                                 const getdname = combinedString.join(',');
                                 console.log('#####################filename', attatchedFindings[i].filedata[k]);
                                 console.log('#####################filedata', attatchedFindings[i]?.filedata[k].fileData);
-                                // console.log('#####################base64Array', base64Array[i]);
-                                // console.log(
-                                //   '#####################base64Array12333',
-                                //   base64Array[k],
-                                // );
-
                                 let getfilename = attatchedFindings[i].filename;
 
                                 const extensions = getfilename.map(fileName => {
@@ -1275,7 +1208,6 @@ class NCOFIPage extends Component {
 
                                 let getobj = resData[j].DocProParameter;
                                 let getSitId = resData[j].SiteLevelId;
-                                //var filecontent = base64Array[k] ? base64Array[k] : '';
                                 var formobj = '';
                                 var dname = attatchedFindings[i].filename[k];
                                 var filename = attatchedFindings[i].filename[k];
@@ -1333,7 +1265,6 @@ class NCOFIPage extends Component {
                                 this.setState({
                                     lengthCheck: this.formRequestObj,
                                 });
-                                // });
                             }
                             console.log(
                                 'one:formobj===>length',
@@ -1343,12 +1274,6 @@ class NCOFIPage extends Component {
                                 attatchedFindings[i].filename.length,
                             );
                             console.log('one:formobj===>arraylength check---------', this.formRequestObj.length, loopCount);
-
-                            //  if (this.formRequestObj.length == loopCount) {
-                            //   console.log('one:formobj===>arr', arr);
-                            //   this.callDocProAPI(this.state.allParamsArr, token);
-
-                            //   }
                             this.setState({
                                 allParamsArr: arr,
                             });
@@ -1386,13 +1311,10 @@ class NCOFIPage extends Component {
                 syncStatusLabel:
                     this.state.FailedAttachments.length === 0 ? 'Sync to Server Completed.' : 'Sync to Server Completed with failed Attachment(s)',
                 syncMode: this.state.FailedAttachments.length === 0 ? 4 : 2,
-                //isLoaderVisible: false,
                 lengthCheck: [],
             },
             () => {
                 console.log('Document Successfully Sequence Completed');
-                //this.AfterSyncdone();
-                //this.refreshList();
             },
         );
     }
@@ -1405,41 +1327,6 @@ class NCOFIPage extends Component {
         const attachmentsArr = [];
         let failedAttachments = this.state.FailedAttachments;
         attachmentsArr.push(formRequestObj);
-
-        // if (index <= formRequestArrPush.length -1){
-        //   this.checkFileExist(formRequestObj.filepath).then((exist) => {
-        //     if (exist){
-        //       this.updateAttachmentStatus(true,index);
-        //       if (this.state.uploadIndex > formRequestArrPush.length -1) {
-        //         this.setSyncCompleted();
-        //       } else {
-        //         //failedAttachments.push(formRequestObj);
-        //         this.setState({
-        //           //FailedAttachments: failedAttachments,
-        //           uploadIndex : parseInt(this.state.uploadIndex)+1,
-        //           syncStatusLabel : "Syncing Attachment "  + (this.state.uploadIndex+1) + ' of ' + this.state.totalFiles,
-        //           //saveLoader: false
-        //         }, () => {
-        //           this.callDocProAPI(formRequestArrPush,token)
-        //         });
-        //       }
-        //     } else {
-        //       console.log('syncFilesToDocPro File Not Exist!');
-        //       this.updateAttachmentStatus(false,index,false);
-        //       failedAttachments.push(formRequestObj);
-        //       this.setState({
-        //         FailedAttachments: failedAttachments,
-        //         uploadIndex : parseInt(this.state.uploadIndex)+1
-        //       }, () => {
-        //         this.callDocProAPI(formRequestArrPush,token)
-        //       });
-        //     }
-        //   });
-        // }
-        // else {
-        //   this.setSyncCompleted()
-        // }
-        //   return;
 
         if (index <= formRequestArrPush.length - 1) {
             this.checkFileExist(formRequestObj.filepath).then(exist => {
@@ -1549,9 +1436,7 @@ class NCOFIPage extends Component {
         console.log('****', Data);
         console.log('AuditID', AuditID);
 
-        // var SiteID = this.props.data.audits.siteId;
         var SiteID = this.state.currentUserData?.siteId;
-        // var TOKEN = this.props.data.audits.token;
         var TOKEN = this.state.currentUserData?.accessToken;
 
         for (var i = 0; i < Data.length; i++) {
@@ -1633,8 +1518,6 @@ class NCOFIPage extends Component {
             });
         }
         this.props.storeNCRecords(dupNCrecords);
-        //  to get updated uploaded  and pending list
-        //this.refreshList();
     }
 
     upLoadList(list) {
@@ -1676,13 +1559,7 @@ class NCOFIPage extends Component {
             var sDateArr = inDate.split('T');
             var sDateValArr = sDateArr[0].split('-');
             var sTimeValArr = sDateArr[1].split(':');
-            var outDate = new Date(
-                sDateValArr[0],
-                sDateValArr[1] - 1,
-                sDateValArr[2],
-                // sTimeValArr[0],
-                // sTimeValArr[1],
-            );
+            var outDate = new Date(sDateValArr[0], sDateValArr[1] - 1, sDateValArr[2]);
 
             var test = Moment(outDate).format(DefaultFormatL);
             console.log('Moment', test);
@@ -1698,13 +1575,7 @@ class NCOFIPage extends Component {
             var sDateArr = inDate.split('T');
             var sDateValArr = sDateArr[0].split('-');
             var sTimeValArr = sDateArr[1].split(':');
-            var outDate = new Date(
-                sDateValArr[0],
-                sDateValArr[1] - 1,
-                sDateValArr[2],
-                // sTimeValArr[0],
-                // sTimeValArr[1],
-            );
+            var outDate = new Date(sDateValArr[0], sDateValArr[1] - 1, sDateValArr[2]);
 
             return Moment(outDate).format(DefaultFormatL);
         }
@@ -1738,8 +1609,6 @@ class NCOFIPage extends Component {
         if (this.props.data.audits.isOfflineMode) {
             this.refs.toast.show(strings.Offline_Notice, DURATION.LENGTH_LONG);
         } else {
-            // this.setState({dialogVisible: true});
-            // confirmpwd;
             this.setState({ confirmpwd: true });
         }
     }
@@ -1877,28 +1746,10 @@ class NCOFIPage extends Component {
                     source={{
                         uri: 'file:/' + filepath,
                     }}
-                    style={{
-                        width: width(65),
-                        height: 200,
-                        resizeMode: 'cover',
-                        alignSelf: 'center',
-                    }}
+                    style={styles.attachmentImage}
                 />
             ) : (
-                // <View style={{width: width(70), height: 200}}>
-                <Icon
-                    name={icon}
-                    style={{
-                        paddingTop: 70,
-                        height: 200,
-                        flex: 1,
-                        justifyContent: 'center',
-                        alignSelf: 'center',
-                    }}
-                    size={65}
-                    color="#000"
-                />
-                // </View>
+                <Icon name={icon} style={styles.attachmentIcon} size={65} color="#000" />
             );
         } catch (ex) {
             console.log('Error in getFile icon', ex);
@@ -2003,28 +1854,21 @@ class NCOFIPage extends Component {
     renderAttachment = () => {
         return this.state.isAttachmentPresent ? (
             <View style={styles.commoncard}>
-                <Text style={[styles.boxHeader, { marginTop: 5 }]}>{strings.Attach_EvidenceL}</Text>
+                <Text style={[styles.boxHeader, styles.boxHeaderMarginTop]}>{strings.Attach_EvidenceL}</Text>
                 {this.state.isAttachmentLoaded && this.state.AttachmentList.length > 0 ? (
-                    <View style={{ flex: 1 }}>
+                    <View style={styles.flexOne}>
                         <FlatList
                             data={this.state.AttachmentList}
                             renderItem={this.renderItem}
                             keyExtractor={(item, index) => index.toString()}
                             horizontal={true}
-                            style={{ marginTop: 10 }}
+                            style={styles.attachmentList}
                         />
                     </View>
                 ) : (
-                    <View style={{ flexDirection: 'row', paddingBottom: 10 }}>
-                        <Icon name="hourglass" size={15} color="#A6A6A6" style={{ padding: 5 }} />
-                        <Text
-                            numberOfLines={1}
-                            style={{
-                                color: '#A6A6A6',
-                                fontFamily: 'OpenSans-Regular',
-                                alignSelf: 'flex-start',
-                                padding: 5,
-                            }}>
+                    <View style={styles.loadingRow}>
+                        <Icon name="hourglass" size={15} color="#A6A6A6" style={styles.hourglassIcon} />
+                        <Text numberOfLines={1} style={styles.loadingText}>
                             Loading Attachments...
                         </Text>
                     </View>
@@ -2075,30 +1919,13 @@ class NCOFIPage extends Component {
         console.log('Attachment:Render Item', item);
         const filename = item.filename;
         return (
-            <View
-                style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    paddingVertical: 10,
-                    margin: 2,
-                    borderColor: '#2a4944',
-                    borderWidth: 1,
-                    height: '90%',
-                }}>
-                <View style={{ flexDirection: 'column' }}>
+            <View style={styles.attachmentItem}>
+                <View style={styles.columnFlex}>
                     <View>
                         {item.filepath !== '' && item.filepath !== 'error' && item.filepath !== null ? (
                             <TouchableOpacity onPress={this.openAttachmentFile.bind(this, item.filepath)}>
                                 {this.getFileIcon(item.filename, item.filepath)}
-                                <View
-                                    style={{
-                                        width: width(65),
-                                        marginTop: 1,
-                                        alignContent: 'center',
-                                        alignItems: 'center',
-                                        alignSelf: 'center',
-                                    }}>
+                                <View style={styles.attachmentFilenameWrapper}>
                                     <Text>{item.filename}</Text>
                                 </View>
                             </TouchableOpacity>
@@ -2166,7 +1993,7 @@ class NCOFIPage extends Component {
 
         return (
             <View>
-                <Icon name={icon} size={15} color="black" style={{ padding: 6, justifyContent: 'center', alignSelf: 'center' }} />
+                <Icon name={icon} size={15} color="black" style={styles.syncFileIcon} />
             </View>
         );
     }
@@ -2230,52 +2057,19 @@ class NCOFIPage extends Component {
         return (
             <FlatList
                 data={this.state.AuditAttachments}
-                ListHeaderComponent={() => (
-                    <Text
-                        style={{
-                            paddingBottom: 10,
-                            fontWeight: 'bold',
-                            alignItems: 'center',
-                            alignSelf: 'center',
-                        }}>
-                        Attachment Status
-                    </Text>
-                )}
+                ListHeaderComponent={() => <Text style={styles.uploadStatusHeader}>Attachment Status</Text>}
                 extraData={this.state}
                 renderItem={(
                     { item, index }, //times-circle //check-circle
                 ) => (
-                    <TouchableOpacity
-                        style={{
-                            flex: 1,
-                            flexDirection: 'row',
-                            borderBottomWidth: 1,
-                            minHeight: 40,
-                            maxHeight: 60,
-                            borderBottomColor: 'lightgrey',
-                        }}
-                        onPress={() => this.OpenFile(item.path)}>
-                        <View style={{ justifyContent: 'center', width: '5%' }}>{this.getSyncFileIcon(item)}</View>
-                        <View style={{ width: '85%', justifyContent: 'center' }}>
-                            <Text
-                                multiline={true}
-                                style={{
-                                    justifyContent: 'center',
-                                    flexShrink: 1,
-                                    paddingLeft: 2,
-                                    color: item.exist === false ? 'red' : 'black',
-                                }}>
+                    <TouchableOpacity style={styles.uploadItemRow} onPress={() => this.OpenFile(item.path)}>
+                        <View style={styles.uploadIconWrapper}>{this.getSyncFileIcon(item)}</View>
+                        <View style={styles.uploadFileNameWrapper}>
+                            <Text multiline={true} style={[styles.uploadFileName, item.exist === false && styles.uploadFileNameMissing]}>
                                 {item.filename}
                             </Text>
                         </View>
-                        <View
-                            style={{
-                                width: '10%',
-                                height: 30,
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                alignSelf: 'center',
-                            }}>
+                        <View style={styles.uploadStatusWrapper}>
                             {item.status === null ? (
                                 <Bars size={5} color="#1CB8CA" />
                             ) : item.status === true ? (
@@ -2290,9 +2084,9 @@ class NCOFIPage extends Component {
                                         onPress={() => {
                                             this.retryFailedAttachments(item);
                                         }}>
-                                        <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                                            <Icon name="refresh" title="Retry" size={15} />
-                                            <Text style={{ fontSize: 10, color: 'red' }}>{'Retry'}</Text>
+                                        <View style={styles.retryWrapper}>
+                                            <Icon name="refresh-cw" title="Retry" size={15} />
+                                            <Text style={styles.retryText}>{'Retry'}</Text>
                                         </View>
                                     </TouchableOpacity>
                                 )
@@ -2305,48 +2099,6 @@ class NCOFIPage extends Component {
             />
         );
     };
-
-    // renderFileUploadStatus = () => {
-    //   console.log("this.state.AuditAttachments", this.state.AuditAttachments);
-    //   return(
-    //     <FlatList
-    //     data={this.state.AuditAttachments}
-    //     ListHeaderComponent={()=><Text style={{paddingBottom:10, fontWeight:'bold',alignItems:'center', alignSelf:'center' }}>Attachment Status</Text>}
-    //     extraData={this.state}
-    //     renderItem={({item, index}) => (//times-circle //check-circle
-    //     <View style={{flex:1, width:'95%', alignItems:'center', alignSelf:'center'}}>
-    //     <TouchableOpacity onPress={() => this.OpenFile(item.path)}>
-    //     <View style={{ flexDirection: 'row', padding:5, borderBottomWidth :1, borderBottomColor: 'lightgrey'}}>
-    //       {this.getSyncFileIcon(item)}
-    //       <Text multiline={true} style={{width:'80%', paddingTop:5,}}>{item.filename}</Text>
-    //         <View
-    //           style={{
-    //             flex: 0.8,
-    //             flexDirection: 'row',
-    //             justifyContent: 'center',
-    //             alignItems: 'flex-end',
-    //           }}>
-    //         <View
-    //           style={{
-    //             width: 40,
-    //             height: 30,
-    //             justifyContent: 'center',
-    //             alignItems: 'center',
-    //           }}>{item.status === null ? <Bars size={5} color="#1CB8CA" /> :
-    //               item.status === true ? <View><Icon name="check-circle"  size={20} color="green"/></View> :
-    //               item.status === false ? <TouchableOpacity onPress={() => {this.retryFailedAttachments(item)}}>
-    //                 <View style={{justifyContent: 'center',
-    //             alignItems: 'center',}}><Icon name="refresh" title="Retry" size={15}/><Text style={{fontSize:10, color:"red"}}>{'Retry'}</Text></View></TouchableOpacity>  : <View></View>}
-    //               </View></View>
-    //     </View>
-    //     </TouchableOpacity>
-    //     </View>
-    //     )}
-    //     />
-
-    //   )
-    // }
-
     FailedAttachmentAlert = () => {
         Alert.alert(
             'Warning!',
@@ -2411,22 +2163,13 @@ class NCOFIPage extends Component {
             },
             () => {
                 console.log('Retry Attachment Removed', this.state.FailedAttachments);
-                //this.state.syncMode === 4 && this.reDirect()
             },
         );
     };
 
     render() {
         console.log('offf', this.props.data.audits.isOfflineMode);
-        const { height } = Dimensions.get('window');
-        const middle = height / 2 - 200;
-        const attachmentHeight = middle + 100;
-        console.log(
-            // this.getFileIcon(this.props.navigation.params),
-            'fileextension-------',
-        );
-        //console.log(filesArray2, 'fileextensionthis.state.FILEPATH----');
-        // console.log('router', this.props.navigation.state.params);
+        console.log('fileextension-------');
         console.log('this.state.NCdisplay1', this.state.NCUpload);
         console.log('ncdetailsconsole', this.state.NCdetails);
         console.log('ncdetails:date', this.state.UploadDate);
@@ -2443,11 +2186,7 @@ class NCOFIPage extends Component {
         const encodedBase64 = this.state.fileData;
         return (
             <View style={styles.wrapper}>
-                {Platform.OS === 'ios' ? (
-                    <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }} />
-                ) : (
-                    <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }} />
-                )}
+                {Platform.OS === 'ios' ? <View style={styles.topSpacerIos} /> : <View style={styles.topSpacerAndroid} />}
                 <OfflineNotice />
 
                 <GlobalHeader
@@ -2457,11 +2196,11 @@ class NCOFIPage extends Component {
                         this.state.syncMode === 0 && this.props.navigation.goBack();
                     }}
                     onRightPress={() => {
-                      this.CheckSync();
-                      this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)
+                        this.CheckSync();
+                        this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD);
                     }}
                 />
-                <View style={[styles.auditPageBody, { paddingTop: 10 }]}>
+                <View style={[styles.auditPageBody, styles.auditPageBodyPadded]}>
                     {this.state.isLoaderVisible === false ? (
                         <ScrollableTabView
                             renderTabBar={() => (
@@ -2469,34 +2208,19 @@ class NCOFIPage extends Component {
                                     backgroundColor="white"
                                     activeTextColor="#2CB5FD"
                                     inactiveTextColor="#747474"
-                                    underlineStyle={{
-                                        backgroundColor: '#2CB5FD',
-                                        borderBottomColor: '#2CB5FD',
-                                        height: Platform.select({
-                                            android: 0,
-                                            ios: 5,
-                                        }),
-                                    }}
-                                    textStyle={{
-                                        fontSize: Fonts.size.h5,
-                                        fontFamily: 'OpenSans-Regular',
-                                    }}
+                                    underlineStyle={styles.tabUnderline}
+                                    textStyle={styles.tabText}
                                 />
                             )}
                             tabBarPosition="overlayTop">
                             <ScrollView tabLabel={strings.Pending} style={styles.scrollViewBody}>
                                 {this.state.NCdisplay.length > 0 ? (
-                                    <View style={{ marginTop: 55 }}>
+                                    <View style={styles.listMarginTop}>
                                         {this.state.NCdisplay.map((item, key) => (
-                                            <View style={{ flexDirection: 'row' }}>
+                                            <View style={styles.row}>
                                                 <TouchableOpacity onPress={this.openEditBox.bind(this, item)} key={key} style={styles.cardBox}>
                                                     <View style={styles.sectionTop}>
-                                                        <View
-                                                            style={{
-                                                                flex: 1,
-                                                                flexDirection: 'row',
-                                                                alignSelf: 'flex-end',
-                                                            }}>
+                                                        <View style={styles.deleteIconContainer}>
                                                             <TouchableOpacity
                                                                 onPress={() => {
                                                                     this.setState(
@@ -2542,15 +2266,11 @@ class NCOFIPage extends Component {
                                         ))}
                                     </View>
                                 ) : (
-                                    <View style={{ marginTop: '20%' }}>
-                                        <View
-                                            style={{
-                                                flexDirection: 'row',
-                                                justifyContent: 'center',
-                                            }}>
-                                            <Image source={Images.emptybox} style={{ height: 50, resizeMode: 'contain' }} />
+                                    <View style={styles.emptyStateWrapper}>
+                                        <View style={styles.emptyStateRow}>
+                                            <Image source={Images.emptybox} style={styles.emptyStateImage} />
                                         </View>
-                                        <View style={{}}>
+                                        <View>
                                             <Text style={styles.norecordefound}>{strings.No_records_found}</Text>
                                         </View>
                                     </View>
@@ -2559,7 +2279,7 @@ class NCOFIPage extends Component {
 
                             <ScrollView tabLabel={strings.Uploaded} style={styles.scrollViewBody}>
                                 {this.state.NCUpload.length > 0 ? (
-                                    <View style={{ marginTop: 55 }}>
+                                    <View style={styles.listMarginTop}>
                                         {this.state.NCUpload.map((item, key) => (
                                             <TouchableOpacity onPress={this.getSectionListItem.bind(this, item)} key={key} style={styles.cardBox}>
                                                 <View style={styles.sectionTop}>
@@ -2591,7 +2311,7 @@ class NCOFIPage extends Component {
                                         ))}
                                     </View>
                                 ) : (
-                                    <View style={{ marginTop: 55 }}>
+                                    <View style={styles.listMarginTop}>
                                         <Text style={styles.norecordefound}>{strings.No_records_found}</Text>
                                     </View>
                                 )}
@@ -2599,7 +2319,7 @@ class NCOFIPage extends Component {
                         </ScrollableTabView>
                     ) : (
                         <View>
-                            <View style={{ alignItems: 'center', marginTop: middle }}>
+                            <View style={styles.loaderContainer}>
                                 {this.state.syncMode === 2 ? (
                                     <Icon name="times-circle" color="red" size={50} />
                                 ) : this.state.syncMode === 1 || this.state.syncMode === 3 || this.state.syncMode === 0 ? (
@@ -2607,7 +2327,7 @@ class NCOFIPage extends Component {
                                 ) : this.state.syncMode === 4 ? (
                                     <Icon name="check-circle" color="green" size={60} />
                                 ) : null}
-                                <Text style={{ textAlign: 'center', fontFamily: 'OpenSans-Regular' }}>
+                                <Text style={styles.loaderText}>
                                     {this.state.syncStatusLabel === ''
                                         ? this.state.syncMode === 0
                                             ? 'Loading data....'
@@ -2615,12 +2335,7 @@ class NCOFIPage extends Component {
                                         : this.state.syncStatusLabel}
                                 </Text>
                             </View>
-                            <View
-                                style={{
-                                    alignItems: 'center',
-                                    paddingTop: 20,
-                                    height: attachmentHeight,
-                                }}>
+                            <View style={styles.attachmentStatusContainer}>
                                 {this.state.AuditAttachments.length > 0 && this.state.syncMode > 0 && this.renderFileUploadStatus()}
                             </View>
                         </View>
@@ -2628,21 +2343,11 @@ class NCOFIPage extends Component {
                 </View>
 
                 <View style={styles.footer}>
-                    {/* <ImageBackground
-            source={Images.Footer}
-            style={{
-              resizeMode: 'stretch',
-              width: '100%',
-              height: 65,
-            }}> */}
-                    {/* <Image source={Images.Footer}/> */}
                     <View style={styles.footerDiv}>
                         <View style={styles.footerButtonsRow}>
                             <View style={styles.footerButtonWrapper}>
                                 {this.state.syncMode === 0 && (
-                                    <TouchableOpacity
-                                        onPress={once(this.onNavigaTo.bind(this, 1))}
-                                        style={styles.footerShadowButton}>
+                                    <TouchableOpacity onPress={once(this.onNavigaTo.bind(this, 1))} style={styles.footerShadowButton}>
                                         <Icon name={'upload-cloud'} size={20} color="#fff" />
                                         <Text style={styles.footerTextContent}>{strings.Create_NC}</Text>
                                     </TouchableOpacity>
@@ -2669,36 +2374,16 @@ class NCOFIPage extends Component {
                                 </View>
                             ) : this.state.syncMode === 2 || this.state.syncMode === 4 ? (
                                 <View style={styles.footerButtonWrapper}>
-                                    <View
-                                        style={{
-                                            borderColor: '#CED0CE',
-                                            justifyContent: 'center',
-                                            alignItems: 'center',
-                                        }}>
-                                        <TouchableOpacity style={{ alignItems: 'center' }} onPress={this.CheckSync.bind(this)}>
+                                    <View style={styles.proceedWrapper}>
+                                        <TouchableOpacity style={styles.proceedButton} onPress={this.CheckSync.bind(this)}>
                                             <Icon name="check-square" size={20} color="#00b3d6" />
-                                            <Text
-                                                style={{
-                                                    color: '#00b3d6',
-                                                    fontSize: Fonts.size.medium,
-                                                    marginTop: 2,
-                                                    fontFamily: 'OpenSans-Regular',
-                                                }}>
-                                                {'Proceed'}
-                                            </Text>
+                                            <Text style={styles.proceedText}>{'Proceed'}</Text>
                                         </TouchableOpacity>
                                     </View>
                                 </View>
                             ) : (
                                 <View style={styles.footerButtonWrapper}>
-                                    <View
-                                        style={{
-                                            paddingVertical: 20,
-                                            borderTopWidth: 1,
-                                            borderColor: '#CED0CE',
-                                            justifyContent: 'center',
-                                            alignItems: 'center',
-                                        }}>
+                                    <View style={styles.activityWrapper}>
                                         <ActivityIndicator size={20} color="#1CAFF6" />
                                     </View>
                                 </View>
@@ -2706,9 +2391,7 @@ class NCOFIPage extends Component {
                             {/* End Sync */}
                             <View style={styles.footerButtonWrapper}>
                                 {this.state.syncMode === 0 && (
-                                    <TouchableOpacity
-                                        onPress={once(this.onNavigaTo.bind(this, 2))}
-                                        style={styles.footerShadowButton}>
+                                    <TouchableOpacity onPress={once(this.onNavigaTo.bind(this, 2))} style={styles.footerShadowButton}>
                                         <Icon name={'upload-cloud'} size={20} color="#ffffff" />
                                         <Text style={styles.footerTextContent}>{strings.Create_OFI}</Text>
                                     </TouchableOpacity>
@@ -2716,7 +2399,6 @@ class NCOFIPage extends Component {
                             </View>
                         </View>
                     </View>
-                    {/* </ImageBackground> */}
                 </View>
 
                 <Toast ref="toast" position="top" opacity={0.8} />
@@ -2724,8 +2406,8 @@ class NCOFIPage extends Component {
                 <ConfirmDialog
                     title={strings.NC_title}
                     message={strings.NC_title_message}
-                    titleStyle={{ fontFamily: 'OpenSans-SemiBold' }}
-                    messageStyle={{ fontFamily: 'OpenSans-Regular' }}
+                    titleStyle={styles.confirmDialogTitle}
+                    messageStyle={styles.confirmDialogMessage}
                     visible={this.state.dialogVisible}
                     supportedOrientations={['portrait', 'portrait-upside-down', 'landscape', 'landscape-left', 'landscape-right']}
                     onTouchOutside={() => this.setState({ dialogVisible: false, syncMode: 0 })}
@@ -2736,8 +2418,6 @@ class NCOFIPage extends Component {
                                 this.CheckInternetConnectivityNCOFI();
                             });
                         },
-                        // onPress: () =>
-                        //   this.setState({confirmpwd: true, dialogVisible: false}),
                     }}
                     negativeButton={{
                         title: strings.no,
@@ -2747,10 +2427,9 @@ class NCOFIPage extends Component {
 
                 <ConfirmDialog
                     title={strings.ConfirmDelete}
-                    // message={strings.Confirm_delete_message}
                     visible={this.state.deleteDialogVisible}
-                    titleStyle={{ fontFamily: 'OpenSans-SemiBold' }}
-                    messageStyle={{ fontFamily: 'OpenSans-Regular' }}
+                    titleStyle={styles.confirmDialogTitle}
+                    messageStyle={styles.confirmDialogMessage}
                     onTouchOutside={() => this.setState({ deleteDialogVisible: false })}
                     supportedOrientations={['portrait', 'portrait-upside-down', 'landscape', 'landscape-left', 'landscape-right']}
                     positiveButton={{
@@ -2766,14 +2445,7 @@ class NCOFIPage extends Component {
                 <Modal isVisible={this.state.isMissingFindings} onBackdropPress={() => this.setState({ isMissingFindings: false })}>
                     <View style={styles.missingModal}>
                         <View style={styles.missingMContainer}>
-                            <Text
-                                style={{
-                                    fontSize: 22,
-                                    color: '#2EA4E2',
-                                    fontFamily: 'OpenSans-Regular',
-                                }}>
-                                {strings.Missingattachmentalert}
-                            </Text>
+                            <Text style={styles.missingTitle}>{strings.Missingattachmentalert}</Text>
                         </View>
 
                         {/* body */}
@@ -2787,25 +2459,12 @@ class NCOFIPage extends Component {
                                     <View key={i} style={styles.carddivMissing}>
                                         <View style={styles.cardContMissing}>
                                             <View style={styles.cardSecMissing}>
-                                                <Text style={{ fontFamily: 'OpenSans-Regular' }}>{strings.ncnumber}</Text>
-                                                <Text
-                                                    style={{
-                                                        fontSize: 15,
-                                                        color: '#37057E',
-                                                        fontFamily: 'OpenSans-Regular',
-                                                    }}>
-                                                    {'items.NCNumber'}
-                                                </Text>
+                                                <Text style={styles.missingLabel}>{strings.ncnumber}</Text>
+                                                <Text style={styles.missingNCNumber}>{'items.NCNumber'}</Text>
                                             </View>
                                             <View style={styles.cardsec2Missing}>
-                                                <Text style={{ fontFamily: 'OpenSans-Regular' }}>{strings.nonconfirmity}</Text>
-                                                <Text
-                                                    numberOfLines={1}
-                                                    style={{
-                                                        fontSize: 15,
-                                                        color: '#070F6E',
-                                                        fontFamily: 'OpenSans-Regular',
-                                                    }}>
+                                                <Text style={styles.missingLabel}>{strings.nonconfirmity}</Text>
+                                                <Text numberOfLines={1} style={styles.missingNCText}>
                                                     {items.NonConfirmity}
                                                 </Text>
                                             </View>
@@ -2824,14 +2483,7 @@ class NCOFIPage extends Component {
                                     })
                                 }
                                 style={styles.cardBtnDiv}>
-                                <Text
-                                    style={{
-                                        fontSize: 20,
-                                        color: 'red',
-                                        fontFamily: 'OpenSans-Regular',
-                                    }}>
-                                    {strings.goBack}
-                                </Text>
+                                <Text style={styles.goBackText}>{strings.goBack}</Text>
                             </TouchableOpacity>
                             <TouchableOpacity
                                 onPress={() =>
@@ -2840,14 +2492,7 @@ class NCOFIPage extends Component {
                                     })
                                 }
                                 style={styles.cardBtn2Div}>
-                                <Text
-                                    style={{
-                                        fontSize: 20,
-                                        color: 'green',
-                                        fontFamily: 'OpenSans-Regular',
-                                    }}>
-                                    {strings.skipandcontinue}
-                                </Text>
+                                <Text style={styles.skipText}>{strings.skipandcontinue}</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -2857,26 +2502,13 @@ class NCOFIPage extends Component {
                 <Modal isVisible={this.state.isVisible} onBackdropPress={() => this.setState({ isVisible: false })}>
                     <View style={styles.ncModal}>
                         <View style={styles.modalheader}>
-                            <View
-                                style={{
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    padding: 10,
-                                }}>
-                                <Text
-                                    style={{
-                                        color: 'black',
-                                        fontSize: 23,
-                                        fontFamily: 'OpenSans-Regular',
-                                    }}>
-                                    {/* {strings.NC_OFI_Detail} */}
-                                    {this.state.CheckNC === 0 ? 'NC Detail' : 'OFI Detail'}
-                                </Text>
+                            <View style={styles.modalHeaderContent}>
+                                <Text style={styles.modalTitle}>{this.state.CheckNC === 0 ? 'NC Detail' : 'OFI Detail'}</Text>
                             </View>
                         </View>
 
                         <ScrollView style={styles.scrollview}>
-                            <View style={{ marginTop: 10 }}>
+                            <View style={styles.detailTopSpacing}>
                                 <View style={styles.firstCard}>
                                     <Text style={styles.boxHeader}>{strings.ncnumber}</Text>
                                     <Text style={styles.boxContent}>{this.state.NCmodalheader}</Text>
@@ -2886,7 +2518,7 @@ class NCOFIPage extends Component {
                                         {this.state.loadingData === false ? (
                                             <View>
                                                 <View style={styles.commoncard}>
-                                                    <Text style={[styles.boxHeader, { marginTop: 5 }]}>{strings.Date_of_upload}</Text>
+                                                    <Text style={[styles.boxHeader, styles.boxHeaderMarginTop]}>{strings.Date_of_upload}</Text>
                                                     <Text style={styles.boxContent}>
                                                         {this.state.UploadDate
                                                             ? this.changeDateFormatCard(this.state.UploadDate) != ''
@@ -2897,102 +2529,70 @@ class NCOFIPage extends Component {
                                                 </View>
 
                                                 <View style={styles.commoncard}>
-                                                    <Text style={[styles.boxHeader, { marginTop: 5 }]}>
-                                                        {/* {strings.Non_confirmityL} */}
+                                                    <Text style={[styles.boxHeader, styles.boxHeaderMarginTop]}>
                                                         {this.state.CheckNC === 0 ? 'Non conformity' : 'OFI'}
                                                     </Text>
                                                     <Text style={styles.boxContent}>{this.state.NCtext}</Text>
                                                 </View>
                                                 <View style={styles.commoncard}>
-                                                    <Text style={[styles.boxHeader, { marginTop: 5 }]}>{strings.Objective_Evidence}</Text>
+                                                    <Text style={[styles.boxHeader, styles.boxHeaderMarginTop]}>{strings.Objective_Evidence}</Text>
                                                     <Text style={styles.boxContent}>
                                                         {this.state.objectiveEvidence === '' ? '-' : this.state.objectiveEvidence}
                                                     </Text>
                                                 </View>
 
                                                 <View style={styles.commoncard}>
-                                                    <Text style={[styles.boxHeader, { marginTop: 5 }]}>{strings.CategoryL}</Text>
+                                                    <Text style={[styles.boxHeader, styles.boxHeaderMarginTop]}>{strings.CategoryL}</Text>
                                                     <Text style={styles.boxContent}>{this.state.Category === '' ? '-' : this.state.Category}</Text>
                                                 </View>
 
                                                 <View style={styles.commoncard}>
-                                                    <Text style={[styles.boxHeader, { marginTop: 5 }]}>{strings.ResponsibilityL}</Text>
+                                                    <Text style={[styles.boxHeader, styles.boxHeaderMarginTop]}>{strings.ResponsibilityL}</Text>
                                                     <Text style={styles.boxContent}>
                                                         {this.state.Responsible === '' ? '-' : this.state.Responsible}
                                                     </Text>
                                                 </View>
 
                                                 <View style={styles.commoncard}>
-                                                    <Text style={[styles.boxHeader, { marginTop: 5 }]}>{strings.RequestedL}</Text>
+                                                    <Text style={[styles.boxHeader, styles.boxHeaderMarginTop]}>{strings.RequestedL}</Text>
                                                     <Text style={styles.boxContent}>{this.state.Request === '' ? '-' : this.state.Request}</Text>
                                                 </View>
 
                                                 <View style={styles.commoncard}>
-                                                    <Text style={[styles.boxHeader, { marginTop: 5 }]}>{strings.FailureCategory}</Text>
+                                                    <Text style={[styles.boxHeader, styles.boxHeaderMarginTop]}>{strings.FailureCategory}</Text>
                                                     <Text style={styles.boxContent}>{this.state.FailureCategory}</Text>
                                                 </View>
                                                 <View style={styles.commoncard}>
-                                                    <Text style={[styles.boxHeader, { marginTop: 5 }]}>{strings.ProcessL}</Text>
+                                                    <Text style={[styles.boxHeader, styles.boxHeaderMarginTop]}>{strings.ProcessL}</Text>
                                                     <Text style={styles.boxContent}>{this.state.Process}</Text>
                                                 </View>
                                                 <View style={styles.commoncard}>
-                                                    <Text style={[styles.boxHeader, { marginTop: 5 }]}>{strings.Document_reference}</Text>
+                                                    <Text style={[styles.boxHeader, styles.boxHeaderMarginTop]}>{strings.Document_reference}</Text>
                                                     <Text style={styles.boxContent}>{this.state.DocumentReference}</Text>
                                                 </View>
                                                 {this.renderAttachment()}
-
-                                                {/*
-                        <View style={styles.commoncard}>
-                          <Text style={[styles.boxHeader, { marginTop: 5 }]}>{strings.ResponseLD}</Text>
-                          <Text style={styles.boxContent}>{this.state.Response != "-"  && this.state.Response? this.changeDateFormat(this.state.Response) != '' ? this.changeDateFormat(this.state.Response) : '-' : '-'}</Text>
-                        </View>
-                    */}
-
                                                 <View style={styles.commoncard}>
-                                                    <Text style={[styles.boxHeader, { marginTop: 5 }]}>{strings.ClausesL}</Text>
+                                                    <Text style={[styles.boxHeader, styles.boxHeaderMarginTop]}>{strings.ClausesL}</Text>
                                                     <Text style={styles.boxContent}>{this.state.Clause}</Text>
                                                 </View>
 
                                                 <View style={styles.lastcard}>
-                                                    <Text style={[styles.boxHeader, { marginTop: 5 }]}>{strings.StandardRequirementsL}</Text>
+                                                    <Text style={[styles.boxHeader, styles.boxHeaderMarginTop]}>{strings.StandardRequirementsL}</Text>
                                                     <Text style={styles.boxContent}>{this.state.StandText === '' ? '-' : this.state.StandText}</Text>
                                                 </View>
                                             </View>
                                         ) : (
-                                            <View
-                                                style={{
-                                                    width: '100%',
-                                                    height: 200,
-                                                    justifyContent: 'center',
-                                                    alignContent: 'center',
-                                                }}>
-                                                <View
-                                                    style={{
-                                                        justifyContent: 'center',
-                                                        alignItems: 'center',
-                                                        flexDirection: 'column',
-                                                    }}>
+                                            <View style={styles.loadingCard}>
+                                                <View style={styles.loadingCardInner}>
                                                     <Icon name="hourglass" size={20} color="black" />
-                                                    <Text style={{ fontFamily: 'OpenSans-Regular' }}>{strings.Loading}</Text>
+                                                    <Text style={styles.loadingCardText}>{strings.Loading}</Text>
                                                 </View>
                                             </View>
                                         )}
                                     </View>
                                 ) : (
-                                    <View
-                                        style={{
-                                            width: '100%',
-                                            top: 90,
-                                            height: 200,
-                                            justifyContent: 'center',
-                                            alignContent: 'center',
-                                        }}>
-                                        <View
-                                            style={{
-                                                justifyContent: 'center',
-                                                alignItems: 'center',
-                                                flexDirection: 'column',
-                                            }}>
+                                    <View style={styles.errorCard}>
+                                        <View style={styles.loadingCardInner}>
                                             <Icon name="spinner" size={20} color="black" />
                                             <Text>{strings.failed}</Text>
                                         </View>
@@ -3002,137 +2602,42 @@ class NCOFIPage extends Component {
                         </ScrollView>
 
                         <TouchableOpacity onPress={() => this.closeReset()} style={styles.closeDiv}>
-                            <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                                <Text
-                                    style={{
-                                        fontSize: Fonts.size.regular,
-                                        color: '#00a1e2',
-                                        top: 20,
-                                        fontFamily: 'OpenSans-Regular',
-                                    }}>
-                                    {strings.Close}
-                                </Text>
+                            <View style={styles.closeButtonWrapper}>
+                                <Text style={styles.closeButtonText}>{strings.Close}</Text>
                             </View>
                         </TouchableOpacity>
                     </View>
                 </Modal>
-                <Modal
-                    isVisible={this.state.confirmpwd}
-                    // onBackdropPress={()=>this.setState({confirmpwd:false})}
-                >
-                    <View
-                        style={{
-                            width: '100%',
-                            height: 350,
-                            backgroundColor: 'white',
-                            borderRadius: 15,
-                            padding: 10,
-                        }}>
+                <Modal isVisible={this.state.confirmpwd}>
+                    <View style={styles.confirmModal}>
                         <TouchableOpacity onPress={() => this.setState({ confirmpwd: false })}>
-                            <Icon name="times-circle" style={{ alignSelf: 'flex-end' }} size={30} color="#2EA4E2" />
+                            <Icon name="times-circle" style={styles.closeIcon} size={30} color="#2EA4E2" />
                         </TouchableOpacity>
-                        <View
-                            style={{
-                                flex: 1,
-                            }}>
-                            <View
-                                style={{
-                                    flex: 1,
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                }}>
-                                <Text
-                                    style={{
-                                        textAlign: 'center',
-                                        fontSize: 20,
-                                        color: '#2EA4E2',
-                                        fontFamily: 'OpenSans-Bold',
-                                    }}>
-                                    {strings.enterthepasswordtocontinuesyncprocess}
-                                </Text>
+                        <View style={styles.centeredFlex}>
+                            <View style={styles.centeredFlexRow}>
+                                <Text style={styles.confirmTitle}>{strings.enterthepasswordtocontinuesyncprocess}</Text>
                             </View>
-                            <View
-                                style={{
-                                    flex: 1,
-                                }}>
-                                <Text
-                                    style={{
-                                        fontSize: 16,
-                                        color: 'grey',
-                                        fontFamily: 'OpenSans-Regular',
-                                    }}>
-                                    {strings.Username}
-                                </Text>
+                            <View style={styles.centeredFlex}>
+                                <Text style={styles.inputLabel}>{strings.Username}</Text>
                                 <TextInput
                                     value={this.props.data.audits.loginuser}
                                     editable={false}
-                                    style={{
-                                        fontSize: 20,
-                                        color: 'lightgrey',
-                                        fontFamily: 'OpenSans-Bold',
-                                        borderBottomColor: 'lightgrey',
-                                        borderBottomWidth: 0.7,
-                                    }}
+                                    style={[styles.textInputBase, styles.textInputReadonly]}
                                 />
                             </View>
-                            <View
-                                style={{
-                                    flex: 1,
-                                }}>
-                                <Text
-                                    style={{
-                                        fontSize: 16,
-                                        color: 'grey',
-                                        fontFamily: 'OpenSans-Regular',
-                                    }}>
-                                    {strings.Password}
-                                </Text>
+                            <View style={styles.centeredFlex}>
+                                <Text style={styles.inputLabel}>{strings.Password}</Text>
                                 <TextInput
                                     value={this.state.pwdentry}
-                                    style={{
-                                        fontSize: 20,
-                                        color: 'black',
-                                        fontFamily: 'OpenSans-Bold',
-                                        borderBottomColor: 'lightgrey',
-                                        borderBottomWidth: 0.7,
-                                    }}
+                                    style={[styles.textInputBase, styles.textInputEditable]}
                                     secureTextEntry={true}
                                     onChangeText={text => this.setState({ pwdentry: text, isEmptyPwd: undefined })}
                                 />
-                                <Text
-                                    style={{
-                                        fontSize: 16,
-                                        color: 'red',
-                                        fontFamily: 'OpenSans-Regular',
-                                    }}>
-                                    {this.state.isEmptyPwd ? this.state.isEmptyPwd : null}
-                                </Text>
+                                <Text style={styles.inputError}>{this.state.isEmptyPwd ? this.state.isEmptyPwd : null}</Text>
                             </View>
-                            <View
-                                style={{
-                                    flex: 1,
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                }}>
-                                <TouchableOpacity
-                                    onPress={() => this.onConfirmPwdPress()}
-                                    style={{
-                                        width: null,
-                                        height: 50,
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                        backgroundColor: '#2EA4E2',
-                                        borderRadius: 30,
-                                        padding: 10,
-                                    }}>
-                                    <Text
-                                        style={{
-                                            fontFamily: 'OpenSans-Bold',
-                                            fontSize: 20,
-                                            color: 'white',
-                                        }}>
-                                        {strings.continue}
-                                    </Text>
+                            <View style={styles.confirmButtonContainer}>
+                                <TouchableOpacity onPress={() => this.onConfirmPwdPress()} style={styles.confirmButton}>
+                                    <Text style={styles.confirmButtonText}>{strings.continue}</Text>
                                 </TouchableOpacity>
                             </View>
                         </View>

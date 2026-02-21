@@ -102,6 +102,13 @@ export default StyleSheet.create({
     justifyContent: 'flex-start', 
     alignContent:'center'
   },
+  toastContainer: {
+    backgroundColor: 'black',
+    margin: 20,
+  },
+  toastText: {
+    color: 'white',
+  },
   syncButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -579,5 +586,246 @@ alignContent:'center',    borderWidth: 1,
     height:'100%',
     justifyContent:'center',
     alignItems:'center'
-  }
+  },
+  sectionContentColumnFull: {
+    width: '100%',
+    flexDirection: 'column',
+  },
+  uncontrolledLinkText: {
+    color: 'grey',
+    left: 0,
+    fontFamily: 'OpenSans-Regular',
+  },
+  uncontrolledLinkInput: {
+    fontSize: 18,
+    fontFamily: 'OpenSans-Regular',
+  },
+
+  // Upload status list
+  uploadStatusHeader: {
+    paddingBottom: 10,
+    fontWeight: 'bold',
+    alignItems: 'center',
+    alignSelf: 'center',
+  },
+  uploadItemRow: {
+    flex: 1,
+    flexDirection: 'row',
+    borderBottomWidth: 1,
+    minHeight: 40,
+    maxHeight: 60,
+    borderBottomColor: 'lightgrey',
+  },
+  uploadIconWrapper: {
+    justifyContent: 'center',
+    width: '5%',
+    padding: 2,
+  },
+  uploadFileNameWrapper: {
+    width: '75%',
+    justifyContent: 'center',
+  },
+  uploadFileName: {
+    flexShrink: 1,
+    paddingLeft: 5,
+    color: 'black',
+  },
+  uploadFileNameMissing: {
+    color: 'red',
+  },
+  uploadStatusWrapper: {
+    width: '20%',
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignSelf: 'center',
+  },
+  retryWrapper: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  retryText: {
+    fontSize: 10,
+    color: 'red',
+  },
+  syncFileIcon: {
+    padding: 6,
+    justifyContent: 'center',
+    alignSelf: 'center',
+  },
+
+  // Lists and empty states
+  listMarginLarge: {
+    marginTop: 60,
+  },
+  formNameContainer: {
+    width: '95%',
+    height: null,
+  },
+  fullWidthAuto: {
+    width: '100%',
+    height: null,
+  },
+  emptyState: {
+    marginTop: '20%',
+  },
+  emptyRowCenter: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
+  emptyImageSmall: {
+    height: 50,
+    resizeMode: 'contain',
+  },
+  emptyText: {
+    textAlign: 'center',
+    marginTop: 5,
+    fontSize: Fonts.size.h5,
+    color: 'grey',
+    fontFamily: 'OpenSans-Regular',
+  },
+
+  // Loader
+  loaderContainer: {
+    alignItems: 'center',
+  },
+  loaderText: {
+    textAlign: 'center',
+    fontFamily: 'OpenSans-Regular',
+  },
+  attachmentStatusContainer: {
+    alignItems: 'center',
+    paddingTop: 20,
+  },
+
+  redDot: {
+    position: 'absolute',
+    top: -6,
+    right: -6,
+  },
+  syncingIndicator: {
+    padding: 12,
+    borderRadius: 30,
+    backgroundColor: '#00b3d6',
+    elevation: 6,
+  },
+  proceedBtnSuccess: {
+    backgroundColor: '#14D0AE',
+  },
+
+  // Modal confirm password
+  pwdModal: {
+    width: '100%',
+    height: 360,
+    backgroundColor: 'white',
+    borderRadius: 15,
+    padding: 10,
+  },
+  closeIconAlign: {
+    alignSelf: 'flex-end',
+  },
+  flexOne: {
+    flex: 1,
+  },
+  centerContent: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  pwdTitle: {
+    textAlign: 'center',
+    fontSize: 20,
+    color: '#2EA4E2',
+    fontFamily: 'OpenSans-Bold',
+  },
+  pwdLabel: {
+    fontSize: 16,
+    color: 'grey',
+    fontFamily: 'OpenSans-Regular',
+  },
+  pwdInputReadonly: {
+    fontSize: 20,
+    color: 'lightgrey',
+    fontFamily: 'OpenSans-Bold',
+    borderBottomColor: 'lightgrey',
+    borderBottomWidth: 0.7,
+  },
+  pwdInput: {
+    fontSize: 20,
+    color: 'black',
+    fontFamily: 'OpenSans-Bold',
+    borderBottomColor: 'lightgrey',
+    borderBottomWidth: 0.7,
+  },
+  pwdError: {
+    fontSize: 16,
+    color: 'red',
+    fontFamily: 'OpenSans-Regular',
+  },
+  pwdButton: {
+    width: null,
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#2EA4E2',
+    borderRadius: 30,
+    padding: 10,
+  },
+  pwdButtonText: {
+    fontFamily: 'OpenSans-Bold',
+    fontSize: 20,
+    color: 'white',
+  },
+
+  // Confirm dialog typography
+  confirmDialogTitle: {
+    fontFamily: 'OpenSans-SemiBold',
+  },
+  confirmDialogMessage: {
+    fontFamily: 'OpenSans-Regular',
+  },
+
+  // Missing modal extras
+  missingTitle: {
+    fontSize: 22,
+    color: '#2EA4E2',
+    fontFamily: 'OpenSans-Regular',
+  },
+  missingTypeLabel: {
+    fontFamily: 'OpenSans-Regular',
+  },
+  missingTypeValue: {
+    fontSize: 18,
+    color: 'red',
+    fontFamily: 'OpenSans-Regular',
+  },
+  missingNameValue: {
+    fontSize: Fonts.size.mediump,
+    color: '#070F6E',
+    fontFamily: 'OpenSans-Regular',
+  },
+  missingGoBackText: {
+    fontSize: 20,
+    color: 'red',
+    fontFamily: 'OpenSans-Regular',
+  },
+  missingSkipText: {
+    fontSize: 20,
+    color: 'green',
+    fontFamily: 'OpenSans-Regular',
+  },
+
+  // Icons and rows
+  row: {
+    flexDirection: 'row',
+  },
+  centerAlignRow: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  warningIconWrapper: {
+    position: 'absolute',
+    top: -6,
+    right: -6,
+  },
 })

@@ -46,11 +46,12 @@ import * as constant from '../constants/AppConstants';
 import DeviceInfo from 'react-native-device-info';
 import Moment from 'moment';
 import constants from '../constants/AppConstants';
-import { ROUTES } from 'constants/app-constant';
+import { ROUTES, ICON_TYPE } from 'constants/app-constant';
 import AsyncStorage from '@react-native-community/async-storage';
 import { SPACING } from 'constants/theme-constants';
 import SQLite from 'react-native-sqlite-storage';
 import GlobalHeader from 'components/GlobalHeader';
+import FAB from 'components/fab';
 
 let Window = Dimensions.get('window');
 //import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -1545,7 +1546,7 @@ class AuditForm extends Component {
 
         return (
             <View>
-                <Icon name={icon} size={15} color="black" style={{ padding: 6, justifyContent: 'center', alignSelf: 'center' }} />
+                <Icon name={icon} size={15} color="black" style={styles.syncFileIcon} />
             </View>
         );
     }
@@ -1675,26 +1676,14 @@ class AuditForm extends Component {
                 data={this.state.AuditAttachments}
                 ListHeaderComponent={() => (
                     <Text
-                        style={{
-                            paddingBottom: 10,
-                            fontWeight: 'bold',
-                            alignItems: 'center',
-                            alignSelf: 'center',
-                        }}>
+                        style={styles.uploadStatusHeader}>
                         Attachment Status
                     </Text>
                 )}
                 extraData={this.state}
                 renderItem={({ item }) => (
                     <TouchableOpacity
-                        style={{
-                            flex: 1,
-                            flexDirection: 'row',
-                            borderBottomWidth: 1,
-                            minHeight: 40,
-                            maxHeight: 60,
-                            borderBottomColor: 'lightgrey',
-                        }}
+                        style={styles.uploadItemRow}
                         onPress={() => {
                             if (item.exist === undefined || item.exist === false) {
                                 this.refs.toast.show('File not downloaded', DURATION.LENGTH_LONG);
@@ -1703,30 +1692,20 @@ class AuditForm extends Component {
                             }
                         }}>
                         {/* Icon */}
-                        <View style={{ justifyContent: 'center', width: '5%', padding: 2 }}>{this.getFileIcon(item)}</View>
+                        <View style={styles.uploadIconWrapper}>{this.getFileIcon(item)}</View>
 
                         {/* File name */}
-                        <View style={{ width: '75%', justifyContent: 'center' }}>
+                        <View style={styles.uploadFileNameWrapper}>
                             <Text
                                 multiline={true}
-                                style={{
-                                    flexShrink: 1,
-                                    paddingLeft: 5,
-                                    color: item.exist === false ? 'red' : 'black',
-                                }}>
+                                style={[styles.uploadFileName, item.exist === false && styles.uploadFileNameMissing]}>
                                 {item.filename}
                             </Text>
                         </View>
 
                         {/* Status icon */}
                         <View
-                            style={{
-                                width: '20%',
-                                height: 40,
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                alignSelf: 'center',
-                            }}>
+                            style={styles.uploadStatusWrapper}>
                             {(() => {
                                 if (item.exist === false) {
                                     return <Icon name="warning" size={18} color="red" />;
@@ -1743,9 +1722,9 @@ class AuditForm extends Component {
                                 if (item.status === false) {
                                     return (
                                         <TouchableOpacity onPress={() => this.retryFailedAttachments(item)}>
-                                            <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                                            <View style={styles.retryWrapper}>
                                                 <Icon name="refresh" size={15} />
-                                                <Text style={{ fontSize: 10, color: 'red' }}>{'Retry'}</Text>
+                                                <Text style={styles.retryText}>{'Retry'}</Text>
                                             </View>
                                         </TouchableOpacity>
                                     );
@@ -3590,7 +3569,7 @@ class AuditForm extends Component {
                             tabBarPosition="overlayTop">
                             <ScrollView tabLabel={strings.Online} style={styles.scrollViewBody}>
                                 {this.state.OnlineList.length > 0 ? (
-                                    <View style={{ marginTop: 60 }}>
+                                    <View style={styles.listMarginLarge}>
                                         {this.state.OnlineList.map((item, key) => (
                                             <View key={key} style={styles.secondDiv}>
                                                 {console.log(this.state.OnlineList, 'onlinelist==>')}
@@ -3607,7 +3586,7 @@ class AuditForm extends Component {
                                                         end={{ x: 1, y: 0 }}
                                                         colors={['#14D0AE', '#1FBFD0', '#2EA4E2']}
                                                         style={styles.CheckButton}>
-                                                        <View style={{ width: '95%', height: null }}>
+                                                        <View style={styles.formNameContainer}>
                                                             <Text style={styles.buttonText}>
                                                                 {item.FormName.length > 30 ? item.FormName.slice(0, 30) + '...' : item.FormName}
                                                             </Text>
@@ -3618,25 +3597,13 @@ class AuditForm extends Component {
                                         ))}
                                     </View>
                                 ) : (
-                                    <View style={{ marginTop: '20%' }}>
-                                        <View
-                                            style={{
-                                                flexDirection: 'row',
-                                                justifyContent: 'center',
-                                            }}>
-                                            <Image source={Images.emptybox} style={{ height: 50, resizeMode: 'contain' }} />
+                                    <View style={styles.emptyState}>
+                                        <View style={styles.emptyRowCenter}>
+                                            <Image source={Images.emptybox} style={styles.emptyImageSmall} />
                                         </View>
-                                        <View style={{}}>
+                                        <View>
                                             <Text
-                                                style={{
-                                                    // width: width(90),
-                                                    textAlign: 'center',
-                                                    marginTop: 5,
-                                                    fontSize: Fonts.size.h5,
-                                                    // paddingTop: 40,
-                                                    color: 'grey',
-                                                    fontFamily: 'OpenSans-Regular',
-                                                }}>
+                                                style={styles.emptyText}>
                                                 {strings.No_online_form_found}
                                             </Text>
                                         </View>
@@ -3645,7 +3612,7 @@ class AuditForm extends Component {
                             </ScrollView>
                             <ScrollView tabLabel={strings.Templates} style={styles.scrollViewBody}>
                                 {this.state.TempList.length > 0 ? (
-                                    <View style={{ marginTop: 60 }}>
+                                    <View style={styles.listMarginLarge}>
                                         {this.state.TempList.map((item, key) => (
                                             <View key={key} style={styles.cardBox}>
                                                 <View style={styles.sectionTop}>
@@ -3854,7 +3821,7 @@ class AuditForm extends Component {
                                                     <View style={styles.sectionContent}>
                                                         {/* <Text numberOfLines={1} style={styles.boxHeader}>{strings.Attach_Files}</Text> */}
                                                     </View>
-                                                    <View style={{ width: '100%', height: null }}>
+                                                    <View style={styles.fullWidthAuto}>
                                                         <Dropdown
                                                             data={attachmentType2}
                                                             label={strings.attachmenttype}
@@ -3900,27 +3867,20 @@ class AuditForm extends Component {
                                                         />
                                                     </View>
                                                     {this.state.TempList[key].Attachmenttype == 1 ? (
-                                                        <View style={[styles.sectionContent, { width: '100%', flexDirection: 'column' }]}>
-                                                            <View style={{ width: '100%', height: null }}>
+                                                        <View style={[styles.sectionContent, styles.sectionContentColumnFull]}>
+                                                            <View style={styles.fullWidthAuto}>
                                                                 {this.state.TempList[key].AttachedDocument != '' ? (
                                                                     <Text
-                                                                        style={{
-                                                                            color: 'grey',
-                                                                            left: 0,
-                                                                            fontFamily: 'OpenSans-Regular',
-                                                                        }}>
+                                                                        style={styles.uncontrolledLinkText}>
                                                                         {strings.UncontrolledLink}
                                                                     </Text>
                                                                 ) : null}
                                                             </View>
-                                                            <View style={{ width: '100%', height: null }}>
+                                                            <View style={styles.fullWidthAuto}>
                                                                 <TextInput
                                                                     multiline={true}
                                                                     value={this.state.TempList[key].AttachedDocument}
-                                                                    style={{
-                                                                        fontSize: 18,
-                                                                        fontFamily: 'OpenSans-Regular',
-                                                                    }}
+                                                                    style={styles.uncontrolledLinkInput}
                                                                     placeholder={strings.UncontrolledLink}
                                                                     placeholderTextColor="#A9A9A9"
                                                                     baseColor="#A6A6A6"
@@ -3983,25 +3943,13 @@ class AuditForm extends Component {
                                         ))}
                                     </View>
                                 ) : (
-                                    <View style={{ marginTop: '20%' }}>
-                                        <View
-                                            style={{
-                                                flexDirection: 'row',
-                                                justifyContent: 'center',
-                                            }}>
-                                            <Image source={Images.emptybox} style={{ height: 50, resizeMode: 'contain' }} />
+                                    <View style={styles.emptyState}>
+                                        <View style={styles.emptyRowCenter}>
+                                            <Image source={Images.emptybox} style={styles.emptyImageSmall} />
                                         </View>
-                                        <View style={{}}>
+                                        <View>
                                             <Text
-                                                style={{
-                                                    // width: width(90),
-                                                    textAlign: 'center',
-                                                    marginTop: 5,
-                                                    fontSize: Fonts.size.h5,
-                                                    // paddingTop: 40,
-                                                    color: 'grey',
-                                                    fontFamily: 'OpenSans-Regular',
-                                                }}>
+                                                style={styles.emptyText}>
                                                 {strings.No_templates_found}
                                             </Text>
                                         </View>
@@ -4011,7 +3959,7 @@ class AuditForm extends Component {
 
                             <ScrollView tabLabel={strings.References} style={styles.scrollViewBody}>
                                 {this.state.RefList.length > 0 ? (
-                                    <View style={{ marginTop: 60 }}>
+                                    <View style={styles.listMarginLarge}>
                                         {this.state.RefList.map((item, key) => (
                                             <View key={key} style={styles.cardBox}>
                                                 <View style={styles.sectionTop}>
@@ -4034,7 +3982,7 @@ class AuditForm extends Component {
                                                             </Text>
                                                         </View>
                                                         <View style={styles.sectionContent}>
-                                                            <View style={{ flexDirection: 'row' }}>
+                                                        <View style={styles.row}>
                                                                 <TouchableOpacity onPress={() => this.FilePress(item)} style={styles.AttBox}>
                                                                     <Text numberOfLines={1} style={styles.boxContent}>
                                                                         {item.Attachmenttype == 1
@@ -4198,7 +4146,7 @@ class AuditForm extends Component {
                                                 ) : null}
                                                 <View style={styles.sectionBottom}>
                                                     <View style={styles.sectionContent}></View>
-                                                    <View style={{ width: '100%', height: null }}>
+                                                    <View style={styles.fullWidthAuto}>
                                                         <Dropdown
                                                             data={attachmentType}
                                                             label={strings.attachmenttype}
@@ -4244,27 +4192,20 @@ class AuditForm extends Component {
                                                         />
                                                     </View>
                                                     {this.state.RefList[key].Attachmenttype == 1 ? (
-                                                        <View style={[styles.sectionContent, { width: '100%', flexDirection: 'column' }]}>
-                                                            <View style={{ width: '100%', height: null }}>
+                                                        <View style={[styles.sectionContent, styles.sectionContentColumnFull]}>
+                                                            <View style={styles.fullWidthAuto}>
                                                                 {this.state.RefList[key].AttachedDocument != '' ? (
                                                                     <Text
-                                                                        style={{
-                                                                            color: 'grey',
-                                                                            left: 0,
-                                                                            fontFamily: 'OpenSans-Regular',
-                                                                        }}>
+                                                                        style={styles.uncontrolledLinkText}>
                                                                         {strings.UncontrolledLink}
                                                                     </Text>
                                                                 ) : null}
                                                             </View>
-                                                            <View style={{ width: '100%', height: null }}>
+                                                            <View style={styles.fullWidthAuto}>
                                                                 <TextInput
                                                                     multiline={true}
                                                                     value={this.state.RefList[key].AttachedDocument}
-                                                                    style={{
-                                                                        fontSize: 18,
-                                                                        fontFamily: 'OpenSans-Regular',
-                                                                    }}
+                                                                    style={styles.uncontrolledLinkInput}
                                                                     placeholder={strings.UncontrolledLink}
                                                                     placeholderTextColor="#A9A9A9"
                                                                     baseColor="#A6A6A6"
@@ -4329,23 +4270,14 @@ class AuditForm extends Component {
                                         ))}
                                     </View>
                                 ) : (
-                                    <View style={{ marginTop: '20%' }}>
+                                    <View style={styles.emptyState}>
                                         <View
-                                            style={{
-                                                flexDirection: 'row',
-                                                justifyContent: 'center',
-                                            }}>
-                                            <Image source={Images.emptybox} style={{ height: 50, resizeMode: 'contain' }} />
+                                        style={styles.emptyRowCenter}>
+                                            <Image source={Images.emptybox} style={styles.emptyImageSmall} />
                                         </View>
-                                        <View style={{}}>
+                                        <View>
                                             <Text
-                                                style={{
-                                                    textAlign: 'center',
-                                                    marginTop: 5,
-                                                    fontSize: Fonts.size.h5,
-                                                    color: 'grey',
-                                                    fontFamily: 'OpenSans-Regular',
-                                                }}>
+                                                style={styles.emptyText}>
                                                 {strings.No_references_found}
                                             </Text>
                                         </View>
@@ -4354,7 +4286,11 @@ class AuditForm extends Component {
                             </ScrollView>
                         </ScrollableTabView>
                         <View style={styles.floatingDiv}>
-                            <TouchableOpacity
+                            <FAB
+                                iconType={ICON_TYPE.Feather}
+                                iconName="align-justify"
+                                bottom={0}
+                                right={0}
                                 onPress={() => {
                                     const auditId =
                                         this.state.AuditID ||
@@ -4369,14 +4305,12 @@ class AuditForm extends Component {
                                         breadCrumbText,
                                     });
                                 }}
-                                style={styles.floatinBtn}>
-                                <Icon name="align-justify" size={20} color="#fff" />
-                            </TouchableOpacity>
+                            />
                         </View>
                     </View>
                 ) : (
                     <View style={styles.auditPageBody}>
-                        <View style={{ alignItems: 'center', marginTop: middle }}>
+                        <View style={[styles.loaderContainer, { marginTop: middle }]}>
                             {this.state.syncMode === 2 ? (
                                 <Icon name="check-circle" color="red" size={50} />
                             ) : this.state.syncMode === 0 || this.state.syncMode === 1 ? (
@@ -4384,16 +4318,12 @@ class AuditForm extends Component {
                             ) : this.state.syncMode === 4 ? (
                                 <Icon name="check-circle" color="green" size={50} />
                             ) : null}
-                            <Text style={{ textAlign: 'center', fontFamily: 'OpenSans-Regular' }}>
+                            <Text style={styles.loaderText}>
                                 {this.state.syncStatusLabel === '' ? strings.Syncing_Audits : this.state.syncStatusLabel}
                             </Text>
                         </View>
                         <View
-                            style={{
-                                alignItems: 'center',
-                                paddingTop: 20,
-                                height: attachmentHeight,
-                            }}>
+                            style={[styles.attachmentStatusContainer, { height: attachmentHeight }]}>
                             {this.state.AuditAttachments.length > 0 && this.renderFileUploadStatus()}
                         </View>
                     </View>
@@ -4402,47 +4332,53 @@ class AuditForm extends Component {
                 {/* Floating sync/proceed control */}
                 <View style={styles.floatingSync}>
                     {!this.state.isSyncing ? (
-                        <TouchableOpacity onPress={() => this.checkoffline()} style={styles.floatinBtn}>
+                        <>
                             {this.state.redDotID === 'true' ? (
-                                <View style={{ position: 'absolute', top: -6, right: -6 }}>
+                                <View style={styles.redDot}>
                                     <Icon name="target" size={10} color="red" />
                                 </View>
                             ) : null}
-                            <Icon name="refresh-ccw" size={20} color="white" />
-                        </TouchableOpacity>
+                            <FAB
+                                iconType={ICON_TYPE.Feather}
+                                iconName="refresh-ccw"
+                                bottom={0}
+                                right={0}
+                                onPress={() => this.checkoffline()}
+                            />
+                        </>
                     ) : this.state.syncMode !== 4 ? (
                         <View
-                            style={{
-                                padding: 12,
-                                borderRadius: 30,
-                                backgroundColor: '#00b3d6',
-                                elevation: 6,
-                            }}>
+                            style={styles.syncingIndicator}>
                             <ActivityIndicator size={18} color="white" />
                         </View>
                     ) : (
-                        <TouchableOpacity style={[styles.floatinBtn, { backgroundColor: '#14D0AE' }]} onPress={() => this.syncResponseHandle()}>
-                            <Icon name="arrow-right-circle" size={24} color="white" />
-                        </TouchableOpacity>
+                        <FAB
+                            iconType={ICON_TYPE.Feather}
+                            iconName="arrow-right-circle"
+                            bottom={0}
+                            right={0}
+                            color="#14D0AE"
+                            onPress={() => this.syncResponseHandle()}
+                        />
                     )}
                 </View>
 
                 <Toast
                     ref="toast"
-                    style={{ backgroundColor: 'black', margin: 20 }}
+                    style={styles.toastContainer}
                     position="top"
                     positionValue={200}
                     fadeInDuration={750}
                     fadeOutDuration={1000}
                     opacity={0.8}
-                    textStyle={{ color: 'white' }}
+                    textStyle={styles.toastText}
                 />
 
                 <ConfirmDialog
                     title={strings.Sync_title}
                     message={strings.Sync_message}
-                    titleStyle={{ fontFamily: 'OpenSans-SemiBold' }}
-                    messageStyle={{ fontFamily: 'OpenSans-Regular' }}
+                    titleStyle={styles.confirmDialogTitle}
+                    messageStyle={styles.confirmDialogMessage}
                     visible={this.state.dialogVisible}
                     onTouchOutside={() => this.setState({ dialogVisible: false })}
                     supportedOrientations={['portrait', 'portrait-upside-down', 'landscape', 'landscape-left', 'landscape-right']}
@@ -4457,118 +4393,57 @@ class AuditForm extends Component {
                 />
                 <Modal isVisible={this.state.confirmpwd} onBackdropPress={() => this.setState({ confirmpwd: false })}>
                     <View
-                        style={{
-                            width: '100%',
-                            height: 360,
-                            backgroundColor: 'white',
-                            borderRadius: 15,
-                            padding: 10,
-                        }}>
+                        style={styles.pwdModal}>
                         <TouchableOpacity onPress={() => this.setState({ confirmpwd: false })}>
-                            <Icon name="times-circle" style={{ alignSelf: 'flex-end' }} size={30} color="#2EA4E2" />
+                            <Icon name="times-circle" style={styles.closeIconAlign} size={30} color="#2EA4E2" />
                         </TouchableOpacity>
                         <View
-                            style={{
-                                flex: 1,
-                            }}>
+                            style={styles.flexOne}>
                             <View
-                                style={{
-                                    flex: 1,
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                }}>
+                                style={styles.centerContent}>
                                 <Text
-                                    style={{
-                                        textAlign: 'center',
-                                        fontSize: 20,
-                                        color: '#2EA4E2',
-                                        fontFamily: 'OpenSans-Bold',
-                                    }}>
+                                    style={styles.pwdTitle}>
                                     {strings.enterthepasswordtocontinuesyncprocess}
                                 </Text>
                             </View>
                             <View
-                                style={{
-                                    flex: 1,
-                                }}>
+                                style={styles.flexOne}>
                                 <Text
-                                    style={{
-                                        fontSize: 16,
-                                        color: 'grey',
-                                        fontFamily: 'OpenSans-Regular',
-                                    }}>
+                                    style={styles.pwdLabel}>
                                     {strings.Username}
                                 </Text>
                                 <TextInput
                                     value={this.props.data.audits.loginuser}
                                     editable={false}
-                                    style={{
-                                        fontSize: 20,
-                                        color: 'lightgrey',
-                                        fontFamily: 'OpenSans-Bold',
-                                        borderBottomColor: 'lightgrey',
-                                        borderBottomWidth: 0.7,
-                                    }}
+                                    style={styles.pwdInputReadonly}
                                 />
                             </View>
                             <View
-                                style={{
-                                    flex: 1,
-                                }}>
+                                style={styles.flexOne}>
                                 <Text
-                                    style={{
-                                        fontSize: 16,
-                                        color: 'grey',
-                                        fontFamily: 'OpenSans-Regular',
-                                    }}>
+                                    style={styles.pwdLabel}>
                                     {strings.Password}
                                 </Text>
                                 <TextInput
                                     value={this.state.pwdentry}
-                                    style={{
-                                        fontSize: 20,
-                                        color: 'black',
-                                        fontFamily: 'OpenSans-Bold',
-                                        borderBottomColor: 'lightgrey',
-                                        borderBottomWidth: 0.7,
-                                    }}
+                                    style={styles.pwdInput}
                                     secureTextEntry={true}
                                     onChangeText={text => this.setState({ pwdentry: text, isEmptyPwd: undefined })}
                                 />
                                 {this.state.isEmptyPwd ? (
                                     <Text
-                                        style={{
-                                            fontSize: 16,
-                                            color: 'red',
-                                            fontFamily: 'OpenSans-Regular',
-                                        }}>
+                                        style={styles.pwdError}>
                                         {this.state.isEmptyPwd}
                                     </Text>
                                 ) : null}
                             </View>
                             <View
-                                style={{
-                                    flex: 1,
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                }}>
+                                style={styles.centerContent}>
                                 <TouchableOpacity
                                     onPress={() => this.onConfirmPwdPress()}
-                                    style={{
-                                        width: null,
-                                        height: 50,
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                        backgroundColor: '#2EA4E2',
-                                        borderRadius: 30,
-                                        padding: 10,
-                                    }}>
+                                    style={styles.pwdButton}>
                                     <Text
-                                        style={{
-                                            fontFamily: 'OpenSans-Bold',
-                                            fontSize: 20,
-                                            color: 'white',
-                                        }}>
+                                        style={styles.pwdButtonText}>
                                         {strings.continue}
                                     </Text>
                                 </TouchableOpacity>
@@ -4581,11 +4456,7 @@ class AuditForm extends Component {
                     <View style={styles.missingModal}>
                         <View style={styles.missingMContainer}>
                             <Text
-                                style={{
-                                    fontSize: 22,
-                                    color: '#2EA4E2',
-                                    fontFamily: 'OpenSans-Regular',
-                                }}>
+                                style={styles.missingTitle}>
                                 {strings.Missingattachmentalert}
                             </Text>
                         </View>
@@ -4601,24 +4472,16 @@ class AuditForm extends Component {
                                     <View key={i} style={styles.carddivMissing}>
                                         <View style={styles.cardContMissing}>
                                             <View style={styles.cardSecMissing}>
-                                                <Text style={{ fontFamily: 'OpenSans-Regular' }}>{strings.Type}</Text>
+                                                <Text style={styles.missingTypeLabel}>{strings.Type}</Text>
                                                 <Text
-                                                    style={{
-                                                        fontSize: 18,
-                                                        color: 'red',
-                                                        fontFamily: 'OpenSans-Regular',
-                                                    }}>
+                                                    style={styles.missingTypeValue}>
                                                     {items.ChecklistTemplateId ? strings.online_form : strings.templaterefernceform}
                                                 </Text>
                                             </View>
                                             <View style={styles.cardsec2Missing}>
-                                                <Text style={{ fontFamily: 'OpenSans-Regular' }}>{strings.Name}</Text>
+                                                <Text style={styles.missingTypeLabel}>{strings.Name}</Text>
                                                 <Text
-                                                    style={{
-                                                        fontSize: Fonts.size.mediump,
-                                                        color: '#070F6E',
-                                                        fontFamily: 'OpenSans-Regular',
-                                                    }}>
+                                                    style={styles.missingNameValue}>
                                                     {items.ChecklistName ? items.ChecklistName : items.FormName}
                                                 </Text>
                                             </View>
@@ -4639,11 +4502,7 @@ class AuditForm extends Component {
                                 }
                                 style={styles.cardBtnDiv}>
                                 <Text
-                                    style={{
-                                        fontSize: 20,
-                                        color: 'red',
-                                        fontFamily: 'OpenSans-Regular',
-                                    }}>
+                                    style={styles.missingGoBackText}>
                                     {strings.goBack}
                                 </Text>
                             </TouchableOpacity>
@@ -4655,11 +4514,7 @@ class AuditForm extends Component {
                                 }
                                 style={styles.cardBtn2Div}>
                                 <Text
-                                    style={{
-                                        fontSize: 20,
-                                        color: 'green',
-                                        fontFamily: 'OpenSans-Regular',
-                                    }}>
+                                    style={styles.missingSkipText}>
                                     {strings.skipandcontinue}
                                 </Text>
                             </TouchableOpacity>

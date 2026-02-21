@@ -3,11 +3,8 @@ import {
   View,
   InteractionManager,
   Text,
-  Image,
   TouchableOpacity,
-  Dimensions,
   ScrollView,
-  ImageBackground,
   LogBox,
 } from 'react-native';
 import {Images} from '../Themes/index';
@@ -16,7 +13,6 @@ import {connect} from 'react-redux';
 import OfflineNotice from '../components/OfflineNotice';
 import ResponsiveImage from 'react-native-responsive-image';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import Fonts from '../Themes/Fonts';
 import {strings} from '../language/Language';
 import {debounce, once} from 'underscore';
 import LinearGradient from 'react-native-linear-gradient';
@@ -27,13 +23,6 @@ import GlobalHeader from 'components/GlobalHeader';
 
 import localStorage from 'global/localStorage';
 
-const screenWidth = Dimensions.get('window').width;
-const screenHeight = Dimensions.get('window').height;
-const isTablet = Math.min(screenWidth, screenHeight) >= 768;
-const circleSize = isTablet
-  ? Math.min(screenWidth, screenHeight) * 0.05  // Smaller scale for iPad
-  : Math.min(screenWidth, screenHeight) * 0.08; // Normal for phones
-const fontSize = circleSize * 0.28;
 class CheckListMenu extends Component {
   constructor(props) {
     super(props);
@@ -400,49 +389,11 @@ class CheckListMenu extends Component {
     console.log('showStatus:STATUS', status);
   
     return (
-      <View
-        style={{
-          flex: 0.8,
-          flexDirection: 'row',
-          justifyContent: 'center',
-          alignItems: 'flex-end',
-        }}
-      >
-        <View
-          style={{
-            width: 30,
-            height: 30,
-            justifyContent: 'center',
-            alignItems: 'center',
-            flexDirection: 'row',
-            marginLeft: 5,
-          }}
-        >
-          <View
-            style={{
-              flex: 1,
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}
-          >
-            <View
-              style={{
-                width: circleSize,
-                height: circleSize,
-                borderRadius: circleSize / 1,
-                backgroundColor: 'white',
-                borderWidth: 1,
-                borderColor: '#00bec1',
-                justifyContent: 'center',
-                alignItems: 'center',
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.3,
-                shadowRadius: 5,
-                elevation: 2,
-              }}
-            >
-              <Text style={{ fontSize: fontSize, fontWeight: 'bold' }}>
+      <View style={styles.statusContainer}>
+        <View style={styles.statusBadge}>
+          <View style={styles.statusBadgeInner}>
+            <View style={styles.statusCircle}>
+              <Text style={styles.statusCircleText}>
                 {filledPercentage}%
               </Text>
             </View>
@@ -469,9 +420,6 @@ class CheckListMenu extends Component {
     return (
       <View style={styles.wrapper}>
         <OfflineNotice />
-        {/* <ImageBackground
-          source={Images.DashboardBG}
-          style={{resizeMode: 'stretch', width: '100%'}}> */}
           <GlobalHeader
             title={this.state.Heading}
             subtitle={this.state.breadCrumbText}
@@ -479,28 +427,16 @@ class CheckListMenu extends Component {
             onRightPress={() =>
               this.props.navigation.navigate(ROUTES.AUDIT_DASHBOARD_LISTING)
             }
-            containerStyle={{backgroundColor: 'transparent'}}
-            // titleStyle={{color: '#fff'}}
-            // subtitleStyle={{color: '#fff', fontSize: 15}}
-            // leftIconColor="#fff"
-            // rightIconColor="#fff"
+            containerStyle={styles.globalHeaderTransparent}
           />
-        {/* </ImageBackground> */}
 
-        <View style={[styles.auditPageBody, {padding: 0}]}>
-          {/* <ImageBackground
-            source={Images.BGlayerFooter}
-            style={{
-              resizeMode: 'stretch',
-              width: '100%',
-              height: '100%',
-            }}> */}
+        <View style={[styles.auditPageBody, styles.auditPageBodyNoPadding]}>
             {this.state.displayData ? (
               this.state.displayData.length > 0 ? (
                 <ScrollView
                   style={styles.scrollViewBody}
-                  contentContainerStyle={{flexGrow: 1}}>
-                  <View style={{marginTop: 10}}>
+                  contentContainerStyle={styles.scrollContent}>
+                  <View style={styles.listWrapper}>
                     {this.state.displayData.map((items, i) =>
                       items.CompLevelId == 1 ? (
                         <TouchableOpacity style={styles.parentcardBox}>
@@ -512,14 +448,10 @@ class CheckListMenu extends Component {
                               colors={['#00aed0', '#1FBFD0', '#00bec1']}
                               style={styles.LG}>
                               <View
-                                style={{
-                                  width: '100%',
-                                  height: 50,
-                                  justifyContent: 'center',
-                                }}>
+                                style={styles.titleWrapper}>
                                 <View style={styles.checkText01}>
                                   <Text
-                                    numberOfLines={2} style={{ color: 'white', fontFamily: 'OpenSans-Bold', fontSize: Fonts.size.mediump, }}> {items.ChecklistName} </Text>
+                                    numberOfLines={2} style={styles.parentTitleText}> {items.ChecklistName} </Text>
                                 </View>
                               </View>
                             </LinearGradient>
@@ -527,13 +459,13 @@ class CheckListMenu extends Component {
                         </TouchableOpacity>
                       ) : items.CompLevelId == 2 ? (
                         <TouchableOpacity style={styles.parentcardBox}>
-                          <View style={{ width: '5%', height: 50, justifyContent: 'center', alignItems: 'center', }}></View>
+                          <View style={styles.childSpacer}></View>
                           {items.ChecklistName.toUpperCase() ===
                           'series production' ? null : (
                             <LinearGradient start={{x: 0, y: 0}} end={{x: 1, y: 0}} colors={['#00aed0', '#1FBFD0', '#00bec1']} style={styles.LG2}>
-                              <View style={{ width: '100%', height: 50, justifyContent: 'center', }}>
+                              <View style={styles.titleWrapper}>
                                 <View style={styles.checkText01}>
-                                  <Text numberOfLines={2} style={{ color: 'white', fontFamily: 'OpenSans-Bold', fontSize: Fonts.size.mediump, }}>
+                                  <Text numberOfLines={2} style={styles.parentTitleText}>
                                     {items.ChecklistName}
                                   </Text>
                                 </View>
@@ -543,17 +475,17 @@ class CheckListMenu extends Component {
                         </TouchableOpacity>
                       ) : (
                         <TouchableOpacity onPress={once( this.onCheckListPress.bind( this, items.ChecklistTemplateId, items.ChecklistName, ), )} style={styles.parentcardBox}>
-                          <View style={{ width: '10%', height: 50, justifyContent: 'center', alignItems: 'center', }}>
+                          <View style={styles.itemIconWrapper}>
                             <Icon name={'arrow-right'} size={15} color={'#00bec1'} />
                           </View>
                           <View style={styles.LG3}>
-                            <View style={{flex: 1, flexDirection: 'row'}}>
+                            <View style={styles.itemRow}>
                               {this.props.data.audits.smdata !== 2 &&
                               this.props.data.audits.smdata !== 3 ? null : (
-                                <View style={{ flex: 0.1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', }}></View>
+                                <View style={styles.statusSpacer}></View>
                               )}
-                              <View style={{flex: 5, flexDirection: 'row'}}>
-                                <Text numberOfLines={2} style={{ color: '#00bec1', fontSize: Fonts.size.small, fontFamily: 'OpenSans-Regular'}}>
+                              <View style={styles.itemTextWrapper}>
+                                <Text numberOfLines={2} style={styles.itemText}>
                                   {items.ChecklistName}
                                 </Text>
                               </View>
@@ -567,33 +499,23 @@ class CheckListMenu extends Component {
                 </ScrollView>
               ) : !this.state.pageLoader ? (
                 <View
-                  style={{
-                    paddingVertical: 20,
-                    borderTopWidth: 1,
-                    backgroundColor: 'white',
-                    opacity: 0.5,
-                    // width: Window.width,
-                    // height: Window.height,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    position: 'absolute',
-                  }}>
-                  <Text style={{fontFamily: 'OpenSans-Regular'}}>
+                  style={styles.emptyOverlay}>
+                  <Text style={styles.emptyText}>
                     No checklists found!
                   </Text>
                 </View>
               ) : null
             ) : !this.state.pageLoader ? (
-              <View style={{ paddingVertical: 20, borderTopWidth: 1, backgroundColor: 'white', opacity: 0.5, width: Window.width, height: Window.height, justifyContent: 'center', alignItems: 'center', position: 'absolute', }}>
-                <Text style={{fontFamily: 'OpenSans-Regular'}}>
+              <View style={styles.emptyOverlay}>
+                <Text style={styles.emptyText}>
                   {strings.No_checklists_found}
                 </Text>
               </View>
             ) : null}
             {this.state.pageLoader ? (
-              <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: '100%', height: '100%', }}>
+              <View style={styles.loaderWrapper}>
                 <ResponsiveImage source={Images.ContentLoader} initHeight={100} initWidth={100} />
-                <Text style={{ fontSize: Fonts.size.regular, fontFamily: 'OpenSans-Regular', }}>
+                <Text style={styles.loaderText}>
                   {strings.cp_01}
                 </Text>
               </View>

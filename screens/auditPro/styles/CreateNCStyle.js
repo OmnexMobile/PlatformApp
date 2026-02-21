@@ -1,6 +1,7 @@
 import { StyleSheet, Dimensions, Platform } from 'react-native';
 import { width, height } from 'react-native-dimension';
 import Fonts from '../Themes/Fonts';
+import { SPACING } from 'constants/theme-constants';
 
 let Window = Dimensions.get('window');
 
@@ -9,6 +10,22 @@ export default StyleSheet.create({
         flex: 1,
         flexDirection: 'column',
         justifyContent: 'flex-start',
+    },
+
+    attachmentImageLarge: {
+        width: width(70),
+        height: 200,
+        resizeMode: 'cover',
+        alignSelf: 'center',
+    },
+    attachmentIconContainer: {
+        width: width(70),
+        height: 200,
+    },
+    attachmentIconLarge: {
+        flex: 1,
+        alignSelf: 'center',
+        marginTop: 70,
     },
     // Header styles
     header: {
@@ -95,6 +112,10 @@ export default StyleSheet.create({
         alignItems: 'center',
         width: '100%',
     },
+    pulseWrapper: {
+        right: 70,
+        position: 'absolute',
+    },
     footerTextContent: {
         color: 'white',
         fontSize: Fonts.size.regular,
@@ -112,6 +133,9 @@ export default StyleSheet.create({
         backgroundColor: 'transparent',
         marginTop: 10,
     },
+    row: {
+        flexDirection: 'row',
+    },
 
     inputSecond: {
         backgroundColor: 'transparent',
@@ -119,10 +143,34 @@ export default StyleSheet.create({
         left: 10,
         marginTop: 10,
     },
+    standardRequirementText: {
+        padding: 0,
+        margin: 0,
+        color: '#A6A6A6',
+        width: '80%',
+        fontSize: Fonts.size.regular,
+        fontFamily: 'OpenSans-Regular',
+    },
     inputAttach: {
         flexDirection: 'row',
         // top:1,
         marginLeft: 10,
+    },
+    failureDropdownWrapper: {
+        position: 'relative',
+    },
+    failureClearButton: {
+        position: 'absolute',
+        top: -10,
+        right: 35,
+        height: 20,
+        width: 20,
+        zIndex: 9,
+        borderColor: '#A6A6A6',
+    },
+    failureClearIconWrapper: {
+        backgroundColor: 'transparent',
+        top: 18,
     },
 
     boxCard1: {
@@ -228,6 +276,13 @@ export default StyleSheet.create({
         right: 0,
         top: height(4),
     },
+    flexOne: {
+        flex: 1,
+    },
+    inputContainerNoPad: {
+        paddingHorizontal: 0,
+        marginBottom: 0,
+    },
     body: {
         position: 'absolute',
         width: Window.width,
@@ -250,6 +305,57 @@ export default StyleSheet.create({
         backgroundColor: 'white',
         elevation: 20,
     },
+
+    topSpacerIos: {
+        padding: SPACING.MEDIUM,
+        flexDirection: 'row',
+    },
+    topSpacerAndroid: {
+        padding: SPACING.NORMAL,
+        flexDirection: 'row',
+    },
+    formBottomSpacer: {
+        marginBottom: 50,
+    },
+    listMarginTopSmall: {
+        marginTop: 10,
+    },
+    multiSelectChipText: {
+        maxWidth: Dimensions.get('screen').width - 90,
+    },
+
+    attachmentListItem: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingVertical: 10,
+        margin: 2,
+        borderColor: '#2a4944',
+        borderWidth: 1,
+        height: '90%',
+    },
+    missingFileText: {
+        left: 10,
+        color: 'red',
+        fontFamily: 'OpenSans-Regular',
+    },
+    columnFlex: {
+        flexDirection: 'column',
+    },
+    columnPadLeft: {
+        paddingLeft: 10,
+        flexDirection: 'column',
+    },
+    filenameText: {
+        fontFamily: 'OpenSans-Regular',
+        alignSelf: 'center',
+    },
+    attachmentDeleteBtn: {
+        width: '10%',
+        right: 10,
+        top: 10,
+        position: 'absolute',
+    },
     viewOption: {
         // justifyContent:'center',
         // alignItems:'center',
@@ -257,6 +363,40 @@ export default StyleSheet.create({
         height: height(4.5),
         backgroundColor: 'transparent',
         bottom: 10,
+    },
+    contentLoaderContainer: {
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: '100%',
+        height: '100%',
+    },
+    contentLoaderTitle: {
+        fontSize: Fonts.size.regular,
+        fontFamily: 'OpenSans-Regular',
+    },
+    hidden: {
+        display: 'none',
+    },
+    processLabel: {
+        paddingBottom: 5,
+        margin: 0,
+        marginTop: 20,
+        fontSize: Fonts.size.medium,
+        color: '#A6A6A6',
+        fontFamily: 'OpenSans-Regular',
+    },
+    selectedIconStyle: {
+        color: '#4caf50',
+        paddingLeft: 10,
+    },
+    eyeRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignContent: 'space-between',
+    },
+    eyeIcon: {
+        marginRight: 35,
     },
     optionBox: {
         width: width(20),
@@ -292,6 +432,21 @@ export default StyleSheet.create({
         borderTopColor: 'lightgrey',
         marginBottom: 15,
     },
+    modalHeaderTitle: {
+        fontSize: Fonts.size.h5,
+        fontFamily: 'OpenSans-Regular',
+    },
+    modalSection: {
+        paddingBottom: 20,
+    },
+    modalSectionTitle: {
+        fontSize: Fonts.size.regular,
+        fontFamily: 'OpenSans-Bold',
+    },
+    modalContentText: {
+        fontSize: Fonts.size.regular,
+        fontFamily: 'OpenSans-Regular',
+    },
     modalfooter: {
         width: width(90),
         // height:height(9),
@@ -302,6 +457,43 @@ export default StyleSheet.create({
         alignItems: 'center',
         borderTopWidth: 0.5,
         borderTopColor: 'lightgrey',
+    },
+    closeModalText: {
+        fontSize: Fonts.size.regular,
+        color: '#00a1e2',
+        top: 1,
+        fontFamily: 'OpenSans-Regular',
+    },
+    suggestionModal: {
+        width: '90%',
+        height: 200,
+        backgroundColor: 'white',
+        borderRadius: 5,
+        padding: 10,
+    },
+    suggestionHeader: {
+        width: '100%',
+        height: '25%',
+        backgroundColor: 'white',
+        marginTop: 10,
+        borderBottomWidth: 1,
+        borderBottomColor: 'lightgrey',
+        flexDirection: 'row',
+    },
+    suggestionIconCol: {
+        width: '20%',
+    },
+    suggestionTextCol: {
+        width: '80%',
+        justifyContent: 'center',
+        paddingLeft: '13%',
+    },
+    suggestionTitle: {
+        fontSize: 18,
+        fontFamily: 'OpenSans-Regular',
+    },
+    suggestionItemText: {
+        fontFamily: 'OpenSans-Regular',
     },
     inputhigh: {
         backgroundColor: 'transparent',
@@ -352,6 +544,15 @@ export default StyleSheet.create({
         backgroundColor: 'transparent',
         // backgroundColor:'grey',
         right: 0,
+    },
+    centerAlignedRow: {
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    confirmTitle: {
+        color: 'black',
+        fontSize: Fonts.size.regular,
+        fontFamily: 'OpenSans-Regular',
     },
     input01: {
         backgroundColor: 'transparent',
