@@ -24,11 +24,9 @@ import auth from '../../../services/Auditpro-Auth';
 import Toast, { DURATION } from 'react-native-easy-toast';
 import { Bubbles, DoubleBounce, Bars, Pulse } from 'react-native-loader';
 import Moment from 'moment';
-import { width, height } from 'react-native-dimension';
 import OfflineNotice from '../../auditPro/components/OfflineNotice';
 import ResponsiveImage from 'react-native-responsive-image';
 import { ConfirmDialog } from 'react-native-simple-dialogs';
-import Fonts from '../../auditPro/Themes/Fonts';
 import Icon from 'react-native-vector-icons/Feather';
 import { strings } from '../../auditPro/language/Language';
 import { debounce, once } from 'underscore';
@@ -41,7 +39,6 @@ import CryptoJS from 'crypto-js';
 import FileViewer from 'react-native-file-viewer';
 import { ROUTES } from 'constants/app-constant';
 import AsyncStorage from '@react-native-community/async-storage';
-import { SPACING } from 'constants/theme-constants';
 import GlobalHeader from 'components/GlobalHeader';
 import CommonAlertModal from 'components/common_alert_modal';
 import IconAwesome from 'react-native-vector-icons/FontAwesome';
@@ -1886,28 +1883,10 @@ class NCOFIPage extends Component {
                     source={{
                         uri: 'file:/' + filepath,
                     }}
-                    style={{
-                        width: width(65),
-                        height: 200,
-                        resizeMode: 'cover',
-                        alignSelf: 'center',
-                    }}
+                    style={styles.attachmentImagePreview}
                 />
             ) : (
-                // <View style={{width: width(70), height: 200}}>
-                <Icon
-                    name={icon}
-                    style={{
-                        paddingTop: 70,
-                        height: 200,
-                        flex: 1,
-                        justifyContent: 'center',
-                        alignSelf: 'center',
-                    }}
-                    size={65}
-                    color="#000"
-                />
-                // </View>
+                <Icon name={icon} style={styles.attachmentIconPreview} size={65} color="#000" />
             );
         } catch (ex) {
             console.log('Error in getFile icon', ex);
@@ -2012,28 +1991,21 @@ class NCOFIPage extends Component {
     renderAttachment = () => {
         return this.state.isAttachmentPresent ? (
             <View style={styles.commoncard}>
-                <Text style={[styles.boxHeader, { marginTop: 5 }]}>{strings.Attach_EvidenceL}</Text>
+                <Text style={[styles.boxHeader, styles.boxHeaderMarginTop]}>{strings.Attach_EvidenceL}</Text>
                 {this.state.isAttachmentLoaded && this.state.AttachmentList.length > 0 ? (
-                    <View style={{ flex: 1 }}>
+                    <View style={styles.attachmentListContainer}>
                         <FlatList
                             data={this.state.AttachmentList}
                             renderItem={this.renderItem}
                             keyExtractor={(item, index) => index.toString()}
                             horizontal={true}
-                            style={{ marginTop: 10 }}
+                            style={styles.attachmentFlatList}
                         />
                     </View>
                 ) : (
-                    <View style={{ flexDirection: 'row', paddingBottom: 10 }}>
-                        <Icon name="hourglass" size={15} color="#A6A6A6" style={{ padding: 5 }} />
-                        <Text
-                            numberOfLines={1}
-                            style={{
-                                color: '#A6A6A6',
-                                fontFamily: 'OpenSans-Regular',
-                                alignSelf: 'flex-start',
-                                padding: 5,
-                            }}>
+                    <View style={styles.attachmentLoadingRow}>
+                        <Icon name="hourglass" size={15} color="#A6A6A6" style={styles.attachmentLoadingIcon} />
+                        <Text numberOfLines={1} style={styles.attachmentLoadingText}>
                             Loading Attachments...
                         </Text>
                     </View>
@@ -2084,30 +2056,13 @@ class NCOFIPage extends Component {
         console.log('Attachment:Render Item', item);
         const filename = item.filename;
         return (
-            <View
-                style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    paddingVertical: 10,
-                    margin: 2,
-                    borderColor: '#2a4944',
-                    borderWidth: 1,
-                    height: '90%',
-                }}>
-                <View style={{ flexDirection: 'column' }}>
+            <View style={styles.attachmentItemRow}>
+                <View style={styles.attachmentItemContentColumn}>
                     <View>
                         {item.filepath !== '' && item.filepath !== 'error' && item.filepath !== null ? (
                             <TouchableOpacity onPress={this.openAttachmentFile.bind(this, item.filepath)}>
                                 {this.getFileIcon(item.filename, item.filepath)}
-                                <View
-                                    style={{
-                                        width: width(65),
-                                        marginTop: 1,
-                                        alignContent: 'center',
-                                        alignItems: 'center',
-                                        alignSelf: 'center',
-                                    }}>
+                                <View style={styles.attachmentFilenameWrap}>
                                     <Text>{item.filename}</Text>
                                 </View>
                             </TouchableOpacity>
@@ -2175,7 +2130,7 @@ class NCOFIPage extends Component {
 
         return (
             <View>
-                <Icon name={icon} size={15} color="black" style={{ padding: 6, justifyContent: 'center', alignSelf: 'center' }} />
+                <Icon name={icon} size={15} color="black" style={styles.syncFileIcon} />
             </View>
         );
     }
@@ -2239,52 +2194,21 @@ class NCOFIPage extends Component {
         return (
             <FlatList
                 data={this.state.AuditAttachments}
-                ListHeaderComponent={() => (
-                    <Text
-                        style={{
-                            paddingBottom: 10,
-                            fontWeight: 'bold',
-                            alignItems: 'center',
-                            alignSelf: 'center',
-                        }}>
-                        Attachment Status
-                    </Text>
-                )}
+                ListHeaderComponent={() => <Text style={styles.uploadStatusHeader}>Attachment Status</Text>}
                 extraData={this.state}
                 renderItem={(
                     { item, index }, //times-circle //check-circle
                 ) => (
-                    <TouchableOpacity
-                        style={{
-                            flex: 1,
-                            flexDirection: 'row',
-                            borderBottomWidth: 1,
-                            minHeight: 40,
-                            maxHeight: 60,
-                            borderBottomColor: 'lightgrey',
-                        }}
-                        onPress={() => this.OpenFile(item.path)}>
-                        <View style={{ justifyContent: 'center', width: '5%' }}>{this.getSyncFileIcon(item)}</View>
-                        <View style={{ width: '85%', justifyContent: 'center' }}>
+                    <TouchableOpacity style={styles.uploadStatusRow} onPress={() => this.OpenFile(item.path)}>
+                        <View style={styles.uploadStatusIconCell}>{this.getSyncFileIcon(item)}</View>
+                        <View style={styles.uploadStatusNameCell}>
                             <Text
                                 multiline={true}
-                                style={{
-                                    justifyContent: 'center',
-                                    flexShrink: 1,
-                                    paddingLeft: 2,
-                                    color: item.exist === false ? 'red' : 'black',
-                                }}>
+                                style={[styles.uploadStatusNameText, item.exist === false ? styles.uploadStatusNameMissing : null]}>
                                 {item.filename}
                             </Text>
                         </View>
-                        <View
-                            style={{
-                                width: '10%',
-                                height: 30,
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                alignSelf: 'center',
-                            }}>
+                        <View style={styles.uploadStatusActionCell}>
                             {item.status === null ? (
                                 <Bars size={5} color="#1CB8CA" />
                             ) : item.status === true ? (
@@ -2299,9 +2223,9 @@ class NCOFIPage extends Component {
                                         onPress={() => {
                                             this.retryFailedAttachments(item);
                                         }}>
-                                        <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                                        <View style={styles.uploadStatusRetryWrap}>
                                             <Icon name="refresh" title="Retry" size={15} />
-                                            <Text style={{ fontSize: 10, color: 'red' }}>{'Retry'}</Text>
+                                            <Text style={styles.uploadStatusRetryText}>{'Retry'}</Text>
                                         </View>
                                     </TouchableOpacity>
                                 )
@@ -2314,47 +2238,6 @@ class NCOFIPage extends Component {
             />
         );
     };
-
-    // renderFileUploadStatus = () => {
-    //   console.log("this.state.AuditAttachments", this.state.AuditAttachments);
-    //   return(
-    //     <FlatList
-    //     data={this.state.AuditAttachments}
-    //     ListHeaderComponent={()=><Text style={{paddingBottom:10, fontWeight:'bold',alignItems:'center', alignSelf:'center' }}>Attachment Status</Text>}
-    //     extraData={this.state}
-    //     renderItem={({item, index}) => (//times-circle //check-circle
-    //     <View style={{flex:1, width:'95%', alignItems:'center', alignSelf:'center'}}>
-    //     <TouchableOpacity onPress={() => this.OpenFile(item.path)}>
-    //     <View style={{ flexDirection: 'row', padding:5, borderBottomWidth :1, borderBottomColor: 'lightgrey'}}>
-    //       {this.getSyncFileIcon(item)}
-    //       <Text multiline={true} style={{width:'80%', paddingTop:5,}}>{item.filename}</Text>
-    //         <View
-    //           style={{
-    //             flex: 0.8,
-    //             flexDirection: 'row',
-    //             justifyContent: 'center',
-    //             alignItems: 'flex-end',
-    //           }}>
-    //         <View
-    //           style={{
-    //             width: 40,
-    //             height: 30,
-    //             justifyContent: 'center',
-    //             alignItems: 'center',
-    //           }}>{item.status === null ? <Bars size={5} color="#1CB8CA" /> :
-    //               item.status === true ? <View><Icon name="check-circle"  size={20} color="green"/></View> :
-    //               item.status === false ? <TouchableOpacity onPress={() => {this.retryFailedAttachments(item)}}>
-    //                 <View style={{justifyContent: 'center',
-    //             alignItems: 'center',}}><Icon name="refresh" title="Retry" size={15}/><Text style={{fontSize:10, color:"red"}}>{'Retry'}</Text></View></TouchableOpacity>  : <View></View>}
-    //               </View></View>
-    //     </View>
-    //     </TouchableOpacity>
-    //     </View>
-    //     )}
-    //     />
-
-    //   )
-    // }
 
     FailedAttachmentAlert = () => {
         Alert.alert(
@@ -2452,11 +2335,7 @@ class NCOFIPage extends Component {
         const encodedBase64 = this.state.fileData;
         return (
             <View style={styles.wrapper}>
-                {Platform.OS === 'ios' ? (
-                    <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }} />
-                ) : (
-                    <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }} />
-                )}
+                {Platform.OS === 'ios' ? <View style={styles.iosTopSpacer} /> : <View style={styles.androidTopSpacer} />}
                 <OfflineNotice />
                 <GlobalHeader
                     title={`${strings.NC}/${strings.OFI}`}
@@ -2469,7 +2348,7 @@ class NCOFIPage extends Component {
                         this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD);
                     }}
                 />
-                <View style={[styles.auditPageBody, { paddingTop: 10 }]}>
+                <View style={[styles.auditPageBody, styles.auditPageBodyTopPadding]}>
                     {this.state.isLoaderVisible === false ? (
                         <ScrollableTabView
                             renderTabBar={() => (
@@ -2477,34 +2356,19 @@ class NCOFIPage extends Component {
                                     backgroundColor="white"
                                     activeTextColor="#2CB5FD"
                                     inactiveTextColor="#747474"
-                                    underlineStyle={{
-                                        backgroundColor: '#2CB5FD',
-                                        borderBottomColor: '#2CB5FD',
-                                        height: Platform.select({
-                                            android: 0,
-                                            ios: 5,
-                                        }),
-                                    }}
-                                    textStyle={{
-                                        fontSize: Fonts.size.h5,
-                                        fontFamily: 'OpenSans-Regular',
-                                    }}
+                                    underlineStyle={styles.tabUnderline}
+                                    textStyle={styles.tabText}
                                 />
                             )}
                             tabBarPosition="overlayTop">
                             <ScrollView tabLabel={strings.Pending} style={styles.scrollViewBody}>
                                 {this.state.NCdisplay.length > 0 ? (
-                                    <View style={{ marginTop: 55 }}>
+                                    <View style={styles.tabContentTopMargin}>
                                         {this.state.NCdisplay.map((item, key) => (
-                                            <View style={{ flexDirection: 'row' }}>
+                                            <View style={styles.pendingItemRow}>
                                                 <TouchableOpacity onPress={this.openEditBox.bind(this, item)} key={key} style={styles.cardBox}>
                                                     <View style={styles.sectionTop}>
-                                                        <View
-                                                            style={{
-                                                                flex: 1,
-                                                                flexDirection: 'row',
-                                                                alignSelf: 'flex-end',
-                                                            }}>
+                                                        <View style={styles.cardTopActionRow}>
                                                             <TouchableOpacity
                                                                 onPress={() => {
                                                                     this.setState(
@@ -2551,32 +2415,15 @@ class NCOFIPage extends Component {
                                     </View>
                                 ) : (
                                     // {/* ui check */}
-                                    <View style={{ marginTop: 55 }}>
+                                    <View style={styles.tabContentTopMargin}>
                                         <Text style={styles.norecordefound}>{strings.No_records_found}</Text>
                                     </View>
-                                    //   <View style={{marginTop: '20%'}}>
-                                    //     <View
-                                    //       style={{
-                                    //         flexDirection: 'row',
-                                    //         justifyContent: 'center',
-                                    //       }}>
-                                    //       <Image
-                                    //         source={Images.emptybox}
-                                    //         style={{height: 50, resizeMode: 'contain'}}
-                                    //       />
-                                    //     </View>
-                                    //     <View style={{}}>
-                                    //       <Text style={styles.norecordefound}>
-                                    //         {strings.No_records_found}
-                                    //       </Text>
-                                    //     </View>
-                                    //   </View>
                                 )}
                             </ScrollView>
 
                             <ScrollView tabLabel={strings.Uploaded} style={styles.scrollViewBody}>
                                 {this.state.NCUpload.length > 0 ? (
-                                    <View style={{ marginTop: 55 }}>
+                                    <View style={styles.tabContentTopMargin}>
                                         {this.state.NCUpload.map((item, key) => (
                                             <TouchableOpacity onPress={this.getSectionListItem.bind(this, item)} key={key} style={styles.cardBox}>
                                                 <View style={styles.sectionTop}>
@@ -2608,7 +2455,7 @@ class NCOFIPage extends Component {
                                         ))}
                                     </View>
                                 ) : (
-                                    <View style={{ marginTop: 55 }}>
+                                    <View style={styles.tabContentTopMargin}>
                                         <Text style={styles.norecordefound}>{strings.No_records_found}</Text>
                                     </View>
                                 )}
@@ -2616,7 +2463,7 @@ class NCOFIPage extends Component {
                         </ScrollableTabView>
                     ) : (
                         <View>
-                            <View style={{ alignItems: 'center', marginTop: middle }}>
+                            <View style={[styles.syncModeStatusContainer, { marginTop: middle }]}>
                                 {this.state.syncMode === 2 ? (
                                     <Icon name="times-circle" color="red" size={50} />
                                 ) : this.state.syncMode === 1 || this.state.syncMode === 3 || this.state.syncMode === 0 ? (
@@ -2624,7 +2471,7 @@ class NCOFIPage extends Component {
                                 ) : this.state.syncMode === 4 ? (
                                     <Icon name="check-circle" color="green" size={60} />
                                 ) : null}
-                                <Text style={{ textAlign: 'center', fontFamily: 'OpenSans-Regular' }}>
+                                <Text style={styles.syncModeStatusText}>
                                     {this.state.syncStatusLabel === ''
                                         ? this.state.syncMode === 0
                                             ? 'Loading data....'
@@ -2632,74 +2479,27 @@ class NCOFIPage extends Component {
                                         : this.state.syncStatusLabel}
                                 </Text>
                             </View>
-                            <View
-                                style={{
-                                    alignItems: 'center',
-                                    paddingTop: 20,
-                                    height: attachmentHeight,
-                                }}>
+                            <View style={[styles.syncAttachmentContainer, { height: attachmentHeight }]}>
                                 {this.state.AuditAttachments.length > 0 && this.state.syncMode > 0 && this.renderFileUploadStatus()}
                             </View>
                         </View>
                     )}
                 </View>
 
-                <View
-                    style={[
-                        styles.footer,
-                        {
-                            height: 88,
-                            paddingBottom: Platform.OS === 'ios' ? 8 : 6,
-                        },
-                    ]}>
-                    <View
-                        style={[
-                            styles.footerDiv,
-                            {
-                                width: '100%',
-                                height: 88,
-                                paddingHorizontal: 10,
-                            },
-                        ]}>
-                        <View
-                            style={{
-                                flexDirection: 'row',
-                                justifyContent: 'space-between',
-                                alignItems: 'center',
-                                width: '100%',
-                            }}>
-                            <View style={{ width: width(29), justifyContent: 'center' }}>
+                <View style={[styles.footer, styles.footerContainer]}>
+                    <View style={[styles.footerDiv, styles.footerDivContainer]}>
+                        <View style={styles.footerActionsRow}>
+                            <View style={styles.footerActionColumn}>
                                 {this.state.syncMode === 0 && (
-                                    <TouchableOpacity
-                                        onPress={once(this.onNavigaTo.bind(this, 1))}
-                                        style={{
-                                            height: 66,
-                                            borderRadius: 18,
-                                            backgroundColor: '#00b3d6',
-                                            justifyContent: 'center',
-                                            alignItems: 'center',
-                                            shadowColor: '#000',
-                                            shadowOpacity: 0.18,
-                                            shadowOffset: { width: 0, height: 3 },
-                                            shadowRadius: 4,
-                                            elevation: 4,
-                                        }}>
+                                    <TouchableOpacity onPress={once(this.onNavigaTo.bind(this, 1))} style={styles.footerActionButton}>
                                         <Icon name="upload-cloud" size={25} color="white" />
-                                        <Text
-                                            style={{
-                                                color: 'white',
-                                                fontSize: Fonts.size.medium,
-                                                fontFamily: 'OpenSans-SemiBold',
-                                                marginTop: 6,
-                                            }}>
-                                            {strings.Create_NC}
-                                        </Text>
+                                        <Text style={styles.footerActionButtonText}>{strings.Create_NC}</Text>
                                     </TouchableOpacity>
                                 )}
                             </View>
 
                             {this.state.syncMode === 0 ? (
-                                <View style={{ width: width(29), justifyContent: 'center' }}>
+                                <View style={styles.footerActionColumn}>
                                     <TouchableOpacity
                                         onPress={() => {
                                             this.setState(
@@ -2711,113 +2511,32 @@ class NCOFIPage extends Component {
                                                 },
                                             );
                                         }}
-                                        style={{
-                                            height: 66,
-                                            borderRadius: 18,
-                                            backgroundColor: '#00b3d6',
-                                            justifyContent: 'center',
-                                            alignItems: 'center',
-                                            shadowColor: '#000',
-                                            shadowOpacity: 0.18,
-                                            shadowOffset: { width: 0, height: 3 },
-                                            shadowRadius: 4,
-                                            elevation: 4,
-                                        }}>
+                                        style={styles.footerActionButton}>
                                         <Icon name="refresh-ccw" size={25} color="white" />
-                                        <Text
-                                            style={{
-                                                color: 'white',
-                                                fontSize: Fonts.size.medium,
-                                                fontFamily: 'OpenSans-SemiBold',
-                                                marginTop: 6,
-                                            }}>
-                                            {strings.Upload_to_server}
-                                        </Text>
+                                        <Text style={styles.footerActionButtonText}>{strings.Upload_to_server}</Text>
                                     </TouchableOpacity>
                                 </View>
                             ) : this.state.syncMode === 2 || this.state.syncMode === 4 ? (
-                                <View style={{ width: width(29), justifyContent: 'center' }}>
-                                    <TouchableOpacity
-                                        onPress={this.CheckSync.bind(this)}
-                                        style={{
-                                            height: 66,
-                                            borderRadius: 18,
-                                            backgroundColor: '#00b3d6',
-                                            justifyContent: 'center',
-                                            alignItems: 'center',
-                                            shadowColor: '#000',
-                                            shadowOpacity: 0.18,
-                                            shadowOffset: { width: 0, height: 3 },
-                                            shadowRadius: 4,
-                                            elevation: 4,
-                                        }}>
+                                <View style={styles.footerActionColumn}>
+                                    <TouchableOpacity onPress={this.CheckSync.bind(this)} style={styles.footerActionButton}>
                                         <Icon name="check-square" size={30} color="white" />
-                                        <Text
-                                            style={{
-                                                color: 'white',
-                                                fontSize: Fonts.size.medium,
-                                                marginTop: 6,
-                                                fontFamily: 'OpenSans-SemiBold',
-                                            }}>
-                                            {'Proceed'}
-                                        </Text>
+                                        <Text style={styles.footerActionButtonText}>{'Proceed'}</Text>
                                     </TouchableOpacity>
                                 </View>
                             ) : (
-                                <View style={{ width: width(29), justifyContent: 'center' }}>
-                                    <View
-                                        style={{
-                                            height: 66,
-                                            borderRadius: 18,
-                                            backgroundColor: '#00b3d6',
-                                            justifyContent: 'center',
-                                            alignItems: 'center',
-                                            shadowColor: '#000',
-                                            shadowOpacity: 0.18,
-                                            shadowOffset: { width: 0, height: 3 },
-                                            shadowRadius: 4,
-                                            elevation: 4,
-                                        }}>
+                                <View style={styles.footerActionColumn}>
+                                    <View style={styles.footerActionButton}>
                                         <ActivityIndicator size={20} color="white" />
-                                        <Text
-                                            style={{
-                                                color: 'white',
-                                                fontSize: Fonts.size.medium,
-                                                marginTop: 6,
-                                                fontFamily: 'OpenSans-SemiBold',
-                                            }}>
-                                            {strings.Upload_to_server}
-                                        </Text>
+                                        <Text style={styles.footerActionButtonText}>{strings.Upload_to_server}</Text>
                                     </View>
                                 </View>
                             )}
 
-                            <View style={{ width: width(29), justifyContent: 'center' }}>
+                            <View style={styles.footerActionColumn}>
                                 {this.state.syncMode === 0 && (
-                                    <TouchableOpacity
-                                        onPress={once(this.onNavigaTo.bind(this, 2))}
-                                        style={{
-                                            height: 66,
-                                            borderRadius: 18,
-                                            backgroundColor: '#00b3d6',
-                                            justifyContent: 'center',
-                                            alignItems: 'center',
-                                            shadowColor: '#000',
-                                            shadowOpacity: 0.18,
-                                            shadowOffset: { width: 0, height: 3 },
-                                            shadowRadius: 4,
-                                            elevation: 4,
-                                        }}>
+                                    <TouchableOpacity onPress={once(this.onNavigaTo.bind(this, 2))} style={styles.footerActionButton}>
                                         <Icon name="upload-cloud" size={25} color="white" />
-                                        <Text
-                                            style={{
-                                                color: 'white',
-                                                fontSize: Fonts.size.medium,
-                                                fontFamily: 'OpenSans-SemiBold',
-                                                marginTop: 6,
-                                            }}>
-                                            {strings.Create_OFI}
-                                        </Text>
+                                        <Text style={styles.footerActionButtonText}>{strings.Create_OFI}</Text>
                                     </TouchableOpacity>
                                 )}
                             </View>
@@ -2854,14 +2573,7 @@ class NCOFIPage extends Component {
                 <Modal isVisible={this.state.isMissingFindings} onBackdropPress={() => this.setState({ isMissingFindings: false })}>
                     <View style={styles.missingModal}>
                         <View style={styles.missingMContainer}>
-                            <Text
-                                style={{
-                                    fontSize: 22,
-                                    color: '#2EA4E2',
-                                    fontFamily: 'OpenSans-Regular',
-                                }}>
-                                {strings.Missingattachmentalert}
-                            </Text>
+                            <Text style={styles.missingAlertTitle}>{strings.Missingattachmentalert}</Text>
                         </View>
 
                         {/* body */}
@@ -2875,25 +2587,12 @@ class NCOFIPage extends Component {
                                     <View key={i} style={styles.carddivMissing}>
                                         <View style={styles.cardContMissing}>
                                             <View style={styles.cardSecMissing}>
-                                                <Text style={{ fontFamily: 'OpenSans-Regular' }}>{strings.ncnumber}</Text>
-                                                <Text
-                                                    style={{
-                                                        fontSize: 15,
-                                                        color: '#37057E',
-                                                        fontFamily: 'OpenSans-Regular',
-                                                    }}>
-                                                    {'items.NCNumber'}
-                                                </Text>
+                                                <Text style={styles.missingLabelText}>{strings.ncnumber}</Text>
+                                                <Text style={styles.missingNcNumberText}>{'items.NCNumber'}</Text>
                                             </View>
                                             <View style={styles.cardsec2Missing}>
-                                                <Text style={{ fontFamily: 'OpenSans-Regular' }}>{strings.nonconfirmity}</Text>
-                                                <Text
-                                                    numberOfLines={1}
-                                                    style={{
-                                                        fontSize: 15,
-                                                        color: '#070F6E',
-                                                        fontFamily: 'OpenSans-Regular',
-                                                    }}>
+                                                <Text style={styles.missingLabelText}>{strings.nonconfirmity}</Text>
+                                                <Text numberOfLines={1} style={styles.missingNonconformityText}>
                                                     {items.NonConfirmity}
                                                 </Text>
                                             </View>
@@ -2912,14 +2611,7 @@ class NCOFIPage extends Component {
                                     })
                                 }
                                 style={styles.cardBtnDiv}>
-                                <Text
-                                    style={{
-                                        fontSize: 20,
-                                        color: 'red',
-                                        fontFamily: 'OpenSans-Regular',
-                                    }}>
-                                    {strings.goBack}
-                                </Text>
+                                <Text style={styles.missingGoBackText}>{strings.goBack}</Text>
                             </TouchableOpacity>
                             <TouchableOpacity
                                 onPress={() =>
@@ -2928,14 +2620,7 @@ class NCOFIPage extends Component {
                                     })
                                 }
                                 style={styles.cardBtn2Div}>
-                                <Text
-                                    style={{
-                                        fontSize: 20,
-                                        color: 'green',
-                                        fontFamily: 'OpenSans-Regular',
-                                    }}>
-                                    {strings.skipandcontinue}
-                                </Text>
+                                <Text style={styles.missingSkipContinueText}>{strings.skipandcontinue}</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -2945,19 +2630,8 @@ class NCOFIPage extends Component {
                 <Modal isVisible={this.state.isVisible} onBackdropPress={() => this.setState({ isVisible: false })}>
                     <View style={styles.ncModal}>
                         <View style={styles.modalheader}>
-                            <View
-                                style={{
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    padding: 10,
-                                }}>
-                                <Text
-                                    style={{
-                                        color: 'black',
-                                        fontSize: 23,
-                                        fontFamily: 'OpenSans-Regular',
-                                        fontWeight: 'bold',
-                                    }}>
+                            <View style={styles.modalTitleContainer}>
+                                <Text style={styles.modalTitleText}>
                                     {/* {strings.NC_OFI_Detail} */}
                                     {this.state.CheckNC === 0 ? 'NC Detail' : 'OFI Detail'}
                                 </Text>
@@ -2965,7 +2639,7 @@ class NCOFIPage extends Component {
                         </View>
 
                         <ScrollView style={styles.scrollview}>
-                            <View style={{ marginTop: 10 }}>
+                            <View style={styles.modalContentTopMargin}>
                                 <View style={styles.firstCard}>
                                     <Text style={styles.boxHeader}>{strings.ncnumber}</Text>
                                     <Text style={styles.boxContent}>{this.state.NCmodalheader}</Text>
@@ -2975,7 +2649,7 @@ class NCOFIPage extends Component {
                                         {this.state.loadingData === false ? (
                                             <View>
                                                 <View style={styles.commoncard}>
-                                                    <Text style={[styles.boxHeader, { marginTop: 5 }]}>{strings.Date_of_upload}</Text>
+                                                    <Text style={[styles.boxHeader, styles.boxHeaderMarginTop]}>{strings.Date_of_upload}</Text>
                                                     <Text style={styles.boxContent}>
                                                         {this.state.UploadDate
                                                             ? this.changeDateFormatCard(this.state.UploadDate) != ''
@@ -2986,94 +2660,71 @@ class NCOFIPage extends Component {
                                                 </View>
 
                                                 <View style={styles.commoncard}>
-                                                    <Text style={[styles.boxHeader, { marginTop: 5 }]}>
+                                                    <Text style={[styles.boxHeader, styles.boxHeaderMarginTop]}>
                                                         {/* {strings.Non_confirmityL} */}
                                                         {this.state.CheckNC === 0 ? 'Non conformity' : 'OFI'}
                                                     </Text>
                                                     <Text style={styles.boxContent}>{this.state.NCtext}</Text>
                                                 </View>
                                                 <View style={styles.commoncard}>
-                                                    <Text style={[styles.boxHeader, { marginTop: 5 }]}>{strings.Objective_Evidence}</Text>
+                                                    <Text style={[styles.boxHeader, styles.boxHeaderMarginTop]}>{strings.Objective_Evidence}</Text>
                                                     <Text style={styles.boxContent}>
                                                         {this.state.objectiveEvidence === '' ? '-' : this.state.objectiveEvidence}
                                                     </Text>
                                                 </View>
 
                                                 <View style={styles.commoncard}>
-                                                    <Text style={[styles.boxHeader, { marginTop: 5 }]}>{strings.CategoryL}</Text>
+                                                    <Text style={[styles.boxHeader, styles.boxHeaderMarginTop]}>{strings.CategoryL}</Text>
                                                     <Text style={styles.boxContent}>{this.state.Category === '' ? '-' : this.state.Category}</Text>
                                                 </View>
 
                                                 <View style={styles.commoncard}>
-                                                    <Text style={[styles.boxHeader, { marginTop: 5 }]}>{strings.ResponsibilityL}</Text>
+                                                    <Text style={[styles.boxHeader, styles.boxHeaderMarginTop]}>{strings.ResponsibilityL}</Text>
                                                     <Text style={styles.boxContent}>
                                                         {this.state.Responsible === '' ? '-' : this.state.Responsible}
                                                     </Text>
                                                 </View>
 
                                                 <View style={styles.commoncard}>
-                                                    <Text style={[styles.boxHeader, { marginTop: 5 }]}>{strings.RequestedL}</Text>
+                                                    <Text style={[styles.boxHeader, styles.boxHeaderMarginTop]}>{strings.RequestedL}</Text>
                                                     <Text style={styles.boxContent}>{this.state.Request === '' ? '-' : this.state.Request}</Text>
                                                 </View>
 
                                                 <View style={styles.commoncard}>
-                                                    <Text style={[styles.boxHeader, { marginTop: 5 }]}>{strings.FailureCategory}</Text>
+                                                    <Text style={[styles.boxHeader, styles.boxHeaderMarginTop]}>{strings.FailureCategory}</Text>
                                                     <Text style={styles.boxContent}>{this.state.FailureCategory}</Text>
                                                 </View>
                                                 <View style={styles.commoncard}>
-                                                    <Text style={[styles.boxHeader, { marginTop: 5 }]}>{strings.ProcessL}</Text>
+                                                    <Text style={[styles.boxHeader, styles.boxHeaderMarginTop]}>{strings.ProcessL}</Text>
                                                     <Text style={styles.boxContent}>{this.state.Process}</Text>
                                                 </View>
                                                 <View style={styles.commoncard}>
-                                                    <Text style={[styles.boxHeader, { marginTop: 5 }]}>{strings.Document_reference}</Text>
+                                                    <Text style={[styles.boxHeader, styles.boxHeaderMarginTop]}>{strings.Document_reference}</Text>
                                                     <Text style={styles.boxContent}>{this.state.DocumentReference}</Text>
                                                 </View>
                                                 {this.renderAttachment()}
                                                 <View style={styles.commoncard}>
-                                                    <Text style={[styles.boxHeader, { marginTop: 5 }]}>{strings.ClausesL}</Text>
+                                                    <Text style={[styles.boxHeader, styles.boxHeaderMarginTop]}>{strings.ClausesL}</Text>
                                                     <Text style={styles.boxContent}>{this.state.Clause}</Text>
                                                 </View>
 
                                                 <View style={styles.lastcard}>
-                                                    <Text style={[styles.boxHeader, { marginTop: 5 }]}>{strings.StandardRequirementsL}</Text>
+                                                    <Text style={[styles.boxHeader, styles.boxHeaderMarginTop]}>{strings.StandardRequirementsL}</Text>
                                                     <Text style={styles.boxContent}>{this.state.StandText === '' ? '-' : this.state.StandText}</Text>
                                                 </View>
                                             </View>
                                         ) : (
-                                            <View
-                                                style={{
-                                                    width: '100%',
-                                                    height: 200,
-                                                    justifyContent: 'center',
-                                                    alignContent: 'center',
-                                                }}>
-                                                <View
-                                                    style={{
-                                                        justifyContent: 'center',
-                                                        alignItems: 'center',
-                                                        flexDirection: 'column',
-                                                    }}>
+                                            <View style={styles.modalLoadingContainer}>
+                                                <View style={styles.modalLoaderInner}>
                                                     <IconAwesome name="hourglass" size={20} color="black" />
-                                                    <Text style={{ fontFamily: 'OpenSans-Regular' }}>{strings.Loading}</Text>
+                                                    <Text style={styles.modalLoadingText}>{strings.Loading}</Text>
                                                 </View>
                                             </View>
                                         )}
                                     </View>
                                 ) : (
-                                    <View
-                                        style={{
-                                            width: '100%',
-                                            top: 90,
-                                            height: 200,
-                                            justifyContent: 'center',
-                                            alignContent: 'center',
-                                        }}>
-                                        <View
-                                            style={{
-                                                justifyContent: 'center',
-                                                alignItems: 'center',
-                                                flexDirection: 'column',
-                                            }}>
+                                    <View style={styles.modalFailureContainer}>
+                                        <View style={styles.modalLoaderInner}>
                                             <IconAwesome name="spinner" size={20} color="black" />
                                             <Text>{strings.failed}</Text>
                                         </View>
@@ -3083,17 +2734,8 @@ class NCOFIPage extends Component {
                         </ScrollView>
 
                         <TouchableOpacity onPress={() => this.closeReset()} style={styles.closeDiv}>
-                            <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                                <Text
-                                    style={{
-                                        fontSize: Fonts.size.regular,
-                                        color: 'red',
-                                        top: 20,
-                                        fontFamily: 'OpenSans-Regular',
-                                        fontWeight: 'bold',
-                                    }}>
-                                    {strings.Close}
-                                </Text>
+                            <View style={styles.closeActionContainer}>
+                                <Text style={styles.closeActionText}>{strings.Close}</Text>
                             </View>
                         </TouchableOpacity>
                     </View>
@@ -3102,119 +2744,31 @@ class NCOFIPage extends Component {
                     isVisible={this.state.confirmpwd}
                     // onBackdropPress={()=>this.setState({confirmpwd:false})}
                 >
-                    <View
-                        style={{
-                            width: '100%',
-                            height: 350,
-                            backgroundColor: 'white',
-                            borderRadius: 15,
-                            padding: 10,
-                        }}>
+                    <View style={styles.passwordModalContainer}>
                         <TouchableOpacity onPress={() => this.setState({ confirmpwd: false })}>
-                            <Icon name="times-circle" style={{ alignSelf: 'flex-end' }} size={30} color="#2EA4E2" />
+                            <Icon name="times-circle" style={styles.passwordModalCloseIcon} size={30} color="#2EA4E2" />
                         </TouchableOpacity>
-                        <View
-                            style={{
-                                flex: 1,
-                            }}>
-                            <View
-                                style={{
-                                    flex: 1,
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                }}>
-                                <Text
-                                    style={{
-                                        textAlign: 'center',
-                                        fontSize: 20,
-                                        color: '#2EA4E2',
-                                        fontFamily: 'OpenSans-Bold',
-                                    }}>
-                                    {strings.enterthepasswordtocontinuesyncprocess}
-                                </Text>
+                        <View style={styles.passwordModalContent}>
+                            <View style={styles.passwordModalHeaderSection}>
+                                <Text style={styles.passwordModalHeaderText}>{strings.enterthepasswordtocontinuesyncprocess}</Text>
                             </View>
-                            <View
-                                style={{
-                                    flex: 1,
-                                }}>
-                                <Text
-                                    style={{
-                                        fontSize: 16,
-                                        color: 'grey',
-                                        fontFamily: 'OpenSans-Regular',
-                                    }}>
-                                    {strings.Username}
-                                </Text>
-                                <TextInput
-                                    value={this.props.data.audits.loginuser}
-                                    editable={false}
-                                    style={{
-                                        fontSize: 20,
-                                        color: 'lightgrey',
-                                        fontFamily: 'OpenSans-Bold',
-                                        borderBottomColor: 'lightgrey',
-                                        borderBottomWidth: 0.7,
-                                    }}
-                                />
+                            <View style={styles.passwordModalFieldSection}>
+                                <Text style={styles.passwordModalLabel}>{strings.Username}</Text>
+                                <TextInput value={this.props.data.audits.loginuser} editable={false} style={styles.passwordModalUserInput} />
                             </View>
-                            <View
-                                style={{
-                                    flex: 1,
-                                }}>
-                                <Text
-                                    style={{
-                                        fontSize: 16,
-                                        color: 'grey',
-                                        fontFamily: 'OpenSans-Regular',
-                                    }}>
-                                    {strings.Password}
-                                </Text>
+                            <View style={styles.passwordModalFieldSection}>
+                                <Text style={styles.passwordModalLabel}>{strings.Password}</Text>
                                 <TextInput
                                     value={this.state.pwdentry}
-                                    style={{
-                                        fontSize: 20,
-                                        color: 'black',
-                                        fontFamily: 'OpenSans-Bold',
-                                        borderBottomColor: 'lightgrey',
-                                        borderBottomWidth: 0.7,
-                                    }}
+                                    style={styles.passwordModalPasswordInput}
                                     secureTextEntry={true}
                                     onChangeText={text => this.setState({ pwdentry: text, isEmptyPwd: undefined })}
                                 />
-                                <Text
-                                    style={{
-                                        fontSize: 16,
-                                        color: 'red',
-                                        fontFamily: 'OpenSans-Regular',
-                                    }}>
-                                    {this.state.isEmptyPwd ? this.state.isEmptyPwd : null}
-                                </Text>
+                                <Text style={styles.passwordModalErrorText}>{this.state.isEmptyPwd ? this.state.isEmptyPwd : null}</Text>
                             </View>
-                            <View
-                                style={{
-                                    flex: 1,
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                }}>
-                                <TouchableOpacity
-                                    onPress={() => this.onConfirmPwdPress()}
-                                    style={{
-                                        width: null,
-                                        height: 50,
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                        backgroundColor: '#2EA4E2',
-                                        borderRadius: 30,
-                                        padding: 10,
-                                    }}>
-                                    <Text
-                                        style={{
-                                            fontFamily: 'OpenSans-Bold',
-                                            fontSize: 20,
-                                            color: 'white',
-                                        }}>
-                                        {strings.continue}
-                                    </Text>
+                            <View style={styles.passwordModalActionSection}>
+                                <TouchableOpacity onPress={() => this.onConfirmPwdPress()} style={styles.passwordModalContinueButton}>
+                                    <Text style={styles.passwordModalContinueText}>{strings.continue}</Text>
                                 </TouchableOpacity>
                             </View>
                         </View>

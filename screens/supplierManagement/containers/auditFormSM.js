@@ -4248,7 +4248,7 @@ class AuditForm extends Component {
                         <TouchableOpacity onPress={() => this.checkoffline()} style={styles.floatinBtn}>
                             {this.state.redDotID === 'true' ? (
                                 <View style={{ position: 'absolute', top: 8, right: 8 }}>
-                                    <Icon name="circle" size={10} color="red" />
+                                    <Icon name="target" size={10} color="red" />
                                 </View>
                             ) : null}
                             <Icon name="refresh-ccw" size={20} color="white" />

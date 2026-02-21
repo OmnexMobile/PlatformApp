@@ -21,7 +21,7 @@ import {
 } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Images } from '../../auditPro/Themes/index';
-import styles from '../../auditPro/styles/CreateNCStyle';
+import styles, { clauseMultiSelectStyles, processMultiSelectStyles } from '../../auditPro/containers/createNCStyle_SM';
 // import {Dropdown} from 'react-native-element-dropdown';
 import Toast, { DURATION } from 'react-native-easy-toast';
 import DocumentPicker from 'react-native-document-picker';
@@ -126,7 +126,6 @@ class CreateNC extends Component {
             nonconfirmityText: undefined,
             documentRef: undefined,
             NCresponsible: undefined,
-            objEvidence: undefined,
             oppForImprovements: undefined,
             getDetails: [],
             AuditID: '',
@@ -213,7 +212,6 @@ class CreateNC extends Component {
             isUploaded: false,
             missingfile: undefined,
             isBuffered: false,
-            selectedItems: [],
             requestDropdown: [],
             clauseMandatory: 0,
             fileArrayList: [],
@@ -1023,25 +1021,11 @@ class CreateNC extends Component {
                 source={{
                     uri: 'file:/' + fileData,
                 }}
-                style={{
-                    width: width(70),
-                    height: 200,
-                    resizeMode: 'cover',
-                    alignSelf: 'center',
-                }}
+                style={styles.attachmentImageLarge}
             />
         ) : (
-            <View style={{ width: width(70), height: 200 }}>
-                <Icon
-                    name={icon}
-                    size={65}
-                    color="black"
-                    style={{
-                        flex: 1,
-                        alignSelf: 'center',
-                        marginTop: 70,
-                    }}
-                />
+            <View style={styles.attachmentIconContainer}>
+                <Icon name={icon} size={65} color="black" style={styles.attachmentIconLarge} />
             </View>
         );
     }
@@ -2815,29 +2799,13 @@ class CreateNC extends Component {
 
     renderItem = ({ item }) => {
         return (
-            <View
-                style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    paddingVertical: 10,
-                    margin: 2,
-                    borderColor: '#2a4944',
-                    borderWidth: 1,
-                    height: '90%',
-                }}>
+            <View style={styles.attachmentListItem}>
                 {this.state.missingfile ? (
-                    <Text
-                        numberOfLines={1}
-                        style={{
-                            left: 10,
-                            color: 'red',
-                            fontFamily: 'OpenSans-Regular',
-                        }}>
+                    <Text numberOfLines={1} style={styles.missingFileText}>
                         {this.state.missingfile}
                     </Text>
                 ) : (
-                    <View style={{ flexDirection: 'column' }}>
+                    <View style={styles.columnFlex}>
                         <View>
                             {item.fileData !== '' && item.fileData !== undefined && item.fileData !== null ? (
                                 <TouchableOpacity onPress={this.openAttachmentFile.bind(this, item.fileData)}>
@@ -2845,26 +2813,13 @@ class CreateNC extends Component {
                                 </TouchableOpacity>
                             ) : null}
                         </View>
-                        <Text
-                            numberOfLines={1}
-                            style={{
-                                fontFamily: 'OpenSans-Regular',
-                                alignSelf: 'center',
-                            }}>
+                        <Text numberOfLines={1} style={styles.filenameText}>
                             {item.fileName}
                         </Text>
                     </View>
                 )}
                 {item.fileName ? (
-                    <TouchableOpacity
-                        onPress={() => this.deleteAttachments(item.id)}
-                        style={{
-                            width: '10%',
-                            right: 10,
-                            top: 10,
-                            position: 'absolute',
-                            // marginRight: 20,
-                        }}>
+                    <TouchableOpacity onPress={() => this.deleteAttachments(item.id)} style={styles.attachmentDeleteBtn}>
                         <Icon name="trash" size={20} color={'red'} />
                     </TouchableOpacity>
                 ) : null}
@@ -3065,10 +3020,10 @@ class CreateNC extends Component {
                         extraHeight={125}
                         enableOnAndroid
                         keyboardShouldPersistTaps="handled"
-                        contentContainerStyle={{ flexGrow: 1 }}>
+                        contentContainerStyle={styles.keyboardAwareContent}>
                         <View style={styles.auditPageBody}>
                             <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-                                <View style={{ marginBottom: 50 }}>
+                                <View style={styles.formBottomSpacer}>
                                     <View style={styles.formSection}>
                                         {this.state.RouteParam === 'NC' ? (
                                             <View style={styles.input02}>
@@ -3080,12 +3035,12 @@ class CreateNC extends Component {
                                                     value={this.state.nonconfirmityText}
                                                     placeholder={strings.Non_confirmityL}
                                                     placeholderTextColor="#A6A6A6"
-                                                    inputStyle={{ paddingHorizontal: 0 }}
+                                                    inputStyle={styles.inputNoHorizontalPadding}
                                                     multiline
                                                     numberOfLines={3}
                                                     autoCapitalize="sentences"
                                                     inputRef={ref => (this.ncTxtField = ref)}
-                                                    containerStyle={{ paddingHorizontal: 0, marginBottom: 0, marginLeft: 0 }}
+                                                    containerStyle={styles.inputContainerNoPad}
                                                     onChangeText={(field, value) => {
                                                         const hasValue = typeof value === 'string' ? value.trim().length > 0 : !!value;
                                                         this.setState({ nonconfirmityText: value }, () => {
@@ -3104,12 +3059,12 @@ class CreateNC extends Component {
                                                         required
                                                         value={this.state.ofitext}
                                                         placeholder={strings.Opportunity_ApproachL}
-                                                        inputStyle={{ paddingHorizontal: 0 }}
+                                                        inputStyle={styles.inputNoHorizontalPadding}
                                                         multiline
                                                         numberOfLines={3}
                                                         autoCapitalize="sentences"
                                                         inputRef={ref => (this.ofiTxtField = ref)}
-                                                        containerStyle={{ paddingHorizontal: 0, marginBottom: 0, marginLeft: 0 }}
+                                                        containerStyle={styles.inputContainerNoPad}
                                                         onChangeText={(field, value) => {
                                                             this.setState({ ofitext: value }, () => {
                                                                 this.isCheck3 = true;
@@ -3130,12 +3085,12 @@ class CreateNC extends Component {
                                                     value={this.state.objEvidence}
                                                     placeholder={strings.Objective_Evidence}
                                                     placeholderTextColor="#A6A6A6"
-                                                    inputStyle={{ paddingHorizontal: 0 }}
+                                                    inputStyle={styles.inputNoHorizontalPadding}
                                                     multiline
                                                     numberOfLines={3}
                                                     autoCapitalize="sentences"
                                                     inputRef={ref => (this.objEviTxtField = ref)}
-                                                    containerStyle={{ paddingHorizontal: 0, marginBottom: 0, marginLeft: 0 }}
+                                                    containerStyle={styles.inputContainerNoPad}
                                                     onChangeText={(field, value) => {
                                                         this.setState({ objEvidence: value }, () => {
                                                             this.isCheck5 = true;
@@ -3152,12 +3107,12 @@ class CreateNC extends Component {
                                                     value={this.state.objEvidence}
                                                     placeholder={strings.Objective_Evidence}
                                                     placeholderTextColor="#A6A6A6"
-                                                    inputStyle={{ paddingHorizontal: 0 }}
+                                                    inputStyle={styles.inputNoHorizontalPadding}
                                                     multiline
                                                     numberOfLines={3}
                                                     autoCapitalize="sentences"
                                                     inputRef={ref => (this.objEviTxtField = ref)}
-                                                    containerStyle={{ paddingHorizontal: 0, marginBottom: 0, marginLeft: 0 }}
+                                                    containerStyle={styles.inputContainerNoPad}
                                                     onChangeText={(field, value) => {
                                                         this.setState({ objEvidence: value }, () => {
                                                             this.isCheck5 = true;
@@ -3167,15 +3122,10 @@ class CreateNC extends Component {
                                             </View>
                                         )}
 
-                                        <View style={{ display: 'none' }} />
+                                        <View style={styles.hidden} />
                                     </View>
                                     <View style={styles.input02}>
-                                        <Text
-                                            style={{
-                                                color: '#A6A6A6',
-                                            }}>
-                                            {strings.ClausesL}
-                                        </Text>
+                                        <Text style={styles.placeholderTextMuted}>{strings.ClausesL}</Text>
                                     </View>
                                     <View style={styles.div2}>
                                         <View style={styles.inputhigh}>
@@ -3199,11 +3149,7 @@ class CreateNC extends Component {
                                                     placeholderTextColor="#A6A6A6"
                                                     itemNumberOfLines={3}
                                                     selectLabelNumberOfLines={3}
-                                                    styles={{
-                                                        chipText: {
-                                                            maxWidth: Dimensions.get('screen').width - 90,
-                                                        },
-                                                    }}
+                                                    styles={clauseMultiSelectStyles}
                                                     colors={{
                                                         text: '#A6A6A6',
                                                         subText: '#A6A6A6',
@@ -3212,24 +3158,16 @@ class CreateNC extends Component {
                                                 />
                                             </View>
                                         </View>
-                                        <View style={{ display: 'none' }} />
+                                        <View style={styles.hidden} />
                                     </View>
                                     <View style={styles.div01}>
                                         <View style={styles.input002}>
                                             {this.state.displayData ? (
-                                                <Text
-                                                    style={{
-                                                        color: '#A6A6A6',
-                                                        marginBottom: 4,
-                                                        fontSize: Fonts.size.regular,
-                                                        fontFamily: 'OpenSans-Regular',
-                                                    }}>
-                                                    {strings.StandardRequirementsL}
-                                                </Text>
+                                                <Text style={styles.standardRequirementText}>{strings.StandardRequirementsL}</Text>
                                             ) : null}
 
                                             {/* Container for TextInput + Eye Icon */}
-                                            <View style={{ position: 'relative', minHeight: 40 }}>
+                                            <View style={styles.eyeRow}>
                                                 <InputComponent
                                                     // label={strings.StandardRequirementsL}
                                                     name="standardRequirements"
@@ -3244,19 +3182,12 @@ class CreateNC extends Component {
                                                     editable={false}
                                                     multiline
                                                     numberOfLines={1}
-                                                    containerStyle={{ paddingHorizontal: 0, marginBottom: 0, marginLeft: 0 }}
+                                                    containerStyle={styles.inputContainerNoPad}
                                                     onTouchStart={() => this.setState({ isVisible: true })}
                                                 />
                                                 <TouchableOpacity
                                                     onPress={() => this.setState({ NCtxtFlag: false, isVisible: true })}
-                                                    style={{
-                                                        position: 'absolute',
-                                                        right: -10,
-                                                        top: 20,
-                                                        padding: 5,
-                                                        justifyContent: 'center',
-                                                        alignItems: 'center',
-                                                    }}>
+                                                    style={styles.eyeIcon}>
                                                     <Icon name="eye" size={20} color="black" />
                                                 </TouchableOpacity>
                                             </View>
@@ -3275,7 +3206,7 @@ class CreateNC extends Component {
                                                 error={this.state.MarkCat}
                                                 editable={this.state.isContainValue1}
                                                 dropdownRef={ref => (this.categoryTxtField = ref)}
-                                                containerStyle={{ paddingHorizontal: 0, marginBottom: 0, marginLeft: 0 }}
+                                                containerStyle={styles.inputContainerNoPad}
                                                 onChange={value => {
                                                     console.log('*****', value);
                                                     var CategoryID = null;
@@ -3309,7 +3240,7 @@ class CreateNC extends Component {
                                                 error={this.state.MarkReq}
                                                 editable={this.state.isContainValue4}
                                                 dropdownRef={ref => (this.responsibleTxtField = ref)}
-                                                containerStyle={{ paddingHorizontal: 0, marginBottom: 0, marginLeft: 0 }}
+                                                containerStyle={styles.inputContainerNoPad}
                                                 onChange={value => {
                                                     // console.log('*****',value)
                                                     var RequestID = null;
@@ -3345,7 +3276,7 @@ class CreateNC extends Component {
                                                 error={this.state.MarkUser}
                                                 editable={this.state.isContainValue3}
                                                 dropdownRef={ref => (this.requestTxtField = ref)}
-                                                containerStyle={{ paddingHorizontal: 0, marginBottom: 0, marginLeft: 0 }}
+                                                containerStyle={styles.inputContainerNoPad}
                                                 onChange={value => {
                                                     // console.log('*****',value)
                                                     var UserID = null;
@@ -3383,7 +3314,7 @@ class CreateNC extends Component {
                                         <View style={styles.div1}>
                                             <View style={styles.input07}>
                                                 {this.state.isContainValue4 === true ? (
-                                                    <View style={{ position: 'relative' }}>
+                                                    <View style={styles.failureDropdownWrapper}>
                                                         {this.state.NCFailure && (
                                                             <TouchableOpacity
                                                                 onPress={() => {
@@ -3391,22 +3322,8 @@ class CreateNC extends Component {
                                                                         NCFailure: undefined,
                                                                     });
                                                                 }}
-                                                                style={{
-                                                                    position: 'absolute',
-                                                                    top: -10,
-                                                                    right: 35,
-                                                                    height: 20,
-                                                                    width: 20,
-                                                                    zIndex: 9,
-                                                                    //  borderWidth: 2,
-                                                                    borderColor: '#A6A6A6',
-                                                                    // borderRadius: 100,
-                                                                }}>
-                                                                <View
-                                                                    style={{
-                                                                        backgroundColor: 'transparent',
-                                                                        top: 18,
-                                                                    }}>
+                                                                style={styles.failureClearButton}>
+                                                                <View style={styles.failureClearIconWrapper}>
                                                                     <Icon name="times-circle" size={20} color="black" />
                                                                 </View>
                                                             </TouchableOpacity>
@@ -3419,7 +3336,7 @@ class CreateNC extends Component {
                                                             required
                                                             editable={this.state.isContainValue4}
                                                             dropdownRef={ref => (this.departmentTxtField = ref)}
-                                                            containerStyle={{ paddingHorizontal: 0, marginBottom: 0, marginLeft: 0 }}
+                                                            containerStyle={styles.inputContainerNoPad}
                                                             onChange={value => {
                                                                 let FailureID = array.find(item => item.value === value);
                                                                 if (FailureID == null) {
@@ -3440,7 +3357,7 @@ class CreateNC extends Component {
                                                             required
                                                             editable={this.state.isContainValue4}
                                                             dropdownRef={ref => (this.departmentTxtField = ref)}
-                                                            containerStyle={{ paddingHorizontal: 0, marginBottom: 0, marginLeft: 0 }}
+                                                            containerStyle={styles.inputContainerNoPad}
                                                             onChange={value => {
                                                                 let FailureID = FailureCategory.find(item => item.value === value);
                                                                 if (FailureID == null) {
@@ -3461,17 +3378,8 @@ class CreateNC extends Component {
                                     <View style={styles.div2}>
                                         <View style={styles.inputhigh}>
                                             <View>
-                                                <View style={{ paddingLeft: 0, flexDirection: 'column' }}>
-                                                    <Text
-                                                        ref="dummyFocus"
-                                                        style={{
-                                                            paddingBottom: 5,
-                                                            margin: 0,
-                                                            marginTop: 20,
-                                                            fontSize: Fonts.size.medium,
-                                                            color: '#A6A6A6',
-                                                            fontFamily: 'OpenSans-Regular',
-                                                        }}>
+                                                <View style={styles.columnPadLeft}>
+                                                    <Text ref="dummyFocus" style={styles.processLabel}>
                                                         {strings.ProcessAll}
                                                     </Text>
 
@@ -3479,7 +3387,7 @@ class CreateNC extends Component {
                                                         data={this.state.radio_values}
                                                         selectedValue={this.state.ProcessType}
                                                         horizontal={true}
-                                                        labelStyle={{ paddingRight: 12 }}
+                                                        labelStyle={styles.radioLabelStyle}
                                                         onPress={(value, index) => {
                                                             this.setState({ ProcessType: value }, () => {
                                                                 this.setProcessList(1);
@@ -3488,7 +3396,7 @@ class CreateNC extends Component {
                                                     />
                                                 </View>
                                                 {this.state.selectedItemsProcess ? (
-                                                    <View style={{}}>
+                                                    <View>
                                                         <SectionedMultiSelect //single={multiprocess == "1" ? true : false}
                                                             IconRenderer={this.icon}
                                                             ref={processListField => (this.processListField = processListField)}
@@ -3502,16 +3410,7 @@ class CreateNC extends Component {
                                                             textColor="#A6A6A6"
                                                             showDropDowns={true}
                                                             readOnlyHeadings={true}
-                                                            selectedIconComponent={
-                                                                <Icon
-                                                                    name="check"
-                                                                    size={18}
-                                                                    style={{
-                                                                        color: '#4caf50',
-                                                                        paddingLeft: 10,
-                                                                    }}
-                                                                />
-                                                            }
+                                                            selectedIconComponent={<Icon name="check" size={18} style={styles.selectedIconStyle} />}
                                                             onSelectedItemsChange={this.onSelectedItemsProcessChange}
                                                             selectedItems={
                                                                 Array.isArray(this.state.selectedItemsProcess) ? this.state.selectedItemsProcess : []
@@ -3521,18 +3420,7 @@ class CreateNC extends Component {
                                                             placeholderTextColor="#A6A6A6"
                                                             itemNumberOfLines={3}
                                                             selectLabelNumberOfLines={3}
-                                                            styles={{
-                                                                chipText: {
-                                                                    maxWidth: Dimensions.get('screen').width - 90,
-                                                                },
-                                                                selectToggle: {
-                                                                    paddingLeft: 0,
-                                                                    paddingRight: 0,
-                                                                },
-                                                                selectToggleText: {
-                                                                    marginLeft: 0,
-                                                                },
-                                                            }}
+                                                            styles={processMultiSelectStyles}
                                                             colors={{
                                                                 text: '#A6A6A6',
                                                                 subText: '#A6A6A6',
@@ -3542,19 +3430,19 @@ class CreateNC extends Component {
                                                     </View>
                                                 ) : null}
 
-                                                <View style={{ display: 'none' }} />
+                                                <View style={styles.hidden} />
                                             </View>
                                         </View>
                                     </View>
 
-                                    <View style={[styles.div1, { display: 'none' }]}>
+                                    <View style={[styles.div1, styles.hidden]}>
                                         <View style={styles.input07}>
                                             <DropdownComponent
                                                 data={[]}
                                                 label={strings.Auditee_Approach}
                                                 value={''}
                                                 editable={false}
-                                                containerStyle={{ paddingHorizontal: 0, marginBottom: 0, marginLeft: 0 }}
+                                                containerStyle={styles.inputContainerNoPad}
                                             />
                                         </View>
                                     </View>
@@ -3567,12 +3455,12 @@ class CreateNC extends Component {
                                                     required={false}
                                                     value={this.state.documentRef}
                                                     placeholder={strings.Document_reference}
-                                                    inputStyle={{ paddingHorizontal: 0 }}
+                                                    inputStyle={styles.inputNoHorizontalPadding}
                                                     multiline
                                                     numberOfLines={3}
                                                     autoCapitalize="sentences"
                                                     inputRef={ref => (this.docRefTxtField = ref)}
-                                                    containerStyle={{ paddingHorizontal: 0, marginBottom: 0, marginLeft: 0 }}
+                                                    containerStyle={styles.inputContainerNoPad}
                                                     onChangeText={(field, value) => {
                                                         this.setState({ documentRef: value }, () => {
                                                             this.isCheck5 = true;
@@ -3587,12 +3475,12 @@ class CreateNC extends Component {
                                                     name="documentRef"
                                                     value={this.state.documentRef}
                                                     placeholder={strings.Document_reference}
-                                                    inputStyle={{ paddingHorizontal: 0 }}
+                                                    inputStyle={styles.inputNoHorizontalPadding}
                                                     multiline
                                                     numberOfLines={3}
                                                     autoCapitalize="sentences"
                                                     inputRef={ref => (this.docRefTxtField = ref)}
-                                                    containerStyle={{ paddingHorizontal: 0, marginBottom: 0, marginLeft: 0 }}
+                                                    containerStyle={styles.inputContainerNoPad}
                                                     onChangeText={(field, value) => {
                                                         this.setState({ documentRef: value }, () => {});
                                                     }}
@@ -3614,13 +3502,13 @@ class CreateNC extends Component {
                                         </TouchableOpacity>
                                     </View>
                                     {this.state.fileArrayList != null && this.state.fileArrayList.length > 0 ? (
-                                        <View style={{ flex: 1 }}>
+                                        <View style={styles.flexOne}>
                                             <FlatList
                                                 data={this.state.fileArrayList}
                                                 renderItem={this.renderItem}
                                                 keyExtractor={item => item.id}
                                                 horizontal={true} // Display images horizontally
-                                                style={{ marginTop: 10 }}
+                                                style={styles.listMarginTopSmall}
                                             />
                                         </View>
                                     ) : null}
@@ -3629,110 +3517,33 @@ class CreateNC extends Component {
                         </View>
                     </KeyboardAwareScrollView>
                 ) : (
-                    <View
-                        style={{
-                            flexDirection: 'column',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            width: '100%',
-                            height: '100%',
-                        }}>
+                    <View style={styles.contentLoaderContainer}>
                         {/* <Bars size={20} color='#48BCF7'/> */}
                         <ResponsiveImage source={Images.ContentLoader} initHeight={100} initWidth={100} />
-                        <Text
-                            style={{
-                                fontSize: Fonts.size.regular,
-                                fontFamily: 'OpenSans-Regular',
-                            }}>
-                            {strings.nc_01}
-                        </Text>
-                        {/* <Text style={{fontSize:Fonts.size.small}}>We are loading checkpoint!</Text> */}
+                        <Text style={styles.contentLoaderTitle}>{strings.nc_01}</Text>
                     </View>
                 )}
 
-                <View
-                    style={[
-                        styles.footer,
-                        {
-                            height: 100,
-                            paddingBottom: Platform.OS === 'ios' ? 8 : 6,
-                        },
-                    ]}>
+                <View style={[styles.footer, styles.footerAdjusted]}>
                     {this.state.isSaving === false ? (
-                        <View
-                            style={[
-                                styles.footerDiv,
-                                {
-                                    width: '100%',
-                                    height: 100,
-                                    paddingHorizontal: 10,
-                                },
-                            ]}>
-                            <View
-                                style={{
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                    justifyContent: 'space-around',
-                                    width: '100%',
-                                }}>
-                                <View style={{ width: width(35) }}>
-                                    <TouchableOpacity
-                                        onPress={() => this.setState({ dialogVisible: true })}
-                                        style={{
-                                            height: 65,
-                                            borderRadius: 18,
-                                            backgroundColor: '#00b3d6',
-                                            justifyContent: 'center',
-                                            alignItems: 'center',
-                                            shadowColor: '#000',
-                                            shadowOpacity: 0.18,
-                                            shadowOffset: { width: 0, height: 3 },
-                                            shadowRadius: 4,
-                                            elevation: 4,
-                                        }}>
+                        <View style={[styles.footerDiv, styles.footerDivAdjusted]}>
+                            <View style={styles.footerButtonsRow}>
+                                <View style={styles.footerButtonWrapper}>
+                                    <TouchableOpacity onPress={() => this.setState({ dialogVisible: true })} style={styles.footerPrimaryButton}>
                                         <Icon name="rotate-ccw" size={25} color="white" />
-                                        <Text
-                                            style={{
-                                                color: 'white',
-                                                fontSize: Fonts.size.medium,
-                                                fontFamily: 'OpenSans-SemiBold',
-                                                marginTop: 6,
-                                            }}>
-                                            {strings.Reset}
-                                        </Text>
+                                        <Text style={styles.footerButtonText}>{strings.Reset}</Text>
                                     </TouchableOpacity>
                                 </View>
-                                <View style={{ width: width(35) }}>
-                                    <TouchableOpacity
-                                        onPress={debounce(this.onSave.bind(this), 600)}
-                                        style={{
-                                            height: 65,
-                                            borderRadius: 18,
-                                            backgroundColor: '#00b3d6',
-                                            justifyContent: 'center',
-                                            alignItems: 'center',
-                                            shadowColor: '#000',
-                                            shadowOpacity: 0.18,
-                                            shadowOffset: { width: 0, height: 3 },
-                                            shadowRadius: 4,
-                                            elevation: 4,
-                                        }}>
+                                <View style={styles.footerButtonWrapper}>
+                                    <TouchableOpacity onPress={debounce(this.onSave.bind(this), 600)} style={styles.footerPrimaryButton}>
                                         <Icon name="save" size={25} color="white" />
-                                        <Text
-                                            style={{
-                                                color: 'white',
-                                                fontSize: Fonts.size.medium,
-                                                fontFamily: 'OpenSans-SemiBold',
-                                                marginTop: 6,
-                                            }}>
-                                            {strings.Save}
-                                        </Text>
+                                        <Text style={styles.footerButtonText}>{strings.Save}</Text>
                                     </TouchableOpacity>
                                 </View>
                             </View>
                         </View>
                     ) : (
-                        <View style={{ right: 70, position: 'absolute' }}>
+                        <View style={styles.pulseWrapper}>
                             <Pulse size={20} color="white" />
                         </View>
                     )}
@@ -3752,12 +3563,7 @@ class CreateNC extends Component {
                     <View>
                         <View style={styles.ModalBox}>
                             <View style={styles.modalheader}>
-                                <Text
-                                    style={{
-                                        fontSize: Fonts.size.h5,
-                                        fontFamily: 'OpenSans-Regular',
-                                        color: '#000',
-                                    }}>
+                                <Text style={styles.modalHeaderTitle}>
                                     {this.state.NCtxtFlag == false
                                         ? strings.StandardRequirementsL
                                         : this.state.RouteParam === 'NC'
@@ -3768,39 +3574,21 @@ class CreateNC extends Component {
                             <ScrollView style={styles.modalbody}>
                                 <View>
                                     {this.state.NCtxtFlag === false ? (
-                                        <View style={{ paddingBottom: 20 }}>
+                                        <View style={styles.modalSection}>
                                             {this.state.modalDisplay.map((item, key) => (
                                                 <View key={key}>
-                                                    <Text
-                                                        selectable={true}
-                                                        style={{
-                                                            fontSize: Fonts.size.regular,
-                                                            fontFamily: 'OpenSans-Bold',
-                                                            color: '#000',
-                                                        }}>
+                                                    <Text selectable={true} style={styles.modalSectionTitle}>
                                                         {item.name}
                                                     </Text>
-                                                    <Text
-                                                        selectable={true}
-                                                        style={{
-                                                            fontSize: Fonts.size.regular,
-                                                            fontFamily: 'OpenSans-Regular',
-                                                            color: '#000',
-                                                        }}>
+                                                    <Text selectable={true} style={styles.modalContentText}>
                                                         {item.Requirement == null ? 'No content found for this clause' : item.Requirement}
                                                     </Text>
                                                 </View>
                                             ))}
                                         </View>
                                     ) : (
-                                        <View style={{ paddingBottom: 20 }}>
-                                            <Text
-                                                selectable={true}
-                                                style={{
-                                                    fontSize: Fonts.size.regular,
-                                                    fontFamily: 'OpenSans-Regular',
-                                                    color: '#000',
-                                                }}>
+                                        <View style={styles.modalSection}>
+                                            <Text selectable={true} style={styles.modalContentText}>
                                                 {this.state.RouteParam === 'NC' ? this.state.nonconfirmityText : this.state.ofitext}
                                             </Text>
                                         </View>
@@ -3809,15 +3597,7 @@ class CreateNC extends Component {
                             </ScrollView>
                             <View style={styles.modalfooter}>
                                 <TouchableOpacity onPress={() => this.setState({ NCtxtFlag: false, isVisible: false })}>
-                                    <Text
-                                        style={{
-                                            fontSize: Fonts.size.regular,
-                                            color: '#00a1e2',
-                                            top: 1,
-                                            fontFamily: 'OpenSans-Regular',
-                                        }}>
-                                        {strings.Close}
-                                    </Text>
+                                    <Text style={styles.closeModalText}>{strings.Close}</Text>
                                 </TouchableOpacity>
                             </View>
                         </View>
@@ -3849,36 +3629,13 @@ class CreateNC extends Component {
                     isVisible={this.state.suggestionPopUp}
                     onBackdropPress={() => this.setState({ suggestionPopUp: false })}
                     style={styles.modalOuterBox}>
-                    <View
-                        style={{
-                            width: '90%',
-                            height: 200,
-                            backgroundColor: 'white',
-                            borderRadius: 5,
-                            padding: 10,
-                        }}>
-                        <View
-                            style={{
-                                width: '100%',
-                                height: '25%',
-                                backgroundColor: 'white',
-                                marginTop: 10,
-                                borderBottomWidth: 1,
-                                borderBottomColor: 'lightgrey',
-                                // justifyContent:'space-around',
-                                // alignItems:'center',
-                                flexDirection: 'row',
-                            }}>
-                            <View style={{ width: '20%' }}>
+                    <View style={styles.suggestionModal}>
+                        <View style={styles.suggestionHeaderRow}>
+                            <View style={styles.suggestionLoaderWrap}>
                                 <ActivityIndicator size={20} color="#1CAFF6" />
                             </View>
-                            <View
-                                style={{
-                                    width: '80%',
-                                    justifyContent: 'center',
-                                    paddingLeft: '13%',
-                                }}>
-                                <Text style={{ fontSize: 18, fontFamily: 'OpenSans-Regular' }}>Voice assistant</Text>
+                            <View style={styles.suggestionTitleWrap}>
+                                <Text style={styles.suggestionTitleText}>Voice assistant</Text>
                             </View>
                         </View>
                         <View>
@@ -3894,7 +3651,7 @@ class CreateNC extends Component {
                                         }}
                                         style={styles.suggestionbox}>
                                         <View>
-                                            <Text style={{ fontFamily: 'OpenSans-Regular' }}>{item.id}</Text>
+                                            <Text style={styles.suggestionItemText}>{item.id}</Text>
                                         </View>
                                     </TouchableOpacity>
                                 )}

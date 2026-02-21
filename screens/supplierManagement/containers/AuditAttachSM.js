@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, Dimensions, FlatList, Linking, Platform, ActivityIndicator, Modal } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList, Linking, Platform, Alert, PermissionsAndroid } from 'react-native';
 // import { Dialog, ProgressDialog } from 'react-native-simple-dialogs';
 import { Images } from '../../auditPro/Themes';
 import styles from '../../auditPro/styles/AuditAttachStyle';
@@ -10,7 +10,6 @@ import { Pulse } from 'react-native-loader';
 import auth from '../../../services/Auditpro-Auth';
 import OfflineNotice from '../../auditPro/components/OfflineNotice';
 import ScrollableTabView, { DefaultTabBar } from 'react-native-scrollable-tab-view';
-import Fonts from '../../auditPro/Themes/Fonts';
 import Icon from 'react-native-vector-icons/Feather';
 import { strings } from '../../auditPro/language/Language';
 import NetInfo from '@react-native-community/netinfo';
@@ -19,10 +18,7 @@ import XLSX from 'xlsx'; // Import the xlsx library
 import FileViewer from 'react-native-file-viewer';
 import AsyncStorage from '@react-native-community/async-storage';
 import { ROUTES } from 'constants/app-constant';
-import { SPACING } from 'constants/theme-constants';
 import GlobalHeader from 'components/GlobalHeader';
-
-let Window = Dimensions.get('window');
 
 class AuditAttach extends React.Component {
     constructor(props) {
@@ -337,7 +333,7 @@ class AuditAttach extends React.Component {
                     subtitle={this.state.breadCrumbText}
                     onLeftPress={() => this.props.navigation.goBack()}
                     onRightPress={() => this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)}
-                    containerStyle={{ backgroundColor: 'transparent' }}
+                    containerStyle={styles.headerContainer}
                 />
                 {/** ---------------------- */}
                 <ScrollableTabView
@@ -346,48 +342,21 @@ class AuditAttach extends React.Component {
                             backgroundColor="white"
                             activeTextColor="#2CB5FD"
                             inactiveTextColor="#747474"
-                            underlineStyle={{
-                                backgroundColor: '#2CB5FD',
-                                borderBottomColor: '#2CB5FD',
-                                height: Platform.select({
-                                    android: 0,
-                                    ios: 5,
-                                }),
-                            }}
-                            textStyle={{
-                                fontSize: Fonts.size.regular,
-                                fontFamily: 'OpenSans-Regular',
-                            }}
+                            underlineStyle={styles.tabUnderline}
+                            textStyle={styles.tabText}
                         />
                     )}
                     tabBarPosition="overlayTop">
                     {this.state.History.length > 0 ? (
                         <View tabLabel={strings.History} style={styles.scrollViewBody}>
                             {this.state.NetInfo === true ? (
-                                <View
-                                    style={{
-                                        marginTop: 60,
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                    }}>
-                                    <Text
-                                        styles={{
-                                            fontSize: Fonts.size.h3,
-                                            fontFamily: 'OpenSans-Regular',
-                                        }}>
-                                        {strings.NoInternet}
-                                    </Text>
+                                <View style={styles.networkInfoContainer}>
+                                    <Text style={styles.noInternetText}>{strings.NoInternet}</Text>
                                 </View>
                             ) : (
-                                <View style={{ marginTop: 50 }}>
+                                <View style={styles.historyContentTopMargin}>
                                     {this.state.pageLoad === true ? (
-                                        <View
-                                            style={{
-                                                width: Window.width,
-                                                height: null,
-                                                justifyContent: 'center',
-                                                alignItems: 'center',
-                                            }}>
+                                        <View style={styles.historyLoaderContainer}>
                                             <Pulse size={30} color={'#48BCF7'} />
                                         </View>
                                     ) : (
@@ -430,10 +399,10 @@ class AuditAttach extends React.Component {
                                                                     <Text
                                                                         style={[
                                                                             styles.detailContent,
-                                                                            {
-                                                                                color: 'blue',
-                                                                                textDecorationLine: item.Type === 'Link' ? 'underline' : '',
-                                                                            },
+                                                                            styles.attachmentLinkText,
+                                                                            item.Type === 'Link'
+                                                                                ? styles.attachmentLinkUnderline
+                                                                                : styles.attachmentLinkNoUnderline,
                                                                         ]}
                                                                         numberOfLines={1}>
                                                                         {item.Type === 'UnControlled' || item.Type === 'Link'
@@ -463,20 +432,8 @@ class AuditAttach extends React.Component {
                         </View>
                     ) : (
                         <View tabLabel={strings.History} style={styles.scrollViewBody}>
-                            <View
-                                style={{
-                                    marginTop: 60,
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                }}>
-                                <Text
-                                    style={{
-                                        fontSize: Fonts.size.h5,
-                                        color: 'grey',
-                                        fontFamily: 'OpenSans-Regular',
-                                    }}>
-                                    {strings.No_records_found}
-                                </Text>
+                            <View style={styles.networkInfoContainer}>
+                                <Text style={styles.noRecordsText}>{strings.No_records_found}</Text>
                             </View>
                         </View>
                     )}
@@ -494,24 +451,18 @@ class AuditAttach extends React.Component {
                                       breadCrumb: this.state.breadCrumbText,
                                   })
                     }
-                    style={[
-                        styles.floatingButton,
-                        {
-                            bottom: Platform.OS === 'ios' ? 52 : 30,
-                            right: 22,
-                        },
-                    ]}>
+                    style={[styles.floatingButton, Platform.OS === 'ios' ? styles.floatingButtonIOSOffset : styles.floatingButtonAndroidOffset]}>
                     <Icon name="plus" size={25} color="white" />
                 </TouchableOpacity>
                 <Toast
                     ref="toast"
-                    style={{ backgroundColor: 'black', margin: 20 }}
+                    style={styles.toastContainer}
                     position="top"
                     positionValue={200}
                     fadeInDuration={750}
                     fadeOutDuration={1000}
                     opacity={0.8}
-                    textStyle={{ color: 'white' }}
+                    textStyle={styles.toastText}
                 />
                 <View>
                     {/* <ProgressDialog
