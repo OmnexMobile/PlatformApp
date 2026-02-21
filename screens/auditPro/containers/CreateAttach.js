@@ -18,7 +18,6 @@ import { Images } from '../Themes/index';
 import styles from '../styles/CreateAttachStyle';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { width } from 'react-native-dimension';
-import Modal from 'react-native-modal';
 import Moment from 'moment';
 import { connect } from 'react-redux';
 import Toast, { DURATION } from 'react-native-easy-toast';
@@ -44,6 +43,7 @@ import NetInfo from '@react-native-community/netinfo';
 import GlobalHeader from 'components/GlobalHeader';
 import DropdownComponent from 'components/dropdown';
 import InputComponent from 'components/input-component';
+import AttachmentSelectionModal from 'components/attachment-selection-modal';
 
 let Window = Dimensions.get('window');
 
@@ -174,19 +174,15 @@ class CreateAttach extends React.Component {
         }
     }
 
-    componentWillReceiveProps(props) {
-        // const {navigation} = this.props;
-        // const cancelled = navigation.getParam('cancelpressed', 'empty');
+    componentDidUpdate(prevProps) {
         const cancelled = this.props?.route?.params?.cancelpressed || 'empty';
+        const currentPage = this.props?.route?.name;
+        const previousCapture = prevProps?.data?.audits?.cameraCapture;
+        const currentCapture = this.props?.data?.audits?.cameraCapture;
 
-        // var getCurrentPage = [];
-        // getCurrentPage = this.props.data.nav.routes;
-        // var CurrentPage = getCurrentPage[getCurrentPage.length - 1].routeName;
-        var CurrentPage = this.props?.route?.name;
-        console.log('--CurrentPage--->', CurrentPage);
-
-        if (CurrentPage == 'CREATE_ATTACH') {
-            if (this.props.data.audits.cameraCapture) {
+        // React to camera captures only when new data arrives
+        if (currentPage === 'CREATE_ATTACH' && currentCapture !== previousCapture) {
+            if (currentCapture) {
                 if (cancelled == 1) {
                     this.setState({
                         fileData: undefined,
@@ -194,10 +190,10 @@ class CreateAttach extends React.Component {
                         attachedFilePath: undefined,
                         attachedFileExt: undefined,
                     });
-                    console.log('exception1 cancel', this.props.data.audits.cameraCapture);
+                    console.log('exception1 cancel', currentCapture);
                 }
 
-                if (cancelled == 0 && this.props.data.audits.cameraCapture.length == 0) {
+                if (cancelled == 0 && currentCapture.length == 0) {
                     console.log('inside save set state part..');
                     let FileArrayTemp = this.state.fileArrayList;
                     let FileArrayTempOne = [
@@ -211,7 +207,6 @@ class CreateAttach extends React.Component {
                     ];
                     console.log(FileArrayTemp, 'filearraytemp - will rcv pop');
                     let fileMergeResult = FileArrayTemp.concat(FileArrayTempOne);
-                    // console.log(fileMergeResult, 'filearraytemp2xxxxxxxx11111');
                     this.setState(
                         {
                             fileArrayList: fileMergeResult,
@@ -223,10 +218,10 @@ class CreateAttach extends React.Component {
                 }
 
                 console.log('file name' + this.state.fileName);
-                if (this.props.data.audits.cameraCapture.length > 0 && cancelled != 1) {
-                    var res = this.props.data.audits.cameraCapture;
-                    console.log('exception3', this.props.data.audits.cameraCapture);
-                    var data = RNFS.readFile(Platform.OS === 'ios' ? decodeURIComponent(res[0].uri) : res[0].uri, 'base64').then(resp => {
+                if (currentCapture.length > 0 && cancelled != 1) {
+                    var res = currentCapture;
+                    console.log('exception3', currentCapture);
+                    RNFS.readFile(Platform.OS === 'ios' ? decodeURIComponent(res[0].uri) : res[0].uri, 'base64').then(resp => {
                         this.setState(
                             {
                                 mode: 'camera',
@@ -245,7 +240,7 @@ class CreateAttach extends React.Component {
                 } else {
                     console.log('no pic found');
                     console.log('inside file path' + this.state.fileData);
-                    console.log('exception14', this.props.data.audits.cameraCapture);
+                    console.log('exception14', currentCapture);
                 }
             } else {
                 console.log('no pic found');
@@ -533,33 +528,6 @@ class CreateAttach extends React.Component {
                 }
             }
         });
-    }
-
-    renderModel(children) {
-        return Platform.OS == 'ios' ? (
-            <Modal
-                transparent="false"
-                isVisible={this.state.AttachModal}
-                onBackdropPress={() =>
-                    this.setState({ AttachModal: false }, () => {
-                        console.log('modal closed');
-                    })
-                }
-                style={styles.modalOuterBox}>
-                {children}
-            </Modal>
-        ) : (
-            <Modal
-                isVisible={this.state.AttachModal}
-                onBackdropPress={() =>
-                    this.setState({ AttachModal: false }, () => {
-                        console.log('modal closed');
-                    })
-                }
-                style={styles.modalOuterBox}>
-                {children}
-            </Modal>
-        );
     }
 
     deleteUserFile(path) {
@@ -1179,63 +1147,16 @@ class CreateAttach extends React.Component {
                 />
                 {/* </ImageBackground> */}
 
-                {this.renderModel(
-                    <View style={styles.attachModal}>
-                        <View /* style={styles.modalBody} */>
-                            <View style={styles.modalheading}>
-                                <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                                    <Text
-                                        style={{
-                                            color: 'black',
-                                            fontSize: Fonts.size.regular,
-                                            fontFamily: 'OpenSans-Regular',
-                                        }}>
-                                        {strings.Make_your_selection}
-                                    </Text>
-                                </View>
-                            </View>
-
-                            <TouchableOpacity onPress={this.cameraAction.bind(this, 'Camera')}>
-                                <View style={styles.sectionTop}>
-                                    <View style={[styles.sectionContent, styles.boxContent]}>
-                                        <View style={{ width: '12%', height: null }}>
-                                            <Icon name="camera" size={25} color="grey" />
-                                        </View>
-                                        <View
-                                            style={{
-                                                width: '88%',
-                                                height: null,
-                                                justifyContent: 'flex-start',
-                                            }}>
-                                            <Text style={styles.boxContentCam}>{strings.Camera_Capture_Head}</Text>
-                                        </View>
-                                    </View>
-                                </View>
-                            </TouchableOpacity>
-
-                            <TouchableOpacity onPress={() => this.handleDocumentSelection()}>
-                                <View style={styles.sectionTop}>
-                                    <View style={[styles.sectionContent, styles.boxContent]}>
-                                        <View style={{ width: '12%', height: null }}>
-                                            <Icon name="image" size={25} color="grey" />
-                                        </View>
-                                        <View style={{ width: '88%', height: null }}>
-                                            <Text style={styles.boxContentCam}>{strings.Camera_Browse_Files}</Text>
-                                        </View>
-                                    </View>
-                                </View>
-                            </TouchableOpacity>
-
-                            <TouchableOpacity onPress={() => this.setState({ AttachModal: false })}>
-                                <View style={styles.sectionTopCancel}>
-                                    <View style={styles.sectionContent}>
-                                        <Text style={styles.boxContentClose}>{strings.Cancel}</Text>
-                                    </View>
-                                </View>
-                            </TouchableOpacity>
-                        </View>
-                    </View>,
-                )}
+                <AttachmentSelectionModal
+                    visible={this.state.AttachModal}
+                    title={strings.Make_your_selection}
+                    takePhotoText={strings.Camera_Capture_Head}
+                    browseText={strings.Camera_Browse_Files}
+                    cancelText={strings.Cancel}
+                    onTakePhoto={() => this.cameraAction('Camera')}
+                    onBrowseFiles={() => this.handleDocumentSelection()}
+                    onCancel={() => this.setState({ AttachModal: false })}
+                />
                 {/** ---------------------- */}
                 <View style={styles.auditPageBody}>
                     <ScrollView
@@ -1526,60 +1447,30 @@ class CreateAttach extends React.Component {
                     </ScrollView>
                 </View>
 
-                {/** --------footer (delete only when editing) -------- */}
-                {this.props?.route?.params?.Type == 'Edit' ? (
-                    <View style={styles.footer}>
-                        <ImageBackground
-                            source={Images.Footer}
-                            style={{
-                                resizeMode: 'stretch',
-                                width: '100%',
-                                height: 65,
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                            }}>
-                            <View
-                                style={{
-                                    flexDirection: 'row',
-                                    justifyContent: 'center',
-                                }}>
-                                <TouchableOpacity
-                                    style={{
-                                        flexDirection: 'column',
-                                        width: '40%',
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                    }}
-                                    onPress={() => this.setState({ dialogVisible: true })}>
-                                    <Icon name="trash" size={25} color="white" />
-                                    <Text
-                                        style={{
-                                            color: 'white',
-                                            fontSize: Fonts.size.regular,
-                                            fontFamily: 'OpenSans-Regular',
-                                        }}>
-                                        {strings.Delete}
-                                    </Text>
-                                </TouchableOpacity>
-                            </View>
-                        </ImageBackground>
-                    </View>
-                ) : null}
-
-                {/* Floating Save Button */}
-                <TouchableOpacity
-                    style={styles.floatingSaveButton}
-                    disabled={this.props?.route?.params?.Type !== 'Add' || this.state.saveLoader}
-                    onPress={debounce(this.checkuserstatus.bind(this), 1000)}>
-                    {this.state.saveLoader ? (
-                        <ActivityIndicator size="small" color="#fff" />
-                    ) : (
-                        <>
-                            <Icon name="save" size={25} color="white" />
-                            {/* <Text style={styles.floatingSaveLabel}>{strings.Save}</Text> */}
-                        </>
+                {/* Floating FABs */}
+                <View style={styles.fabContainer}>
+                    {this.props?.route?.params?.Type === 'Edit' && (
+                        <TouchableOpacity
+                            style={[styles.floatingSaveButton, styles.deleteFab]}
+                            onPress={() => this.setState({ dialogVisible: true })}>
+                            <Icon name="trash" size={22} color="white" />
+                        </TouchableOpacity>
                     )}
-                </TouchableOpacity>
+                    <TouchableOpacity
+                        style={[
+                            styles.floatingSaveButton,
+                            this.props?.route?.params?.Type === 'Edit' ? { marginLeft: 12 } : null,
+                            this.props?.route?.params?.Type !== 'Add' ? styles.disabledFab : null,
+                        ]}
+                        disabled={this.props?.route?.params?.Type !== 'Add' || this.state.saveLoader}
+                        onPress={debounce(this.checkuserstatus.bind(this), 1000)}>
+                        {this.state.saveLoader ? (
+                            <ActivityIndicator size="small" color="#fff" />
+                        ) : (
+                            <Icon name="save" size={25} color="white" />
+                        )}
+                    </TouchableOpacity>
+                </View>
 
                 <ConfirmDialog
                     title={strings.Confirm}

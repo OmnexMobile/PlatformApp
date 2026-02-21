@@ -69,6 +69,7 @@ import { SPACING } from 'constants/theme-constants';
 import { RFPercentage } from 'helpers/utils';
 import RichText from '../components/RichText';
 import GlobalHeader from 'components/GlobalHeader';
+import AttachmentSelectionModal from 'components/attachment-selection-modal';
 const Width = Dimensions.get('window').width;
 const Colors = {
   0: 'red',
@@ -10972,73 +10973,16 @@ this.props.navigation.setParams({ auditUpdated: true });
           </View>
         </Modal>
 
-        {/* Modal design */}
-        <Modal
-          isVisible={this.state.dialogVisibleCamera}
-          onBackdropPress={() => this.setState({dialogVisibleCamera: false})}
-          style={styles.modalOuterBox}>
-          <View style={styles.ncModal}>
-            <View /* style={styles.modalBody} */>
-              <View style={styles.modalheading}>
-                <View style={{justifyContent: 'center', alignItems: 'center'}}>
-                  <Text
-                    style={{
-                      color: 'black',
-                      fontSize: Fonts.size.regular,
-                      fontFamily: 'OpenSans-Regular',
-                    }}>
-                    {strings.Make_your_selection}
-                  </Text>
-                </View>
-              </View>
-
-              <TouchableOpacity
-                onPress={this.cameraAction.bind(this, 'Camera')}>
-                <View style={styles.sectionTop}>
-                  <View style={[styles.sectionContent, styles.boxContent]}>
-                    <View style={{width: '12%', height: null}}>
-                      <Icon name="camera" size={25} color="grey" />
-                    </View>
-                    <View
-                      style={{
-                        width: '88%',
-                        height: null,
-                        justifyContent: 'flex-start',
-                      }}>
-                      <Text style={styles.boxContentCam}>
-                        {strings.Camera_Capture_Head}
-                      </Text>
-                    </View>
-                  </View>
-                </View>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={this.cameraAction.bind(this, 'Browse')}>
-                <View style={styles.sectionTop}>
-                  <View style={[styles.sectionContent, styles.boxContent]}>
-                    <View style={{width: '12%', height: null}}>
-                      <Icon name="image" size={25} color="grey" />
-                    </View>
-                    <View style={{width: '88%', height: null}}>
-                      <Text style={styles.boxContentCam}>
-                        {strings.Camera_Browse_Files}
-                      </Text>
-                    </View>
-                  </View>
-                </View>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                onPress={() => this.setState({dialogVisibleCamera: false})}>
-                <View style={styles.sectionTopCancel}>
-                  <View style={styles.sectionContent}>
-                    <Text style={styles.boxContentClose}>{strings.Cancel}</Text>
-                  </View>
-                </View>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </Modal>
+        <AttachmentSelectionModal
+          visible={this.state.dialogVisibleCamera}
+          title={strings.Make_your_selection}
+          takePhotoText={strings.Camera_Capture_Head}
+          browseText={strings.Camera_Browse_Files}
+          cancelText={strings.Cancel}
+          onTakePhoto={() => this.cameraAction('Camera')}
+          onBrowseFiles={() => this.cameraAction('Browse')}
+          onCancel={() => this.setState({dialogVisibleCamera: false})}
+        />
         <Modal
           isVisible={this.state.dialogVisibleReset}
           onBackdropPress={() => this.setState({dialogVisibleReset: false})}

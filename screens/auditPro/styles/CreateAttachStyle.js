@@ -97,10 +97,14 @@ export default StyleSheet.create({
     // bottom:20
     // marginBottom:0
   },
-  floatingSaveButton: {
+  fabContainer: {
     position: 'absolute',
     right: 20,
     bottom: 20,
+    flexDirection: 'row',
+    zIndex: 3200,
+  },
+  floatingSaveButton: {
     width: 60,
     height: 60,
     borderRadius: 30,
@@ -112,7 +116,12 @@ export default StyleSheet.create({
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.25,
     shadowRadius: 4,
-    zIndex: 3200,
+  },
+  deleteFab: {
+    backgroundColor: '#d9534f',
+  },
+  disabledFab: {
+    opacity: 0.5,
   },
   floatingSaveLabel: {
     marginTop: 4,

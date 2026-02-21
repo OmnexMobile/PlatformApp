@@ -102,7 +102,7 @@ export const showWarningMessage = message =>
     });
 
 // problem solver
-export const toast = (title = 'Success', desc = 'Successfully Saved', type = TOAST_STATUS.SUCCESS, duration = 1500) => {
+export const toast = (title = 'Success', desc = 'Successfully Saved', type = TOAST_STATUS.SUCCESS, duration = 2500, position = 'bottom') => {
     const message = title ? title : type === TOAST_STATUS.SUCCESS ? 'Success' : 'Error';
     return showMessage({
         type,
@@ -111,7 +111,7 @@ export const toast = (title = 'Success', desc = 'Successfully Saved', type = TOA
         backgroundColor: type === TOAST_STATUS.SUCCESS ? COLORS.success : FlashMessage.ColorTheme.danger,
         color: COLORS.white,
         duration,
-        position: 'bottom',
+        position,
         style: {
             borderRadius: SPACING.NORMAL,
             margin: SPACING.SMALL,

@@ -48,6 +48,7 @@ import { SPACING } from 'constants/theme-constants';
 import GlobalHeader from 'components/GlobalHeader';
 import InputComponent from 'components/input-component';
 import DropdownComponent from 'components/dropdown';
+import AttachmentSelectionModal from 'components/attachment-selection-modal';
 
 let Window = Dimensions.get('window');
 let timer = null;
@@ -3887,62 +3888,16 @@ class CreateNC extends Component {
                     </View>
                 </Modal>
 
-                {this.renderModel(
-                    <View style={styles.ncModal}>
-                        <View /* style={styles.modalBody} */>
-                            <View style={styles.modalheading}>
-                                <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                                    <Text
-                                        style={{
-                                            color: 'black',
-                                            fontSize: Fonts.size.regular,
-                                            fontFamily: 'OpenSans-Regular',
-                                        }}>
-                                        {strings.Make_your_selection}
-                                    </Text>
-                                </View>
-                            </View>
-
-                            <TouchableOpacity onPress={this.cameraAction.bind(this, 'Camera')}>
-                                <View style={styles.sectionTop}>
-                                    <View style={[styles.sectionContent, styles.boxContent]}>
-                                        <View style={{ width: '12%', height: null }}>
-                                            <Icon name="camera" size={25} color="grey" />
-                                        </View>
-                                        <View
-                                            style={{
-                                                width: '88%',
-                                                height: null,
-                                                justifyContent: 'flex-start',
-                                            }}>
-                                            <Text style={styles.boxContentCam}>{strings.Camera_Capture_Head}</Text>
-                                        </View>
-                                    </View>
-                                </View>
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={() => this.attachFiles()}>
-                                <View style={styles.sectionTop}>
-                                    <View style={[styles.sectionContent, styles.boxContent]}>
-                                        <View style={{ width: '12%', height: null }}>
-                                            <Icon name="image" size={25} color="grey" />
-                                        </View>
-                                        <View style={{ width: '88%', height: null }}>
-                                            <Text style={styles.boxContentCam}>{strings.Camera_Browse_Files}</Text>
-                                        </View>
-                                    </View>
-                                </View>
-                            </TouchableOpacity>
-
-                            <TouchableOpacity onPress={() => this.setState({ AttachModal: false })}>
-                                <View style={styles.sectionTopCancel}>
-                                    <View style={styles.sectionContent}>
-                                        <Text style={styles.boxContentClose}>{strings.Cancel}</Text>
-                                    </View>
-                                </View>
-                            </TouchableOpacity>
-                        </View>
-                    </View>,
-                )}
+                <AttachmentSelectionModal
+                    visible={this.state.AttachModal}
+                    title={strings.Make_your_selection}
+                    takePhotoText={strings.Camera_Capture_Head}
+                    browseText={strings.Camera_Browse_Files}
+                    cancelText={strings.Cancel}
+                    onTakePhoto={() => this.cameraAction('Camera')}
+                    onBrowseFiles={() => this.attachFiles()}
+                    onCancel={() => this.setState({ AttachModal: false })}
+                />
 
                 <Modal
                     isVisible={this.state.suggestionPopUp}
@@ -4003,32 +3958,6 @@ class CreateNC extends Component {
         );
     }
 
-    renderModel(children) {
-        return Platform.OS == 'ios' ? (
-            <Modal
-                transparent="false"
-                isVisible={this.state.AttachModal}
-                onBackdropPress={() =>
-                    this.setState({ AttachModal: false }, () => {
-                        //console.log('modal closed');
-                    })
-                }
-                style={styles.modalOuterBox}>
-                {children}
-            </Modal>
-        ) : (
-            <Modal
-                isVisible={this.state.AttachModal}
-                onBackdropPress={() =>
-                    this.setState({ AttachModal: false }, () => {
-                        //console.log('modal closed');
-                    })
-                }
-                style={styles.modalOuterBox}>
-                {children}
-            </Modal>
-        );
-    }
     updateAuditStatus = auditid => {
         let bcontinue = false;
         var auditRecordsOrg = this.props.data.audits.auditRecords;

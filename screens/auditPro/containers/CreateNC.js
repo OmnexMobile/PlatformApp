@@ -21,7 +21,8 @@ import {
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {Images} from '../Themes/index';
 import styles from '../styles/CreateNCStyle';
-import Toast, {DURATION} from 'react-native-easy-toast';
+import { toast } from 'helpers/utils';
+import { TOAST_STATUS } from 'constants/app-constant';
 import DocumentPicker from 'react-native-document-picker';
 import RNFetchBlob from 'react-native-fetch-blob';
 import {Bubbles, DoubleBounce, Bars, Pulse} from 'react-native-loader';
@@ -59,6 +60,7 @@ import NCFormInput from '../components/NCFormInput';
 import Icon from 'react-native-vector-icons/Feather';
 import DropdownComponent from 'components/dropdown';
 import InputComponent from 'components/input-component';
+import AttachmentSelectionModal from 'components/attachment-selection-modal';
 
 
 let Window = Dimensions.get('window');
@@ -2297,26 +2299,48 @@ class CreateNC extends Component {
         dialogVisible: false,
         selectedItems: [],
         selectedItemsProcess: [],
+        selectedItemsProcessDumm: [],
         displayData: undefined,
         NCcategoryt: undefined,
         NCuser: undefined,
         NCrequestby: undefined,
         NCdept: undefined,
         NCFailure: undefined,
+        NCclause: undefined,
+        NCProcess: undefined,
         requirementText: undefined,
-        nonconfirmityText: undefined,
+        nonconfirmityText: '',
         NCresponsible: undefined,
         ofitext: undefined,
         fileName: undefined,
         fileData: undefined,
-        documentRef: undefined,
+        fileSize: undefined,
+        fileType: '',
+        fileContent: null,
+        documentRef: '',
         ncIdentifier: '',
-        objEvidence: undefined,
+        objEvidence: '',
+        Objective_Evidence: undefined,
         recommAction: '',
         fileArrayList: [],
+        PrevNonConformity: '',
+        missingfile: undefined,
+        isUploaded: false,
+        MarkCat: false,
+        MarkUser: false,
+        MarkReq: false,
+        MarkDept: false,
+        MarkFailure: false,
+        MarkClause: false,
+        MarkProcess: false,
+        MarkClausedrop: false,
+        underline1: false,
+        underline2: false,
       },
       () => {
-        this.refs.toast.show(strings.FormVal, 5000);
+        // clear any pending camera captures tied to the form
+        this.props.storeCameraCapture([]);
+        toast(strings.FormVal, '', TOAST_STATUS.SUCCESS, 5000, 'top');
       },
     );
   };
@@ -2345,7 +2369,7 @@ class CreateNC extends Component {
             'hellothreefour2',
           );
           this.updateAuditStatus(this.state.AuditID);
-                this.refs.toast.show(strings.Save_Message, DURATION.LENGTH_LONG);
+                toast(strings.Save_Message, '', TOAST_STATUS.SUCCESS, 1500, 'top');
           setTimeout(() => {
             // console.log('AuditDashBody Props After Props Changing...', this.props)
             this.props.storeNCRecords(dupNCrecords);
@@ -2656,7 +2680,7 @@ class CreateNC extends Component {
                 PageLoader: false,
                 isSavebtn: false,
               });
-              this.refs.toast.show(strings.FormVal, 5000);
+              toast(strings.mandate_message, '', TOAST_STATUS.ERROR, 5000, 'top');
             }
           } else {
             this.setState({isSaved: false}, () => {
@@ -2783,7 +2807,7 @@ class CreateNC extends Component {
               // this.setState({ underline2: true }, () => {
               //this.refs.toast.show(strings.Clauses,3000)
               // this.refs.toast.show("Please select all mandatory fields.", 4000);
-              this.refs.toast.show(strings.FormVal, 5000);
+              toast(strings.mandate_message, '', TOAST_STATUS.ERROR, 5000, 'top');
 
               // })
             } else {
@@ -2997,7 +3021,7 @@ class CreateNC extends Component {
                 'hellothreefour1',
               );
               this.updateAuditStatus(this.state.AuditID);
-              this.refs.toast.show(strings.Save_Message, DURATION.LENGTH_LONG);
+              toast(strings.Save_Message, '', TOAST_STATUS.SUCCESS, 1500, 'top');
               setTimeout(() => {
                 // console.log('AuditDashBody Props After Props Changing...', this.props)
                 this.props.storeNCRecords(dupNCrecords);
@@ -4370,9 +4394,7 @@ class CreateNC extends Component {
                   <View style={styles.footerButtonsRow}>
                     <View style={styles.footerButtonWrapper}>
                       <TouchableOpacity
-                        onPress={() =>
-                          debounce(this.setState({dialogVisible: true}), 700)
-                        }
+                        onPress={() => this.setState({dialogVisible: true})}
                         style={styles.footerButton}>
                         <Icon name="rotate-ccw" size={20} color="#ffffff" />
                         <Text style={styles.footerActionText}>{strings.Reset}</Text>
@@ -4418,13 +4440,6 @@ class CreateNC extends Component {
           {/* </ImageBackground> */}
         </View>
 
-        <Toast
-          ref="toast"
-          position="top"
-          opacity={1}
-          style={{backgroundColor: 'black'}}
-          textStyle={{color: 'white'}}
-        />
         <Modal
           isVisible={this.state.isVisible}
           onBackdropPress={() => this.setState({isVisible: false})}
@@ -4556,69 +4571,16 @@ class CreateNC extends Component {
           </View>
         </Modal>
         
-          {this.renderModel(
-            <View style={styles.ncModal}>
-              <View /* style={styles.modalBody} */>
-                <View style={styles.modalheading}>
-                  <View style={{justifyContent: 'center', alignItems: 'center'}}>
-                    <Text
-                      style={{
-                        color: 'black',
-                        fontSize: Fonts.size.regular,
-                        fontFamily: 'OpenSans-Regular',
-                      }}>
-                      {strings.Make_your_selection}
-                    </Text>
-                  </View>
-                </View>
-
-              <TouchableOpacity
-                onPress={this.cameraAction.bind(this, 'Camera')}>
-                <View style={styles.sectionTop}>
-                  <View style={[styles.sectionContent, styles.boxContent]}>
-                    <View style={{width: '12%', height: null}}>
-                      <Icon name="camera" size={25} color="grey" />
-                    </View>
-                    <View
-                      style={{
-                        width: '88%',
-                        height: null,
-                        justifyContent: 'flex-start',
-                      }}>
-                      <Text style={styles.boxContentCam}>
-                        {strings.Camera_Capture_Head}
-                      </Text>
-                    </View>
-                  </View>
-                </View>
-              </TouchableOpacity>
-            
-              <TouchableOpacity onPress={() => this.attachFiles()}>
-                <View style={styles.sectionTop}>
-                  <View style={[styles.sectionContent, styles.boxContent]}>
-                    <View style={{width: '12%', height: null}}>
-                      <Icon name="image" size={25} color="grey" />
-                    </View>
-                    <View style={{width: '88%', height: null}}>
-                      <Text style={styles.boxContentCam}>
-                        {strings.Camera_Browse_Files}
-                      </Text>
-                    </View>
-                  </View>
-                </View>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                onPress={() => this.setState({AttachModal: false})}>
-                <View style={styles.sectionTopCancel}>
-                  <View style={styles.sectionContent}>
-                    <Text style={styles.boxContentClose}>{strings.Cancel}</Text>
-                  </View>
-                </View>
-              </TouchableOpacity>
-            </View>
-          </View>
-        )}
+        <AttachmentSelectionModal
+          visible={this.state.AttachModal}
+          title={strings.Make_your_selection}
+          takePhotoText={strings.Camera_Capture_Head}
+          browseText={strings.Camera_Browse_Files}
+          cancelText={strings.Cancel}
+          onTakePhoto={() => this.cameraAction('Camera')}
+          onBrowseFiles={() => this.attachFiles()}
+          onCancel={() => this.setState({AttachModal: false})}
+        />
 
         <Modal
           isVisible={this.state.suggestionPopUp}
@@ -4682,33 +4644,6 @@ class CreateNC extends Component {
           </View>
         </Modal>
       </View>
-    );
-  }
-
-  renderModel(children) {
-    return Platform.OS == 'ios' ? (
-      <Modal
-        transparent="false"
-        isVisible={this.state.AttachModal}
-        onBackdropPress={() =>
-          this.setState({AttachModal: false}, () => {
-            console.log('modal closed');
-          })
-        }
-        style={styles.modalOuterBox}>
-        {children}
-      </Modal>
-    ) : (
-      <Modal
-        isVisible={this.state.AttachModal}
-        onBackdropPress={() =>
-          this.setState({AttachModal: false}, () => {
-            console.log('modal closed');
-          })
-        }
-        style={styles.modalOuterBox}>
-        {children}
-      </Modal>
     );
   }
 

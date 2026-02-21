@@ -2643,7 +2643,7 @@ class NCOFIPage extends Component {
                                     <TouchableOpacity
                                         onPress={once(this.onNavigaTo.bind(this, 1))}
                                         style={styles.footerShadowButton}>
-                                        <Icon name={'upload-cloud'} size={25} color="#fff" />
+                                        <Icon name={'upload-cloud'} size={20} color="#fff" />
                                         <Text style={styles.footerTextContent}>{strings.Create_NC}</Text>
                                     </TouchableOpacity>
                                 )}
@@ -2663,7 +2663,7 @@ class NCOFIPage extends Component {
                                             );
                                         }}
                                         style={styles.footerShadowButton}>
-                                        <Icon name={'refresh-ccw'} size={25} color="#ffffff" />
+                                        <Icon name={'refresh-ccw'} size={20} color="#ffffff" />
                                         <Text style={styles.footerTextContent}>{strings.Upload_to_server}</Text>
                                     </TouchableOpacity>
                                 </View>
@@ -2676,10 +2676,10 @@ class NCOFIPage extends Component {
                                             alignItems: 'center',
                                         }}>
                                         <TouchableOpacity style={{ alignItems: 'center' }} onPress={this.CheckSync.bind(this)}>
-                                            <Icon name="check-square-o" size={35} color="white" />
+                                            <Icon name="check-square" size={20} color="#00b3d6" />
                                             <Text
                                                 style={{
-                                                    color: 'white',
+                                                    color: '#00b3d6',
                                                     fontSize: Fonts.size.medium,
                                                     marginTop: 2,
                                                     fontFamily: 'OpenSans-Regular',
@@ -2709,7 +2709,7 @@ class NCOFIPage extends Component {
                                     <TouchableOpacity
                                         onPress={once(this.onNavigaTo.bind(this, 2))}
                                         style={styles.footerShadowButton}>
-                                        <Icon name={'upload-cloud'} size={25} color="#ffffff" />
+                                        <Icon name={'upload-cloud'} size={20} color="#ffffff" />
                                         <Text style={styles.footerTextContent}>{strings.Create_OFI}</Text>
                                     </TouchableOpacity>
                                 )}
