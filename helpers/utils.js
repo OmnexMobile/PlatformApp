@@ -55,23 +55,49 @@ export const objToQs = params =>
         .map(key => key + '=' + params[key])
         .join('&');
 
-export const successMessage = ({ message = 'Success', description = 'Successfully Saved', type = 'success', position = 'top' }) =>
-    showMessage({
+export const successMessage = (messageOrConfig, descriptionOrPosition, position = 'top') => {
+    const isPositionValue = value =>
+        (typeof value === 'string' && ['top', 'bottom', 'center'].includes(value)) || (value && typeof value === 'object');
+
+    let message = 'Success';
+    let description = '';
+    let finalPosition = position;
+    let duration = 1500;
+
+    if (messageOrConfig && typeof messageOrConfig === 'object') {
+        message = messageOrConfig.message || 'Success';
+        description = messageOrConfig.description || '';
+        finalPosition = messageOrConfig.position || position;
+        duration = messageOrConfig.duration || 1500;
+    } else if (isPositionValue(descriptionOrPosition)) {
+        // Legacy usage: successMessage('Saved successfully', 'bottom')
+        description = `${messageOrConfig || ''}`;
+        finalPosition = descriptionOrPosition;
+    } else if (typeof descriptionOrPosition === 'string' && descriptionOrPosition.length > 0) {
+        // Title + description usage: successMessage('Loading...', 'setting up...')
+        message = `${messageOrConfig || 'Success'}`;
+        description = descriptionOrPosition;
+    } else {
+        // Default usage: successMessage('Saved successfully')
+        description = `${messageOrConfig || ''}`;
+    }
+
+    return showMessage({
         message,
         description,
-        type,
-        backgroundColor: COLORS.success,
+        type: 'success',
+        backgroundColor: COLORS.fiBgColor,
         color: COLORS.white,
-        duration: 1500,
-        // problem Solver
-        position: position ? position : 'bottom',
-        // style: {
-        //     borderRadius: SPACING.NORMAL,
-        //     margin: SPACING.SMALL,
-        // },
+        duration,
+        position: finalPosition === 'top' ? { top: 60 } : finalPosition || 'bottom',
+        style: {
+            borderRadius: SPACING.NORMAL,
+            margin: SPACING.SMALL,
+        },
     });
+};
 
-export const showErrorMessage = (message, position = 'bottom') =>
+export const showErrorMessage = (message, position = 'top') =>
     showMessage({
         message: 'Error',
         description: `${message}`,
@@ -79,7 +105,7 @@ export const showErrorMessage = (message, position = 'bottom') =>
         backgroundColor: FlashMessage.ColorTheme.danger,
         color: COLORS.white,
         duration: 1500,
-        position: position ? position : 'bottom',
+        position: position === 'top' ? { top: 60 } : position ? position : 'bottom',
         style: {
             borderRadius: SPACING.NORMAL,
             margin: SPACING.SMALL,
@@ -94,7 +120,7 @@ export const showWarningMessage = message =>
         backgroundColor: FlashMessage.ColorTheme.danger,
         color: COLORS.white,
         duration: 1500,
-        position: 'bottom',
+        position: position === 'top' ? { top: 60 } : position ? position : 'bottom',
         style: {
             borderRadius: SPACING.NORMAL,
             margin: SPACING.SMALL,
@@ -298,9 +324,7 @@ export const getDisplayValue = (columnValue, columnData, rowData, timeSettings) 
             return rowData?.Attachment || columnValue || '---';
 
         case INPUTS_CONSTANTS.DATE_PICKER:
-            return columnValue
-                ? moment(columnValue, DATE_FORMAT.MM_DD_YYYY).format(DATE_FORMAT[timeSettings || 'DD/MM/YYYY'])
-                : '---';
+            return columnValue ? moment(columnValue, DATE_FORMAT.MM_DD_YYYY).format(DATE_FORMAT[timeSettings || 'DD/MM/YYYY']) : '---';
 
         default:
             if (rowData?.UploadStatus === IMAGE_UPLOAD_STATUS.InProgress) {
@@ -316,17 +340,17 @@ export const getICList = async (userId, siteId, online = true) => {
     let apiData;
     if (online) {
         const formData = new FormData();
-        formData.append("userId", userId);
-        formData.append("siteId", siteId);
+        formData.append('userId', userId);
+        formData.append('siteId', siteId);
         try {
             const res = await fetch(`${ICAPIURL}${ApiUrl.ICTABCOUNT}`, {
-                method: "POST",
-                body: formData,     // No need to set headers; fetch auto-sets multipart boundary
+                method: 'POST',
+                body: formData, // No need to set headers; fetch auto-sets multipart boundary
             });
             const data = await res.json();
-            apiData = data?.Data
+            apiData = data?.Data;
         } catch (error) {
-            console.error("Fetch Error:", error);
+            console.error('Fetch Error:', error);
         }
     } else {
         const countIC = await AsyncStorage.getItem('countIC');
@@ -334,8 +358,8 @@ export const getICList = async (userId, siteId, online = true) => {
         apiData = {
             InspectionSchedule: data?.inspection,
             SearchInspection: data?.search,
-            SupervisorSchedule: data?.supervisor
-        }
+            SupervisorSchedule: data?.supervisor,
+        };
     }
     const OverAllCount = {
         inspection: apiData?.InspectionSchedule || 0, // api data need to add
@@ -343,9 +367,9 @@ export const getICList = async (userId, siteId, online = true) => {
         completed: completedList?.length || 0,
         operatorList: OpList?.length || 0,
         supervisor: apiData?.SupervisorSchedule || 0,
-    }
+    };
     AsyncStorage.setItem('countIC', JSON.stringify(OverAllCount));
-}
+};
 export const getICSettingsData = async (userId, siteId) => {
     const APIURL = await localStorage.getData(LOCAL_STORAGE_VARIABLES.IC_API_URL);
     const newFormData = new FormData();
@@ -368,4 +392,4 @@ export const getICSettingsData = async (userId, siteId) => {
         console.error('Fetch Error:', error);
         return {};
     }
-}
+};

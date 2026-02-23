@@ -8,6 +8,7 @@ import { TOAST_STATUS } from 'constants/app-constant';
 import { COLORS, SPACING } from 'constants/theme-constants';
 import { toast } from 'helpers/utils';
 import useTheme from 'theme/useTheme';
+import { formReq, showErrorMessage,successMessage } from 'helpers/utils';
 
 const ChooseSite = ({ modalizeRef, filteredSites, sites, handleSite, searchKey, setSearchKey }) => {
     console.log('current sites--->', sites)
@@ -75,7 +76,7 @@ const ChooseSite = ({ modalizeRef, filteredSites, sites, handleSite, searchKey, 
                                                 }, 1000);
                                                 // handleSite({ EntityNode, FullName, SiteId, SiteName, SupplierAccess, UserId, UserType });
                                                 handleSite({ EntityNode, FullName, Siteid, SiteName, SupplierManagementAccess, UserId, UserType });
-                                                toast('Loading...', 'setting up site details...', TOAST_STATUS.SUCCESS, 100);
+                                                successMessage({ message: 'Loading...', description: 'setting up site details...' });
                                             }}
                                             activeOpacity={0.8}
                                             key={index}

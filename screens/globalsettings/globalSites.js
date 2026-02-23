@@ -12,6 +12,7 @@ import { LOCAL_STORAGE_VARIABLES, STATUS_CODES, TOAST_STATUS } from 'constants/a
 import { getDashboardConcernCounts, getPendingConcernList, getTodayConcernList, getUpcomingConcernList } from '../home/home.action';
 import { useDispatch, useSelector } from 'react-redux';
 import AsyncStorage from '@react-native-community/async-storage';
+import {  showErrorMessage,successMessage } from 'helpers/utils';
 
 const GlobalSites = () => {
     const [searchKey, setSearchKey] = useState('');
@@ -140,7 +141,7 @@ const GlobalSites = () => {
                                     icUserData: newIcUserData,
                                 });
                                 handleSite(filteredSites[index]);
-                                toast('Loading...', 'setting up site details...', TOAST_STATUS.SUCCESS, 100);
+                                successMessage({ message: 'Loading...', description: 'setting up site details...' });
                             }}
                             activeOpacity={0.8}
                             key={index}

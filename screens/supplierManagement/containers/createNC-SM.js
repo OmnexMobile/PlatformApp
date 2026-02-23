@@ -56,7 +56,7 @@ import InputComponent from 'components/input-component';
 import DropdownComponent from 'components/dropdown';
 import CommonAlertModal from 'components/common_alert_modal';
 import AttachmentSelectionModal from 'components/attachment-selection-modal';
-
+import { showErrorMessage, successMessage } from 'helpers/utils';
 let Window = Dimensions.get('window');
 let timer = null;
 var RNFS = require('react-native-fs');
@@ -2108,7 +2108,8 @@ class CreateNC extends Component {
                     // console.log('Loader off')
                     console.log(this.state.selectedItemsProcess.length, 'hellothreefour2');
                     this.updateAuditStatus(this.state.AuditID);
-                    this.refs.toast.show(strings.Save_Message, DURATION.LENGTH_LONG);
+                    successMessage({ message: '', description: strings.Save_Message });
+
                     setTimeout(() => {
                         // console.log('AuditDashBody Props After Props Changing...', this.props)
                         this.props.storeNCRecords(dupNCrecords);
@@ -2154,7 +2155,8 @@ class CreateNC extends Component {
                         MarkDept: false,
                     },
                     () => {
-                        this.showCommonAlert('Please fill the mandatory fields.');
+                        // this.showCommonAlert('Please fill the mandatory fields.');
+                        showErrorMessage('Please fill the mandatory fields.');
                     },
                 );
                 return;
@@ -2361,7 +2363,8 @@ class CreateNC extends Component {
                 } else {
                     // console.log('-->',this.state.NCcategoryt,this.state.NCresponsible,this.state.NCrequestby)
                     console.log('########fileNames-----------', this.state.NCcategoryt, this.state.NCrequestby);
-                    this.showCommonAlert('Please fill the mandatory fields.');
+                    // this.showCommonAlert('Please fill the mandatory fields.');
+                    showErrorMessage('Please fill the mandatory fields.');
 
                     this.setState({ isSaved: false, PageLoader: false }, () => {
                         if (this.state.NCrequestby === undefined) {
@@ -2466,7 +2469,8 @@ class CreateNC extends Component {
                             // ||
                             // this.state.selectedItemsProcess.length == 0
                         ) {
-                            this.showCommonAlert('Please fill the mandatory fields.');
+                            // this.showCommonAlert('Please fill the mandatory fields.');
+                            showErrorMessage('Please fill the mandatory fields.');
 
                             // })
                         } else {
@@ -2647,7 +2651,7 @@ class CreateNC extends Component {
                             console.log('Loader off');
                             console.log(this.state.selectedItemsProcess.length, 'hellothreefour1');
                             this.updateAuditStatus(this.state.AuditID);
-                            this.refs.toast.show(strings.Save_Message, DURATION.LENGTH_LONG);
+                            successMessage({ message: '', description: strings.Save_Message });
                             setTimeout(() => {
                                 // console.log('AuditDashBody Props After Props Changing...', this.props)
                                 this.props.storeNCRecords(dupNCrecords);
@@ -2661,7 +2665,8 @@ class CreateNC extends Component {
                     // console.log('-->',this.state.NCcategoryt,this.state.NCresponsible,this.state.NCrequestby)
 
                     this.setState({ isSaved: false, PageLoader: false, isSavebtn: false }, () => {
-                        this.showCommonAlert('Please fill the mandatory fields.');
+                        // this.showCommonAlert('Please fill the mandatory fields.');
+                        showErrorMessage('Please fill the mandatory fields.');
 
                         if (this.state.NCrequestby === undefined) {
                             this.setState(

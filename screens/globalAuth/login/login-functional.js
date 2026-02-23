@@ -168,7 +168,9 @@ const LoginFunctional = ({}) => {
                 loginflag,
                 isSso,
                 async (res, data) => {
-                    console.log('global loginUser---->', data, res);
+                    // console.log('global loginUser---->', data, res);
+                    console.log('global loginUser---->',  data?.data?.Message);
+                    
                     if (data?.data?.Success == true) {
                         console.log('checking global loginResponse---->', data?.data);
 
@@ -217,9 +219,11 @@ const LoginFunctional = ({}) => {
                         handleGlobalLogin(data?.data);
                         handleServerURL(data?.data);
                     } else {
+                    // console.log('global loginUser---->',  res?.data?.Message);
+
                         handleInputChange('loggingIn', false);
                         showErrorMessage(
-                            'Please enter valid username and password!' ||
+                            data?.data?.Message ||
                                 data?.Message ||
                                 strings?.InvalidCred,
                         );
