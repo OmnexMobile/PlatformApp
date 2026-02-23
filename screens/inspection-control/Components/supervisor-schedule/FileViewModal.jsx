@@ -10,10 +10,10 @@ import RNFS from 'react-native-fs';
 import { postAPI } from 'global/api-helpers';
 import ApiUrl from 'global/ApiUrl';
 import { Bubbles } from 'react-native-loader';
-import NoDataFound from '../NoDataFound';
 import { check, request, PERMISSIONS, RESULTS, openSettings } from 'react-native-permissions';
 import { showMessage } from 'react-native-flash-message';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { NoRecordFound } from 'components';
 
 const FileViewModal = ({ visible = false, onDismiss = () => {}, selectedValue = {}, userData = {} }) => {
     const [fileList, setFileList] = useState([]);
@@ -205,7 +205,7 @@ const FileViewModal = ({ visible = false, onDismiss = () => {}, selectedValue = 
                             <FlatList data={fileList} renderItem={renderFiles} showsVerticalScrollIndicator={false} />
                         ) : (
                             <View style={{ height: 170 }}>
-                                <NoDataFound />
+                                <NoRecordFound />
                             </View>
                         )}
                     </View>

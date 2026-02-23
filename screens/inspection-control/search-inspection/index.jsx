@@ -16,7 +16,6 @@ import FileViewModal from '../Components/supervisor-schedule/FileViewModal';
 import IcSkeleton from '../Components/IcSkeleton';
 import { useDispatch, useSelector } from 'react-redux';
 import { showMessage } from 'react-native-flash-message';
-import NoDataFound from '../Components/NoDataFound';
 import { postAPI } from 'global/api-helpers';
 import ApiUrl from 'global/ApiUrl';
 import { Divider, Modal } from 'react-native-paper';
@@ -31,6 +30,7 @@ import SingleDropDown from '../Components/SingleDropDown';
 import DynamicFormField from '../Components/DynamicFormField';
 import { getElevation, getICList } from 'helpers/utils';
 import InputWithSearch from '../Components/InputWithSearch';
+import { NoRecordFound } from 'components';
 
 const filterList = [
     {
@@ -802,7 +802,7 @@ const SearchInspection = () => {
                         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
                     />
                 ) : (
-                    <NoDataFound />
+                    <NoRecordFound/>
                 )}
             </View>
             {/* <View style={[styles.bottombox]}>

@@ -1,4 +1,4 @@
-import { ButtonComponent, CheckBox, RadioButton, TextComponent } from 'components';
+import { ButtonComponent, CheckBox, NoRecordFound, RadioButton, TextComponent } from 'components';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import CustomHeader from '../Components/CustomHeader';
 import { FlatList, Platform, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -14,7 +14,6 @@ import RadioButtonComponent from '../Components/RadioButtonComponent';
 import ICCheckBox from '../Components/ICCheckBox';
 import DeleteModal from '../Components/DeleteModal';
 import IcSkeleton from '../Components/IcSkeleton';
-import NoDataFound from '../Components/NoDataFound';
 import { useSelector } from 'react-redux';
 import moment from 'moment';
 import ApiUrl from 'global/ApiUrl';
@@ -530,7 +529,7 @@ const CompletedInspection = () => {
                         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
                     />
                 ) : (
-                    <NoDataFound />
+                    <NoRecordFound />
                 )}
             </View>
             {Boolean(syncModal) && (

@@ -12,10 +12,9 @@ import { REGISTER_TYPES, registerDevice } from 'screens/globalAuth/register/regi
 import localStorage from 'global/localStorage';
 import { getUniqueId } from 'react-native-device-info';
 import { Avatar, Divider, Modal } from 'react-native-paper';
-import { ButtonComponent } from 'components';
+import { ButtonComponent, NoRecordFound } from 'components';
 import { Bubbles } from 'react-native-loader';
 import InputWithSearch from '../Components/InputWithSearch';
-import NoDataFound from '../Components/NoDataFound';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { postAPI } from 'global/api-helpers';
 import ApiUrl from 'global/ApiUrl';
@@ -265,7 +264,7 @@ const IcSettings = () => {
                             />
                         ) : (
                             <View style={{ justifyContent: 'center', alignItems: 'center', height: 200 }}>
-                                <NoDataFound />
+                                <NoRecordFound/>
                             </View>
                         )}
                     </View>

@@ -8,10 +8,10 @@ import IconF from 'react-native-vector-icons/Feather';
 import FileViewer from 'react-native-file-viewer';
 import RNFS from 'react-native-fs';
 import { Bubbles } from 'react-native-loader';
-import NoDataFound from '../NoDataFound';
 import { check, request, PERMISSIONS, RESULTS, openSettings } from 'react-native-permissions';
 import { showMessage } from 'react-native-flash-message';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { NoRecordFound } from 'components';
 
 const OfflineFileViewModal = ({ list = [], visible = false, onDismiss = () => {} }) => {
     const [fileList, setFileList] = useState([]);
@@ -190,7 +190,7 @@ const OfflineFileViewModal = ({ list = [], visible = false, onDismiss = () => {}
                             <FlatList data={fileList} renderItem={renderFiles} showsVerticalScrollIndicator={false} />
                         ) : (
                             <View style={{ height: 170 }}>
-                                <NoDataFound />
+                                <NoRecordFound />
                             </View>
                         )}
                     </View>

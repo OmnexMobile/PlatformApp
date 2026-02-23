@@ -1,4 +1,4 @@
-import { ButtonComponent } from 'components';
+import { ButtonComponent, NoRecordFound } from 'components';
 import React, { useEffect, useState } from 'react';
 import { FlatList, Platform, RefreshControl, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import CustomHeader from '../Components/CustomHeader';
@@ -19,7 +19,6 @@ import IcSkeleton from '../Components/IcSkeleton';
 import { useDispatch, useSelector } from 'react-redux';
 import { showMessage } from 'react-native-flash-message';
 import QRCodeScannerScreen from '../Components/QRCodeScannerScreen';
-import NoDataFound from '../Components/NoDataFound';
 import { postAPI } from 'global/api-helpers';
 import ApiUrl from 'global/ApiUrl';
 import { deleteAllInspectionData, getInspectionDataByUserAndSite } from 'store/database/inspectStorage';
@@ -473,7 +472,7 @@ const InspectionSchedule = () => {
                         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
                     />
                 ) : (
-                    <NoDataFound />
+                    <NoRecordFound />
                 )}
                 {/* <View style={[styles.bottombox]}>
                     <Text style={[styles.bottomText]}>Total Inspections </Text>

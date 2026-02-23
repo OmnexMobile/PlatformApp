@@ -5,7 +5,7 @@ import Icon from 'react-native-vector-icons/AntDesign';
 import IconM from 'react-native-vector-icons/MaterialCommunityIcons';
 import IconF from 'react-native-vector-icons/Feather';
 import { COLORS } from 'constants/theme-constants';
-import { ButtonComponent } from 'components';
+import { ButtonComponent, NoRecordFound } from 'components';
 import FilterWithMenu from '../Components/FilterWithMenu';
 import { RFPercentage } from 'helpers/utils';
 import SignatureComponent from '../Components/SignatureComponent';
@@ -17,7 +17,8 @@ import { useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 import { ROUTES } from 'constants/app-constant';
 import { Modal } from 'react-native-paper';
-import NoDataFound from '../Components/NoDataFound';
+
+
 import ConfirmationModal from '../Components/inprocess-inspection/ConfirmationModal';
 import { getInspectionDataByUserAndSite, updateInspectionByUniqueId } from 'store/database/inspectStorage';
 import OfflineFileViewModal from '../Components/inprocess-inspection/OfflineFileViewModal';
@@ -732,7 +733,7 @@ const InprocessInspection = ({ route }) => {
                     !showGeneral &&
                     (Boolean(infoData?.VariableCharacteristics?.length == 0) && Boolean(infoData?.AttributeCharacteristics?.length == 0) ? (
                         <View style={[styles.centerBox]}>
-                            <NoDataFound />
+                            <NoRecordFound />
                         </View>
                     ) : (
                         <View style={[styles.centerBox]}>

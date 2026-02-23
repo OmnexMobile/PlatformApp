@@ -1,4 +1,4 @@
-import { ButtonComponent, TextComponent } from 'components';
+import { ButtonComponent, NoRecordFound, TextComponent } from 'components';
 import React, { useEffect } from 'react';
 import { FlatList, Platform, RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import CustomHeader from '../Components/CustomHeader';
@@ -16,7 +16,6 @@ import { getElevation, getICList, RFPercentage } from 'helpers/utils';
 import PartDetails from '../Components/supervisor-schedule/PartDetails';
 import FileViewModal from '../Components/supervisor-schedule/FileViewModal';
 import IcSkeleton from '../Components/IcSkeleton';
-import NoDataFound from '../Components/NoDataFound';
 import { useDispatch, useSelector } from 'react-redux';
 import { postAPI } from 'global/api-helpers';
 import ApiUrl from 'global/ApiUrl';
@@ -840,7 +839,7 @@ const SupervisorSchedule = () => {
                         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
                     />
                 ) : (
-                    <NoDataFound />
+                    <NoRecordFound />
                 )}
             </View>
             {/* <View style={[styles.bottombox]}>

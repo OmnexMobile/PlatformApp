@@ -1,4 +1,4 @@
-import { ButtonComponent } from 'components';
+import { ButtonComponent,NoRecordFound } from 'components';
 import { COLORS } from 'constants/theme-constants';
 import { RFPercentage } from 'helpers/utils';
 import React, { useEffect, useState } from 'react';
@@ -10,7 +10,6 @@ import DocumentPicker from 'react-native-document-picker';
 import uuid from 'react-native-uuid';
 import RNFS from 'react-native-fs';
 import FileViewer from 'react-native-file-viewer';
-import NoDataFound from '../NoDataFound';
 import { showMessage } from 'react-native-flash-message';
 import CameraScreen from './CameraScreen';
 
@@ -166,7 +165,7 @@ const ModalFilePickerWithList = ({
                                 showsVerticalScrollIndicator={false}
                             />
                         ) : (
-                            <NoDataFound />
+                            <NoRecordFound />
                         )}
                         <View style={[styles.btnContainer]}>
                             <View style={[styles.btnBox]}>

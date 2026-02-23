@@ -1,4 +1,4 @@
-import { ButtonComponent } from 'components';
+import { ButtonComponent, NoRecordFound } from 'components';
 import React, { useEffect, useState } from 'react';
 import CustomHeader from '../Components/CustomHeader';
 import { FlatList, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -9,7 +9,6 @@ import { PLACEHOLDERS, ROUTES } from 'constants/app-constant';
 import { Divider, Modal } from 'react-native-paper';
 import { getElevation, getICList, RFPercentage, showErrorMessage } from 'helpers/utils';
 import DeleteModal from '../Components/DeleteModal';
-import NoDataFound from '../Components/NoDataFound';
 import { useDispatch, useSelector } from 'react-redux';
 import ApiUrl from 'global/ApiUrl';
 import { postAPI } from 'global/api-helpers';
@@ -206,7 +205,7 @@ const OperatorWorksheet = () => {
                         // refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
                     />
                 ) : (
-                    <NoDataFound />
+                    <NoRecordFound  />
                 )}
             </View>
             {/* <View style={[styles.btnContainer]}>
