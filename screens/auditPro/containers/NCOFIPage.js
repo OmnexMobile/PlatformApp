@@ -43,6 +43,7 @@ import GlobalHeader from 'components/GlobalHeader';
 var RNFS = require('react-native-fs');
 
 let Window = Dimensions.get('window');
+import { showErrorMessage, successMessage } from 'helpers/utils';
 
 const fileFormatToIcon = {
     txt: 'file-text-o',
@@ -1013,7 +1014,7 @@ class NCOFIPage extends Component {
                             this.formRequestArr(formRequest, token);
                         } else {
                             this.setState({ isLoaderVisible: false, dialogVisible: false, syncMode: 0 }, () => {
-                                this.refs.toast.show(strings.noncofitosync, DURATION.LENGTH_LONG);
+                                showErrorMessage(strings.noncofitosync);
                             });
                         }
                     } else {
@@ -1094,7 +1095,7 @@ class NCOFIPage extends Component {
                     () => {
                         this.attatchedFindings = [];
                         this.formRequestObj = [];
-                        this.refs.toast.show(strings.NCSuccess, DURATION.LENGTH_LONG);
+                        successMessage({ message: '', description: strings.NCSuccess });
                         this.CompleteSync();
                     },
                 );
@@ -1665,7 +1666,7 @@ class NCOFIPage extends Component {
                                         syncMode: 0,
                                     },
                                     () => {
-                                        this.refs.toast.show(strings.noncofitosync, DURATION.LENGTH_SHORT);
+                                        showErrorMessage(strings.noncofitosync);
                                     },
                                 );
                             } else {
