@@ -2083,7 +2083,7 @@ class CreateNC extends Component {
                 fileArrayList: [],
             },
             () => {
-                this.refs.toast.show(strings.FormVal, 6000);
+            successMessage({ message: '', description: strings.FormVal });
             },
         );
     };

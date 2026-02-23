@@ -2192,7 +2192,7 @@ class CreateNC extends Component {
             () => {
                 // clear any pending camera captures tied to the form
                 this.props.storeCameraCapture([]);
-                toast(strings.FormVal, '', TOAST_STATUS.SUCCESS, 5000, 'top');
+                successMessage({ message: '', description: strings.FormVal });
             },
         );
     };
