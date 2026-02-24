@@ -2,6 +2,7 @@ import { StyleSheet, Dimensions } from "react-native";
 import { Metrics, ApplicationStyles } from "../../themes";
 import Fonts from "../../themes/Fonts";
 import { width, height } from "react-native-dimension";
+import { SPACING } from "constants/theme-constants";
 // import { android15FooterPadding } from "../../../auditPro/Themes/AndroidInsets";
 
 let Window = Dimensions.get("window");
@@ -87,6 +88,16 @@ export default StyleSheet.create({
     flexDirection: "column",
     marginBottom: 10,
     marginLeft: '3%',
+  },
+  flatListWholeViewWithTopMargin: {
+    width: "100%",
+    height: "81%",
+    position: "absolute",
+    marginTop: 100,
+    padding: 8,
+    flexDirection: "column",
+    marginBottom: 10,
+    marginLeft: "3%",
   },
 
   apqpTextStyle: {
@@ -196,10 +207,23 @@ export default StyleSheet.create({
     color: "black",
     fontWeight: "bold",
   },
+  completedTextStyleWithTopMargin: {
+    fontSize: Fonts.size.regular,
+    padding: 2,
+    color: "black",
+    fontWeight: "bold",
+    marginTop: "1%",
+  },
   completedTextStyle1: {
     fontSize: Fonts.size.regular,
     color: "black",
     fontWeight: "bold",
+  },
+  completedTextStyleLabel: {
+    fontSize: Fonts.size.regular,
+    color: "black",
+    fontWeight: "bold",
+    marginLeft: "0.5%",
   },
   startDateTextStyle: {
     fontSize: Fonts.size.medium,
@@ -222,12 +246,23 @@ export default StyleSheet.create({
     fontSize: Fonts.size.regular,
     color: "black",
   },
+  dateTextInputStyle: {
+    borderBottomWidth: 0.5,
+    color: "#000000",
+    fontSize: 17,
+  },
   textInputStyle1: {
     borderBottomWidth: 0.5,
     fontSize: Fonts.size.regular,
     color: "black",
     textAlignVertical: 'top',
     minHeight: 65,
+  },
+  multilineInputEmpty: {
+    height: 65,
+  },
+  multilineInputFilled: {
+    height: 50,
   },
 
   sectionTop: {
@@ -297,9 +332,31 @@ export default StyleSheet.create({
     height: 75,
     marginLeft: '1%',
   },
+  startDateSectionEmpty: {
+    marginTop: -10,
+  },
+  startDateSectionFilled: {
+    marginTop: "5%",
+  },
   remark: {
     width: "100%",
     marginLeft: '1%',
+  },
+  remarkClientEmpty: {
+    marginTop: -10,
+    marginBottom: 0,
+  },
+  remarkClientFilled: {
+    marginTop: 0,
+    marginBottom: "2%",
+  },
+  remarkFieldEmpty: {
+    marginTop: 0,
+    marginBottom: 0,
+  },
+  remarkFieldFilled: {
+    marginTop: "2.5%",
+    marginBottom: "2%",
   },
   calendarDiv: {
     width: "100%",
@@ -358,6 +415,25 @@ export default StyleSheet.create({
     textAlignVertical: "top",
     fontWeight: "bold",
   },
+  projectNameText: {
+    marginLeft: 5,
+    flex: 1,
+    flexDirection: "column",
+    flexWrap: "wrap",
+    color: "black",
+    fontSize: 16,
+  },
+  taskNameText: {
+    flexWrap: "wrap",
+    width: "69%",
+    color: "black",
+    fontSize: 16,
+  },
+  periodText: {
+    flexWrap: "wrap",
+    color: "#1FBFD0",
+    fontSize: 16,
+  },
   roundView: {
     position: "absolute",
     //paddingTop: 10,
@@ -372,5 +448,62 @@ export default StyleSheet.create({
     backgroundColor: "#00BAC8",
     justifyContent: "center",
     alignItems: "center",
+  },
+  roundViewText: {
+    color: "#fff",
+    fontWeight: "bold",
+  },
+  rowDirection: {
+    flexDirection: "row",
+  },
+  requiredStar: {
+    color: "red",
+  },
+  requiredAsteriskIcon: {
+    left: 10,
+  },
+  defaultRemarksRowEmpty: {
+    marginTop: 0,
+    marginBottom: "1.2%",
+  },
+  defaultRemarksRowFilled: {
+    marginTop: "6%",
+    marginBottom: "1.2%",
+  },
+  bottomSpacer: {
+    height: 50,
+  },
+  calendarTitleText: {
+    fontSize: 20,
+    color: "#61BAD0",
+  },
+  calendarErrorContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+    paddingBottom: 10,
+  },
+  calendarErrorText: {
+    fontSize: 12,
+    color: "red",
+    textAlign: "center",
+    fontFamily: "OpenSans-Regular",
+  },
+  calendarPickerWrapper: {
+    margin: 5,
+  },
+  topSpacerIos: {
+    padding: SPACING.MEDIUM,
+    flexDirection: "row",
+  },
+  topSpacerAndroid: {
+    padding: SPACING.NORMAL,
+    flexDirection: "row",
+  },
+  toastStyle: {
+    backgroundColor: "black",
+    margin: 20,
+  },
+  toastText: {
+    color: "white",
   },
 });

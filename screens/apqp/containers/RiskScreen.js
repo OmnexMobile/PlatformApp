@@ -1,18 +1,12 @@
 import React, { Component } from "react";
 import {
-  ScrollView,
   Text,
-  ImageBackground,
-  Image,
   Dimensions,
   Keyboard,
   View,
-  TextInput,
   TouchableOpacity,
-  Button,
   FlatList,
 } from "react-native";
-import { Images, Fonts } from "../themes";
 // import ResponsiveImage from "react-native-responsive-image";
 // import InputField from "../Components/Shared/InputField";
 // import LinearGradient from "react-native-linear-gradient";
@@ -33,15 +27,13 @@ import styles from "./styles/RiskScreenStyles";
 import { Dropdown } from "react-native-material-dropdown";
 const moment = extendMoment(Moment);
 import { strings } from "../language/Language";
-import { Bubbles, DoubleBounce, Bars, Pulse } from "react-native-loader";
-const window_width = Dimensions.get("window").width;
+import { DoubleBounce } from "react-native-loader";
 import OfflineNotice from "../components/OfflineNotice";
 import { ROUTES } from "constants/app-constant";
-import { SPACING } from "constants/theme-constants";
 import NetInfo from "@react-native-community/netinfo";
 import GlobalHeader from "components/GlobalHeader";
 import RiskCard from "../components/RiskCard";
-let Window = Dimensions.get("window");
+const dropdownOffset = { top: 20, left: 0 };
 
 const Reset = "Reset";
 class RiskScreen extends Component {
@@ -377,7 +369,8 @@ class RiskScreen extends Component {
 
   filterSection() {
     return (
-      <View style={styles.filterCont}>
+      <>
+      {/* <View style={styles.filterCont}>
         <TouchableOpacity
           style={styles.filterBox}
           // onPress={() =>
@@ -387,88 +380,52 @@ class RiskScreen extends Component {
           // })}
         >
           <Icon name="filter" size={20} color="#89888A" />
-          <Text
-            style={{
-              fontSize: Fonts.size.medium,
-              color: "#89888A",
-              paddingLeft: 5,
-              fontFamily: "OpenSans-Regular",
-            }}
-          >
+          <Text style={styles.filterLabelText}>
             {strings.filter}
           </Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.filterBox}>
-          {/* <View style={{ flex: 0.5, justifyContent: 'center', alignItems: "center" }}>
-                        <Icon name="sort" size={20} color="#89888A" />
-                    </View> */}
-          <View style={{ flex: 2 }}>
+          <View style={styles.dropdownContainer}>
             <Dropdown
               // value={strings.SortByStartDate}
               value={this.state.project_sortText} 
               onChangeText={this.onChangeText.bind(this)}
               data={this.dropdata}
-              containerStyle={{ flex: 1 }}
+              containerStyle={styles.dropdownInnerContainer}
               itemPadding={5}
-              dropdownOffset={{ top: 20, left: 0 }}
+              dropdownOffset={dropdownOffset}
               width={300}
               baseColor="grey"
-              itemTextStyle={{ fontFamily: "OpenSans-Regular" }}
+              itemTextStyle={styles.dropdownItemText}
             />
           </View>
           {this.state.project_sort == 0 ? (
             <TouchableOpacity
               onPress={() => this.changeRiskSort(1)}
-              style={{
-                flex: 1,
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "center",
-                marginTop: 5,
-              }}
+              style={styles.sortToggleButton}
             >
               <Icon name="long-arrow-down" size={20} color="#19BFC1" />
             </TouchableOpacity>
           ) : (
             <TouchableOpacity
               onPress={() => this.changeRiskSort(0)}
-              style={{
-                flex: 1,
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "center",
-                marginTop: 5,
-              }}
+              style={styles.sortToggleButton}
             >
               <Icon name="long-arrow-up" size={20} color="#19BFC1" />
             </TouchableOpacity>
           )}
         </TouchableOpacity>
-      </View>
+      </View> */}
+      </>
     );
   }
 
   renderFilter() {
     return (
-      <View
-        style={{
-          width: "100%",
-          height: null,
-          flexDirection: "row",
-          padding: 8,
-          flexWrap: "wrap",
-          justifyContent: "flex-start",
-          alignItems: "center",
-        }}
-      >
+      <View style={styles.renderFilterContainer}>
         {this.state.filterArrSplit.map((item, index) => (
           <View key={index} style={styles.renderFilterView}>
-            <Text
-              style={{
-                fontSize: Fonts.size.medium,
-                fontFamily: "OpenSans-Regular",
-              }}
-            >
+            <Text style={styles.renderFilterText}>
               {item}
             </Text>
           </View>
@@ -830,30 +787,6 @@ class RiskScreen extends Component {
   renderHeader() {
     return (
       <>
-      {/* <ImageBackground source={Images.headerBG} style={styles.header}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => this.handleBack()}>
-            <View style={styles.backLogo}>
-              <View style={styles.headerDiv}>
-                <Icon name="angle-left" size={40} color="white" />
-                <Text style={styles.LabelText}>{strings.Back}</Text>
-              </View>
-            </View>
-          </TouchableOpacity>
-
-          <View style={styles.heading}>
-            <Text style={styles.headingText}>{strings.risks}</Text>
-          </View>
-          <View style={(styles.headerDiv, { backgroundColor: "transparent" })}>
-            <TouchableOpacity
-              style={{ paddingRight: 10, backgroundColor: "transparent" }}
-              onPress={() => this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)}
-            >
-              <Icon name="home" size={35} color="white" />
-            </TouchableOpacity>
-          </View>
-        </View>
-      </ImageBackground> */}
         <GlobalHeader
           title={strings.risks}
           onLeftPress={() => this.handleBack()}
@@ -870,16 +803,11 @@ class RiskScreen extends Component {
         <View style={styles.footerDiv}>
           <View style={styles.footerContainer}>
             <TouchableOpacity
-              style={{
-                justifyContent: "center",
-                alignItems: "center",
-                width: 50,
-                height: 25,
-              }}
+              style={styles.footerHomeButton}
               onPress={() => this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)}
             >
               <Icon name="home" size={32} color="#00BAC8" />
-              <Text style={{ color: "#00BAC8" }}>{strings.home}</Text>
+              <Text style={styles.footerHomeText}>{strings.home}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -889,20 +817,7 @@ class RiskScreen extends Component {
 
   NoRecordsFound() {
     return (
-      <Text
-        style={{
-          // width: window_width,
-          // height: height(100) - 213,
-          // flex: 1,
-          // flexDirection: "column",
-          alignItems: "center",
-          textAlign: "center",
-          fontSize: Fonts.size.h5,
-          paddingTop: 40,
-          //marginTop: 100,
-          fontFamily: "OpenSans-Regular",
-        }}
-      >
+      <Text style={styles.noRecordsText}>
         {strings.No_records_found}
       </Text>
     );
@@ -910,18 +825,7 @@ class RiskScreen extends Component {
 
   renderBounce() {
     return (
-      <View
-        style={{
-          paddingVertical: 20,
-          // borderTopWidth: 1,
-          // borderColor: "#CED0CE",
-          width: window_width,
-          height: height(100) - 213,
-          flex: 1,
-          flexDirection: "column",
-          alignItems: "center",
-        }}
-      >
+      <View style={styles.bounceContainer}>
         <DoubleBounce size={20} color="#1CAFF6" />
       </View>
     );
@@ -933,7 +837,7 @@ class RiskScreen extends Component {
 
     return (
       <View style={styles.mainContainer}>
-        {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
+        <View style={Platform.OS === "ios" ? styles.topSpacerIos : styles.topSpacerAndroid} />
         <OfflineNotice />
         {this.renderHeader()}
         <View style={styles.flatList}>
@@ -950,80 +854,7 @@ class RiskScreen extends Component {
                 onEndReached={this.handleEnd.bind(this)}
                 onEndReachedThreshold={0.5}
                 renderItem={({ item }) => (
-                  <>
                   <RiskCard item={item} handleClickCard={this.onPressRiskAction.bind(this, item)}  />
-                   {/* <TouchableOpacity
-                    onPress={this.onPressRiskAction.bind(this, item)}
-                    style={styles.flatListWholeView}
-                  >
-                    <View style={styles.flatListInsideView}>
-                      <Text style={styles.listText}>Mitigation Action :</Text>
-                      <Text
-                        style={{
-                          color: "#7F7D7D",
-                          fontSize: Fonts.size.medium,
-                          fontFamily: "OpenSans-Regular",
-                          marginLeft:5,flex:1,flexDirection:'column', flexWrap:'wrap'
-                        }}
-                        // numberOfLines={1}
-                      >
-                        {item.ActionType == "" || item.ActionType == null
-                          ? " - "
-                          : item.ActionType.replace("&apos;", "'")}
-                      </Text>
-                    </View>
-                    <View style={styles.flatListInsideView}>
-                      <Text style={styles.listText}>Site :</Text>
-                      <Text
-                        style={styles.actionTypeTextStyle}
-                        numberOfLines={1}
-                      >
-                        {item.Site}
-                      </Text>
-                    </View>
-                    <View
-                      style={{
-                        flexDirection: "row",
-                        justifyContent: "space-between",
-                      }}
-                    >
-                      <View style={styles.flatListInsideView}>
-                        <Text style={styles.listText}>Period :</Text>
-                        <Text
-                          style={[styles.dateTextStyle, { color: "#1FBFD0" }]}
-                          numberOfLines={1}
-                        >
-                          {this.changeDateFormatCard(item.ActionCreatedDate)} -{" "}
-                          {this.changeDateFormatCard(item.DueDate)}
-                        </Text>
-                      </View>
-                      <View
-                        style={[
-                          styles.flatListInsideView,
-                          { flexDirection: "column", bottom: 25 },
-                        ]}
-                      >
-                        <Text
-                          style={
-                            item.DueByDays > 0
-                              ? [
-                                  styles.actionTypeTextStyle,
-                                  { fontSize: 20, color: "green" },
-                                ]
-                              : [
-                                  styles.actionTypeTextStyle,
-                                  { fontSize: 20, color: "red" },
-                                ]
-                          }
-                          numberOfLines={1}
-                        >
-                          {item.DueByDays}
-                        </Text>
-                        <Text style={styles.listText}>Due by Days</Text>
-                      </View>
-                    </View>
-                  </TouchableOpacity> */}
-                  </>
                 )}
               />
             ) : (
@@ -1040,7 +871,7 @@ class RiskScreen extends Component {
         >
           <View style={styles.calendarDiv2}>
             <View style={styles.header}>
-              <Text style={{ fontSize: 20, color: "#61BAD0" }}>
+              <Text style={styles.calendarTitleText}>
                 Select Date Range
               </Text>
             </View>
@@ -1063,7 +894,7 @@ class RiskScreen extends Component {
               }}
               style={styles.footer}
             >
-              <Text style={{ fontSize: 20, color: "#61BAD0" }}>Close</Text>
+              <Text style={styles.calendarTitleText}>Close</Text>
             </TouchableOpacity>
           </View>
         </Modal>

@@ -1,24 +1,26 @@
 import React from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import Ripple from 'react-native-material-ripple';
-import { useNavigation } from '@react-navigation/native';
 import Moment from 'moment';
 import { COLORS, FONT_SIZE, SPACING } from 'constants/theme-constants';
-import { DATE_FORMAT, FONT_TYPE, ICON_TYPE, ROUTES, STATUS, STATUS_CODES, USER_TYPE } from 'constants/app-constant';
+import { FONT_TYPE, ICON_TYPE } from 'constants/app-constant';
 import { getElevation, RFPercentage } from 'helpers/utils';
-import { useAppContext } from 'contexts/app-context';
 import useTheme from 'theme/useTheme';
 import IconComponent from 'components/icon-component';
 import TextComponent from 'components/text';
-import { IMAGES } from 'assets/images';
-import ImageComponent from 'components/image-component';
 
 const RiskCard = ({ item = {}, handleClickCard }) => {
     console.log('item in list card logo apqp', item);
-    const { sites, handleRecentActivity, timeSettings } = useAppContext();
     const { theme } = useTheme();
     const elevation = getElevation();
-    const navigation = useNavigation();
+    const themedStyles = React.useMemo(
+        () =>
+            StyleSheet.create({
+                actionTypeText: {
+                    color: theme.colors.primaryThemeColor,
+                },
+            }),
+        [theme],
+    );
     console.log('item apqp', item?.Description || item?.TaskDescription);
 
     const changeDateFormatCard = (inDate) => {
@@ -38,76 +40,49 @@ const RiskCard = ({ item = {}, handleClickCard }) => {
     };
 
     return (
-        <View style={{ paddingHorizontal: SPACING.MEDIUM }}>
-        {/* {item?.Description || item?.TaskDescription ? ( */}
+        <View style={styles.container}>
             <TouchableOpacity
                 activeOpacity={1}
                 onPress={() => handleClickCard?.(item)}
                 style={[
-                    {
-                        padding: SPACING.NORMAL,
-                        borderRadius: SPACING.SMALL,
-                        marginBottom: SPACING.SMALL,
-                        marginTop: SPACING.NORMAL,
-                        // marginLeft: SPACING.SMALL,
-                        width: '100%',
-                    },
+                    styles.cardTouchable,
                     elevation,
                 ]}>
-                <View style={[styles.cardOuterView]}>
+                <View style={styles.cardOuterView}>
                     <View style={styles.projectBoxContent}>
-                        {item?.ActionType ? ( <View style={{ width: '100%', paddingBottom: SPACING.SMALL }}>
-                            <TextComponent numberOfLines={1} fontSize={FONT_SIZE.LARGE} style={{ color: theme.colors.primaryThemeColor }}>
+                        {item?.ActionType ? ( <View style={styles.actionTypeContainer}>
+                            <TextComponent numberOfLines={1} fontSize={FONT_SIZE.LARGE} style={themedStyles.actionTypeText}>
                                 {item.ActionType == "" || item.ActionType == null
                                     ? " - "
                                     : item.ActionType.replace("&apos;", "'")}
                             </TextComponent>
-                            {/* </TextComponent> */}
                         </View>
                         ) : null}
-                        {item?.ActionCreatedDate ? (<View style={{ flexDirection: 'row', paddingBottom: SPACING.SMALL }}>
-                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                <View
-                                    style={{
-                                        width: RFPercentage(2.5),
-                                        height: RFPercentage(2.5),
-                                        backgroundColor: COLORS.WARNING,
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        borderRadius: SPACING.X_SMALL,
-                                        marginRight: SPACING.X_SMALL,
-                                    }}>
+                        {item?.ActionCreatedDate ? (<View style={styles.dateRow}>
+                            <View style={styles.dateIconWrap}>
+                                <View style={styles.calendarIconBox}>
                                     <IconComponent name="calendar" color={COLORS.white} type={ICON_TYPE.AntDesign} size={FONT_SIZE.X_SMALL} />
                                 </View>
                             </View>
-                            <View style={{ width: '100%' }}>
-                                <TextComponent numberOfLines={1} fontSize={FONT_SIZE.SMALL} type={FONT_TYPE.BOLD}  style={{ color: 'black' }}>
+                            <View style={styles.dateTextWrap}>
+                                <TextComponent numberOfLines={1} fontSize={FONT_SIZE.SMALL} type={FONT_TYPE.BOLD} style={styles.dateText}>
                                     {changeDateFormatCard(item.ActionCreatedDate)} -{" "}
                                     {changeDateFormatCard(item.DueDate)}
                                 </TextComponent>
                             </View>
                         </View>
                         ) : null}
-                        {item?.Site ? (<TextComponent style={{ width: '100%', paddingBottom: SPACING.SMALL  }} numberOfLines={1}>
+                        {item?.Site ? (<TextComponent style={styles.siteText} numberOfLines={1}>
                             <TextComponent type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.SMALL}>{item?.Site}</TextComponent>
                         </TextComponent>) : null}
-                        {item?.DueByDays ? (<TextComponent fontSize={FONT_SIZE.SMALL}   numberOfLines={1}>
+                        {item?.DueByDays ? (<TextComponent fontSize={FONT_SIZE.SMALL} numberOfLines={1}>
                             Due by days: <TextComponent type={FONT_TYPE.BOLD}
-                            style={
-                                item.DueByDays > 0
-                                ? [
-                                    { fontSize: FONT_SIZE.SMALL, color: "green" },
-                                    ]
-                                : [
-                                    { fontSize: FONT_SIZE.SMALL, color: "red" },
-                                    ]
-                            }
+                            style={item.DueByDays > 0 ? styles.dueByDaysPositive : styles.dueByDaysNegative}
                             >{item?.DueByDays}</TextComponent>
                         </TextComponent>) : null}
                     </View>
                 </View>
             </TouchableOpacity>
-         {/* ) : null} */}
         </View>
     );
 };
@@ -115,8 +90,60 @@ const RiskCard = ({ item = {}, handleClickCard }) => {
 export default RiskCard;
 
 const styles = StyleSheet.create({
+    container: {
+        paddingHorizontal: SPACING.MEDIUM,
+    },
+    cardTouchable: {
+        padding: SPACING.NORMAL,
+        borderRadius: SPACING.SMALL,
+        marginBottom: SPACING.SMALL,
+        marginTop: SPACING.NORMAL,
+        width: '100%',
+    },
     cardOuterView: {
         flexDirection: 'row',
+    },
+    projectBoxContent: {
+        flexDirection: 'column',
+    },
+    actionTypeContainer: {
+        width: '100%',
+        paddingBottom: SPACING.SMALL,
+    },
+    dateRow: {
+        flexDirection: 'row',
+        paddingBottom: SPACING.SMALL,
+    },
+    dateIconWrap: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    calendarIconBox: {
+        width: RFPercentage(2.5),
+        height: RFPercentage(2.5),
+        backgroundColor: COLORS.WARNING,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: SPACING.X_SMALL,
+        marginRight: SPACING.X_SMALL,
+    },
+    dateTextWrap: {
+        width: '100%',
+    },
+    dateText: {
+        color: 'black',
+    },
+    siteText: {
+        width: '100%',
+        paddingBottom: SPACING.SMALL,
+    },
+    dueByDaysPositive: {
+        fontSize: FONT_SIZE.SMALL,
+        color: 'green',
+    },
+    dueByDaysNegative: {
+        fontSize: FONT_SIZE.SMALL,
+        color: 'red',
     },
     borderEnabled: {
         borderBottomWidth: 0.5,

@@ -2,6 +2,7 @@ import { StyleSheet, Dimensions } from "react-native";
 import { Metrics, ApplicationStyles } from "../../themes";
 import Fonts from "../../themes/Fonts";
 import { width, height } from "react-native-dimension";
+import { SPACING } from "constants/theme-constants";
 // import { android15FooterPadding } from "../../../auditPro/Themes/AndroidInsets";
 
 let Window = Dimensions.get("window");
@@ -16,6 +17,17 @@ export default StyleSheet.create({
     // flexDirection: 'column',
     width: Window.width,
     height: Window.height,
+  },
+  topSpacerIos: {
+    padding: SPACING.MEDIUM,
+    flexDirection: "row",
+  },
+  topSpacerAndroid: {
+    padding: SPACING.NORMAL,
+    flexDirection: "row",
+  },
+  contentContainer: {
+    width: "100%",
   },
   bgImage: {
     width: Window.width,
@@ -119,6 +131,21 @@ export default StyleSheet.create({
     fontSize: 16,
     padding: 2,
   },
+  attachmentsTitleContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+    width: "100%",
+    height: 40,
+    padding: 5,
+  },
+  attachmentsTitleText: {
+    width: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+    fontSize: 17,
+    color: "black",
+    fontWeight: "bold",
+  },
 
   flatListFullSideView: {
     width: "93%",
@@ -140,6 +167,45 @@ export default StyleSheet.create({
     // borderRightWidth: 1,
     borderRadius: 8,
     marginLeft: '7%',
+  },
+  deliverablesList: {
+    marginLeft: "4%",
+    padding: 5,
+  },
+  outputDocAttachRow: {
+    flexDirection: "row",
+  },
+  outputDocAttachText: {
+    color: "#7F7D7D",
+    paddingLeft: 5,
+    justifyContent: "center",
+    alignItems: "center",
+    fontSize: 14,
+  },
+  outputDocNameRow: {
+    flexDirection: "row",
+  },
+  outputDocNameText: {
+    paddingRight: 5,
+    color: "#1FBFD0",
+    fontSize: 16,
+  },
+  commentsHtmlContainer: {
+    marginLeft: 4,
+    flexDirection: "row",
+    flexWrap: "wrap",
+  },
+  renderHtmlBaseStyle: {
+    color: "#000",
+  },
+  emptyStateContainer: {
+    width: "100%",
+    height: 100,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  emptyStateText: {
+    fontSize: 18,
   },
 
   deliveryTypeTextHeaderStyle: {
@@ -309,5 +375,12 @@ export default StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 10,
     // elevation: 5,
+  },
+  toastStyle: {
+    backgroundColor: "black",
+    margin: 20,
+  },
+  toastText: {
+    color: "white",
   },
 });

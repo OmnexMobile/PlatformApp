@@ -1,44 +1,31 @@
 import React, { Component } from "react";
 import {
-  ScrollView,
   Text,
-  Image,
   View,
-  TextInput,
   TouchableOpacity,
-  Button,
   FlatList,
-  ImageBackground,
-  Dimensions,
+  ActivityIndicator,
+  Platform,
 } from "react-native";
-import { Images } from "../themes";
 import OfflineNotice from "../components/OfflineNotice";
 // import ResponsiveImage from "react-native-responsive-image";
 // import InputField from "../Components/Shared/InputField";
 // import LinearGradient from "react-native-linear-gradient";
-import Icon from "react-native-vector-icons/FontAwesome";
-import { height } from "react-native-dimension";
 import { connect } from "react-redux";
 import Toast, { DURATION } from "react-native-easy-toast";
 // import SegmentedControlTab from "react-native-segmented-control-tab";
 // import DropdownMenu from "react-native-dropdown-menu";
 import auth from "../../../services/APQP-Auth";
 import AsyncStorage from "@react-native-community/async-storage";
-import Fonts from "../themes/Fonts";
 import { strings } from "../language/Language";
 // Styles
 import styles from "./styles/PeriodicUpdateStyles";
-import { DoubleBounce } from "react-native-loader";
 import Moment from "moment";
 import { ICON_TYPE, ROUTES } from "constants/app-constant";
-import { SPACING } from "constants/theme-constants";
 // import Reactotron from "reactotron-react-native";
-import { NavigationEvents } from 'react-navigation';
 import GlobalHeader from "components/GlobalHeader";
 import { FAB } from "components";
 import CardProgress from "../components/CardProgress";
-
-const window_width = Dimensions.get("window").width;
 
 class PeriodicUpdateScreen extends Component {
   TaskId = "";
@@ -129,8 +116,8 @@ class PeriodicUpdateScreen extends Component {
           this.TaskId = this.TaskId
             ? this.props?.route?.params?.TaskID
             : this.props?.route?.params?.itemData?.ActionId
-            ? this.props?.route?.params?.itemData?.TaksId
-            : this.props?.route?.params?.itemData?.TaskID;
+              ? this.props?.route?.params?.itemData?.TaksId
+              : this.props?.route?.params?.itemData?.TaskID;
 
           // this.DeliverableName = this.DeliverableName
           //   ? this.DeliverableName
@@ -149,8 +136,8 @@ class PeriodicUpdateScreen extends Component {
           this.ProjectId = this.ProjectId
             ? this.props?.route?.params.itemData?.Project_id
             : this.props?.route?.params.itemData?.ProjectId
-            ? this.props?.route?.params.itemData?.ProjectID
-            : this.props?.route?.params?.ProjectId;
+              ? this.props?.route?.params.itemData?.ProjectID
+              : this.props?.route?.params?.ProjectId;
         } else {
           console.log(
             "onPress pressed_Project_RecentActions------ActionItem.TaskID---1--ELSE-->"
@@ -187,7 +174,7 @@ class PeriodicUpdateScreen extends Component {
     ) {
       console.log(
         "------------>Update_Status-------PeriodicUpdate----1----->" +
-          this.props?.route?.params?.mailIDD
+        this.props?.route?.params?.mailIDD
       );
       if (
         this.props?.route?.params?.mailIDD !== "" &&
@@ -195,16 +182,16 @@ class PeriodicUpdateScreen extends Component {
       ) {
         this.refs.toast.show(
           strings.Save_Message_update +
-            strings.mail_sent_to +
-            "\n" +
-            this.props?.route?.params?.mailIDD,
+          strings.mail_sent_to +
+          "\n" +
+          this.props?.route?.params?.mailIDD,
           DURATION.LENGH_LONG
         );
       }
 
       console.log(
         "------------>Update_Status-------PeriodicUpdate----->" +
-          this.props?.route?.params?.mailIDD
+        this.props?.route?.params?.mailIDD
       );
 
       this.getapqpPeriodicList("will");
@@ -242,10 +229,10 @@ class PeriodicUpdateScreen extends Component {
       const value = JSON.parse(stringifiedUserDetails);
       console.log('current userdata--->', value)
       var userdata = {
-          UserId: value?.userId,
-          SiteId: value?.siteId,
-          Token: value?.accessToken,
-        };
+        UserId: value?.userId,
+        SiteId: value?.siteId,
+        Token: value?.accessToken,
+      };
       console.log("userdata aync", userdata);
       return userdata;
     } catch (e) {
@@ -321,19 +308,8 @@ class PeriodicUpdateScreen extends Component {
 
   renderBounce() {
     return (
-      <View
-        style={{
-          paddingVertical: 20,
-          borderTopWidth: 1,
-          borderColor: "#CED0CE",
-          width: window_width,
-          height: height(100) - 213,
-          flex: 1,
-          flexDirection: "column",
-          alignItems: "center",
-        }}
-      >
-        <DoubleBounce size={20} color="#1CAFF6" />
+      <View style={styles.bounceContainer}>
+        <ActivityIndicator size="small" color="#1CAFF6" />
       </View>
     );
   }
@@ -398,7 +374,7 @@ class PeriodicUpdateScreen extends Component {
                   ) {
                     return cnt + o.Percentage;
                   },
-                  0),
+                    0),
                 });
                 let sum = 0;
                 for (
@@ -489,42 +465,6 @@ class PeriodicUpdateScreen extends Component {
   renderHeader() {
     return (
       <>
-      {/* <ImageBackground source={Images.headerBG} style={styles.header}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
-            <View style={styles.backLogo}>
-              <View style={styles.headerDiv}>
-                <Icon name="angle-left" size={40} color="white" />
-                <Text style={styles.LabelText}>{strings.Back}</Text>
-              </View>
-            </View>
-          </TouchableOpacity>
-
-          <View style={styles.heading}>
-            <Text style={styles.headingText}>{strings.Progress_Update}</Text>
-          </View>
-
-          <View style={(styles.headerDiv, { backgroundColor: "transparent" })}>
-          <View style={styles.container2}>
-            <TouchableOpacity
-              style={{ backgroundColor: "transparent" ,
-                width: "100%",
-                height: 70,
-                justifyContent: "center",
-                alignItems: "center",}}
-          
-              onPress={() => this.openDeliveryInfo()}
-            >
-              <Icon name="upload" size={25} color="white" alignItems="center" justifyContent="center" />
-              <Text style={{color: "#FFFFFF",
-                            textAlign: "center"
-                           }}>Attach</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-        </View>
-      </ImageBackground> */}
-      
         <GlobalHeader
           title={strings.Progress_Update}
           onLeftPress={() => this.props.navigation.goBack()}
@@ -539,21 +479,17 @@ class PeriodicUpdateScreen extends Component {
 
   NoRecordsFound() {
     return (
-      <Text
-        style={{
-          width: window_width,
-          height: height(100) - 213,
-          flex: 1,
-          flexDirection: "column",
-          alignItems: "center",
-          textAlign: "center",
-          fontSize: Fonts.size.h5,
-          paddingTop: 40,
-          fontFamily: "OpenSans-Regular",
-        }}
-      >
+      <Text style={styles.noRecordsText}>
         {strings.No_records_found}
       </Text>
+    );
+  }
+
+  renderTopSpacer() {
+    return (
+      <View
+        style={Platform.OS === "ios" ? styles.topSpacerIos : styles.topSpacerAndroid}
+      />
     );
   }
 
@@ -563,55 +499,14 @@ class PeriodicUpdateScreen extends Component {
 
     return (
       <View style={styles.mainContainer}>
-        {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
-        {/* <NavigationEvents onWillFocus={this.onFocus} /> */}
-         {/* <NavigationEvents onDidFocus={() => this.getapqpPeriodicList()} /> */}
+        {this.renderTopSpacer()}
         <OfflineNotice />
         {this.renderHeader()}
         {this.state.isLoading ? (
           this.renderBounce()
         ) : (
-          <View style={[styles.flatListWholeView, {marginTop: 100}]}>
+          <View style={styles.flatListWholeViewWithTopMargin}>
             <CardProgress ProjectName={this.ProjectName} TaskName={this.TaskName} StartDate={this.StartDate} EndDate={this.EndDate} />
-            {/* <View>
-              <View style={styles.textHeader}>
-                <Text style={styles.listText}>Project Name :</Text>
-                <Text
-                  style={{
-                    marginLeft: 5,
-                    flex: 1,
-                    flexDirection: "column",
-                    flexWrap: "wrap",
-                    color: "black",
-                    fontSize: Fonts.size.regular,
-                  }}
-                >
-                  {this.ProjectName}
-                </Text>
-              </View>
-              <View style={styles.textHeader}>
-                <Text style={styles.listText}>Task Name :</Text>
-                <Text
-                  style={(styles.listText1, { flexWrap: "wrap", width: "69%" ,marginLeft: 5,
-                    flex: 1,
-                    fontSize: Fonts.size.regular,
-                    color: "black",})}
-                >
-                  {this.TaskName}
-                </Text>
-              </View>
-              <View style={styles.textHeader}>
-                <Text style={styles.listText}>Period :</Text>
-                <Text
-                  style={
-                    (styles.listText, { flexWrap: "wrap", color: "black", fontSize: 15 })
-                  }
-                >
-                  {this.changeDateFormatCard(this.StartDate)} -{" "}
-                  {this.changeDateFormatCard(this.EndDate)}
-                </Text>
-              </View>
-            </View> */}
 
             {this.state.apqpPeriodicList.length > 0 ? (
               <FlatList
@@ -636,49 +531,39 @@ class PeriodicUpdateScreen extends Component {
                         <View style={styles.flatListInsideView}>
                           <Text style={styles.listText}>Period :</Text>
                           <Text
-                            style={[styles.dateTextStyle, { color: "#1FBFD0" }]}
+                            style={styles.dateTextStyle}
                             numberOfLines={1}
                           >
                             {this.changeDateFormatCard(item.StartDate)} -{" "}
                             {this.changeDateFormatCard(item.Enddate)}
                           </Text>
-                      </View>
-                      <View style={styles.flatListInsideView}>
-                        <Text style={styles.listText}>{strings.Hours} :</Text>
-                        <Text style={styles.deliveryTypeTextStyleHours}>
-                          {item.Hours}
-                        </Text>
-                      </View>
-                      <View style={styles.flatListInsideView}>
-                        <Text style={styles.listText}>{strings.Remarks}:</Text>
-                      </View>
-                      <View style={styles.flatListInsideView}>
-                        <Text
-                          style={
-                            (styles.deliveryTypeTextStyle,
-                            {
-                              paddingLeft: 8,
-                              marginRight: 25,
-                              fontSize: 16,
-                              flexWrap: "wrap",
-                              width: "80%",
-                              color: "grey",
-                            })
-                          }
-                        >
-                          {item.Remarks}
-                        </Text>
-                      </View>
+                        </View>
+                        <View style={styles.flatListInsideView}>
+                          <Text style={styles.listText}>{strings.Hours} :</Text>
+                          <Text style={styles.deliveryTypeTextStyleHours}>
+                            {item.Hours}
+                          </Text>
+                        </View>
+                        <View style={styles.flatListInsideView}>
+                          <Text style={styles.listText}>{strings.Remarks}:</Text>
+                        </View>
+                        <View style={styles.flatListInsideView}>
+                          <Text
+                            style={styles.remarksText}
+                          >
+                            {item.Remarks}
+                          </Text>
+                        </View>
                       </TouchableOpacity>
                     </View>
                   </View>
                 )}
               />
-              
+
             ) : (
               this.NoRecordsFound()
             )}
-             <View style={{ height: 50 }} />
+            <View style={styles.listBottomSpacer} />
           </View>
         )}
         <View style={styles.footerDiv}>
@@ -686,13 +571,13 @@ class PeriodicUpdateScreen extends Component {
         </View>
         <Toast
           ref="toast"
-          style={{ backgroundColor: "black", margin: 20 }}
+          style={styles.toastStyle}
           position="top"
           positionValue={200}
           fadeInDuration={750}
           fadeOutDuration={1000}
           opacity={0.8}
-          textStyle={{ color: "white" }}
+          textStyle={styles.toastText}
         />
       </View>
     );

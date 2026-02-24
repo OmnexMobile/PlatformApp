@@ -2,16 +2,11 @@ import React, { Component } from "react";
 import {
   ScrollView,
   Text,
-  Image,
   View,
   TextInput,
   TouchableOpacity,
-  Button,
-  FlatList,
-  ImageBackground,
-  Platform
+  Platform,
 } from "react-native";
-import { Images } from "../themes";
 // import ResponsiveImage from "react-native-responsive-image";
 // import InputField from "../Components/Shared/InputField";
 // import LinearGradient from "react-native-linear-gradient";
@@ -37,7 +32,6 @@ import { extendMoment } from "moment-range";
 
 import SwitchToggle from "../components/SwitchToggle";
 import { ICON_TYPE, ROUTES } from "constants/app-constant";
-import { SPACING } from "constants/theme-constants";
 import { FAB } from "components";
 import GlobalHeader from "components/GlobalHeader";
 
@@ -83,8 +77,6 @@ class PeriodicEditScreen extends Component {
       timePassed: false,
       switch1Value: false,
       defaultText: "",
-      inputHeight: 65,
-      
     };
     this.onDateChange = this.onDateChange.bind(this);
     this.onEndDateChange = this.onEndDateChange.bind(this);
@@ -148,7 +140,7 @@ class PeriodicEditScreen extends Component {
           ResourceId: ResourceId,
           UpdatedBy: "", //paramsData.UpdatedBy,
         },
-        () => {}
+        () => { }
       );
     }
   }
@@ -178,28 +170,28 @@ class PeriodicEditScreen extends Component {
     this.getTodaydate = date;
   }
 
-//   getData = async (userdata) => {
-//     try {
-//       var UserId = await AsyncStorage.getItem("UserId");
-//       var Token = await AsyncStorage.getItem("Token");
-//       var Siteid = await AsyncStorage.getItem("SiteId");
+  //   getData = async (userdata) => {
+  //     try {
+  //       var UserId = await AsyncStorage.getItem("UserId");
+  //       var Token = await AsyncStorage.getItem("Token");
+  //       var Siteid = await AsyncStorage.getItem("SiteId");
 
-//       var userdata = [];
+  //       var userdata = [];
 
-//       console.log("Siteid aync", Siteid);
+  //       console.log("Siteid aync", Siteid);
 
-//       console.log("UserId asyc", UserId.toString());
-//       console.log("Token asyns", Token.toString());
-//       var userdata = {
-//         UserId: UserId,
-//         SiteId: Siteid,
-//         Token: Token,
-//       };
-//       return userdata;
-//     } catch (e) {
-//       console.log("No user session");
-//     }
-//   };
+  //       console.log("UserId asyc", UserId.toString());
+  //       console.log("Token asyns", Token.toString());
+  //       var userdata = {
+  //         UserId: UserId,
+  //         SiteId: Siteid,
+  //         Token: Token,
+  //       };
+  //       return userdata;
+  //     } catch (e) {
+  //       console.log("No user session");
+  //     }
+  //   };
 
   getData = async () => {
     try {
@@ -208,10 +200,10 @@ class PeriodicEditScreen extends Component {
       const value = JSON.parse(stringifiedUserDetails);
       console.log('current userdata--->', value)
       var userdata = {
-          UserId: value?.userId,
-          SiteId: value?.siteId,
-          Token: value?.accessToken,
-        };
+        UserId: value?.userId,
+        SiteId: value?.siteId,
+        Token: value?.accessToken,
+      };
       console.log("userdata aync", userdata);
       return userdata;
     } catch (e) {
@@ -247,11 +239,11 @@ class PeriodicEditScreen extends Component {
     // var ddate = new Date(
     //   this.props.navigation.state.params.itemData.DueDate
     // ).setHours(0, 0, 0, 0);
-    console.log('dt,sdate', dt,'--',sdate,'--', dt <= sdate)
+    console.log('dt,sdate', dt, '--', sdate, '--', dt <= sdate)
     if (dt <= sdate) {
-      this.setState({ isValid: true }, () => {});
+      this.setState({ isValid: true }, () => { });
     } else {
-      this.setState({ isValid: false, startdate: "" }, () => {});
+      this.setState({ isValid: false, startdate: "" }, () => { });
       return;
     }
 
@@ -286,10 +278,10 @@ class PeriodicEditScreen extends Component {
     // if (dt <= today && dt >= startdate) {
     if (dt >= startdate) {
       console.log('reach if--->')
-      this.setState({ isValid: true }, () => {});
+      this.setState({ isValid: true }, () => { });
     } else {
       console.log('reach else--->')
-      this.setState({ isValid: false }, () => {});
+      this.setState({ isValid: false }, () => { });
       // this.setState({ isValid: false, endate: "" }, () => {});
       return;
     }
@@ -298,7 +290,7 @@ class PeriodicEditScreen extends Component {
       {
         endate: Moment(date).format("MM/DD/YYYY"),
         isendDateVisible: false,
-        
+
       },
       () => {
         console.log("EndDate selected", this.state.endate);
@@ -352,49 +344,49 @@ class PeriodicEditScreen extends Component {
 
       const Remark =
         this.props?.route?.params?.RouteParam == "Edit"
-        ? this.state.remarktext
-        : "From : " +
-            // this.props.data.projects.loginuser.FullName +
-            this.props.data.projects.loginuser.userFullName +
-            (this.props.data.projects.loginuser?.Email
-              ? " (" + this.props.data.projects.loginuser.Email + ")"
-              : "") +
-            "\n\n" +
-            //------------------------------------Modified_for_Commercial_Use-------- lock-------//
-            "Client Name : " +
-            this.state.ClientName +
-            "\n\n" +
-            "Type of Work Conducted : " +
-            this.state.TypeofWorkConducted +
-            "\n\n" +
-            "Opportunities : " +
-            this.state.AnyOpportunities +
-            "\n\n" +
-            "Issue Faced : " +
-            this.state.IssueFaced +
-            "\n\n" +
-            // ------------------------------------Modified_for_Commercial_Use-------- lock-------//
-            "Remark : " +
-            // this.strCompareResult(this.state.remarktext);
+          ? this.state.remarktext
+          : "From : " +
+          // this.props.data.projects.loginuser.FullName +
+          this.props.data.projects.loginuser.userFullName +
+          (this.props.data.projects.loginuser?.Email
+            ? " (" + this.props.data.projects.loginuser.Email + ")"
+            : "") +
+          "\n\n" +
+          //------------------------------------Modified_for_Commercial_Use-------- lock-------//
+          "Client Name : " +
+          this.state.ClientName +
+          "\n\n" +
+          "Type of Work Conducted : " +
+          this.state.TypeofWorkConducted +
+          "\n\n" +
+          "Opportunities : " +
+          this.state.AnyOpportunities +
+          "\n\n" +
+          "Issue Faced : " +
+          this.state.IssueFaced +
+          "\n\n" +
+          // ------------------------------------Modified_for_Commercial_Use-------- lock-------//
+          "Remark : " +
+          // this.strCompareResult(this.state.remarktext);
 
-            this.state.remarktext;
+          this.state.remarktext;
       const UpdateType = this.state.RouteParam == "Add" ? "add" : "update";
       const EndTime = this.state.endate;
       const Token = this.Token;
 
-      console.log("onSavePress saveperiodicupdate req-->",  
+      console.log("onSavePress saveperiodicupdate req-->",
         Id,
         'UserID', UserID,
         'TaskId', TaskId,
         'FromPercent', FromPercent,
-       'Percent', Percent,
-       'ResourceID', ResourceID,
-       'StartDate', StartDate,
-       'Hours', Hours,
-       'Remark', Remark,
-       'UpdateType', UpdateType,
-       'EndTime', EndTime,
-       'Token', Token);
+        'Percent', Percent,
+        'ResourceID', ResourceID,
+        'StartDate', StartDate,
+        'Hours', Hours,
+        'Remark', Remark,
+        'UpdateType', UpdateType,
+        'EndTime', EndTime,
+        'Token', Token);
 
       auth.saveperiodicupdate(
         Id,
@@ -432,9 +424,9 @@ class PeriodicEditScreen extends Component {
 
             console.log(
               "------------>Update_Status-------PeriodicEdit--------->" +
-                msgg +
-                "---------->" +
-                mailIDD
+              msgg +
+              "---------->" +
+              mailIDD
             );
             // this.refs.toast.show(data.data.Data, DURATION.LENGH_LONG);
           } else {
@@ -570,53 +562,31 @@ class PeriodicEditScreen extends Component {
     console.log('today--->', today)
     return (
       <View style={styles.mainContainer}>
-        <View style={{ padding: Platform.OS === 'ios' ? SPACING.MEDIUM : SPACING.NORMAL, flexDirection: 'row' }} />
+        <View
+          style={
+            Platform.OS === "ios" ? styles.topSpacerIos : styles.topSpacerAndroid
+          }
+        />
         <OfflineNotice />
         {this.renderHeader()}
 
-        <ScrollView style={[styles.flatListWholeView, {marginTop: Platform.OS === 'ios' ? 100 : 100}]}>
+        <ScrollView style={styles.flatListWholeViewWithTopMargin}>
           <View>
             <View style={styles.textHeader}>
               <Text style={styles.listText}>Project Name :</Text>
-              <Text
-                style={{
-                  marginLeft: 5,
-                  flex: 1,
-                  flexDirection: "column",
-                  flexWrap: "wrap",
-                  color: "black",
-                  fontSize: 16,
-                }}
-              >
+              <Text style={styles.projectNameText}>
                 {this.ProjectName ? this.ProjectName : "  -  "}
               </Text>
-              {/* <View style={styles.roundView}>
-                <Text
-                  style={{ color: "#fff", fontWeight: "bold" }}
-                  numberOfLines={1}
-                >
-                  {this.percentage ? this.percentage + "%" : "0"}
-                </Text>
-              </View> */}
             </View>
             <View style={styles.textHeader}>
               <Text style={styles.listText}>Task Name :</Text>
-              <Text
-                style={(styles.listText, { flexWrap: "wrap", width: "69%", 
-                  color: "black",
-                  fontSize: 16,
-                 })}
-              >
+              <Text style={styles.taskNameText}>
                 {this.TaskName ? this.TaskName : "  -  "}
               </Text>
             </View>
             <View style={styles.textHeader}>
               <Text style={styles.listText}>Period :</Text>
-              <Text
-                style={
-                  (styles.listText, { flexWrap: "wrap", color: "#1FBFD0", fontSize: 16 })
-                }
-              >
+              <Text style={styles.periodText}>
                 {this.StartDate
                   ? this.changeDateFormatCard(this.StartDate)
                   : "  -  "}{" "}
@@ -627,32 +597,19 @@ class PeriodicEditScreen extends Component {
               </Text>
 
               <View style={styles.roundView}>
-                <Text
-                  style={{ color: "#fff", fontWeight: "bold" }}
-                  numberOfLines={1}
-                >
+                <Text style={styles.roundViewText} numberOfLines={1}>
                   {this.percentage ? this.percentage + "%" : "0"}
                 </Text>
               </View>
             </View>
           </View>
-          {/* ) : (
-          <View style={styles.roundView}>
-            <Text
-              style={{ color: "#fff", fontWeight: "bold" }}
-              numberOfLines={1}
-            >
-              {this.percentage ? this.percentage + "%" : "oo"}
-            </Text>
-          </View>
-          )} */}
           <View style={styles.sec1}>
             {this.state.completedtext != "" ? (
-              <View style={{ flexDirection: "row" }}>
-                <Text style={[styles.completedTextStyle, {marginTop: '1%'}]}>
+              <View style={styles.rowDirection}>
+                <Text style={styles.completedTextStyleWithTopMargin}>
                   {strings.completed + "%"}
                 </Text>
-                <Text style={{ color: "red" }}>*</Text>
+                <Text style={styles.requiredStar}>*</Text>
               </View>
             ) : null}
             <TextInput
@@ -669,12 +626,12 @@ class PeriodicEditScreen extends Component {
               onBlur={() => {
                 this.validatefield();
               }}
-              // this.setState({ number: value.replace(/[- #*;,.<>\{\}\[\]\\\/]/gi, '') });
+            // this.setState({ number: value.replace(/[- #*;,.<>\{\}\[\]\\\/]/gi, '') });
             />
             {this.state.completedtext == "" ? (
               <View style={styles.check}>
                 <Icon
-                  style={{ left: 10 }}
+                  style={styles.requiredAsteriskIcon}
                   name="asterisk"
                   size={8}
                   color="red"
@@ -686,19 +643,24 @@ class PeriodicEditScreen extends Component {
             onPress={() =>
               this.setState({ isstartDateVisible: true, isValid: true })
             }
-            style={[styles.sec1, { marginTop: this.state.completedtext == "" ? -10 : '5%'}]}
+            style={[
+              styles.sec1,
+              this.state.completedtext == ""
+                ? styles.startDateSectionEmpty
+                : styles.startDateSectionFilled,
+            ]}
           >
             {this.state.startdate != "" ? (
-              <View style={{ flexDirection: "row", }}>
+              <View style={styles.rowDirection}>
                 <Text style={styles.completedTextStyle}>
                   {strings.StartDate}
                 </Text>
-                <Text style={{ color: "red" }}>*</Text>
+                <Text style={styles.requiredStar}>*</Text>
               </View>
             ) : null}
             <TextInput
               placeholder={strings.StartDate}
-              style={(styles.textInputStyle, { color: "#000000", fontSize: 17 })}
+              style={styles.dateTextInputStyle}
               value={this.state.startdate}
               onChangeText={(text) => {
                 this.setState({ startdate: text });
@@ -709,7 +671,7 @@ class PeriodicEditScreen extends Component {
             {this.state.startdate == "" ? (
               <View style={styles.check}>
                 <Icon
-                  style={{ left: 10 }}
+                  style={styles.requiredAsteriskIcon}
                   name="asterisk"
                   size={8}
                   color="red"
@@ -724,15 +686,15 @@ class PeriodicEditScreen extends Component {
             style={styles.sec1}
           >
             {this.state.endate != "" ? (
-              <View style={{ flexDirection: "row" }}>
+              <View style={styles.rowDirection}>
                 <Text style={styles.completedTextStyle}>{strings.EndDate}</Text>
-                <Text style={{ color: "red" }}>*</Text>
+                <Text style={styles.requiredStar}>*</Text>
               </View>
             ) : null}
             <TextInput
               placeholder={strings.EndDate}
               placeholderTextColor="#000"
-              style={(styles.textInputStyle, { color: "#000000", fontSize: 17 })}
+              style={styles.dateTextInputStyle}
               value={this.state.endate}
               onChangeText={(text) => {
                 this.setState({ endate: text });
@@ -743,7 +705,7 @@ class PeriodicEditScreen extends Component {
             {this.state.endate == "" ? (
               <View style={styles.endDatecheck}>
                 <Icon
-                  style={{ left: 10 }}
+                  style={styles.requiredAsteriskIcon}
                   name="asterisk"
                   size={8}
                   color="red"
@@ -754,9 +716,9 @@ class PeriodicEditScreen extends Component {
           {/* //------------------------------------Modified_For_Commericial_Use--------- lock------// */}
           <View style={styles.sec1}>
             {this.state.hourstext != "" ? (
-              <View style={{ flexDirection: "row" }}>
+              <View style={styles.rowDirection}>
                 <Text style={styles.completedTextStyle}>{strings.Hours}</Text>
-                <Text style={{ color: "red" }}>*</Text>
+                <Text style={styles.requiredStar}>*</Text>
               </View>
             ) : null}
             <TextInput
@@ -775,7 +737,7 @@ class PeriodicEditScreen extends Component {
             {this.state.hourstext == "" ? (
               <View style={styles.check}>
                 <Icon
-                  style={{ left: 10 }}
+                  style={styles.requiredAsteriskIcon}
                   name="asterisk"
                   size={8}
                   color="red"
@@ -784,7 +746,14 @@ class PeriodicEditScreen extends Component {
             ) : null}
           </View>
 
-          <View style={[styles.textHeader, { marginTop: this.state.hourstext == "" ? 0 : '6%', marginBottom: '1.2%' }]}>
+          <View
+            style={[
+              styles.textHeader,
+              this.state.hourstext == ""
+                ? styles.defaultRemarksRowEmpty
+                : styles.defaultRemarksRowFilled,
+            ]}
+          >
             <Text style={styles.listText}>Default Remarks :</Text>
             <SwitchToggle
               toggleSwitch1={this.toggleSwitch1}
@@ -795,16 +764,28 @@ class PeriodicEditScreen extends Component {
           {/* //------------------------------------Modified_For_Commericial_Use--------- lock------// */}
           {this.props?.route?.params?.RouteParam != "Edit" ? (
             <View>
-              <View style={[styles.remark, { marginTop: this.state.ClientName == "" ? -10 : 0, marginBottom: this.state.ClientName == "" ? 0 : '2%' }]}>
+              <View
+                style={[
+                  styles.remark,
+                  this.state.ClientName == ""
+                    ? styles.remarkClientEmpty
+                    : styles.remarkClientFilled,
+                ]}
+              >
                 {this.state.ClientName != "" ? (
-                  <Text style={[styles.completedTextStyle1, { marginLeft: '0.5%' }]}>
+                  <Text style={styles.completedTextStyleLabel}>
                     {strings.ClientName}
                   </Text>
                 ) : null}
                 <TextInput
                   placeholder={strings.ClientName}
                   placeholderTextColor="#000"
-                  style={[styles.textInputStyle, { height: this.state.ClientName == "" ? 65 : 50}]}
+                  style={[
+                    styles.textInputStyle,
+                    this.state.ClientName == ""
+                      ? styles.multilineInputEmpty
+                      : styles.multilineInputFilled,
+                  ]}
                   value={this.state.ClientName}
                   numberOfLines={4}
                   multiline={true}
@@ -813,16 +794,28 @@ class PeriodicEditScreen extends Component {
                   }}
                 />
               </View>
-              <View style={[styles.remark, { marginTop: this.state.TypeofWorkConducted == "" ? 0 : '2.5%', marginBottom: this.state.TypeofWorkConducted == "" ? 0 : '2%' }]}>
+              <View
+                style={[
+                  styles.remark,
+                  this.state.TypeofWorkConducted == ""
+                    ? styles.remarkFieldEmpty
+                    : styles.remarkFieldFilled,
+                ]}
+              >
                 {this.state.TypeofWorkConducted != "" ? (
-                  <Text style={[styles.completedTextStyle1, { marginLeft: '0.5%' }]}>
+                  <Text style={styles.completedTextStyleLabel}>
                     {strings.TypeofWorkConducted}
                   </Text>
                 ) : null}
                 <TextInput
                   placeholder={strings.TypeofWorkConducted}
                   placeholderTextColor="#000"
-                  style={[styles.textInputStyle, { height: this.state.TypeofWorkConducted == "" ? 65 : 50}]}
+                  style={[
+                    styles.textInputStyle,
+                    this.state.TypeofWorkConducted == ""
+                      ? styles.multilineInputEmpty
+                      : styles.multilineInputFilled,
+                  ]}
                   value={this.state.TypeofWorkConducted}
                   numberOfLines={4}
                   multiline={true}
@@ -831,16 +824,28 @@ class PeriodicEditScreen extends Component {
                   }}
                 />
               </View>
-              <View style={[styles.remark, { marginTop: this.state.AnyOpportunities == "" ? 0 : '2.5%', marginBottom: this.state.AnyOpportunities == "" ? 0 : '2%' }]}>
+              <View
+                style={[
+                  styles.remark,
+                  this.state.AnyOpportunities == ""
+                    ? styles.remarkFieldEmpty
+                    : styles.remarkFieldFilled,
+                ]}
+              >
                 {this.state.AnyOpportunities != "" ? (
-                  <Text style={[styles.completedTextStyle1, { marginLeft: '0.5%' }]}>
+                  <Text style={styles.completedTextStyleLabel}>
                     {strings.AnyOpportunities}
                   </Text>
                 ) : null}
                 <TextInput
                   placeholder={strings.AnyOpportunities}
                   placeholderTextColor="#000"
-                  style={[styles.textInputStyle, { height: this.state.AnyOpportunities == "" ? 65 : 50}]}
+                  style={[
+                    styles.textInputStyle,
+                    this.state.AnyOpportunities == ""
+                      ? styles.multilineInputEmpty
+                      : styles.multilineInputFilled,
+                  ]}
                   value={this.state.AnyOpportunities}
                   numberOfLines={4}
                   multiline={true}
@@ -849,16 +854,28 @@ class PeriodicEditScreen extends Component {
                   }}
                 />
               </View>
-              <View style={[styles.remark, { marginTop: this.state.IssueFaced == "" ? 0 : '2.5%', marginBottom: this.state.IssueFaced == "" ? 0 : '2%' }]}>
+              <View
+                style={[
+                  styles.remark,
+                  this.state.IssueFaced == ""
+                    ? styles.remarkFieldEmpty
+                    : styles.remarkFieldFilled,
+                ]}
+              >
                 {this.state.IssueFaced != "" ? (
-                  <Text style={[styles.completedTextStyle1, { marginLeft: '0.5%' }]}>
+                  <Text style={styles.completedTextStyleLabel}>
                     {strings.IssueFaced}
                   </Text>
                 ) : null}
                 <TextInput
                   placeholder={strings.IssueFaced}
                   placeholderTextColor="#000"
-                  style={[styles.textInputStyle, { height: this.state.IssueFaced == "" ? 65 : 50}]}
+                  style={[
+                    styles.textInputStyle,
+                    this.state.IssueFaced == ""
+                      ? styles.multilineInputEmpty
+                      : styles.multilineInputFilled,
+                  ]}
                   value={this.state.IssueFaced}
                   numberOfLines={4}
                   multiline={true}
@@ -871,19 +888,26 @@ class PeriodicEditScreen extends Component {
           ) : null}
           {/* //------------------------------------Modified_For_Commericial_Use-------- lock-------// */}
 
-          <View style={[styles.remark, { marginTop: this.state.remarktext == "" ? 0 : '2.5%', marginBottom: this.state.remarktext == "" ? 0 : '2%' }]}>
-                {this.state.remarktext != "" ? (
+          <View
+            style={[
+              styles.remark,
+              this.state.remarktext == ""
+                ? styles.remarkFieldEmpty
+                : styles.remarkFieldFilled,
+            ]}
+          >
+            {this.state.remarktext != "" ? (
               <View>
-                <View style={{ flexDirection: "row" }}>
-                  <Text style={[styles.completedTextStyle1, { marginLeft: '0.5%' }]}>
+                <View style={styles.rowDirection}>
+                  <Text style={styles.completedTextStyleLabel}>
                     {strings.Remarks}
                   </Text>
-                  <Text style={{ color: "red" }}>*</Text>
+                  <Text style={styles.requiredStar}>*</Text>
                 </View>
                 {this.state.remarktext == "" ? (
                   <View style={styles.check}>
                     <Icon
-                      style={{ left: 10 }}
+                      style={styles.requiredAsteriskIcon}
                       name="asterisk"
                       size={8}
                       color="red"
@@ -895,43 +919,37 @@ class PeriodicEditScreen extends Component {
             <TextInput
               placeholder={strings.Remarks}
               placeholderTextColor="#000"
-              style={[styles.textInputStyle1, { height: this.state.remarktext === "" ? 65 : this.state.inputHeight }]}
+              style={styles.textInputStyle1}
               value={this.state.remarktext}
               numberOfLines={4}
               multiline={true}
               onChangeText={(text) => {
                 this.setState({ remarktext: text });
               }}
-              onContentSizeChange={(event) => {
-                const newHeight = event.nativeEvent.contentSize.height;
-                this.setState({
-                  inputHeight: Math.max(65, newHeight + 12), 
-                });
-              }}
             />
             {this.state.remarktext == "" ? (
               <View style={styles.check}>
                 <Icon
-                  style={{ left: 10 }}
+                  style={styles.requiredAsteriskIcon}
                   name="asterisk"
                   size={8}
                   color="red"
                 />
               </View>
             ) : // this.setState({ remarktext: "." })
-            null}
+              null}
           </View>
-          <View style={{ height: 50 }} />
+          <View style={styles.bottomSpacer} />
         </ScrollView>
         <Modal
           isVisible={this.state.isstartDateVisible}
           onBackdropPress={() => this.setState({ isstartDateVisible: false })}
           transparent={true}
-          animationType="none" 
+          animationType="none"
         >
           <View style={styles.calendarDiv}>
             <View style={styles.header}>
-              <Text style={{ fontSize: 20, color: "#61BAD0" }}>
+              <Text style={styles.calendarTitleText}>
                 {strings.Please_Choose_Start_Date}
               </Text>
             </View>
@@ -945,20 +963,9 @@ class PeriodicEditScreen extends Component {
             />
             {this.state.isValid === false ? (
               <View
-                style={{
-                  justifyContent: "center",
-                  alignItems: "center",
-                  paddingBottom: 10,
-                }}
+                style={styles.calendarErrorContainer}
               >
-                <Text
-                  style={{
-                    fontSize: 12,
-                    color: "red",
-                    textAlign: "center",
-                    fontFamily: "OpenSans-Regular",
-                  }}
-                >
+                <Text style={styles.calendarErrorText}>
                   {strings.err_startdate}
                 </Text>
               </View>
@@ -969,7 +976,7 @@ class PeriodicEditScreen extends Component {
               }}
               style={styles.footer}
             >
-              <Text style={{ fontSize: 20, color: "#61BAD0" }}>Close</Text>
+              <Text style={styles.calendarTitleText}>Close</Text>
             </TouchableOpacity>
           </View>
         </Modal>
@@ -979,15 +986,15 @@ class PeriodicEditScreen extends Component {
             this.setState({ isendDateVisible: false, isValid: true })
           }
           transparent={true}
-          animationType="none" 
+          animationType="none"
         >
           <View style={styles.calendarDiv}>
             <View style={styles.header}>
-              <Text style={{ fontSize: 20, color: "#61BAD0" }}>
+              <Text style={styles.calendarTitleText}>
                 {strings.Please_Choose_End_Date}
               </Text>
             </View>
-            <View style={{ margin: 5 }}>
+            <View style={styles.calendarPickerWrapper}>
               <CalendarPicker
                 // onDateChange={this.onEndDateChange}
                 onDateChange={(date) => this.handleCalenderDate(date, 'END_DATE')}
@@ -1003,20 +1010,9 @@ class PeriodicEditScreen extends Component {
             </View>
             {this.state.isValid === false ? (
               <View
-                style={{
-                  justifyContent: "center",
-                  alignItems: "center",
-                  paddingBottom: 10,
-                }}
+                style={styles.calendarErrorContainer}
               >
-                <Text
-                  style={{
-                    fontSize: 12,
-                    color: "red",
-                    textAlign: "center",
-                    fontFamily: "OpenSans-Regular",
-                  }}
-                >
+                <Text style={styles.calendarErrorText}>
                   {/* {strings.err_enddate} */}
                 </Text>
               </View>
@@ -1027,49 +1023,12 @@ class PeriodicEditScreen extends Component {
               }}
               style={styles.footer}
             >
-              <Text style={{ fontSize: 20, color: "#61BAD0" }}>
+              <Text style={styles.calendarTitleText}>
                 {strings.Close}
               </Text>
             </TouchableOpacity>
           </View>
         </Modal>
-
-        {/* <View style={styles.footerDiv}>
-          <View style={styles.footerContainer}>
-            <View style={styles.footerButton11}>
-
-              {this.TaskOwnerCheck == 1 ? (
-                <TouchableOpacity
-                  onPress={() => this.onSavePress()}
-                  style={{
-                    width: "100%",
-                    height: 70,
-                    justifyContent: "center",
-                    flexDirection:"column",
-                    marginEnd:20,
-                    alignItems: "center",
-                  }}
-                >
-                  <Icon name="save" size={30} color="#00BAC8" />
-                  <Text style={{ color: "#00BAC8" ,margin:1}}>{strings.Save}</Text>
-                </TouchableOpacity>
-              ) : (
-                <View
-                  style={{
-                    width: "100%",
-                    height: 70,
-                    flexDirection:"row",
-                    justifyContent: "center",
-                    alignItems: "center",
-                  }}
-                >
-                  <Icon name="save" size={30} color="lightgrey" />
-                  <Text style={{ color: "lightgrey" }}>{strings.Save}</Text>
-                </View>
-              )}
-            </View>
-          </View>
-        </View> */}
 
         <View style={styles.footerDiv}>
           {this.TaskOwnerCheck == 1 ? (
@@ -1077,21 +1036,21 @@ class PeriodicEditScreen extends Component {
               <FAB iconName="save" iconType={ICON_TYPE.Feather} onPress={() => this.onSavePress()} />
             </>
           ) : (
-          <>
-            <FAB iconName="save" iconType={ICON_TYPE.Feather} />
-          </>
+            <>
+              <FAB iconName="save" iconType={ICON_TYPE.Feather} />
+            </>
           )}
         </View>
 
         <Toast
           ref="toast"
-          style={{ backgroundColor: "black", margin: 20 }}
+          style={styles.toastStyle}
           position="top"
           positionValue={200}
           fadeInDuration={750}
           fadeOutDuration={1000}
           opacity={0.8}
-          textStyle={{ color: "white" }}
+          textStyle={styles.toastText}
         />
       </View>
     );

@@ -1,24 +1,18 @@
 import React from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import Ripple from 'react-native-material-ripple';
-import { useNavigation } from '@react-navigation/native';
 import Moment from 'moment';
 import { COLORS, FONT_SIZE, SPACING } from 'constants/theme-constants';
-import { DATE_FORMAT, FONT_TYPE, ICON_TYPE, ROUTES, STATUS, STATUS_CODES, USER_TYPE } from 'constants/app-constant';
+import { FONT_TYPE, ICON_TYPE } from 'constants/app-constant';
 import { getElevation, RFPercentage } from 'helpers/utils';
-import { useAppContext } from 'contexts/app-context';
 import useTheme from 'theme/useTheme';
 import IconComponent from 'components/icon-component';
 import TextComponent from 'components/text';
-import { IMAGES } from 'assets/images';
-import ImageComponent from 'components/image-component';
 
 const MeetingCard = ({ item = {}, handleClickCard }) => {
     console.log('item in list card logo apqp', item);
-    const { sites, handleRecentActivity, timeSettings } = useAppContext();
     const { theme } = useTheme();
+    const themedStyles = dynamicStyles(theme);
     const elevation = getElevation();
-    const navigation = useNavigation();
     console.log('item apqp', item?.Description || item?.TaskDescription);
 
     const changeDateFormatCard = (inDate) => {
@@ -38,80 +32,61 @@ const MeetingCard = ({ item = {}, handleClickCard }) => {
     };
 
     return (
-        <View style={{ paddingHorizontal: SPACING.MEDIUM }}>
+        <View style={styles.listContainer}>
         {/* {item?.Description || item?.TaskDescription ? ( */}
             <TouchableOpacity
                 activeOpacity={1}
                 onPress={() => handleClickCard?.(item)}
                 style={[
-                    {
-                        padding: SPACING.NORMAL,
-                        borderRadius: SPACING.SMALL,
-                        marginBottom: SPACING.SMALL,
-                        marginTop: SPACING.NORMAL,
-                        // marginLeft: SPACING.SMALL,
-                        width: '100%',
-                    },
+                    styles.cardContainer,
                     elevation,
                 ]}>
-                <View style={[styles.cardOuterView]}>
+                <View style={styles.cardOuterView}>
                     <View style={styles.projectBoxContent}>
-                        {item?.Actions ? ( <View style={{ width: '100%', paddingBottom: SPACING.SMALL }}>
-                            <TextComponent style={{ color: 'black', }}  type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.SMALL}>
-                                Action : <TextComponent numberOfLines={1} fontSize={FONT_SIZE.SMALL} style={{ color: theme.colors.primaryThemeColor }}>
+                        {item?.Actions ? ( <View style={styles.fullWidthRow}>
+                            <TextComponent style={styles.primaryLabelText}  type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.SMALL}>
+                                Action : <TextComponent numberOfLines={1} fontSize={FONT_SIZE.SMALL} style={themedStyles.actionPrimaryValueText}>
                                     {item.Actions}
                                 </TextComponent>
                             </TextComponent>
                         </View>) : null}
-                        {item?.ActionType ? ( <View style={{ width: '100%', paddingBottom: SPACING.SMALL }}>
-                            <TextComponent style={{ color: 'black', }}  type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.SMALL}>
-                                Action Type : <TextComponent numberOfLines={1} fontSize={FONT_SIZE.SMALL} style={{ color: '#000' }}>
+                        {item?.ActionType ? ( <View style={styles.fullWidthRow}>
+                            <TextComponent style={styles.primaryLabelText}  type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.SMALL}>
+                                Action Type : <TextComponent numberOfLines={1} fontSize={FONT_SIZE.SMALL} style={styles.secondaryValueText}>
                                 {item.ActionType}
                             </TextComponent>
                             </TextComponent>
                         </View>) : null}
-                        {item?.Site ? (<TextComponent style={{ width: '100%', paddingBottom: SPACING.SMALL, color: 'black',   }}   type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.SMALL} numberOfLines={1}>
-                            Site : <TextComponent fontSize={FONT_SIZE.SMALL} style={{ color: '#000' }}>{item?.Site}</TextComponent>
+                        {item?.Site ? (<TextComponent style={styles.primaryRowText}   type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.SMALL} numberOfLines={1}>
+                            Site : <TextComponent fontSize={FONT_SIZE.SMALL} style={styles.secondaryValueText}>{item?.Site}</TextComponent>
                         </TextComponent>) : null}
-                        {item?.Description ? (<TextComponent style={{ width: '100%', paddingBottom: SPACING.SMALL, color: 'black',   }}   type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.SMALL} numberOfLines={1}>
-                            Description : <TextComponent fontSize={FONT_SIZE.SMALL} style={{ color: '#000' }}>{item?.Description}</TextComponent>
+                        {item?.Description ? (<TextComponent style={styles.primaryRowText}   type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.SMALL} numberOfLines={1}>
+                            Description : <TextComponent fontSize={FONT_SIZE.SMALL} style={styles.secondaryValueText}>{item?.Description}</TextComponent>
                         </TextComponent>) : null}
-                        {item?.ActionCreatedDate ? (<View style={{ flexDirection: 'row', paddingBottom: SPACING.SMALL }}>
-                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        {item?.ActionCreatedDate ? (<View style={styles.dateRow}>
+                            <View style={styles.dateIconWrapper}>
                                 <View
-                                    style={{
-                                        width: RFPercentage(2.5),
-                                        height: RFPercentage(2.5),
-                                        backgroundColor: COLORS.WARNING,
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        borderRadius: SPACING.X_SMALL,
-                                        marginRight: SPACING.X_SMALL,
-                                    }}>
+                                    style={styles.dateIconBox}>
                                     <IconComponent name="calendar" color={COLORS.white} type={ICON_TYPE.AntDesign} size={FONT_SIZE.X_SMALL} />
                                 </View>
                             </View>
-                            <View style={{ width: '100%' }}>
-                                <TextComponent numberOfLines={1} fontSize={FONT_SIZE.SMALL} type={FONT_TYPE.BOLD}  style={{ color: 'black' }}>
+                            <View style={styles.dateValueWrapper}>
+                                <TextComponent numberOfLines={1} fontSize={FONT_SIZE.SMALL} type={FONT_TYPE.BOLD}  style={styles.primaryLabelText}>
                                     {changeDateFormatCard(item.ActionCreatedDate)} -{" "}
                                     {changeDateFormatCard(item.DueDate)}
                                 </TextComponent>
                             </View>
                         </View>
                         ) : null}
-                        {item?.Status ? (<TextComponent style={{ width: '100%', paddingBottom: SPACING.SMALL, color: 'black'  }} type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.SMALL}  numberOfLines={1}>
-                            Status : <TextComponent fontSize={FONT_SIZE.SMALL} style={{ color: '#000' }}>{item?.Status}</TextComponent>
+                        {item?.Status ? (<TextComponent style={styles.primaryRowText} type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.SMALL}  numberOfLines={1}>
+                            Status : <TextComponent fontSize={FONT_SIZE.SMALL} style={styles.secondaryValueText}>{item?.Status}</TextComponent>
                         </TextComponent>) : null}
-                        {item?.DueByDays ? (<TextComponent style={{ width: '100%', paddingBottom: SPACING.SMALL, color: 'black'  }} type={FONT_TYPE.BOLD}   fontSize={FONT_SIZE.SMALL}   numberOfLines={1}>
+                        {item?.DueByDays ? (<TextComponent style={styles.primaryRowText} type={FONT_TYPE.BOLD}   fontSize={FONT_SIZE.SMALL}   numberOfLines={1}>
                             Due by days: <TextComponent type={FONT_TYPE.BOLD}
                             style={
                                 item.DueByDays > 0
-                                ? [
-                                    { fontSize: FONT_SIZE.SMALL, color: theme.colors.primaryThemeColor },
-                                    ]
-                                : [
-                                    { fontSize: FONT_SIZE.SMALL, color: "red" },
-                                    ]
+                                ? themedStyles.dueByPositiveText
+                                : styles.dueByNegativeText
                             }
                             >{item?.DueByDays}</TextComponent>
                         </TextComponent>) : null}
@@ -126,8 +101,60 @@ const MeetingCard = ({ item = {}, handleClickCard }) => {
 export default MeetingCard;
 
 const styles = StyleSheet.create({
+    listContainer: {
+        paddingHorizontal: SPACING.MEDIUM,
+    },
+    cardContainer: {
+        padding: SPACING.NORMAL,
+        borderRadius: SPACING.SMALL,
+        marginBottom: SPACING.SMALL,
+        marginTop: SPACING.NORMAL,
+        width: '100%',
+    },
     cardOuterView: {
         flexDirection: 'row',
+    },
+    projectBoxContent: {
+        width: '100%',
+    },
+    fullWidthRow: {
+        width: '100%',
+        paddingBottom: SPACING.SMALL,
+    },
+    primaryLabelText: {
+        color: COLORS.black,
+    },
+    secondaryValueText: {
+        color: COLORS.black,
+    },
+    primaryRowText: {
+        width: '100%',
+        paddingBottom: SPACING.SMALL,
+        color: COLORS.black,
+    },
+    dateRow: {
+        flexDirection: 'row',
+        paddingBottom: SPACING.SMALL,
+    },
+    dateIconWrapper: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    dateIconBox: {
+        width: RFPercentage(2.5),
+        height: RFPercentage(2.5),
+        backgroundColor: COLORS.WARNING,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: SPACING.X_SMALL,
+        marginRight: SPACING.X_SMALL,
+    },
+    dateValueWrapper: {
+        width: '100%',
+    },
+    dueByNegativeText: {
+        fontSize: FONT_SIZE.SMALL,
+        color: 'red',
     },
     borderEnabled: {
         borderBottomWidth: 0.5,
@@ -158,3 +185,14 @@ const styles = StyleSheet.create({
         height: 17,
     },
 });
+
+const dynamicStyles = (theme) =>
+    StyleSheet.create({
+        actionPrimaryValueText: {
+            color: theme.colors.primaryThemeColor,
+        },
+        dueByPositiveText: {
+            fontSize: FONT_SIZE.SMALL,
+            color: theme.colors.primaryThemeColor,
+        },
+    });

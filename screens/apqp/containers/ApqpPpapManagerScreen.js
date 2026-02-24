@@ -10,6 +10,7 @@ import {
   SectionList,
   FlatList,
   Dimensions,
+  Platform,
   ScrollView,
   TouchableWithoutFeedback,
   Animated,
@@ -17,9 +18,7 @@ import {
 import { Images, Fonts } from "../themes";
 import { connect } from "react-redux";
 import auth from "../../../services/APQP-Auth";
-import ProgressCircle from "react-native-progress-circle";
 import Icon from "react-native-vector-icons/FontAwesome";
-import { Bubbles, DoubleBounce, Bars, Pulse } from "react-native-loader";
 import Modal from "react-native-modal";
 import CalendarPicker from "react-native-calendar-picker";
 import Toast, { DURATION } from "react-native-easy-toast";
@@ -30,14 +29,12 @@ import styles1 from "./styles/ApqpDashboardHeaderStyle";
 import NetInfo from "@react-native-community/netinfo";
 import Moment from "moment";
 import { extendMoment } from "moment-range";
-import { Dropdown } from "react-native-material-dropdown";
 import { strings } from "../language/Language";
 import OfflineNotice from "../components/OfflineNotice";
 import ScrollableTabView, {
   DefaultTabBar,
 } from "react-native-scrollable-tab-view";
 import { ROUTES } from "constants/app-constant";
-import { SPACING } from "constants/theme-constants";
 import GlobalHeader from "components/GlobalHeader";
 import CardList from "../components/CardList";
 // import Reactotron from "reactotron-react-native";
@@ -147,7 +144,7 @@ class ApqpPpapManagerScreen extends Component {
   setting = () => {
     // this.setState({ todayn: this.props.navigation.state.params.todayn });
     this.setState({ todayn: this.props?.route?.params?.todayn });
-    
+
     this.setState({
       // isPendingTask: this.props.navigation.state.params.isPendingTask,
       // selectedIndex: this.props.navigation.state.params.selectedIndex || 0,
@@ -161,11 +158,11 @@ class ApqpPpapManagerScreen extends Component {
     console.log(this.props?.route?.params, "navigationparamsapqp");
     this.unsubscribe = this.props.navigation.addListener('focus', () => {
       console.log('Screen focused again');
-        this.getapqplistdata()
+      this.getapqplistdata()
     })
     this.setting();
     this.getData()
-      .then(async(res) => {
+      .then(async (res) => {
         console.log("componentDidMount async", res);
         this.UserId = res.UserId;
         this.Token = res.Token;
@@ -187,7 +184,7 @@ class ApqpPpapManagerScreen extends Component {
       // console.log('Action List Component Focussed!')
 
       // if (this.props.navigation.getParam("filter_Arr")) {
-      if (this.props?.route?.params?.filter_Arr){
+      if (this.props?.route?.params?.filter_Arr) {
         console.log(
           "Filter Applied from Filter Screen from props- did mount",
           this.props?.route?.params?.filter_Arr
@@ -204,7 +201,7 @@ class ApqpPpapManagerScreen extends Component {
               isPageEmpty: false,
               isErrorRefresh: false,
             },
-            () => {}
+            () => { }
           );
         }
         if (this.state.token == "") {
@@ -318,7 +315,7 @@ class ApqpPpapManagerScreen extends Component {
             loading: false,
             isMounted: true,
           },
-          () => {}
+          () => { }
         );
       }
     });
@@ -374,17 +371,17 @@ class ApqpPpapManagerScreen extends Component {
     if (filter[0].filterType === "GlobalFilter") {
       filter[0].startDate !== "" && filter[0].endDate !== ""
         ? FilterArray.push(
-            filter[0].startDate + " " + strings.to + " " + filter[0].endDate
-          )
+          filter[0].startDate + " " + strings.to + " " + filter[0].endDate
+        )
         : null;
       // filter[0].globalSearchCol !== ""
       //   ? FilterArray.push(filter[0].globalSearchCol)
       //   : null;
       filter[0].globalSearch && filter[0].globalSearch !== ""
         ? FilterArray.push(
-            //filter[0].globalSearchCol + " : " + filter[0].globalSearch
-            filter[0].globalSearch
-          )
+          //filter[0].globalSearchCol + " : " + filter[0].globalSearch
+          filter[0].globalSearch
+        )
         : null;
     } else if (filter[0].filterType === "Calendar") {
       FilterArray = [
@@ -453,10 +450,10 @@ class ApqpPpapManagerScreen extends Component {
             }
           );
         })
-        .catch((e) => {
-          console.log("Async aerror", e);
-        });
-          this.setState({ hasUpdated: true });
+          .catch((e) => {
+            console.log("Async aerror", e);
+          });
+        this.setState({ hasUpdated: true });
       } else {
         console.log("ApqpPpapManagerScreen pass");
       }
@@ -503,10 +500,10 @@ class ApqpPpapManagerScreen extends Component {
       const value = JSON.parse(stringifiedUserDetails);
       console.log('current userdata--->', value)
       var userdata = {
-          UserId: value?.userId,
-          SiteId: value?.siteId,
-          Token: value?.accessToken,
-        };
+        UserId: value?.userId,
+        SiteId: value?.siteId,
+        Token: value?.accessToken,
+      };
       console.log("userdata aync", userdata);
       return userdata;
     } catch (e) {
@@ -566,7 +563,7 @@ class ApqpPpapManagerScreen extends Component {
         renderItem={({ item }) => (
           <TouchableOpacity
             onPress={() => this.openProjectPage(item[0])}
-            style={{ width: "95%" }}
+            style={styles.listItemTouchable}
           >
             <View style={styles.projectBox}>
               <View style={styles.projectBoxContent}>
@@ -592,13 +589,7 @@ class ApqpPpapManagerScreen extends Component {
                 </View>
                 <Text
                   numberOfLines={1}
-                  style={{
-                    marginLeft: 30,
-                    padding: 3,
-                    fontSize: Fonts.size.regular,
-                    color: "#485B9E",
-                    fontFamily: "OpenSans-Regular",
-                  }}
+                  style={styles.projectTitleText}
                 >
                   {item[0].Modules == "Meeting"
                     ? "Meeting"
@@ -606,51 +597,24 @@ class ApqpPpapManagerScreen extends Component {
                 </Text>
                 <Text
                   numberOfLines={1}
-                  style={{
-                    padding: 3,
-                    fontSize: Fonts.size.small,
-                    color: "#A6A6A6",
-                    fontFamily: "OpenSans-Regular",
-                  }}
+                  style={styles.projectDateText}
                 >
                   {this.changeDateFormatCard(item[0].StartDate)} -{" "}
                   {this.changeDateFormatCard(item[0].DueDate)}
                 </Text>
                 <Text
                   numberOfLines={1}
-                  style={{
-                    padding: 3,
-                    fontSize: Fonts.size.medium,
-                    color: "#545454",
-                    fontFamily: "OpenSans-Regular",
-                  }}
+                  style={styles.projectDescriptionText}
                 >
                   {item[0].Actions}
                 </Text>
-                {/* <Text
-                numberOfLines={1}
-                style={{
-                  padding: 3,
-                  fontSize: Fonts.size.medium,
-                  color: "#545454",
-                  fontFamily: "OpenSans-Regular",
-                }}
-              >
-                {item.site}
-              </Text> */}
               </View>
             </View>
           </TouchableOpacity>
         )}
         keyExtractor={(item) => item.key}
         ItemSeparatorComponent={() => (
-          <View
-            style={{
-              width: window_width,
-              height: 1,
-              backgroundColor: "transparent",
-            }}
-          />
+          <View style={styles.listItemSeparator} />
         )}
       />
     );
@@ -750,8 +714,8 @@ class ApqpPpapManagerScreen extends Component {
   getapqplistdata(from) {
     console.log(
       "-------PendingTask-------->" +
-        this.state.isPendingTask +
-        "-------selectedIndex--------->",
+      this.state.isPendingTask +
+      "-------selectedIndex--------->",
       this.state.selectedIndex,
       'params---', this.props?.route?.params
     );
@@ -765,19 +729,19 @@ class ApqpPpapManagerScreen extends Component {
     const maxRow = this.state.maxRow;
     // const ListType = this.state.selectedIndex; //Sudha_Feb_15
 
-    const ListType = 
+    const ListType =
       this.state.isPendingTask == 1 ? 1 : this.state.selectedIndex;
     const projectView = 0;
     const FilterValue =
       this.state.ProjectSearch != "" &&
-      this.state.ProjectSearch != null &&
-      this.state.ProjectSearch != undefined
+        this.state.ProjectSearch != null &&
+        this.state.ProjectSearch != undefined
         ? this.state.ProjectSearch
         : "";
     const FilterColumn =
       this.state.ProjectColumn != "" &&
-      this.state.ProjectColumn != null &&
-      this.state.ProjectColumn != undefined
+        this.state.ProjectColumn != null &&
+        this.state.ProjectColumn != undefined
         ? this.state.ProjectColumn
         : "";
     const OrderBy = this.state.OrderBy;
@@ -899,7 +863,7 @@ class ApqpPpapManagerScreen extends Component {
             isMounted: true,
             isErrorRefresh: false,
           },
-          () => {}
+          () => { }
         );
       }
     });
@@ -946,7 +910,7 @@ class ApqpPpapManagerScreen extends Component {
         renderItem={({ item }) => (
           <TouchableOpacity
             onPress={() => this.openProjectPage(item)}
-            style={{ width: "95%" }}
+            style={styles.listItemTouchable}
           >
             <View style={styles.projectBox}>
               <View style={styles.projectBoxContent}>
@@ -959,36 +923,20 @@ class ApqpPpapManagerScreen extends Component {
                 </View>
                 <Text
                   numberOfLines={1}
-                  style={{
-                    marginLeft: 30,
-                    padding: 3,
-                    fontSize: Fonts.size.regular,
-                    color: "#485B9E",
-                    fontFamily: "OpenSans-Regular",
-                  }}
+                  style={styles.projectTitleText}
                 >
                   {item.Modules == "Meeting" ? "Meeting" : item.TaskDescription}
                 </Text>
                 <Text
                   numberOfLines={1}
-                  style={{
-                    padding: 3,
-                    fontSize: Fonts.size.small,
-                    color: "#A6A6A6",
-                    fontFamily: "OpenSans-Regular",
-                  }}
+                  style={styles.projectDateText}
                 >
                   {this.changeDateFormatCard(item.StartDate)} -{" "}
                   {this.changeDateFormatCard(item.FinishDate)}
                 </Text>
 
                 <Text
-                  style={{
-                    padding: 3,
-                    fontSize: Fonts.size.medium,
-                    color: "#545454",
-                    fontFamily: "OpenSans-Regular",
-                  }}
+                  style={styles.projectDescriptionText}
                   numberOfLines={1}
                 >
                   {item.ProjectDescription}
@@ -999,13 +947,7 @@ class ApqpPpapManagerScreen extends Component {
         )}
         keyExtractor={(item) => item.key}
         ItemSeparatorComponent={() => (
-          <View
-            style={{
-              width: window_width,
-              height: 1,
-              backgroundColor: "transparent",
-            }}
-          />
+          <View style={styles.listItemSeparator} />
         )}
       />
     );
@@ -1022,7 +964,7 @@ class ApqpPpapManagerScreen extends Component {
         renderItem={({ item }) => (
           <TouchableOpacity
             onPress={() => this.openProjectPage(item)}
-            style={{ width: "95%" }}
+            style={styles.listItemTouchable}
           >
             <View style={styles.projectBox}>
               <View style={styles.projectBoxContent}>
@@ -1035,36 +977,20 @@ class ApqpPpapManagerScreen extends Component {
                 </View>
                 <Text
                   numberOfLines={1}
-                  style={{
-                    marginLeft: 30,
-                    padding: 3,
-                    fontSize: Fonts.size.regular,
-                    color: "#485B9E",
-                    fontFamily: "OpenSans-Regular",
-                  }}
+                  style={styles.projectTitleText}
                 >
                   {item.Modules == "Meeting" ? "Meeting" : item.TaskDescription}
                 </Text>
                 <Text
                   numberOfLines={1}
-                  style={{
-                    padding: 3,
-                    fontSize: Fonts.size.small,
-                    color: "#A6A6A6",
-                    fontFamily: "OpenSans-Regular",
-                  }}
+                  style={styles.projectDateText}
                 >
                   {this.changeDateFormatCard(item.StartDate)} -{" "}
                   {this.changeDateFormatCard(item.FinishDate)}
                 </Text>
 
                 <Text
-                  style={{
-                    padding: 3,
-                    fontSize: Fonts.size.medium,
-                    color: "#545454",
-                    fontFamily: "OpenSans-Regular",
-                  }}
+                  style={styles.projectDescriptionText}
                   numberOfLines={1}
                 >
                   {item.ProjectDescription}
@@ -1075,13 +1001,7 @@ class ApqpPpapManagerScreen extends Component {
         )}
         keyExtractor={(item) => item.key}
         ItemSeparatorComponent={() => (
-          <View
-            style={{
-              width: window_width,
-              height: 1,
-              backgroundColor: "transparent",
-            }}
-          />
+          <View style={styles.listItemSeparator} />
         )}
       />
     );
@@ -1090,14 +1010,14 @@ class ApqpPpapManagerScreen extends Component {
   RenderTodayFlashList() {
     return (
       <FlatList
-        contentContainerStyle={{ paddingBottom: 30 }}
+        contentContainerStyle={styles.todayFlashListContent}
         data={this.state.todaystask}
         extraData={this.state}
         onEndReachedThreshold={0.01}
         renderItem={({ item }) => (
           <TouchableOpacity
             onPress={() => this.openProjectPage(item)}
-            style={{ width: "95%" }}
+            style={styles.listItemTouchable}
           >
             <View style={styles.projectBox}>
               <View style={styles.projectBoxContent}>
@@ -1110,36 +1030,20 @@ class ApqpPpapManagerScreen extends Component {
                 </View>
                 <Text
                   numberOfLines={1}
-                  style={{
-                    marginLeft: 30,
-                    padding: 3,
-                    fontSize: Fonts.size.regular,
-                    color: "#485B9E",
-                    fontFamily: "OpenSans-Regular",
-                  }}
+                  style={styles.projectTitleText}
                 >
                   {item.Modules == "Meeting" ? "Meeting" : item.TaskDescription}
                 </Text>
                 <Text
                   numberOfLines={1}
-                  style={{
-                    padding: 3,
-                    fontSize: Fonts.size.small,
-                    color: "#A6A6A6",
-                    fontFamily: "OpenSans-Regular",
-                  }}
+                  style={styles.projectDateText}
                 >
                   {this.changeDateFormatCard(item.StartDate)} -{" "}
                   {this.changeDateFormatCard(item.FinishDate)}
                 </Text>
 
                 <Text
-                  style={{
-                    padding: 3,
-                    fontSize: Fonts.size.medium,
-                    color: "#545454",
-                    fontFamily: "OpenSans-Regular",
-                  }}
+                  style={styles.projectDescriptionText}
                   numberOfLines={1}
                 >
                   {item.ProjectDescription}
@@ -1150,13 +1054,7 @@ class ApqpPpapManagerScreen extends Component {
         )}
         keyExtractor={(item) => item.key}
         ItemSeparatorComponent={() => (
-          <View
-            style={{
-              width: window_width,
-              height: 1,
-              backgroundColor: "transparent",
-            }}
-          />
+          <View style={styles.listItemSeparator} />
         )}
       />
     );
@@ -1198,9 +1096,9 @@ class ApqpPpapManagerScreen extends Component {
     var TodayTask = 1;
     NetInfo.fetch().then((netStatus) => {
       if (netStatus.isConnected) {
-      console.log(
-        "@@@@@ APQPPpapManagerScreen1 calendarapi", Siteid
-      );
+        console.log(
+          "@@@@@ APQPPpapManagerScreen1 calendarapi", Siteid
+        );
         auth.calendarapi(UserID, Siteid, Token, TodayTask, (res, data) => {
           if (data.data.Message == "Success") {
             console.log(this.state.todaystask);
@@ -1585,98 +1483,19 @@ class ApqpPpapManagerScreen extends Component {
   filterSection() {
     var value = this.state.project_sortText;
     return (
-      <View style={styles.filterCont}>
-        <TouchableOpacity
-          style={styles.filterBox}
-          // onPress={() =>
-          //   this.props.navigation.navigate(ROUTES.FILTER_SCREEN_APQP, {
-          //     callback_flag:
-          //       this.state.filterArrSplit.length == 0 ? false : true,
-          //   })}
-          >
-          <Icon name="filter" size={20} color="#89888A" />
-          <Text
-            style={{
-              fontSize: Fonts.size.medium,
-              color: "#89888A",
-              paddingLeft: 5,
-              fontFamily: "OpenSans-Regular",
-            }}
-          >
-            {strings.filter}
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.filterBox}>
-          <View style={{ flex: 2 }}>
-            <Dropdown
-              // value={strings.SortByStartDate}
-              // label={strings.SortByStartDate}
-              value={this.state.project_sortText}
-              onChangeText={this.onChangeText.bind(this)}
-              data={this.dropdata}
-              containerStyle={{ flex: 1 }}
-              itemPadding={5}
-              dropdownOffset={{ top: 14, left: 0 }}
-              width={300}
-              baseColor="lightgrey"
-              itemTextStyle={{ fontFamily: "OpenSans-Regular" }}
-            />
-          </View>
-          {this.state.project_sort == 0 ? (
-            <TouchableOpacity
-              onPress={() => this.changeProjectSort(1)}
-              style={{
-                flex: 1,
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "center",
-                marginTop: 5,
-              }}
-            >
-              <Icon name="long-arrow-down" size={20} color="#19BFC1" />
-            </TouchableOpacity>
-          ) : (
-            <TouchableOpacity
-              onPress={() => this.changeProjectSort(0)}
-              style={{
-                flex: 1,
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "center",
-                marginTop: 5,
-              }}
-            >
-              <Icon name="long-arrow-up" size={20} color="#19BFC1" />
-            </TouchableOpacity>
-          )}
-
-          {/* <Text style={{ fontSize: Fonts.size.medium, color: "#89888A", paddingLeft: 5}}>Sort</Text> */}
-        </TouchableOpacity>
-      </View>
+      <>
+        <View style={styles.filterCont}>
+        </View>
+      </>
     );
   }
 
   renderFilter() {
     return (
-      <View
-        style={{
-          width: "100%",
-          height: null,
-          flexDirection: "row",
-          padding: 8,
-          flexWrap: "wrap",
-          justifyContent: "flex-start",
-          alignItems: "center",
-        }}
-      >
+      <View style={styles.renderFilterContainer}>
         {this.state.filterArrSplit.map((item, index) => (
           <View key={index} style={styles.renderFilterView}>
-            <Text
-              style={{
-                fontSize: Fonts.size.medium,
-                fontFamily: "OpenSans-Regular",
-              }}
-            >
+            <Text style={styles.renderFilterText}>
               {item}
             </Text>
           </View>
@@ -1724,9 +1543,9 @@ class ApqpPpapManagerScreen extends Component {
     console.log("@@@@@@@@@@@@@@@", from);
     console.log(
       "inside getactionlist : " +
-        this.props?.data?.projects?.loginuser?.UserId +
-        "=====" +
-        this.state.userId
+      this.props?.data?.projects?.loginuser?.UserId +
+      "=====" +
+      this.state.userId
     );
     const UserID = this.props?.data?.projects?.loginuser?.UserId;
     const SiteID = this.props?.data?.projects?.loginuser?.Siteid;
@@ -1736,14 +1555,14 @@ class ApqpPpapManagerScreen extends Component {
     const Token = this.props?.data?.projects?.token;
     var FilterValue =
       this.state.ProjectSearch != "" &&
-      this.state.ProjectSearch != null &&
-      this.state.ProjectSearch != undefined
+        this.state.ProjectSearch != null &&
+        this.state.ProjectSearch != undefined
         ? this.state.ProjectSearch
         : "";
     var FilterColumn =
       this.state.ProjectColumn != "" &&
-      this.state.ProjectColumn != null &&
-      this.state.ProjectColumn != undefined
+        this.state.ProjectColumn != null &&
+        this.state.ProjectColumn != undefined
         ? this.state.ProjectColumn
         : "";
     const OrderBy = this.state.OrderBy; //Sorting: Column name
@@ -1878,7 +1697,7 @@ class ApqpPpapManagerScreen extends Component {
             isMounted: true,
             isErrorRefresh: false,
           },
-          () => {}
+          () => { }
         );
       }
     });
@@ -1886,36 +1705,15 @@ class ApqpPpapManagerScreen extends Component {
 
   RefreshOnError() {
     return (
-      <View
-        style={{
-          paddingVertical: 20,
-          width: window_width,
-          height: height(100) - 213,
-          flex: 1,
-          flexDirection: "column",
-          alignItems: "center",
-        }}
-      >
+      <View style={styles.refreshOnErrorContainer}>
         <TouchableOpacity
           onPress={() =>
             this.setState({ loader: true }, () => this.getActionlist())
           }
-          style={{
-            width: "100%",
-            height: null,
-            justifyContent: "center",
-            alignItems: "center",
-          }}
+          style={styles.refreshOnErrorButton}
         >
           <Icon name="retweet" color="#21AFD5" size={30} />
-          <Text
-            style={{
-              textAlign: "center",
-              fontSize: Fonts.size.h5,
-              color: "#21AFD5",
-              fontFamily: "OpenSans-Regular",
-            }}
-          >
+          <Text style={styles.refreshOnErrorText}>
             Refresh
           </Text>
         </TouchableOpacity>
@@ -1925,16 +1723,7 @@ class ApqpPpapManagerScreen extends Component {
 
   NoRecordsFound() {
     return (
-      <Text
-        style={{
-          alignItems: "center",
-          textAlign: "center",
-          fontSize: Fonts.size.h5,
-          paddingTop: 40,
-          marginTop: 50,
-          fontFamily: "OpenSans-Regular",
-        }}
-      >
+      <Text style={styles.noRecordsText}>
         {strings.No_records_found}
       </Text>
     );
@@ -1967,8 +1756,8 @@ class ApqpPpapManagerScreen extends Component {
           ? this.state.apqpList.length > 0
             ? this.RenderProjectSectionList()
             : this.state.isErrorRefresh
-            ? this.RefreshOnError()
-            : this.NoRecordsFound()
+              ? this.RefreshOnError()
+              : this.NoRecordsFound()
           : this.Bounce()}
       </View>
     );
@@ -1976,20 +1765,8 @@ class ApqpPpapManagerScreen extends Component {
 
   Bounce() {
     return (
-      <View
-        style={{
-          paddingVertical: 20,
-          // borderTopWidth: 1,
-          // borderColor: "#CED0CE",
-          width: window_width,
-          height: height(100) - 213,
-          flex: 1,
-          marginTop: 50,
-          flexDirection: "column",
-          alignItems: "center",
-        }}
-      >
-        <DoubleBounce size={20} color="#1CAFF6" />
+      <View style={styles.bounceContainer}>
+        <ActivityIndicator size="small" color="#1CAFF6" />
       </View>
     );
   }
@@ -2007,8 +1784,8 @@ class ApqpPpapManagerScreen extends Component {
           ? this.state.apqpList.length > 0
             ? this.RenderProjectSectionList()
             : this.state.isErrorRefresh
-            ? this.RefreshOnError()
-            : this.NoRecordsFound()
+              ? this.RefreshOnError()
+              : this.NoRecordsFound()
           : this.Bounce()}
       </View>
     );
@@ -2026,8 +1803,8 @@ class ApqpPpapManagerScreen extends Component {
           ? this.state.apqpList.length > 0
             ? this.RenderProjectSectionList()
             : this.state.isErrorRefresh
-            ? this.RefreshOnError()
-            : this.NoRecordsFound()
+              ? this.RefreshOnError()
+              : this.NoRecordsFound()
           : this.Bounce()}
       </View>
     );
@@ -2038,7 +1815,7 @@ class ApqpPpapManagerScreen extends Component {
     return (
       <View
         tabLabel={tabText}
-        style={(styles.scrollViewBody, { marginTop: 50 })}
+        style={styles.scrollViewBodyWithMarginTop}
       >
         {/* {this.state.todaystask && this.state.todaystask.length > 0
           ? this.filterSection()
@@ -2048,8 +1825,8 @@ class ApqpPpapManagerScreen extends Component {
           ? this.state.todaystask.length > 0
             ? this.RenderTodayFlashList()
             : this.state.isErrorRefresh
-            ? this.RefreshOnError()
-            : this.NoRecordsFound()
+              ? this.RefreshOnError()
+              : this.NoRecordsFound()
           : this.Bounce()}
       </View>
     );
@@ -2060,7 +1837,7 @@ class ApqpPpapManagerScreen extends Component {
     return (
       <View
         tabLabel={tabText}
-        style={(styles.scrollViewBody, { marginTop: 50 })}
+        style={styles.scrollViewBodyWithMarginTop}
       >
         {/* {this.state.todaystask && this.state.todaystask.length > 0
           ? this.filterSection()
@@ -2070,8 +1847,8 @@ class ApqpPpapManagerScreen extends Component {
           ? this.state.upcomingtask.length > 0
             ? this.RenderUpcomingFlashList()
             : this.state.isErrorRefresh
-            ? this.RefreshOnError()
-            : this.NoRecordsFound()
+              ? this.RefreshOnError()
+              : this.NoRecordsFound()
           : this.Bounce()}
       </View>
     );
@@ -2105,155 +1882,16 @@ class ApqpPpapManagerScreen extends Component {
         onEndReachedThreshold={0.01}
         ListFooterComponent={this.listFooter.bind(this)}
         renderSectionHeader={({ section: { title } }) => (
-           <View style={styles.sectionHeaderContainer}>
+          <View style={styles.sectionHeaderContainer}>
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionHeaderText}>
                 {title}
               </Text>
             </View>
           </View>
-
-          // <View style={styles.projectBoxContent}>
-          //   <Text
-          //     style={{
-          //       marginLeft: 30,
-          //       fontSize: Fonts.size.h5,
-          //       fontWeight: "bold",
-          //       color: '#1FBFD0',
-          //       fontFamily: "OpenSans-Regular",
-          //     }}
-          //   >
-          //     {title}
-          //   </Text>
-          // </View>
         )}
         renderItem={({ item, index, section }) => (
           <CardList item={item} handleClickCard={this.onPressed.bind(this, item)} />
-          // <View key={index} style={styles.flatListView}>
-          //   <View style={styles.flatListTouchableView}>
-          //     <TouchableOpacity
-          //       onPress={this.onPressed.bind(this, item)}
-          //       style={{ width: "80%", backgroundColor: "white" }}
-          //     >
-          //       <View style={styles.flatListInsideView}>
-          //         <Text
-          //           numberOfLines={1}
-          //           style={{
-          //             marginLeft: 20,
-          //             padding: 1,
-          //             fontSize: Fonts.size.regular,
-          //             color: "#1FBFD0",
-          //             fontFamily: "OpenSans-Regular",
-          //           }}
-          //         >
-          //           {item.Description}
-          //         </Text>
-          //       </View>
-          //       <View style={styles.flatListInsideView}>
-          //         <Text
-          //           style={{
-          //             marginLeft: 20,
-          //             padding: 3,
-          //             fontSize: Fonts.size.medium,
-          //             color: "black",
-          //             fontFamily: "OpenSans-Regular",
-          //           }}
-          //           numberOfLines={1}
-          //         >
-          //           {this.changeDateFormatCard(item.StartDate)} -{" "}
-          //           {this.changeDateFormatCard(item.DueDate)}
-          //         </Text>
-          //       </View>
-          //       <View style={styles.flatListInsideView}>
-          //         <Text
-          //           style={{
-          //             marginLeft: 20,
-          //             padding: 3,
-          //             fontSize: Fonts.size.medium,
-          //             color: "black",
-          //             fontFamily: "OpenSans-Regular",
-          //           }}
-          //           numberOfLines={1}
-          //         >
-          //           {item.site}
-          //         </Text>
-          //       </View>
-          //       <View style={styles.flatListInsideView}>
-          //         <Text
-          //           style={
-          //             (styles.listText, { color: "black", marginLeft: 23 })
-          //           }
-          //         >
-          //           Due by Days :
-          //         </Text>
-          //         <Text
-          //           style={
-          //             item.DueByDays > 0
-          //               ? [
-          //                   styles.actionTypeTextStyle,
-          //                   { fontSize: 15, color: "green" },
-          //                 ]
-          //               : [
-          //                   styles.actionTypeTextStyle,
-          //                   { fontSize: 15, color: "red" },
-          //                 ]
-          //           }
-          //         >
-          //           {item.DueByDays}
-          //         </Text>
-          //       </View>
-          //     </TouchableOpacity>
-          //     <TouchableOpacity
-          //       onPress={() => this.toggleModal(item)}
-          //       style={{
-          //         width: "20%",
-          //         backgroundColor: "white",
-          //         height: "100%",
-          //         justifyContent: "center",
-          //         alignItems: "center",
-          //       }}
-          //     >
-          //       <View
-          //         style={{
-          //           flexDirection: "column",
-          //           justifyContent: "center",
-          //           alignItems: "center",
-          //         }}
-          //       >
-          //         <ProgressCircle
-          //           percent={item.ResourcePercent}
-          //           radius={25}
-          //           borderWidth={4}
-          //           color="#1FBFD0"
-          //           shadowColor="lightgrey"
-          //           bgColor="#fff"
-          //         >
-          //           <Text style={{ fontSize: 14 }}>
-          //             {item.ResourcePercent + "%"}
-          //           </Text>
-          //         </ProgressCircle>
-          //       </View>
-          //       <View
-          //         style={{
-          //           flexDirection: "column",
-          //           justifyContent: "center",
-          //           alignItems: "center",
-          //           paddingTop: 5,
-          //         }}
-          //       >
-          //         <Text
-          //           style={
-          //             (styles.dullTextOverall,
-          //             { color: "#545454", fontSize: 11 })
-          //           }
-          //         >
-          //           Overall
-          //           {" " + item.Percentage + "%"}
-          //         </Text>
-          //       </View>
-          //     </TouchableOpacity>
-          //   </View>
-          // </View>
         )}
       />
     );
@@ -2306,27 +1944,12 @@ class ApqpPpapManagerScreen extends Component {
   renderFooterUpcoming() {
     console.log("---->Checking_Footer--->6");
     return (
-      //  {/* <ImageBackground source={Images.dashFooter} style={{ width: '100%', height: '100%', resizeMode: 'stretch' }}> */}
-      <View
-        style={{
-          borderTopWidth: 1,
-          borderTopColor: "lightgrey",
-          marginBottom: 5,
-        }}
-      >
+      <View style={styles.footerTopBorder}>
         <View style={styles1.wrapperFoot}>
-          <View style={{ flexDirection: "row", padding: 10 }}>
+          <View style={styles.footerMenuRow}>
             <View style={styles1.footerMenuItem}>
               <Icon name="clone" size={32} color="#00BAC8" />
-              <Text
-                style={{
-                  color: "#00BAC8",
-                  fontSize: Fonts.size.medium,
-                  fontFamily: "OpenSans-Regular",
-                  alignItems: "center",
-                  textAlign: "center",
-                }}
-              >
+              <Text style={styles.footerTextActiveMedium}>
                 {strings.upcoming_task}
               </Text>
             </View>
@@ -2338,15 +1961,7 @@ class ApqpPpapManagerScreen extends Component {
               style={styles1.footerMenuItem}
             >
               <Icon name="folder" size={30} color="lightgrey" />
-              <Text
-                style={{
-                  color: "#848484",
-                  fontSize: Fonts.size.medium,
-                  fontFamily: "OpenSans-Regular",
-                  alignItems: "center",
-                  textAlign: "center",
-                }}
-              >
+              <Text style={styles.footerTextInactiveMedium}>
                 {strings.dailyTask}
               </Text>
             </TouchableOpacity>
@@ -2358,15 +1973,7 @@ class ApqpPpapManagerScreen extends Component {
               style={styles1.footerMenuItem}
             >
               <Icon name="calendar" size={30} color="lightgrey" />
-              <Text
-                style={{
-                  color: "#848484",
-                  fontSize: Fonts.size.medium,
-                  fontFamily: "OpenSans-Regular",
-                  alignItems: "center",
-                  textAlign: "center",
-                }}
-              >
+              <Text style={styles.footerTextInactiveMedium}>
                 {strings.Calendar}
               </Text>
             </TouchableOpacity>
@@ -2387,27 +1994,14 @@ class ApqpPpapManagerScreen extends Component {
 
     if (this.state.todayn == 2) {
       return (
-        <View
-          style={{
-            borderTopWidth: 1,
-            borderTopColor: "lightgrey",
-            marginBottom: 5,
-          }}
-        >
+        <View style={styles.footerTopBorder}>
           <View style={styles1.wrapperFoot}>
-            <View style={{ flexDirection: "row", padding: 10 }}>
+            <View style={styles.footerMenuRow}>
               <View style={styles1.footerMenuItem}>
                 <Icon name="clone" size={30} color="#00BAC8" />
                 <Text
                   numberOfLines={2}
-                  style={{
-                    color: "#00BAC8",
-                    // fontSize: Fonts.size.medium,
-                    fontSize: 12,
-                    fontFamily: "OpenSans-Regular",
-                    alignItems: "center",
-                    textAlign: "center",
-                  }}
+                  style={styles.footerTextActiveSmall}
                 >
                   {strings.todaystask}
                 </Text>
@@ -2428,14 +2022,7 @@ class ApqpPpapManagerScreen extends Component {
                 <Icon name="folder" size={30} color="lightgrey" />
                 <Text
                   numberOfLines={2}
-                  style={{
-                    color: "#848484",
-                    // fontSize: Fonts.size.medium,
-                    fontSize: 12,
-                    fontFamily: "OpenSans-Regular",
-                    alignItems: "center",
-                    textAlign: "center",
-                  }}
+                  style={styles.footerTextInactiveSmall}
                 >
                   {strings.upcoming_task}
                 </Text>
@@ -2449,16 +2036,7 @@ class ApqpPpapManagerScreen extends Component {
                 style={styles1.footerMenuItem}
               >
                 <Icon name="folder" size={30} color="lightgrey" />
-                <Text
-                  style={{
-                    color: "#848484",
-                    // fontSize: Fonts.size.medium,
-                    fontSize: 12,
-                    fontFamily: "OpenSans-Regular",
-                    alignItems: "center",
-                    textAlign: "center",
-                  }}
-                >
+                <Text style={styles.footerTextInactiveSmall}>
                   {strings.dailyTask}
                 </Text>
               </TouchableOpacity>
@@ -2471,16 +2049,7 @@ class ApqpPpapManagerScreen extends Component {
                 style={styles1.footerMenuItem}
               >
                 <Icon name="calendar" size={30} color="lightgrey" />
-                <Text
-                  style={{
-                    color: "#848484",
-                    // fontSize: Fonts.size.medium,
-                    fontSize: 12,
-                    fontFamily: "OpenSans-Regular",
-                    alignItems: "center",
-                    textAlign: "center",
-                  }}
-                >
+                <Text style={styles.footerTextInactiveSmall}>
                   {strings.Calendar}
                 </Text>
               </TouchableOpacity>
@@ -2491,16 +2060,9 @@ class ApqpPpapManagerScreen extends Component {
     } else if (this.state.todayn == 3) {
       console.log("---->Checking_Footer--->4");
       return (
-        //  {/* <ImageBackground source={Images.dashFooter} style={{ width: '100%', height: '100%', resizeMode: 'stretch' }}> */}
-        <View
-          style={{
-            borderTopWidth: 1,
-            borderTopColor: "lightgrey",
-            marginBottom: 5,
-          }}
-        >
+        <View style={styles.footerTopBorder}>
           <View style={styles1.wrapperFoot}>
-            <View style={{ flexDirection: "row", padding: 10 }}>
+            <View style={styles.footerMenuRow}>
               <TouchableOpacity
                 onPress={() =>
                   this.props.navigation.push(ROUTES.APQP_PPAP_MANAGER_SCREEN, {
@@ -2513,16 +2075,7 @@ class ApqpPpapManagerScreen extends Component {
                 style={styles1.footerMenuItem}
               >
                 <Icon name="clone" size={30} color="lightgrey" />
-                <Text
-                  style={{
-                    color: "#848484",
-                    // fontSize: Fonts.size.medium,
-                    fontSize: 12,
-                    fontFamily: "OpenSans-Regular",
-                    alignItems: "center",
-                    textAlign: "center",
-                  }}
-                >
+                <Text style={styles.footerTextInactiveSmall}>
                   {strings.todaystask}
                 </Text>
               </TouchableOpacity>
@@ -2544,14 +2097,7 @@ class ApqpPpapManagerScreen extends Component {
                 <Icon name="folder" size={30} color="#00BAC8" />
                 <Text
                   numberOfLines={2}
-                  style={{
-                    color: "#00BAC8",
-                    // fontSize: Fonts.size.medium,
-                    fontSize: 12,
-                    fontFamily: "OpenSans-Regular",
-                    alignItems: "center",
-                    textAlign: "center",
-                  }}
+                  style={styles.footerTextActiveSmall}
                 >
                   {strings.upcoming_task}
                 </Text>
@@ -2565,16 +2111,7 @@ class ApqpPpapManagerScreen extends Component {
                 style={styles1.footerMenuItem}
               >
                 <Icon name="folder" size={30} color="lightgrey" />
-                <Text
-                  style={{
-                    color: "#848484",
-                    // fontSize: Fonts.size.medium,
-                    fontSize: 12,
-                    fontFamily: "OpenSans-Regular",
-                    alignItems: "center",
-                    textAlign: "center",
-                  }}
-                >
+                <Text style={styles.footerTextInactiveSmall}>
                   {strings.dailyTask}
                 </Text>
               </TouchableOpacity>
@@ -2586,16 +2123,7 @@ class ApqpPpapManagerScreen extends Component {
                 style={styles1.footerMenuItem}
               >
                 <Icon name="calendar" size={30} color="lightgrey" />
-                <Text
-                  style={{
-                    color: "#848484",
-                    // fontSize: Fonts.size.medium,
-                    fontSize: 12,
-                    fontFamily: "OpenSans-Regular",
-                    alignItems: "center",
-                    textAlign: "center",
-                  }}
-                >
+                <Text style={styles.footerTextInactiveSmall}>
                   {strings.Calendar}
                 </Text>
               </TouchableOpacity>
@@ -2606,16 +2134,9 @@ class ApqpPpapManagerScreen extends Component {
     } else if (this.state.todayn == 4) {
       console.log("---->Recently_Completed_Task_Screen--->");
       return (
-        //  {/* <ImageBackground source={Images.dashFooter} style={{ width: '100%', height: '100%', resizeMode: 'stretch' }}> */}
-        <View
-          style={{
-            borderTopWidth: 1,
-            borderTopColor: "lightgrey",
-            marginBottom: 5,
-          }}
-        >
+        <View style={styles.footerTopBorder}>
           <View style={styles1.wrapperFoot}>
-            <View style={{ flexDirection: "row", padding: 10 }}>
+            <View style={styles.footerMenuRow}>
               <TouchableOpacity
                 onPress={() =>
                   this.props.navigation.push(ROUTES.APQP_PPAP_MANAGER_SCREEN, {
@@ -2628,16 +2149,7 @@ class ApqpPpapManagerScreen extends Component {
                 style={styles1.footerMenuItem}
               >
                 <Icon name="clone" size={30} color="lightgrey" />
-                <Text
-                  style={{
-                    color: "#848484",
-                    // fontSize: Fonts.size.medium,
-                    fontSize: 12,
-                    fontFamily: "OpenSans-Regular",
-                    alignItems: "center",
-                    textAlign: "center",
-                  }}
-                >
+                <Text style={styles.footerTextInactiveSmall}>
                   {strings.todaystask}
                 </Text>
               </TouchableOpacity>
@@ -2659,14 +2171,7 @@ class ApqpPpapManagerScreen extends Component {
                 <Icon name="folder" size={30} color="#00BAC8" />
                 <Text
                   numberOfLines={2}
-                  style={{
-                    color: "#00BAC8",
-                    // fontSize: Fonts.size.medium,
-                    fontSize: 12,
-                    fontFamily: "OpenSans-Regular",
-                    alignItems: "center",
-                    textAlign: "center",
-                  }}
+                  style={styles.footerTextActiveSmall}
                 >
                   {strings.upcoming_task}
                 </Text>
@@ -2680,16 +2185,7 @@ class ApqpPpapManagerScreen extends Component {
                 style={styles1.footerMenuItem}
               >
                 <Icon name="folder" size={30} color="lightgrey" />
-                <Text
-                  style={{
-                    color: "#848484",
-                    // fontSize: Fonts.size.medium,
-                    fontSize: 12,
-                    fontFamily: "OpenSans-Regular",
-                    alignItems: "center",
-                    textAlign: "center",
-                  }}
-                >
+                <Text style={styles.footerTextInactiveSmall}>
                   {strings.dailyTask}
                 </Text>
               </TouchableOpacity>
@@ -2701,16 +2197,7 @@ class ApqpPpapManagerScreen extends Component {
                 style={styles1.footerMenuItem}
               >
                 <Icon name="calendar" size={30} color="lightgrey" />
-                <Text
-                  style={{
-                    color: "#848484",
-                    // fontSize: Fonts.size.medium,
-                    fontSize: 12,
-                    fontFamily: "OpenSans-Regular",
-                    alignItems: "center",
-                    textAlign: "center",
-                  }}
-                >
+                <Text style={styles.footerTextInactiveSmall}>
                   {strings.Calendar}
                 </Text>
               </TouchableOpacity>
@@ -2727,18 +2214,13 @@ class ApqpPpapManagerScreen extends Component {
           <View style={styles.footerContainer}>
             <View style={styles.footerButton2}>
               <TouchableOpacity
-                style={{
-                  justifyContent: "center",
-                  alignItems: "center",
-                  width: 50,
-                  height: 25,
-                }}
+                style={styles.footerIconButton}
                 onPress={() =>
                   this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)
                 }
               >
                 <Icon name="home" size={32} color="#00BAC8" />
-                <Text style={{ color: "#00BAC8" }}>{strings.home}</Text>
+                <Text style={styles.footerAccentText}>{strings.home}</Text>
               </TouchableOpacity>
             </View>
             <View style={styles.separatorSection}>
@@ -2747,16 +2229,11 @@ class ApqpPpapManagerScreen extends Component {
             <View
               style={[
                 styles.footerButton1,
-                { borderLeftWidth: 0.5, borderLeftColor: "white" },
+                styles.footerButton1WithBorder,
               ]}
             >
               <TouchableOpacity
-                style={{
-                  justifyContent: "center",
-                  alignItems: "center",
-                  width: 50,
-                  height: 25,
-                }}
+                style={styles.footerIconButton}
                 onPress={() =>
                   this.props.navigation.navigate(ROUTES.PROJECT_LIST_APQP, {
                     apqpNew: this.state.apqpNew,
@@ -2768,13 +2245,33 @@ class ApqpPpapManagerScreen extends Component {
                 }
               >
                 <Icon name="clone" size={30} color="#00BAC8" />
-                <Text style={{ color: "#00BAC8" }}>Project</Text>
+                <Text style={styles.footerAccentText}>Project</Text>
               </TouchableOpacity>
             </View>
           </View>
         </View>
       </View>
     );
+  }
+
+  renderTopSpacer() {
+    return (
+      <View
+        style={Platform.OS === "ios" ? styles.topSpacerIos : styles.topSpacerAndroid}
+      />
+    );
+  }
+
+  getTabTextStyle(index, isSmall = false) {
+    const isActive = this.state.currentTabIndex === index;
+    if (isSmall) {
+      return isActive ? styles.tabTextSmallActive : styles.tabTextSmallInactive;
+    }
+    return isActive ? styles.tabTextActive : styles.tabTextInactive;
+  }
+
+  getTabIndicatorSpacerStyle(translateX) {
+    return [styles.tabIndicatorSpacer, { width: translateX }];
   }
 
   render() {
@@ -2818,17 +2315,11 @@ class ApqpPpapManagerScreen extends Component {
       // console.log("loadProjects---------->2--------->");
       return (
         <View style={styles.mainContainer}>
-        {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
+          {this.renderTopSpacer()}
           <OfflineNotice />
           {this.renderHeader()}
           {showHide !== true ? (
-            <View
-              style={{
-                width: window_width,
-                flexDirection: "row",
-                height: 50,
-              }}
-            >
+            <View style={styles.tabHeaderContainer}>
               <TouchableWithoutFeedback
                 onPress={() => {
                   this.setState({
@@ -2838,23 +2329,8 @@ class ApqpPpapManagerScreen extends Component {
                   this.loadProjects(0);
                 }}
               >
-                <View
-                  style={{
-                    width: window_width / 3,
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <Text
-                    style={{
-                      fontWeight:
-                        this.state.currentTabIndex === 0 ? "700" : "400",
-                      color:
-                        this.state.currentTabIndex === 0 ? "#4ACECD" : "#888",
-                      textAlign: "center",
-                      fontSize: 14,
-                    }}
-                  >
+                <View style={styles.tabHeaderItem}>
+                  <Text style={this.getTabTextStyle(0)}>
                     All {`(${result})`}
                   </Text>
                 </View>
@@ -2869,23 +2345,8 @@ class ApqpPpapManagerScreen extends Component {
                   this.loadProjects(1);
                 }}
               >
-                <View
-                  style={{
-                    width: window_width / 3,
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <Text
-                    style={{
-                      fontWeight:
-                        this.state.currentTabIndex === 1 ? "700" : "400",
-                      color:
-                        this.state.currentTabIndex === 1 ? "#4ACECD" : "#888",
-                      textAlign: "center",
-                      fontSize: 12,
-                    }}
-                  >
+                <View style={styles.tabHeaderItem}>
+                  <Text style={this.getTabTextStyle(1, true)}>
                     To be Completed {`(${v1})`}
                   </Text>
                 </View>
@@ -2900,23 +2361,8 @@ class ApqpPpapManagerScreen extends Component {
                   this.loadProjects(2);
                 }}
               >
-                <View
-                  style={{
-                    width: window_width / 3,
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <Text
-                    style={{
-                      fontWeight:
-                        this.state.currentTabIndex === 2 ? "700" : "400",
-                      color:
-                        this.state.currentTabIndex === 2 ? "#4ACECD" : "#888",
-                      textAlign: "center",
-                      fontSize: 14,
-                    }}
-                  >
+                <View style={styles.tabHeaderItem}>
+                  <Text style={this.getTabTextStyle(2)}>
                     Pending {`(${v2})`}
                   </Text>
                 </View>
@@ -2924,28 +2370,11 @@ class ApqpPpapManagerScreen extends Component {
             </View>
           ) : null}
 
-          <View
-            style={{
-              width: window_width,
-              height: 2,
-              backgroundColor: "#fff",
-              flexDirection: "row",
-            }}
-          >
+          <View style={styles.tabIndicatorTrack}>
             <Animated.View
-              style={{
-                backgroundColor: "#0000",
-                width: translateX, //(this.state.currentTabIndex * window_width) / 3,
-                height: 2,
-              }}
+              style={this.getTabIndicatorSpacerStyle(translateX)}
             />
-            <Animated.View
-              style={{
-                backgroundColor: "#4ACECD",
-                width: window_width / 3,
-                height: 4,
-              }}
-            />
+            <Animated.View style={styles.tabIndicator} />
           </View>
           <Animated.ScrollView
             onMomentumScrollEnd={(evt) => {
@@ -2961,25 +2390,13 @@ class ApqpPpapManagerScreen extends Component {
             showsHorizontalScrollIndicator={false}
             pagingEnabled
           >
-            <View
-              style={{
-                width: window_width,
-              }}
-            >
+            <View style={styles.tabPage}>
               {this.allProjects()}
             </View>
-            <View
-              style={{
-                width: window_width,
-              }}
-            >
+            <View style={styles.tabPage}>
               {this.allToBeCompletedProjects()}
             </View>
-            <View
-              style={{
-                width: window_width,
-              }}
-            >
+            <View style={styles.tabPage}>
               {this.allPendingProjects()}
             </View>
           </Animated.ScrollView>
@@ -2989,7 +2406,7 @@ class ApqpPpapManagerScreen extends Component {
           >
             <View style={styles.calendarDiv}>
               <View style={styles.header}>
-                <Text style={{ fontSize: 20, color: "#61BAD0" }}>
+                <Text style={styles.modalTitleText}>
                   {strings.DateRangeHeading}
                 </Text>
               </View>
@@ -3012,7 +2429,7 @@ class ApqpPpapManagerScreen extends Component {
                 }}
                 style={styles.footer}
               >
-                <Text style={{ fontSize: 20, color: "#61BAD0" }}>
+                <Text style={styles.modalTitleText}>
                   {strings.Close}
                 </Text>
               </TouchableOpacity>
@@ -3024,7 +2441,7 @@ class ApqpPpapManagerScreen extends Component {
           >
             <View style={styles.calendarDiv}>
               <View style={styles.header}>
-                <Text style={{ fontSize: 20, color: "#61BAD0" }}>
+                <Text style={styles.modalTitleText}>
                   {strings.DateRangeHeading}
                 </Text>
               </View>
@@ -3047,7 +2464,7 @@ class ApqpPpapManagerScreen extends Component {
                 }}
                 style={styles.footer}
               >
-                <Text style={{ fontSize: 20, color: "#61BAD0" }}>
+                <Text style={styles.modalTitleText}>
                   {strings.Close}
                 </Text>
               </TouchableOpacity>
@@ -3059,14 +2476,14 @@ class ApqpPpapManagerScreen extends Component {
           >
             <View style={styles.quickModaldiv}>
               <View style={styles.quickheader}>
-                <Text style={{ fontSize: 22, color: "#61BAD0" }}>
+                <Text style={styles.quickModalTitle}>
                   {strings.Quick_percentage_update}
                 </Text>
               </View>
               <View style={styles.quickBody}>
                 <View>
                   {this.state.quickpercentage == "" ? null : (
-                    <Text style={{ paddingLeft: 5 }}>
+                    <Text style={styles.quickPercentageLabel}>
                       {strings.Percentage_update}
                     </Text>
                   )}
@@ -3075,7 +2492,7 @@ class ApqpPpapManagerScreen extends Component {
                   <TextInput
                     placeholder={"Enter percentage"}
                     keyboardType={"number-pad"}
-                    style={{ fontSize: 18 }}
+                    style={styles.quickPercentageInput}
                     value={this.state.quickpercentage}
                     onChangeText={(text) => {
                       this.setState({
@@ -3087,13 +2504,13 @@ class ApqpPpapManagerScreen extends Component {
                 </View>
                 {this.state.modalErrortxt == "" ? null : (
                   <View>
-                    <Text style={{ color: "red" }}>
+                    <Text style={styles.quickErrorText}>
                       {this.state.modalErrortxt}
                     </Text>
                   </View>
                 )}
                 <View>
-                  <Text style={{ fontSize: 16, color: "#31899F" }}>
+                  <Text style={styles.quickProgressText}>
                     {strings.Enter_Progress}
                   </Text>
                 </View>
@@ -3106,7 +2523,7 @@ class ApqpPpapManagerScreen extends Component {
                   }
                   style={styles.btnDiv}
                 >
-                  <Text style={{ color: "red", fontSize: 18 }}>
+                  <Text style={styles.quickCancelText}>
                     {strings.Cancel}
                   </Text>
                 </TouchableOpacity>
@@ -3116,7 +2533,7 @@ class ApqpPpapManagerScreen extends Component {
                   }}
                   style={styles.btnDiv2}
                 >
-                  <Text style={{ color: "green", fontSize: 18 }}>
+                  <Text style={styles.quickUpdateText}>
                     {strings.Update}
                   </Text>
                 </TouchableOpacity>
@@ -3125,13 +2542,13 @@ class ApqpPpapManagerScreen extends Component {
           </Modal>
           <Toast
             ref="toast"
-            style={{ backgroundColor: "black", margin: 20 }}
+            style={styles.toastStyle}
             position="top"
             positionValue={200}
             fadeInDuration={750}
             fadeOutDuration={1000}
             opacity={0.8}
-            textStyle={{ color: "white" }}
+            textStyle={styles.toastText}
           />
         </View>
       );
@@ -3139,29 +2556,20 @@ class ApqpPpapManagerScreen extends Component {
       console.log("loadProjects---------->3--------->");
       return (
         <View style={styles.mainContainer}>
-          {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
+          {this.renderTopSpacer()}
           <OfflineNotice />
           {this.renderHeader()}
           <View style={styles.bodyCont1}>
             <ScrollableTabView
               initialPage={this.state.activeTab}
-              tabBarTextStyle={{ fontSize: 17, textAlign: "center" }}
+              tabBarTextStyle={styles.tabBarTextStyle}
               renderTabBar={() => (
                 <DefaultTabBar
                   backgroundColor="white"
                   activeTextColor="#2CB5FD"
                   inactiveTextColor="#747474"
-                  underlineStyle={{
-                    // backgroundColor: "#2CB5FD",
-                    // borderBottomColor: "#2CB5FD",
-                    backgroundColor: "#FFFFFF",
-                    borderBottomColor: "#FFFFFF",
-                    // borderWidth:0.2,
-                  }}
-                  textStyle={{
-                    fontSize: Fonts.size.medium,
-                    fontFamily: "OpenSans-Regular",
-                  }}
+                  underlineStyle={styles.defaultTabUnderline}
+                  textStyle={styles.defaultTabText}
                 />
               )}
               tabBarPosition="overlayTop"
@@ -3170,14 +2578,14 @@ class ApqpPpapManagerScreen extends Component {
               {this.allTodaysProjects()}
             </ScrollableTabView>
           </View>
-          <View style={{ marginTop: 70 }}>{this.renderFooter1()}</View>
+          <View style={styles.footerSpacer}>{this.renderFooter1()}</View>
           <Modal
             isVisible={this.state.isVisible}
             onBackdropPress={() => this.setState({ isVisible: false })}
           >
             <View style={styles.calendarDiv}>
               <View style={styles.header}>
-                <Text style={{ fontSize: 20, color: "#61BAD0" }}>
+                <Text style={styles.modalTitleText}>
                   {strings.DateRangeHeading}
                 </Text>
               </View>
@@ -3200,7 +2608,7 @@ class ApqpPpapManagerScreen extends Component {
                 }}
                 style={styles.footer}
               >
-                <Text style={{ fontSize: 20, color: "#61BAD0" }}>
+                <Text style={styles.modalTitleText}>
                   {strings.Close}
                 </Text>
               </TouchableOpacity>
@@ -3212,7 +2620,7 @@ class ApqpPpapManagerScreen extends Component {
           >
             <View style={styles.calendarDiv}>
               <View style={styles.header}>
-                <Text style={{ fontSize: 20, color: "#61BAD0" }}>
+                <Text style={styles.modalTitleText}>
                   {strings.DateRangeHeading}
                 </Text>
               </View>
@@ -3235,7 +2643,7 @@ class ApqpPpapManagerScreen extends Component {
                 }}
                 style={styles.footer}
               >
-                <Text style={{ fontSize: 20, color: "#61BAD0" }}>
+                <Text style={styles.modalTitleText}>
                   {strings.Close}
                 </Text>
               </TouchableOpacity>
@@ -3247,14 +2655,14 @@ class ApqpPpapManagerScreen extends Component {
           >
             <View style={styles.quickModaldiv}>
               <View style={styles.quickheader}>
-                <Text style={{ fontSize: 22, color: "#61BAD0" }}>
+                <Text style={styles.quickModalTitle}>
                   {strings.Quick_percentage_update}
                 </Text>
               </View>
               <View style={styles.quickBody}>
                 <View>
                   {this.state.quickpercentage == "" ? null : (
-                    <Text style={{ paddingLeft: 5 }}>
+                    <Text style={styles.quickPercentageLabel}>
                       {strings.Percentage_update}
                     </Text>
                   )}
@@ -3263,7 +2671,7 @@ class ApqpPpapManagerScreen extends Component {
                   <TextInput
                     placeholder={"Enter percentage"}
                     keyboardType={"number-pad"}
-                    style={{ fontSize: 18 }}
+                    style={styles.quickPercentageInput}
                     value={this.state.quickpercentage}
                     onChangeText={(text) => {
                       this.setState({
@@ -3275,13 +2683,13 @@ class ApqpPpapManagerScreen extends Component {
                 </View>
                 {this.state.modalErrortxt == "" ? null : (
                   <View>
-                    <Text style={{ color: "red" }}>
+                    <Text style={styles.quickErrorText}>
                       {this.state.modalErrortxt}
                     </Text>
                   </View>
                 )}
                 <View>
-                  <Text style={{ fontSize: 16, color: "#31899F" }}>
+                  <Text style={styles.quickProgressText}>
                     {strings.Enter_Progress}
                   </Text>
                 </View>
@@ -3294,7 +2702,7 @@ class ApqpPpapManagerScreen extends Component {
                   }
                   style={styles.btnDiv}
                 >
-                  <Text style={{ color: "red", fontSize: 18 }}>
+                  <Text style={styles.quickCancelText}>
                     {strings.Cancel}
                   </Text>
                 </TouchableOpacity>
@@ -3304,7 +2712,7 @@ class ApqpPpapManagerScreen extends Component {
                   }}
                   style={styles.btnDiv2}
                 >
-                  <Text style={{ color: "green", fontSize: 18 }}>
+                  <Text style={styles.quickUpdateText}>
                     {strings.Update}
                   </Text>
                 </TouchableOpacity>
@@ -3313,42 +2721,33 @@ class ApqpPpapManagerScreen extends Component {
           </Modal>
           <Toast
             ref="toast"
-            style={{ backgroundColor: "black", margin: 20 }}
+            style={styles.toastStyle}
             position="top"
             positionValue={200}
             fadeInDuration={750}
             fadeOutDuration={1000}
             opacity={0.8}
-            textStyle={{ color: "white" }}
+            textStyle={styles.toastText}
           />
         </View>
       );
     } else {
       return (
         <View style={styles.mainContainer}>
-          {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
+          {this.renderTopSpacer()}
           <OfflineNotice />
           {this.renderHeader()}
           <View style={styles.bodyCont1}>
             <ScrollableTabView
               initialPage={this.state.activeTab}
-              tabBarTextStyle={{ fontSize: 17, textAlign: "center" }}
+              tabBarTextStyle={styles.tabBarTextStyle}
               renderTabBar={() => (
                 <DefaultTabBar
                   backgroundColor="white"
                   activeTextColor="#2CB5FD"
                   inactiveTextColor="#747474"
-                  underlineStyle={{
-                    // backgroundColor: "#2CB5FD",
-                    // borderBottomColor: "#2CB5FD",
-                    backgroundColor: "#FFFFFF",
-                    borderBottomColor: "#FFFFFF",
-                    // borderWidth:0.2,
-                  }}
-                  textStyle={{
-                    fontSize: Fonts.size.medium,
-                    fontFamily: "OpenSans-Regular",
-                  }}
+                  underlineStyle={styles.defaultTabUnderline}
+                  textStyle={styles.defaultTabText}
                 />
               )}
               tabBarPosition="overlayTop"
@@ -3360,14 +2759,14 @@ class ApqpPpapManagerScreen extends Component {
               {this.allUpcomingProjects()}
             </ScrollableTabView>
           </View>
-          <View style={{ marginTop: 70 }}>{this.renderFooter1()}</View>
+          <View style={styles.footerSpacer}>{this.renderFooter1()}</View>
           <Modal
             isVisible={this.state.isVisible}
             onBackdropPress={() => this.setState({ isVisible: false })}
           >
             <View style={styles.calendarDiv}>
               <View style={styles.header}>
-                <Text style={{ fontSize: 20, color: "#61BAD0" }}>
+                <Text style={styles.modalTitleText}>
                   {strings.DateRangeHeading}
                 </Text>
               </View>
@@ -3390,7 +2789,7 @@ class ApqpPpapManagerScreen extends Component {
                 }}
                 style={styles.footer}
               >
-                <Text style={{ fontSize: 20, color: "#61BAD0" }}>
+                <Text style={styles.modalTitleText}>
                   {strings.Close}
                 </Text>
               </TouchableOpacity>
@@ -3402,7 +2801,7 @@ class ApqpPpapManagerScreen extends Component {
           >
             <View style={styles.calendarDiv}>
               <View style={styles.header}>
-                <Text style={{ fontSize: 20, color: "#61BAD0" }}>
+                <Text style={styles.modalTitleText}>
                   {strings.DateRangeHeading}
                 </Text>
               </View>
@@ -3425,7 +2824,7 @@ class ApqpPpapManagerScreen extends Component {
                 }}
                 style={styles.footer}
               >
-                <Text style={{ fontSize: 20, color: "#61BAD0" }}>
+                <Text style={styles.modalTitleText}>
                   {strings.Close}
                 </Text>
               </TouchableOpacity>
@@ -3437,14 +2836,14 @@ class ApqpPpapManagerScreen extends Component {
           >
             <View style={styles.quickModaldiv}>
               <View style={styles.quickheader}>
-                <Text style={{ fontSize: 22, color: "#61BAD0" }}>
+                <Text style={styles.quickModalTitle}>
                   {strings.Quick_percentage_update}
                 </Text>
               </View>
               <View style={styles.quickBody}>
                 <View>
                   {this.state.quickpercentage == "" ? null : (
-                    <Text style={{ paddingLeft: 5 }}>
+                    <Text style={styles.quickPercentageLabel}>
                       {strings.Percentage_update}
                     </Text>
                   )}
@@ -3453,7 +2852,7 @@ class ApqpPpapManagerScreen extends Component {
                   <TextInput
                     placeholder={"Enter percentage"}
                     keyboardType={"number-pad"}
-                    style={{ fontSize: 18 }}
+                    style={styles.quickPercentageInput}
                     value={this.state.quickpercentage}
                     onChangeText={(text) => {
                       this.setState({
@@ -3465,13 +2864,13 @@ class ApqpPpapManagerScreen extends Component {
                 </View>
                 {this.state.modalErrortxt == "" ? null : (
                   <View>
-                    <Text style={{ color: "red" }}>
+                    <Text style={styles.quickErrorText}>
                       {this.state.modalErrortxt}
                     </Text>
                   </View>
                 )}
                 <View>
-                  <Text style={{ fontSize: 16, color: "#31899F" }}>
+                  <Text style={styles.quickProgressText}>
                     {strings.Enter_Progress}
                   </Text>
                 </View>
@@ -3484,7 +2883,7 @@ class ApqpPpapManagerScreen extends Component {
                   }
                   style={styles.btnDiv}
                 >
-                  <Text style={{ color: "red", fontSize: 18 }}>
+                  <Text style={styles.quickCancelText}>
                     {strings.Cancel}
                   </Text>
                 </TouchableOpacity>
@@ -3494,7 +2893,7 @@ class ApqpPpapManagerScreen extends Component {
                   }}
                   style={styles.btnDiv2}
                 >
-                  <Text style={{ color: "green", fontSize: 18 }}>
+                  <Text style={styles.quickUpdateText}>
                     {strings.Update}
                   </Text>
                 </TouchableOpacity>
@@ -3503,13 +2902,13 @@ class ApqpPpapManagerScreen extends Component {
           </Modal>
           <Toast
             ref="toast"
-            style={{ backgroundColor: "black", margin: 20 }}
+            style={styles.toastStyle}
             position="top"
             positionValue={200}
             fadeInDuration={750}
             fadeOutDuration={1000}
             opacity={0.8}
-            textStyle={{ color: "white" }}
+            textStyle={styles.toastText}
           />
         </View>
       );
@@ -3561,7 +2960,7 @@ const mapDispatchToProps = (dispatch) => {
     storeLoginSession: (isActive) =>
       dispatch({ type: "STORE_LOGIN_SESSION", isActive }),
     storeActions: (actions) => dispatch({ type: "STORE_ACTIONS", actions }),
-    storeCounts: (counts) => 
+    storeCounts: (counts) =>
       dispatch({ type: "STORE_COUNTS", counts }),
     updateRecentActivityList: (recentActivity) =>
       dispatch({ type: "UPDATE_RECENT_ACTIVITY_LIST", recentActivity }),
@@ -3570,4 +2969,4 @@ const mapDispatchToProps = (dispatch) => {
 export default connect(
   mapStateToProps,
   mapDispatchToProps)
-(ApqpPpapManagerScreen);
+  (ApqpPpapManagerScreen);
