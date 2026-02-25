@@ -6,8 +6,6 @@ import {
   View,
   TextInput,
   TouchableOpacity,
-  ImageBackground,
-  Alert,
 } from "react-native";
 import { Images } from "../themes";
 import Icon from "react-native-vector-icons/FontAwesome";
@@ -19,7 +17,7 @@ import auth from "../../../services/APQP-Auth";
 import Moment from "moment";
 import DocumentPicker from "react-native-document-picker";
 import RNFetchBlob from "react-native-fetch-blob";
-import { Bubbles, DoubleBounce, Bars, Pulse } from "react-native-loader";
+import { Bubbles } from "react-native-loader";
 // import Reactotron from "reactotron-react-native";
 
 // Styles
@@ -27,8 +25,6 @@ import styles from "./styles/AttachAdditionalDocStyles";
 import { DeviceUniqueId } from "../config/Utils";
 import RNFS from "react-native-fs";
 import { ICON_TYPE, ROUTES } from "constants/app-constant";
-import { SPACING } from "constants/theme-constants";
-import { strings } from "../language/Language";
 import { FAB } from "components";
 import GlobalHeader from "components/GlobalHeader";
 
@@ -717,41 +713,11 @@ class AttachAdditionalDocScreen extends Component {
 
     return (
       <>
-      {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
+      <View style={Platform.OS === "ios" ? styles.topSpacerIos : styles.topSpacerAndroid} />
       <View style={styles.mainContainer}>
         <Image source={Images.apqpmanagerbg} style={styles.bgImage} />
 
         <View style={styles.apqpTextView}>
-          {/* <ImageBackground
-            source={Images.headerBG}
-            style={{
-              width: "100%",
-              height: 50,
-              alignItems: "center",
-              flexDirection: "row",
-            }}
-          >
-            <View style={{ flexDirection: "row" }}>
-              <View style={styles.backLogo}>
-                <TouchableOpacity onPress={this.onPressBack.bind(this)}>
-                  <View style={styles.headerDiv}>
-                    <Icon name="angle-left" size={40} color="white" />
-                    <Text style={styles.LabelText}>{strings.Back}</Text>
-                  </View>
-                </TouchableOpacity>
-              </View>
-              <View style={styles.headerTextDiv}>
-                <Text style={styles.apqpTextStyle}>
-                  {this.comType == "ADL"
-                    ? "Attach Additional Doc"
-                    : this.attItem?.OPDocName == ""
-                    ? "Attach Output Document"
-                    : "Revise Output Document"}
-                </Text>
-              </View>
-              <View style={styles.backLogo} />
-            </View>
-          </ImageBackground> */}
           <GlobalHeader
             title= {this.comType == "ADL"
                     ? "Attach Additional Doc"
@@ -779,7 +745,7 @@ class AttachAdditionalDocScreen extends Component {
                 <TextInput
                   placeholder={"Doc Name"}
                   placeholderTextColor= "#000"
-                  style={[styles.textInputStyle, { color: "#000" }]}
+                  style={styles.textInputStyle}
                   value={this.state.docName}
                   onChangeText={(text) => {
                     this.setState({ docName: text });
@@ -787,7 +753,7 @@ class AttachAdditionalDocScreen extends Component {
                 />
                 <View style={styles.check}>
                   <Icon
-                    style={{ left: 10 }}
+                    style={styles.asteriskIcon}
                     name="asterisk"
                     size={8}
                     color="red"
@@ -802,7 +768,7 @@ class AttachAdditionalDocScreen extends Component {
                 <TextInput
                   placeholder={"Comments"}
                   placeholderTextColor= "#000"
-                  style={[styles.textInputStyle, { color: "#000" }]}
+                  style={styles.textInputStyle}
                   value={this.state.comments.replace(regex, "")}
                   onChangeText={(text) => {
                     this.setState({ comments: text });
@@ -810,7 +776,7 @@ class AttachAdditionalDocScreen extends Component {
                 />
                 <View style={styles.check}>
                   <Icon
-                    style={{ left: 10 }}
+                    style={styles.asteriskIcon}
                     name="asterisk"
                     size={8}
                     color="red"
@@ -828,75 +794,9 @@ class AttachAdditionalDocScreen extends Component {
                   <Icon name="paperclip" size={20} color="black" />
                 </TouchableOpacity>
 
-                {/* <TouchableOpacity onPress={() => {
-                    // iPhone/Android
-                    if (Platform.OS == 'android') {
-                        DocumentPicker.show({
-                            // filetype: [DocumentPickerUtil.allFiles()],
-                        }, (error, res) => {
-                            console.log('File upload error:', error)
-                            console.log('Document response:', res)
-                            if (res) {
-                                RNFetchBlob.fs.readFile(res.uri, 'base64')
-                                    .then((data) => {
-                                        // handle the data ..
-                                        res.data = data
-                                        // Android
-                                        console.log(
-                                            res.uri,
-                                            res.type, // mime type
-                                            res.fileName,
-                                            res.fileSize,
-                                            res.data
-                                        );
-
-                                        this.setState({
-                                            attachedDocName: res.fileName,
-                                            attachedDoc: res.data
-                                        })
-                                    })
-                            }
-                        });
-                    } else {
-                        DocumentPicker.show({
-                            filetype: ['public.content'],
-                        }, (error, res) => {
-                            console.log('File upload error:', error)
-                            console.log('Document response:', res)
-                            if (res) {
-                                var getURI = res.uri
-                                var uridata = getURI.slice(7)
-                                console.log('uridata', uridata)
-                                RNFetchBlob.fs.readFile(uridata, 'base64')
-                                    .then((data) => {
-                                        // handle the data ..
-                                        res.data = data
-                                        // Android
-                                        console.log(
-                                            res.uri,
-                                            res.type, // mime type
-                                            res.fileName,
-                                            res.fileSize,
-                                            res.data
-                                        );
-                                        this.setState({
-                                            attachedDocName: res.fileName,
-                                            attachedDoc: res.data
-                                        })
-                                    })
-                            }
-                        });
-                    }
-                }}>
-                    <Text numberOfLines={1} style={styles.boxContent}>
-                        {this.state.attachedDocName}
-                    </Text>
-                    <Icon name="paperclip" size={20} color="grey" />
-                </TouchableOpacity> */}
-
                 <View style={styles.check}>
                   <Icon
-                    style={{ left: 10 }}
+                    style={styles.asteriskIcon}
                     name="asterisk"
                     size={8}
                     color="red"
@@ -909,32 +809,6 @@ class AttachAdditionalDocScreen extends Component {
 
         {this.state.loader === true ? null : (
           <View style={styles.footerDiv}>
-            {/* <ImageBackground
-              source={Images.headerBG}
-              style={{
-                resizeMode: "stretch",
-                width: "100%",
-                height: 80,
-              }}
-            >
-              <View style={styles.footerContainer}>
-                <View style={styles.footerButton1}>
-                  <TouchableOpacity
-                    onPress={this.uploadattachments.bind(this)}
-                    // onPress={this.outputattachmentconsole}
-                    style={{
-                      width: "100%",
-                      height: 70,
-                      justifyContent: "center",
-                      alignItems: "center",
-                    }}
-                  >
-                    <Icon name="save" size={30} color="white" />
-                    <Text style={{ color: "white" }}>Save</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </ImageBackground> */}
             <>
               <FAB iconName="save" iconType={ICON_TYPE.Feather} onPress={this.uploadattachments.bind(this)} />
             </>
@@ -943,13 +817,13 @@ class AttachAdditionalDocScreen extends Component {
 
         <Toast
           ref="toast"
-          style={{ backgroundColor: "black", margin: 20 }}
+          style={styles.toastStyle}
           position="top"
           positionValue={200}
           fadeInDuration={750}
           fadeOutDuration={1000}
           opacity={0.8}
-          textStyle={{ color: "white" }}
+          textStyle={styles.toastText}
         />
       </View>
       </>

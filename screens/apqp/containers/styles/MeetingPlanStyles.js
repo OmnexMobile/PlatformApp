@@ -2,12 +2,21 @@ import { StyleSheet, Dimensions } from "react-native";
 import { Metrics, ApplicationStyles } from "../../themes";
 import Fonts from "../../themes/Fonts";
 import { width, height } from "react-native-dimension";
+import { SPACING } from "constants/theme-constants";
 // import { android15FooterPadding } from "../../../auditPro/Themes/AndroidInsets";
 
 let Window = Dimensions.get("window");
 
 export default StyleSheet.create({
   ...ApplicationStyles.screen,
+  topSpacerIos: {
+    padding: SPACING.MEDIUM,
+    flexDirection: "row",
+  },
+  topSpacerAndroid: {
+    padding: SPACING.NORMAL,
+    flexDirection: "row",
+  },
   fillcontainer: {
     flex: 1,
   },
@@ -371,5 +380,22 @@ export default StyleSheet.create({
   flatListContent1:{
     fontSize: 17,
     color: "#000",
+  },
+  siteText: {
+    fontSize: 18,
+    color: "#000",
+  },
+  statusDropdownContainer: {
+    bottom: 10,
+  },
+  statusDropdownLabel: {
+    fontWeight: "bold",
+  },
+  toastStyle: {
+    backgroundColor: "black",
+    margin: 20,
+  },
+  toastTextStyle: {
+    color: "white",
   },
 });

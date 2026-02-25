@@ -2,11 +2,10 @@ import React, { Component } from "react";
 import {
   Text,
   View,
+  Platform,
   TouchableOpacity,
   FlatList,
-  ImageBackground
 } from "react-native";
-import { Images } from "../themes";
 import Icon from "react-native-vector-icons/FontAwesome";
 import auth from "../../../services/APQP-Auth";
 import AsyncStorage from "@react-native-community/async-storage";
@@ -17,7 +16,6 @@ import RNFetchBlob from "react-native-fetch-blob";
 import DocumentPicker from "react-native-document-picker";
 import styles from "./styles/DeliverableInfoStyles";
 import { ICON_TYPE, ROUTES } from "constants/app-constant";
-import { SPACING } from "constants/theme-constants";
 import { strings } from "../language/Language";
 import GlobalHeader from "components/GlobalHeader";
 import { FAB } from "components";
@@ -184,50 +182,12 @@ export class DeliverableInfoScreen extends Component {
   }
 
   render() {
-    const source = {
-      html: `
-    <p style='text-align:center;'>
-      Hello World!
-    </p>`,
-    };
-
-    const regex = /(<([^>]+)>)/gi;
     return (
       <View style={styles.mainContainer}>
-        {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
+        <View
+          style={Platform.OS === "ios" ? styles.topSpacerIos : styles.topSpacerAndroid}
+        />
         <View style={styles.apqpTextView}>
-          {/* <ImageBackground
-            source={Images.headerBG}
-            style={{
-              width: "100%",
-              height: 50,
-              alignItems: "center",
-              flexDirection: "row",
-            }}
-          >
-            <View>
-              <View style={{ flexDirection: "row" }}>
-                <View style={styles.backLogo}>
-                  <TouchableOpacity
-                    onPress={() => this.props.navigation.goBack()}
-                  >
-                    <View style={styles.headerDiv}>
-                      <Icon name="angle-left" size={40} color="white" />
-                      <Text style={styles.LabelText}>{strings.Back}</Text>
-                    </View>
-                  </TouchableOpacity>
-                </View>
-                <View style={styles.headerTextDiv}>
-                  <Text style={styles.apqpTextStyle}>Deliverable Info</Text>
-                </View>
-                <View style={styles.backLogo}>
-                  <TouchableOpacity>
-                    <Icon name="refresh" size={30} color="white" />
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </View>
-          </ImageBackground> */}
           <GlobalHeader
             title={'Deliverable Info'}
             onLeftPress={() => this.props.navigation.goBack()}
@@ -235,8 +195,7 @@ export class DeliverableInfoScreen extends Component {
             showBackButton={false}
            />
         </View>
-        {/* style={styles.flatListWholeView} */}
-        <View >
+        <View style={styles.contentContainer}>
           <View style={styles.sectionHeaderContainer}>
             <View style={styles.sectionHeader}>
               <View style={styles.listViewTop}>
@@ -249,25 +208,8 @@ export class DeliverableInfoScreen extends Component {
               </View>
             
            
-              <View
-                style={{
-                  justifyContent: "center",
-                  alignItems: "center",
-                  width: "100%",
-                  height: 40,
-                  padding: 5,
-                }}
-              >
-                <Text
-                  style={{
-                    width: "100%",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    fontSize: 17,
-                    color: "black",
-                    fontWeight: "bold",
-                  }}
-                >
+              <View style={styles.attachmentsTitleContainer}>
+                <Text style={styles.attachmentsTitleText}>
                   Attachments
                 </Text>
               </View>
@@ -275,14 +217,10 @@ export class DeliverableInfoScreen extends Component {
                </View>
           </View>
             
-          
-          {/* <View style={styles.sectionHeaderContainer1}>
-            <View style={styles.sectionHeader2}> */}
-
           {this.state.apqpDeliverableInfoList &&
             this.state.apqpDeliverableInfoList.length > 0 ? (
             <FlatList
-              style={{ marginLeft: '4%', padding: 5 }}
+              style={styles.deliverablesList}
               data={this.state.apqpDeliverableInfoList}
 
               renderItem={({ item }) => {
@@ -309,32 +247,16 @@ export class DeliverableInfoScreen extends Component {
                       <View style={styles.listView}>
                         <Text style={styles.listText1}>Output Doc : </Text>
                         {item.OPDocName == "" ? (
-                          <View style={{ flexDirection: "row" }}>
+                          <View style={styles.outputDocAttachRow}>
                             <Icon name="paperclip" size={20} color="grey" />
-                            {/* <TouchableOpacity
-                              onPress={this.handleDocumentSelection.bind(this)}>
-                            </TouchableOpacity> */}
 
-                            <Text
-                              style={{
-                                color: "#7F7D7D",
-                                paddingLeft: 5,
-                                justifyContent: "center",
-                                alignItems: "center",
-                                fontSize: 14,
-                              }}
-                            >
+                            <Text style={styles.outputDocAttachText}>
                               Attach Output Doc
                             </Text>
                           </View>
                         ) : (
-                          <View
-                            style={[
-                              styles.deliveryTypeTextStyle,
-                              { flexDirection: "row" },
-                            ]}
-                          >
-                            <Text style={{ paddingRight: 5, color: '#1FBFD0', fontSize: 16, }}>
+                          <View style={styles.outputDocNameRow}>
+                            <Text style={styles.outputDocNameText}>
                               {item.OPDocName}
                             </Text>
                             <Icon name="edit" size={20} color="#1FBFD0" />
@@ -348,14 +270,8 @@ export class DeliverableInfoScreen extends Component {
                         </Text>
                       </View>
                       {item.OPComments != "" && (
-                        <View
-                          style={{
-                            marginLeft: 4,
-                            flexDirection: "row",
-                            flexWrap: "wrap",
-                          }}
-                        >
-                          <RenderHtml baseStyle={{ color: '#000' }} source={comments} />
+                        <View style={styles.commentsHtmlContainer}>
+                          <RenderHtml baseStyle={styles.renderHtmlBaseStyle} source={comments} />
                         </View>
                       )}
                     </TouchableOpacity>
@@ -363,49 +279,13 @@ export class DeliverableInfoScreen extends Component {
                 );
               }} />
           ) : (
-            <View
-              style={{
-                width: "100%",
-                height: 100,
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <Text style={{ fontSize: 18 }}>No records found!</Text>
+            <View style={styles.emptyStateContainer}>
+              <Text style={styles.emptyStateText}>No records found!</Text>
             </View>
           )}
         </View>
 
         <View style={styles.footerDiv}>
-          {/* <ImageBackground
-            source={Images.headerBG}
-            style={{
-              resizeMode: "stretch",
-              width: "100%",
-              height: 60,
-            }}
-          >
-            <View style={styles.footerContainer}>
-              <TouchableOpacity
-                onPress={this.onPressAttach.bind(this, "ADL", null)}
-                style={{ width: "100%" }}
-              >
-                <View style={styles.footerButton1}>
-                  <Icon name="paperclip" size={20} color="white" />
-                  <Text
-                    style={{
-                      color: "white",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      fontSize: 16,
-                    }}
-                  >
-                    Attach Additional Doc
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            </View>
-          </ImageBackground> */}
           <>
             <FAB iconName="paperclip" iconType={ICON_TYPE.Feather}  onPress={this.onPressAttach.bind(this, "ADL", null)} />
           </>
@@ -413,13 +293,13 @@ export class DeliverableInfoScreen extends Component {
 
         <Toast
           ref="toast"
-          style={{ backgroundColor: "black", margin: 20 }}
+          style={styles.toastStyle}
           position="top"
           positionValue={200}
           fadeInDuration={750}
           fadeOutDuration={1000}
           opacity={0.8}
-          textStyle={{ color: "white" }} />
+          textStyle={styles.toastText} />
       </View>
     );
   }

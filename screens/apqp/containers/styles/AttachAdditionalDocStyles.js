@@ -2,6 +2,7 @@ import { StyleSheet, Dimensions } from "react-native";
 import { Metrics, ApplicationStyles } from "../../themes";
 import Fonts from "../../themes/Fonts";
 import { width, height } from "react-native-dimension";
+import { SPACING } from "constants/theme-constants";
 // import { android15FooterPadding } from "../../../auditPro/Themes/AndroidInsets";
 
 let Window = Dimensions.get("window");
@@ -15,6 +16,14 @@ export default StyleSheet.create({
     flex: 1,
     width: Window.width,
     height: Window.height,
+  },
+  topSpacerIos: {
+    padding: SPACING.MEDIUM,
+    flexDirection: "row",
+  },
+  topSpacerAndroid: {
+    padding: SPACING.NORMAL,
+    flexDirection: "row",
   },
   bgImage: {
     width: "100%",
@@ -207,9 +216,11 @@ export default StyleSheet.create({
   textInputStyle: {
     borderBottomWidth: 0.5,
     fontSize: Fonts.size.regular,
-    // color: "#000",
-    // backgroundColor: "red",
+    color: "#000",
     marginRight: '3%',
+  },
+  asteriskIcon: {
+    left: 10,
   },
 
   sectionTop: {
@@ -330,5 +341,12 @@ export default StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 10,
     // elevation: 5,
+  },
+  toastStyle: {
+    backgroundColor: "black",
+    margin: 20,
+  },
+  toastText: {
+    color: "white",
   },
 });

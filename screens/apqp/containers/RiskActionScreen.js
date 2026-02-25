@@ -1,39 +1,24 @@
 import React, { Component } from "react";
 import {
+  Platform,
   ScrollView,
   Text,
-  Image,
   View,
-  TextInput,
-  TouchableOpacity,
-  Button,
-  FlatList,
-  ImageBackground,
 } from "react-native";
-import { Images } from "../themes";
-// import ResponsiveImage from "react-native-responsive-image";
-// import InputField from "../Components/Shared/InputField";
-// import LinearGradient from "react-native-linear-gradient";
-import Icon from "react-native-vector-icons/FontAwesome";
 import { connect } from "react-redux";
-// import SegmentedControlTab from "react-native-segmented-control-tab";
 import { Dropdown } from "react-native-material-dropdown";
 import auth from "../../../services/APQP-Auth";
-// import ProgressCircle from "react-native-progress-circle";
 import { ConfirmDialog } from "react-native-simple-dialogs";
 import Toast, { DURATION } from "react-native-easy-toast";
 import { strings } from "../language/Language";
-// Styles
 import AsyncStorage from "@react-native-community/async-storage";
 import styles from "./styles/RiskActionStyles";
 import Moment from "moment";
 import { extendMoment } from "moment-range";
 import { ICON_TYPE, ROUTES } from "constants/app-constant";
-import { SPACING } from "constants/theme-constants";
 import { FAB } from "components";
 import GlobalHeader from "components/GlobalHeader";
 const moment = extendMoment(Moment);
-// import { Bubbles, DoubleBounce, Bars, Pulse } from "react-native-loader";
 
 class RiskActionScreen extends Component {
   UserId = "";
@@ -224,31 +209,6 @@ getData = async (userdata) => {
 
   renderHeader() {
     return (
-      // <ImageBackground source={Images.headerBG} style={styles.header}>
-      //   <View style={styles.header}>
-      //     <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
-      //       <View style={styles.backLogo}>
-      //         <View style={styles.headerDiv}>
-      //           <Icon name="angle-left" size={40} color="white" />
-      //           <Text style={styles.LabelText}>{strings.Back}</Text>
-      //         </View>
-      //       </View>
-      //     </TouchableOpacity>
-
-      //     <View style={styles.heading}>
-      //       <Text style={styles.headingText}>{strings.Risk_Action}</Text>
-      //     </View>
-
-      //     <View style={(styles.headerDiv, { backgroundColor: "transparent" })}>
-      //       <TouchableOpacity
-      //         style={{ paddingRight: 10, backgroundColor: "transparent" }}
-      //         onPress={() => this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)}
-      //       >
-      //         <Icon name="home" size={35} color="white" />
-      //       </TouchableOpacity>
-      //     </View>
-      //   </View>
-      // </ImageBackground>
       <>
         <GlobalHeader
           title={strings.Risk_Action}
@@ -279,7 +239,9 @@ getData = async (userdata) => {
 
     return (
       <View style={styles.mainContainer}>
-        {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
+        <View
+          style={Platform.OS === "ios" ? styles.topSpacerIos : styles.topSpacerAndroid}
+        />
         {this.renderHeader()}
 
         <ScrollView style={styles.flatListWholeView}>
@@ -329,15 +291,13 @@ getData = async (userdata) => {
               </View>
 
               <View style={styles.line2}>
-                <View style={{ bottom: 10 }}>
+                <View style={styles.statusDropdownContainer}>
                   <Dropdown
                     label="Status"
                     data={data}
                     baseColor="#000"
                     labelFontSize={17}
-                    labelTextStyle={{
-                      fontWeight: 'bold',   // 👈 make bold
-                    }}
+                    labelTextStyle={styles.statusDropdownLabelText}
                     value={this.StatusVal}
                     onChangeText={(value) => {
                       for (var i = 0; i < data.length; i++) {
@@ -358,22 +318,6 @@ getData = async (userdata) => {
         </ScrollView>
 
         <View style={styles.footerDiv}>
-          {/* <View style={styles.footerContainer}>
-            <View style={styles.footerButton1}>
-              <TouchableOpacity
-                onPress={() => this.onSavePress()}
-                style={{
-                  width: "100%",
-                  height: 70,
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                <Icon name="save" size={30} color="#00BAC8" />
-                <Text style={{ color: "#00BAC8" }}>Save</Text>
-              </TouchableOpacity>
-            </View>
-          </View> */}
           <>
             <FAB iconName="save" iconType={ICON_TYPE.Feather} onPress={() => this.onSavePress()} />
           </>
@@ -395,13 +339,13 @@ getData = async (userdata) => {
         />
         <Toast
           ref="toast"
-          style={{ backgroundColor: "black", margin: 20 }}
+          style={styles.toastStyle}
           position="top"
           positionValue={200}
           fadeInDuration={750}
           fadeOutDuration={1000}
           opacity={0.8}
-          textStyle={{ color: "white" }}
+          textStyle={styles.toastText}
         />
       </View>
     );

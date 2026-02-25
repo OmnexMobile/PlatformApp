@@ -3,6 +3,7 @@ import { Metrics, ApplicationStyles } from "../../themes";
 import Fonts from "../../themes/Fonts";
 import { width, height } from "react-native-dimension";
 import { FONT_TYPE } from "constants/app-constant";
+import { SPACING } from "constants/theme-constants";
 // import { android15HeaderPadding, android15FooterPadding, android15FooterOffset } from  '../../../auditPro/Themes/AndroidInsets';  
 
 let Window = Dimensions.get("window");
@@ -83,6 +84,15 @@ export default StyleSheet.create({
     position: "absolute",
     padding: 3,
     marginLeft: '4%'
+  },
+  flatListWholeViewWithTopMargin: {
+    width: "100%",
+    height: "83%",
+    backgroundColor: "white",
+    position: "absolute",
+    padding: 3,
+    marginLeft: "4%",
+    marginTop: 100,
   },
   flatList: {
     width: "100%",
@@ -173,6 +183,18 @@ export default StyleSheet.create({
     color: "#1FBFD0",
     fontSize: Fonts.size.regular,
     width: "85%",
+  },
+  dateTextStyle: {
+    color: "#1FBFD0",
+    fontSize: Fonts.size.regular,
+  },
+  remarksText: {
+    paddingLeft: 8,
+    marginRight: 25,
+    fontSize: 16,
+    flexWrap: "wrap",
+    width: "80%",
+    color: "grey",
   },
   buttonTextDel: {
     textAlign: "center",
@@ -368,5 +390,44 @@ export default StyleSheet.create({
     fontSize: Fonts.size.h5,
     fontWeight: "bold",
     color: '#1FBFD0',
+  },
+  bounceContainer: {
+    paddingVertical: 20,
+    borderTopWidth: 1,
+    borderColor: "#CED0CE",
+    width: Window.width,
+    height: height(100) - 213,
+    flex: 1,
+    flexDirection: "column",
+    alignItems: "center",
+  },
+  noRecordsText: {
+    width: Window.width,
+    height: height(100) - 213,
+    flex: 1,
+    flexDirection: "column",
+    alignItems: "center",
+    textAlign: "center",
+    fontSize: Fonts.size.h5,
+    paddingTop: 40,
+    fontFamily: "OpenSans-Regular",
+  },
+  topSpacerIos: {
+    padding: SPACING.MEDIUM,
+    flexDirection: "row",
+  },
+  topSpacerAndroid: {
+    padding: SPACING.NORMAL,
+    flexDirection: "row",
+  },
+  listBottomSpacer: {
+    height: 50,
+  },
+  toastStyle: {
+    backgroundColor: "black",
+    margin: 20,
+  },
+  toastText: {
+    color: "white",
   },
 });

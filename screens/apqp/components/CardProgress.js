@@ -1,22 +1,14 @@
 import React from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import moment from 'moment';
 import { COLORS, FONT_SIZE, SPACING } from 'constants/theme-constants';
-import { DATE_FORMAT, FONT_TYPE, ICON_TYPE, ROUTES, STATUS, STATUS_CODES, USER_TYPE } from 'constants/app-constant';
-import { getElevation, RFPercentage } from 'helpers/utils';
-import { useAppContext } from 'contexts/app-context';
-import useTheme from 'theme/useTheme';
-import IconComponent from 'components/icon-component';
+import { FONT_TYPE } from 'constants/app-constant';
+import { getElevation } from 'helpers/utils';
 import TextComponent from 'components/text';
 import Moment from "moment";
 
 const CardProgress = ({ item = {}, ProjectName, TaskName, StartDate, EndDate }) => {
     console.log('item in list card logo apqp', item);
-    const { timeSettings } = useAppContext();
-    const { theme } = useTheme();
     const elevation = getElevation();
-    const navigation = useNavigation();
 
     const changeDateFormatCard = (inDate) => {
     if (inDate) {
@@ -35,48 +27,38 @@ const CardProgress = ({ item = {}, ProjectName, TaskName, StartDate, EndDate }) 
     };
 
     return (
-        <View style={{ paddingHorizontal: SPACING.X_SMALL }}>
+        <View style={styles.container}>
             <TouchableOpacity
                 activeOpacity={1}
                 // onPress={() => handleClickCard?.(item)}
                 style={[
-                    {
-                        padding: SPACING.SMALL,
-                        borderRadius: SPACING.SMALL,
-                        marginBottom: 0,
-                        marginTop: SPACING.X_SMALL,
-                        width: '93%',
-                        borderColor: '#1FBFD0',
-                        borderWidth: 1, 
-                        borderLeftWidth: 4,   
-                        // marginLeft: 0,
-                    },
+                    styles.cardTouchable,
                     elevation,
                 ]}>
-                <View style={[styles.cardOuterView]}>
+                <View style={styles.cardOuterView}>
                     <View style={styles.projectBoxContent}>
                         {ProjectName ? (
-                            <View style={{ width: '100%', paddingBottom: SPACING.XX_SMALL }}>
-                                <TextComponent style={{ paddingTop: SPACING.SMALL, paddingLeft: SPACING.X_SMALL, color: 'black', }} type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.SMALL} numberOfLines={1}>
-                                   Project Name :  <TextComponent numberOfLines={1} fontSize={FONT_SIZE.SMALL} style={{ color: 'black', }}>
+                            <View style={styles.rowSectionSmallGap}>
+                                <TextComponent style={styles.labelText} type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.SMALL} numberOfLines={1}>
+                                   Project Name :  <TextComponent numberOfLines={1} fontSize={FONT_SIZE.SMALL} style={styles.valueText}>
                                         {ProjectName}
                                     </TextComponent>
                                 </TextComponent>
                             </View>
                         ) : null}
                         {TaskName ? (
-                            <View style={{ width: '100%', paddingBottom: SPACING.XX_SMALL }}>
-                                <TextComponent style={{ paddingTop: SPACING.SMALL, paddingLeft: SPACING.X_SMALL, color: 'black' }} type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.SMALL} numberOfLines={1}>
-                                   Task Name :  <TextComponent numberOfLines={1} fontSize={FONT_SIZE.SMALL} style={{ color: 'black' }}>
+                            <View style={styles.rowSectionSmallGap}>
+                                <TextComponent style={styles.labelText} type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.SMALL} numberOfLines={1}>
+                                   Task Name :  <TextComponent numberOfLines={1} fontSize={FONT_SIZE.SMALL} style={styles.valueText}>
                                         {TaskName}
                                     </TextComponent>
                                 </TextComponent>
                             </View>
                         ) : null}
                         {StartDate ? (
-                            <View style={{ width: '100%', paddingBottom: SPACING.SMALL }}>
-                                <TextComponent style={{ paddingTop: SPACING.SMALL, paddingLeft: SPACING.X_SMALL, color: 'black' }} type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.SMALL} numberOfLines={1}>
-                                   Period : <TextComponent numberOfLines={1} fontSize={FONT_SIZE.SMALL} style={{ color: 'black' }}>
+                            <View style={styles.rowSection}>
+                                <TextComponent style={styles.labelText} type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.SMALL} numberOfLines={1}>
+                                   Period : <TextComponent numberOfLines={1} fontSize={FONT_SIZE.SMALL} style={styles.valueText}>
                                         {changeDateFormatCard(StartDate)} -{" "}
                                         {changeDateFormatCard(EndDate)}
                                     </TextComponent>
@@ -94,8 +76,40 @@ const CardProgress = ({ item = {}, ProjectName, TaskName, StartDate, EndDate }) 
 export default CardProgress;
 
 const styles = StyleSheet.create({
+    container: {
+        paddingHorizontal: SPACING.X_SMALL,
+    },
+    cardTouchable: {
+        padding: SPACING.SMALL,
+        borderRadius: SPACING.SMALL,
+        marginBottom: 0,
+        marginTop: SPACING.SMALL,
+        width: '93%',
+        borderColor: '#1FBFD0',
+        borderWidth: 1,
+        borderLeftWidth: 4,
+    },
     cardOuterView: {
         flexDirection: 'row',
+    },
+    projectBoxContent: {
+        flexDirection: 'column',
+    },
+    rowSectionSmallGap: {
+        width: '100%',
+        paddingBottom: SPACING.XX_SMALL,
+    },
+    rowSection: {
+        width: '100%',
+        paddingBottom: SPACING.SMALL,
+    },
+    labelText: {
+        paddingTop: SPACING.SMALL,
+        paddingLeft: SPACING.X_SMALL,
+        color: COLORS.black,
+    },
+    valueText: {
+        color: COLORS.black,
     },
     borderEnabled: {
         borderBottomWidth: 0.5,

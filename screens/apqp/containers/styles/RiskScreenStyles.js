@@ -2,11 +2,20 @@ import { StyleSheet, Dimensions } from "react-native";
 import { Metrics, ApplicationStyles } from "../../themes";
 import Fonts from "../../themes/Fonts";
 import { width, height } from "react-native-dimension";
+import { SPACING } from "constants/theme-constants";
 
 let Window = Dimensions.get("window");
 
 export default StyleSheet.create({
   ...ApplicationStyles.screen,
+  topSpacerIos: {
+    padding: SPACING.MEDIUM,
+    flexDirection: "row",
+  },
+  topSpacerAndroid: {
+    padding: SPACING.NORMAL,
+    flexDirection: "row",
+  },
   fillcontainer: {
     flex: 1,
   },
@@ -504,6 +513,69 @@ export default StyleSheet.create({
     // borderLeftColor:"lightgrey",
     // borderLeftWidth:0.7
   },
+  filterLabelText: {
+    fontSize: Fonts.size.medium,
+    color: "#89888A",
+    paddingLeft: 5,
+    fontFamily: "OpenSans-Regular",
+  },
+  dropdownContainer: {
+    flex: 2,
+  },
+  dropdownInnerContainer: {
+    flex: 1,
+  },
+  dropdownItemText: {
+    fontFamily: "OpenSans-Regular",
+  },
+  sortToggleButton: {
+    flex: 1,
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 5,
+  },
+  renderFilterContainer: {
+    width: "100%",
+    height: null,
+    flexDirection: "row",
+    padding: 8,
+    flexWrap: "wrap",
+    justifyContent: "flex-start",
+    alignItems: "center",
+  },
+  renderFilterText: {
+    fontSize: Fonts.size.medium,
+    fontFamily: "OpenSans-Regular",
+  },
+  footerHomeButton: {
+    justifyContent: "center",
+    alignItems: "center",
+    width: 50,
+    height: 25,
+  },
+  footerHomeText: {
+    color: "#00BAC8",
+  },
+  noRecordsText: {
+    alignItems: "center",
+    textAlign: "center",
+    fontSize: Fonts.size.h5,
+    paddingTop: 40,
+    fontFamily: "OpenSans-Regular",
+  },
+  bounceContainer: {
+    paddingVertical: 20,
+    width: Window.width,
+    height: height(100) - 213,
+    flex: 1,
+    flexDirection: "column",
+    alignItems: "center",
+  },
+  calendarTitleText: {
+    fontSize: 20,
+    color: "#61BAD0",
+  },
   headingText: {
     fontSize: Fonts.size.h5,
     color: "#fff",
@@ -542,5 +614,9 @@ export default StyleSheet.create({
     // justifyContent: 'center',
     // alignItems: 'center',
     // borderRadius: 5
+  },
+  scrollTodayViewBody: {
+    height: "100%",
+    backgroundColor: "transparent",
   },
 });

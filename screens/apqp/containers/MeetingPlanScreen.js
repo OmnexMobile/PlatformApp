@@ -1,20 +1,13 @@
 import React, { Component } from "react";
 import {
   ScrollView,
+  Platform,
   Text,
-  Image,
   View,
-  TextInput,
-  TouchableOpacity,
-  Button,
-  FlatList,
-  ImageBackground,
 } from "react-native";
-import { Images } from "../themes";
 // import ResponsiveImage from "react-native-responsive-image";
 // import InputField from "../Components/Shared/InputField";
 // import LinearGradient from "react-native-linear-gradient";
-import Icon from "react-native-vector-icons/FontAwesome";
 import { connect } from "react-redux";
 // import SegmentedControlTab from "react-native-segmented-control-tab";
 import { Dropdown } from "react-native-material-dropdown";
@@ -28,11 +21,7 @@ import AsyncStorage from "@react-native-community/async-storage";
 import styles from "./styles/MeetingPlanStyles";
 
 import Moment from "moment";
-import { extendMoment } from "moment-range";
-const moment = extendMoment(Moment);
-import { Bubbles, DoubleBounce, Bars, Pulse } from "react-native-loader";
 import { ICON_TYPE, ROUTES } from "constants/app-constant";
-import { SPACING } from "constants/theme-constants";
 import GlobalHeader from "components/GlobalHeader";
 import { FAB } from "components";
 
@@ -219,30 +208,6 @@ getData = async () => {
 
   renderHeader() {
     return (
-      // <ImageBackground source={Images.headerBG} style={styles.header}>
-      //   <View style={styles.header}>
-      //     <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
-      //       <View style={styles.backLogo}>
-      //         <View style={styles.headerDiv}>
-      //           <Icon name="angle-left" size={40} color="white" />
-      //           <Text style={styles.LabelText}>{strings.Back}</Text>
-      //         </View>
-      //       </View>
-      //     </TouchableOpacity>
-
-      //     <View style={styles.heading}>
-      //       <Text style={styles.headingText}>{strings.meetings}</Text>
-      //     </View>
-      //     <View style={(styles.headerDiv, { backgroundColor: "transparent" })}>
-      //       <TouchableOpacity
-      //         style={{ paddingRight: 10, backgroundColor: "transparent" }}
-      //         onPress={() => this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)}
-      //       >
-      //         <Icon name="home" size={35} color="white" />
-      //       </TouchableOpacity>
-      //     </View>
-      //   </View>
-      // </ImageBackground>
       <>
         <GlobalHeader
           title={strings.meetings}
@@ -308,7 +273,7 @@ console.log("HI old", Array);
 
     return (
       <View style={styles.mainContainer}>
-        {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
+        <View style={Platform.OS === "ios" ? styles.topSpacerIos : styles.topSpacerAndroid} />
         {this.renderHeader()}
 
         <ScrollView style={styles.flatListWholeView}>
@@ -358,19 +323,17 @@ console.log("HI old", Array);
               </View>
               <View style={styles.line1}>
                 <Text style={styles.flatListContent}>Site</Text>
-                <Text style={{ fontSize: 18, color: "#000" }}>
+                <Text style={styles.siteText}>
                   {this.state.apqpMeetingPlanList[0].Site}
                 </Text>
               </View>
               <View style={styles.line2}>
-                <View style={{ bottom: 10 }}>
+                <View style={styles.statusDropdownContainer}>
                   <Dropdown
                     label="Status"
                     data={data}
                     baseColor="#000"
-                    labelTextStyle={{
-                      fontWeight: 'bold',   // 👈 make bold
-                    }}
+                    labelTextStyle={styles.statusDropdownLabel}
                     textColor="#000"
                     onChangeText={(value) => {
                       for (var i = 0; i < data.length; i++) {
@@ -390,22 +353,6 @@ console.log("HI old", Array);
         </ScrollView>
 
         <View style={styles.footerDiv}>
-          {/* <View style={styles.footerContainer}>
-            <View style={styles.footerButton1}>
-              <TouchableOpacity
-               onPress={() => this.onSavePress()}
-                style={{
-                  width: "100%",
-                  height: 70,
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                <Icon name="save" size={30} color="#00BAC8" />
-                <Text style={{ color: "#00BAC8" }}>Save</Text>
-              </TouchableOpacity>
-            </View>
-          </View> */}
           <>
             <FAB iconName="save" iconType={ICON_TYPE.Feather} onPress={() => this.onSavePress()} />
           </>
@@ -427,13 +374,13 @@ console.log("HI old", Array);
         />
         <Toast
           ref="toast"
-          style={{ backgroundColor: "black", margin: 20 }}
+          style={styles.toastStyle}
           position="top"
           positionValue={200}
           fadeInDuration={750}
           fadeOutDuration={1000}
           opacity={0.8}
-          textStyle={{ color: "white" }}
+          textStyle={styles.toastTextStyle}
         />
       </View>
     );
