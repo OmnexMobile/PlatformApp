@@ -53,6 +53,12 @@ import RichText from '../components/RichText';
 import GlobalHeader from 'components/GlobalHeader';
 import AttachmentSelectionModal from 'components/attachment-selection-modal';
 const Width = Dimensions.get('window').width;
+const Height = Dimensions.get('window').height;
+const STACK_ITEM_WIDTH = Math.round(Width * 0.9);
+const STACK_CARD_MIN_HEIGHT = Math.round(Height * 0.62);
+const SERIAL_GRID_MIN_WIDTH = 96;
+const SERIAL_GRID_HEIGHT = 62;
+const ATTACHMENT_VISIBLE_ROWS = 4;
 const Colors = {
     0: 'red',
     4: 'red',
@@ -155,6 +161,7 @@ class CheckPointDemo extends Component {
             dialogVisibleVideo: false,
             isAttachmentLoaded: false,
             isCaroselLoaded: false,
+            attachmentViewAll: {},
             ncofiSetting: '',
             dropdownnotokvalue: 0,
             checkPointAttachment: '',
@@ -336,6 +343,29 @@ class CheckPointDemo extends Component {
             this.captureNcofiBaseline().catch(error => console.log('capture baseline error', error));
         } else if (!this.state.isUnsavedData && prevRecords !== currentRecords) {
             this.captureNcofiBaseline().catch(error => console.log('capture baseline error', error));
+        }
+
+        if (prevState.ActiveId === this.state.ActiveId) {
+            return;
+        }
+
+        if (!this._serialListRef) {
+            return;
+        }
+
+        const activeIndex = this.state.ActiveId;
+        if (activeIndex < 0 || activeIndex >= this.state.checkpointList.length) {
+            return;
+        }
+
+        try {
+            this._serialListRef.scrollToIndex({
+                index: activeIndex,
+                animated: true,
+                viewPosition: 0.5,
+            });
+        } catch (e) {
+            // Ignore scroll errors while FlatList is still measuring.
         }
     }
 
@@ -5269,6 +5299,53 @@ class CheckPointDemo extends Component {
             }
         }
     }
+
+    handleCarouselSnap = index => {
+        const selectedCheckpoint = this.state.checkpointList[index];
+        if (!selectedCheckpoint) {
+            return;
+        }
+
+        if (this.state.ActiveId === index) {
+            return;
+        }
+
+        const activeIndex = this.state.ActiveId ?? 0;
+        if (activeIndex !== index) {
+            const validation = this.validateCheckpointRequirements(this.state.checkPointsDetails?.[activeIndex]);
+            if (!validation.valid) {
+                this.blockRequirement(activeIndex, validation.missing);
+                if (this._carousel) {
+                    this._carousel.snapToItem(activeIndex, true);
+                }
+                return;
+            }
+        }
+
+        this.setState({
+            ActiveId: index,
+            selectedindex: selectedCheckpoint,
+        });
+    };
+
+    handleSerialScrollToIndexFailed = info => {
+        if (!this._serialListRef || !info || typeof info.index !== 'number') {
+            return;
+        }
+
+        setTimeout(() => {
+            if (!this._serialListRef) {
+                return;
+            }
+
+            this._serialListRef.scrollToIndex({
+                index: info.index,
+                animated: true,
+                viewPosition: 0.5,
+            });
+        }, 200);
+    };
+
     // Normalizes iOS file paths for attachments
     IosPath(path) {
         //console.log(path, 'pathvariable');
@@ -5629,85 +5706,200 @@ class CheckPointDemo extends Component {
         });
     }
 
-    // Renders attachment row for a checkpoint
+    // Renders attachment grid for a checkpoint
     renderAttachment(index) {
+        const checkpoint = this.state.checkPointsDetails?.[index];
+        if (!checkpoint || !Array.isArray(checkpoint.AttachmentList) || checkpoint.AttachmentList.length === 0) {
+            return null;
+        }
+
+        const attachments = checkpoint.AttachmentList;
+        const viewKey = this.getAttachmentViewKey(checkpoint, index);
+        const showAll = !!this.state.attachmentViewAll?.[viewKey];
+        const canViewAll = attachments.length > ATTACHMENT_VISIBLE_ROWS;
+
         return (
-            <ScrollView horizontal={true}>
-                {this.state.checkPointsDetails[index].AttachmentList.map((item, key) =>
-                    item.Attachment === 'EMPTY' || item.Attachment === 'FAILED' ? (
-                        <View style={styles.attachmentFailedCard}>
-                            <View style={styles.row}>
-                                <TouchableOpacity onPress={this.downloadFile.bind(this, item)}>
-                                    {this.getFileIcon(item)}
-                                    <View style={styles.attachmentFilenameWrap}>
-                                        <Text>{item.FileName}</Text>
-                                    </View>
-                                </TouchableOpacity>
-                            </View>
-                        </View>
-                    ) : item.FileType.split('/')[0] == 'image' ? (
-                        item.Attachment === 'DOWNLOADING' ? (
-                            this.getDownloadLoadingIcon(item.FileName)
-                        ) : (
-                            <View style={styles.attachmentCard}>
-                                <TouchableOpacity key={key} onPress={this.openAttachmentImage.bind(this, item, this.state.isBrowse == true ? 1 : 0)}>
-                                    <View style={styles.attachmentInnerPadding}>
-                                        <View style={styles.row}>
-                                            <View>
-                                                <Image
-                                                    source={{
-                                                        uri: 'file:/' + item.FileUri,
-                                                    }}
-                                                    style={styles.attachmentImage}
-                                                />
-                                                <View style={styles.attachmentFilenameWrap}>
-                                                    <Text>{item.FileName}</Text>
-                                                </View>
-                                            </View>
-
-                                            <View>
-                                                <TouchableOpacity onPress={this.removeAttachment.bind(this, key, item, index)}>
-                                                    <Icon name="trash" size={20} color="red" />
-                                                </TouchableOpacity>
-                                            </View>
-                                        </View>
-                                        {/* )} */}
-
-                                        <View style={styles.hiddenView}>{/* {this.state.checkPointsDetails[index].Modified = true} */}</View>
-                                    </View>
-                                </TouchableOpacity>
-                            </View>
-                        )
-                    ) : item.FileType.indexOf('image') === -1 ? (
-                        item.Attachment === 'DOWNLOADING' ? (
-                            this.getDownloadLoadingIcon(item.FileName)
-                        ) : (
-                            <View style={styles.attachmentDocCard}>
-                                <View style={styles.row}>
-                                    <TouchableOpacity onPress={this.openAttachmentFile.bind(this, item, this.state.isBrowse == true ? 1 : 0)}>
-                                        {this.getFileIcon(item)}
-                                        <View style={styles.attachmentFilenameWrap}>
-                                            <Text>{item.FileName}</Text>
-                                        </View>
-                                    </TouchableOpacity>
-                                </View>
-
-                                <View>
-                                    <TouchableOpacity
-                                        // style={styles.rightHeader}
-                                        onPress={this.removeAttachment.bind(this, key, item, index)}>
-                                        <View>
-                                            <Icon name="trash" size={20} color="red" />
-                                        </View>
-                                    </TouchableOpacity>
-                                </View>
-                            </View>
-                        )
-                    ) : null,
-                )}
-            </ScrollView>
+            <View style={styles.attachmentPreviewBlock}>
+                <View style={styles.attachmentGridContainer}>
+                    <View style={styles.attachmentGridHeader}>
+                        <Text style={styles.attachmentGridTitle}>Attachments</Text>
+                        {canViewAll ? (
+                            <TouchableOpacity style={styles.attachmentGridViewAllBtn} onPress={() => this.toggleAttachmentViewAll(viewKey)}>
+                                <Text style={styles.attachmentGridViewAllText}>{showAll ? 'View Less' : 'View All'}</Text>
+                                <Icon name={showAll ? 'chevron-up' : 'chevron-right'} size={20} color="#1E7CB8" />
+                            </TouchableOpacity>
+                        ) : null}
+                    </View>
+                    <View style={styles.attachmentGridDivider} />
+                    <View style={styles.attachmentGridList}>
+                        {attachments.map((item, attachmentIndex) => {
+                            if (!showAll && attachmentIndex >= ATTACHMENT_VISIBLE_ROWS) {
+                                return null;
+                            }
+                            return this.renderAttachmentGridItem(item, attachmentIndex, index);
+                        })}
+                    </View>
+                </View>
+            </View>
         );
     }
+
+    getAttachmentViewKey = (checkpoint, index) => {
+        const templateId = checkpoint?.ChecklistTemplateId ?? index;
+        const formId = checkpoint?.FormId ?? checkpoint?.FormID ?? '0';
+        return `${templateId}_${formId}`;
+    };
+
+    toggleAttachmentViewAll = viewKey => {
+        this.setState(prevState => ({
+            attachmentViewAll: {
+                ...(prevState.attachmentViewAll || {}),
+                [viewKey]: !prevState.attachmentViewAll?.[viewKey],
+            },
+        }));
+    };
+
+    renderAttachmentGridItem = (item, attachmentIndex, checkpointIndex) => {
+        const rowKey = item?.id ? `${item.id}_${attachmentIndex}` : `${checkpointIndex}_${attachmentIndex}`;
+        const isImage = this.isImageAttachment(item);
+        const isDownloading = item?.Attachment === 'DOWNLOADING';
+        const rowIcon = this.getAttachmentGridIcon(item);
+        const displayName = item?.FileName || 'Attachment';
+        const dateText = this.getAttachmentDateLabel(item);
+        const fileUri = this.getAttachmentPreviewUri(item);
+        const fileExt = this.getAttachmentExt(item);
+        const metaLabel = isDownloading ? 'Downloading...' : dateText;
+
+        return (
+            <View key={rowKey} style={styles.attachmentGridCard}>
+                <TouchableOpacity
+                    activeOpacity={0.85}
+                    style={styles.attachmentGridCardPress}
+                    onPress={() => this.openAttachmentFromRow(item)}>
+                    <View style={styles.attachmentGridMediaWrap}>
+                        {isDownloading ? (
+                            <ActivityIndicator size="small" color="#1CAFF6" />
+                        ) : isImage && fileUri ? (
+                            <Image source={{ uri: fileUri }} style={styles.attachmentGridMediaImage} />
+                        ) : (
+                            <View style={styles.attachmentGridPlaceholder}>
+                                <Icon name={rowIcon} size={24} color="#50607A" />
+                                <Text style={styles.attachmentGridExtText}>{fileExt || 'FILE'}</Text>
+                            </View>
+                        )}
+                    </View>
+
+                    <View style={styles.attachmentGridBody}>
+                        <Text numberOfLines={1} style={styles.attachmentGridName}>
+                            {displayName}
+                        </Text>
+                        <View style={styles.attachmentGridMetaRow}>
+                            <Icon name={isImage ? 'image' : 'file'} size={14} color="#7F8793" />
+                            <Text numberOfLines={1} style={styles.attachmentGridMetaText}>
+                                {metaLabel}
+                            </Text>
+                        </View>
+                    </View>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                    style={styles.attachmentGridDelete}
+                    onPress={this.removeAttachment.bind(this, attachmentIndex, item, checkpointIndex)}>
+                    <Icon name="trash" size={22} color="#FF3030" />
+                </TouchableOpacity>
+            </View>
+        );
+    };
+
+    openAttachmentFromRow = item => {
+        const browseFlag = this.state.isBrowse == true ? 1 : 0;
+        if (item?.Attachment === 'DOWNLOADING') {
+            return;
+        }
+        if (item?.Attachment === 'EMPTY' || item?.Attachment === 'FAILED') {
+            this.downloadFile(item);
+            return;
+        }
+        if (this.isImageAttachment(item)) {
+            this.openAttachmentImage(item, browseFlag);
+            return;
+        }
+        this.openAttachmentFile(item, browseFlag);
+    };
+
+    getAttachmentGridIcon = item => {
+        if (item?.Attachment === 'EMPTY' || item?.Attachment === 'FAILED') {
+            return 'download';
+        }
+        const ext = this.getAttachmentExt(item).toLowerCase();
+        const fileType = item?.FileType ? item.FileType.toLowerCase() : '';
+        if (fileType.indexOf('video') === 0 || ['mp4', 'mov', 'mpeg', '3gp'].includes(ext)) {
+            return 'play-circle';
+        }
+        if (this.isImageAttachment(item)) {
+            return 'image';
+        }
+        if (['pdf', 'doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx', 'xlsm'].includes(ext)) {
+            return 'file-text';
+        }
+        return 'file';
+    };
+
+    getAttachmentExt = item => {
+        const fileName = item?.FileName || '';
+        if (!fileName || fileName.indexOf('.') === -1) {
+            return '';
+        }
+        return fileName.substring(fileName.lastIndexOf('.') + 1).toUpperCase();
+    };
+
+    getAttachmentPreviewUri = item => {
+        const rawUri = item?.FileUri || item?.File || '';
+        if (!rawUri) {
+            return '';
+        }
+        if (
+            rawUri.startsWith('file://') ||
+            rawUri.startsWith('file:/') ||
+            rawUri.startsWith('content://') ||
+            rawUri.startsWith('http://') ||
+            rawUri.startsWith('https://')
+        ) {
+            return rawUri;
+        }
+        return `file://${rawUri}`;
+    };
+
+    isImageAttachment = item => {
+        const fileType = item?.FileType ? item.FileType.toLowerCase() : '';
+        if (fileType.indexOf('image') === 0) {
+            return true;
+        }
+        const ext = this.getAttachmentExt(item).toLowerCase();
+        return ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'heic'].includes(ext);
+    };
+
+    getAttachmentDateLabel = item => {
+        const rawDate = item?.CreatedDate || item?.CreatedOn || item?.UpdatedDate || item?.ModifiedDate || '';
+        if (rawDate) {
+            const parsed = Moment(rawDate);
+            if (parsed.isValid()) {
+                return parsed.format('DD MMM YYYY');
+            }
+        }
+        const rawId = item?.id != null ? String(item.id) : '';
+        const unixPart = rawId.indexOf('_') > -1 ? rawId.split('_')[0] : rawId;
+        if (/^\d+$/.test(unixPart)) {
+            const value = parseInt(unixPart, 10);
+            if (!Number.isNaN(value)) {
+                const parsed = unixPart.length >= 13 ? Moment(value) : Moment.unix(value);
+                if (parsed.isValid()) {
+                    return parsed.format('DD MMM YYYY');
+                }
+            }
+        }
+        return Moment().format('DD MMM YYYY');
+    };
 
     // Renders loading indicator overlay
     render_loader() {
@@ -6096,6 +6288,10 @@ class CheckPointDemo extends Component {
             { label: strings.Notok, value: 15 },
             { label: strings.NA, value: 11 },
         ];
+        const isCarouselReady =
+            this.state.isLoaded === true &&
+            this.state.checkpointList.length > 0 &&
+            this.state.checkPointsDetails.length >= this.state.checkpointList.length;
         //console.log('CheckPointDemo~checkpointList:>', this.state.checkpointList);
 
         // if (this.state.failureloaded === false){
@@ -6150,94 +6346,32 @@ class CheckPointDemo extends Component {
                         ) : null}
 
                         {this.state.checkpointList.length ? (
-                            <View style={styles.body}>
-                                <View style={styles.checkpointListWrapper}>
-                                    <FlatList
-                                        data={this.state.checkpointList}
-                                        keyExtractor={item => item.ActualIndex}
-                                        showsVerticalScrollIndicator={false}
-                                        extraData={{
-                                            revision: this.state.checkpointRevision,
-                                            radioKey: this.state.radioResetKey,
-                                        }}
-                                        renderItem={({ item, index }) => {
-                                            {
-                                                console.log(
-                                                    'CheckPointDemo~checkpointList[index]',
-                                                    this.state.checkpointList[index],
-                                                    'checkPointsDetails[index]',
-                                                    this.state.checkPointsDetails[index],
-                                                );
-                                            }
-                                            const listCheckpoint = this.state.checkpointList[index] || {};
-                                            const checkpointState = this.state.checkPointsDetails[index] || {};
-                                            const isRemarkRequired = this.isRemarkMandatory(checkpointState);
-                                            const isAttachmentRequired = this.isAttachmentMandatory(checkpointState);
-                                            const isRemarkFilled = this.hasRemarkValue(checkpointState);
-                                            const isAttachmentFilled = this.hasAttachmentValue(checkpointState);
-                                            const hasOutstandingRequirement =
-                                                (isRemarkRequired && !isRemarkFilled) || (isAttachmentRequired && !isAttachmentFilled);
-                                            const hasRequirement = isRemarkRequired || isAttachmentRequired;
-                                            return (
-                                                <TouchableOpacity
-                                                    style={[
-                                                        styles.leftBtn,
-                                                        {
-                                                            backgroundColor: this.state.ActiveId == index ? '#00BAC8' : '#FFFFFF',
-                                                        },
-                                                    ]}
-                                                    onPress={() => this.btnDatapress(index, item)}>
-                                                    <View style={styles.leftBtnLabelWrapper}>
-                                                        <Text
-                                                            style={[
-                                                                styles.checkpointSerialText,
-                                                                this.state.ActiveId == index
-                                                                    ? styles.checkpointSerialTextActive
-                                                                    : styles.checkpointSerialTextInactive,
-                                                            ]}>
-                                                            {this.state.checkpointList[index].SerialNo}
-                                                        </Text>
-                                                        {console.log(
-                                                            this.state.checkPointsDetails[index],
-
-                                                            '===>check no',
-                                                        )}
-                                                    </View>
-                                                    <View style={styles.requirementIconCol}>
-                                                        {hasOutstandingRequirement ? (
-                                                            <View
-                                                                style={[
-                                                                    styles.requirementIconWrapper,
-                                                                    Platform.OS === 'ios' && styles.requirementIconWrapperIos,
-                                                                ]}>
-                                                                <ResponsiveImage source={Images.ManIcon1} initHeight={15} initWidth={15} />
-                                                            </View>
-                                                        ) : hasRequirement ? (
-                                                            <View
-                                                                style={[
-                                                                    styles.requirementIconWrapper,
-                                                                    Platform.OS === 'ios' && styles.requirementIconWrapperIos,
-                                                                ]}>
-                                                                <ResponsiveImage source={Images.ManIcon3} initHeight={15} initWidth={15} />
-                                                            </View>
-                                                        ) : null}
-                                                    </View>
-                                                </TouchableOpacity>
-                                            );
-                                        }}
-                                    />
-                                </View>
-                                <View style={styles.carouselWrapper}>
-                                    {this.state.isLoaded == true ? (
+                            <View style={[styles.body, styles.bodyColumn]}>
+                                <View style={styles.carouselBottomWrapper}>
+                                    {isCarouselReady ? (
                                         <Carousel
-                                            layout={'default'}
-                                            scrollEnabled={false}
+                                            layout={'stack'}
+                                            layoutCardOffset={18}
+                                            scrollEnabled={true}
+                                            enableSnap={true}
+                                            lockScrollWhileSnapping={true}
+                                            enableMomentum={false}
+                                            useScrollView={true}
+                                            inactiveSlideScale={0.93}
+                                            inactiveSlideOpacity={0.92}
+                                            inactiveSlideShift={0}
+                                            activeSlideAlignment={'center'}
+                                            swipeThreshold={16}
+                                            decelerationRate={'fast'}
+                                            slideStyle={styles.carouselStackSlide}
+                                            containerCustomStyle={styles.carouselStackContainer}
+                                            contentContainerCustomStyle={styles.carouselStackContent}
                                             data={this.state.checkpointList}
                                             extraData={this.state}
                                             ref={c => {
                                                 this._carousel = c;
                                             }}
-                                            startAutoplay
+                                            onSnapToItem={this.handleCarouselSnap}
                                             renderItem={({ item, index }) => {
                                                 // console.log(item, 'LoadCategory:1',index);
                                                 if (Platform.OS === 'ios') {
@@ -6267,12 +6401,24 @@ class CheckPointDemo extends Component {
                                                         nestedScrollEnabled={true}
                                                         keyboardShouldPersistTaps="handled"
                                                         showsVerticalScrollIndicator={true}>
-                                                        <View style={styles.cart}>
-                                                            <View style={styles.checkpointHeaderRow}>
-                                                                <View style={styles.checkpointHeaderCol}>
+                                                        <View
+                                                            style={[
+                                                                styles.cart,
+                                                                styles.cartBottomLayout,
+                                                                styles.carouselStackCard,
+                                                                { minHeight: STACK_CARD_MIN_HEIGHT },
+                                                            ]}>
+                                                            <View style={styles.questionMetaRow}>
+                                                                <Text style={styles.questionMetaText}>
+                                                                    {`Question ${index + 1} of ${this.state.checkpointList.length}`}
+                                                                </Text>
+                                                            </View>
+                                                            <View style={styles.questionMetaDivider} />
+
+                                                            <View style={styles.questionBlockRow}>
+                                                                <View style={styles.questionBlockTextCol}>
                                                                     <View style={styles.checkpointTitleRow}>
-                                                                        <RichText content={item.ChecklistName} />
-                                                                        {/* <Text>{item.ChecklistName}</Text> */}
+                                                                        <RichText content={item.ChecklistName} height={124} />
                                                                         {this.state.checkPointsDetails[index].nc_available_status ? (
                                                                             <View style={styles.targetIconWrapper}>
                                                                                 <Icon name="target" size={12} color="red" />
@@ -6284,7 +6430,6 @@ class CheckPointDemo extends Component {
                                                                             </View>
                                                                         ) : null}
 
-                                                                        {/*Change done - 16/12/2022*/}
                                                                         {item.IsVeto == '1' ? (
                                                                             <View style={styles.vetoIconWrapper}>
                                                                                 <Icon name="star" size={10} color="red" />
@@ -6293,7 +6438,7 @@ class CheckPointDemo extends Component {
                                                                             <View></View>
                                                                         )}
                                                                     </View>
-                                                                    <View style={styles.statusSpacer}></View>
+                                                                    <View style={styles.statusSpacer} />
                                                                     {this.renderStatus(this.state.checkPointsDetails[index], item)}
                                                                 </View>
 
@@ -6325,7 +6470,7 @@ class CheckPointDemo extends Component {
                                                                     ) : null}
                                                                 </View>
                                                             </View>
-                                                            <View style={styles.checkpointContentColumn}>
+                                                            <View style={[styles.checkpointContentColumn, { flex: 1 }]}>
                                                                 {item.ansType == 'M1' && item.scoreType !== 3 ? ( //Radio button
                                                                     <View style={styles.boxsecRadio}>
                                                                         <RadioForm
@@ -7275,45 +7420,8 @@ class CheckPointDemo extends Component {
                                                                                 paddingRight: 12,
                                                                             }}
                                                                         />
-                                                                        {this.state.ncofiEnabled && this.state.dropdownnotokvalue === 15 && (
-                                                                            <TouchableOpacity
-                                                                                onPress={this.popupModal.bind(
-                                                                                    this,
-                                                                                    this.state.checkPointsDetails[index],
-                                                                                )}
-                                                                                style={styles.ncofi}>
-                                                                                <Text style={styles.ncofiLabel}>NC/OFI</Text>
-                                                                            </TouchableOpacity>
-                                                                        )}
-                                                                        {this.state.checkPointsDetails[index].IsNCAllowed != 2 &&
-                                                                        this.state.checkPointsDetails[index].IsNCAllowed != 0 &&
-                                                                        this.state.TemplateID !== 5 &&
-                                                                        this.state.ischeckLPA !== true &&
-                                                                        this.state.ReportId === 11 ? (
-                                                                            <TouchableOpacity
-                                                                                onPress={this.popupModal.bind(
-                                                                                    this,
-                                                                                    this.state.checkPointsDetails[index],
-                                                                                )}
-                                                                                style={styles.ncofi}>
-                                                                                <Text style={styles.ncofiLabel}>NC/OFI</Text>
-                                                                            </TouchableOpacity>
-                                                                        ) : null}
                                                                     </View>
                                                                 ) : null}
-                                                                {/*new nc button*/}
-
-                                                                <View>
-                                                                    {this.state.ncofiEnabled &&
-                                                                    this.state.TemplateID !== 5 &&
-                                                                    this.state.TemplateID < 8 ? (
-                                                                        <TouchableOpacity
-                                                                            onPress={this.popupModal.bind(this, this.state.checkPointsDetails[index])}
-                                                                            style={styles.ncofi}>
-                                                                            <Text style={styles.ncofiLabel}>NC/OFI</Text>
-                                                                        </TouchableOpacity>
-                                                                    ) : null}
-                                                                </View>
 
                                                                 {this.state.isAttachmentLoaded ? (
                                                                     this.state.checkPointsDetails[index] ? (
@@ -7324,51 +7432,59 @@ class CheckPointDemo extends Component {
                                                                 ) : (
                                                                     <></>
                                                                 )}
-                                                                <View style={styles.boxsec1}>
-                                                                    <View>
-                                                                        {this.state.checkPointsDetails[index] ? (
-                                                                            this.state.checkPointsDetails[index].FileName != '' ? (
-                                                                                <Text style={styles.attachmentLabel}>{strings.Attachment}</Text>
-                                                                            ) : null
-                                                                        ) : null}
-                                                                        <TextInput
-                                                                            style={
-                                                                                this.state.checkPointsDetails[index]
-                                                                                    ? this.state.checkPointsDetails[index].FileName != ''
-                                                                                        ? styles.checkPointsTextInputLabel
-                                                                                        : styles.checkPointsTextInput
-                                                                                    : styles.checkPointsTextInput
-                                                                            }
-                                                                            placeholderTextColor={
-                                                                                isAttachmentRequired && !isAttachmentFilled ? 'red' : '#A9A9A9'
-                                                                            }
-                                                                            textColor="#747474"
-                                                                            editable={false}
-                                                                            // placeholder={strings.Attachment}
+                                                                <View style={styles.attachmentActionRow}>
+                                                                    <TouchableOpacity
+                                                                        style={styles.attachmentActionButton}
+                                                                        onPress={this.chooseCameraOption.bind(this, item, index)}>
+                                                                        <Icon
+                                                                            name="paperclip"
+                                                                            size={20}
+                                                                            color="#2D7FBE"
+                                                                            style={styles.attachmentActionIcon}
                                                                         />
-                                                                    </View>
-
-                                                                    <View style={styles.attachIcon}>
-                                                                        <TouchableOpacity onPress={this.chooseCameraOption.bind(this, item, index)}>
+                                                                        <Text style={styles.attachmentActionLabel}>Add Attachment</Text>
+                                                                        {isAttachmentRequired ? (
                                                                             <Icon
-                                                                                name="paperclip"
-                                                                                size={20}
-                                                                                color="grey"
-                                                                                style={styles.paperclipIcon}
+                                                                                name="star"
+                                                                                size={8}
+                                                                                color="red"
+                                                                                style={styles.attachmentActionRequired}
                                                                             />
-                                                                            {isAttachmentRequired ? (
-                                                                                <Icon
-                                                                                    name="star"
-                                                                                    style={styles.attachmentStarIcon}
-                                                                                    size={8}
-                                                                                    color="red"
-                                                                                />
-                                                                            ) : (
-                                                                                <View></View>
-                                                                            )}
+                                                                        ) : null}
+                                                                    </TouchableOpacity>
+                                                                </View>
+
+                                                                {this.state.ncofiEnabled && this.state.dropdownnotokvalue === 15 && (
+                                                                    <View style={{ width: '100%', height: 40 }}>
+                                                                        <TouchableOpacity
+                                                                            onPress={this.popupModal.bind(this, this.state.checkPointsDetails[index])}
+                                                                            style={styles.ncofi}>
+                                                                            <Text style={styles.ncofiLabel}>NC/OFI</Text>
                                                                         </TouchableOpacity>
                                                                     </View>
-                                                                </View>
+                                                                )}
+                                                                {this.state.checkPointsDetails[index].IsNCAllowed != 2 &&
+                                                                this.state.checkPointsDetails[index].IsNCAllowed != 0 &&
+                                                                this.state.TemplateID !== 5 &&
+                                                                this.state.ischeckLPA !== true &&
+                                                                this.state.ReportId === 11 ? (
+                                                                    <View style={{ width: '100%', height: 40 }}>
+                                                                        <TouchableOpacity
+                                                                            onPress={this.popupModal.bind(this, this.state.checkPointsDetails[index])}
+                                                                            style={styles.ncofi}>
+                                                                            <Text style={styles.ncofiLabel}>NC/OFI</Text>
+                                                                        </TouchableOpacity>
+                                                                    </View>
+                                                                ) : null}
+                                                                {this.state.ncofiEnabled && this.state.TemplateID !== 5 && this.state.TemplateID < 8 ? (
+                                                                    <View style={{ width: '100%', height: 40 }}>
+                                                                        <TouchableOpacity
+                                                                            onPress={this.popupModal.bind(this, this.state.checkPointsDetails[index])}
+                                                                            style={styles.ncofi}>
+                                                                            <Text style={styles.ncofiLabel}>NC/OFI</Text>
+                                                                        </TouchableOpacity>
+                                                                    </View>
+                                                                ) : null}
 
                                                                 <View
                                                                     style={
@@ -8255,7 +8371,7 @@ class CheckPointDemo extends Component {
                                                                     <View></View>
                                                                 )}
 
-                                                                <View style={styles.boxsecRemark}>
+                                                                <View style={[styles.boxsecRemark, styles.remarkSectionCard]}>
                                                                     <View style={styles.fullWidth}>
                                                                         {(this.state.TemplateID == '5' || this.state.TemplateID == '11') &&
                                                                         this.state.checkPointsDetails[index].Score !== '10' &&
@@ -8353,34 +8469,37 @@ class CheckPointDemo extends Component {
                                                                         ) : (
                                                                             <View></View>
                                                                         )}
-                                                                        {this.state.checkPointsDetails ? (
-                                                                            this.state.checkPointsDetails[index].Remark != '' ? (
-                                                                                <Text style={styles.scoreSmallLabel}>{strings.Remark}</Text>
-                                                                            ) : null
-                                                                        ) : null}
+
+                                                                        <View style={styles.remarkLabelRow}>
+                                                                            <Text style={styles.remarkLabelText}>
+                                                                                {strings.Remark ? strings.Remark : 'Remark'}
+                                                                            </Text>
+                                                                            {isRemarkRequired ? (
+                                                                                <Icon
+                                                                                    name="star"
+                                                                                    size={8}
+                                                                                    color="red"
+                                                                                    style={styles.remarkLabelAsterisk}
+                                                                                />
+                                                                            ) : null}
+                                                                        </View>
 
                                                                         <TextInput
-                                                                            style={
-                                                                                this.state.checkPointsDetails
-                                                                                    ? this.state.checkPointsDetails[index].Remark != ''
-                                                                                        ? styles.checkPointsTextInputLabel
-                                                                                        : styles.checkPointsTextInput
-                                                                                    : styles.checkPointsTextInput
-                                                                            }
+                                                                            style={styles.remarkTextArea}
                                                                             placeholderTextColor={
                                                                                 isRemarkRequired && !isRemarkFilled ? 'red' : '#A9A9A9'
                                                                             }
                                                                             multiline={true}
+                                                                            textAlignVertical="top"
                                                                             textColor="#747474"
                                                                             value={
                                                                                 this.state.checkPointsDetails
                                                                                     ? this.state.checkPointsDetails[index].Remark
                                                                                     : ''
                                                                             }
-                                                                            placeholder={strings.Remark}
+                                                                            placeholder={'Type here...'}
                                                                             onBlur={this.countStatistics.bind(this, this.state.checkPointsDetails)}
                                                                             onChangeText={text => {
-                                                                                //console.log('Writing remark', text);
                                                                                 var checkPointsDetails = this.state.checkPointsDetails;
                                                                                 for (var i = 0; i < checkPointsDetails.length; i++) {
                                                                                     if (
@@ -8404,36 +8523,57 @@ class CheckPointDemo extends Component {
                                                                             }}
                                                                         />
                                                                     </View>
-
-                                                                    {isRemarkRequired ? (
-                                                                        <Icon name="star" style={styles.remarkStarIcon} size={8} color="red" />
-                                                                    ) : (
-                                                                        <View></View>
-                                                                    )}
                                                                 </View>
 
-                                                                <View style={styles.bottomBtnView}>
+                                                                <View style={styles.remarkButtonGap} />
+
+                                                                <View style={[styles.bottomBtnView, styles.cardPagerRow]}>
                                                                     <TouchableOpacity
-                                                                        style={[styles.backBtn, index === 0 && styles.backBtnDisabled]}
+                                                                        style={[
+                                                                            styles.backBtn,
+                                                                            styles.cardPagerButton,
+                                                                            index === 0 ? styles.cardPagerButtonDisabled : styles.cardPagerButtonEnabled,
+                                                                        ]}
                                                                         onPress={() => this.onBack(index)}>
-                                                                        <Text style={[styles.backBtnText, index === 0 && styles.buttonDisabledText]}>
+                                                                        <Text
+                                                                            style={[
+                                                                                styles.cardPagerButtonText,
+                                                                                index === 0
+                                                                                    ? styles.cardPagerButtonTextDisabled
+                                                                                    : styles.cardPagerButtonTextEnabled,
+                                                                            ]}>
                                                                             {strings.previous}
                                                                         </Text>
                                                                     </TouchableOpacity>
                                                                     <TouchableOpacity
                                                                         style={[
                                                                             styles.nextBtn,
-                                                                            index === this.state.checkpointList.length - 1 && styles.backBtnDisabled,
+                                                                            styles.cardPagerButton,
+                                                                            index === this.state.checkpointList.length - 1
+                                                                                ? styles.cardPagerButtonDisabled
+                                                                                : styles.cardPagerButtonEnabled,
                                                                         ]}
                                                                         onPress={() => this.onNext(index, item)}>
-                                                                        <Text
-                                                                            style={[
-                                                                                styles.backBtnText,
-                                                                                index === this.state.checkpointList.length - 1 &&
-                                                                                    styles.buttonDisabledText,
-                                                                            ]}>
-                                                                            {strings.next}
-                                                                        </Text>
+                                                                        <View style={styles.cardPagerNextWrap}>
+                                                                            <Text
+                                                                                style={[
+                                                                                    styles.cardPagerButtonText,
+                                                                                    index === this.state.checkpointList.length - 1
+                                                                                        ? styles.cardPagerButtonTextDisabled
+                                                                                        : styles.cardPagerButtonTextEnabled,
+                                                                                ]}>
+                                                                                {strings.next}
+                                                                            </Text>
+                                                                            <Icon
+                                                                                name="chevron-right"
+                                                                                size={22}
+                                                                                color={
+                                                                                    index === this.state.checkpointList.length - 1
+                                                                                        ? '#7F8793'
+                                                                                        : '#FFFFFF'
+                                                                                }
+                                                                            />
+                                                                        </View>
                                                                     </TouchableOpacity>
                                                                 </View>
                                                             </View>
@@ -8443,17 +8583,74 @@ class CheckPointDemo extends Component {
                                                 );
                                             }}
                                             sliderWidth={this.state.screenWidth}
-                                            itemWidth={this.state.screenWidth * 1}
-                                            enableMomentum={false}
-                                            decelerationRate="fast"
-                                            activeSlideAlignment="center"
+                                            itemWidth={STACK_ITEM_WIDTH}
                                             initialNumToRender={100}
                                             removeClippedSubviews={false} // Prevent unloading of items
-                                            onSnapToItem={index => console.log('Snapped to index:', index)}
                                         />
                                     ) : (
-                                        this.render_loader
+                                        this.render_loader()
                                     )}
+                                </View>
+                                <View style={styles.serialStripWrapper}>
+                                    <FlatList
+                                        ref={ref => {
+                                            this._serialListRef = ref;
+                                        }}
+                                        data={this.state.checkpointList}
+                                        keyExtractor={item => String(item.ActualIndex)}
+                                        horizontal
+                                        showsHorizontalScrollIndicator={false}
+                                        extraData={{
+                                            revision: this.state.checkpointRevision,
+                                            radioKey: this.state.radioResetKey,
+                                            activeId: this.state.ActiveId,
+                                        }}
+                                        onScrollToIndexFailed={this.handleSerialScrollToIndexFailed}
+                                        contentContainerStyle={styles.serialStripContent}
+                                        renderItem={({ item, index }) => {
+                                            const checkpointState = this.state.checkPointsDetails[index] || {};
+                                            const isRemarkRequired = this.isRemarkMandatory(checkpointState);
+                                            const isAttachmentRequired = this.isAttachmentMandatory(checkpointState);
+                                            const isRemarkFilled = this.hasRemarkValue(checkpointState);
+                                            const isAttachmentFilled = this.hasAttachmentValue(checkpointState);
+                                            const hasOutstandingRequirement =
+                                                (isRemarkRequired && !isRemarkFilled) || (isAttachmentRequired && !isAttachmentFilled);
+                                            const hasRequirement = isRemarkRequired || isAttachmentRequired;
+
+                                            return (
+                                                <TouchableOpacity
+                                                    style={[
+                                                        styles.bottomSerialBtn,
+                                                        {
+                                                            backgroundColor: this.state.ActiveId == index ? '#00BAC8' : '#FFFFFF',
+                                                            borderColor: this.state.ActiveId == index ? '#00BAC8' : '#BDBDBD',
+                                                            minWidth: SERIAL_GRID_MIN_WIDTH,
+                                                            height: SERIAL_GRID_HEIGHT,
+                                                        },
+                                                    ]}
+                                                    onPress={() => this.btnDatapress(index, item)}>
+                                                    <Text
+                                                        style={[
+                                                            styles.bottomSerialText,
+                                                            {
+                                                                color: this.state.ActiveId == index ? 'white' : 'black',
+                                                            },
+                                                        ]}>
+                                                        {item.SerialNo}
+                                                    </Text>
+                                                    {hasOutstandingRequirement ? (
+                                                        <View style={styles.bottomMandatoryIcon}>
+                                                            <ResponsiveImage source={Images.ManIcon1} initHeight={14} initWidth={14} />
+                                                        </View>
+                                                    ) : hasRequirement ? (
+                                                        <View style={styles.bottomMandatoryIcon}>
+                                                            <ResponsiveImage source={Images.ManIcon3} initHeight={14} initWidth={14} />
+                                                        </View>
+                                                    ) : null}
+                                                </TouchableOpacity>
+                                            );
+                                        }}
+                                    />
                                 </View>
                             </View>
                         ) : (
@@ -8734,7 +8931,6 @@ class CheckPointDemo extends Component {
     }
 }
 const mapStateToProps = state => {
-
     return {
         data: state,
     };

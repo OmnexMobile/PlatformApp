@@ -19,7 +19,6 @@ import {
 } from 'react-native';
 import styles from '../../auditPro/styles/CheckPointScreenPOCStyles';
 import Icon from 'react-native-vector-icons/Feather';
-import IconAwesome from 'react-native-vector-icons/FontAwesome';
 import Carousel from 'react-native-snap-carousel';
 import OfflineNotice from '../../auditPro/components/OfflineNotice';
 import { Images } from '../../auditPro/Themes/index';
@@ -62,12 +61,6 @@ import GlobalHeader from 'components/GlobalHeader';
 import CommonAlertModal from 'components/common_alert_modal';
 import AttachmentSelectionModal from 'components/attachment-selection-modal';
 const Width = Dimensions.get('window').width;
-const Height = Dimensions.get('window').height;
-const STACK_ITEM_WIDTH = Math.round(Width * 0.9);
-const STACK_CARD_MIN_HEIGHT = Math.round(Height * 0.62);
-const SERIAL_GRID_MIN_WIDTH = 96;
-const SERIAL_GRID_HEIGHT = 62;
-const ATTACHMENT_VISIBLE_ROWS = 4;
 const Colors = {
     0: 'red',
     4: 'red',
@@ -169,7 +162,6 @@ class CheckPointDemo extends Component {
             dialogVisibleVideo: false,
             isAttachmentLoaded: false,
             isCaroselLoaded: false,
-            attachmentViewAll: {},
             ncofiSetting: '',
             dropdownnotokvalue: 0,
             checkPointAttachment: '',
@@ -2204,7 +2196,6 @@ class CheckPointDemo extends Component {
                         checkpointList: checkPointList,
                         checkPointsDetails: checkPointsDetails,
                         isContentLoaded: false,
-                        isLoaded: true,
                         isAttachmentLoaded: true,
                         selectedindex: checkPointList[0],
                     },
@@ -4265,64 +4256,6 @@ class CheckPointDemo extends Component {
             }
         }
     }
-    handleCarouselSnap = index => {
-        const selectedCheckpoint = this.state.checkpointList[index];
-        if (!selectedCheckpoint) {
-            return;
-        }
-
-        if (this.state.ActiveId === index) {
-            return;
-        }
-
-        this.setState({
-            ActiveId: index,
-            selectedindex: selectedCheckpoint,
-        });
-    };
-
-    handleSerialScrollToIndexFailed = info => {
-        if (!this._serialListRef || !info || typeof info.index !== 'number') {
-            return;
-        }
-
-        setTimeout(() => {
-            if (!this._serialListRef) {
-                return;
-            }
-
-            this._serialListRef.scrollToIndex({
-                index: info.index,
-                animated: true,
-                viewPosition: 0.5,
-            });
-        }, 200);
-    };
-
-    componentDidUpdate(prevProps, prevState) {
-        if (prevState.ActiveId === this.state.ActiveId) {
-            return;
-        }
-
-        if (!this._serialListRef) {
-            return;
-        }
-
-        const activeIndex = this.state.ActiveId;
-        if (activeIndex < 0 || activeIndex >= this.state.checkpointList.length) {
-            return;
-        }
-
-        try {
-            this._serialListRef.scrollToIndex({
-                index: activeIndex,
-                animated: true,
-                viewPosition: 0.5,
-            });
-        } catch (e) {
-            // Ignore scroll errors while FlatList is still measuring.
-        }
-    }
     IosPath(path) {
         //console.log(path, 'pathvariable');
         let IosFiles = RNFetchBlob.fs.dirs.DocumentDir + '/' + 'IosFiles';
@@ -4599,206 +4532,149 @@ class CheckPointDemo extends Component {
     }
 
     renderAttachment(index) {
-        const checkpoint = this.state.checkPointsDetails?.[index];
-        if (!checkpoint || !Array.isArray(checkpoint.AttachmentList) || checkpoint.AttachmentList.length === 0) {
-            return null;
-        }
-
-        const attachments = checkpoint.AttachmentList;
-        const viewKey = this.getAttachmentViewKey(checkpoint, index);
-        const showAll = !!this.state.attachmentViewAll?.[viewKey];
-        const canViewAll = attachments.length > ATTACHMENT_VISIBLE_ROWS;
-
         return (
-            <View style={styles.attachmentPreviewBlock}>
-                <View style={styles.attachmentGridContainer}>
-                    <View style={styles.attachmentGridHeader}>
-                        <Text style={styles.attachmentGridTitle}>Attachments</Text>
-                        {canViewAll ? (
-                            <TouchableOpacity style={styles.attachmentGridViewAllBtn} onPress={() => this.toggleAttachmentViewAll(viewKey)}>
-                                <Text style={styles.attachmentGridViewAllText}>{showAll ? 'View Less' : 'View All'}</Text>
-                                <Icon name={showAll ? 'chevron-up' : 'chevron-right'} size={20} color="#1E7CB8" />
-                            </TouchableOpacity>
-                        ) : null}
-                    </View>
-                    <View style={styles.attachmentGridDivider} />
-                    <View style={styles.attachmentGridList}>
-                        {attachments.map((item, attachmentIndex) => {
-                            if (!showAll && attachmentIndex >= ATTACHMENT_VISIBLE_ROWS) {
-                                return null;
-                            }
-                            return this.renderAttachmentGridItem(item, attachmentIndex, index);
-                        })}
-                    </View>
-                </View>
-            </View>
+            <ScrollView horizontal={true}>
+                {this.state.checkPointsDetails[index].AttachmentList.map((item, key) =>
+                    item.Attachment === 'EMPTY' || item.Attachment === 'FAILED' ? (
+                        <View
+                            style={{
+                                flexDirection: 'row',
+                                borderColor: 'darkgrey',
+                                paddingVertical: 10,
+                                margin: 2,
+                                borderWidth: 1,
+                                borderRadius: 5,
+                            }}>
+                            <View style={{ flexDirection: 'row' }}>
+                                <TouchableOpacity onPress={this.downloadFile.bind(this, item)}>
+                                    {this.getFileIcon(item)}
+                                    <View
+                                        style={{
+                                            width: width(65),
+                                            marginTop: 5,
+                                            alignContent: 'center',
+                                            alignItems: 'center',
+                                            alignSelf: 'center',
+                                        }}>
+                                        <Text style={{}}>{item.FileName}</Text>
+                                    </View>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    ) : item.FileType.split('/')[0] == 'image' ? (
+                        item.Attachment === 'DOWNLOADING' ? (
+                            this.getDownloadLoadingIcon(item.FileName)
+                        ) : (
+                            <View
+                                style={{
+                                    flexDirection: 'row',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    paddingVertical: 10,
+                                    margin: 2,
+                                    borderColor: 'darkgrey',
+                                    borderWidth: 1,
+                                    height: '90%',
+                                    borderRadius: 5,
+                                }}>
+                                <TouchableOpacity key={key} onPress={this.openAttachmentImage.bind(this, item, this.state.isBrowse == true ? 1 : 0)}>
+                                    <View
+                                        style={{
+                                            paddingVertical: 10,
+                                            margin: 2,
+                                        }}>
+                                        <View style={{ flexDirection: 'row' }}>
+                                            <View>
+                                                <Image
+                                                    source={{
+                                                        uri: 'file:/' + item.FileUri,
+                                                    }}
+                                                    style={{
+                                                        width: width(65),
+                                                        height: 200,
+                                                        resizeMode: 'cover',
+                                                        marginRight: 15,
+                                                    }}
+                                                />
+                                                <View
+                                                    style={{
+                                                        width: width(65),
+                                                        marginTop: 5,
+                                                        alignContent: 'center',
+                                                        alignItems: 'center',
+                                                        alignSelf: 'center',
+                                                    }}>
+                                                    <Text style={{}}>{item.FileName}</Text>
+                                                </View>
+                                            </View>
+
+                                            <View>
+                                                <TouchableOpacity onPress={this.removeAttachment.bind(this, key, item, index)}>
+                                                    <Icon name="trash" size={20} color="red" />
+                                                </TouchableOpacity>
+                                            </View>
+                                        </View>
+                                        {/* )} */}
+
+                                        <View style={{ display: 'none' }}>{/* {this.state.checkPointsDetails[index].Modified = true} */}</View>
+                                    </View>
+                                </TouchableOpacity>
+                            </View>
+                        )
+                    ) : item.FileType.indexOf('image') === -1 ? (
+                        item.Attachment === 'DOWNLOADING' ? (
+                            this.getDownloadLoadingIcon(item.FileName)
+                        ) : (
+                            <View
+                                style={{
+                                    flexDirection: 'row',
+                                    borderColor: 'darkgrey',
+                                    borderWidth: 1,
+                                    borderRadius: 5,
+                                    height: '90%',
+                                    paddingVertical: 10,
+                                    margin: 2,
+                                }}>
+                                <View style={{ flexDirection: 'row' }}>
+                                    <TouchableOpacity onPress={this.openAttachmentFile.bind(this, item, this.state.isBrowse == true ? 1 : 0)}>
+                                        {this.getFileIcon(item)}
+                                        <View
+                                            style={{
+                                                width: width(65),
+                                                marginTop: 5,
+                                                alignContent: 'center',
+                                                alignItems: 'center',
+                                                alignSelf: 'center',
+                                            }}>
+                                            <Text style={{}}>{item.FileName}</Text>
+                                        </View>
+                                    </TouchableOpacity>
+                                </View>
+
+                                <View>
+                                    <TouchableOpacity
+                                        // style={styles.rightHeader}
+                                        onPress={this.removeAttachment.bind(this, key, item, index)}>
+                                        <View>
+                                            <Icon name="trash" size={20} color="red" />
+                                        </View>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+                        )
+                    ) : null,
+                )}
+            </ScrollView>
         );
     }
-
-    getAttachmentViewKey = (checkpoint, index) => {
-        const templateId = checkpoint?.ChecklistTemplateId ?? index;
-        const formId = checkpoint?.FormId ?? checkpoint?.FormID ?? '0';
-        return `${templateId}_${formId}`;
-    };
-
-    toggleAttachmentViewAll = viewKey => {
-        this.setState(prevState => ({
-            attachmentViewAll: {
-                ...(prevState.attachmentViewAll || {}),
-                [viewKey]: !prevState.attachmentViewAll?.[viewKey],
-            },
-        }));
-    };
-
-    renderAttachmentGridItem = (item, attachmentIndex, checkpointIndex) => {
-        const rowKey = item?.id ? `${item.id}_${attachmentIndex}` : `${checkpointIndex}_${attachmentIndex}`;
-        const isImage = this.isImageAttachment(item);
-        const isDownloading = item?.Attachment === 'DOWNLOADING';
-        const rowIcon = this.getAttachmentGridIcon(item);
-        const displayName = item?.FileName || 'Attachment';
-        const dateText = this.getAttachmentDateLabel(item);
-        const fileUri = this.getAttachmentPreviewUri(item);
-        const fileExt = this.getAttachmentExt(item);
-        const metaLabel = isDownloading ? 'Downloading...' : dateText;
-
-        return (
-            <View key={rowKey} style={styles.attachmentGridCard}>
-                <TouchableOpacity
-                    activeOpacity={0.85}
-                    style={styles.attachmentGridCardPress}
-                    onPress={() => this.openAttachmentFromRow(item)}>
-                    <View style={styles.attachmentGridMediaWrap}>
-                        {isDownloading ? (
-                            <ActivityIndicator size="small" color="#1CAFF6" />
-                        ) : isImage && fileUri ? (
-                            <Image source={{ uri: fileUri }} style={styles.attachmentGridMediaImage} />
-                        ) : (
-                            <View style={styles.attachmentGridPlaceholder}>
-                                <Icon name={rowIcon} size={24} color="#50607A" />
-                                <Text style={styles.attachmentGridExtText}>{fileExt || 'FILE'}</Text>
-                            </View>
-                        )}
-                    </View>
-
-                    <View style={styles.attachmentGridBody}>
-                        <Text numberOfLines={1} style={styles.attachmentGridName}>
-                            {displayName}
-                        </Text>
-                        <View style={styles.attachmentGridMetaRow}>
-                            <Icon name={isImage ? 'image' : 'file'} size={14} color="#7F8793" />
-                            <Text numberOfLines={1} style={styles.attachmentGridMetaText}>
-                                {metaLabel}
-                            </Text>
-                        </View>
-                    </View>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                    style={styles.attachmentGridDelete}
-                    onPress={this.removeAttachment.bind(this, attachmentIndex, item, checkpointIndex)}>
-                    <Icon name="trash" size={22} color="#FF3030" />
-                </TouchableOpacity>
-            </View>
-        );
-    };
-
-    openAttachmentFromRow = item => {
-        const browseFlag = this.state.isBrowse == true ? 1 : 0;
-        if (item?.Attachment === 'DOWNLOADING') {
-            return;
-        }
-        if (item?.Attachment === 'EMPTY' || item?.Attachment === 'FAILED') {
-            this.downloadFile(item);
-            return;
-        }
-        if (this.isImageAttachment(item)) {
-            this.openAttachmentImage(item, browseFlag);
-            return;
-        }
-        this.openAttachmentFile(item, browseFlag);
-    };
-
-    getAttachmentGridIcon = item => {
-        if (item?.Attachment === 'EMPTY' || item?.Attachment === 'FAILED') {
-            return 'download';
-        }
-        const ext = this.getAttachmentExt(item).toLowerCase();
-        const fileType = item?.FileType ? item.FileType.toLowerCase() : '';
-        if (fileType.indexOf('video') === 0 || ['mp4', 'mov', 'mpeg', '3gp'].includes(ext)) {
-            return 'play-circle';
-        }
-        if (this.isImageAttachment(item)) {
-            return 'image';
-        }
-        if (['pdf', 'doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx', 'xlsm'].includes(ext)) {
-            return 'file-text';
-        }
-        return 'file';
-    };
-
-    getAttachmentExt = item => {
-        const fileName = item?.FileName || '';
-        if (!fileName || fileName.indexOf('.') === -1) {
-            return '';
-        }
-        return fileName.substring(fileName.lastIndexOf('.') + 1).toUpperCase();
-    };
-
-    getAttachmentPreviewUri = item => {
-        const rawUri = item?.FileUri || item?.File || '';
-        if (!rawUri) {
-            return '';
-        }
-        if (
-            rawUri.startsWith('file://') ||
-            rawUri.startsWith('file:/') ||
-            rawUri.startsWith('content://') ||
-            rawUri.startsWith('http://') ||
-            rawUri.startsWith('https://')
-        ) {
-            return rawUri;
-        }
-        return `file://${rawUri}`;
-    };
-
-    isImageAttachment = item => {
-        const fileType = item?.FileType ? item.FileType.toLowerCase() : '';
-        if (fileType.indexOf('image') === 0) {
-            return true;
-        }
-        const ext = this.getAttachmentExt(item).toLowerCase();
-        return ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'heic'].includes(ext);
-    };
-
-    getAttachmentDateLabel = item => {
-        const rawDate = item?.CreatedDate || item?.CreatedOn || item?.UpdatedDate || item?.ModifiedDate || '';
-        if (rawDate) {
-            const parsed = Moment(rawDate);
-            if (parsed.isValid()) {
-                return parsed.format('DD MMM YYYY');
-            }
-        }
-        const rawId = item?.id != null ? String(item.id) : '';
-        const unixPart = rawId.indexOf('_') > -1 ? rawId.split('_')[0] : rawId;
-        if (/^\d+$/.test(unixPart)) {
-            const value = parseInt(unixPart, 10);
-            if (!Number.isNaN(value)) {
-                const parsed = unixPart.length >= 13 ? Moment(value) : Moment.unix(value);
-                if (parsed.isValid()) {
-                    return parsed.format('DD MMM YYYY');
-                }
-            }
-        }
-        return Moment().format('DD MMM YYYY');
-    };
 
     render_loader() {
         return (
             <View
                 style={{
-                    backgroundColor: 'transparent',
+                    backgroundColor: 'white',
                     width: '100%',
-                    minHeight: STACK_CARD_MIN_HEIGHT,
+                    height: 100,
                     alignItems: 'center',
                     justifyContent: 'center',
                 }}>
@@ -5015,7 +4891,7 @@ class CheckPointDemo extends Component {
         return status === '1' ? (
             <Icon name="check" size={20} color="green" />
         ) : status === '0' ? (
-            <Icon name="x" size={20} color="red" style={{ marginTop: 10 }} />
+            <Icon name="times" size={20} color="red" style={{ marginTop: 10 }} />
         ) : null;
     };
     toggleDropdown = () => {
@@ -5103,147 +4979,6 @@ class CheckPointDemo extends Component {
         return validReasons.some(reason => reason.id === failureReasonId);
     }
 
-    handleM4RadioPress = (value, item, index) => {
-        console.log('Load:Category:Radio Press', value);
-        value === 15 ? this.handleNotOkClick() : this.ncofisetting(value);
-        console.log(this.state.checkpointList[index].Status, 'v++');
-
-        var checkPointsDetails = this.state.checkPointsDetails;
-        var isNCClearRequired = false;
-        var ncRemovalTemplateId = 0;
-
-        for (var i = 0; i < checkPointsDetails.length; i++) {
-            if (checkPointsDetails[i].ChecklistTemplateId == item.ChecklistTemplateId) {
-                checkPointsDetails[i].RadioValue = value;
-                checkPointsDetails[i].ParamMode = 4;
-                checkPointsDetails[i].Modified = true;
-
-                if (value == item.correctAnswer) {
-                    checkPointsDetails[i].IsCorrect = 1;
-                    console.log('checkPointsDetails now', checkPointsDetails[i].IsCorrect);
-
-                    if (checkPointsDetails[i].IsNCAllowed == 1) {
-                        var dataArr = this.props.data.audits.ncofiRecords;
-                        var isNCExists = false;
-                        for (var k = 0; k < dataArr.length; k++) {
-                            if (dataArr[k].AuditID == this.state.auditId) {
-                                for (var j = 0; j < dataArr[k].Pending.length; j++) {
-                                    if (
-                                        dataArr[k].Pending[j].ChecklistTemplateId == item.ChecklistTemplateId &&
-                                        dataArr[k].Pending[j].Category == 'NC'
-                                    ) {
-                                        isNCExists = true;
-                                    }
-                                }
-                            }
-                        }
-                        if (isNCExists) {
-                            isNCClearRequired = true;
-                            ncRemovalTemplateId = checkPointsDetails[i].ChecklistTemplateId;
-                        }
-                    }
-
-                    if (item.scoreType == 3 && checkPointsDetails[i].Score != '') {
-                        for (var j = 0; j < item.scoreTypesData.length; j++) {
-                            if (
-                                item.ChecklistTemplateId == item.scoreTypesData[j].templateId &&
-                                checkPointsDetails[i].Score == item.scoreTypesData[j].id
-                            ) {
-                                if (item.scoreTypesData[j].status == '1') {
-                                    checkPointsDetails[i].IsNCAllowed = 1;
-                                    break;
-                                } else if (item.scoreTypesData[j].status == '2' || item.scoreTypesData[j].status == '3') {
-                                    checkPointsDetails[i].IsNCAllowed = 0;
-                                    break;
-                                } else {
-                                    checkPointsDetails[i].IsNCAllowed = 0;
-                                    break;
-                                }
-                            }
-                        }
-                    } else {
-                        checkPointsDetails[i].IsNCAllowed = 0;
-                    }
-                } else if (value == 11) {
-                    checkPointsDetails[i].IsCorrect = 0;
-                    if (checkPointsDetails[i].IsNCAllowed == 1) {
-                        var dataArr = this.props.data.audits.ncofiRecords;
-                        var isNCExists = false;
-                        for (var k = 0; k < dataArr.length; k++) {
-                            if (dataArr[k].AuditID == this.state.auditId) {
-                                for (var j = 0; j < dataArr[k].Pending.length; j++) {
-                                    if (
-                                        dataArr[k].Pending[j].ChecklistTemplateId == item.ChecklistTemplateId &&
-                                        dataArr[k].Pending[j].Category == 'NC'
-                                    ) {
-                                        isNCExists = true;
-                                    }
-                                }
-                            }
-                        }
-                        if (isNCExists) {
-                            isNCClearRequired = true;
-                            ncRemovalTemplateId = checkPointsDetails[i].ChecklistTemplateId;
-                        }
-                    }
-
-                    if (item.scoreType == 3 && checkPointsDetails[i].Score != '') {
-                        for (var j = 0; j < item.scoreTypesData.length; j++) {
-                            if (
-                                item.ChecklistTemplateId == item.scoreTypesData[j].templateId &&
-                                checkPointsDetails[i].Score == item.scoreTypesData[j].id
-                            ) {
-                                if (item.scoreTypesData[j].status == '1') {
-                                    checkPointsDetails[i].IsNCAllowed = 1;
-                                    break;
-                                } else if (item.scoreTypesData[j].status == '2' || item.scoreTypesData[j].status == '3') {
-                                    checkPointsDetails[i].IsNCAllowed = 0;
-                                    break;
-                                } else {
-                                    checkPointsDetails[i].IsNCAllowed = 2;
-                                    break;
-                                }
-                            }
-                        }
-                    } else {
-                        checkPointsDetails[i].IsNCAllowed = 2;
-                    }
-                } else {
-                    checkPointsDetails[i].IsCorrect = 0;
-                    checkPointsDetails[i].IsNCAllowed = 1;
-                }
-
-                if (item.scoreType == 2) {
-                    if (value == parseInt(item.correctAnswer)) {
-                        checkPointsDetails[i].Score = item.maxScore;
-                    } else {
-                        checkPointsDetails[i].Score = item.minScore;
-                    }
-                }
-            }
-        }
-
-        if (isNCClearRequired) {
-            this.setState(
-                {
-                    ncRemovalTemplateId: ncRemovalTemplateId,
-                    checkPointsDetails: checkPointsDetails,
-                    isUnsavedData: true,
-                    dialogVisibleNCR: true,
-                },
-                () => {},
-            );
-        } else {
-            this.setState(
-                {
-                    checkPointsDetails: checkPointsDetails,
-                    isUnsavedData: true,
-                },
-                () => {},
-            );
-        }
-    };
-
     //  setOnLoadRadioValue(checkpoint,checklist){
     //   console.log("Load:Radio:",checkpoint,checklist);
     //   var RadioValue = -1;
@@ -5281,6 +5016,7 @@ class CheckPointDemo extends Component {
     render() {
         //console.log(this.state.radiovalue_ncofi,"valuesincoming");
 
+        console.log('Load:Category:1:render');
         const { booleanNcofi } = this.state;
         let data = [
             {
@@ -5306,13 +5042,13 @@ class CheckPointDemo extends Component {
             value: obj?.FailureReasonId,
         }));
         //  //console.log("$$$",this.state.CheckpointAttachment)
-        // console.log(this.props.data.audits.auditRecords[0].CheckpointLogic.CheckpointAttachment, '###');
+        console.log(this.props.data.audits.auditRecords[0].CheckpointLogic.CheckpointAttachment, '###');
         //console.log(FailReasArray, 'failreasonarray');
 
         //console.log('failurecategorystate', FailCatarray);
         //console.log('Dta', this.state.checkPointsDetails);
         // //console.log("this.state.checkpointList", this.state.checkpointList);
-        // console.log('checkpoint data', this.state.checkpointList, this.state.checkPointsDetails);
+        console.log('ÃƒÂ§', this.state.checkpointList, this.state.checkPointsDetails);
 
         //console.log(this.props.data, 'data');
         const dropdata = this.state.dropdown;
@@ -5329,10 +5065,11 @@ class CheckPointDemo extends Component {
             { label: strings.no, value: 10 },
             { label: strings.NA, value: 11 },
         ];
-        const isCarouselReady =
-            this.state.isLoaded === true &&
-            this.state.checkpointList.length > 0 &&
-            this.state.checkPointsDetails.length >= this.state.checkpointList.length;
+        const radio_props4 = [
+            { label: strings.ok, value: 14 },
+            { label: strings.Notok, value: 15 },
+            { label: strings.NA, value: 11 },
+        ];
         //console.log('CheckPointDemo~checkpointList:>', this.state.checkpointList);
 
         // if (this.state.failureloaded === false){
@@ -5396,37 +5133,132 @@ class CheckPointDemo extends Component {
                                                 fontFamily: 'OpenSans-Regular',
                                             }}>
                                             {this.state.mandatoryCheck}
+                                            {console.log('MAndatoryCheck===>', this.state.mandatoryCheck)}
                                         </Text>
                                     </View>
                                 </View>
                             ) : null}
 
                             {this.state.checkpointList.length ? (
-                                <View style={[styles.body, styles.bodyColumn]}>
-                                    <View style={styles.carouselBottomWrapper}>
-                                        {isCarouselReady ? (
+                                <View style={styles.body}>
+                                    {
+                                        //console.log('venkat/yag', this.state.checkpointList)
+                                    }
+                                    <View style={{ flex: 1, height: '100%', marginTop: 5, bottom: 5 }}>
+                                        <FlatList
+                                            data={this.state.checkpointList}
+                                            keyExtractor={item => item.ActualIndex}
+                                            showsVerticalScrollIndicator={false}
+                                            extraData={this.state}
+                                            renderItem={({ item, index }) => {
+                                                {
+                                                    console.log(
+                                                        'CheckPointDemo~checkpointList[index]',
+                                                        this.state.checkpointList[index],
+                                                        'checkPointsDetails[index]',
+                                                        this.state.checkPointsDetails[index],
+                                                    );
+                                                }
+                                                return (
+                                                    <TouchableOpacity
+                                                        style={[
+                                                            styles.leftBtn,
+                                                            {
+                                                                backgroundColor: this.state.ActiveId == index ? '#00BAC8' : '#FFFFFF',
+                                                            },
+                                                        ]}
+                                                        onPress={() => this.btnDatapress(index, item)}>
+                                                        <View style={{ width: '90%' }}>
+                                                            <Text
+                                                                style={[
+                                                                    {
+                                                                        fontSize: 16,
+                                                                        textAlign: 'center',
+                                                                        fontFamily: 'OpenSans-Regular',
+                                                                    },
+                                                                    {
+                                                                        color: this.state.ActiveId == index ? 'white' : 'black',
+                                                                    },
+                                                                ]}>
+                                                                {this.state.checkpointList[index].SerialNo}
+                                                            </Text>
+                                                            {console.log(
+                                                                this.state.checkPointsDetails[index],
+
+                                                                '===>check no',
+                                                            )}
+                                                        </View>
+                                                        <View style={{ width: '10%', marginRight: 5 }}>
+                                                            {
+                                                                // NC validation
+                                                                (this.state.checkPointsDetails[index].Attachment == '' &&
+                                                                    this.state.checkPointsDetails[index].AttachforNc == 1 &&
+                                                                    this.state.checkPointsDetails[index].RemarkforNc == 0) ||
+                                                                (this.state.checkPointsDetails[index].Remark == '' &&
+                                                                    this.state.checkPointsDetails[index].RemarkforNc == 1 &&
+                                                                    this.state.checkPointsDetails[index].AttachforNc == 0) ||
+                                                                (this.state.checkPointsDetails[index].Attachment == '' &&
+                                                                    this.state.checkPointsDetails[index].Remark == '' &&
+                                                                    this.state.checkPointsDetails[index].AttachforNc == 1 &&
+                                                                    this.state.checkPointsDetails[index].RemarkforNc == 1) ||
+                                                                // OFI validation
+                                                                (this.state.checkPointsDetails[index].Attachment == '' &&
+                                                                    this.state.checkPointsDetails[index].AttachforOfi == 1 &&
+                                                                    this.state.checkPointsDetails[index].RemarkforOfi == 0) ||
+                                                                (this.state.checkPointsDetails[index].Remark == '' &&
+                                                                    this.state.checkPointsDetails[index].RemarkforOfi == 1 &&
+                                                                    this.state.checkPointsDetails[index].AttachforOfi == 0) ||
+                                                                (this.state.checkPointsDetails[index].Attachment == '' &&
+                                                                    this.state.checkPointsDetails[index].Remark == '' &&
+                                                                    this.state.checkPointsDetails[index].AttachforOfi == 1 &&
+                                                                    this.state.checkPointsDetails[index].AttachforOfi == 1) ? (
+                                                                    <View
+                                                                        style={{
+                                                                            bottom: 15,
+                                                                            marginLeft: Platform.OS === 'ios' ? 2 : null,
+                                                                        }}>
+                                                                        <ResponsiveImage source={Images.ManIcon1} initHeight={15} initWidth={15} />
+                                                                    </View>
+                                                                ) : // NC validation
+                                                                (this.state.checkPointsDetails[index].AttachforNc == 1 &&
+                                                                      this.state.checkPointsDetails[index].RemarkforNc == 0) ||
+                                                                  (this.state.checkPointsDetails[index].RemarkforNc == 1 &&
+                                                                      this.state.checkPointsDetails[index].AttachforNc == 0) ||
+                                                                  (this.state.checkPointsDetails[index].AttachforNc == 1 &&
+                                                                      this.state.checkPointsDetails[index].RemarkforNc == 1) ||
+                                                                  // OFI validation
+                                                                  (this.state.checkPointsDetails[index].AttachforOfi == 1 &&
+                                                                      this.state.checkPointsDetails[index].RemarkforOfi == 0) ||
+                                                                  (this.state.checkPointsDetails[index].RemarkforOfi == 1 &&
+                                                                      this.state.checkPointsDetails[index].AttachforOfi == 0) ||
+                                                                  (this.state.checkPointsDetails[index].AttachforOfi == 1 &&
+                                                                      this.state.checkPointsDetails[index].RemarkforOfi == 1) ? (
+                                                                    <View
+                                                                        style={{
+                                                                            bottom: 15,
+                                                                            marginLeft: Platform.OS === 'ios' ? 2 : null,
+                                                                        }}>
+                                                                        <ResponsiveImage source={Images.ManIcon3} initHeight={15} initWidth={15} />
+                                                                    </View>
+                                                                ) : null
+                                                            }
+                                                        </View>
+                                                    </TouchableOpacity>
+                                                );
+                                            }}
+                                        />
+                                    </View>
+                                    <View style={{ flex: 4, height: '100%', marginBottom: 10 }}>
+                                        {this.state.isLoaded == true ? (
                                             <Carousel
-                                                layout={'stack'}
-                                                layoutCardOffset={18}
-                                                scrollEnabled={true}
-                                                enableSnap={true}
-                                                lockScrollWhileSnapping={true}
-                                                enableMomentum={false}
-                                                useScrollView={true}
-                                                inactiveSlideScale={0.93}
-                                                inactiveSlideOpacity={0.92}
-                                                activeSlideAlignment={'center'}
-                                                swipeThreshold={16}
-                                                decelerationRate={'fast'}
-                                                slideStyle={styles.carouselStackSlide}
-                                                containerCustomStyle={styles.carouselStackContainer}
-                                                contentContainerCustomStyle={styles.carouselStackContent}
+                                                layout={'default'}
+                                                scrollEnabled={false}
                                                 data={this.state.checkpointList}
                                                 extraData={this.state}
                                                 ref={c => {
                                                     this._carousel = c;
                                                 }}
-                                                onSnapToItem={this.handleCarouselSnap}
+                                                startAutoplay
                                                 renderItem={({ item, index }) => {
                                                     // console.log(item, 'LoadCategory:1',index);
                                                     if (Platform.OS === 'ios') {
@@ -5443,42 +5275,19 @@ class CheckPointDemo extends Component {
                                                         }
                                                     }
 
-                                                    const selectedM4Value = parseInt(
-                                                        this.state.checkPointsDetails?.[index]?.RadioValue,
-                                                        10,
-                                                    );
-                                                    const isM4OkActive = selectedM4Value === 14;
-                                                    const isM4NotOkActive = selectedM4Value === 15;
-                                                    const isM4NaActive = selectedM4Value === 11;
-
                                                     return (
-                                                        <ScrollView style={styles.checkpointScroll}>
-                                                            <View
-                                                                style={[
-                                                                    styles.cart,
-                                                                    styles.cartBottomLayout,
-                                                                    styles.carouselStackCard,
-                                                                    { minHeight: STACK_CARD_MIN_HEIGHT },
-                                                                ]}>
-                                                                <View style={styles.questionMetaRow}>
-                                                                    <Text style={styles.questionMetaText}>
-                                                                        {`Question ${index + 1} of ${
-                                                                            this.state.checkpointList.length
-                                                                        }`}
-                                                                    </Text>
-                                                                </View>
-                                                                <View style={styles.questionMetaDivider} />
-
-                                                                <View style={styles.questionBlockRow}>
-                                                                    <View style={styles.questionBlockTextCol}>
-                                                                        <View style={styles.questionTitleRow}>
-                                                                            <RichText content={item.ChecklistName} height={124} />
+                                                        <ScrollView style={{ flex: 1, marginBottom: 20 }}>
+                                                            <View style={styles.cart}>
+                                                                <View style={{ flexDirection: 'row', width: '100%' }}>
+                                                                    <View style={{ width: '85%' }}>
+                                                                        <View style={{ flexDirection: 'row' }}>
+                                                                            <RichText content={item.ChecklistName} height={140} />
                                                                             {this.state.checkPointsDetails[index].nc_available_status ? (
                                                                                 <View
                                                                                     style={{
                                                                                         marginLeft: 5,
                                                                                     }}>
-                                                                                    <IconAwesome name="circle" size={12} color="red" />
+                                                                                    <Icon name="circle" size={12} color="red" />
                                                                                 </View>
                                                                             ) : null}
                                                                             {this.state.checkPointsDetails[index].ofi_avialable_status ? (
@@ -5487,7 +5296,7 @@ class CheckPointDemo extends Component {
                                                                                         marginLeft: 5,
                                                                                         //marginTop: 10,
                                                                                     }}>
-                                                                                    <IconAwesome name="circle" size={12} color="yellow" />
+                                                                                    <Icon name="circle" size={12} color="yellow" />
                                                                                 </View>
                                                                             ) : null}
 
@@ -5499,17 +5308,26 @@ class CheckPointDemo extends Component {
                                                                                         marginLeft: 10,
                                                                                         marginTop: 5,
                                                                                     }}>
-                                                                                    <IconAwesome name="asterisk" size={10} color="red" />
+                                                                                    <Icon name="asterisk" size={10} color="red" />
                                                                                 </View>
                                                                             ) : (
                                                                                 <View></View>
                                                                             )}
                                                                         </View>
-                                                                        <View style={styles.statusSpacer} />
+                                                                        <View
+                                                                            style={{
+                                                                                alignItems: 'flex-end',
+                                                                                flexDirection: 'row',
+                                                                                justifyContent: 'flex-end',
+
+                                                                                height: 5,
+                                                                                width: '100%',
+                                                                                marginLeft: 40,
+                                                                            }}></View>
                                                                         {this.renderStatus(this.state.checkPointsDetails[index], item)}
                                                                     </View>
 
-                                                                    <View style={styles.requirementIconCol}>
+                                                                    <View style={{ width: '10%' }}>
                                                                         {
                                                                             // NC validation
                                                                             (this.state.checkPointsDetails[index].Attachment == '' &&
@@ -5533,7 +5351,7 @@ class CheckPointDemo extends Component {
                                                                                 this.state.checkPointsDetails[index].Remark == '' &&
                                                                                 this.state.checkPointsDetails[index].AttachforOfi == 1 &&
                                                                                 this.state.checkPointsDetails[index].AttachforOfi == 1) ? (
-                                                                                <View style={styles.requirementIconWrapperSmall}>
+                                                                                <View style={{ bottom: 5, marginLeft: 2 }}>
                                                                                     <ResponsiveImage
                                                                                         source={Images.ManIcon1}
                                                                                         initHeight={30}
@@ -5554,7 +5372,7 @@ class CheckPointDemo extends Component {
                                                                                   this.state.checkPointsDetails[index].AttachforOfi == 0) ||
                                                                               (this.state.checkPointsDetails[index].AttachforOfi == 1 &&
                                                                                   this.state.checkPointsDetails[index].RemarkforOfi == 1) ? (
-                                                                                <View style={styles.requirementIconWrapperSmall}>
+                                                                                <View style={{ bottom: 5, marginLeft: 2 }}>
                                                                                     <ResponsiveImage
                                                                                         source={Images.ManIcon3}
                                                                                         initHeight={30}
@@ -5565,7 +5383,7 @@ class CheckPointDemo extends Component {
                                                                         }
                                                                     </View>
                                                                 </View>
-                                                                <View style={{ flexDirection: 'column', flex: 1 }}>
+                                                                <View style={{ flexDirection: 'column' }}>
                                                                     {item.ansType == 'M1' && item.scoreType !== 3 ? ( //Radio button
                                                                         <View style={styles.boxsecRadio}>
                                                                             <RadioForm
@@ -6356,112 +6174,256 @@ class CheckPointDemo extends Component {
                                                                         </View>
                                                                     ) : item.ansType == 'M4' && item.scoreType !== 3 ? (
                                                                         <View style={styles.boxsecRadio}>
-                                                                            <View style={styles.answerChoiceRow}>
-                                                                                <TouchableOpacity
-                                                                                    style={[
-                                                                                        styles.answerChoiceButton,
-                                                                                        styles.answerChoiceButtonBase,
-                                                                                        isM4OkActive
-                                                                                            ? styles.answerChoiceButtonOkActive
-                                                                                            : styles.answerChoiceButtonInactive,
-                                                                                    ]}
-                                                                                    onPress={() =>
-                                                                                        this.handleM4RadioPress(14, item, index)
-                                                                                    }>
-                                                                                    <View
-                                                                                        style={[
-                                                                                            styles.answerChoiceIconCircle,
-                                                                                            isM4OkActive
-                                                                                                ? styles.answerChoiceIconCircleActive
-                                                                                                : null,
-                                                                                        ]}>
-                                                                                        <Icon
-                                                                                            name="check"
-                                                                                            size={16}
-                                                                                            color={isM4OkActive ? '#4CAF50' : '#9AA5B3'}
-                                                                                        />
-                                                                                    </View>
-                                                                                    <Text
-                                                                                        style={[
-                                                                                            styles.answerChoiceText,
-                                                                                            {
-                                                                                                color: isM4OkActive ? '#FFFFFF' : '#49566B',
-                                                                                            },
-                                                                                        ]}>
-                                                                                        {strings.ok}
-                                                                                    </Text>
-                                                                                </TouchableOpacity>
-
-                                                                                <TouchableOpacity
-                                                                                    style={[
-                                                                                        styles.answerChoiceButton,
-                                                                                        styles.answerChoiceButtonBase,
-                                                                                        isM4NotOkActive
-                                                                                            ? styles.answerChoiceButtonNotOkActive
-                                                                                            : styles.answerChoiceButtonInactive,
-                                                                                    ]}
-                                                                                    onPress={() =>
-                                                                                        this.handleM4RadioPress(15, item, index)
-                                                                                    }>
-                                                                                    <View
-                                                                                        style={[
-                                                                                            styles.answerChoiceIconCircle,
-                                                                                            isM4NotOkActive
-                                                                                                ? styles.answerChoiceIconCircleActive
-                                                                                                : null,
-                                                                                        ]}>
-                                                                                        <Icon
-                                                                                            name="x"
-                                                                                            size={16}
-                                                                                            color={isM4NotOkActive ? '#EF4E4E' : '#9AA5B3'}
-                                                                                        />
-                                                                                    </View>
-                                                                                    <Text
-                                                                                        style={[
-                                                                                            styles.answerChoiceText,
-                                                                                            {
-                                                                                                color: isM4NotOkActive ? '#FFFFFF' : '#49566B',
-                                                                                            },
-                                                                                        ]}>
-                                                                                        {strings.Notok}
-                                                                                    </Text>
-                                                                                </TouchableOpacity>
-
-                                                                                <TouchableOpacity
-                                                                                    style={[
-                                                                                        styles.answerChoiceButton,
-                                                                                        styles.answerChoiceButtonBase,
-                                                                                        isM4NaActive
-                                                                                            ? styles.answerChoiceButtonNaActive
-                                                                                            : styles.answerChoiceButtonInactive,
-                                                                                    ]}
-                                                                                    onPress={() =>
-                                                                                        this.handleM4RadioPress(11, item, index)
-                                                                                    }>
-                                                                                    <View
-                                                                                        style={[
-                                                                                            styles.answerChoiceIconCircle,
-                                                                                            isM4NaActive
-                                                                                                ? styles.answerChoiceIconCircleActive
-                                                                                                : null,
-                                                                                        ]}>
-                                                                                        <IconAwesome
-                                                                                            name="circle"
-                                                                                            size={16}
-                                                                                            color={isM4NaActive ? '#5F6F85' : '#9AA5B3'}
-                                                                                        />
-                                                                                    </View>
-                                                                                    <Text
-                                                                                        style={[
-                                                                                            styles.answerChoiceText,
-                                                                                            {
-                                                                                                color: '#49566B',
-                                                                                            },
-                                                                                        ]}>
-                                                                                        {strings.NA}
-                                                                                    </Text>
-                                                                                </TouchableOpacity>
-                                                                            </View>
+                                                                            <RadioForm
+                                                                                radio_props={radio_props4}
+                                                                                initial={
+                                                                                    this.state.checkpointList.length > 0 ||
+                                                                                    this.state.checkPointsDetails.length > 0
+                                                                                        ? parseInt(this.state.checkpointList[index].Status) == 1 ||
+                                                                                          parseInt(this.state.checkPointsDetails[index].RadioValue) ==
+                                                                                              14
+                                                                                            ? 0
+                                                                                            : parseInt(this.state.checkpointList[index].Status) ==
+                                                                                                  0 ||
+                                                                                              parseInt(
+                                                                                                  this.state.checkPointsDetails[index].RadioValue,
+                                                                                              ) == 15
+                                                                                            ? 1
+                                                                                            : parseInt(this.state.checkpointList[index].Status) ==
+                                                                                                  2 ||
+                                                                                              parseInt(
+                                                                                                  this.state.checkPointsDetails[index].RadioValue,
+                                                                                              ) == 11
+                                                                                            ? 2
+                                                                                            : -1
+                                                                                        : -1
+                                                                                }
+                                                                                onPress={value => {
+                                                                                    console.log('Load:Category:Radio Press', value);
+                                                                                    {
+                                                                                        value === 15
+                                                                                            ? this.handleNotOkClick()
+                                                                                            : this.ncofisetting(value);
+                                                                                        //console.log('v+', value);
+                                                                                        console.log(this.state.checkpointList[index].Status, 'v++');
+                                                                                        var checkPointsDetails = this.state.checkPointsDetails;
+                                                                                        var isNCClearRequired = false;
+                                                                                        var ncRemovalTemplateId = 0;
+                                                                                        for (var i = 0; i < checkPointsDetails.length; i++) {
+                                                                                            if (
+                                                                                                checkPointsDetails[i].ChecklistTemplateId ==
+                                                                                                item.ChecklistTemplateId
+                                                                                            ) {
+                                                                                                checkPointsDetails[i].RadioValue = value;
+                                                                                                checkPointsDetails[i].ParamMode = 4;
+                                                                                                checkPointsDetails[i].Modified = true;
+                                                                                                if (value == item.correctAnswer) {
+                                                                                                    checkPointsDetails[i].IsCorrect = 1;
+                                                                                                    //console.log('correct answer');
+                                                                                                    console.log(
+                                                                                                        'checkPointsDetails now',
+                                                                                                        checkPointsDetails[i].IsCorrect,
+                                                                                                    );
+                                                                                                    if (checkPointsDetails[i].IsNCAllowed == 1) {
+                                                                                                        var dataArr =
+                                                                                                            this.props.data.audits.ncofiRecords;
+                                                                                                        var isNCExists = false;
+                                                                                                        for (var k = 0; k < dataArr.length; k++) {
+                                                                                                            if (
+                                                                                                                dataArr[k].AuditID ==
+                                                                                                                this.state.auditId
+                                                                                                            ) {
+                                                                                                                for (
+                                                                                                                    var j = 0;
+                                                                                                                    j < dataArr[k].Pending.length;
+                                                                                                                    j++
+                                                                                                                ) {
+                                                                                                                    if (
+                                                                                                                        dataArr[k].Pending[j]
+                                                                                                                            .ChecklistTemplateId ==
+                                                                                                                            item.ChecklistTemplateId &&
+                                                                                                                        dataArr[k].Pending[j]
+                                                                                                                            .Category == 'NC'
+                                                                                                                    ) {
+                                                                                                                        isNCExists = true;
+                                                                                                                    }
+                                                                                                                }
+                                                                                                            }
+                                                                                                        }
+                                                                                                        if (isNCExists) {
+                                                                                                            isNCClearRequired = true;
+                                                                                                            ncRemovalTemplateId =
+                                                                                                                checkPointsDetails[i]
+                                                                                                                    .ChecklistTemplateId;
+                                                                                                        }
+                                                                                                    }
+                                                                                                    if (
+                                                                                                        item.scoreType == 3 &&
+                                                                                                        checkPointsDetails[i].Score != ''
+                                                                                                    ) {
+                                                                                                        for (
+                                                                                                            var j = 0;
+                                                                                                            j < item.scoreTypesData.length;
+                                                                                                            j++
+                                                                                                        ) {
+                                                                                                            if (
+                                                                                                                item.ChecklistTemplateId ==
+                                                                                                                    item.scoreTypesData[j]
+                                                                                                                        .templateId &&
+                                                                                                                checkPointsDetails[i].Score ==
+                                                                                                                    item.scoreTypesData[j].id
+                                                                                                            ) {
+                                                                                                                if (
+                                                                                                                    item.scoreTypesData[j].status ==
+                                                                                                                    '1'
+                                                                                                                ) {
+                                                                                                                    checkPointsDetails[
+                                                                                                                        i
+                                                                                                                    ].IsNCAllowed = 1;
+                                                                                                                    break;
+                                                                                                                } else if (
+                                                                                                                    item.scoreTypesData[j].status ==
+                                                                                                                        '2' ||
+                                                                                                                    item.scoreTypesData[j].status ==
+                                                                                                                        '3'
+                                                                                                                ) {
+                                                                                                                    checkPointsDetails[
+                                                                                                                        i
+                                                                                                                    ].IsNCAllowed = 0;
+                                                                                                                    break;
+                                                                                                                } else {
+                                                                                                                    checkPointsDetails[
+                                                                                                                        i
+                                                                                                                    ].IsNCAllowed = 0;
+                                                                                                                    break;
+                                                                                                                }
+                                                                                                            }
+                                                                                                        }
+                                                                                                    } else {
+                                                                                                        checkPointsDetails[i].IsNCAllowed = 0; // NC is not allowed & OFI is allowed
+                                                                                                    }
+                                                                                                } else if (value == 11) {
+                                                                                                    checkPointsDetails[i].IsCorrect = 0;
+                                                                                                    if (checkPointsDetails[i].IsNCAllowed == 1) {
+                                                                                                        var dataArr =
+                                                                                                            this.props.data.audits.ncofiRecords;
+                                                                                                        var isNCExists = false;
+                                                                                                        for (var k = 0; k < dataArr.length; k++) {
+                                                                                                            if (
+                                                                                                                dataArr[k].AuditID ==
+                                                                                                                this.state.auditId
+                                                                                                            ) {
+                                                                                                                for (
+                                                                                                                    var j = 0;
+                                                                                                                    j < dataArr[k].Pending.length;
+                                                                                                                    j++
+                                                                                                                ) {
+                                                                                                                    if (
+                                                                                                                        dataArr[k].Pending[j]
+                                                                                                                            .ChecklistTemplateId ==
+                                                                                                                            item.ChecklistTemplateId &&
+                                                                                                                        dataArr[k].Pending[j]
+                                                                                                                            .Category == 'NC'
+                                                                                                                    ) {
+                                                                                                                        isNCExists = true;
+                                                                                                                    }
+                                                                                                                }
+                                                                                                            }
+                                                                                                        }
+                                                                                                        if (isNCExists) {
+                                                                                                            isNCClearRequired = true;
+                                                                                                            ncRemovalTemplateId =
+                                                                                                                checkPointsDetails[i]
+                                                                                                                    .ChecklistTemplateId;
+                                                                                                        }
+                                                                                                    }
+                                                                                                    if (
+                                                                                                        item.scoreType == 3 &&
+                                                                                                        checkPointsDetails[i].Score != ''
+                                                                                                    ) {
+                                                                                                        for (
+                                                                                                            var j = 0;
+                                                                                                            j < item.scoreTypesData.length;
+                                                                                                            j++
+                                                                                                        ) {
+                                                                                                            if (
+                                                                                                                item.ChecklistTemplateId ==
+                                                                                                                    item.scoreTypesData[j]
+                                                                                                                        .templateId &&
+                                                                                                                checkPointsDetails[i].Score ==
+                                                                                                                    item.scoreTypesData[j].id
+                                                                                                            ) {
+                                                                                                                if (
+                                                                                                                    item.scoreTypesData[j].status ==
+                                                                                                                    '1'
+                                                                                                                ) {
+                                                                                                                    checkPointsDetails[
+                                                                                                                        i
+                                                                                                                    ].IsNCAllowed = 1;
+                                                                                                                    break;
+                                                                                                                } else if (
+                                                                                                                    item.scoreTypesData[j].status ==
+                                                                                                                        '2' ||
+                                                                                                                    item.scoreTypesData[j].status ==
+                                                                                                                        '3'
+                                                                                                                ) {
+                                                                                                                    checkPointsDetails[
+                                                                                                                        i
+                                                                                                                    ].IsNCAllowed = 0;
+                                                                                                                    break;
+                                                                                                                } else {
+                                                                                                                    checkPointsDetails[
+                                                                                                                        i
+                                                                                                                    ].IsNCAllowed = 2;
+                                                                                                                    break;
+                                                                                                                }
+                                                                                                            }
+                                                                                                        }
+                                                                                                    } else {
+                                                                                                        checkPointsDetails[i].IsNCAllowed = 2; // Both NC & OFI is not allowed
+                                                                                                    }
+                                                                                                } else {
+                                                                                                    checkPointsDetails[i].IsCorrect = 0;
+                                                                                                    checkPointsDetails[i].IsNCAllowed = 1; // Both NC & OFI is allowed
+                                                                                                }
+                                                                                                if (item.scoreType == 2) {
+                                                                                                    if (value == parseInt(item.correctAnswer)) {
+                                                                                                        checkPointsDetails[i].Score = item.maxScore;
+                                                                                                    } else {
+                                                                                                        checkPointsDetails[i].Score = item.minScore;
+                                                                                                    }
+                                                                                                }
+                                                                                            }
+                                                                                        }
+                                                                                        if (isNCClearRequired) {
+                                                                                            this.setState(
+                                                                                                {
+                                                                                                    ncRemovalTemplateId: ncRemovalTemplateId,
+                                                                                                    checkPointsDetails: checkPointsDetails,
+                                                                                                    isUnsavedData: true,
+                                                                                                    dialogVisibleNCR: true,
+                                                                                                },
+                                                                                                () => {},
+                                                                                            );
+                                                                                        } else {
+                                                                                            this.setState(
+                                                                                                {
+                                                                                                    checkPointsDetails: checkPointsDetails,
+                                                                                                    isUnsavedData: true,
+                                                                                                },
+                                                                                                () => {},
+                                                                                            );
+                                                                                        }
+                                                                                    }
+                                                                                }}
+                                                                                formHorizontal={true}
+                                                                                labelHorizontal={true}
+                                                                                buttonSize={15}
+                                                                                labelStyle={{
+                                                                                    color: 'black',
+                                                                                    paddingRight: 12,
+                                                                                }}
+                                                                            />
                                                                             {this.state.ncofiSetting === 'true' &&
                                                                                 this.state.dropdownnotokvalue === 15 && (
                                                                                     <TouchableOpacity
@@ -6524,37 +6486,6 @@ class CheckPointDemo extends Component {
                                   ) : null}
                                 </View> */}
 
-                                                                    {this.state.isAttachmentLoaded ? (
-                                                                        this.state.checkPointsDetails[index] ? (
-                                                                            this.state.checkPointsDetails[index].AttachmentList.length !== 0 ? (
-                                                                                this.renderAttachment(index)
-                                                                            ) : null
-                                                                        ) : null
-                                                                    ) : (
-                                                                        <></>
-                                                                        // this.render_loader()
-                                                                    )}
-                                                                    <View style={styles.attachmentActionRow}>
-                                                                        <TouchableOpacity
-                                                                            style={styles.attachmentActionButton}
-                                                                            onPress={this.chooseCameraOption.bind(this, item, index)}>
-                                                                            <Icon
-                                                                                name="paperclip"
-                                                                                size={20}
-                                                                                color="#2D7FBE"
-                                                                                style={styles.attachmentActionIcon}
-                                                                            />
-                                                                            <Text style={styles.attachmentActionLabel}>Add Attachment</Text>
-                                                                            {item.AttachforNc == 1 || item.AttachforOfi ? (
-                                                                                <IconAwesome
-                                                                                    name="asterisk"
-                                                                                    size={8}
-                                                                                    color="red"
-                                                                                    style={styles.attachmentActionRequired}
-                                                                                />
-                                                                            ) : null}
-                                                                        </TouchableOpacity>
-                                                                    </View>
                                                                     {this.state.checkPointsDetails[index].Score == -1 ||
                                                                     this.state.checkPointsDetails[index].Score == 2 ||
                                                                     this.state.checkPointsDetails[index].Score == 'N/A' ||
@@ -6638,6 +6569,71 @@ class CheckPointDemo extends Component {
                                                                         </View>
                                                                     ) : null}
 
+                                                                    {this.state.isAttachmentLoaded ? (
+                                                                        this.state.checkPointsDetails[index] ? (
+                                                                            this.state.checkPointsDetails[index].AttachmentList.length !== 0 ? (
+                                                                                this.renderAttachment(index)
+                                                                            ) : null
+                                                                        ) : null
+                                                                    ) : (
+                                                                        <></>
+                                                                        // this.render_loader()
+                                                                    )}
+                                                                    <View style={styles.boxsec1}>
+                                                                        <View>
+                                                                            {this.state.checkPointsDetails[index] ? (
+                                                                                this.state.checkPointsDetails[index].FileName != '' ? (
+                                                                                    <Text
+                                                                                        style={{
+                                                                                            paddingBottom: 10,
+                                                                                            margin: 0,
+                                                                                            color: '#A6A6A6',
+                                                                                            width: '90%',
+                                                                                            fontSize: Fonts.size.medium,
+                                                                                            fontFamily: 'OpenSans-Regular',
+                                                                                        }}>
+                                                                                        {strings.Attachment}
+                                                                                    </Text>
+                                                                                ) : null
+                                                                            ) : null}
+                                                                            <TextInput
+                                                                                style={
+                                                                                    this.state.checkPointsDetails[index]
+                                                                                        ? this.state.checkPointsDetails[index].FileName != ''
+                                                                                            ? styles.checkPointsTextInputLabel
+                                                                                            : styles.checkPointsTextInput
+                                                                                        : styles.checkPointsTextInput
+                                                                                }
+                                                                                placeholderTextColor={item.AttachforNc == 1 ? 'red' : '#A9A9A9'}
+                                                                                textColor="#747474"
+                                                                                editable={false}
+                                                                                // placeholder={strings.Attachment}
+                                                                            />
+                                                                        </View>
+
+                                                                        <View style={styles.attachIcon}>
+                                                                            <TouchableOpacity
+                                                                                onPress={this.chooseCameraOption.bind(this, item, index)}>
+                                                                                <Icon
+                                                                                    name="paperclip"
+                                                                                    size={20}
+                                                                                    color="black"
+                                                                                    style={{ bottom: 2 }}
+                                                                                />
+                                                                                {item.AttachforNc == 1 || item.AttachforOfi ? (
+                                                                                    <Icon
+                                                                                        name="asterisk"
+                                                                                        style={{ bottom: 20, right: 10 }}
+                                                                                        size={8}
+                                                                                        color="red"
+                                                                                    />
+                                                                                ) : (
+                                                                                    <View></View>
+                                                                                )}
+                                                                            </TouchableOpacity>
+                                                                        </View>
+                                                                    </View>
+
                                                                     <View
                                                                         style={
                                                                             this.state.checkPointsDetails[index].RadioValue == 11 ||
@@ -6647,7 +6643,8 @@ class CheckPointDemo extends Component {
                                                                             (item.scoreType == 3 && item.scoreTypesData.length == 0) ||
                                                                             item.scoreType == 0
                                                                                 ? styles.boxsecNone
-                                                                                : [styles.boxsec1, styles.scoreSectionCard]
+                                                                                : //? styles.boxsec1
+                                                                                  styles.boxsec1
                                                                         }>
                                                                         <View style={styles.scoreText}>
                                                                             {this.state.checkPointsDetails[index] ? (
@@ -6865,7 +6862,7 @@ class CheckPointDemo extends Component {
                                                                                                         style={{
                                                                                                             marginHorizontal: 5,
                                                                                                         }}>
-                                                                                                        <IconAwesome
+                                                                                                        <Icon
                                                                                                             name="circle"
                                                                                                             size={12}
                                                                                                             color={
@@ -7064,7 +7061,7 @@ class CheckPointDemo extends Component {
                                                                                                         style={{
                                                                                                             marginHorizontal: 5,
                                                                                                         }}>
-                                                                                                        <IconAwesome
+                                                                                                        <Icon
                                                                                                             name="circle"
                                                                                                             size={12}
                                                                                                             color={
@@ -7512,7 +7509,7 @@ class CheckPointDemo extends Component {
                                                                             </View>
                                                                         </View>
                                                                     ) : (
-                                                                        <></>
+                                                                        <View></View>
                                                                     )}
 
                                                                     {this.state.ischeckLPA ? (
@@ -7717,10 +7714,10 @@ class CheckPointDemo extends Component {
                                                                             </View>
                                                                         </View>
                                                                     ) : (
-                                                                        <></>
+                                                                        <View></View>
                                                                     )}
 
-                                                                    <View style={[styles.boxsecRemark, styles.remarkSectionCard]}>
+                                                                    <View style={styles.boxsecRemark}>
                                                                         <View style={{ width: '100%' }}>
                                                                             {(this.state.TemplateID == '5' || this.state.TemplateID == '11') &&
                                                                             this.state.checkPointsDetails[index].Score !== '10' &&
@@ -7795,23 +7792,31 @@ class CheckPointDemo extends Component {
                                                                                     />
                                                                                 </View>
                                                                             ) : (
-                                                                                <></>
+                                                                                <View></View>
                                                                             )}
-                                                                            <View style={styles.remarkLabelRow}>
-                                                                                <Text style={styles.remarkLabelText}>
-                                                                                    {strings.Remark ? strings.Remark : 'Remark'}
-                                                                                </Text>
-                                                                                {item.RemarkforNc == 1 || item.RemarkforOfi ? (
-                                                                                    <IconAwesome
-                                                                                        name="asterisk"
-                                                                                        style={styles.remarkLabelAsterisk}
-                                                                                        size={8}
-                                                                                        color="red"
-                                                                                    />
-                                                                                ) : null}
-                                                                            </View>
+                                                                            {this.state.checkPointsDetails ? (
+                                                                                this.state.checkPointsDetails[index].Remark != '' ? (
+                                                                                    <Text
+                                                                                        style={{
+                                                                                            padding: 0,
+                                                                                            margin: 0,
+                                                                                            color: '#A6A6A6',
+                                                                                            width: '90%',
+                                                                                            fontSize: Fonts.size.small,
+                                                                                            fontFamily: 'OpenSans-Regular',
+                                                                                        }}>
+                                                                                        {strings.Remark}
+                                                                                    </Text>
+                                                                                ) : null
+                                                                            ) : null}
                                                                             <TextInput
-                                                                                style={styles.remarkTextArea}
+                                                                                style={
+                                                                                    this.state.checkPointsDetails
+                                                                                        ? this.state.checkPointsDetails[index].Remark != ''
+                                                                                            ? styles.checkPointsTextInputLabel
+                                                                                            : styles.checkPointsTextInput
+                                                                                        : styles.checkPointsTextInput
+                                                                                }
                                                                                 placeholderTextColor={
                                                                                     item.RemarkforNc ||
                                                                                     item.RemarkforOfi == 1 ||
@@ -7821,14 +7826,13 @@ class CheckPointDemo extends Component {
                                                                                         : '#A9A9A9'
                                                                                 }
                                                                                 multiline={true}
-                                                                                textAlignVertical="top"
                                                                                 textColor="#747474"
                                                                                 value={
                                                                                     this.state.checkPointsDetails
                                                                                         ? this.state.checkPointsDetails[index].Remark
                                                                                         : ''
                                                                                 }
-                                                                                placeholder={'Type here...'}
+                                                                                placeholder={strings.Remark}
                                                                                 onBlur={this.countStatistics.bind(
                                                                                     this,
                                                                                     this.state.checkPointsDetails,
@@ -7860,154 +7864,73 @@ class CheckPointDemo extends Component {
                                                                                 }}
                                                                             />
                                                                         </View>
+
+                                                                        {item.RemarkforNc == 1 || item.RemarkforOfi ? (
+                                                                            <Icon
+                                                                                name="asterisk"
+                                                                                style={{ right: 10, top: 10 }}
+                                                                                size={8}
+                                                                                color="red"
+                                                                            />
+                                                                        ) : (
+                                                                            <View></View>
+                                                                        )}
                                                                     </View>
 
-                                                                    <View style={styles.remarkButtonGap} />
-
-                                                                    <View style={[styles.bottomBtnView, styles.cardPagerRow]}>
+                                                                    <View style={styles.bottomBtnView}>
                                                                         <TouchableOpacity
                                                                             style={[
                                                                                 styles.backBtn,
-                                                                                styles.cardPagerButton,
-                                                                                index === 0 ? styles.cardPagerButtonDisabled : styles.cardPagerButtonEnabled,
+                                                                                {
+                                                                                    backgroundColor: index === 0 ? 'lightgrey' : '#00BAC8',
+                                                                                },
                                                                             ]}
                                                                             onPress={() => this.onBack(index)}>
                                                                             <Text
-                                                                                style={[
-                                                                                    styles.cardPagerButtonText,
-                                                                                    index === 0
-                                                                                        ? styles.cardPagerButtonTextDisabled
-                                                                                        : styles.cardPagerButtonTextEnabled,
-                                                                                ]}>
+                                                                                style={{
+                                                                                    fontSize: 16,
+                                                                                    color: index === 0 ? 'grey' : 'white',
+                                                                                    fontFamily: 'OpenSans-Regular',
+                                                                                }}>
                                                                                 {strings.previous}
                                                                             </Text>
                                                                         </TouchableOpacity>
                                                                         <TouchableOpacity
                                                                             style={[
                                                                                 styles.nextBtn,
-                                                                                styles.cardPagerButton,
-                                                                                index === this.state.checkpointList.length - 1
-                                                                                    ? styles.cardPagerButtonDisabled
-                                                                                    : styles.cardPagerButtonEnabled,
+                                                                                {
+                                                                                    backgroundColor:
+                                                                                        index === this.state.checkpointList.length - 1
+                                                                                            ? 'lightgrey'
+                                                                                            : '#00BAC8',
+                                                                                },
                                                                             ]}
                                                                             onPress={() => this.onNext(index, item)}>
-                                                                            <View style={styles.cardPagerNextWrap}>
-                                                                                <Text
-                                                                                    style={[
-                                                                                        styles.cardPagerButtonText,
+                                                                            <Text
+                                                                                style={{
+                                                                                    fontSize: 16,
+                                                                                    color:
                                                                                         index === this.state.checkpointList.length - 1
-                                                                                            ? styles.cardPagerButtonTextDisabled
-                                                                                            : styles.cardPagerButtonTextEnabled,
-                                                                                    ]}>
-                                                                                    {strings.next}
-                                                                                </Text>
-                                                                                <Icon
-                                                                                    name="chevron-right"
-                                                                                    size={22}
-                                                                                    color={
-                                                                                        index === this.state.checkpointList.length - 1
-                                                                                            ? '#7F8793'
-                                                                                            : '#FFFFFF'
-                                                                                    }
-                                                                                />
-                                                                            </View>
+                                                                                            ? 'grey'
+                                                                                            : 'white',
+                                                                                    fontFamily: 'OpenSans-Regular',
+                                                                                }}>
+                                                                                {strings.next}
+                                                                            </Text>
                                                                         </TouchableOpacity>
                                                                     </View>
                                                                 </View>
                                                             </View>
-                                                            {/* <View style={{ width: '100%', height: 80 }} /> */}
+                                                            <View style={{ width: '100%', height: 80 }} />
                                                         </ScrollView>
                                                     );
                                                 }}
                                                 sliderWidth={Width}
-                                                itemWidth={STACK_ITEM_WIDTH}
+                                                itemWidth={Width}
                                             />
                                         ) : (
-                                            this.render_loader()
+                                            this.render_loader
                                         )}
-                                    </View>
-                                    <View style={styles.serialStripWrapper}>
-                                        <FlatList
-                                            ref={ref => {
-                                                this._serialListRef = ref;
-                                            }}
-                                            data={this.state.checkpointList}
-                                            keyExtractor={item => String(item.ActualIndex)}
-                                            horizontal
-                                            showsHorizontalScrollIndicator={false}
-                                            extraData={this.state.ActiveId}
-                                            onScrollToIndexFailed={this.handleSerialScrollToIndexFailed}
-                                            contentContainerStyle={styles.serialStripContent}
-                                            renderItem={({ item, index }) => {
-                                                const checkPointDetail = this.state.checkPointsDetails[index] || {};
-                                                const isMandatoryPending =
-                                                    // NC validation
-                                                    (checkPointDetail.Attachment == '' &&
-                                                        checkPointDetail.AttachforNc == 1 &&
-                                                        checkPointDetail.RemarkforNc == 0) ||
-                                                    (checkPointDetail.Remark == '' &&
-                                                        checkPointDetail.RemarkforNc == 1 &&
-                                                        checkPointDetail.AttachforNc == 0) ||
-                                                    (checkPointDetail.Attachment == '' &&
-                                                        checkPointDetail.Remark == '' &&
-                                                        checkPointDetail.AttachforNc == 1 &&
-                                                        checkPointDetail.RemarkforNc == 1) ||
-                                                    // OFI validation
-                                                    (checkPointDetail.Attachment == '' &&
-                                                        checkPointDetail.AttachforOfi == 1 &&
-                                                        checkPointDetail.RemarkforOfi == 0) ||
-                                                    (checkPointDetail.Remark == '' &&
-                                                        checkPointDetail.RemarkforOfi == 1 &&
-                                                        checkPointDetail.AttachforOfi == 0) ||
-                                                    (checkPointDetail.Attachment == '' &&
-                                                        checkPointDetail.Remark == '' &&
-                                                        checkPointDetail.AttachforOfi == 1 &&
-                                                        checkPointDetail.AttachforOfi == 1);
-
-                                                const isMandatoryEnabled =
-                                                    // NC validation
-                                                    (checkPointDetail.AttachforNc == 1 && checkPointDetail.RemarkforNc == 0) ||
-                                                    (checkPointDetail.RemarkforNc == 1 && checkPointDetail.AttachforNc == 0) ||
-                                                    (checkPointDetail.AttachforNc == 1 && checkPointDetail.RemarkforNc == 1) ||
-                                                    // OFI validation
-                                                    (checkPointDetail.AttachforOfi == 1 && checkPointDetail.RemarkforOfi == 0) ||
-                                                    (checkPointDetail.RemarkforOfi == 1 && checkPointDetail.AttachforOfi == 0) ||
-                                                    (checkPointDetail.AttachforOfi == 1 && checkPointDetail.RemarkforOfi == 1);
-
-                                                return (
-                                                    <TouchableOpacity
-                                                        style={[
-                                                            styles.bottomSerialBtn,
-                                                            {
-                                                                backgroundColor: this.state.ActiveId == index ? '#00BAC8' : '#FFFFFF',
-                                                                borderColor: this.state.ActiveId == index ? '#00BAC8' : '#BDBDBD',
-                                                                minWidth: SERIAL_GRID_MIN_WIDTH,
-                                                                height: SERIAL_GRID_HEIGHT,
-                                                            },
-                                                        ]}
-                                                        onPress={() => this.btnDatapress(index, item)}>
-                                                        <Text
-                                                            style={[
-                                                                styles.bottomSerialText,
-                                                                {
-                                                                    color: this.state.ActiveId == index ? 'white' : 'black',
-                                                                },
-                                                            ]}>
-                                                            {item.SerialNo}
-                                                        </Text>
-                                                        {isMandatoryPending ? (
-                                                            <View style={styles.bottomMandatoryIcon}>
-                                                                <ResponsiveImage source={Images.ManIcon1} initHeight={14} initWidth={14} />
-                                                            </View>
-                                                        ) : isMandatoryEnabled ? (
-                                                            <View style={styles.bottomMandatoryIcon}>
-                                                                <ResponsiveImage source={Images.ManIcon3} initHeight={14} initWidth={14} />
-                                                            </View>
-                                                        ) : null}
-                                                    </TouchableOpacity>
-                                                );
-                                            }}
-                                        />
                                     </View>
                                 </View>
                             ) : (
@@ -8128,7 +8051,7 @@ class CheckPointDemo extends Component {
                         onConfirm={this.updateCheckPointsValues.bind(this)}
                         onCancel={() =>
                             this.setState({ dialogVisible: false }, () => {
-                                this.state.go_home ? this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD) : this.props.navigation.goBack();
+                                this.state.go_home ? this.props.navigation.navigate(ROUTES.AUDIT_DASHBOARD_LISTING) : this.props.navigation.goBack();
                             })
                         }
                     />
@@ -8206,7 +8129,7 @@ class CheckPointDemo extends Component {
                                 onPress={() => this.setState({ dialogVisibleAttach: false })}
                                 style={{ backgroundColor: 'transparent', height: 60, width: 80 }}>
                                 <View style={{ backgroundColor: 'transparent', top: 18 }}>
-                                    <Icon style={{ left: 8 }} name="x-circle" size={40} color="white" />
+                                    <Icon style={{ left: 8 }} name="times-circle" size={40} color="white" />
                                 </View>
                             </TouchableOpacity>
                             <Image style={styles.modelImage} source={{ uri: this.state.cAttachData }} />
@@ -8222,7 +8145,7 @@ class CheckPointDemo extends Component {
                                 onPress={() => this.setState({ dialogVisibleVideo: false })}
                                 style={{ backgroundColor: 'transparent', height: 60, width: 80 }}>
                                 <View style={{ backgroundColor: 'transparent', top: 18 }}>
-                                    <Icon style={{ left: 8 }} name="x-circle" size={40} color="white" />
+                                    <Icon style={{ left: 8 }} name="times-circle" size={40} color="white" />
                                 </View>
                             </TouchableOpacity>
                             <View style={{ backgroundColor: 'black', flex: 1 }}>
