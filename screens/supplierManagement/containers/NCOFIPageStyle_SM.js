@@ -135,6 +135,10 @@ export default StyleSheet.create({
         height: 88,
         paddingHorizontal: 10,
     },
+    footerResponsiveWrap: {
+        alignSelf: 'center',
+        width: '100%',
+    },
     footerActionsRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -144,6 +148,11 @@ export default StyleSheet.create({
     footerActionColumn: {
         width: width(29),
         justifyContent: 'center',
+    },
+    footerActionColumnResponsive: {
+        flex: 1,
+        minWidth: 0,
+        paddingHorizontal: 4,
     },
     footerActionButton: {
         height: 66,
@@ -156,6 +165,10 @@ export default StyleSheet.create({
         shadowOffset: { width: 0, height: 3 },
         shadowRadius: 4,
         elevation: 4,
+    },
+    footerActionButtonTablet: {
+        height: 72,
+        borderRadius: 22,
     },
     footerActionButtonText: {
         color: 'white',
@@ -189,8 +202,16 @@ export default StyleSheet.create({
     tabContentTopMargin: {
         marginTop: 55,
     },
+    cardsGridContainer: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'space-between',
+    },
     pendingItemRow: {
         flexDirection: 'row',
+    },
+    cardGridItem: {
+        paddingHorizontal: 2,
     },
     cardTopActionRow: {
         flex: 1,
@@ -471,6 +492,10 @@ export default StyleSheet.create({
         marginBottom: 0,
         alignSelf: 'stretch',
     },
+    auditPageBodyResponsive: {
+        alignSelf: 'center',
+        width: '100%',
+    },
     wrapper: {
         flex: 1,
         flexDirection: 'column',
@@ -491,6 +516,9 @@ export default StyleSheet.create({
         padding: 5,
         borderWidth: 0.5,
         borderColor: 'lightgrey',
+    },
+    cardBoxGrid: {
+        marginHorizontal: 2,
     },
     sectionTop: {
         backgroundColor: 'white',

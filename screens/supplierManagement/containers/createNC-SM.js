@@ -81,6 +81,8 @@ const formatToIconMapping = {
     // Add more mappings as needed
 };
 class CreateNC extends Component {
+    dimensionSubscription = null;
+
     categoryArr = [];
     departArr = [];
     RequestArr = [];
@@ -228,6 +230,8 @@ class CreateNC extends Component {
             commonAlertVisible: false,
             commonAlertTitle: 'Alert',
             commonAlertMessage: 'Please fill the mandatory fields.',
+            screenWidth: Window.width,
+            screenHeight: Window.height,
         };
         Voice.onSpeechStart = this.onSpeechStart;
         Voice.onSpeechRecognized = this.onSpeechRecognized;
@@ -245,6 +249,8 @@ class CreateNC extends Component {
         //   this.LongTask()
         // });
         this.syncSupplierIndex();
+        this.dimensionSubscription = Dimensions.addEventListener('change', this.handleDimensionChange);
+        this.syncWindowDimensions();
         Voice.onSpeechResults = this.onSpeechResults;
 
         console.log('checksthispropsdata***************', this.props?.route?.params);
@@ -747,10 +753,68 @@ class CreateNC extends Component {
     }
 
     componentWillUnmount() {
+        if (this.dimensionSyncTimeout) {
+            clearTimeout(this.dimensionSyncTimeout);
+            this.dimensionSyncTimeout = null;
+        }
+        if (this.dimensionSubscription && this.dimensionSubscription.remove) {
+            this.dimensionSubscription.remove();
+        } else if (Dimensions.removeEventListener) {
+            Dimensions.removeEventListener('change', this.handleDimensionChange);
+        }
         if (Voice.isAvailable) Voice.destroy().then(Voice.removeAllListeners);
         var cameraCapture = [];
         this.props.storeCameraCapture(cameraCapture);
     }
+
+    syncWindowDimensions = () => {
+        const liveWindow = Dimensions.get('window');
+        if (!liveWindow || !liveWindow.width || !liveWindow.height) {
+            return;
+        }
+        this.setState(prevState => {
+            if (prevState.screenWidth === liveWindow.width && prevState.screenHeight === liveWindow.height) {
+                return null;
+            }
+            return {
+                screenWidth: liveWindow.width,
+                screenHeight: liveWindow.height,
+            };
+        });
+    };
+
+    handleDimensionChange = () => {
+        this.syncWindowDimensions();
+        if (this.dimensionSyncTimeout) {
+            clearTimeout(this.dimensionSyncTimeout);
+        }
+        this.dimensionSyncTimeout = setTimeout(() => {
+            this.syncWindowDimensions();
+            this.dimensionSyncTimeout = null;
+        }, 140);
+    };
+
+    getLayoutProfile = () => {
+        const { screenWidth, screenHeight } = this.state;
+        const liveWindow = Dimensions.get('window');
+        const stateWidth = screenWidth || liveWindow.width;
+        const stateHeight = screenHeight || liveWindow.height;
+        const liveWidth = liveWindow.width || stateWidth;
+        const liveHeight = liveWindow.height || stateHeight;
+        const stateIsLandscape = stateWidth > stateHeight;
+        const liveIsLandscape = liveWidth > liveHeight;
+        const shouldUseLiveDimensions = stateIsLandscape !== liveIsLandscape;
+        const width = shouldUseLiveDimensions ? liveWidth : stateWidth;
+        const height = shouldUseLiveDimensions ? liveHeight : stateHeight;
+        const isLandscape = width > height;
+        const isTablet = Math.min(width, height) >= 768;
+        return {
+            isLandscape,
+            isTablet,
+            maxContentWidth: isTablet ? (isLandscape ? 1100 : 860) : undefined,
+            horizontalPadding: isTablet ? (isLandscape ? 28 : 24) : 16,
+        };
+    };
 
     cameraAction(type) {
         this.setState(
@@ -2083,7 +2147,7 @@ class CreateNC extends Component {
                 fileArrayList: [],
             },
             () => {
-            successMessage({ message: '', description: strings.FormVal });
+                successMessage({ message: '', description: strings.FormVal });
             },
         );
     };
@@ -2954,6 +3018,23 @@ class CreateNC extends Component {
     }
 
     render() {
+        const layoutProfile = this.getLayoutProfile();
+        const contentWidthStyle = layoutProfile.maxContentWidth ? { maxWidth: layoutProfile.maxContentWidth } : null;
+        const responsiveAuditBodyStyle = [
+            styles.auditPageBody,
+            styles.auditPageBodyResponsive,
+            contentWidthStyle,
+            { paddingHorizontal: layoutProfile.horizontalPadding },
+        ];
+        const responsiveFooterContainerStyle = [styles.footerDiv, styles.footerDivAdjusted, styles.footerResponsiveWrap];
+        const responsivePrimaryButtonStyle = [styles.footerPrimaryButton, layoutProfile.isTablet ? styles.footerPrimaryButtonTablet : null];
+        const keyboardExtraHeight = layoutProfile.isLandscape ? 90 : 125;
+        const standardRequirementModalStyle = [
+            styles.ModalBox,
+            layoutProfile.isTablet ? styles.ModalBoxTablet : null,
+            layoutProfile.isLandscape ? styles.ModalBoxLandscape : null,
+        ];
+
         const headerTitle =
             this.state.PageLoader === false
                 ? this.state.RouteParam === 'NC'
@@ -3022,11 +3103,13 @@ class CreateNC extends Component {
                 />
                 {this.state.PageLoader === false ? (
                     <KeyboardAwareScrollView
-                        extraHeight={125}
+                        key={`create-nc-kasv-${this.state.screenWidth}-${this.state.screenHeight}`}
+                        style={styles.flexOne}
+                        extraHeight={keyboardExtraHeight}
                         enableOnAndroid
                         keyboardShouldPersistTaps="handled"
                         contentContainerStyle={styles.keyboardAwareContent}>
-                        <View style={styles.auditPageBody}>
+                        <View style={responsiveAuditBodyStyle}>
                             <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
                                 <View style={styles.formBottomSpacer}>
                                     <View style={styles.formSection}>
@@ -3531,16 +3614,16 @@ class CreateNC extends Component {
 
                 <View style={[styles.footer, styles.footerAdjusted]}>
                     {this.state.isSaving === false ? (
-                        <View style={[styles.footerDiv, styles.footerDivAdjusted]}>
+                        <View style={responsiveFooterContainerStyle}>
                             <View style={styles.footerButtonsRow}>
                                 <View style={styles.footerButtonWrapper}>
-                                    <TouchableOpacity onPress={() => this.setState({ dialogVisible: true })} style={styles.footerPrimaryButton}>
+                                    <TouchableOpacity onPress={() => this.setState({ dialogVisible: true })} style={responsivePrimaryButtonStyle}>
                                         <Icon name="rotate-ccw" size={25} color="white" />
                                         <Text style={styles.footerButtonText}>{strings.Reset}</Text>
                                     </TouchableOpacity>
                                 </View>
                                 <View style={styles.footerButtonWrapper}>
-                                    <TouchableOpacity onPress={debounce(this.onSave.bind(this), 600)} style={styles.footerPrimaryButton}>
+                                    <TouchableOpacity onPress={debounce(this.onSave.bind(this), 600)} style={responsivePrimaryButtonStyle}>
                                         <Icon name="save" size={25} color="white" />
                                         <Text style={styles.footerButtonText}>{strings.Save}</Text>
                                     </TouchableOpacity>
@@ -3564,23 +3647,27 @@ class CreateNC extends Component {
                     onCancel={this.hideCommonAlert}
                 />
 
-                <Modal isVisible={this.state.isVisible} onBackdropPress={() => this.setState({ isVisible: false })} style={styles.modalOuterBox}>
-                    <View>
-                        <View style={styles.ModalBox}>
-                            <View style={styles.modalheader}>
-                                <Text style={styles.modalHeaderTitle}>
-                                    {this.state.NCtxtFlag == false
-                                        ? strings.StandardRequirementsL
-                                        : this.state.RouteParam === 'NC'
-                                        ? 'Non conformance'
-                                        : 'Opportunity for improvements'}
-                                </Text>
-                            </View>
-                            <ScrollView style={styles.modalbody}>
-                                <View>
-                                    {this.state.NCtxtFlag === false ? (
-                                        <View style={styles.modalSection}>
-                                            {this.state.modalDisplay.map((item, key) => (
+                <Modal
+                    isVisible={this.state.isVisible}
+                    onBackdropPress={() => this.setState({ isVisible: false })}
+                    style={styles.modalOuterBox}
+                    propagateSwipe>
+                    <View style={standardRequirementModalStyle}>
+                        <View style={styles.modalheader}>
+                            <Text style={styles.modalHeaderTitle}>
+                                {this.state.NCtxtFlag == false
+                                    ? strings.StandardRequirementsL
+                                    : this.state.RouteParam === 'NC'
+                                    ? 'Non conformance'
+                                    : 'Opportunity for improvements'}
+                            </Text>
+                        </View>
+                        <ScrollView style={styles.modalbody} contentContainerStyle={styles.modalbodyContent} showsVerticalScrollIndicator>
+                            <View>
+                                {this.state.NCtxtFlag === false ? (
+                                    <View style={styles.modalSection}>
+                                        {this.state.modalDisplay.length > 0 ? (
+                                            this.state.modalDisplay.map((item, key) => (
                                                 <View key={key}>
                                                     <Text selectable={true} style={styles.modalSectionTitle}>
                                                         {item.name}
@@ -3589,22 +3676,24 @@ class CreateNC extends Component {
                                                         {item.Requirement == null ? 'No content found for this clause' : item.Requirement}
                                                     </Text>
                                                 </View>
-                                            ))}
-                                        </View>
-                                    ) : (
-                                        <View style={styles.modalSection}>
-                                            <Text selectable={true} style={styles.modalContentText}>
-                                                {this.state.RouteParam === 'NC' ? this.state.nonconfirmityText : this.state.ofitext}
-                                            </Text>
-                                        </View>
-                                    )}
-                                </View>
-                            </ScrollView>
-                            <View style={styles.modalfooter}>
-                                <TouchableOpacity onPress={() => this.setState({ NCtxtFlag: false, isVisible: false })}>
-                                    <Text style={styles.closeModalText}>{strings.Close}</Text>
-                                </TouchableOpacity>
+                                            ))
+                                        ) : (
+                                            <Text style={styles.modalEmptyText}>No content found for this clause</Text>
+                                        )}
+                                    </View>
+                                ) : (
+                                    <View style={styles.modalSection}>
+                                        <Text selectable={true} style={styles.modalContentText}>
+                                            {this.state.RouteParam === 'NC' ? this.state.nonconfirmityText : this.state.ofitext}
+                                        </Text>
+                                    </View>
+                                )}
                             </View>
+                        </ScrollView>
+                        <View style={styles.modalfooter}>
+                            <TouchableOpacity onPress={() => this.setState({ NCtxtFlag: false, isVisible: false })}>
+                                <Text style={styles.closeModalText}>{strings.Close}</Text>
+                            </TouchableOpacity>
                         </View>
                     </View>
                 </Modal>

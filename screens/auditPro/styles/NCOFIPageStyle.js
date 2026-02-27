@@ -75,7 +75,7 @@ export default StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         width: '100%',
-        // backgroundColor: 'red',
+        backgroundColor: '#FFFFFF',
         paddingVertical: 8,
         paddingHorizontal: 10,
     },
@@ -83,6 +83,10 @@ export default StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'center',
         alignContent: 'center',
+        width: '100%',
+    },
+    footerResponsiveWrap: {
+        alignSelf: 'center',
         width: '100%',
     },
     footerLoader: {
@@ -142,10 +146,15 @@ export default StyleSheet.create({
         marginBottom: 0,
         alignSelf: 'stretch',
     },
+    auditPageBodyResponsive: {
+        alignSelf: 'center',
+        width: '100%',
+    },
     wrapper: {
         flex: 1,
         flexDirection: 'column',
         justifyContent: 'flex-start',
+        backgroundColor: '#FFFFFF',
     },
 
     // Card view styles

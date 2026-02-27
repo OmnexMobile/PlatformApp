@@ -64,6 +64,8 @@ const getFileFormat = fileName => {
     return splitFileName[splitFileName.length - 1];
 };
 class NCOFIPage extends Component {
+    dimensionSubscription = null;
+
     // isAttachmentPresent = false;
     attatchedFindings = [];
     formRequestObj = [];
@@ -144,12 +146,16 @@ class NCOFIPage extends Component {
             syncMode: 0,
             currentUserData: [],
             CorrectiveId: null,
+            screenWidth: Window.width,
+            screenHeight: Window.height,
         };
     }
 
     componentDidMount() {
         console.log('navigationprops', this.props?.route?.params);
         console.log('ncrecordsconsole', this.props.data.audits.ncofiRecords);
+        this.dimensionSubscription = Dimensions.addEventListener('change', this.handleDimensionChange);
+        this.syncWindowDimensions();
         DeviceInfo.getUniqueId().then(deviceId => {
             this.setState({
                 deviceId,
@@ -237,6 +243,70 @@ class NCOFIPage extends Component {
             console.log('NCOFIPage pass');
         }
     }
+
+    componentWillUnmount() {
+        if (this.dimensionSyncTimeout) {
+            clearTimeout(this.dimensionSyncTimeout);
+            this.dimensionSyncTimeout = null;
+        }
+        if (this.dimensionSubscription && this.dimensionSubscription.remove) {
+            this.dimensionSubscription.remove();
+        } else if (Dimensions.removeEventListener) {
+            Dimensions.removeEventListener('change', this.handleDimensionChange);
+        }
+    }
+
+    syncWindowDimensions = () => {
+        const liveWindow = Dimensions.get('window');
+        if (!liveWindow || !liveWindow.width || !liveWindow.height) {
+            return;
+        }
+        this.setState(prevState => {
+            if (prevState.screenWidth === liveWindow.width && prevState.screenHeight === liveWindow.height) {
+                return null;
+            }
+            return {
+                screenWidth: liveWindow.width,
+                screenHeight: liveWindow.height,
+            };
+        });
+    };
+
+    handleDimensionChange = () => {
+        this.syncWindowDimensions();
+        if (this.dimensionSyncTimeout) {
+            clearTimeout(this.dimensionSyncTimeout);
+        }
+        this.dimensionSyncTimeout = setTimeout(() => {
+            this.syncWindowDimensions();
+            this.dimensionSyncTimeout = null;
+        }, 140);
+    };
+
+    getLayoutProfile = () => {
+        const { screenWidth, screenHeight } = this.state;
+        const liveWindow = Dimensions.get('window');
+        const stateWidth = screenWidth || Window.width;
+        const stateHeight = screenHeight || Window.height;
+        const liveWidth = liveWindow.width || stateWidth;
+        const liveHeight = liveWindow.height || stateHeight;
+        const stateIsLandscape = stateWidth > stateHeight;
+        const liveIsLandscape = liveWidth > liveHeight;
+        const shouldUseLiveDimensions = stateIsLandscape !== liveIsLandscape;
+        const width = shouldUseLiveDimensions ? liveWidth : stateWidth;
+        const height = shouldUseLiveDimensions ? liveHeight : stateHeight;
+        const isLandscape = width > height;
+        const isTablet = Math.min(width, height) >= 768;
+        return {
+            width,
+            height,
+            isLandscape,
+            isTablet,
+            showGridCards: isLandscape || isTablet,
+            maxContentWidth: isTablet ? (isLandscape ? 1180 : 920) : undefined,
+            horizontalPadding: isTablet ? 12 : 5,
+        };
+    };
 
     getDetails = () => {
         setTimeout(() => {
@@ -2311,9 +2381,25 @@ class NCOFIPage extends Component {
 
     render() {
         console.log('offf', this.props.data.audits.isOfflineMode);
-        const { height } = Dimensions.get('window');
+        const layoutProfile = this.getLayoutProfile();
+        const { height, showGridCards } = layoutProfile;
         const middle = height / 2 - 200;
         const attachmentHeight = middle + 100;
+        const gridCardWidth = showGridCards ? '49%' : '100%';
+        const contentWidthStyle = layoutProfile.maxContentWidth ? { maxWidth: layoutProfile.maxContentWidth } : null;
+        const bodyResponsiveStyle = [
+            styles.auditPageBody,
+            styles.auditPageBodyTopPadding,
+            styles.auditPageBodyResponsive,
+            contentWidthStyle,
+            { paddingHorizontal: layoutProfile.horizontalPadding },
+        ];
+        const cardsGridStyle = [styles.tabContentTopMargin, showGridCards ? styles.cardsGridContainer : null];
+        const cardWrapperStyle = [styles.pendingItemRow, showGridCards ? styles.cardGridItem : null, { width: gridCardWidth }];
+        const cardBoxResponsiveStyle = [styles.cardBox, showGridCards ? styles.cardBoxGrid : null];
+        const footerContainerStyle = [styles.footerDiv, styles.footerDivContainer, styles.footerResponsiveWrap, contentWidthStyle];
+        const footerActionColumnStyle = [styles.footerActionColumn, styles.footerActionColumnResponsive];
+        const footerActionButtonStyle = [styles.footerActionButton, layoutProfile.isTablet ? styles.footerActionButtonTablet : null];
         console.log(
             // this.getFileIcon(this.props.navigation.params),
             'fileextension-------',
@@ -2349,7 +2435,7 @@ class NCOFIPage extends Component {
                         this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD);
                     }}
                 />
-                <View style={[styles.auditPageBody, styles.auditPageBodyTopPadding]}>
+                <View style={bodyResponsiveStyle}>
                     {this.state.isLoaderVisible === false ? (
                         <ScrollableTabView
                             renderTabBar={() => (
@@ -2364,10 +2450,10 @@ class NCOFIPage extends Component {
                             tabBarPosition="overlayTop">
                             <ScrollView tabLabel={strings.Pending} style={styles.scrollViewBody}>
                                 {this.state.NCdisplay.length > 0 ? (
-                                    <View style={styles.tabContentTopMargin}>
+                                    <View style={cardsGridStyle}>
                                         {this.state.NCdisplay.map((item, key) => (
-                                            <View style={styles.pendingItemRow}>
-                                                <TouchableOpacity onPress={this.openEditBox.bind(this, item)} key={key} style={styles.cardBox}>
+                                            <View key={item.uniqueNCkey || key} style={cardWrapperStyle}>
+                                                <TouchableOpacity onPress={this.openEditBox.bind(this, item)} style={cardBoxResponsiveStyle}>
                                                     <View style={styles.sectionTop}>
                                                         <View style={styles.cardTopActionRow}>
                                                             <TouchableOpacity
@@ -2424,35 +2510,37 @@ class NCOFIPage extends Component {
 
                             <ScrollView tabLabel={strings.Uploaded} style={styles.scrollViewBody}>
                                 {this.state.NCUpload.length > 0 ? (
-                                    <View style={styles.tabContentTopMargin}>
+                                    <View style={cardsGridStyle}>
                                         {this.state.NCUpload.map((item, key) => (
-                                            <TouchableOpacity onPress={this.getSectionListItem.bind(this, item)} key={key} style={styles.cardBox}>
-                                                <View style={styles.sectionTop}>
-                                                    <View style={styles.sectionContent}>
-                                                        <Text numberOfLines={1} style={styles.boxHeader}>
-                                                            Findings {strings.Number}
-                                                        </Text>
+                                            <View key={item.uniqueNCkey || item.title || key} style={cardWrapperStyle}>
+                                                <TouchableOpacity onPress={this.getSectionListItem.bind(this, item)} style={cardBoxResponsiveStyle}>
+                                                    <View style={styles.sectionTop}>
+                                                        <View style={styles.sectionContent}>
+                                                            <Text numberOfLines={1} style={styles.boxHeader}>
+                                                                Findings {strings.Number}
+                                                            </Text>
+                                                        </View>
+                                                        <View style={styles.sectionContent}>
+                                                            <Text numberOfLines={1} style={styles.boxContent}>
+                                                                {item.title}
+                                                            </Text>
+                                                        </View>
                                                     </View>
-                                                    <View style={styles.sectionContent}>
-                                                        <Text numberOfLines={1} style={styles.boxContent}>
-                                                            {item.title}
-                                                        </Text>
+                                                    <View style={styles.sectionBottom}>
+                                                        <View style={styles.sectionContent}>
+                                                            <Text numberOfLines={1} style={styles.boxHeader}>
+                                                                {/* {strings.Non_confirmityL} */}
+                                                                {item.CheckNC === 0 ? 'Non conformity' : 'OFI'}
+                                                            </Text>
+                                                        </View>
+                                                        <View style={styles.sectionContent}>
+                                                            <Text numberOfLines={1} style={styles.boxContent}>
+                                                                {item.data[0]}
+                                                            </Text>
+                                                        </View>
                                                     </View>
-                                                </View>
-                                                <View style={styles.sectionBottom}>
-                                                    <View style={styles.sectionContent}>
-                                                        <Text numberOfLines={1} style={styles.boxHeader}>
-                                                            {/* {strings.Non_confirmityL} */}
-                                                            {item.CheckNC === 0 ? 'Non conformity' : 'OFI'}
-                                                        </Text>
-                                                    </View>
-                                                    <View style={styles.sectionContent}>
-                                                        <Text numberOfLines={1} style={styles.boxContent}>
-                                                            {item.data[0]}
-                                                        </Text>
-                                                    </View>
-                                                </View>
-                                            </TouchableOpacity>
+                                                </TouchableOpacity>
+                                            </View>
                                         ))}
                                     </View>
                                 ) : (
@@ -2488,11 +2576,11 @@ class NCOFIPage extends Component {
                 </View>
 
                 <View style={[styles.footer, styles.footerContainer]}>
-                    <View style={[styles.footerDiv, styles.footerDivContainer]}>
+                    <View style={footerContainerStyle}>
                         <View style={styles.footerActionsRow}>
-                            <View style={styles.footerActionColumn}>
+                            <View style={footerActionColumnStyle}>
                                 {this.state.syncMode === 0 && (
-                                    <TouchableOpacity onPress={once(this.onNavigaTo.bind(this, 1))} style={styles.footerActionButton}>
+                                    <TouchableOpacity onPress={once(this.onNavigaTo.bind(this, 1))} style={footerActionButtonStyle}>
                                         <Icon name="upload-cloud" size={25} color="white" />
                                         <Text style={styles.footerActionButtonText}>{strings.Create_NC}</Text>
                                     </TouchableOpacity>
@@ -2500,7 +2588,7 @@ class NCOFIPage extends Component {
                             </View>
 
                             {this.state.syncMode === 0 ? (
-                                <View style={styles.footerActionColumn}>
+                                <View style={footerActionColumnStyle}>
                                     <TouchableOpacity
                                         onPress={() => {
                                             this.setState(
@@ -2512,30 +2600,30 @@ class NCOFIPage extends Component {
                                                 },
                                             );
                                         }}
-                                        style={styles.footerActionButton}>
+                                        style={footerActionButtonStyle}>
                                         <Icon name="refresh-ccw" size={25} color="white" />
                                         <Text style={styles.footerActionButtonText}>{strings.Upload_to_server}</Text>
                                     </TouchableOpacity>
                                 </View>
                             ) : this.state.syncMode === 2 || this.state.syncMode === 4 ? (
-                                <View style={styles.footerActionColumn}>
-                                    <TouchableOpacity onPress={this.CheckSync.bind(this)} style={styles.footerActionButton}>
+                                <View style={footerActionColumnStyle}>
+                                    <TouchableOpacity onPress={this.CheckSync.bind(this)} style={footerActionButtonStyle}>
                                         <Icon name="check-square" size={30} color="white" />
                                         <Text style={styles.footerActionButtonText}>{'Proceed'}</Text>
                                     </TouchableOpacity>
                                 </View>
                             ) : (
-                                <View style={styles.footerActionColumn}>
-                                    <View style={styles.footerActionButton}>
+                                <View style={footerActionColumnStyle}>
+                                    <View style={footerActionButtonStyle}>
                                         <ActivityIndicator size={20} color="white" />
                                         <Text style={styles.footerActionButtonText}>{strings.Upload_to_server}</Text>
                                     </View>
                                 </View>
                             )}
 
-                            <View style={styles.footerActionColumn}>
+                            <View style={footerActionColumnStyle}>
                                 {this.state.syncMode === 0 && (
-                                    <TouchableOpacity onPress={once(this.onNavigaTo.bind(this, 2))} style={styles.footerActionButton}>
+                                    <TouchableOpacity onPress={once(this.onNavigaTo.bind(this, 2))} style={footerActionButtonStyle}>
                                         <Icon name="upload-cloud" size={25} color="white" />
                                         <Text style={styles.footerActionButtonText}>{strings.Create_OFI}</Text>
                                     </TouchableOpacity>

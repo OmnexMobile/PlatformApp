@@ -655,7 +655,7 @@ export default StyleSheet.create({
   loaderContainer: {
     backgroundColor: 'white',
     width: '100%',
-    height: 100,
+    minHeight: 100,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -1262,11 +1262,36 @@ export default StyleSheet.create({
   },
   questionMetaRow: {
     width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: 18,
     paddingTop: 16,
     paddingBottom: 10,
   },
+  questionMetaNavButton: {
+    width: 110,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  questionMetaNavButtonRight: {
+    justifyContent: 'flex-end',
+  },
+  questionMetaNavButtonDisabled: {
+    opacity: 0.45,
+  },
+  questionMetaNavText: {
+    fontSize: 16,
+    color: '#0AA7D4',
+    fontFamily: 'OpenSans-Regular',
+    marginHorizontal: 6,
+  },
+  questionMetaNavTextDisabled: {
+    color: '#9AA6B5',
+  },
   questionMetaText: {
+    flex: 1,
+    textAlign: 'center',
     fontSize: 18,
     color: '#7A8494',
     fontFamily: 'OpenSans-Regular',
@@ -1425,13 +1450,6 @@ export default StyleSheet.create({
     marginBottom: 4,
     paddingTop: 0,
     borderTopWidth: 0,
-  },
-  remarkButtonGap: {
-    width: '100%',
-    height: 16,
-    borderTopWidth: 1,
-    borderTopColor: '#E3E8F0',
-    marginTop: 10,
   },
   cardPagerButton: {
     minHeight: 56,

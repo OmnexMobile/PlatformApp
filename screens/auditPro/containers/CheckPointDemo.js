@@ -52,10 +52,7 @@ import { ROUTES } from 'constants/app-constant';
 import RichText from '../components/RichText';
 import GlobalHeader from 'components/GlobalHeader';
 import AttachmentSelectionModal from 'components/attachment-selection-modal';
-const Width = Dimensions.get('window').width;
-const Height = Dimensions.get('window').height;
-const STACK_ITEM_WIDTH = Math.round(Width * 0.9);
-const STACK_CARD_MIN_HEIGHT = Math.round(Height * 0.62);
+const INITIAL_WINDOW = Dimensions.get('window');
 const SERIAL_GRID_MIN_WIDTH = 96;
 const SERIAL_GRID_HEIGHT = 62;
 const ATTACHMENT_VISIBLE_ROWS = 4;
@@ -181,7 +178,8 @@ class CheckPointDemo extends Component {
             failureloaded: false,
             radiovalueloaded: false,
             ReportId: '',
-            screenWidth: Dimensions.get('window').width,
+            screenWidth: INITIAL_WINDOW.width,
+            screenHeight: INITIAL_WINDOW.height,
             isPickingAttachment: false,
             activeSlide: 0,
             categoryModalVisible: false,
@@ -296,7 +294,8 @@ class CheckPointDemo extends Component {
 
     // Loads initial data and wiring once the screen mounts
     componentDidMount() {
-        Dimensions.addEventListener('change', this.handleOrientationChange);
+        this.dimensionSubscription = Dimensions.addEventListener('change', this.handleOrientationChange);
+        this.syncWindowDimensions();
         let Files = '/' + RNFetchBlob.fs.dirs.DocumentDir + '/' + (Platform.OS == 'ios' ? 'IosFiles' : 'AuditFiles');
         //console.log('Attachment:Ios-Android-Path', Files);
 
@@ -2432,7 +2431,15 @@ class CheckPointDemo extends Component {
     };
     // Removes listeners and restores baseline data if needed
     componentWillUnmount() {
-        //  Dimensions.removeEventListener('change', this.handleOrientationChange);
+        if (this.orientationSyncTimeout) {
+            clearTimeout(this.orientationSyncTimeout);
+            this.orientationSyncTimeout = null;
+        }
+        if (this.dimensionSubscription && typeof this.dimensionSubscription.remove === 'function') {
+            this.dimensionSubscription.remove();
+        } else if (typeof Dimensions.removeEventListener === 'function') {
+            Dimensions.removeEventListener('change', this.handleOrientationChange);
+        }
         if (this.state.isUnsavedData) {
             this.restoreBaselineNCOFI().catch(error => console.log('CheckPointDemo unmount restore error', error));
         }
@@ -5902,9 +5909,9 @@ class CheckPointDemo extends Component {
     };
 
     // Renders loading indicator overlay
-    render_loader() {
+    render_loader(minHeight = 180) {
         return (
-            <View style={styles.loaderContainer}>
+            <View style={[styles.loaderContainer, { minHeight }]}>
                 <ActivityIndicator size="large" color="#1CAFF6" />
             </View>
         );
@@ -6213,9 +6220,42 @@ class CheckPointDemo extends Component {
     //        return true;
     //    }
     // }
+    syncWindowDimensions = () => {
+        const liveWindow = Dimensions.get('window');
+        if (!liveWindow || !liveWindow.width || !liveWindow.height) {
+            return;
+        }
+        this.setState(
+            prevState => {
+                if (prevState.screenWidth === liveWindow.width && prevState.screenHeight === liveWindow.height) {
+                    return null;
+                }
+                return {
+                    screenWidth: liveWindow.width,
+                    screenHeight: liveWindow.height,
+                };
+            },
+            () => {
+                if (this._carousel && typeof this._carousel.triggerRenderingHack === 'function') {
+                    this._carousel.triggerRenderingHack();
+                }
+                if (this._carousel && typeof this.state.ActiveId === 'number') {
+                    this._carousel.snapToItem(this.state.ActiveId, false);
+                }
+            },
+        );
+    };
+
     // Adjusts layout when device orientation changes
-    handleOrientationChange = ({ window }) => {
-        this.setState({ screenWidth: window.width });
+    handleOrientationChange = () => {
+        this.syncWindowDimensions();
+        if (this.orientationSyncTimeout) {
+            clearTimeout(this.orientationSyncTimeout);
+        }
+        this.orientationSyncTimeout = setTimeout(() => {
+            this.syncWindowDimensions();
+            this.orientationSyncTimeout = null;
+        }, 140);
     };
     saveRadioSelection = async (auditId, checklistId, formId, checkPointId, selectedValue) => {
         const key = `radio_${auditId}_${checklistId}_${formId}_${checkPointId}`;
@@ -6292,6 +6332,38 @@ class CheckPointDemo extends Component {
             this.state.isLoaded === true &&
             this.state.checkpointList.length > 0 &&
             this.state.checkPointsDetails.length >= this.state.checkpointList.length;
+        const stateScreenWidth = this.state.screenWidth || INITIAL_WINDOW.width;
+        const stateScreenHeight = this.state.screenHeight || INITIAL_WINDOW.height;
+        const liveWindow = Dimensions.get('window');
+        const liveScreenWidth = liveWindow?.width || stateScreenWidth;
+        const liveScreenHeight = liveWindow?.height || stateScreenHeight;
+        const stateIsLandscape = stateScreenWidth > stateScreenHeight;
+        const liveIsLandscape = liveScreenWidth > liveScreenHeight;
+        const shouldUseLiveDimensions = stateIsLandscape !== liveIsLandscape;
+        const screenWidth = shouldUseLiveDimensions ? liveScreenWidth : stateScreenWidth;
+        const screenHeight = shouldUseLiveDimensions ? liveScreenHeight : stateScreenHeight;
+        const isLandscape = screenWidth > screenHeight;
+        const shortestSide = Math.min(screenWidth, screenHeight);
+        const isTablet = shortestSide >= 600;
+        const useStackLayout = !isLandscape;
+        const carouselLayout = useStackLayout ? 'stack' : 'default';
+        const carouselItemWidth = Math.round(
+            screenWidth * (isTablet ? (isLandscape ? 0.92 : 0.84) : isLandscape ? 0.94 : 0.9),
+        );
+        const stackCardMinHeight = Math.round(
+            screenHeight * (isTablet ? (isLandscape ? 0.68 : 0.64) : isLandscape ? 0.58 : 0.62),
+        );
+        const stackCardOffset = useStackLayout ? (isTablet ? 24 : 18) : 0;
+        const carouselInactiveScale = useStackLayout ? 0.93 : 1;
+        const carouselInactiveOpacity = useStackLayout ? 0.92 : 1;
+        const questionMetaNavButtonWidth = isTablet ? (isLandscape ? 190 : 170) : isLandscape ? 104 : 110;
+        const questionMetaArrowSize = isTablet ? 42 : isLandscape ? 28 : 32;
+        const questionMetaTextSize = isTablet ? (isLandscape ? 24 : 26) : isLandscape ? 17 : 18;
+        const questionMetaNavTextSize = isTablet ? 20 : isLandscape ? 14 : 16;
+        const serialGridMinWidth = isTablet ? (isLandscape ? 150 : 140) : SERIAL_GRID_MIN_WIDTH;
+        const serialGridHeight = isTablet ? 76 : SERIAL_GRID_HEIGHT;
+        const serialGridTextSize = isTablet ? 20 : 16;
+        const serialMandatoryIconSize = isTablet ? 18 : 14;
         //console.log('CheckPointDemo~checkpointList:>', this.state.checkpointList);
 
         // if (this.state.failureloaded === false){
@@ -6350,22 +6422,23 @@ class CheckPointDemo extends Component {
                                 <View style={styles.carouselBottomWrapper}>
                                     {isCarouselReady ? (
                                         <Carousel
-                                            layout={'stack'}
-                                            layoutCardOffset={18}
+                                            key={`checkpoint-carousel-${screenWidth}-${screenHeight}-${carouselLayout}`}
+                                            layout={carouselLayout}
+                                            layoutCardOffset={stackCardOffset}
                                             scrollEnabled={true}
                                             enableSnap={true}
                                             lockScrollWhileSnapping={true}
                                             enableMomentum={false}
                                             useScrollView={true}
-                                            inactiveSlideScale={0.93}
-                                            inactiveSlideOpacity={0.92}
+                                            inactiveSlideScale={carouselInactiveScale}
+                                            inactiveSlideOpacity={carouselInactiveOpacity}
                                             inactiveSlideShift={0}
                                             activeSlideAlignment={'center'}
                                             swipeThreshold={16}
                                             decelerationRate={'fast'}
-                                            slideStyle={styles.carouselStackSlide}
-                                            containerCustomStyle={styles.carouselStackContainer}
-                                            contentContainerCustomStyle={styles.carouselStackContent}
+                                            slideStyle={useStackLayout ? styles.carouselStackSlide : undefined}
+                                            containerCustomStyle={useStackLayout ? styles.carouselStackContainer : undefined}
+                                            contentContainerCustomStyle={useStackLayout ? styles.carouselStackContent : undefined}
                                             data={this.state.checkpointList}
                                             extraData={this.state}
                                             ref={c => {
@@ -6406,12 +6479,67 @@ class CheckPointDemo extends Component {
                                                                 styles.cart,
                                                                 styles.cartBottomLayout,
                                                                 styles.carouselStackCard,
-                                                                { minHeight: STACK_CARD_MIN_HEIGHT },
+                                                                { minHeight: stackCardMinHeight },
                                                             ]}>
                                                             <View style={styles.questionMetaRow}>
-                                                                <Text style={styles.questionMetaText}>
+                                                                <TouchableOpacity
+                                                                    style={[
+                                                                        styles.questionMetaNavButton,
+                                                                        { width: questionMetaNavButtonWidth },
+                                                                        index === 0 ? styles.questionMetaNavButtonDisabled : null,
+                                                                    ]}
+                                                                    disabled={index === 0}
+                                                                    onPress={() => this.onBack(index)}>
+                                                                    <Icon
+                                                                        name="arrow-left"
+                                                                        size={questionMetaArrowSize}
+                                                                        color={index === 0 ? '#9AA6B5' : '#0AA7D4'}
+                                                                    />
+                                                                    <Text
+                                                                        style={[
+                                                                            styles.questionMetaNavText,
+                                                                            { fontSize: questionMetaNavTextSize },
+                                                                            index === 0 ? styles.questionMetaNavTextDisabled : null,
+                                                                        ]}>
+                                                                        Previous
+                                                                    </Text>
+                                                                </TouchableOpacity>
+
+                                                                <Text style={[styles.questionMetaText, { fontSize: questionMetaTextSize }]}>
                                                                     {`Question ${index + 1} of ${this.state.checkpointList.length}`}
                                                                 </Text>
+
+                                                                <TouchableOpacity
+                                                                    style={[
+                                                                        styles.questionMetaNavButton,
+                                                                        styles.questionMetaNavButtonRight,
+                                                                        { width: questionMetaNavButtonWidth },
+                                                                        index === this.state.checkpointList.length - 1
+                                                                            ? styles.questionMetaNavButtonDisabled
+                                                                            : null,
+                                                                    ]}
+                                                                    disabled={index === this.state.checkpointList.length - 1}
+                                                                    onPress={() => this.onNext(index, item)}>
+                                                                    <Text
+                                                                        style={[
+                                                                            styles.questionMetaNavText,
+                                                                            { fontSize: questionMetaNavTextSize },
+                                                                            index === this.state.checkpointList.length - 1
+                                                                                ? styles.questionMetaNavTextDisabled
+                                                                                : null,
+                                                                        ]}>
+                                                                        Next
+                                                                    </Text>
+                                                                    <Icon
+                                                                        name="arrow-right"
+                                                                        size={questionMetaArrowSize}
+                                                                        color={
+                                                                            index === this.state.checkpointList.length - 1
+                                                                                ? '#9AA6B5'
+                                                                                : '#0AA7D4'
+                                                                        }
+                                                                    />
+                                                                </TouchableOpacity>
                                                             </View>
                                                             <View style={styles.questionMetaDivider} />
 
@@ -8525,70 +8653,19 @@ class CheckPointDemo extends Component {
                                                                     </View>
                                                                 </View>
 
-                                                                <View style={styles.remarkButtonGap} />
-
-                                                                <View style={[styles.bottomBtnView, styles.cardPagerRow]}>
-                                                                    <TouchableOpacity
-                                                                        style={[
-                                                                            styles.backBtn,
-                                                                            styles.cardPagerButton,
-                                                                            index === 0 ? styles.cardPagerButtonDisabled : styles.cardPagerButtonEnabled,
-                                                                        ]}
-                                                                        onPress={() => this.onBack(index)}>
-                                                                        <Text
-                                                                            style={[
-                                                                                styles.cardPagerButtonText,
-                                                                                index === 0
-                                                                                    ? styles.cardPagerButtonTextDisabled
-                                                                                    : styles.cardPagerButtonTextEnabled,
-                                                                            ]}>
-                                                                            {strings.previous}
-                                                                        </Text>
-                                                                    </TouchableOpacity>
-                                                                    <TouchableOpacity
-                                                                        style={[
-                                                                            styles.nextBtn,
-                                                                            styles.cardPagerButton,
-                                                                            index === this.state.checkpointList.length - 1
-                                                                                ? styles.cardPagerButtonDisabled
-                                                                                : styles.cardPagerButtonEnabled,
-                                                                        ]}
-                                                                        onPress={() => this.onNext(index, item)}>
-                                                                        <View style={styles.cardPagerNextWrap}>
-                                                                            <Text
-                                                                                style={[
-                                                                                    styles.cardPagerButtonText,
-                                                                                    index === this.state.checkpointList.length - 1
-                                                                                        ? styles.cardPagerButtonTextDisabled
-                                                                                        : styles.cardPagerButtonTextEnabled,
-                                                                                ]}>
-                                                                                {strings.next}
-                                                                            </Text>
-                                                                            <Icon
-                                                                                name="chevron-right"
-                                                                                size={22}
-                                                                                color={
-                                                                                    index === this.state.checkpointList.length - 1
-                                                                                        ? '#7F8793'
-                                                                                        : '#FFFFFF'
-                                                                                }
-                                                                            />
-                                                                        </View>
-                                                                    </TouchableOpacity>
-                                                                </View>
                                                             </View>
                                                         </View>
                                                         <View style={styles.bottomSpacer} />
                                                     </ScrollView>
                                                 );
                                             }}
-                                            sliderWidth={this.state.screenWidth}
-                                            itemWidth={STACK_ITEM_WIDTH}
+                                            sliderWidth={screenWidth}
+                                            itemWidth={carouselItemWidth}
                                             initialNumToRender={100}
                                             removeClippedSubviews={false} // Prevent unloading of items
                                         />
                                     ) : (
-                                        this.render_loader()
+                                        this.render_loader(stackCardMinHeight)
                                     )}
                                 </View>
                                 <View style={styles.serialStripWrapper}>
@@ -8624,8 +8701,8 @@ class CheckPointDemo extends Component {
                                                         {
                                                             backgroundColor: this.state.ActiveId == index ? '#00BAC8' : '#FFFFFF',
                                                             borderColor: this.state.ActiveId == index ? '#00BAC8' : '#BDBDBD',
-                                                            minWidth: SERIAL_GRID_MIN_WIDTH,
-                                                            height: SERIAL_GRID_HEIGHT,
+                                                            minWidth: serialGridMinWidth,
+                                                            height: serialGridHeight,
                                                         },
                                                     ]}
                                                     onPress={() => this.btnDatapress(index, item)}>
@@ -8634,17 +8711,26 @@ class CheckPointDemo extends Component {
                                                             styles.bottomSerialText,
                                                             {
                                                                 color: this.state.ActiveId == index ? 'white' : 'black',
+                                                                fontSize: serialGridTextSize,
                                                             },
                                                         ]}>
                                                         {item.SerialNo}
                                                     </Text>
                                                     {hasOutstandingRequirement ? (
                                                         <View style={styles.bottomMandatoryIcon}>
-                                                            <ResponsiveImage source={Images.ManIcon1} initHeight={14} initWidth={14} />
+                                                            <ResponsiveImage
+                                                                source={Images.ManIcon1}
+                                                                initHeight={serialMandatoryIconSize}
+                                                                initWidth={serialMandatoryIconSize}
+                                                            />
                                                         </View>
                                                     ) : hasRequirement ? (
                                                         <View style={styles.bottomMandatoryIcon}>
-                                                            <ResponsiveImage source={Images.ManIcon3} initHeight={14} initWidth={14} />
+                                                            <ResponsiveImage
+                                                                source={Images.ManIcon3}
+                                                                initHeight={serialMandatoryIconSize}
+                                                                initWidth={serialMandatoryIconSize}
+                                                            />
                                                         </View>
                                                     ) : null}
                                                 </TouchableOpacity>

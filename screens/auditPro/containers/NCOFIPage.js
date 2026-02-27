@@ -57,6 +57,8 @@ const getFileFormat = fileName => {
     return splitFileName[splitFileName.length - 1];
 };
 class NCOFIPage extends Component {
+    dimensionSubscription = null;
+
     // isAttachmentPresent = false;
     attatchedFindings = [];
     formRequestObj = [];
@@ -137,12 +139,16 @@ class NCOFIPage extends Component {
             syncMode: 0,
             currentUserData: [],
             CorrectiveId: null,
+            screenWidth: Window.width,
+            screenHeight: Window.height,
         };
     }
 
     componentDidMount() {
         console.log('navigationprops', this.props?.route?.params);
         console.log('ncrecordsconsole', this.props.data.audits.ncofiRecords);
+        this.dimensionSubscription = Dimensions.addEventListener('change', this.handleDimensionChange);
+        this.syncWindowDimensions();
         DeviceInfo.getUniqueId().then(deviceId => {
             this.setState({
                 deviceId,
@@ -224,6 +230,69 @@ class NCOFIPage extends Component {
             console.log('NCOFIPage pass');
         }
     }
+
+    componentWillUnmount() {
+        if (this.dimensionSyncTimeout) {
+            clearTimeout(this.dimensionSyncTimeout);
+            this.dimensionSyncTimeout = null;
+        }
+        if (this.dimensionSubscription && this.dimensionSubscription.remove) {
+            this.dimensionSubscription.remove();
+        } else if (Dimensions.removeEventListener) {
+            Dimensions.removeEventListener('change', this.handleDimensionChange);
+        }
+    }
+
+    syncWindowDimensions = () => {
+        const liveWindow = Dimensions.get('window');
+        if (!liveWindow || !liveWindow.width || !liveWindow.height) {
+            return;
+        }
+        this.setState(prevState => {
+            if (prevState.screenWidth === liveWindow.width && prevState.screenHeight === liveWindow.height) {
+                return null;
+            }
+            return {
+                screenWidth: liveWindow.width,
+                screenHeight: liveWindow.height,
+            };
+        });
+    };
+
+    handleDimensionChange = () => {
+        this.syncWindowDimensions();
+        if (this.dimensionSyncTimeout) {
+            clearTimeout(this.dimensionSyncTimeout);
+        }
+        this.dimensionSyncTimeout = setTimeout(() => {
+            this.syncWindowDimensions();
+            this.dimensionSyncTimeout = null;
+        }, 140);
+    };
+
+    getLayoutProfile = () => {
+        const { screenWidth, screenHeight } = this.state;
+        const liveWindow = Dimensions.get('window');
+        const stateWidth = screenWidth || liveWindow.width;
+        const stateHeight = screenHeight || liveWindow.height;
+        const liveWidth = liveWindow.width || stateWidth;
+        const liveHeight = liveWindow.height || stateHeight;
+        const stateIsLandscape = stateWidth > stateHeight;
+        const liveIsLandscape = liveWidth > liveHeight;
+        const shouldUseLiveDimensions = stateIsLandscape !== liveIsLandscape;
+        const width = shouldUseLiveDimensions ? liveWidth : stateWidth;
+        const height = shouldUseLiveDimensions ? liveHeight : stateHeight;
+        const isLandscape = width > height;
+        const isTablet = Math.min(width, height) >= 768;
+        return {
+            width,
+            height,
+            isLandscape,
+            isTablet,
+            maxContentWidth: isTablet ? (isLandscape ? 1180 : 920) : undefined,
+            horizontalPadding: isTablet ? 12 : 5,
+        };
+    };
 
     getDetails = () => {
         setTimeout(() => {
@@ -2169,6 +2238,19 @@ class NCOFIPage extends Component {
     };
 
     render() {
+        const layoutProfile = this.getLayoutProfile();
+        const middle = layoutProfile.height / 2 - 200;
+        const attachmentHeight = middle + 100;
+        const contentWidthStyle = layoutProfile.maxContentWidth ? { maxWidth: layoutProfile.maxContentWidth } : null;
+        const bodyResponsiveStyle = [
+            styles.auditPageBody,
+            styles.auditPageBodyPadded,
+            styles.auditPageBodyResponsive,
+            contentWidthStyle,
+            { paddingHorizontal: layoutProfile.horizontalPadding },
+        ];
+        const footerContainerStyle = [styles.footerDiv, styles.footerResponsiveWrap];
+
         console.log('offf', this.props.data.audits.isOfflineMode);
         console.log('fileextension-------');
         console.log('this.state.NCdisplay1', this.state.NCUpload);
@@ -2201,7 +2283,7 @@ class NCOFIPage extends Component {
                         this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD);
                     }}
                 />
-                <View style={[styles.auditPageBody, styles.auditPageBodyPadded]}>
+                <View style={bodyResponsiveStyle}>
                     {this.state.isLoaderVisible === false ? (
                         <ScrollableTabView
                             renderTabBar={() => (
@@ -2320,7 +2402,7 @@ class NCOFIPage extends Component {
                         </ScrollableTabView>
                     ) : (
                         <View>
-                            <View style={styles.loaderContainer}>
+                            <View style={[styles.loaderContainer, { marginTop: middle }]}>
                                 {this.state.syncMode === 2 ? (
                                     <Icon name="times-circle" color="red" size={50} />
                                 ) : this.state.syncMode === 1 || this.state.syncMode === 3 || this.state.syncMode === 0 ? (
@@ -2336,7 +2418,7 @@ class NCOFIPage extends Component {
                                         : this.state.syncStatusLabel}
                                 </Text>
                             </View>
-                            <View style={styles.attachmentStatusContainer}>
+                            <View style={[styles.attachmentStatusContainer, { height: attachmentHeight }]}>
                                 {this.state.AuditAttachments.length > 0 && this.state.syncMode > 0 && this.renderFileUploadStatus()}
                             </View>
                         </View>
@@ -2344,7 +2426,7 @@ class NCOFIPage extends Component {
                 </View>
 
                 <View style={styles.footer}>
-                    <View style={styles.footerDiv}>
+                    <View style={footerContainerStyle}>
                         <View style={styles.footerButtonsRow}>
                             <View style={styles.footerButtonWrapper}>
                                 {this.state.syncMode === 0 && (
