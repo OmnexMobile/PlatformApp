@@ -112,7 +112,6 @@ const SupplierPickerComponent = ({
             formData.append('SupplierID', value);
             formData.append('SupplierAddressID', supplierDetails?.SupplierPartAddress);
             const { Data } = await postAPI(`${API_URL.GET_SUPPLIERS_CONTACT_PERSONS}`, formData);
-            console.log('🚀 ~ getSupplierContactPersons ~ Data:', Data);
             setSupplierContacts({
                 data:
                     (Data || [])?.map(data => ({

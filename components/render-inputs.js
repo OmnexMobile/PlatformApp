@@ -18,6 +18,7 @@ import {
     OKPicker,
     NotOKPicker,
     LinkComponent,
+    MultiSelectDropdownComponent,
 } from 'components';
 import { useAppContext } from 'contexts/app-context';
 import { postAPI } from 'global/api-helpers';
@@ -29,6 +30,7 @@ import ProblemInformationPickerComponent from './problem-information-picker';
 import SupplierPickerComponent from './supplier-picker';
 import { FONT_SIZE, SPACING } from 'constants/theme-constants';
 import useTheme from 'theme/useTheme';
+import { WrapperMultiSelectDropdownComponent } from './multi-select-dropdown';
 
 const WrapperRadioButton = ({ input, handleInputChange }) => {
     const [data, setData] = useState([]);
@@ -47,7 +49,6 @@ const WrapperRadioButton = ({ input, handleInputChange }) => {
                     value: data?.Value,
                 })),
             );
-            console.log('🚀 ~ file: render-inputs.js:41 ~ getData ~ res?.Data', res?.Data);
         } catch (err) {
             console.log('🚀 ~ file: render-inputs.js:39 ~ getData ~ err', err);
         }
@@ -77,7 +78,6 @@ const WrapperCheckBox = ({ input, handleInputChange }) => {
                     value: data?.Value,
                 })),
             );
-            console.log('🚀 ~ file: render-inputs.js:62 ~ getData ~ res', res?.Data);
         } catch (err) {
             console.log('🚀 ~ file: render-inputs.js:69 ~ getData ~ err', err);
         }
@@ -155,6 +155,7 @@ const RenderInputs = ({
     handleNotOKPicker,
     ConcernID,
     isEditPage,
+    padding = false,
 }) => {
     const renderInputs = (input, index) => {
         switch (input?.type) {
@@ -169,6 +170,27 @@ const RenderInputs = ({
                     />
                 ) : (
                     <DropdownComponent
+                        {...{
+                            key: index,
+                            label: input?.label,
+                            value: input?.name,
+                            onChange: value => handleInputChange(input?.name, value),
+                            data: input?.data,
+                            ...input,
+                        }}
+                    />
+                );
+            case INPUTS_CONSTANTS.MULTI_SELECT:
+                return input?.formelementID ? (
+                    <WrapperMultiSelectDropdownComponent
+                        {...{
+                            key: index,
+                            input,
+                            handleInputChange,
+                        }}
+                    />
+                ) : (
+                    <MultiSelectDropdownComponent
                         {...{
                             key: index,
                             label: input?.label,
@@ -334,6 +356,18 @@ const RenderInputs = ({
                 ) : (
                     <RadioButton {...{ key: index, ...input, onChange: (name, value) => handleInputChange?.(name, value) }} />
                 );
+            case INPUTS_CONSTANTS.RADIOBUTTON:
+                return input?.formelementID ? (
+                    <WrapperRadioButton
+                        {...{
+                            key: index,
+                            input,
+                            handleInputChange,
+                        }}
+                    />
+                ) : (
+                    <RadioButton {...{ key: index, ...input, onChange: (name, value) => handleInputChange?.(name, value) }} />
+                );
             case INPUTS_CONSTANTS.CHECK_BOX:
                 return input?.formelementID ? (
                     <WrapperCheckBox
@@ -357,6 +391,6 @@ const RenderInputs = ({
                 break;
         }
     };
-    return <View>{inputs?.map((input, index) => renderInputs(input, index))}</View>;
+    return <View style={{ paddingBottom: padding? SPACING.XX_LARGE : 0 }}>{inputs?.map((input, index) => renderInputs(input, index))}</View>;
 };
 export default RenderInputs;

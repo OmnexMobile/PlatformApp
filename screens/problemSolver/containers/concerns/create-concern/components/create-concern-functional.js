@@ -277,6 +277,7 @@ const CreateConcernFunctional = ({}) => {
                 value: ConcernID ? concernDetails?.SubCategoryName : concernDetails?.SubCategoryID,
                 type: ConcernID ? INPUTS_CONSTANTS.INPUT : INPUTS_CONSTANTS.DROPDOWN,
                 editable: !!!ConcernID,
+                multiSelect: true,
             },
             {
                 label: 'Problem Classification',

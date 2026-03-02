@@ -49,6 +49,7 @@ const CreateConcernPresentational = ({
                         handleAttachments,
                         handleOKPicker,
                         handleNotOKPicker,
+                        padding: true
                     }}
                 />
                 {ConcernID ? (
