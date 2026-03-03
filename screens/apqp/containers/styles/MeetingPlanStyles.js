@@ -2,7 +2,7 @@ import { StyleSheet, Dimensions } from "react-native";
 import { Metrics, ApplicationStyles } from "../../themes";
 import Fonts from "../../themes/Fonts";
 import { width, height } from "react-native-dimension";
-import { SPACING } from "constants/theme-constants";
+import { FONT_SIZE, SPACING } from "constants/theme-constants";
 // import { android15FooterPadding } from "../../../auditPro/Themes/AndroidInsets";
 
 let Window = Dimensions.get("window");
@@ -22,8 +22,8 @@ export default StyleSheet.create({
   },
   mainContainer: {
     flex: 1,
-    width: Window.width,
-    height: Window.height,
+    width: "100%",
+    height: "100%",
   },
   bgImage: {
     width: "100%",
@@ -52,14 +52,16 @@ export default StyleSheet.create({
 
   flatListWholeView: {
     width: "100%",
-    height: "80%",
-    position: "absolute",
-    marginTop: 100,
-    padding: 5,
+    flex: 1,
+    paddingHorizontal: SPACING.NORMAL,
+    paddingTop: SPACING.X_SMALL,
     flexDirection: "column",
-    backgroundColor: "white",
-    marginLeft: "2%",
   },
+
+  flatListWholeContent: {
+    paddingBottom: SPACING.XX_LARGE + 60,
+  },
+
   flatList: {
     width: "100%",
     height: "100%",
@@ -293,9 +295,7 @@ export default StyleSheet.create({
     width: "100%",
     height: 60,
     backgroundColor: "transparent",
-    position: "absolute",
-    // bottom: 20 + android15FooterPadding,
-    bottom: 0,
+    justifyContent: "center",
     // borderTopColor: "lightgrey",
     // borderWidth: 0.5,
     // borderBottomColor: "transparent",
@@ -324,9 +324,10 @@ export default StyleSheet.create({
     borderBottomColor: "lightgrey",
     borderBottomWidth: 0.7,
   },
+
   line2: {
     width: "100%",
-    padding: 10,
+    paddingHorizontal: 12,
   },
 
   header: {
@@ -389,7 +390,9 @@ export default StyleSheet.create({
     bottom: 10,
   },
   statusDropdownLabel: {
-    fontWeight: "bold",
+      // fontWeight: "bold",
+      fontFamily:'OpenSans-Bold',
+      fontSize: FONT_SIZE.SMALL,
   },
   toastStyle: {
     backgroundColor: "black",

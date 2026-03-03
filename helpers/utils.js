@@ -112,7 +112,7 @@ export const showErrorMessage = (message, position = 'top') =>
         },
     });
 
-export const showWarningMessage = message =>
+export const showWarningMessage =  ({ message, position = 'top' }) =>
     showMessage({
         message: 'Warning',
         description: message,

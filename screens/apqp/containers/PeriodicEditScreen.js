@@ -31,9 +31,11 @@ import Moment from "moment";
 import { extendMoment } from "moment-range";
 
 import SwitchToggle from "../components/SwitchToggle";
-import { ICON_TYPE, ROUTES } from "constants/app-constant";
-import { FAB } from "components";
+import { FONT_TYPE, ICON_TYPE, ROUTES } from "constants/app-constant";
+import { FAB, InputComponent, TextComponent } from "components";
 import GlobalHeader from "components/GlobalHeader";
+import { FONT_SIZE } from "constants/theme-constants";
+import { showWarningMessage, successMessage, showErrorMessage } from "helpers/utils";
 
 const moment = extendMoment(Moment);
 // import { Bubbles, DoubleBounce, Bars, Pulse } from "react-native-loader";
@@ -331,7 +333,8 @@ class PeriodicEditScreen extends Component {
       //----------------Modified_for_Commercial use - Unlock
       this.state.remarktext.trim() == ""
     ) {
-      this.refs.toast.show(strings.mandate_message, DURATION.LENGTH_SHORT);
+      // this.refs.toast.show(strings.mandate_message, DURATION.LENGTH_SHORT);
+      showWarningMessage({ message: strings.mandate_message});
     } else {
       const Id = this.state.RouteParam == "Add" ? 0 : this.state.id;
       const UserID = this.UserId;
@@ -429,8 +432,10 @@ class PeriodicEditScreen extends Component {
               mailIDD
             );
             // this.refs.toast.show(data.data.Data, DURATION.LENGH_LONG);
+            successMessage({message: '', description: strings.Save_Message});
           } else {
-            this.refs.toast.show(data.data.Data, DURATION.LENGH_LONG);
+            // this.refs.toast.show(data.data.Data, DURATION.LENGH_LONG);
+            showErrorMessage(data.data.Data)
           }
         }
       );
@@ -451,10 +456,11 @@ class PeriodicEditScreen extends Component {
             completedtext: "",
           },
           () => {
-            this.refs.toast.show(
-              strings.Invalid_Percentage,
-              DURATION.LENGTH_SHORT
-            );
+            // this.refs.toast.show(
+            //   strings.Invalid_Percentage,
+            //   DURATION.LENGTH_SHORT
+            // );
+            showWarningMessage({ message: strings.Invalid_Percentage});
           }
         );
       }
@@ -467,10 +473,10 @@ class PeriodicEditScreen extends Component {
   //     : this.state.remarktext.replace(/[. ]/g, "");
   // }
 
-  validateHours() {
-    var text = this.state.hourstext;
+  validateHours = () => {
+    var text = this.state?.hourstext;
     console.log("text", text);
-    if (this.state.hourstext != "") {
+    if (this.state?.hourstext != "") {
       var letters = /^\d+(\.\d{1,2})?$/;
       if (!letters.test(text)) {
         console.log("active");
@@ -479,7 +485,10 @@ class PeriodicEditScreen extends Component {
             hourstext: "",
           },
           () => {
-            this.refs.toast.show(strings.Invalid_Hours, DURATION.LENGTH_SHORT);
+            console.log('validateHours')
+            // this.refs.toast.show(strings.Invalid_Hours, DURATION.LENGTH_SHORT);
+            showWarningMessage({ message: strings.Invalid_Hours});
+            
           }
         );
       }
@@ -570,23 +579,27 @@ class PeriodicEditScreen extends Component {
         <OfflineNotice />
         {this.renderHeader()}
 
-        <ScrollView style={styles.flatListWholeViewWithTopMargin}>
+        <ScrollView
+          style={styles.flatListWholeViewWithTopMargin}
+          contentContainerStyle={styles.formContentContainer}
+          showsVerticalScrollIndicator={false}
+        >
           <View>
             <View style={styles.textHeader}>
-              <Text style={styles.listText}>Project Name :</Text>
-              <Text style={styles.projectNameText}>
+              <TextComponent fontSize={FONT_SIZE.SMALL} type={FONT_TYPE.BOLD}>Project Name: </TextComponent>
+              <TextComponent fontSize={FONT_SIZE.SMALL}>
                 {this.ProjectName ? this.ProjectName : "  -  "}
-              </Text>
+              </TextComponent>
             </View>
             <View style={styles.textHeader}>
-              <Text style={styles.listText}>Task Name :</Text>
-              <Text style={styles.taskNameText}>
+              <TextComponent fontSize={FONT_SIZE.SMALL} type={FONT_TYPE.BOLD}>Task Name: </TextComponent>
+              <TextComponent fontSize={FONT_SIZE.SMALL}>
                 {this.TaskName ? this.TaskName : "  -  "}
-              </Text>
+              </TextComponent>
             </View>
             <View style={styles.textHeader}>
-              <Text style={styles.listText}>Period :</Text>
-              <Text style={styles.periodText}>
+              <TextComponent fontSize={FONT_SIZE.SMALL} type={FONT_TYPE.BOLD}>Period: </TextComponent>
+              <TextComponent fontSize={FONT_SIZE.SMALL}>
                 {this.StartDate
                   ? this.changeDateFormatCard(this.StartDate)
                   : "  -  "}{" "}
@@ -594,7 +607,7 @@ class PeriodicEditScreen extends Component {
                 {this.EndDate
                   ? this.changeDateFormatCard(this.EndDate)
                   : "  -  "}
-              </Text>
+              </TextComponent>
 
               <View style={styles.roundView}>
                 <Text style={styles.roundViewText} numberOfLines={1}>
@@ -604,15 +617,15 @@ class PeriodicEditScreen extends Component {
             </View>
           </View>
           <View style={styles.sec1}>
-            {this.state.completedtext != "" ? (
+            {/* {this.state.completedtext != "" ? (
               <View style={styles.rowDirection}>
                 <Text style={styles.completedTextStyleWithTopMargin}>
                   {strings.completed + "%"}
                 </Text>
                 <Text style={styles.requiredStar}>*</Text>
               </View>
-            ) : null}
-            <TextInput
+            ) : null} */}
+            {/* <TextInput
               placeholder={strings.completed + "%"}
               placeholderTextColor="#000"
               keyboardType="numeric"
@@ -626,9 +639,30 @@ class PeriodicEditScreen extends Component {
               onBlur={() => {
                 this.validatefield();
               }}
-            // this.setState({ number: value.replace(/[- #*;,.<>\{\}\[\]\\\/]/gi, '') });
+            /> */}
+
+
+
+            <InputComponent
+              label={strings.completed + " %"}
+              // labelStyle={styles.title}
+              keyboardType="numeric"
+              required
+              style={styles.subTitle}
+              value={this.state.completedtext}
+              placeholder={strings.completed + " %"}
+              containerStyle={styles.inputContainerNoPad}
+              inputStyle={styles.inputNoHorizontalPadding}
+              onChangeText={(field, text) => {
+                // const numericText = text.replace(/[^0-9]/g, ""); // allow only digits
+                this.setState({ completedtext: text });
+              }}
+              onBlur={this.validateHours}
             />
-            {this.state.completedtext == "" ? (
+
+
+
+            {/* {this.state.completedtext == "" ? (
               <View style={styles.check}>
                 <Icon
                   style={styles.requiredAsteriskIcon}
@@ -637,28 +671,29 @@ class PeriodicEditScreen extends Component {
                   color="red"
                 />
               </View>
-            ) : null}
+            ) : null} */}
           </View>
           <TouchableOpacity
             onPress={() =>
               this.setState({ isstartDateVisible: true, isValid: true })
             }
-            style={[
-              styles.sec1,
-              this.state.completedtext == ""
-                ? styles.startDateSectionEmpty
-                : styles.startDateSectionFilled,
-            ]}
+            style={styles.sec1}
+          // style={[
+          //   styles.sec1,
+          //   this.state.completedtext == ""
+          //     ? styles.startDateSectionEmpty
+          //     : styles.startDateSectionFilled,
+          // ]}
           >
-            {this.state.startdate != "" ? (
+            {/* {this.state.startdate != "" ? (
               <View style={styles.rowDirection}>
                 <Text style={styles.completedTextStyle}>
                   {strings.StartDate}
                 </Text>
                 <Text style={styles.requiredStar}>*</Text>
               </View>
-            ) : null}
-            <TextInput
+            ) : null} */}
+            {/* <TextInput
               placeholder={strings.StartDate}
               style={styles.dateTextInputStyle}
               value={this.state.startdate}
@@ -667,8 +702,23 @@ class PeriodicEditScreen extends Component {
               }}
               editable={false}
               pointerEvents="none"
+            /> */}
+
+            <InputComponent
+              label={strings.StartDate}
+              // labelStyle={styles.title}
+              required
+              keyboardType="numeric"
+              value={this.state.startdate}
+              placeholder={strings.StartDate}
+              containerStyle={styles.inputContainerNoPad}
+              inputStyle={styles.inputNoHorizontalPadding}
+              onChangeText={(field, text) => {
+                this.setState({ startdate: text });
+              }}
             />
-            {this.state.startdate == "" ? (
+
+            {/* {this.state.startdate == "" ? (
               <View style={styles.check}>
                 <Icon
                   style={styles.requiredAsteriskIcon}
@@ -677,7 +727,7 @@ class PeriodicEditScreen extends Component {
                   color="red"
                 />
               </View>
-            ) : null}
+            ) : null} */}
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => {
@@ -685,13 +735,13 @@ class PeriodicEditScreen extends Component {
             }}
             style={styles.sec1}
           >
-            {this.state.endate != "" ? (
+            {/* {this.state.endate != "" ? (
               <View style={styles.rowDirection}>
                 <Text style={styles.completedTextStyle}>{strings.EndDate}</Text>
                 <Text style={styles.requiredStar}>*</Text>
               </View>
-            ) : null}
-            <TextInput
+            ) : null} */}
+            {/* <TextInput
               placeholder={strings.EndDate}
               placeholderTextColor="#000"
               style={styles.dateTextInputStyle}
@@ -701,8 +751,22 @@ class PeriodicEditScreen extends Component {
               }}
               editable={false}
               pointerEvents="none"
+            /> */}
+
+            <InputComponent
+              label={strings.EndDate}
+              // labelStyle={styles.title}
+              keyboardType="numeric"
+              required
+              value={this.state.endate}
+              placeholder={strings.EndDate}
+              containerStyle={styles.inputContainerNoPad}
+              inputStyle={styles.inputNoHorizontalPadding}
+              onChangeText={(field, text) => {
+                this.setState({ endate: text });
+              }}
             />
-            {this.state.endate == "" ? (
+            {/* {this.state.endate == "" ? (
               <View style={styles.endDatecheck}>
                 <Icon
                   style={styles.requiredAsteriskIcon}
@@ -711,17 +775,18 @@ class PeriodicEditScreen extends Component {
                   color="red"
                 />
               </View>
-            ) : null}
+            ) : null} */}
           </TouchableOpacity>
           {/* //------------------------------------Modified_For_Commericial_Use--------- lock------// */}
           <View style={styles.sec1}>
-            {this.state.hourstext != "" ? (
+            {/* {this.state.hourstext != "" ? (
               <View style={styles.rowDirection}>
                 <Text style={styles.completedTextStyle}>{strings.Hours}</Text>
                 <Text style={styles.requiredStar}>*</Text>
               </View>
-            ) : null}
-            <TextInput
+            ) : null} */}
+
+            {/* <TextInput
               placeholder={strings.Hours}
               placeholderTextColor="#000"
               keyboardType="numeric"
@@ -733,8 +798,24 @@ class PeriodicEditScreen extends Component {
               onBlur={() => {
                 this.validateHours();
               }}
+            /> */}
+            <InputComponent
+              label={strings.Hours}
+              // labelStyle={styles.title}
+              keyboardType="numeric"
+              required
+              value={this.state.hourstext}
+              placeholder={strings.Hours}
+              inputStyle={styles.inputNoHorizontalPadding}
+              containerStyle={styles.inputContainerNoPad}
+              onChangeText={(field, text) => {
+                this.setState({ hourstext: text });
+              }}
+              onBlur={this.validateHours}
             />
-            {this.state.hourstext == "" ? (
+
+
+            {/* {this.state.hourstext == "" ? (
               <View style={styles.check}>
                 <Icon
                   style={styles.requiredAsteriskIcon}
@@ -743,21 +824,28 @@ class PeriodicEditScreen extends Component {
                   color="red"
                 />
               </View>
-            ) : null}
+            ) : null} */}
           </View>
 
           <View
-            style={[
-              styles.textHeader,
-              this.state.hourstext == ""
-                ? styles.defaultRemarksRowEmpty
-                : styles.defaultRemarksRowFilled,
-            ]}
+            style={[styles.textHeader, styles.fieldRowSpacing, styles.defaultRemarksCompact]}
+          // style={[
+          //   styles.textHeader,
+          //   this.state.hourstext == ""
+          //     ? styles.defaultRemarksRowEmpty
+          //     : styles.defaultRemarksRowFilled,
+          // ]}
           >
-            <Text style={styles.listText}>Default Remarks :</Text>
+            {/* <Text style={styles.listText}>Default Remarks :</Text> */}
+            <TextComponent fontSize={FONT_SIZE.SMALL} type={FONT_TYPE.BOLD}>
+              Default Remarks :
+            </TextComponent>
             <SwitchToggle
               toggleSwitch1={this.toggleSwitch1}
               switch1Value={this.state.switch1Value}
+              activeTrackColor="#1FBFD0"
+              scale={0.8}
+              containerStyle={{ marginLeft: "auto" }}
             />
           </View>
 
@@ -765,19 +853,21 @@ class PeriodicEditScreen extends Component {
           {this.props?.route?.params?.RouteParam != "Edit" ? (
             <View>
               <View
-                style={[
-                  styles.remark,
-                  this.state.ClientName == ""
-                    ? styles.remarkClientEmpty
-                    : styles.remarkClientFilled,
-                ]}
+                style={styles.remark}
+              //   [
+              //   styles.remark,
+              //   this.state.ClientName == ""
+              //     ? styles.remarkClientEmpty
+              //     : styles.remarkClientFilled,
+              // ]}
               >
-                {this.state.ClientName != "" ? (
+                {/* {this.state.ClientName != "" ? (
                   <Text style={styles.completedTextStyleLabel}>
                     {strings.ClientName}
                   </Text>
-                ) : null}
-                <TextInput
+                ) : null} */}
+
+                {/* <TextInput
                   placeholder={strings.ClientName}
                   placeholderTextColor="#000"
                   style={[
@@ -792,22 +882,40 @@ class PeriodicEditScreen extends Component {
                   onChangeText={(text) => {
                     this.setState({ ClientName: text });
                   }}
+                /> */}
+
+                <InputComponent
+                  label={strings.ClientName}
+                  // labelStyle={styles.title}
+                  required
+                  value={this.state.ClientName}
+                  placeholder={strings.ClientName}
+                  inputStyle={styles.inputNoHorizontalPadding}
+                  multiline
+                  // numberOfLines={4}
+                  autoCapitalize="sentences"
+                  containerStyle={styles.inputContainer}
+                  onChangeText={(field, text) => {
+                    this.setState({ ClientName: text });
+                  }}
                 />
               </View>
               <View
-                style={[
-                  styles.remark,
-                  this.state.TypeofWorkConducted == ""
-                    ? styles.remarkFieldEmpty
-                    : styles.remarkFieldFilled,
-                ]}
+                style={styles.remark}
+              //   [
+              //   styles.remark,
+              //   this.state.TypeofWorkConducted == ""
+              //     ? styles.remarkFieldEmpty
+              //     : styles.remarkFieldFilled,
+              // ]}
               >
-                {this.state.TypeofWorkConducted != "" ? (
+                {/* {this.state.TypeofWorkConducted != "" ? (
                   <Text style={styles.completedTextStyleLabel}>
                     {strings.TypeofWorkConducted}
                   </Text>
-                ) : null}
-                <TextInput
+                ) : null} */}
+
+                {/* <TextInput
                   placeholder={strings.TypeofWorkConducted}
                   placeholderTextColor="#000"
                   style={[
@@ -822,22 +930,40 @@ class PeriodicEditScreen extends Component {
                   onChangeText={(text) => {
                     this.setState({ TypeofWorkConducted: text });
                   }}
+                /> */}
+
+                <InputComponent
+                  label={strings.TypeofWorkConducted}
+                  // labelStyle={styles.title}
+                  required
+                  value={this.state.TypeofWorkConducted}
+                  placeholder={strings.TypeofWorkConducted}
+                  inputStyle={styles.inputNoHorizontalPadding}
+                  multiline
+                  // numberOfLines={4}
+                  autoCapitalize="sentences"
+                  containerStyle={styles.inputContainer}
+                  onChangeText={(field, text) => {
+                    this.setState({ TypeofWorkConducted: text });
+                  }}
                 />
+
               </View>
               <View
-                style={[
-                  styles.remark,
-                  this.state.AnyOpportunities == ""
-                    ? styles.remarkFieldEmpty
-                    : styles.remarkFieldFilled,
-                ]}
+                style={styles.remark}
+              //   [
+              //   styles.remark,
+              //   this.state.AnyOpportunities == ""
+              //     ? styles.remarkFieldEmpty
+              //     : styles.remarkFieldFilled,
+              // ]}
               >
-                {this.state.AnyOpportunities != "" ? (
+                {/* {this.state.AnyOpportunities != "" ? (
                   <Text style={styles.completedTextStyleLabel}>
                     {strings.AnyOpportunities}
                   </Text>
-                ) : null}
-                <TextInput
+                ) : null} */}
+                {/* <TextInput
                   placeholder={strings.AnyOpportunities}
                   placeholderTextColor="#000"
                   style={[
@@ -852,22 +978,39 @@ class PeriodicEditScreen extends Component {
                   onChangeText={(text) => {
                     this.setState({ AnyOpportunities: text });
                   }}
+                /> */}
+
+                <InputComponent
+                  label={strings.AnyOpportunities}
+                  // labelStyle={styles.title}
+                  required
+                  value={this.state.AnyOpportunities}
+                  placeholder={strings.AnyOpportunities}
+                  inputStyle={styles.inputNoHorizontalPadding}
+                  multiline
+                  // numberOfLines={4}
+                  autoCapitalize="sentences"
+                  containerStyle={styles.inputContainer}
+                  onChangeText={(field, text) => {
+                    this.setState({ AnyOpportunities: text });
+                  }}
                 />
               </View>
               <View
-                style={[
-                  styles.remark,
-                  this.state.IssueFaced == ""
-                    ? styles.remarkFieldEmpty
-                    : styles.remarkFieldFilled,
-                ]}
+                style={styles.remark}
+              //   [
+              //   styles.remark,
+              //   this.state.IssueFaced == ""
+              //     ? styles.remarkFieldEmpty
+              //     : styles.remarkFieldFilled,
+              // ]}
               >
-                {this.state.IssueFaced != "" ? (
+                {/* {this.state.IssueFaced != "" ? (
                   <Text style={styles.completedTextStyleLabel}>
                     {strings.IssueFaced}
                   </Text>
-                ) : null}
-                <TextInput
+                ) : null} */}
+                {/* <TextInput
                   placeholder={strings.IssueFaced}
                   placeholderTextColor="#000"
                   style={[
@@ -882,6 +1025,22 @@ class PeriodicEditScreen extends Component {
                   onChangeText={(text) => {
                     this.setState({ IssueFaced: text });
                   }}
+                /> */}
+
+                <InputComponent
+                  label={strings.IssueFaced}
+                  // labelStyle={styles.title}
+                  required
+                  value={this.state.IssueFaced}
+                  placeholder={strings.IssueFaced}
+                  inputStyle={styles.inputNoHorizontalPadding}
+                  multiline
+                  // numberOfLines={4}
+                  autoCapitalize="sentences"
+                  containerStyle={styles.inputContainer}
+                  onChangeText={(field, text) => {
+                    this.setState({ IssueFaced: text });
+                  }}
                 />
               </View>
             </View>
@@ -889,14 +1048,15 @@ class PeriodicEditScreen extends Component {
           {/* //------------------------------------Modified_For_Commericial_Use-------- lock-------// */}
 
           <View
-            style={[
-              styles.remark,
-              this.state.remarktext == ""
-                ? styles.remarkFieldEmpty
-                : styles.remarkFieldFilled,
-            ]}
+            style={styles.remark}
+          //   [
+          //   styles.remark,
+          //   this.state.remarktext == ""
+          //     ? styles.remarkFieldEmpty
+          //     : styles.remarkFieldFilled,
+          // ]}
           >
-            {this.state.remarktext != "" ? (
+            {/* {this.state.remarktext != "" ? (
               <View>
                 <View style={styles.rowDirection}>
                   <Text style={styles.completedTextStyleLabel}>
@@ -915,8 +1075,8 @@ class PeriodicEditScreen extends Component {
                   </View>
                 ) : null}
               </View>
-            ) : null}
-            <TextInput
+            ) : null} */}
+            {/* <TextInput
               placeholder={strings.Remarks}
               placeholderTextColor="#000"
               style={styles.textInputStyle1}
@@ -926,8 +1086,24 @@ class PeriodicEditScreen extends Component {
               onChangeText={(text) => {
                 this.setState({ remarktext: text });
               }}
+            /> */}
+            <InputComponent
+              label={strings.Remarks}
+              // labelStyle={styles.title}
+              required
+              value={this.state.remarktext}
+              placeholder={strings.Remarks}
+              inputStyle={[styles.inputNoHorizontalPadding, this.state.remarktext ? styles.remarksMultilineInput : null]}
+              multiline
+              // numberOfLines={4}
+              scrollEnabled={false}
+              autoCapitalize="sentences"
+              containerStyle={styles.inputContainer}
+              onChangeText={(field, text) => {
+                this.setState({ remarktext: text });
+              }}
             />
-            {this.state.remarktext == "" ? (
+            {/* {this.state.remarktext == "" ? (
               <View style={styles.check}>
                 <Icon
                   style={styles.requiredAsteriskIcon}
@@ -937,9 +1113,8 @@ class PeriodicEditScreen extends Component {
                 />
               </View>
             ) : // this.setState({ remarktext: "." })
-              null}
+              null} */}
           </View>
-          <View style={styles.bottomSpacer} />
         </ScrollView>
         <Modal
           isVisible={this.state.isstartDateVisible}

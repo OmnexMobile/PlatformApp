@@ -18,6 +18,24 @@ const CardList = ({ item = {}, handleClickCard }) => {
             StyleSheet.create({
                 descriptionText: {
                     color: theme.colors.primaryThemeColor,
+                    fontSize: 16,
+                    fontFamily: 'OpenSans-SemiBold',
+                },
+                dateText: {
+                    color: '#000',
+                    fontSize: 15,
+                    fontFamily: 'OpenSans-Regular',
+                },
+                siteText: {
+                    color: '#000',
+                    fontSize: 15,
+                    fontFamily: 'OpenSans-Regular',
+                },
+                dueText: {
+                    paddingTop: SPACING.SMALL,
+                    color: '#000',
+                    fontSize: 15,
+                    fontFamily: 'OpenSans-Regular',
                 },
                 dueByDaysValuePositive: {
                     color: theme.colors.primaryThemeColor,
@@ -47,7 +65,7 @@ const CardList = ({ item = {}, handleClickCard }) => {
                         <View style={styles.projectBoxContent}>
                         {item?.Description ? (
                             <View style={styles.descriptionContainer}>
-                                <TextComponent numberOfLines={1} fontSize={FONT_SIZE.NORMAL} style={themedStyles.descriptionText}>
+                                <TextComponent numberOfLines={1} style={themedStyles.descriptionText}>
                                     {item?.Description}
                                  </TextComponent>
                             </View>
@@ -55,23 +73,23 @@ const CardList = ({ item = {}, handleClickCard }) => {
                         <View style={styles.dateRow}>
                             <View style={styles.dateInnerRow}>
                                 <View style={styles.calendarIconBox}>
-                                    <IconComponent name="calendar" color={COLORS.white} type={ICON_TYPE.AntDesign} size={FONT_SIZE.X_SMALL} />
+                                    <IconComponent name="calendar" color={COLORS.white} type={ICON_TYPE.AntDesign} size={FONT_SIZE.XXX_SMALL} />
                                 </View>
-                                <TextComponent type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.SMALL}>
+                                <TextComponent style={themedStyles.dateText} >
                                     {moment(item?.StartDate).format(DATE_FORMAT[timeSettings || "DD_MM_YYYY"])} -{' '}
                                 </TextComponent>
                             </View>
                             <View style={styles.dateInnerRow}>
-                                <TextComponent type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.SMALL}>
+                                <TextComponent style={themedStyles.dateText}>
                                     
                                     {moment(item?.DueDate).format(DATE_FORMAT[timeSettings || "DD_MM_YYYY"])}
                                 </TextComponent>
                             </View>
                         </View>
-                        {item?.site ? (<TextComponent style={styles.siteText} numberOfLines={1}>
-                            <TextComponent type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.SMALL}>{item?.site}</TextComponent>
+                        {item?.site ? (<TextComponent numberOfLines={1}>
+                            <TextComponent style={themedStyles.siteText}>{item?.site}</TextComponent>
                         </TextComponent>) : null}
-                        {item?.DueByDays ? (<TextComponent type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.SMALL} style={styles.dueByDaysText} numberOfLines={1}>
+                        {item?.DueByDays ? (<TextComponent fontSize={FONT_SIZE.SMALL} style={themedStyles.dueText} numberOfLines={1}>
                             Due by days: <TextComponent fontSize={FONT_SIZE.SMALL} type={FONT_TYPE.BOLD}
                             style={item.DueByDays > 0 ? [styles.dueByDaysValueBase, themedStyles.dueByDaysValuePositive] : styles.dueByDaysValueOverdue}
                             >{item?.DueByDays ? item?.DueByDays : 0}</TextComponent>
@@ -89,19 +107,21 @@ export default CardList;
 
 const styles = StyleSheet.create({
     container: {
+        width: '98%',
+        alignSelf: 'center',
         paddingHorizontal: SPACING.NORMAL,
     },
     cardRow: {
         width: '100%',
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: SPACING.X_NORMAL,
+        justifyContent: 'flex-end',
+        marginBottom: '2%',
     },
     cardTouchable: {
         padding: SPACING.NORMAL,
         borderRadius: SPACING.SMALL,
-        marginLeft: RFPercentage(0.7),
-        width: '85%',
+        width: '88%',
         borderLeftWidth: 4,
         borderLeftColor: '#1FBFD0',
         borderColor: '#1FBFD0',
@@ -123,30 +143,27 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     calendarIconBox: {
-        width: RFPercentage(2.5),
-        height: RFPercentage(2.5),
+        width: RFPercentage(2),
+        height: RFPercentage(2),
         backgroundColor: COLORS.WARNING,
         alignItems: 'center',
         justifyContent: 'center',
         borderRadius: SPACING.X_SMALL,
         marginRight: SPACING.X_SMALL,
     },
-    siteText: {
-        paddingLeft: SPACING.X_SMALL,
-    },
     dueByDaysText: {
         paddingTop: SPACING.SMALL,
-        paddingLeft: SPACING.X_SMALL,
     },
     dueByDaysValueBase: {
-        fontSize: FONT_SIZE.SMALL,
+        fontSize: FONT_SIZE.X_SMALL,
+        color: 'red',
     },
     dueByDaysValueOverdue: {
-        fontSize: FONT_SIZE.SMALL,
+        fontSize: FONT_SIZE.X_SMALL,
         color: 'red',
     },
     iconSlot: {
-        width: '12%',
+        width: '10%',
         alignItems: 'center',
         justifyContent: 'center',
     },

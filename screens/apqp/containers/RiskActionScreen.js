@@ -15,9 +15,11 @@ import AsyncStorage from "@react-native-community/async-storage";
 import styles from "./styles/RiskActionStyles";
 import Moment from "moment";
 import { extendMoment } from "moment-range";
-import { ICON_TYPE, ROUTES } from "constants/app-constant";
-import { FAB } from "components";
+import { FONT_TYPE, ICON_TYPE, ROUTES } from "constants/app-constant";
+import { DropdownComponent, FAB, TextComponent } from "components";
 import GlobalHeader from "components/GlobalHeader";
+import { FONT_SIZE } from "constants/theme-constants";
+import { showErrorMessage, showWarningMessage, successMessage } from "helpers/utils";
 const moment = extendMoment(Moment);
 
 class RiskActionScreen extends Component {
@@ -150,20 +152,24 @@ getData = async (userdata) => {
 
         console.log("-->", data);
         if (data.data.Message == "Success") {
-          this.refs.toast.show(
-            "Risk status updated successfully.",
-            DURATION.LENGTH_SHORT
-          );
+          // this.refs.toast.show(
+          //   "Risk status updated successfully.",
+          //   DURATION.LENGTH_SHORT
+          // );
+          successMessage({ message: '', description: "Risk Status Updated Successfully."});
           this.onPressBack();
         } else {
-          this.refs.toast.show(
-            "Failed to update the risk status!",
-            DURATION.LENGTH_SHORT
-          );
+          // this.refs.toast.show(
+          //   "Failed to update the risk status!",
+          //   DURATION.LENGTH_SHORT
+          // );
+          showErrorMessage('Failed To Update The Risk Status!');
+
         }
       });
     } else {
-      this.refs.toast.show("Please select Status!", DURATION.LENGTH_SHORT);
+      // this.refs.toast.show("Please select Status!", DURATION.LENGTH_SHORT);
+      showWarningMessage({ message: 'Please Select Status!'})
     }
   }
 
@@ -200,7 +206,8 @@ getData = async (userdata) => {
         auth.getapqpRiskActionList(ActionId, Status, Token, (res, data) => {
           console.log("save response", data);
           if (data.data.Message == "Success") {
-            this.refs.toast.show(data.data.Data, DURATION.LENGTH_SHORT);
+            // this.refs.toast.show(data.data.Data, DURATION.LENGTH_SHORT);
+            successMessage({ message: '', description: data.data.Data})
           }
         });
       }
@@ -244,59 +251,94 @@ getData = async (userdata) => {
         />
         {this.renderHeader()}
 
-        <ScrollView style={styles.flatListWholeView}>
+        <ScrollView
+          style={styles.flatListWholeView}
+          contentContainerStyle={styles.flatListWholeContent}
+        >
           {this.state.apqpRiskActionList.length > 0 ? (
             <View>
               <View style={styles.line1}>
-                <Text style={styles.flatListContent}>Risk Number </Text>
+                <TextComponent fontSize={FONT_SIZE.SMALL} type={FONT_TYPE.BOLD}>Risk Number</TextComponent>
+                <TextComponent fontSize={FONT_SIZE.SMALL}>
+                  {this.state.apqpRiskActionList[0].RiskNumber}
+                </TextComponent>
+
+                {/* <Text style={styles.flatListContent}>Risk Number </Text>
                 <Text style={styles.flatListContent1}>
                   {this.state.apqpRiskActionList[0].RiskNumber}
-                </Text>
+                </Text> */}
               </View>
               <View style={styles.line1}>
-                <Text style={styles.flatListContent}>Risk Name </Text>
+                <TextComponent fontSize={FONT_SIZE.SMALL} type={FONT_TYPE.BOLD}>Risk Name</TextComponent>
+                <TextComponent fontSize={FONT_SIZE.SMALL}>
+                  {this.state.apqpRiskActionList[0].RiskName}
+                </TextComponent>
+                {/* <Text style={styles.flatListContent}>Risk Name </Text>
                 <Text style={styles.flatListContent1}>
                   {this.state.apqpRiskActionList[0].RiskName}
-                </Text>
+                </Text> */}
               </View>
               <View style={styles.line1}>
-                <Text style={styles.flatListContent }>Mitigation Action</Text>
+                <TextComponent fontSize={FONT_SIZE.SMALL} type={FONT_TYPE.BOLD}>Mitigation Action</TextComponent>
+                <TextComponent fontSize={FONT_SIZE.SMALL}>
+                  {this.state.apqpRiskActionList[0].ActionType}
+                </TextComponent>
+                {/* <Text style={styles.flatListContent }>Mitigation Action</Text>
                 <Text style={styles.flatListContent1}>
                   {this.state.apqpRiskActionList[0].ActionType}
-                </Text>
+                </Text> */}
               </View>
               <View style={styles.line1}>
-                <Text style={styles.flatListContent}>DeadLine Date</Text>
+                <TextComponent fontSize={FONT_SIZE.SMALL} type={FONT_TYPE.BOLD}>DeadLine Date</TextComponent>
+                <TextComponent fontSize={FONT_SIZE.SMALL}>
+                  {this.state.apqpRiskActionList[0].DeadlineDate}
+                </TextComponent>
+                {/* <Text style={styles.flatListContent}>DeadLine Date</Text>
                 <Text style={styles.flatListContent1}>
                   {this.state.apqpRiskActionList[0].DeadlineDate}
-                </Text>
+                </Text> */}
               </View>
               <View style={styles.line1}>
-                <Text style={styles.flatListContent}>Phase Deadline</Text>
+                <TextComponent fontSize={FONT_SIZE.SMALL} type={FONT_TYPE.BOLD}>Phase Deadline</TextComponent>
+                <TextComponent fontSize={FONT_SIZE.SMALL}>
+                  {this.state.apqpRiskActionList[0].PhaseDeadline}
+                </TextComponent>
+                {/* <Text style={styles.flatListContent}>Phase Deadline</Text>
                 <Text style={styles.flatListContent1}>
                   {this.state.apqpRiskActionList[0].PhaseDeadline}
-                </Text>
+                </Text> */}
               </View>
               <View style={styles.line1}>
-                <Text style={styles.flatListContent}>Implementation Date</Text>
+                <TextComponent fontSize={FONT_SIZE.SMALL} type={FONT_TYPE.BOLD}>Implementation Date</TextComponent>
+                <TextComponent fontSize={FONT_SIZE.SMALL}>
+                  {this.state.apqpRiskActionList[0].ImplementationDate}
+                </TextComponent>
+                {/* <Text style={styles.flatListContent}>Implementation Date</Text>
                 <Text style={styles.flatListContent1}>
                   {this.state.apqpRiskActionList[0].ImplementationDate}
-                </Text>
+                </Text> */}
               </View>
               <View style={styles.line1}>
-                <Text style={styles.flatListContent}>Verification Date</Text>
+                <TextComponent fontSize={FONT_SIZE.SMALL} type={FONT_TYPE.BOLD}>Verification Date</TextComponent>
+                <TextComponent fontSize={FONT_SIZE.SMALL}>
+                  {this.state.apqpRiskActionList[0].VerificationDate}
+                </TextComponent>
+                {/* <Text style={styles.flatListContent}>Verification Date</Text>
                 <Text style={styles.flatListContent1}>
                   {this.state.apqpRiskActionList[0].VerificationDate}
-                </Text>
+                </Text> */}
               </View>
 
               <View style={styles.line2}>
-                <View style={styles.statusDropdownContainer}>
+                {/* <View style={styles.statusDropdownContainer}> */}
+
                   <Dropdown
                     label="Status"
                     data={data}
-                    baseColor="#000"
-                    labelFontSize={17}
+                    baseColor="#484848"
+                    textColor="#484848"
+                    labelFontSize={FONT_SIZE.SMALL}
+                    valueTextStyle={styles.statusDropdownLabelText}
                     labelTextStyle={styles.statusDropdownLabelText}
                     value={this.StatusVal}
                     onChangeText={(value) => {
@@ -309,7 +351,7 @@ getData = async (userdata) => {
                       console.log("Status is now", this.Status);
                     }}
                   />
-                </View>
+                {/* </View> */}
               </View>
             </View>
           ) : (

@@ -570,6 +570,10 @@ export default StyleSheet.create({
     marginTop: height(6),
     fontFamily: "OpenSans-Regular",
   },
+  noRecords: {
+    paddingTop: height(5),
+    marginTop: height(6),
+  },
   bounceContainer: {
     paddingVertical: 20,
     width: Window.width,
@@ -585,7 +589,7 @@ export default StyleSheet.create({
   footerTopBorder: {
     borderTopWidth: 1,
     borderTopColor: "lightgrey",
-    marginBottom: 5,
+    marginBottom: 0,
   },
   footerMenuRow: {
     flexDirection: "row",
@@ -742,7 +746,7 @@ export default StyleSheet.create({
     fontFamily: "OpenSans-Regular",
   },
   footerSpacer: {
-    marginTop: height(8),
+    marginTop: 0,
   },
 
   separatorSection: {
@@ -765,8 +769,8 @@ export default StyleSheet.create({
   },
   sectionHeaderContainer: {
     backgroundColor: "#fff",
-    paddingBottom: SPACING.X_NORMAL,
-    paddingHorizontal: SPACING.NORMAL,
+    paddingBottom: '2%',
+    paddingHorizontal: SPACING.X_NORMAL,
     flexDirection: "column",
     justifyContent: "flex-start",
     alignSelf: "center",
@@ -781,9 +785,20 @@ export default StyleSheet.create({
   },
 
   sectionHeaderText: {
-    fontSize: Fonts.size.h5,
-    fontWeight: "bold",
+    // fontSize: Fonts.size.h5,
+    // fontWeight: "bold",
+    fontSize: 16,
+    fontFamily: 'OpenSans-SemiBold',
     color: '#fff',
+  },
+  emptyStateContainer1: {
+    width: "92%",
+    height: 160,
+    justifyContent: "center",
+    alignItems: "center",
+    alignSelf: "center",
+    marginTop: 100,
+    backgroundColor: "#FFFFFF",
   },
 
 });

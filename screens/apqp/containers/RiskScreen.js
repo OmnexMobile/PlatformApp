@@ -6,6 +6,7 @@ import {
   View,
   TouchableOpacity,
   FlatList,
+  ActivityIndicator,
 } from "react-native";
 // import ResponsiveImage from "react-native-responsive-image";
 // import InputField from "../Components/Shared/InputField";
@@ -27,12 +28,14 @@ import styles from "./styles/RiskScreenStyles";
 import { Dropdown } from "react-native-material-dropdown";
 const moment = extendMoment(Moment);
 import { strings } from "../language/Language";
-import { DoubleBounce } from "react-native-loader";
+// import { DoubleBounce } from "react-native-loader";
 import OfflineNotice from "../components/OfflineNotice";
 import { ROUTES } from "constants/app-constant";
 import NetInfo from "@react-native-community/netinfo";
 import GlobalHeader from "components/GlobalHeader";
 import RiskCard from "../components/RiskCard";
+import { NoRecordFound } from "components";
+import { showErrorMessage } from "helpers/utils";
 const dropdownOffset = { top: 20, left: 0 };
 
 const Reset = "Reset";
@@ -245,7 +248,8 @@ class RiskScreen extends Component {
           }
         });
       } else {
-        this.refs.toast.show(strings.Project_List_Failed, DURATION.LENGTH_LONG);
+        // this.refs.toast.show(strings.Project_List_Failed, DURATION.LENGTH_LONG);
+        showErrorMessage(strings.Project_List_Failed)
         this.setState(
           {
             loading: false,
@@ -817,16 +821,20 @@ class RiskScreen extends Component {
 
   NoRecordsFound() {
     return (
-      <Text style={styles.noRecordsText}>
-        {strings.No_records_found}
-      </Text>
+      // <Text style={styles.noRecordsText}>
+      //   {strings.No_records_found}
+      // </Text>
+    <View style={styles.emptyStateContainer1}>
+      <NoRecordFound />
+    </View>
     );
   }
 
   renderBounce() {
     return (
       <View style={styles.bounceContainer}>
-        <DoubleBounce size={20} color="#1CAFF6" />
+        {/* <DoubleBounce size={20} color="#1CAFF6" /> */}
+        <ActivityIndicator size="small" color="#1CAFF6" />
       </View>
     );
   }

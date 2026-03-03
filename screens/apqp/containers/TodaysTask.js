@@ -1377,7 +1377,8 @@ class ActionTabInterface extends Component {
           alignItems: "center",
         }}
       >
-        <DoubleBounce size={20} color="#1CAFF6" />
+        {/* <DoubleBounce size={20} color="#1CAFF6" /> */}
+        <ActivityIndicator size={20} color="#1CAFF6" />
       </View>
     );
   }

@@ -44,25 +44,24 @@ const MeetingCard = ({ item = {}, handleClickCard }) => {
                 <View style={styles.cardOuterView}>
                     <View style={styles.projectBoxContent}>
                         {item?.Actions ? ( <View style={styles.fullWidthRow}>
-                            <TextComponent style={styles.primaryLabelText}  type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.SMALL}>
-                                Action : <TextComponent numberOfLines={1} fontSize={FONT_SIZE.SMALL} style={themedStyles.actionPrimaryValueText}>
+                            {/* <TextComponent style={styles.primaryLabelText}  type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.SMALL}>
+                                Action :  */}
+                                <TextComponent numberOfLines={1} fontSize={FONT_SIZE.LARGE}  style={themedStyles.actionPrimaryValueText}>
                                     {item.Actions}
                                 </TextComponent>
-                            </TextComponent>
+                            {/* </TextComponent> */}
                         </View>) : null}
-                        {item?.ActionType ? ( <View style={styles.fullWidthRow}>
+                        {/* {item?.ActionType ? ( <View style={styles.fullWidthRow}>
                             <TextComponent style={styles.primaryLabelText}  type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.SMALL}>
                                 Action Type : <TextComponent numberOfLines={1} fontSize={FONT_SIZE.SMALL} style={styles.secondaryValueText}>
                                 {item.ActionType}
                             </TextComponent>
                             </TextComponent>
-                        </View>) : null}
-                        {item?.Site ? (<TextComponent style={styles.primaryRowText}   type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.SMALL} numberOfLines={1}>
-                            Site : <TextComponent fontSize={FONT_SIZE.SMALL} style={styles.secondaryValueText}>{item?.Site}</TextComponent>
-                        </TextComponent>) : null}
-                        {item?.Description ? (<TextComponent style={styles.primaryRowText}   type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.SMALL} numberOfLines={1}>
+                        </View>) : null} */}
+
+                        {/* {item?.Description ? (<TextComponent style={styles.primaryRowText}   type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.SMALL} numberOfLines={1}>
                             Description : <TextComponent fontSize={FONT_SIZE.SMALL} style={styles.secondaryValueText}>{item?.Description}</TextComponent>
-                        </TextComponent>) : null}
+                        </TextComponent>) : null} */}
                         {item?.ActionCreatedDate ? (<View style={styles.dateRow}>
                             <View style={styles.dateIconWrapper}>
                                 <View
@@ -78,10 +77,20 @@ const MeetingCard = ({ item = {}, handleClickCard }) => {
                             </View>
                         </View>
                         ) : null}
-                        {item?.Status ? (<TextComponent style={styles.primaryRowText} type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.SMALL}  numberOfLines={1}>
+
+                        {item?.Site ? (
+                        // <TextComponent style={styles.primaryRowText}   type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.SMALL} numberOfLines={1}>
+                        //     Site :
+                        <View style={styles.fullWidthRow}>
+                            <TextComponent type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.SMALL} style={styles.secondaryValueText}>{item?.Site}</TextComponent>
+                        </View>
+                             
+                        // </TextComponent>
+                        ) : null}
+                        {/* {item?.Status ? (<TextComponent style={styles.primaryRowText} type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.SMALL}  numberOfLines={1}>
                             Status : <TextComponent fontSize={FONT_SIZE.SMALL} style={styles.secondaryValueText}>{item?.Status}</TextComponent>
-                        </TextComponent>) : null}
-                        {item?.DueByDays ? (<TextComponent style={styles.primaryRowText} type={FONT_TYPE.BOLD}   fontSize={FONT_SIZE.SMALL}   numberOfLines={1}>
+                        </TextComponent>) : null} */}
+                        {item?.DueByDays ? (<TextComponent style={styles.primaryRowText} fontSize={FONT_SIZE.SMALL}   numberOfLines={1}>
                             Due by days: <TextComponent type={FONT_TYPE.BOLD}
                             style={
                                 item.DueByDays > 0

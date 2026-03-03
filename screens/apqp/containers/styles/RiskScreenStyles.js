@@ -21,8 +21,7 @@ export default StyleSheet.create({
   },
   mainContainer: {
     flex: 1,
-    width: Window.width,
-    height: Window.height,
+    width: "100%",
   },
   bgImage: {
     width: Window.width,
@@ -68,8 +67,8 @@ export default StyleSheet.create({
     padding: 2,
   },
   flatList: {
-    width: Window.width,
-    height: "92%",
+    flex: 1,
+    width: "100%",
     padding: 5,
     //marginBottom: 30,
   },
@@ -566,11 +565,11 @@ export default StyleSheet.create({
   },
   bounceContainer: {
     paddingVertical: 20,
-    width: Window.width,
-    height: height(100) - 213,
+    width: "100%",
     flex: 1,
     flexDirection: "column",
     alignItems: "center",
+    justifyContent: "center",
   },
   calendarTitleText: {
     fontSize: 20,
@@ -618,5 +617,14 @@ export default StyleSheet.create({
   scrollTodayViewBody: {
     height: "100%",
     backgroundColor: "transparent",
+  },
+  emptyStateContainer1: {
+    width: "92%",
+    height: 160,
+    justifyContent: "center",
+    alignItems: "center",
+    alignSelf: "center",
+    marginTop: 100,
+    backgroundColor: "#FFFFFF",
   },
 });

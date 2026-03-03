@@ -21,16 +21,19 @@ import AsyncStorage from "@react-native-community/async-storage";
 import styles from "./styles/MeetingPlanStyles";
 
 import Moment from "moment";
-import { ICON_TYPE, ROUTES } from "constants/app-constant";
+import { FONT_TYPE, ICON_TYPE, ROUTES } from "constants/app-constant";
 import GlobalHeader from "components/GlobalHeader";
-import { FAB } from "components";
+import { FAB, TextComponent } from "components";
+import { FONT_SIZE } from "constants/theme-constants";
+import { showErrorMessage, showWarningMessage, successMessage } from "helpers/utils";
 
 class MeetingPlanScreen extends Component {
   UserId = "";
   Token = "";
   ProjectId = "";
   ActionId = "";
-  Status = undefined;
+  Status = 2;
+  StatusVal = "Completed";
   constructor() {
     super();
     this.state = {
@@ -118,6 +121,15 @@ getData = async () => {
     auth.getapqpMeetingPlanList(ActionId, token, (res, data) => {
       console.log("getting responses", data);
       if (data.data.Message == "Success") {
+        const meetingItem = data?.data?.Data?.[0];
+        if (
+          meetingItem?.StatusCode !== undefined &&
+          meetingItem?.Status !== undefined
+        ) {
+          this.Status = meetingItem.StatusCode;
+          this.StatusVal = meetingItem.Status;
+        }
+
         this.setState(
           {
             apqpMeetingPlanList: data.data.Data,
@@ -146,23 +158,26 @@ getData = async () => {
         console.log("-->", data);
 
         if (data.data.Message == "Success") {
-          this.refs.toast.show(
-            "Meetings status updated successfully.",
-            DURATION.LENGTH_SHORT
-          );
+          // this.refs.toast.show(
+          //   "Meetings status updated successfully.",
+          //   DURATION.LENGTH_SHORT
+          // );
+        successMessage({ message: '', description: "Meetings Status Updated Successfully."});
 		  
          this.updateRecentActionList();
           this.onPressBack();
 
         } else {
-          this.refs.toast.show(
-            "Failed to Save Meeting!",
-            DURATION.LENGTH_SHORT
-          );
+          // this.refs.toast.show(
+          //   "Failed to Save Meeting!",
+          //   DURATION.LENGTH_SHORT
+          // );
+        showErrorMessage('Failed to Save Meeting!')
         }
       });
     } else {
-      this.refs.toast.show("Please select Status!", DURATION.LENGTH_SHORT);
+      // this.refs.toast.show("Please select Status!", DURATION.LENGTH_SHORT);
+      showWarningMessage({ message: 'Please Select Status!'})
     }
   }
 
@@ -199,7 +214,8 @@ getData = async () => {
         auth.getonCompMeetingPlan(ActionId, Status, Token, (res, data) => {
           console.log("save response", data);
           if (data.data.Message == "Success") {
-            this.refs.toast.show(data.data.Data, DURATION.LENGTH_SHORT);
+            // this.refs.toast.show(data.data.Data, DURATION.LENGTH_SHORT);
+          successMessage({ message: '', description: data.data.Data})
           }
         });
       }
@@ -276,76 +292,112 @@ console.log("HI old", Array);
         <View style={Platform.OS === "ios" ? styles.topSpacerIos : styles.topSpacerAndroid} />
         {this.renderHeader()}
 
-        <ScrollView style={styles.flatListWholeView}>
+        <ScrollView style={styles.flatListWholeView} contentContainerStyle={styles.flatListWholeContent}>
           {this.state.apqpMeetingPlanList.length > 0 ? (
             <View>
               <View style={styles.line1}>
-                <Text style={styles.flatListContent}>Action Created Date</Text>
+                <TextComponent fontSize={FONT_SIZE.SMALL} type={FONT_TYPE.BOLD}>Action Created Date</TextComponent>
+                <TextComponent fontSize={FONT_SIZE.SMALL}>
+                  {this.changeDateFormat(
+                    this.state.apqpMeetingPlanList[0].ActionCreatedDate
+                  )}
+                </TextComponent>
+                {/* <Text style={styles.flatListContent}>Action Created Date</Text>
                 <Text style={styles.flatListContent1}>
                   {this.changeDateFormat(
                     this.state.apqpMeetingPlanList[0].ActionCreatedDate
                   )}
-                </Text>
+                </Text> */}
               </View>
               <View style={styles.line1}>
-                <Text style={styles.flatListContent}>ActionType</Text>
+                <TextComponent fontSize={FONT_SIZE.SMALL} type={FONT_TYPE.BOLD}>ActionType</TextComponent>
+                <TextComponent fontSize={FONT_SIZE.SMALL}>
+                  {this.state.apqpMeetingPlanList[0].ActionType}
+                </TextComponent>
+                {/* <Text style={styles.flatListContent}>ActionType</Text>
                 <Text style={styles.flatListContent1}>
                   {this.state.apqpMeetingPlanList[0].ActionType}
-                </Text>
+                </Text> */}
               </View>
               <View style={styles.line1}>
-                <Text style={styles.flatListContent}>Action</Text>
+                <TextComponent fontSize={FONT_SIZE.SMALL} type={FONT_TYPE.BOLD}>Action</TextComponent>
+                <TextComponent fontSize={FONT_SIZE.SMALL}>
+                  {this.state.apqpMeetingPlanList[0].Actions}
+                </TextComponent>
+                {/* <Text style={styles.flatListContent}>Action</Text>
                 <Text style={styles.flatListContent1}>
                   {this.state.apqpMeetingPlanList[0].Actions}
-                </Text>
+                </Text> */}
               </View>
               <View style={styles.line1}>
-                <Text style={styles.flatListContent}>Description</Text>
+                <TextComponent fontSize={FONT_SIZE.SMALL} type={FONT_TYPE.BOLD}>Description</TextComponent>
+                <TextComponent fontSize={FONT_SIZE.SMALL}>
+                  {this.state.apqpMeetingPlanList[0].Description}
+                </TextComponent>
+                {/* <Text style={styles.flatListContent}>Description</Text>
                 <Text style={styles.flatListContent1}>
                   {this.state.apqpMeetingPlanList[0].Description}
-                </Text>
+                </Text> */}
               </View>
               <View style={styles.line1}>
-                <Text style={styles.flatListContent}>Due By Days</Text>
+                <TextComponent fontSize={FONT_SIZE.SMALL} type={FONT_TYPE.BOLD}>Due By Days</TextComponent>
+                <TextComponent fontSize={FONT_SIZE.SMALL}>
+                  {this.props?.route?.params?.MeetingDetails?.DueByDays
+                    ? this.props?.route?.params?.MeetingDetails?.DueByDays
+                    : "-"}
+                </TextComponent>
+                {/* <Text style={styles.flatListContent}>Due By Days</Text>
                 <Text style={styles.flatListContent1}>
                   {this.props?.route?.params?.MeetingDetails?.DueByDays
                     ? this.props?.route?.params?.MeetingDetails?.DueByDays
                     : "-"}
-                </Text>
+                </Text> */}
               </View>
               <View style={styles.line1}>
-                <Text style={styles.flatListContent}>Due Date</Text>
+                <TextComponent fontSize={FONT_SIZE.SMALL} type={FONT_TYPE.BOLD}>Due Date</TextComponent>
+                <TextComponent fontSize={FONT_SIZE.SMALL}>
+                  {this.changeDateFormat(
+                    this.state.apqpMeetingPlanList[0].DueDate
+                  )}
+                </TextComponent>
+                {/* <Text style={styles.flatListContent}>Due Date</Text>
                 <Text style={styles.flatListContent1}>
                   {this.changeDateFormat(
                     this.state.apqpMeetingPlanList[0].DueDate
                   )}
-                </Text>
+                </Text> */}
               </View>
               <View style={styles.line1}>
-                <Text style={styles.flatListContent}>Site</Text>
+                <TextComponent fontSize={FONT_SIZE.SMALL} type={FONT_TYPE.BOLD}>Site</TextComponent>
+                <TextComponent fontSize={FONT_SIZE.SMALL}>
+                  {this.state.apqpMeetingPlanList[0].Site}
+                </TextComponent>
+                {/* <Text style={styles.flatListContent}>Site</Text>
                 <Text style={styles.siteText}>
                   {this.state.apqpMeetingPlanList[0].Site}
-                </Text>
+                </Text> */}
               </View>
               <View style={styles.line2}>
-                <View style={styles.statusDropdownContainer}>
                   <Dropdown
                     label="Status"
                     data={data}
-                    baseColor="#000"
+                    baseColor="#484848"
+                    textColor="#484848"
+                    labelFontSize={FONT_SIZE.SMALL}
+                    value={this.StatusVal}
+                    valueTextStyle={styles.statusDropdownLabel}
                     labelTextStyle={styles.statusDropdownLabel}
-                    textColor="#000"
                     onChangeText={(value) => {
                       for (var i = 0; i < data.length; i++) {
                         if (value == data[i].value) {
                           this.Status = data[i].id;
+                          this.StatusVal = data[i].value;
                         }
                       }
                       console.log("Status is now", this.Status);
                     }}
                   />
                 </View>
-              </View>
             </View>
           ) : (
             <View></View>

@@ -1,11 +1,11 @@
 import React, { Component } from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from "react-native";
 //styles
 import { Fonts } from "../themes";
 //library
 import * as _ from "lodash";
 // import NetInfo from "@react-native-community/netinfo";
-import { DoubleBounce } from "react-native-loader";
+// import { DoubleBounce } from "react-native-loader";
 import { Agenda } from "react-native-calendars";
 import Toast, { DURATION } from "react-native-easy-toast";
 // import { withNavigation } from "react-navigation";
@@ -116,7 +116,8 @@ class CalendarAgenda extends Component {
       return (
         <View style={styles.wrapper}>
           <View style={styles.loaderParent}>
-            <DoubleBounce size={20} color="#1CAFF6" />
+            {/* <DoubleBounce size={20} color="#1CAFF6" /> */}
+            <ActivityIndicator size={20} color="#1CAFF6" />
           </View>
         </View>
       );

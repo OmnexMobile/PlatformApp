@@ -37,9 +37,10 @@ import ScrollableTabView, {
 import { ROUTES } from "constants/app-constant";
 import GlobalHeader from "components/GlobalHeader";
 import CardList from "../components/CardList";
+import { NoRecordFound } from "components";
+import { showErrorMessage, successMessage } from "helpers/utils";
 // import Reactotron from "reactotron-react-native";
 const moment = extendMoment(Moment);
-const window_width = Dimensions.get("window").width;
 const Reset = "Reset";
 class ApqpPpapManagerScreen extends Component {
   calendarData = [];
@@ -76,7 +77,9 @@ class ApqpPpapManagerScreen extends Component {
   constructor(props) {
     super(props);
     console.log('get current props--->', props)
+    const { width: viewportWidth } = Dimensions.get("window");
     this.state = {
+      viewportWidth,
       currentTabIndex: 0,
       selectedIndex: 0,
       todayn: 1,
@@ -140,7 +143,18 @@ class ApqpPpapManagerScreen extends Component {
       // apqpList: [],
     };
     this.animatedIndicatorPosition = new Animated.Value(0);
+    this.handleDimensionChange = this.handleDimensionChange.bind(this);
   }
+
+  handleDimensionChange({ window }) {
+    const viewportWidth = window?.width || Dimensions.get("window").width;
+    this.setState({ viewportWidth }, () => {
+      this.animatedIndicatorPosition.setValue(
+        this.state.currentTabIndex * viewportWidth
+      );
+    });
+  }
+
   setting = () => {
     // this.setState({ todayn: this.props.navigation.state.params.todayn });
     this.setState({ todayn: this.props?.route?.params?.todayn });
@@ -156,6 +170,10 @@ class ApqpPpapManagerScreen extends Component {
   unsubscribe;
   componentDidMount() {
     console.log(this.props?.route?.params, "navigationparamsapqp");
+    this.dimensionSubscription = Dimensions.addEventListener(
+      "change",
+      this.handleDimensionChange
+    );
     this.unsubscribe = this.props.navigation.addListener('focus', () => {
       console.log('Screen focused again');
       this.getapqplistdata()
@@ -232,6 +250,9 @@ class ApqpPpapManagerScreen extends Component {
   }
 
   componentWillUnmount() {
+    if (this.dimensionSubscription?.remove) {
+      this.dimensionSubscription.remove();
+    }
     if (this.unsubscribe) {
       this.unsubscribe();
     }
@@ -309,7 +330,8 @@ class ApqpPpapManagerScreen extends Component {
           }
         });
       } else {
-        this.refs.toast.show(strings.Project_List_Failed, DURATION.LENGTH_LONG);
+        // this.refs.toast.show(strings.Project_List_Failed, DURATION.LENGTH_LONG);
+        showErrorMessage(strings.Project_List_Failed);
         this.setState(
           {
             loading: false,
@@ -850,7 +872,8 @@ class ApqpPpapManagerScreen extends Component {
           }
         );
       } else {
-        this.refs.toast.show(strings.Project_List_Failed, DURATION.LENGTH_LONG);
+        // this.refs.toast.show(strings.Project_List_Failed, DURATION.LENGTH_LONG);
+        showErrorMessage(strings.Project_List_Failed);
         this.setState(
           {
             // auditList: this.props.data.audits.audits,
@@ -1275,12 +1298,13 @@ class ApqpPpapManagerScreen extends Component {
                     modalErrortxt: "",
                   },
                   () => {
-                    this.refs.toast.show(
-                      data.data.Data == ""
-                        ? "Saved successfully"
-                        : data.data.Data,
-                      DURATION.LENGTH_SHORT
-                    );
+                    // this.refs.toast.show(
+                    //   data.data.Data == ""
+                    //     ? "Saved successfully"
+                    //     : data.data.Data,
+                    //   DURATION.LENGTH_SHORT
+                    // );
+                    successMessage({ message: '', description: "Saved Successfully."});
                     this.getapqplistdata(this.state.selectedIndex);
                   }
                 );
@@ -1292,7 +1316,8 @@ class ApqpPpapManagerScreen extends Component {
                     modalErrortxt: data.data.Data,
                   },
                   () => {
-                    this.refs.toast.show(data.data.Data, DURATION.LENGTH_SHORT);
+                    // this.refs.toast.show(data.data.Data, DURATION.LENGTH_SHORT);
+                    showErrorMessage(data.data.Data)
                   }
                 );
               }
@@ -1685,7 +1710,8 @@ class ApqpPpapManagerScreen extends Component {
           }
         );
       } else {
-        this.refs.toast.show(strings.Project_List_Failed, DURATION.LENGTH_LONG);
+        // this.refs.toast.show(strings.Project_List_Failed, DURATION.LENGTH_LONG);
+        showErrorMessage(strings.Project_List_Failed);
         this.setState(
           {
             //actionsList: this.props.data.actions,
@@ -1723,9 +1749,12 @@ class ApqpPpapManagerScreen extends Component {
 
   NoRecordsFound() {
     return (
-      <Text style={styles.noRecordsText}>
-        {strings.No_records_found}
-      </Text>
+      <View style={styles.emptyStateContainer1}>
+        <NoRecordFound />
+      </View>
+      // <Text style={styles.noRecordsText}>
+      //   {strings.No_records_found}
+      // </Text>
     );
   }
 
@@ -2296,6 +2325,8 @@ class ApqpPpapManagerScreen extends Component {
     const result = Number.isNaN(v2 + v1) ? 0 : v2 + v1;
     const result1 = v2 + v1;
     console.log("Tab changed result", v1, v2, result, result1);
+    const viewportWidth =
+      this.state.viewportWidth || Dimensions.get("window").width;
     const onScrollHandler = Animated.event(
       [
         {
@@ -2305,8 +2336,9 @@ class ApqpPpapManagerScreen extends Component {
       { useNativeDriver: false }
     );
     const translateX = this.animatedIndicatorPosition.interpolate({
-      inputRange: [0, window_width * 3],
-      outputRange: [0, window_width],
+      inputRange: [0, viewportWidth * 2],
+      outputRange: [0, (viewportWidth * 2) / 3],
+      extrapolate: "clamp",
     });
     if (this.state.todayn == 1) {
       // console.log("----------->PendingTask_Status----this.state.todayn---->"+this.state.todayn)
@@ -2314,12 +2346,12 @@ class ApqpPpapManagerScreen extends Component {
       // console.log("-------->this.state.activeTab------>"+this.state.activeTab)
       // console.log("loadProjects---------->2--------->");
       return (
-        <View style={styles.mainContainer}>
+        <View style={[styles.mainContainer, { width: viewportWidth }]}>
           {this.renderTopSpacer()}
           <OfflineNotice />
           {this.renderHeader()}
           {showHide !== true ? (
-            <View style={styles.tabHeaderContainer}>
+            <View style={[styles.tabHeaderContainer, { width: viewportWidth }]}>
               <TouchableWithoutFeedback
                 onPress={() => {
                   this.setState({
@@ -2329,7 +2361,7 @@ class ApqpPpapManagerScreen extends Component {
                   this.loadProjects(0);
                 }}
               >
-                <View style={styles.tabHeaderItem}>
+                <View style={[styles.tabHeaderItem, { width: viewportWidth / 3 }]}>
                   <Text style={this.getTabTextStyle(0)}>
                     All {`(${result})`}
                   </Text>
@@ -2341,11 +2373,11 @@ class ApqpPpapManagerScreen extends Component {
                   this.setState({
                     currentTabIndex: 1,
                   });
-                  this.animatedIndicatorPosition.setValue(window_width * 1);
+                  this.animatedIndicatorPosition.setValue(viewportWidth * 1);
                   this.loadProjects(1);
                 }}
               >
-                <View style={styles.tabHeaderItem}>
+                <View style={[styles.tabHeaderItem, { width: viewportWidth / 3 }]}>
                   <Text style={this.getTabTextStyle(1, true)}>
                     To be Completed {`(${v1})`}
                   </Text>
@@ -2357,11 +2389,11 @@ class ApqpPpapManagerScreen extends Component {
                   this.setState({
                     currentTabIndex: 2,
                   });
-                  this.animatedIndicatorPosition.setValue(window_width * 2);
+                  this.animatedIndicatorPosition.setValue(viewportWidth * 2);
                   this.loadProjects(2);
                 }}
               >
-                <View style={styles.tabHeaderItem}>
+                <View style={[styles.tabHeaderItem, { width: viewportWidth / 3 }]}>
                   <Text style={this.getTabTextStyle(2)}>
                     Pending {`(${v2})`}
                   </Text>
@@ -2370,16 +2402,18 @@ class ApqpPpapManagerScreen extends Component {
             </View>
           ) : null}
 
-          <View style={styles.tabIndicatorTrack}>
+          <View style={[styles.tabIndicatorTrack, { width: viewportWidth }]}>
             <Animated.View
               style={this.getTabIndicatorSpacerStyle(translateX)}
             />
-            <Animated.View style={styles.tabIndicator} />
+            <Animated.View
+              style={[styles.tabIndicator, { width: viewportWidth / 3 }]}
+            />
           </View>
           <Animated.ScrollView
             onMomentumScrollEnd={(evt) => {
               const { x } = evt.nativeEvent.contentOffset;
-              const i = Math.round(x / window_width);
+              const i = Math.round(x / viewportWidth);
               this.loadProjects(i);
               this.setState({
                 currentTabIndex: i,
@@ -2390,13 +2424,13 @@ class ApqpPpapManagerScreen extends Component {
             showsHorizontalScrollIndicator={false}
             pagingEnabled
           >
-            <View style={styles.tabPage}>
+            <View style={[styles.tabPage, { width: viewportWidth }]}>
               {this.allProjects()}
             </View>
-            <View style={styles.tabPage}>
+            <View style={[styles.tabPage, { width: viewportWidth }]}>
               {this.allToBeCompletedProjects()}
             </View>
-            <View style={styles.tabPage}>
+            <View style={[styles.tabPage, { width: viewportWidth }]}>
               {this.allPendingProjects()}
             </View>
           </Animated.ScrollView>
@@ -2555,7 +2589,7 @@ class ApqpPpapManagerScreen extends Component {
     } else if (this.state.todayn == 2) {
       console.log("loadProjects---------->3--------->");
       return (
-        <View style={styles.mainContainer}>
+        <View style={[styles.mainContainer, { width: viewportWidth }]}>
           {this.renderTopSpacer()}
           <OfflineNotice />
           {this.renderHeader()}
@@ -2733,7 +2767,7 @@ class ApqpPpapManagerScreen extends Component {
       );
     } else {
       return (
-        <View style={styles.mainContainer}>
+        <View style={[styles.mainContainer, { width: viewportWidth }]}>
           {this.renderTopSpacer()}
           <OfflineNotice />
           {this.renderHeader()}

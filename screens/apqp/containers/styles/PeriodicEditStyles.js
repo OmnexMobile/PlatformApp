@@ -14,12 +14,26 @@ export default StyleSheet.create({
   },
   mainContainer: {
     flex: 1,
-    width: Window.width,
-    height: Window.height,
+    width: "100%",
+    height: "100%",
   },
   textHeader: {
     flexDirection: "row",
     alignItems: "center",
+    paddingBottom: 10,
+    paddingHorizontal: 15,
+  },
+
+  title: {
+    fontSize: 16,
+    color: '#000',
+    fontFamily: 'OpenSans-SemiBold',
+  },
+
+  subTitle: {
+    fontSize: 16,
+    color: '#5b5b5b',
+    fontFamily: 'OpenSans-Regular',
   },
 
   bgImage: {
@@ -90,14 +104,14 @@ export default StyleSheet.create({
     marginLeft: '3%',
   },
   flatListWholeViewWithTopMargin: {
+    flex: 1,
     width: "100%",
-    height: "81%",
-    position: "absolute",
-    marginTop: 100,
+    marginTop: 0,
     padding: 8,
     flexDirection: "column",
-    marginBottom: 10,
-    marginLeft: "3%",
+  },
+  formContentContainer: {
+    paddingBottom: 70,
   },
 
   apqpTextStyle: {
@@ -329,8 +343,8 @@ export default StyleSheet.create({
   },
   sec1: {
     width: "100%",
-    height: 75,
-    marginLeft: '1%',
+    minHeight: 58,
+    marginBottom: SPACING.X_SMALL,
   },
   startDateSectionEmpty: {
     marginTop: -10,
@@ -340,7 +354,7 @@ export default StyleSheet.create({
   },
   remark: {
     width: "100%",
-    marginLeft: '1%',
+    marginBottom: SPACING.X_NORMAL,
   },
   remarkClientEmpty: {
     marginTop: -10,
@@ -436,12 +450,10 @@ export default StyleSheet.create({
   },
   roundView: {
     position: "absolute",
-    //paddingTop: 10,
-    top: 5,
+    top: 40,
     height: 40,
-    //textAlign: "right",
     width: 40,
-    right: '2%',
+    right: '5%',
     borderRadius: 40,
     borderColor: "#00BAC8",
     borderWidth: 0.7,
@@ -469,6 +481,12 @@ export default StyleSheet.create({
   defaultRemarksRowFilled: {
     marginTop: "6%",
     marginBottom: "1.2%",
+  },
+  fieldRowSpacing: {
+    marginBottom: SPACING.X_SMALL,
+  },
+  defaultRemarksCompact: {
+    paddingBottom: SPACING.X_SMALL,
   },
   bottomSpacer: {
     height: 50,
@@ -505,5 +523,22 @@ export default StyleSheet.create({
   },
   toastText: {
     color: "white",
+  },
+  inputNoHorizontalPadding: {
+      paddingHorizontal: 0,
+  },
+  remarksMultilineInput: {
+      minHeight: 90,
+      textAlignVertical: "top",
+  },
+  inputContainerNoPad: {
+      paddingHorizontal: 0,
+      marginBottom: 0,
+      marginLeft: 15,
+  },
+  inputContainer: {
+      paddingHorizontal: 0,
+      marginBottom: 0,
+      marginLeft: 15,
   },
 });

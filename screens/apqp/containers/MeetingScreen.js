@@ -6,6 +6,7 @@ import {
   View,
   TouchableOpacity,
   FlatList,
+  ActivityIndicator,
 } from "react-native";
 // import ResponsiveImage from "react-native-responsive-image";
 // import InputField from "../Components/Shared/InputField";
@@ -31,6 +32,8 @@ import OfflineNotice from "../components/OfflineNotice";
 import { ROUTES } from "constants/app-constant";
 import GlobalHeader from "components/GlobalHeader";
 import MeetingCard from "../components/MeetingCard";
+import { NoRecordFound } from "components";
+import { showErrorMessage } from "helpers/utils";
 const dropdownOffset = { top: 15, left: 0 };
 
 const Reset = "Reset";
@@ -248,7 +251,8 @@ class MeetingScreen extends Component {
           }
         });
       } else {
-        this.refs.toast.show(strings.Project_List_Failed, DURATION.LENGTH_LONG);
+        // this.refs.toast.show(strings.Project_List_Failed, DURATION.LENGTH_LONG);
+        showErrorMessage(strings.Project_List_Failed)
         this.setState(
           {
             loading: false,
@@ -505,7 +509,8 @@ class MeetingScreen extends Component {
   renderBounce() {
     return (
       <View style={styles.bounceContainer}>
-        <DoubleBounce size={20} color="#1CAFF6" />
+        {/* <DoubleBounce size={20} color="#1CAFF6" /> */}
+        <ActivityIndicator size="small" color="#1CAFF6" />
       </View>
     );
   }
@@ -744,9 +749,12 @@ class MeetingScreen extends Component {
   }
   NoRecordsFound() {
     return (
-      <Text style={styles.noRecordsText}>
-        {strings.No_records_found}
-      </Text>
+      // <Text style={styles.noRecordsText}>
+      //   {strings.No_records_found}
+      // </Text>
+    <View style={styles.emptyStateContainer1}>
+      <NoRecordFound />
+    </View>
     );
   }
 
@@ -755,11 +763,11 @@ class MeetingScreen extends Component {
       <View style={styles.filterCont}>
         <TouchableOpacity
           style={styles.filterBox}
-          // onPress={() =>
-          //   this.props.navigation.navigate(ROUTES.FILTER_SCREEN_APQP, {
-          //     callback_flag:
-          //       this.state.filterArrSplit.length == 0 ? false : true,
-          // })}
+          onPress={() =>
+            this.props.navigation.navigate(ROUTES.FILTER_SCREEN_APQP, {
+              callback_flag:
+                this.state.filterArrSplit.length == 0 ? false : true,
+          })}
         >
           <Icon name="filter" size={20} color="#89888A" />
           <Text style={styles.filterLabelText}>
@@ -896,9 +904,9 @@ class MeetingScreen extends Component {
         <OfflineNotice />
         {this.renderHeader()}
         <View style={styles.flatList}>
-          {this.state.apqpMeetingListdata.length > 0
+          {/* {this.state.apqpMeetingListdata.length > 0
             ? this.filterSection()
-            : null}
+            : null} */}
           {this.state.filterArrSplit.length > 0 ? this.renderFilter() : null}
           {!this.state.isLoading
             ? this.state.apqpMeetingListdata.length > 0

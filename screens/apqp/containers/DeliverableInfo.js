@@ -18,7 +18,8 @@ import styles from "./styles/DeliverableInfoStyles";
 import { ICON_TYPE, ROUTES } from "constants/app-constant";
 import { strings } from "../language/Language";
 import GlobalHeader from "components/GlobalHeader";
-import { FAB } from "components";
+import { FAB, NoRecordFound } from "components";
+import { showWarningMessage } from "helpers/utils";
 // import { OpenDocument } from "./OpenDocumentScreen";
 export class DeliverableInfoScreen extends Component {
   TaskId = "";
@@ -80,16 +81,18 @@ export class DeliverableInfoScreen extends Component {
 
   onPressAttach(type, item) {
     if (type == "OPD" && item.OPDocName != "" && item.OPDocId == 0) {
-      this.refs.toast.show(
-        "Sorry! This output document is currently waiting for the approval.",
-        DURATION.LENGTH_SHORT
-      );
+      // this.refs.toast.show(
+      //   "Sorry! This output document is currently waiting for the approval.",
+      //   DURATION.LENGTH_SHORT
+      // );
+      showWarningMessage({message: 'Sorry! This Output Document Is Currently Waiting For The Approval.'})
     } else {
       if (this.ResourcePercent == 100) {
-        this.refs.toast.show(
-          "Cant able to attach document after completing the task",
-          DURATION.LENGTH_SHORT
-        );
+        // this.refs.toast.show(
+        //   "Cant able to attach document after completing the task",
+        //   DURATION.LENGTH_SHORT
+        // );
+        showWarningMessage({ message: "Cant Able To Attach Document After Completing The Task"});
       } else {
         this.props.navigation.navigate(ROUTES.ATTACH_ADDITIONAL_DOC_SCREEN, {
           type: type,
@@ -181,7 +184,32 @@ export class DeliverableInfoScreen extends Component {
     );
   }
 
+  getStatusBadgeStyle(status) {
+    const normalizedStatus = (status || "").toLowerCase();
+    if (
+      normalizedStatus.includes("approved") ||
+      normalizedStatus.includes("completed")
+    ) {
+      return styles.statusBadgeSuccess;
+    }
+    if (
+      normalizedStatus.includes("pending") ||
+      normalizedStatus.includes("waiting")
+    ) {
+      return styles.statusBadgePending;
+    }
+    if (
+      normalizedStatus.includes("reject") ||
+      normalizedStatus.includes("cancel") ||
+      normalizedStatus.includes("fail")
+    ) {
+      return styles.statusBadgeDanger;
+    }
+    return styles.statusBadgeDefault;
+  }
+
   render() {
+    const deliverables = this.state.apqpDeliverableInfoList || [];
     return (
       <View style={styles.mainContainer}>
         <View
@@ -198,89 +226,119 @@ export class DeliverableInfoScreen extends Component {
         <View style={styles.contentContainer}>
           <View style={styles.sectionHeaderContainer}>
             <View style={styles.sectionHeader}>
-              <View style={styles.listViewTop}>
-                <Text style={styles.listText}>Deliverable Name :</Text>
-                <Text style={styles.listNextText}>{this.DeliverableName}</Text>
+              <Text style={styles.summaryDeliverableName}>Deliverable Name</Text>
+              <Text style={styles.summaryTitle} numberOfLines={2}>
+                {this.DeliverableName || "NA"}
+              </Text>
+              <View style={styles.summaryStatsRow}>
+                <View style={styles.summaryStatCard}>
+                  <Text style={styles.summaryStatLabel}>Completed %</Text>
+                  <Text style={styles.summaryStatValue}>
+                    {this.ResourcePercent || "0"}%
+                  </Text>
+                </View>
+                <View style={[styles.summaryStatCard, styles.summaryStatCardLast]}>
+                  <Text style={styles.summaryStatLabel}>Attachments</Text>
+                  <Text style={styles.summaryStatValue}>{deliverables.length}</Text>
+                </View>
               </View>
-              <View style={styles.listViewTop}>
-                <Text style={styles.listText}>Completed % :</Text>
-                <Text style={styles.listNextText}>{this.ResourcePercent}</Text>
-              </View>
-            
-           
-              <View style={styles.attachmentsTitleContainer}>
-                <Text style={styles.attachmentsTitleText}>
-                  Attachments
-                </Text>
-              </View>
-
-               </View>
+            </View>
           </View>
+
+          {deliverables.length > 0 &&<View style={styles.attachmentsTitleContainer}>
+            <Text style={styles.attachmentsTitleText}>Attachments</Text>
+          </View>}
             
-          {this.state.apqpDeliverableInfoList &&
-            this.state.apqpDeliverableInfoList.length > 0 ? (
+          {deliverables.length > 0 ? (
             <FlatList
               style={styles.deliverablesList}
-              data={this.state.apqpDeliverableInfoList}
-
+              data={deliverables}
+              scrollEnabled
+              nestedScrollEnabled
+              keyExtractor={(item, index) =>
+                `${item?.OPDocId || "doc"}-${index}`
+              }
+              contentContainerStyle={styles.deliverablesListContent}
               renderItem={({ item }) => {
                 console.log("=====>Doc_Fetch==========>" + item.toString);
-                const comments = { html: item.OPComments };
+                const comments = { html: item.OPComments || "" };
                 return (
-                  <View style={styles.flatListFullSideView}>
-                    <TouchableOpacity
-                      onPress={this.onPressAttach.bind(this, "OPD", item)}
-                      // onPress={this.onPressBack.bind(this)}
-                    >
-                      <View style={styles.listView}>
-                        <Text style={styles.listText1}>Doc Status : </Text>
-                        <Text style={styles.deliveryTypeTextHeaderStyle}>
-                          {item.OPStatus}
-                        </Text>
-                      </View>
-                      <View style={styles.listView}>
-                        <Text style={styles.listText1}>Input Doc : </Text>
-                        <Text style={styles.deliveryTypeTextStyle}>
-                          {item.IPDocName ? item.IPDocName : "NA"}
-                        </Text>
-                      </View>
-                      <View style={styles.listView}>
-                        <Text style={styles.listText1}>Output Doc : </Text>
-                        {item.OPDocName == "" ? (
-                          <View style={styles.outputDocAttachRow}>
-                            <Icon name="paperclip" size={20} color="grey" />
+                  <TouchableOpacity
+                    style={styles.flatListFullSideView}
+                    activeOpacity={0.75}
+                    onPress={this.onPressAttach.bind(this, "OPD", item)}
+                  >
+                    <View style={styles.cardHeaderRow}>
+                      <Text style={styles.listText1}>Doc Status</Text>
+                      <Text style={styles.deliveryTypeTextStyle} numberOfLines={1}>
+                        {item.OPStatus || "NA"}
+                      </Text>
+                    </View>
 
-                            <Text style={styles.outputDocAttachText}>
-                              Attach Output Doc
-                            </Text>
-                          </View>
-                        ) : (
-                          <View style={styles.outputDocNameRow}>
-                            <Text style={styles.outputDocNameText}>
-                              {item.OPDocName}
-                            </Text>
-                            <Icon name="edit" size={20} color="#1FBFD0" />
-                          </View>
-                        )}
-                      </View>
-                      <View style={styles.listView}>
-                        <Text style={styles.listText1}>Comments:</Text>
-                        <Text style={styles.commentsTextStyle}>
-                          {item.OPComments == "" && " - "}
-                        </Text>
-                      </View>
-                      {item.OPComments != "" && (
-                        <View style={styles.commentsHtmlContainer}>
-                          <RenderHtml baseStyle={styles.renderHtmlBaseStyle} source={comments} />
+                    <View style={styles.infoRow}>
+                      <Text style={styles.listText1}>Input Doc</Text>
+                      <Text style={styles.deliveryTypeTextStyle} numberOfLines={2}>
+                        {item.IPDocName ? item.IPDocName : "NA"}
+                      </Text>
+                    </View>
+
+                    <View style={styles.infoRow}>
+                      <Text style={styles.listText1}>Output Doc</Text>
+                      {item.OPDocName == "" ? (
+                        <View style={styles.outputDocAttachRow}>
+                          <Icon name="paperclip" size={16} color="#1FBFD0" />
+                          <Text style={styles.outputDocAttachText}>
+                            Attach Output Doc
+                          </Text>
+                        </View>
+                      ) : (
+                        <View style={styles.outputDocNameRow}>
+                          <Text style={styles.outputDocNameText} numberOfLines={2}>
+                            {item.OPDocName}
+                          </Text>
+                          <Icon
+                            name="edit"
+                            size={17}
+                            color="#1FBFD0"
+                            style={styles.outputDocEditIcon}
+                          />
                         </View>
                       )}
-                    </TouchableOpacity>
-                  </View>
+                    </View>
+
+                    <View style={styles.commentsBlock}>
+                      <Text style={styles.listText1}>Comments</Text>
+                      {item.OPComments != "" ? (
+                        <View style={styles.commentsHtmlContainer}>
+                          <RenderHtml
+                            baseStyle={styles.renderHtmlBaseStyle}
+                            source={comments}
+                            tagsStyles={{
+                              b: { fontWeight: "normal",      
+                                   fontFamily: "OpenSans-Regular",
+                                   color: "#000",
+                                  fontSize: 16, },
+                              strong: { fontWeight: "normal",
+                                   fontFamily: "OpenSans-Regular",
+                                   color: "#000",
+                                  fontSize: 16, },
+                            }}
+                          />
+                        </View>
+                      ) : (
+                        <Text style={styles.commentsTextStyle}>-</Text>
+                      )}
+                    </View>
+                  </TouchableOpacity>
                 );
               }} />
           ) : (
-            <View style={styles.emptyStateContainer}>
-              <Text style={styles.emptyStateText}>No records found!</Text>
+            // <View style={styles.emptyStateContainer}>
+            //   <Icon name="folder-open-o" size={26} color="#1FBFD0" />
+            //   <Text style={styles.emptyStateText}>No records found!</Text>
+            // </View>
+            <View style={styles.emptyStateContainer1}>
+              <NoRecordFound />
             </View>
           )}
         </View>

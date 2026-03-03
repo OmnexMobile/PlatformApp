@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   Text,
   ScrollView,
+  ActivityIndicator,
 } from "react-native";
 //styles
 import styles from "./styles/CalandarListStyle";
@@ -13,7 +14,7 @@ import styles1 from "../components/styles/ApqpDashboardHeaderStyle";
 import OfflineNotice from "../components/OfflineNotice";
 //library
 import * as _ from "lodash";
-import { DoubleBounce } from "react-native-loader";
+// import { DoubleBounce } from "react-native-loader";
 import { Calendar } from "react-native-calendars";
 import { connect } from "react-redux";
 import NetInfo from "@react-native-community/netinfo";
@@ -510,7 +511,8 @@ class CalandarList extends Component {
         {this.state.loader ? (
           <View style={styles.wrapper}>
             <View style={styles.loaderParent}>
-              <DoubleBounce size={20} color="#1CAFF6" />
+              {/* <DoubleBounce size={20} color="#1CAFF6" /> */}
+              <ActivityIndicator size={20} color="#1CAFF6" />
             </View>
           </View>
         ) : this.state.error ? (

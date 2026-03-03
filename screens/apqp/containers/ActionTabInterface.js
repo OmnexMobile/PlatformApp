@@ -14,7 +14,7 @@ import styles from "./styles/DashboardStyles";
 import Images from "../themes/Images";
 import { connect } from "react-redux";
 // import FilterSection from "./FilterSection";
-import { DoubleBounce } from "react-native-loader";
+// import { DoubleBounce } from "react-native-loader";
 import Toast from "react-native-easy-toast";
 import Moment from "moment";
 // import { extendMoment } from "moment-range";
@@ -1405,7 +1405,8 @@ class ActionTabInterface extends Component {
           alignItems: "center",
         }}
       >
-        <DoubleBounce size={20} color="#1CAFF6" />
+        {/* <DoubleBounce size={20} color="#1CAFF6" /> */}
+      <ActivityIndicator size="small" color="#1CAFF6" />
       </View>
     );
   }

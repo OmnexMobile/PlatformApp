@@ -18,6 +18,7 @@ const InputComponent = ({
     inputRef,
     containerStyle = {},
     inputStyle = {},
+    labelStyle = {},
     placeholderTextColor = COLORS.searchText,
     style: textInputStyle,
     ...rest
@@ -38,7 +39,7 @@ const InputComponent = ({
             ]}>
             <View style={{ flex: 1 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: SPACING.X_SMALL }}>
-                    <TextComponent style={{ fontSize: FONT_SIZE.SMALL }} type={FONT_TYPE.BOLD} color={error ? COLORS.ERROR : null}>
+                    <TextComponent style={[{ fontSize: FONT_SIZE.SMALL }, labelStyle]} type={FONT_TYPE.BOLD} color={error ? COLORS.ERROR : null}>
                         {label}
                     </TextComponent>
                     {required && (

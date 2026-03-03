@@ -30,8 +30,8 @@ export default StyleSheet.create({
   },
   mainContainer: {
     flex: 1,
-    width: Window.width,
-    height: Window.height,
+    width: "100%",
+    height: "100%",
   },
   bgImage: {
     width: "100%",
@@ -47,7 +47,7 @@ export default StyleSheet.create({
   },
   progressTextView: {
     flex: 1,
-    width: Window.width,
+    width: "100%",
     flexDirection: "row",
     position: "absolute",
     justifyContent: "space-between",
@@ -55,7 +55,7 @@ export default StyleSheet.create({
   },
   deliveryTextView: {
     flex: 1,
-    width: Window.width,
+    width: "100%",
     flexDirection: "row",
     // color: 'black',
     position: "absolute",
@@ -79,20 +79,16 @@ export default StyleSheet.create({
 
   flatListWholeView: {
     width: "100%",
-    height: "83%",
+    flex: 1,
     backgroundColor: "white",
-    position: "absolute",
     padding: 3,
-    marginLeft: '4%'
   },
   flatListWholeViewWithTopMargin: {
     width: "100%",
-    height: "83%",
+    flex: 1,
     backgroundColor: "white",
-    position: "absolute",
-    padding: 3,
-    marginLeft: "4%",
-    marginTop: 100,
+    paddingHorizontal: "3%",
+    paddingTop: SPACING.X_SMALL,
   },
   flatList: {
     width: "100%",
@@ -118,14 +114,16 @@ export default StyleSheet.create({
     alignItems: "flex-start",
     padding: 2,
     borderLeftWidth: 5,
-    borderLeftColor: "green",
+    borderLeftColor: "#1FBFD0",
     flexDirection: "row",
   },
   listText: {
-    color: "black",
-    fontSize: Fonts.size.regular,
+    fontSize: 16,
+    color: "#000",
+    fontFamily: 'OpenSans-SemiBold',
     padding: 6,
     textAlignVertical: "top",
+    paddingVertical: 2,
   },
   listText1: {
     // color: "#1FBFD0",
@@ -163,6 +161,16 @@ export default StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
   },
+  compactRow: {
+    marginBottom: 2,
+  },
+
+  flatListInsideView1: {
+    flexDirection: "row",
+    alignItems: "center",
+    // backgroundColor: 'red',
+    paddingVertical: 2,
+  },
 
   textHeader: {
     flexDirection: "row",
@@ -175,26 +183,36 @@ export default StyleSheet.create({
     //width: "85%",
   },
   deliveryTypeTextStyleHours: {
-    color: "#1FBFD0",
-    fontSize: Fonts.size.regular,
+    color: "#5b5b5b",
+    fontSize: 16,
+    fontFamily: 'OpenSans-Regular',
     //width: "85%",
+    paddingVertical: 2,
   },
   deliveryTypeTextStylePercent: {
-    color: "#1FBFD0",
-    fontSize: Fonts.size.regular,
+    color: "#5b5b5b",
+    fontSize: 16,
+    fontFamily: 'OpenSans-Regular',
     width: "85%",
+    paddingVertical: 2,
   },
   dateTextStyle: {
-    color: "#1FBFD0",
-    fontSize: Fonts.size.regular,
+    color: "#5b5b5b",
+    fontSize: 16,
+    fontFamily: 'OpenSans-Regular',
+    paddingVertical: 2,
   },
   remarksText: {
     paddingLeft: 8,
-    marginRight: 25,
-    fontSize: 16,
+    marginRight: 8,
     flexWrap: "wrap",
-    width: "80%",
-    color: "grey",
+    width: "100%",
+  },
+  remarksLineText: {
+    color: "#5b5b5b",
+    fontSize: 16,
+    fontFamily: 'OpenSans-Regular',
+    marginBottom: 2,
   },
   buttonTextDel: {
     textAlign: "center",
@@ -242,7 +260,7 @@ export default StyleSheet.create({
   },
   apqpTextView: {
     flex: 1,
-    width: Window.width,
+    width: "100%",
     flexDirection: "row",
     //color:'black',
     position: "absolute",
@@ -362,30 +380,53 @@ export default StyleSheet.create({
   },
 
   sectionHeaderContainer: {
-    backgroundColor: '#fff',
-    paddingVertical: 3,
-    paddingHorizontal: 10,
-    flexDirection: "column",
-    justifyContent: "flex-start",
-    left: '4%',
-    width: width(93),
+    backgroundColor: "white",
+    paddingTop: 4,
+    paddingHorizontal: '2%',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-end",
+    alignSelf: "flex-end",
+    width: "92%",
+  },
+  sectionArrowSlot: {
+    width: "8%",
+    alignItems: "center",
+    justifyContent: "center",
   },
 
   sectionHeader: {
-    // backgroundColor: '#e6f7f8',
-    borderRadius: 8,
+    flex: 1,
+    borderRadius: 12,
     paddingVertical: 10,
     paddingHorizontal: 12,
-    borderLeftWidth: 4,
-    borderColor: '#1FBFD0',
-    // borderTopWidth: 1,
-    borderBottomWidth: 1,
-    // shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    // elevation: 5,
+    // borderLeftWidth: 5,
+    // borderLeftColor: "#1FBFD0",
+    borderColor: "#1FBFD0",
+    borderWidth: 1,
+    backgroundColor: "#F8FBFD",
   },
-
+  childCardTouchable: {
+    width: "100%",
+    
+  },
+  childBadgeRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 4,
+  },
+  childDot: {
+    width: 7,
+    height: 7,
+    borderRadius: 4,
+    backgroundColor: "#1FBFD0",
+    marginRight: 6,
+  },
+  childBadgeText: {
+    color: "#6B7280",
+    fontSize: Fonts.size.small,
+    fontFamily: "OpenSans-Regular",
+  },
   sectionHeaderText: {
     fontSize: Fonts.size.h5,
     fontWeight: "bold",
@@ -393,23 +434,17 @@ export default StyleSheet.create({
   },
   bounceContainer: {
     paddingVertical: 20,
-    borderTopWidth: 1,
-    borderColor: "#CED0CE",
-    width: Window.width,
-    height: height(100) - 213,
+    width: "100%",
     flex: 1,
     flexDirection: "column",
+    justifyContent: "center",
     alignItems: "center",
   },
   noRecordsText: {
-    width: Window.width,
-    height: height(100) - 213,
-    flex: 1,
-    flexDirection: "column",
-    alignItems: "center",
+    width: "100%",
     textAlign: "center",
     fontSize: Fonts.size.h5,
-    paddingTop: 40,
+    paddingTop: SPACING.LARGE,
     fontFamily: "OpenSans-Regular",
   },
   topSpacerIos: {
@@ -429,5 +464,14 @@ export default StyleSheet.create({
   },
   toastText: {
     color: "white",
+  },
+  emptyStateContainer1: {
+    width: "92%",
+    height: 160,
+    justifyContent: "center",
+    alignItems: "center",
+    alignSelf: "center",
+    marginTop: 100,
+    backgroundColor: "#FFFFFF",
   },
 });
