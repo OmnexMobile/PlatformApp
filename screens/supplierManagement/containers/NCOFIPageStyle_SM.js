@@ -101,7 +101,7 @@ export default StyleSheet.create({
         paddingVertical: 12,
         paddingHorizontal: 12,
         borderRadius: 8,
-        backgroundColor: '#00b3d6',
+        backgroundColor: '#123C95',
         shadowColor: '#000',
         shadowOpacity: 0.18,
         shadowOffset: { width: 0, height: 2 },
@@ -157,7 +157,7 @@ export default StyleSheet.create({
     footerActionButton: {
         height: 66,
         borderRadius: 18,
-        backgroundColor: '#00b3d6',
+        backgroundColor: '#123C95',
         justifyContent: 'center',
         alignItems: 'center',
         shadowColor: '#000',
@@ -550,7 +550,7 @@ export default StyleSheet.create({
     },
     boxContent: {
         width: '100%',
-        color: '#20B8C8',
+        color: '#123C95',
         fontSize: Fonts.size.regular,
         fontFamily: 'OpenSans-Regular',
         fontWeight: 'bold',

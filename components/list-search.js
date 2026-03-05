@@ -12,7 +12,7 @@ const ListSearch = ({ searchKey, setSearchKey, placeholder = 'search here' }) =>
             <View style={{ padding: SPACING.NORMAL, paddingHorizontal: 0, backgroundColor: theme.mode.searchInputBackgroundColor, borderRadius: 10 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                     <View style={{ flex: 1.5, alignItems: 'center', justifyContent: 'center' }}>
-                        <IconComponent size={FONT_SIZE.X_LARGE} type={ICON_TYPE.Ionicons} name="search" />
+                        <IconComponent size={FONT_SIZE.X_LARGE} type={ICON_TYPE.Ionicons} name="search" color={theme?.colors?.primaryThemeColor} />
                     </View>
                     <View style={{ flex: 8 }}>
                         <TextInput

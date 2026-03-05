@@ -21,6 +21,10 @@ const GradientButton = ({
     ...rest
 }) => {
     const { theme } = useTheme();
+    const defaultGradientColors = theme?.colors?.buttonGradientColors || [
+        theme?.colors?.primaryLightThemeColor || COLORS.primaryLightThemeColor,
+        theme?.colors?.primaryThemeColor || COLORS.primaryThemeColor,
+    ];
 
     const handlePress = () => {
         if (!loading) {
@@ -45,7 +49,7 @@ const GradientButton = ({
                         ? [COLORS.whiteGrey, COLORS.lightGrey]
                         : danger
                         ? [COLORS.ERROR, COLORS.red]
-                        : [theme.colors.primaryLightThemeColor, theme.colors.primaryThemeColor]
+                        : colors || defaultGradientColors
                 }
                 style={[styles.button]}>
                 <View style={{ flex: 1 }}></View>

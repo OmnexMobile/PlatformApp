@@ -93,7 +93,7 @@ const styles = StyleSheet.create({
         overflow: 'hidden',
     },
     header: {
-        backgroundColor: '#20B8C8',
+        backgroundColor: '#123C95',
         paddingVertical: 16,
         paddingHorizontal: 18,
     },

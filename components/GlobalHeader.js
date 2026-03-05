@@ -7,10 +7,10 @@ const GlobalHeader = ({
   subtitle,
   onLeftPress,
   leftIcon = 'arrow-left',
-  leftIconColor = '#00b3d6',
+  leftIconColor = '#123C95',
   onRightPress,
   rightIcon = 'home',
-  rightIconColor = '#00b3d6',
+  rightIconColor = '#123C95',
   containerStyle,
   titleStyle,
   subtitleStyle,
@@ -19,7 +19,7 @@ const GlobalHeader = ({
   rightComponent,
   extraRightIcon,
   onExtraRightPress,
-  extraRightIconColor = '#00b3d6',
+  extraRightIconColor = '#123C95',
   hideExtraRight = false,
 }) => {
   const renderLeft = () =>

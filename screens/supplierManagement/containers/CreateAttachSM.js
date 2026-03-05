@@ -909,12 +909,7 @@ class CreateAttach extends React.Component {
 
                                     <View style={styles.check}>
                                         {this.state.attachText == 'Link' ? null : (
-                                            <ResponsiveImage
-                                                initWidth="24"
-                                                initHeight="22"
-                                                style={styles.attachmentIconImage}
-                                                source={Images.AttachIcon}
-                                            />
+                                            <Icon style={styles.editIconSmallOffset} name="paperclip" size={20} color="#123C95" />
                                         )}
                                     </View>
                                 </TouchableOpacity>
@@ -946,7 +941,7 @@ class CreateAttach extends React.Component {
                                     </View>
                                     <View style={styles.check}>
                                         <Text style={styles.requiredAsteriskNoMargin}>{'*'}</Text>
-                                        <Icon style={styles.editIconSmallOffset} name="edit" size={20} color="lightgrey" />
+                                        <Icon style={styles.editIconSmallOffset} name="edit" size={20} color="#123C95" />
                                     </View>
                                 </View>
                             )}
@@ -962,7 +957,7 @@ class CreateAttach extends React.Component {
                                     <View style={styles.boxCard}>
                                         <Text style={styles.detailTitle}>{strings.AttachComments}</Text>
                                         <View style={styles.check1}>
-                                            <Icon style={styles.editIconComments} name="edit" size={20} color="lightgrey" />
+                                            <Icon style={styles.editIconComments} name="edit" size={20} color="#123C95" />
                                         </View>
                                     </View>
                                 ) : (
@@ -998,7 +993,7 @@ class CreateAttach extends React.Component {
                                         </View>
 
                                         <View style={styles.check1}>
-                                            <Icon style={styles.editIconCommentsAlt} name="edit" size={20} color="lightgrey" />
+                                            <Icon style={styles.editIconCommentsAlt} name="edit" size={20} color="#123C95" />
                                         </View>
                                     </View>
                                 ) : null}
@@ -1047,7 +1042,7 @@ class CreateAttach extends React.Component {
                                 </View>
                             </View>
                             <View style={styles.check}>
-                                <Icon style={styles.calendarIconOffset} name="calendar" size={20} color="lightgrey" />
+                                <Icon style={styles.calendarIconOffset} name="calendar" size={20} color="#123C95" />
                             </View>
                         </View>
                     ) : null}
@@ -1073,7 +1068,7 @@ class CreateAttach extends React.Component {
                     style={[styles.floatingSaveButton, Platform.OS === 'ios' ? styles.floatingButtonIOSOffset : styles.floatingButtonAndroidOffset]}
                     disabled={this.state.saveLoader}
                     onPress={debounce(this.onSave.bind(this), 1000)}>
-                    {this.state.saveLoader ? <ActivityIndicator size="small" color="#fff" /> : <Icon name="save" size={25} color="white" />}
+                    {this.state.saveLoader ? <ActivityIndicator size="small" color="#fff" /> : <Icon name="save" size={25} color="#123C95" />}
                 </TouchableOpacity>
 
                 <CommonAlertModal

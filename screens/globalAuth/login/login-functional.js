@@ -73,7 +73,16 @@ const LoginFunctional = ({}) => {
                 const persistedAuthUrl = await AsyncStorage.getItem('storedserverrul');
                 const fallbackUrl = ensureTrailingSlash(GLOBALSERVER_URL);
 
-                console.log('bootstrapUrl storedUrl, registeredUrl, persistedAuthUrl, fallbackUrl', storedUrl,'--', registeredUrl, '--', persistedAuthUrl,'--', fallbackUrl);
+                console.log(
+                    'bootstrapUrl storedUrl, registeredUrl, persistedAuthUrl, fallbackUrl',
+                    storedUrl,
+                    '--',
+                    registeredUrl,
+                    '--',
+                    persistedAuthUrl,
+                    '--',
+                    fallbackUrl,
+                );
                 const resolvedUrl = ensureTrailingSlash(registeredUrl || storedUrl || persistedAuthUrl || fallbackUrl || '');
 
                 if (!isActive) return;
@@ -160,77 +169,47 @@ const LoginFunctional = ({}) => {
         const deviceId = await AsyncStorage.getItem('deviceid');
         console.log('get deviceId', deviceId);
         try {
-            globalAuth.globalLogin(
-                loginDetails?.username,
-                encryptedPassword.toString(),
-                fcmToken,
-                deviceId,
-                loginflag,
-                isSso,
-                async (res, data) => {
-                    // console.log('global loginUser---->', data, res);
-                    console.log('global loginUser---->',  data?.data?.Message);
-                    
-                    if (data?.data?.Success == true) {
-                        console.log('checking global loginResponse---->', data?.data);
+            globalAuth.globalLogin(loginDetails?.username, encryptedPassword.toString(), fcmToken, deviceId, loginflag, isSso, async (res, data) => {
+                // console.log('global loginUser---->', data, res);
+                console.log('global loginUser---->', data?.data?.Message);
 
-                        // Persist NCOFI setting so AuditPro CheckPoint screens can use it
-                        try {
-                            const fromLogin =
-                                data?.data?.Data?.NCOFISetting ??
-                                (Array.isArray(data?.data?.Data)
-                                    ? data.data.Data[0]?.NCOFISetting
-                                    : undefined) ??
-                                data?.data?.NCOFISetting;
-                            const fromDevice =
-                                globalDeviceDetails?.deviceDetails?.NCOFISetting;
-                            const ncofiSetting = fromLogin ?? fromDevice;
-                            if (
-                                typeof ncofiSetting !== 'undefined' &&
-                                ncofiSetting !== null
-                            ) {
-                                const normalized = String(ncofiSetting);
-                                console.log(
-                                    '[GlobalLogin] NCOFISetting resolved:',
-                                    normalized,
-                                );
-                                await AsyncStorage.setItem(
-                                    'NCSettingValue',
-                                    normalized,
-                                );
-                            } else {
-                                console.log(
-                                    '[GlobalLogin] NCOFISetting not found in login or device details',
-                                    {
-                                        fromLogin,
-                                        fromDevice,
-                                    },
-                                );
-                            }
-                        } catch (e) {
-                            console.log(
-                                '[GlobalLogin] Failed to persist NCOFISetting',
-                                e,
-                            );
+                if (data?.data?.Success == true) {
+                    console.log('checking global loginResponse---->', data?.data);
+
+                    // Persist NCOFI setting so AuditPro CheckPoint screens can use it
+                    try {
+                        const fromLogin =
+                            data?.data?.Data?.NCOFISetting ??
+                            (Array.isArray(data?.data?.Data) ? data.data.Data[0]?.NCOFISetting : undefined) ??
+                            data?.data?.NCOFISetting;
+                        const fromDevice = globalDeviceDetails?.deviceDetails?.NCOFISetting;
+                        const ncofiSetting = fromLogin ?? fromDevice;
+                        if (typeof ncofiSetting !== 'undefined' && ncofiSetting !== null) {
+                            const normalized = String(ncofiSetting);
+                            console.log('[GlobalLogin] NCOFISetting resolved:', normalized);
+                            await AsyncStorage.setItem('NCSettingValue', normalized);
+                        } else {
+                            console.log('[GlobalLogin] NCOFISetting not found in login or device details', {
+                                fromLogin,
+                                fromDevice,
+                            });
                         }
+                    } catch (e) {
+                        console.log('[GlobalLogin] Failed to persist NCOFISetting', e);
+                    }
 
-                        AsyncStorage.setItem('userDetails', JSON.stringify(data?.data));
-                        data?.data?.Token && (await setProfileCall(data?.data)); // navigate to home
-                        handleGlobalLogin(data?.data);
-                        handleServerURL(data?.data);
-                    } else {
+                    AsyncStorage.setItem('userDetails', JSON.stringify(data?.data));
+                    data?.data?.Token && (await setProfileCall(data?.data)); // navigate to home
+                    handleGlobalLogin(data?.data);
+                    handleServerURL(data?.data);
+                } else {
                     // console.log('global loginUser---->',  res?.data?.Message);
 
-                        handleInputChange('loggingIn', false);
-                        showErrorMessage(
-                            data?.data?.Message ||
-                                data?.Message ||
-                                strings?.InvalidCred,
-                        );
-                    }
                     handleInputChange('loggingIn', false);
-                },
-            );
+                    showErrorMessage(data?.data?.Message || data?.Message || strings?.InvalidCred);
+                }
+                handleInputChange('loggingIn', false);
+            });
         } catch (err) {
             console.log('🚀 ~ file: login-functional.js:58 ~ handleSubmit ~ err', err);
             handleInputChange('loggingIn', false);
@@ -242,22 +221,22 @@ const LoginFunctional = ({}) => {
         console.log('🚀 ~ file: login-functional.js:148,  ~ setProfileCall ~ data', data, '--', data?.Data);
         const APIURL = await localStorage.getData(LOCAL_STORAGE_VARIABLES.IC_API_URL);
         const newFormData = new FormData();
-            newFormData.append('UserID', data?.Data[0]?.UserId);
-            newFormData.append('SiteID', data?.Data[0]?.Siteid);
+        newFormData.append('UserID', data?.Data[0]?.UserId);
+        newFormData.append('SiteID', data?.Data[0]?.Siteid);
         try {
             const res = await fetch(`${APIURL}${ApiUrl.IC_SETTINGS}`, {
                 method: 'POST',
                 body: newFormData,
             });
- 
+
             const data = await res.json();
- 
+
             if (data?.Success) {
-                console.log(data?.Data,'data?.Data')
+                console.log(data?.Data, 'data?.Data');
                 const settings = {
                     ...data?.Data?.[0],
                 };
- 
+
                 dispatch({
                     type: 'IC_SETTINGS',
                     icSettings: settings || {},
@@ -289,7 +268,16 @@ const LoginFunctional = ({}) => {
 
     return (
         <LoginPresentational
-            {...{ selectLanguageModal, setSelectLanguageModal, handleInputChange, handleSubmit, loginDetails, navigation, isRegistered ,loginLogo:icLoginlogo}}
+            {...{
+                selectLanguageModal,
+                setSelectLanguageModal,
+                handleInputChange,
+                handleSubmit,
+                loginDetails,
+                navigation,
+                isRegistered,
+                loginLogo: icLoginlogo,
+            }}
         />
     );
 };

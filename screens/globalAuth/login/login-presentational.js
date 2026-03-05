@@ -1,5 +1,5 @@
 import React from 'react';
-import {Image, ImageBackground, Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Image, ImageBackground, Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { RFPercentage } from 'react-native-responsive-fontsize';
 import { IMAGES } from 'assets/images';
 import { AnimatableView, GradientButton, IconComponent, ImageComponent, KeyboardAwareScrollViewComponent, TextComponent } from 'components';
@@ -23,9 +23,13 @@ const LoginPresentational = ({
     const { theme } = useTheme();
     return (
         <View style={{ flex: 1, backgroundColor: COLORS.white }}>
-            {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
+            {Platform.OS === 'ios' ? (
+                <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }} />
+            ) : (
+                <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }} />
+            )}
             {/* need image with transparent background */}
-            <ImageComponent style={{ width: '100%', height: '100%', position: 'absolute', zIndex: 0 }} source={IMAGES.loginBack} />
+            <ImageComponent resizeMode="stretch" style={styles.backgroundImage} source={IMAGES.loginBackground} />
             <KeyboardAwareScrollViewComponent keyboardShouldPersistTaps="always" style={{ flex: 1, backgroundColor: COLORS.transparent }}>
                 <AnimatableView
                     style={[styles.translateIcon, { backgroundColor: theme.colors.primaryThemeColor }]}
@@ -42,7 +46,7 @@ const LoginPresentational = ({
                     ) : (
                         <ImageComponent source={IMAGES.omnexLogo} resizeMode="contain" style={{ height: RFPercentage(10), width: '100%' }} />
                     )} */}
-                    <ImageComponent source={IMAGES.omnexLogo} resizeMode="contain" style={{ height: RFPercentage(10), width: '100%' }} />
+                    <ImageComponent source={IMAGES.EQMS_Logo} resizeMode="contain" style={{ height: RFPercentage(10), width: '100%' }} />
                 </AnimatableView>
                 <AnimatableView animationConfig={OPACITY_TRANSLATE_Y_ANIMATION} delay={500} style={{ flex: 6 }}>
                     <LoginInput {...{ placeholder: strings.Username, name: 'username', onChangeText: handleInputChange }} />
@@ -97,6 +101,13 @@ const LoginPresentational = ({
 export default LoginPresentational;
 
 const styles = StyleSheet.create({
+    backgroundImage: {
+        width: '100%',
+        height: '112%',
+        position: 'absolute',
+        top: -RFPercentage(6),
+        zIndex: 0,
+    },
     translateIcon: {
         position: 'absolute',
         top: SPACING.NORMAL,

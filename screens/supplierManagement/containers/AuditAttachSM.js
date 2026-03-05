@@ -19,6 +19,7 @@ import FileViewer from 'react-native-file-viewer';
 import AsyncStorage from '@react-native-community/async-storage';
 import { ROUTES } from 'constants/app-constant';
 import GlobalHeader from 'components/GlobalHeader';
+import { Content, Header, ListSearch, NoRecordFound } from 'components';
 
 class AuditAttach extends React.Component {
     constructor(props) {
@@ -340,7 +341,7 @@ class AuditAttach extends React.Component {
                     renderTabBar={() => (
                         <DefaultTabBar
                             backgroundColor="white"
-                            activeTextColor="#2CB5FD"
+                            activeTextColor="#123C95"
                             inactiveTextColor="#747474"
                             underlineStyle={styles.tabUnderline}
                             textStyle={styles.tabText}
@@ -357,7 +358,7 @@ class AuditAttach extends React.Component {
                                 <View style={styles.historyContentTopMargin}>
                                     {this.state.pageLoad === true ? (
                                         <View style={styles.historyLoaderContainer}>
-                                            <Pulse size={30} color={'#48BCF7'} />
+                                            <Pulse size={30} color={'#123C95'} />
                                         </View>
                                     ) : (
                                         <FlatList
@@ -431,11 +432,7 @@ class AuditAttach extends React.Component {
                             )}
                         </View>
                     ) : (
-                        <View tabLabel={strings.History} style={styles.scrollViewBody}>
-                            <View style={styles.networkInfoContainer}>
-                                <Text style={styles.noRecordsText}>{strings.No_records_found}</Text>
-                            </View>
-                        </View>
+                        <NoRecordFound />
                     )}
                 </ScrollableTabView>
                 {/** Floating add button */}

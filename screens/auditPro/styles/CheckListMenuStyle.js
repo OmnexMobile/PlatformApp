@@ -339,7 +339,7 @@ export default StyleSheet.create({
     width:'80%',
     height:'100%',
     backgroundColor:'white',
-    borderColor:'#00bec1',
+    borderColor:'#123C95',
     borderWidth:0.5,
     borderLeftWidth:3,
     elevation:5,

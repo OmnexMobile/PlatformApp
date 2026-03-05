@@ -9,6 +9,9 @@ const EMERALD = '#2ecc71';
 const ALIZARIN = '#e74c3c';
 const CLOUDS = '#ecf0f1';
 const SILVER = '#bdc3c7';
+const EQMS_PRIMARY_BLUE = '#123C95';
+const EQMS_SECONDARY_BLUE = '#1B5FDB';
+const EQMS_PURPLE = '#6A35D8';
 
 const common = {
     PRIMARY: SUN_FLOWER,
@@ -18,9 +21,10 @@ const common = {
 
 const neon = {
     ...common,
-    primaryThemeColor: '#1FBFD0',
-    primaryLightThemeColor: '#14D0AE',
-    primaryDarkThemeColor: '#2EA4E2',
+    primaryThemeColor: EQMS_PRIMARY_BLUE,
+    primaryLightThemeColor: EQMS_SECONDARY_BLUE,
+    primaryDarkThemeColor: EQMS_PURPLE,
+    buttonGradientColors: [EQMS_PRIMARY_BLUE, EQMS_SECONDARY_BLUE, EQMS_PURPLE],
 };
 
 const red = {

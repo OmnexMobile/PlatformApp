@@ -242,7 +242,7 @@ class AuditCard extends Component {
               style={{
                 fontFamily: 'OpenSans-SemiBold',
                 fontSize: 16,
-                color: '#00b3d6',
+                color: '#123C95',
                 marginBottom: 4,
               }}
             >

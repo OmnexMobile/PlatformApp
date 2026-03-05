@@ -24,13 +24,14 @@ import { SPACING } from 'constants/theme-constants';
 import { ROUTES } from 'constants/app-constant';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import AuditCardSM from 'screens/auditPro/components/AuditCardSM';
-import { Content, Header, ListSearch } from 'components';
+import { Content, Header, ListSearch, NoRecordFound } from 'components';
 import GlobalHeader from 'components/GlobalHeader';
-
+import { ThemeContext } from 'theme/ThemeProvider';
 const { whitneyBook_18 } = Fonts.style;
 const { blackGrey } = Fonts.colors;
 
 class AuditDashboardListing extends Component {
+    static contextType = ThemeContext;
     constructor(props) {
         super(props);
         console.log('get props---->', props);
@@ -126,6 +127,7 @@ class AuditDashboardListing extends Component {
     };
 
     render() {
+        const { theme } = this.context || {};
         return (
             <View style={styles.wrapper}>
                 {Platform.OS === 'ios' ? (
@@ -163,7 +165,7 @@ class AuditDashboardListing extends Component {
                     onRightPress={() => this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)}
                     containerStyle={{ backgroundColor: 'transparent' }}
                     titleStyle={{ color: '#000' }}
-                    leftIconColor="#00b3d6"
+                    leftIconColor={theme?.colors?.primaryThemeColor}
                 />
                 <View style={styles.auditPageBody}>
                     <ListSearch
@@ -173,26 +175,14 @@ class AuditDashboardListing extends Component {
                                 this.applyAuditFilter();
                             })
                         }
-                        placeholder="search by audit no, auditee or date (YYYY-MM-DD)"
+                        placeholder="Search by audit no, auditee or date (YYYY-MM-DD)"
                     />
                     {this.state.loader ? (
                         <View style={styles.loaderParent}>
-                            <ActivityIndicator size={20} color="#1CAFF6" />
+                            <ActivityIndicator size={20} color={theme?.colors?.primaryThemeColor} />
                         </View>
                     ) : this.state.error ? (
-                        <View style={styles.errorWrapper}>
-                            <View
-                                style={{
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    marginRight: -25,
-                                    marginVertical: 10,
-                                }}>
-                                <Image source={Images.emptybox} style={{ height: 65, resizeMode: 'contain' }} />
-                            </View>
-                            <Text style={[whitneyBook_18, blackGrey, { fontFamily: 'OpenSans-Regular' }]}>{strings.No_records_found}</Text>
-                        </View>
+                        <NoRecordFound />
                     ) : (
                         this.renderFlatList()
                     )}

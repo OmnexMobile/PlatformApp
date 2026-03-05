@@ -64,6 +64,7 @@ import AttachmentSelectionModal from 'components/attachment-selection-modal';
 const INITIAL_WINDOW = Dimensions.get('window');
 const SERIAL_GRID_MIN_WIDTH = 96;
 const SERIAL_GRID_HEIGHT = 62;
+const SERIAL_ACTIVE_COLOR = '#123C95';
 const ATTACHMENT_VISIBLE_ROWS = 4;
 const Colors = {
     0: 'red',
@@ -74,7 +75,7 @@ const Colors = {
     '-1': '#fff',
     '-2': '#fff',
 };
-const FOOTER_BUTTON_GRADIENT = ['#00AED0', '#1FBFD0', '#00BEC1'];
+const FOOTER_BUTTON_GRADIENT = ['#123C95', '#1B5FDB', '#6A35D8'];
 
 const toastConfig = {
     error: props => (
@@ -4714,10 +4715,7 @@ class CheckPointDemo extends Component {
 
         return (
             <View key={rowKey} style={styles.attachmentGridCard}>
-                <TouchableOpacity
-                    activeOpacity={0.85}
-                    style={styles.attachmentGridCardPress}
-                    onPress={() => this.openAttachmentFromRow(item)}>
+                <TouchableOpacity activeOpacity={0.85} style={styles.attachmentGridCardPress} onPress={() => this.openAttachmentFromRow(item)}>
                     <View style={styles.attachmentGridMediaWrap}>
                         {isDownloading ? (
                             <ActivityIndicator size="small" color="#1CAFF6" />
@@ -5399,19 +5397,13 @@ class CheckPointDemo extends Component {
         const isTablet = shortestSide >= 600;
         const useStackLayout = !isLandscape;
         const carouselLayout = useStackLayout ? 'stack' : 'default';
-        const carouselItemWidth = Math.round(
-            screenWidth * (isTablet ? (isLandscape ? 0.92 : 0.84) : isLandscape ? 0.94 : 0.9),
-        );
-        const stackCardMinHeight = Math.round(
-            screenHeight * (isTablet ? (isLandscape ? 0.68 : 0.64) : isLandscape ? 0.58 : 0.62),
-        );
+        const carouselItemWidth = Math.round(screenWidth * (isTablet ? (isLandscape ? 0.92 : 0.84) : isLandscape ? 0.94 : 0.9));
+        const stackCardMinHeight = Math.round(screenHeight * (isTablet ? (isLandscape ? 0.68 : 0.64) : isLandscape ? 0.58 : 0.62));
         const stackCardOffset = useStackLayout ? (isTablet ? 24 : 18) : 0;
         const carouselInactiveScale = useStackLayout ? 0.93 : 1;
         const carouselInactiveOpacity = useStackLayout ? 0.92 : 1;
-        const questionMetaNavButtonWidth = isTablet ? (isLandscape ? 190 : 170) : isLandscape ? 104 : 110;
-        const questionMetaArrowSize = isTablet ? 42 : isLandscape ? 28 : 32;
-        const questionMetaTextSize = isTablet ? (isLandscape ? 24 : 26) : isLandscape ? 17 : 18;
-        const questionMetaNavTextSize = isTablet ? 20 : isLandscape ? 14 : 16;
+        const questionMetaArrowSize = isTablet ? 32 : isLandscape ? 22 : 20;
+        const questionMetaTextSize = isTablet ? (isLandscape ? 24 : 26) : isLandscape ? 15 : 16;
         const serialGridMinWidth = isTablet ? (isLandscape ? 150 : 140) : SERIAL_GRID_MIN_WIDTH;
         const serialGridHeight = isTablet ? 76 : SERIAL_GRID_HEIGHT;
         const serialGridTextSize = isTablet ? 20 : 16;
@@ -5527,10 +5519,7 @@ class CheckPointDemo extends Component {
                                                         }
                                                     }
 
-                                                    const selectedM4Value = parseInt(
-                                                        this.state.checkPointsDetails?.[index]?.RadioValue,
-                                                        10,
-                                                    );
+                                                    const selectedM4Value = parseInt(this.state.checkPointsDetails?.[index]?.RadioValue, 10);
                                                     const isM4OkActive = selectedM4Value === 14;
                                                     const isM4NotOkActive = selectedM4Value === 15;
                                                     const isM4NaActive = selectedM4Value === 11;
@@ -5548,7 +5537,6 @@ class CheckPointDemo extends Component {
                                                                     <TouchableOpacity
                                                                         style={[
                                                                             styles.questionMetaNavButton,
-                                                                            { width: questionMetaNavButtonWidth },
                                                                             index === 0 ? styles.questionMetaNavButtonDisabled : null,
                                                                         ]}
                                                                         disabled={index === 0}
@@ -5556,19 +5544,14 @@ class CheckPointDemo extends Component {
                                                                         <Icon
                                                                             name="arrow-left"
                                                                             size={questionMetaArrowSize}
-                                                                            color={index === 0 ? '#9AA6B5' : '#0AA7D4'}
+                                                                            color={index === 0 ? '#9AA6B5' : '#123C95'}
                                                                         />
-                                                                        <Text
-                                                                            style={[
-                                                                                styles.questionMetaNavText,
-                                                                                { fontSize: questionMetaNavTextSize },
-                                                                                index === 0 ? styles.questionMetaNavTextDisabled : null,
-                                                                            ]}>
-                                                                            Previous
-                                                                        </Text>
                                                                     </TouchableOpacity>
 
-                                                                    <Text style={[styles.questionMetaText, { fontSize: questionMetaTextSize }]}>
+                                                                    <Text
+                                                                        numberOfLines={1}
+                                                                        ellipsizeMode="tail"
+                                                                        style={[styles.questionMetaText, { fontSize: questionMetaTextSize }]}>
                                                                         {`Question ${index + 1} of ${this.state.checkpointList.length}`}
                                                                     </Text>
 
@@ -5576,30 +5559,17 @@ class CheckPointDemo extends Component {
                                                                         style={[
                                                                             styles.questionMetaNavButton,
                                                                             styles.questionMetaNavButtonRight,
-                                                                            { width: questionMetaNavButtonWidth },
                                                                             index === this.state.checkpointList.length - 1
                                                                                 ? styles.questionMetaNavButtonDisabled
                                                                                 : null,
                                                                         ]}
                                                                         disabled={index === this.state.checkpointList.length - 1}
                                                                         onPress={() => this.onNext(index, item)}>
-                                                                        <Text
-                                                                            style={[
-                                                                                styles.questionMetaNavText,
-                                                                                { fontSize: questionMetaNavTextSize },
-                                                                                index === this.state.checkpointList.length - 1
-                                                                                    ? styles.questionMetaNavTextDisabled
-                                                                                    : null,
-                                                                            ]}>
-                                                                            Next
-                                                                        </Text>
                                                                         <Icon
                                                                             name="arrow-right"
                                                                             size={questionMetaArrowSize}
                                                                             color={
-                                                                                index === this.state.checkpointList.length - 1
-                                                                                    ? '#9AA6B5'
-                                                                                    : '#0AA7D4'
+                                                                                index === this.state.checkpointList.length - 1 ? '#9AA6B5' : '#123C95'
                                                                             }
                                                                         />
                                                                     </TouchableOpacity>
@@ -6502,15 +6472,11 @@ class CheckPointDemo extends Component {
                                                                                             ? styles.answerChoiceButtonOkActive
                                                                                             : styles.answerChoiceButtonInactive,
                                                                                     ]}
-                                                                                    onPress={() =>
-                                                                                        this.handleM4RadioPress(14, item, index)
-                                                                                    }>
+                                                                                    onPress={() => this.handleM4RadioPress(14, item, index)}>
                                                                                     <View
                                                                                         style={[
                                                                                             styles.answerChoiceIconCircle,
-                                                                                            isM4OkActive
-                                                                                                ? styles.answerChoiceIconCircleActive
-                                                                                                : null,
+                                                                                            isM4OkActive ? styles.answerChoiceIconCircleActive : null,
                                                                                         ]}>
                                                                                         <Icon
                                                                                             name="check"
@@ -6537,9 +6503,7 @@ class CheckPointDemo extends Component {
                                                                                             ? styles.answerChoiceButtonNotOkActive
                                                                                             : styles.answerChoiceButtonInactive,
                                                                                     ]}
-                                                                                    onPress={() =>
-                                                                                        this.handleM4RadioPress(15, item, index)
-                                                                                    }>
+                                                                                    onPress={() => this.handleM4RadioPress(15, item, index)}>
                                                                                     <View
                                                                                         style={[
                                                                                             styles.answerChoiceIconCircle,
@@ -6572,15 +6536,11 @@ class CheckPointDemo extends Component {
                                                                                             ? styles.answerChoiceButtonNaActive
                                                                                             : styles.answerChoiceButtonInactive,
                                                                                     ]}
-                                                                                    onPress={() =>
-                                                                                        this.handleM4RadioPress(11, item, index)
-                                                                                    }>
+                                                                                    onPress={() => this.handleM4RadioPress(11, item, index)}>
                                                                                     <View
                                                                                         style={[
                                                                                             styles.answerChoiceIconCircle,
-                                                                                            isM4NaActive
-                                                                                                ? styles.answerChoiceIconCircleActive
-                                                                                                : null,
+                                                                                            isM4NaActive ? styles.answerChoiceIconCircleActive : null,
                                                                                         ]}>
                                                                                         <IconAwesome
                                                                                             name="circle"
@@ -6678,7 +6638,7 @@ class CheckPointDemo extends Component {
                                                                             <Icon
                                                                                 name="paperclip"
                                                                                 size={20}
-                                                                                color="#2D7FBE"
+                                                                                color="#123C95"
                                                                                 style={styles.attachmentActionIcon}
                                                                             />
                                                                             <Text style={styles.attachmentActionLabel}>Add Attachment</Text>
@@ -7998,7 +7958,6 @@ class CheckPointDemo extends Component {
                                                                             />
                                                                         </View>
                                                                     </View>
-
                                                                 </View>
                                                             </View>
                                                             {/* <View style={{ width: '100%', height: 80 }} /> */}
@@ -8065,8 +8024,8 @@ class CheckPointDemo extends Component {
                                                         style={[
                                                             styles.bottomSerialBtn,
                                                             {
-                                                                backgroundColor: this.state.ActiveId == index ? '#00BAC8' : '#FFFFFF',
-                                                                borderColor: this.state.ActiveId == index ? '#00BAC8' : '#BDBDBD',
+                                                                backgroundColor: this.state.ActiveId == index ? SERIAL_ACTIVE_COLOR : '#FFFFFF',
+                                                                borderColor: this.state.ActiveId == index ? SERIAL_ACTIVE_COLOR : '#BDBDBD',
                                                                 minWidth: serialGridMinWidth,
                                                                 height: serialGridHeight,
                                                             },
@@ -8075,30 +8034,30 @@ class CheckPointDemo extends Component {
                                                         <Text
                                                             style={[
                                                                 styles.bottomSerialText,
-                                                            {
-                                                                color: this.state.ActiveId == index ? 'white' : 'black',
-                                                                fontSize: serialGridTextSize,
-                                                            },
-                                                        ]}>
-                                                        {item.SerialNo}
-                                                    </Text>
-                                                    {isMandatoryPending ? (
-                                                        <View style={styles.bottomMandatoryIcon}>
-                                                            <ResponsiveImage
-                                                                source={Images.ManIcon1}
-                                                                initHeight={serialMandatoryIconSize}
-                                                                initWidth={serialMandatoryIconSize}
-                                                            />
-                                                        </View>
-                                                    ) : isMandatoryEnabled ? (
-                                                        <View style={styles.bottomMandatoryIcon}>
-                                                            <ResponsiveImage
-                                                                source={Images.ManIcon3}
-                                                                initHeight={serialMandatoryIconSize}
-                                                                initWidth={serialMandatoryIconSize}
-                                                            />
-                                                        </View>
-                                                    ) : null}
+                                                                {
+                                                                    color: this.state.ActiveId == index ? 'white' : 'black',
+                                                                    fontSize: serialGridTextSize,
+                                                                },
+                                                            ]}>
+                                                            {item.SerialNo}
+                                                        </Text>
+                                                        {isMandatoryPending ? (
+                                                            <View style={styles.bottomMandatoryIcon}>
+                                                                <ResponsiveImage
+                                                                    source={Images.ManIcon1}
+                                                                    initHeight={serialMandatoryIconSize}
+                                                                    initWidth={serialMandatoryIconSize}
+                                                                />
+                                                            </View>
+                                                        ) : isMandatoryEnabled ? (
+                                                            <View style={styles.bottomMandatoryIcon}>
+                                                                <ResponsiveImage
+                                                                    source={Images.ManIcon3}
+                                                                    initHeight={serialMandatoryIconSize}
+                                                                    initWidth={serialMandatoryIconSize}
+                                                                />
+                                                            </View>
+                                                        ) : null}
                                                     </TouchableOpacity>
                                                 );
                                             }}

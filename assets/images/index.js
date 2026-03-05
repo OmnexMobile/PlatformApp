@@ -7,6 +7,9 @@ export const IMAGES = {
     loginBack: require('./login_back.png'),
     bg_image_human: require('./bg_image_human.png'),
     apqp_ppap_manager: require('./apqp_ppap_manager.png'),
+    ewqims_logo: require('./ewqims_logo.png'),
+    EQMS_Logo: require('./EQMS-Logo.png'),
+    loginBackground: require('./login_background.png'),
 
     apqpModuleIcon: require('./apqp-icon.png'),
     riskModuleIcon: require('./risk-icon.png'),

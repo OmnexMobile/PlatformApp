@@ -43,7 +43,7 @@ import GlobalHeader from 'components/GlobalHeader';
 import CommonAlertModal from 'components/common_alert_modal';
 import IconAwesome from 'react-native-vector-icons/FontAwesome';
 import { showErrorMessage, successMessage } from 'helpers/utils';
-
+import { Content, Header, ListSearch, NoRecordFound } from 'components';
 var RNFS = require('react-native-fs');
 
 let Window = Dimensions.get('window');
@@ -2441,7 +2441,7 @@ class NCOFIPage extends Component {
                             renderTabBar={() => (
                                 <DefaultTabBar
                                     backgroundColor="white"
-                                    activeTextColor="#2CB5FD"
+                                    activeTextColor="#123C95"
                                     inactiveTextColor="#747474"
                                     underlineStyle={styles.tabUnderline}
                                     textStyle={styles.tabText}
@@ -2503,7 +2503,7 @@ class NCOFIPage extends Component {
                                 ) : (
                                     // {/* ui check */}
                                     <View style={styles.tabContentTopMargin}>
-                                        <Text style={styles.norecordefound}>{strings.No_records_found}</Text>
+                                        <NoRecordFound />
                                     </View>
                                 )}
                             </ScrollView>
@@ -2545,7 +2545,7 @@ class NCOFIPage extends Component {
                                     </View>
                                 ) : (
                                     <View style={styles.tabContentTopMargin}>
-                                        <Text style={styles.norecordefound}>{strings.No_records_found}</Text>
+                                        <NoRecordFound />
                                     </View>
                                 )}
                             </ScrollView>

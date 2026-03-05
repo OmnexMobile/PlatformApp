@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
         marginRight: 12,
     },
     confirmButton: {
-        backgroundColor: '#20B8C8',
+        backgroundColor: '#123C95',
     },
     cancelText: {
         color: '#333',

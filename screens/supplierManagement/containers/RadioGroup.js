@@ -32,7 +32,7 @@ const RadioGroup = ({
                 height: circleSize,
                 borderRadius: circleSize / 2,
                 borderWidth: 3,
-                borderColor: '#18a0e4',
+                borderColor: '#123C95',
                 justifyContent: 'center',
                 alignItems: 'center',
                 marginRight: 8,
@@ -45,7 +45,7 @@ const RadioGroup = ({
                     width: circleSize / 2,
                     height: circleSize / 2,
                     borderRadius: circleSize / 4,
-                    backgroundColor: '#18a0e4',
+                    backgroundColor: '#123C95',
                   }}
                 />
               )}

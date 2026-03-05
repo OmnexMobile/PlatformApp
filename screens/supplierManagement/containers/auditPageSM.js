@@ -2969,7 +2969,7 @@ class AuditPage extends Component {
                             onPress={() => {
                                 this.setState({ dialogVisible: true });
                             }}>
-                            <Icon name="trash" size={25} color="#00b3d6" />
+                            <Icon name="trash" size={25} color="#123C95" />
                         </TouchableOpacity>
                         <TouchableOpacity
                             style={{ paddingRight: 10 }}
@@ -2977,12 +2977,12 @@ class AuditPage extends Component {
                                 this.setState({ dialogVisibleRefresh: true, webToMob: true, downloadAsync: true });
                             }}>
                             {/* <ResponsiveImage initWidth='25' initHeight='25' source={Images.deleteIcon}/> */}
-                            <Icon name="refresh-cw" size={25} color="#00b3d6" />
+                            <Icon name="refresh-cw" size={25} color="#123C95" />
                         </TouchableOpacity>
                     </>
                 ) : null}
                 <TouchableOpacity onPress={() => this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)}>
-                    <Icon name="home" size={25} color="#00b3d6" />
+                    <Icon name="home" size={25} color="#123C95" />
                 </TouchableOpacity>
             </View>
         ) : (
@@ -3289,9 +3289,9 @@ class AuditPage extends Component {
                             style={[styles.floatingDownloadBtn, this.state.isDownloading ? styles.floatingBtnDisabled : null]}>
                             <View style={styles.fabCenterContent}>
                                 {this.state.isDownloading ? (
-                                    <ActivityIndicator size={20} color="white" />
+                                    <ActivityIndicator size={20} color="123C95" />
                                 ) : (
-                                    <Icon name="download" size={24} color="white" />
+                                    <Icon name="download-cloud" size={24} color="white" />
                                 )}
                             </View>
                         </TouchableOpacity>
@@ -3313,7 +3313,7 @@ class AuditPage extends Component {
                                                     alignItems: 'center',
                                                 }}>
                                                 {/* <ResponsiveImage source={Images.BTN5} initWidth="26" initHeight="25"/> */}
-                                                <Icon name="paperclip" size={20} color="black" />
+                                                <Icon name="paperclip" size={20} color="#123C95" />
                                                 <Text style={styles.footerTextContent}>{strings.Attach}</Text>
                                             </TouchableOpacity>
                                         </View>
@@ -3323,7 +3323,7 @@ class AuditPage extends Component {
                                                 <View style={{ width: '100%' }}>
                                                     <TouchableOpacity onPress={this.onNavigateTo.bind(this, 4)} style={{ alignItems: 'center' }}>
                                                         {/* <ResponsiveImage source={Images.BTN5} initWidth="26" initHeight="25"/> */}
-                                                        <Icon name="paperclip" size={20} color="black" />
+                                                        <Icon name="paperclip" size={20} color="#123C95" />
                                                         <Text style={styles.footerTextContent}>{strings.Attach}</Text>
                                                     </TouchableOpacity>
                                                 </View>
@@ -3343,14 +3343,14 @@ class AuditPage extends Component {
                                         }>
                                         <TouchableOpacity onPress={this.onNavigateTo.bind(this, 2)} style={{ alignItems: 'center' }}>
                                             {/* <ResponsiveImage source={Images.BTN2} initWidth="26" initHeight="25"/> */}
-                                            <Icon name="list" size={20} color="black" />
+                                            <Icon name="list" size={20} color="#123C95" />
                                             <Text style={styles.footerTextContent}>{strings.AuditRecords}</Text>
                                         </TouchableOpacity>
                                     </View>
                                     <View style={{ width: '22%' }}>
                                         <TouchableOpacity onPress={once(this.onNavigateTo.bind(this, 3))} style={{ alignItems: 'center' }}>
                                             {/* <ResponsiveImage source={Images.BTN5} initWidth="26" initHeight="25"/> */}
-                                            <Icon name="file" size={20} color="black" />
+                                            <Icon name="file" size={20} color="#123C95" />
                                             <Text style={styles.footerTextContent}>{strings.NC_OFI}</Text>
                                         </TouchableOpacity>
                                     </View>
@@ -3359,7 +3359,7 @@ class AuditPage extends Component {
                                         <View style={{ width: '25%' }}>
                                             <TouchableOpacity onPress={once(this.onNavigateTo.bind(this, 6))} style={{ alignItems: 'center' }}>
                                                 {/* <ResponsiveImage source={Images.BTN5} initWidth="26" initHeight="25"/> */}
-                                                <Icon name="file" size={20} color="black" />
+                                                <Icon name="file" size={20} color="#123C95" />
                                                 <Text style={styles.footerTextContent}>Conformance</Text>
                                             </TouchableOpacity>
                                         </View>
@@ -3367,7 +3367,7 @@ class AuditPage extends Component {
                                 </View>
                             ) : (
                                 <View style={styles.footerLoader}>
-                                    <ActivityIndicator size={20} color="white" />
+                                    <ActivityIndicator size={20} color="#123C95" />
                                 </View>
                             )}
                         </View>

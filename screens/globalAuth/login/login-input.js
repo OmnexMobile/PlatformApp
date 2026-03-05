@@ -46,7 +46,12 @@ const LoginInput = ({ placeholder = '', name = '', onChangeText, editable = true
             {isPassword ? (
                 <View style={{ width: RFPercentage(5), alignItems: 'center', justifyContent: 'center' }}>
                     <Pressable onPress={() => setShowPassword(!showPassword)}>
-                        <IconComponent size={FONT_SIZE.LARGE} type={ICON_TYPE.Feather} name={`eye${!showPassword ? '-off' : ''}`} />
+                        <IconComponent
+                            size={FONT_SIZE.LARGE}
+                            type={ICON_TYPE.Feather}
+                            name={`eye${!showPassword ? '-off' : ''}`}
+                            color={theme?.colors?.primaryThemeColor}
+                        />
                     </Pressable>
                 </View>
             ) : null}

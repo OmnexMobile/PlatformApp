@@ -51,7 +51,7 @@ import { SPACING } from 'constants/theme-constants';
 import GlobalHeader from 'components/GlobalHeader';
 import CommonAlertModal from 'components/common_alert_modal';
 let Window = Dimensions.get('window');
-
+import { Content, Header, ListSearch, NoRecordFound } from 'components';
 // Form type -1- Online
 // Form type -2- Reference
 // Form type -0- Template
@@ -3416,11 +3416,11 @@ class AuditForm extends Component {
                             renderTabBar={() => (
                                 <DefaultTabBar
                                     backgroundColor="white"
-                                    activeTextColor="#2CB5FD"
+                                    activeTextColor="#123C95"
                                     inactiveTextColor="#747474"
                                     underlineStyle={{
-                                        backgroundColor: '#2CB5FD',
-                                        borderBottomColor: '#2CB5FD',
+                                        backgroundColor: '#123C95',
+                                        borderBottomColor: '#123C95',
                                         height: Platform.select({
                                             android: 0,
                                             ios: 5,
@@ -3450,7 +3450,7 @@ class AuditForm extends Component {
                                                     <LinearGradient
                                                         start={{ x: 0, y: 0 }}
                                                         end={{ x: 1, y: 0 }}
-                                                        colors={['#14D0AE', '#1FBFD0', '#2EA4E2']}
+                                                        colors={['#123C95', '#1B5FDB', '#6A35D8']}
                                                         style={styles.CheckButton}>
                                                         <View style={{ width: '95%', height: null }}>
                                                             <Text style={styles.buttonText}>
@@ -3464,27 +3464,7 @@ class AuditForm extends Component {
                                     </View>
                                 ) : (
                                     <View style={{ marginTop: '20%' }}>
-                                        <View
-                                            style={{
-                                                flexDirection: 'row',
-                                                justifyContent: 'center',
-                                            }}>
-                                            <Image source={Images.emptybox} style={{ height: 50, resizeMode: 'contain' }} />
-                                        </View>
-                                        <View style={{}}>
-                                            <Text
-                                                style={{
-                                                    // width: width(90),
-                                                    textAlign: 'center',
-                                                    marginTop: 5,
-                                                    fontSize: Fonts.size.h5,
-                                                    // paddingTop: 40,
-                                                    color: 'grey',
-                                                    fontFamily: 'OpenSans-Regular',
-                                                }}>
-                                                {strings.No_online_form_found}
-                                            </Text>
-                                        </View>
+                                       <NoRecordFound />
                                     </View>
                                 )}
                             </ScrollView>
@@ -3830,27 +3810,7 @@ class AuditForm extends Component {
                                     </View>
                                 ) : (
                                     <View style={{ marginTop: '20%' }}>
-                                        <View
-                                            style={{
-                                                flexDirection: 'row',
-                                                justifyContent: 'center',
-                                            }}>
-                                            <Image source={Images.emptybox} style={{ height: 50, resizeMode: 'contain' }} />
-                                        </View>
-                                        <View style={{}}>
-                                            <Text
-                                                style={{
-                                                    // width: width(90),
-                                                    textAlign: 'center',
-                                                    marginTop: 5,
-                                                    fontSize: Fonts.size.h5,
-                                                    // paddingTop: 40,
-                                                    color: 'grey',
-                                                    fontFamily: 'OpenSans-Regular',
-                                                }}>
-                                                {strings.No_templates_found}
-                                            </Text>
-                                        </View>
+                                        <NoRecordFound />
                                     </View>
                                 )}
                             </ScrollView>
@@ -4176,25 +4136,7 @@ class AuditForm extends Component {
                                     </View>
                                 ) : (
                                     <View style={{ marginTop: '20%' }}>
-                                        <View
-                                            style={{
-                                                flexDirection: 'row',
-                                                justifyContent: 'center',
-                                            }}>
-                                            <Image source={Images.emptybox} style={{ height: 50, resizeMode: 'contain' }} />
-                                        </View>
-                                        <View style={{}}>
-                                            <Text
-                                                style={{
-                                                    textAlign: 'center',
-                                                    marginTop: 5,
-                                                    fontSize: Fonts.size.h5,
-                                                    color: 'grey',
-                                                    fontFamily: 'OpenSans-Regular',
-                                                }}>
-                                                {strings.No_references_found}
-                                            </Text>
-                                        </View>
+                                        <NoRecordFound />
                                     </View>
                                 )}
                             </ScrollView>

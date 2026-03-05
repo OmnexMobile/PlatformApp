@@ -1,17 +1,17 @@
 import { RFPercentage, RFValue } from 'helpers/utils';
-import {Dimensions, Platform} from 'react-native';
-import { LogBox } from 'react-native'; 
+import { Dimensions, Platform } from 'react-native';
+import { LogBox } from 'react-native';
 
 LogBox.ignoreLogs(['Require cycle:']);
 
-const { width, height } = Dimensions.get('window')
+const { width, height } = Dimensions.get('window');
 
 // COLORS
 
 export const COLORS = {
     primaryThemeColor: '#1FBFD0',
     primaryLightThemeColor: '#14D0AE',
-    primaryDarkThemeColor: '#2EA4E2',
+    primaryDarkThemeColor: '#123C95',
     primaryLightTransparentThemeColor: '#0180ff1a',
     secondaryColor: '#F19190',
     themeBlack1: '#191919',
@@ -88,18 +88,18 @@ export const COLORS = {
     headerText: '#333333',
     red: '#FF0000',
     apptheme: '#00c3d2',
-    icHeader:"#31A5E2",
-    icBackground:'#F3F3F3',
+    icHeader: '#31A5E2',
+    icBackground: '#F3F3F3',
     tabtheme: '#00c3d210',
-    icborder:'#efefef',
-    icBottomBox:"#e0e0e0",
-    ictextBlack:'#000',
-    moreIcon:'#666666',
-    appthemeShadow:"#00c3d220",
-    inputBorder:'#ececec',
-    inputBG:'#f5f5f5',
-    ipBgColor:'#FFA726',
-    fiBgColor:'#66BB6B',
+    icborder: '#efefef',
+    icBottomBox: '#e0e0e0',
+    ictextBlack: '#000',
+    moreIcon: '#666666',
+    appthemeShadow: '#00c3d220',
+    inputBorder: '#ececec',
+    inputBG: '#f5f5f5',
+    ipBgColor: '#FFA726',
+    fiBgColor: '#66BB6B',
 };
 
 // FONTS
@@ -146,19 +146,19 @@ export const metrics = {
     horizontalLineHeight: 1,
     screenWidth: width < height ? width : height,
     screenHeight: width < height ? height : width,
-    navBarHeight: (Platform.OS === 'ios') ? 64 : 54,
+    navBarHeight: Platform.OS === 'ios' ? 64 : 54,
     buttonRadius: 4,
     icons: {
-      tiny: 15,
-      small: 20,
-      medium: 30,
-      large: 45,
-      xl: 50
+        tiny: 15,
+        small: 20,
+        medium: 30,
+        large: 45,
+        xl: 50,
     },
     images: {
-      small: 20,
-      medium: 40,
-      large: 60,
-      logo: 200
-    }
-}
+        small: 20,
+        medium: 40,
+        large: 60,
+        logo: 200,
+    },
+};
