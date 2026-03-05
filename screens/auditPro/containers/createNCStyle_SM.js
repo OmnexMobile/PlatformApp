@@ -48,6 +48,7 @@ export default StyleSheet.create({
     },
     inputNoHorizontalPadding: {
         paddingHorizontal: 0,
+        color: '#123C95',
     },
     inputContainerNoPad: {
         paddingHorizontal: 0,
@@ -687,7 +688,7 @@ export default StyleSheet.create({
     footerPrimaryButton: {
         height: 65,
         borderRadius: 18,
-        backgroundColor: '#123C95',
+        backgroundColor: 'transparent',
         justifyContent: 'center',
         alignItems: 'center',
         shadowColor: '#000',
@@ -696,8 +697,19 @@ export default StyleSheet.create({
         shadowRadius: 4,
         elevation: 4,
     },
+    footerPrimaryButtonGradient: {
+        width: '100%',
+        height: '100%',
+        borderRadius: 18,
+        justifyContent: 'center',
+        alignItems: 'center',
+        overflow: 'hidden',
+    },
     footerPrimaryButtonTablet: {
         height: 72,
+        borderRadius: 22,
+    },
+    footerPrimaryButtonGradientTablet: {
         borderRadius: 22,
     },
     footerButtonText: {

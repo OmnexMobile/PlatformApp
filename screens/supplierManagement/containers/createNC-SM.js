@@ -34,6 +34,7 @@ import OfflineNotice from '../../auditPro//components/OfflineNotice';
 import SectionedMultiSelect from 'react-native-sectioned-multi-select';
 import Icon from 'react-native-vector-icons/Feather';
 import IconAwesome from 'react-native-vector-icons/FontAwesome';
+import LinearGradient from 'react-native-linear-gradient';
 import { width } from 'react-native-dimension';
 import ResponsiveImage from 'react-native-responsive-image';
 import Moment from 'moment';
@@ -65,6 +66,10 @@ const getFileFormat = filename => {
     const parts = filename.split('.');
     return parts[parts.length - 1].toLowerCase();
 };
+
+const CREATE_NC_BUTTON_GRADIENT = ['#123C95', '#1B5FDB', '#6A35D8'];
+const CREATE_NC_INPUT_COLOR = '#123C95';
+
 function generateUniqueID() {
     return Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
 }
@@ -3028,6 +3033,16 @@ class CreateNC extends Component {
         ];
         const responsiveFooterContainerStyle = [styles.footerDiv, styles.footerDivAdjusted, styles.footerResponsiveWrap];
         const responsivePrimaryButtonStyle = [styles.footerPrimaryButton, layoutProfile.isTablet ? styles.footerPrimaryButtonTablet : null];
+        const responsivePrimaryButtonGradientStyle = [
+            styles.footerPrimaryButtonGradient,
+            layoutProfile.isTablet ? styles.footerPrimaryButtonGradientTablet : null,
+        ];
+        const createNcInputThemeProps = {
+            focusBorderColor: CREATE_NC_INPUT_COLOR,
+            blurBorderColor: CREATE_NC_INPUT_COLOR,
+            selectionColor: CREATE_NC_INPUT_COLOR,
+            cursorColor: CREATE_NC_INPUT_COLOR,
+        };
         const keyboardExtraHeight = layoutProfile.isLandscape ? 90 : 125;
         const standardRequirementModalStyle = [
             styles.ModalBox,
@@ -3116,6 +3131,7 @@ class CreateNC extends Component {
                                         {this.state.RouteParam === 'NC' ? (
                                             <View style={styles.input02}>
                                                 <InputComponent
+                                                    {...createNcInputThemeProps}
                                                     label={strings.Non_confirmityL}
                                                     name="nonconfirmityText"
                                                     required
@@ -3142,6 +3158,7 @@ class CreateNC extends Component {
                                             <View style={styles.div1}>
                                                 <View style={styles.input02}>
                                                     <InputComponent
+                                                        {...createNcInputThemeProps}
                                                         label={strings.Opportunity_ApproachL}
                                                         name="ofitext"
                                                         required
@@ -3167,6 +3184,7 @@ class CreateNC extends Component {
                                         {this.state.RouteParam === 'NC' ? (
                                             <View style={styles.input02}>
                                                 <InputComponent
+                                                    {...createNcInputThemeProps}
                                                     label={strings.Objective_Evidence}
                                                     name="objEvidence"
                                                     required={false}
@@ -3189,6 +3207,7 @@ class CreateNC extends Component {
                                         ) : (
                                             <View style={styles.input02}>
                                                 <InputComponent
+                                                    {...createNcInputThemeProps}
                                                     label={strings.Objective_Evidence}
                                                     name="objEvidence"
                                                     required={false}
@@ -3257,6 +3276,7 @@ class CreateNC extends Component {
                                             {/* Container for TextInput + Eye Icon */}
                                             <View style={styles.eyeRow}>
                                                 <InputComponent
+                                                    {...createNcInputThemeProps}
                                                     // label={strings.StandardRequirementsL}
                                                     name="standardRequirements"
                                                     value={
@@ -3538,6 +3558,7 @@ class CreateNC extends Component {
                                         {this.state.RouteParam === 'NC' ? (
                                             <View style={styles.input02}>
                                                 <InputComponent
+                                                    {...createNcInputThemeProps}
                                                     label={strings.Document_reference}
                                                     name="documentRef"
                                                     required={false}
@@ -3559,6 +3580,7 @@ class CreateNC extends Component {
                                         ) : (
                                             <View style={styles.input02}>
                                                 <InputComponent
+                                                    {...createNcInputThemeProps}
                                                     label={strings.Document_reference}
                                                     name="documentRef"
                                                     value={this.state.documentRef}
@@ -3618,14 +3640,26 @@ class CreateNC extends Component {
                             <View style={styles.footerButtonsRow}>
                                 <View style={styles.footerButtonWrapper}>
                                     <TouchableOpacity onPress={() => this.setState({ dialogVisible: true })} style={responsivePrimaryButtonStyle}>
-                                        <Icon name="rotate-ccw" size={25} color="white" />
-                                        <Text style={styles.footerButtonText}>{strings.Reset}</Text>
+                                        <LinearGradient
+                                            start={{ x: 0, y: 0 }}
+                                            end={{ x: 1, y: 0 }}
+                                            colors={CREATE_NC_BUTTON_GRADIENT}
+                                            style={responsivePrimaryButtonGradientStyle}>
+                                            <Icon name="rotate-ccw" size={25} color="white" />
+                                            <Text style={styles.footerButtonText}>{strings.Reset}</Text>
+                                        </LinearGradient>
                                     </TouchableOpacity>
                                 </View>
                                 <View style={styles.footerButtonWrapper}>
                                     <TouchableOpacity onPress={debounce(this.onSave.bind(this), 600)} style={responsivePrimaryButtonStyle}>
-                                        <Icon name="save" size={25} color="white" />
-                                        <Text style={styles.footerButtonText}>{strings.Save}</Text>
+                                        <LinearGradient
+                                            start={{ x: 0, y: 0 }}
+                                            end={{ x: 1, y: 0 }}
+                                            colors={CREATE_NC_BUTTON_GRADIENT}
+                                            style={responsivePrimaryButtonGradientStyle}>
+                                            <Icon name="save" size={25} color="white" />
+                                            <Text style={styles.footerButtonText}>{strings.Save}</Text>
+                                        </LinearGradient>
                                     </TouchableOpacity>
                                 </View>
                             </View>

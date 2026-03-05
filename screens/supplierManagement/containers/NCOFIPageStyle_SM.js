@@ -157,7 +157,7 @@ export default StyleSheet.create({
     footerActionButton: {
         height: 66,
         borderRadius: 18,
-        backgroundColor: '#123C95',
+        backgroundColor: 'transparent',
         justifyContent: 'center',
         alignItems: 'center',
         shadowColor: '#000',
@@ -166,8 +166,19 @@ export default StyleSheet.create({
         shadowRadius: 4,
         elevation: 4,
     },
+    footerActionButtonGradient: {
+        width: '100%',
+        height: '100%',
+        borderRadius: 18,
+        justifyContent: 'center',
+        alignItems: 'center',
+        overflow: 'hidden',
+    },
     footerActionButtonTablet: {
         height: 72,
+        borderRadius: 22,
+    },
+    footerActionButtonGradientTablet: {
         borderRadius: 22,
     },
     footerActionButtonText: {

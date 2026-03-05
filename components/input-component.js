@@ -20,6 +20,9 @@ const InputComponent = ({
     inputStyle = {},
     labelStyle = {},
     placeholderTextColor = COLORS.searchText,
+    focusBorderColor = COLORS.primaryLightThemeColor,
+    blurBorderColor = COLORS.whiteGrey,
+    errorBorderColor = COLORS.ERROR,
     style: textInputStyle,
     ...rest
 }) => {
@@ -32,7 +35,7 @@ const InputComponent = ({
             style={[
                 {
                     ...(isPassword && { paddingRight: 0 }),
-                    borderColor: error ? COLORS.ERROR : isFocused ? COLORS.primaryLightThemeColor : COLORS.whiteGrey,
+                    borderColor: error ? errorBorderColor : isFocused ? focusBorderColor : blurBorderColor,
                 },
                 styles.inputContainer,
                 containerStyle,

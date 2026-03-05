@@ -1068,7 +1068,7 @@ class CreateAttach extends React.Component {
                     style={[styles.floatingSaveButton, Platform.OS === 'ios' ? styles.floatingButtonIOSOffset : styles.floatingButtonAndroidOffset]}
                     disabled={this.state.saveLoader}
                     onPress={debounce(this.onSave.bind(this), 1000)}>
-                    {this.state.saveLoader ? <ActivityIndicator size="small" color="#fff" /> : <Icon name="save" size={25} color="#123C95" />}
+                    {this.state.saveLoader ? <ActivityIndicator size="small" color="#fff" /> : <Icon name="save" size={25} color="white" />}
                 </TouchableOpacity>
 
                 <CommonAlertModal
