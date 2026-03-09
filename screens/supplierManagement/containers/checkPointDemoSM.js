@@ -16,6 +16,7 @@ import {
     LogBox,
     SafeAreaView,
     Button,
+    NativeModules,
 } from 'react-native';
 import styles from '../../auditPro/styles/CheckPointScreenPOCStyles';
 import Icon from 'react-native-vector-icons/Feather';
@@ -189,6 +190,7 @@ class CheckPointDemo extends Component {
             currentUserData: [],
             screenWidth: INITIAL_WINDOW.width,
             screenHeight: INITIAL_WINDOW.height,
+            serialRailExpanded: false,
         };
     }
 
@@ -4308,15 +4310,58 @@ class CheckPointDemo extends Component {
             this._serialListRef.scrollToIndex({
                 index: info.index,
                 animated: true,
-                viewPosition: 0.5,
+                viewPosition: 0.08,
             });
         }, 200);
+    };
+
+    toggleSerialRail = () => {
+        this.setState(
+            prevState => ({
+                serialRailExpanded: !prevState.serialRailExpanded,
+            }),
+            () => {
+                if (!this.state.serialRailExpanded) {
+                    return;
+                }
+
+                setTimeout(() => {
+                    if (!this._serialListRef) {
+                        return;
+                    }
+
+                    try {
+                        this._serialListRef.scrollToIndex({
+                            index: this.state.ActiveId,
+                            animated: false,
+                            viewPosition: 0.08,
+                        });
+                    } catch (e) {
+                        // Ignore scroll errors while FlatList is still measuring.
+                    }
+                }, 120);
+            },
+        );
+    };
+
+    playSerialTouchSound = () => {
+        if (Platform.OS !== 'android') {
+            return;
+        }
+
+        try {
+            NativeModules?.SoundManager?.playTouchSound?.();
+        } catch (error) {
+            // Ignore sound playback issues.
+        }
     };
 
     componentDidUpdate(prevProps, prevState) {
         if (prevState.ActiveId === this.state.ActiveId) {
             return;
         }
+
+        this.playSerialTouchSound();
 
         if (!this._serialListRef) {
             return;
@@ -4331,7 +4376,7 @@ class CheckPointDemo extends Component {
             this._serialListRef.scrollToIndex({
                 index: activeIndex,
                 animated: true,
-                viewPosition: 0.5,
+                viewPosition: 0.08,
             });
         } catch (e) {
             // Ignore scroll errors while FlatList is still measuring.
@@ -5408,6 +5453,10 @@ class CheckPointDemo extends Component {
         const serialGridHeight = isTablet ? 76 : SERIAL_GRID_HEIGHT;
         const serialGridTextSize = isTablet ? 20 : 16;
         const serialMandatoryIconSize = isTablet ? 18 : 14;
+        const serialRailWidth = isTablet ? (isLandscape ? 122 : 132) : 110;
+        const serialRailItemHeight = isTablet ? (isLandscape ? 60 : 64) : 54;
+        const serialRailGap = 12;
+        const serialRailToggleWidth = 78;
         //console.log('CheckPointDemo~checkpointList:>', this.state.checkpointList);
 
         // if (this.state.failureloaded === false){
@@ -5477,7 +5526,7 @@ class CheckPointDemo extends Component {
                             ) : null}
 
                             {this.state.checkpointList.length ? (
-                                <View style={[styles.body, styles.bodyColumn]}>
+                                <View style={[styles.body, styles.bodyRightRailLayout]}>
                                     <View style={styles.carouselBottomWrapper}>
                                         {isCarouselReady ? (
                                             <Carousel
@@ -7971,97 +8020,118 @@ class CheckPointDemo extends Component {
                                             this.render_loader(stackCardMinHeight)
                                         )}
                                     </View>
-                                    <View style={styles.serialStripWrapper}>
-                                        <FlatList
-                                            ref={ref => {
-                                                this._serialListRef = ref;
-                                            }}
-                                            data={this.state.checkpointList}
-                                            keyExtractor={item => String(item.ActualIndex)}
-                                            horizontal
-                                            showsHorizontalScrollIndicator={false}
-                                            extraData={this.state.ActiveId}
-                                            onScrollToIndexFailed={this.handleSerialScrollToIndexFailed}
-                                            contentContainerStyle={styles.serialStripContent}
-                                            renderItem={({ item, index }) => {
-                                                const checkPointDetail = this.state.checkPointsDetails[index] || {};
-                                                const isMandatoryPending =
-                                                    // NC validation
-                                                    (checkPointDetail.Attachment == '' &&
-                                                        checkPointDetail.AttachforNc == 1 &&
-                                                        checkPointDetail.RemarkforNc == 0) ||
-                                                    (checkPointDetail.Remark == '' &&
-                                                        checkPointDetail.RemarkforNc == 1 &&
-                                                        checkPointDetail.AttachforNc == 0) ||
-                                                    (checkPointDetail.Attachment == '' &&
-                                                        checkPointDetail.Remark == '' &&
-                                                        checkPointDetail.AttachforNc == 1 &&
-                                                        checkPointDetail.RemarkforNc == 1) ||
-                                                    // OFI validation
-                                                    (checkPointDetail.Attachment == '' &&
-                                                        checkPointDetail.AttachforOfi == 1 &&
-                                                        checkPointDetail.RemarkforOfi == 0) ||
-                                                    (checkPointDetail.Remark == '' &&
-                                                        checkPointDetail.RemarkforOfi == 1 &&
-                                                        checkPointDetail.AttachforOfi == 0) ||
-                                                    (checkPointDetail.Attachment == '' &&
-                                                        checkPointDetail.Remark == '' &&
-                                                        checkPointDetail.AttachforOfi == 1 &&
-                                                        checkPointDetail.AttachforOfi == 1);
+                                    <View
+                                        style={[
+                                            styles.serialRailWrapper,
+                                            {
+                                                width: this.state.serialRailExpanded ? serialRailWidth : serialRailToggleWidth,
+                                            },
+                                        ]}>
+                                        {this.state.serialRailExpanded ? (
+                                            <View style={styles.serialRailExpandedWrap}>
+                                                <FlatList
+                                                    ref={ref => {
+                                                        this._serialListRef = ref;
+                                                    }}
+                                                    style={styles.serialRailList}
+                                                    data={this.state.checkpointList}
+                                                    keyExtractor={item => String(item.ActualIndex)}
+                                                    showsVerticalScrollIndicator={false}
+                                                    inverted
+                                                    extraData={this.state.ActiveId}
+                                                    onScrollToIndexFailed={this.handleSerialScrollToIndexFailed}
+                                                    contentContainerStyle={styles.serialRailContent}
+                                                    getItemLayout={(data, index) => ({
+                                                        length: serialRailItemHeight + serialRailGap,
+                                                        offset: (serialRailItemHeight + serialRailGap) * index,
+                                                        index,
+                                                    })}
+                                                    renderItem={({ item, index }) => {
+                                                        const isActive = this.state.ActiveId == index;
 
-                                                const isMandatoryEnabled =
-                                                    // NC validation
-                                                    (checkPointDetail.AttachforNc == 1 && checkPointDetail.RemarkforNc == 0) ||
-                                                    (checkPointDetail.RemarkforNc == 1 && checkPointDetail.AttachforNc == 0) ||
-                                                    (checkPointDetail.AttachforNc == 1 && checkPointDetail.RemarkforNc == 1) ||
-                                                    // OFI validation
-                                                    (checkPointDetail.AttachforOfi == 1 && checkPointDetail.RemarkforOfi == 0) ||
-                                                    (checkPointDetail.RemarkforOfi == 1 && checkPointDetail.AttachforOfi == 0) ||
-                                                    (checkPointDetail.AttachforOfi == 1 && checkPointDetail.RemarkforOfi == 1);
+                                                        return (
+                                                            <TouchableOpacity
+                                                                style={[
+                                                                    styles.serialRailButton,
+                                                                    {
+                                                                        backgroundColor: isActive ? 'transparent' : '#FFFFFF',
+                                                                        borderColor: isActive ? '#1099BF' : '#D9DEE8',
+                                                                        width: serialRailWidth - 10,
+                                                                        height: serialRailItemHeight,
+                                                                    },
+                                                                ]}
+                                                                touchSoundDisabled={false}
+                                                                onPress={() => {
+                                                                    this.playSerialTouchSound();
+                                                                    this.btnDatapress(index, item);
+                                                                }}>
+                                                                {isActive ? (
+                                                                    <LinearGradient
+                                                                        start={{ x: 0, y: 0 }}
+                                                                        end={{ x: 1, y: 0 }}
+                                                                        colors={FOOTER_BUTTON_GRADIENT}
+                                                                        style={styles.serialRailButtonGradient}>
+                                                                        <Text
+                                                                            style={[
+                                                                                styles.serialRailText,
+                                                                                {
+                                                                                    color: '#FFFFFF',
+                                                                                },
+                                                                            ]}>
+                                                                            {item.SerialNo}
+                                                                        </Text>
+                                                                    </LinearGradient>
+                                                                ) : (
+                                                                    <Text
+                                                                        style={[
+                                                                            styles.serialRailText,
+                                                                            {
+                                                                                color: '#10224C',
+                                                                            },
+                                                                        ]}>
+                                                                        {item.SerialNo}
+                                                                    </Text>
+                                                                )}
+                                                            </TouchableOpacity>
+                                                        );
+                                                    }}
+                                                />
 
-                                                return (
-                                                    <TouchableOpacity
-                                                        style={[
-                                                            styles.bottomSerialBtn,
-                                                            {
-                                                                backgroundColor: this.state.ActiveId == index ? SERIAL_ACTIVE_COLOR : '#FFFFFF',
-                                                                borderColor: this.state.ActiveId == index ? SERIAL_ACTIVE_COLOR : '#BDBDBD',
-                                                                minWidth: serialGridMinWidth,
-                                                                height: serialGridHeight,
-                                                            },
-                                                        ]}
-                                                        onPress={() => this.btnDatapress(index, item)}>
-                                                        <Text
-                                                            style={[
-                                                                styles.bottomSerialText,
-                                                                {
-                                                                    color: this.state.ActiveId == index ? 'white' : 'black',
-                                                                    fontSize: serialGridTextSize,
-                                                                },
-                                                            ]}>
-                                                            {item.SerialNo}
-                                                        </Text>
-                                                        {isMandatoryPending ? (
-                                                            <View style={styles.bottomMandatoryIcon}>
-                                                                <ResponsiveImage
-                                                                    source={Images.ManIcon1}
-                                                                    initHeight={serialMandatoryIconSize}
-                                                                    initWidth={serialMandatoryIconSize}
-                                                                />
-                                                            </View>
-                                                        ) : isMandatoryEnabled ? (
-                                                            <View style={styles.bottomMandatoryIcon}>
-                                                                <ResponsiveImage
-                                                                    source={Images.ManIcon3}
-                                                                    initHeight={serialMandatoryIconSize}
-                                                                    initWidth={serialMandatoryIconSize}
-                                                                />
-                                                            </View>
-                                                        ) : null}
-                                                    </TouchableOpacity>
-                                                );
-                                            }}
-                                        />
+                                                <TouchableOpacity
+                                                    style={[styles.serialRailToggle, styles.serialRailToggleGradientShell]}
+                                                    touchSoundDisabled={false}
+                                                    onPress={() => {
+                                                        this.playSerialTouchSound();
+                                                        this.toggleSerialRail();
+                                                    }}>
+                                                    <LinearGradient
+                                                        start={{ x: 0, y: 0 }}
+                                                        end={{ x: 1, y: 0 }}
+                                                        colors={FOOTER_BUTTON_GRADIENT}
+                                                        style={styles.serialRailToggleGradient}>
+                                                        <Text style={[styles.serialRailToggleText, styles.serialRailToggleTextLight]}>Close</Text>
+                                                        <Icon name="chevron-right" size={16} color="#FFFFFF" />
+                                                    </LinearGradient>
+                                                </TouchableOpacity>
+                                            </View>
+                                        ) : (
+                                            <TouchableOpacity
+                                                style={[styles.serialRailToggle, styles.serialRailToggleGradientShell]}
+                                                touchSoundDisabled={false}
+                                                onPress={() => {
+                                                    this.playSerialTouchSound();
+                                                    this.toggleSerialRail();
+                                                }}>
+                                                <LinearGradient
+                                                    start={{ x: 0, y: 0 }}
+                                                    end={{ x: 1, y: 0 }}
+                                                    colors={FOOTER_BUTTON_GRADIENT}
+                                                    style={styles.serialRailToggleGradient}>
+                                                    <Text style={[styles.serialRailToggleText, styles.serialRailToggleTextLight]}>S.No</Text>
+                                                    <Icon name="chevron-left" size={16} color="#FFFFFF" />
+                                                </LinearGradient>
+                                            </TouchableOpacity>
+                                        )}
                                     </View>
                                 </View>
                             ) : (
