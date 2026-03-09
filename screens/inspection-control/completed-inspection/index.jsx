@@ -537,7 +537,7 @@ const CompletedInspection = () => {
                     <View style={[styles.modalContainer]}>
                         {disableBtn ? (
                             <View style={[styles.bubbleBox]}>
-                                <Bubbles size={10} color="#12C0CF" />
+                                <Bubbles size={10} color={COLORS.apptheme}/>
                             </View>
                         ) : (
                             <View style={[styles.containerOne]}>

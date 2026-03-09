@@ -924,7 +924,7 @@ const SupervisorSchedule = () => {
                         flex: 1,
                         height: '100%',
                     }}>
-                    <Bubbles size={10} color="#12C0CF" />
+                    <Bubbles size={10} color={COLORS.apptheme} />
                 </Modal>
             )}
             {Boolean(showMutiSearchFilter) && (
