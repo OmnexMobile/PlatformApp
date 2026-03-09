@@ -71,7 +71,7 @@ const styles = StyleSheet.create({
         paddingVertical: 14,
         paddingHorizontal: 12,
         borderWidth: 1,
-        borderColor: "#1FBFD0",
+        borderColor: "#123C95",
         backgroundColor: "#FFFFFF",
         shadowColor: "#000",
         shadowOpacity: 0.06,
@@ -79,7 +79,7 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 2 },
         elevation: 2,
         borderLeftWidth: 5,
-        borderLeftColor: "#1FBFD0",
+        borderLeftColor: "#123C95",
     },
     summaryDeliverableName: {
         fontSize: 16,
@@ -121,7 +121,7 @@ const styles = StyleSheet.create({
     },
     summaryStatValue: {
         fontSize: 16,
-        color: "#1FBFD0",
+        color: "#123C95",
         // fontWeight: "700",
         fontFamily: 'OpenSans-SemiBold',
     },

@@ -54,7 +54,8 @@ const CardList = ({ item = {}, handleClickCard }) => {
                         name="arrow-right"
                         type={ICON_TYPE.Feather}
                         size={FONT_SIZE.X_LARGE}
-                        color="#1FBFD0"
+                        // color="#1FBFD0"
+                        color='#123C95'
                     />
                 </View>
                 <TouchableOpacity
@@ -123,8 +124,10 @@ const styles = StyleSheet.create({
         borderRadius: SPACING.SMALL,
         width: '88%',
         borderLeftWidth: 4,
-        borderLeftColor: '#1FBFD0',
-        borderColor: '#1FBFD0',
+        // borderLeftColor: '#1FBFD0',
+        // borderColor: '#1FBFD0',
+        borderLeftColor:'#123C95',
+        borderColor:'#123C95',
         borderWidth: 0.5,
     },
     cardOuterView: {

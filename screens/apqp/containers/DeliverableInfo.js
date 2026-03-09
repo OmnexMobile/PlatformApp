@@ -286,7 +286,7 @@ export class DeliverableInfoScreen extends Component {
                       <Text style={styles.listText1}>Output Doc</Text>
                       {item.OPDocName == "" ? (
                         <View style={styles.outputDocAttachRow}>
-                          <Icon name="paperclip" size={16} color="#1FBFD0" />
+                          <Icon name="paperclip" size={16} color="#123C95" />
                           <Text style={styles.outputDocAttachText}>
                             Attach Output Doc
                           </Text>
@@ -299,7 +299,7 @@ export class DeliverableInfoScreen extends Component {
                           <Icon
                             name="edit"
                             size={17}
-                            color="#1FBFD0"
+                            color="#123C95"
                             style={styles.outputDocEditIcon}
                           />
                         </View>

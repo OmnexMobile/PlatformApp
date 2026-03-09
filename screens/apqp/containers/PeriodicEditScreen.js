@@ -843,7 +843,7 @@ class PeriodicEditScreen extends Component {
             <SwitchToggle
               toggleSwitch1={this.toggleSwitch1}
               switch1Value={this.state.switch1Value}
-              activeTrackColor="#1FBFD0"
+              activeTrackColor="#123C95"
               scale={0.8}
               containerStyle={{ marginLeft: "auto" }}
             />

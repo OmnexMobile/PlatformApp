@@ -657,27 +657,29 @@ export default StyleSheet.create({
   },
   tabTextActive: {
     fontWeight: "700",
-    color: "#4ACECD",
+    // color: "#4ACECD",
+    color:'#123C95',
     textAlign: "center",
     fontSize: 14,
   },
   tabTextInactive: {
     fontWeight: "400",
-    color: "#888",
+    color: "#000",
     textAlign: "center",
     fontSize: 14,
   },
   tabTextSmallActive: {
     fontWeight: "700",
-    color: "#4ACECD",
+    // color: "#4ACECD",
+    color:'#123C95',
     textAlign: "center",
-    fontSize: 12,
+    fontSize: 14,
   },
   tabTextSmallInactive: {
     fontWeight: "400",
-    color: "#888",
+    color: "#000",
     textAlign: "center",
-    fontSize: 12,
+    fontSize: 14,
   },
   tabIndicatorTrack: {
     width: Window.width,
@@ -690,7 +692,8 @@ export default StyleSheet.create({
     height: 2,
   },
   tabIndicator: {
-    backgroundColor: "#4ACECD",
+    // backgroundColor: "#4ACECD",
+    backgroundColor:'#123C95',
     width: Window.width / 3,
     height: 4,
   },
@@ -778,7 +781,7 @@ export default StyleSheet.create({
   },
 
   sectionHeader: {
-    backgroundColor: '#1FBFD0',
+    backgroundColor: '#123C95',
     borderRadius: 8,
     paddingVertical: 10,
     paddingHorizontal: SPACING.NORMAL,

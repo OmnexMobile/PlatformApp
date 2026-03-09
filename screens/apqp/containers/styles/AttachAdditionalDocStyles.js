@@ -351,7 +351,7 @@ export default StyleSheet.create({
     borderRadius: 14,
     paddingVertical: 14,
     paddingHorizontal: 14,
-    borderColor: "#1FBFD0",
+    borderColor: "#123C95",
     borderWidth: 1,
     backgroundColor: "#FFFFFF",
     shadowColor: "#000000",
@@ -380,7 +380,7 @@ export default StyleSheet.create({
   },
   filePickerText: {
     flex: 1,
-    color: "#485B9E",
+    color: "#123C95",
     fontSize: 16,
     marginRight: 8,
   },

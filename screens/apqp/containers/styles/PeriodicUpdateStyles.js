@@ -402,7 +402,7 @@ export default StyleSheet.create({
     paddingHorizontal: 12,
     // borderLeftWidth: 5,
     // borderLeftColor: "#1FBFD0",
-    borderColor: "#1FBFD0",
+    borderColor: "#123C95",
     borderWidth: 1,
     backgroundColor: "#F8FBFD",
   },

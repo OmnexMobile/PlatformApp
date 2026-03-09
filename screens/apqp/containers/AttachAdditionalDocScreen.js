@@ -7,6 +7,7 @@ import {
   TextInput,
   ScrollView,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
 import { Images } from "../themes";
 import Icon from "react-native-vector-icons/FontAwesome";
@@ -726,7 +727,8 @@ class AttachAdditionalDocScreen extends Component {
 
         {this.state.loader === true ? (
           <View style={styles.loaderView}>
-            <Bubbles size={10} color="#8CE7DC" />
+            {/* <Bubbles size={10} color="#8CE7DC" /> */}
+            <ActivityIndicator size="small" color="#1CAFF6" />
           </View>
         ) : (
           <ScrollView
@@ -781,7 +783,7 @@ class AttachAdditionalDocScreen extends Component {
                       {this.state.attachedDocName || "Choose file to attach"}
                     </Text>
                     <View style={styles.filePickerIconWrap}>
-                      <Icon name="paperclip" size={18} color="#1FBFD0" />
+                      <Icon name="paperclip" size={18} color="#123C95" />
                     </View>
                   </TouchableOpacity>
                 </View>

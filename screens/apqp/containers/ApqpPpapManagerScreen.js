@@ -1758,6 +1758,17 @@ class ApqpPpapManagerScreen extends Component {
     );
   }
 
+  hasProjectCardData() {
+    const { apqpList } = this.state;
+    if (!Array.isArray(apqpList) || apqpList.length === 0) {
+      return false;
+    }
+
+    return apqpList.some(
+      (section) => Array.isArray(section?.data) && section.data.length > 0
+    );
+  }
+
   allProjects() {
     // var v1 = this.state.apqpTobecompleted;
     // var v2 = this.state.apqpPending ;
@@ -1774,15 +1785,15 @@ class ApqpPpapManagerScreen extends Component {
     // this.state.apqpPending):this.state.apqpAll
     //   + ")";
 
+    const hasProjectData = this.hasProjectCardData();
+
     return (
       <View style={styles.scrollViewBody}>
-        {this.state.apqpList && this.state.apqpList.length > 0
-          ? this.filterSection()
-          : null}
+        {hasProjectData ? this.filterSection() : null}
 
         {this.state.filterArrSplit.length > 0 ? this.renderFilter() : null}
         {!this.state.loader
-          ? this.state.apqpList.length > 0
+          ? hasProjectData
             ? this.RenderProjectSectionList()
             : this.state.isErrorRefresh
               ? this.RefreshOnError()
@@ -1795,7 +1806,7 @@ class ApqpPpapManagerScreen extends Component {
   Bounce() {
     return (
       <View style={styles.bounceContainer}>
-        <ActivityIndicator size="small" color="#1CAFF6" />
+        <ActivityIndicator size="small" color="#123C95" />
       </View>
     );
   }
@@ -1803,14 +1814,14 @@ class ApqpPpapManagerScreen extends Component {
   allToBeCompletedProjects() {
     var tabText =
       strings.To_Be_Completed + " (" + this.state.apqpTobecompleted + ")";
+    const hasProjectData = this.hasProjectCardData();
+
     return (
       <View tabLabel={tabText} style={styles.scrollViewBody}>
-        {this.state.apqpList && this.state.apqpList.length > 0
-          ? this.filterSection()
-          : null}
+        {hasProjectData ? this.filterSection() : null}
         {this.state.filterArrSplit.length > 0 ? this.renderFilter() : null}
         {!this.state.loader
-          ? this.state.apqpList.length > 0
+          ? hasProjectData
             ? this.RenderProjectSectionList()
             : this.state.isErrorRefresh
               ? this.RefreshOnError()
@@ -1822,14 +1833,14 @@ class ApqpPpapManagerScreen extends Component {
 
   allPendingProjects() {
     var tabText = strings.Pending + " (" + this.state.apqpPending + ")";
+    const hasProjectData = this.hasProjectCardData();
+
     return (
       <View tabLabel={tabText} style={styles.scrollViewBody}>
-        {this.state.apqpList && this.state.apqpList.length > 0
-          ? this.filterSection()
-          : null}
+        {hasProjectData ? this.filterSection() : null}
         {this.state.filterArrSplit.length > 0 ? this.renderFilter() : null}
         {!this.state.loader
-          ? this.state.apqpList.length > 0
+          ? hasProjectData
             ? this.RenderProjectSectionList()
             : this.state.isErrorRefresh
               ? this.RefreshOnError()

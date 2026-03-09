@@ -455,15 +455,16 @@ export default StyleSheet.create({
     width: 40,
     right: '5%',
     borderRadius: 40,
-    borderColor: "#00BAC8",
+    borderColor: "#123C95",
     borderWidth: 0.7,
-    backgroundColor: "#00BAC8",
+    backgroundColor: "#123C95",
     justifyContent: "center",
     alignItems: "center",
   },
   roundViewText: {
     color: "#fff",
     fontWeight: "bold",
+    fontSize: 12,
   },
   rowDirection: {
     flexDirection: "row",

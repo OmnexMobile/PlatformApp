@@ -327,7 +327,7 @@ class PeriodicUpdateScreen extends Component {
   renderBounce() {
     return (
       <View style={styles.bounceContainer}>
-        <ActivityIndicator size="small" color="#1CAFF6" />
+        <ActivityIndicator size="small" color="#123C95" />
       </View>
     );
   }
@@ -551,7 +551,7 @@ class PeriodicUpdateScreen extends Component {
                         name="arrow-right"
                         type={ICON_TYPE.Feather}
                         size={18}
-                        color="#1FBFD0"
+                        color="#123C95"
                       />
                     </View>
                     <View style={styles.sectionHeader}>

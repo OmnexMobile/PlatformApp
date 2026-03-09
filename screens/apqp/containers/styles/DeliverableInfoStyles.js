@@ -158,7 +158,7 @@ export default StyleSheet.create({
     backgroundColor: "white",
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: "#1FBFD0",
+    borderColor: "#123C95",
     borderRadius: 12,
     shadowColor: "#000",
     shadowOpacity: 0.06,
@@ -224,7 +224,7 @@ export default StyleSheet.create({
     backgroundColor: "#F3FCFD",
   },
   outputDocAttachText: {
-    color: "#1FBFD0",
+    color: "#123C95",
     paddingLeft: 5,
     fontSize: 16,
     fontFamily: 'OpenSans-Regular',
@@ -237,7 +237,7 @@ export default StyleSheet.create({
   },
   outputDocNameText: {
     marginRight: 6,
-    color: "#1FBFD0",
+    color: "#123C95",
     fontSize: 16,
     fontFamily: 'OpenSans-Regular',
   },
@@ -292,13 +292,13 @@ export default StyleSheet.create({
   },
 
   deliveryTypeTextHeaderStyle: {
-    color: "#1FBFD0",
+    color: "#123C95",
     fontSize: 14,
     flex: 1,
     fontWeight: "700",
   },
   deliveryTypeTextStyle: {
-    color: "#1FBFD0",
+    color: "#123C95",
     fontSize: 16,
     flex: 1,
     fontFamily: 'OpenSans-Regular',
@@ -447,7 +447,7 @@ export default StyleSheet.create({
     paddingVertical: 14,
     paddingHorizontal: 12,
     borderWidth: 1,
-    borderColor: "#1FBFD0",
+    borderColor: "#123C95",
     backgroundColor: "#FFFFFF",
     shadowColor: "#000",
     shadowOpacity: 0.06,
@@ -455,7 +455,7 @@ export default StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     elevation: 2,
     borderLeftWidth: 5,
-    borderLeftColor: "#1FBFD0",
+    borderLeftColor: "#123C95",
   },
   summaryTitle: {
     fontSize: 16,
@@ -495,7 +495,7 @@ export default StyleSheet.create({
   },
   summaryStatValue: {
     fontSize: 16,
-    color: "#1FBFD0",
+    color: "#123C95",
     fontWeight: "700",
   },
   toastStyle: {
