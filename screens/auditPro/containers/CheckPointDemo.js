@@ -17,6 +17,7 @@ import {
     SafeAreaView,
     Button,
     DeviceEventEmitter,
+    NativeModules,
 } from 'react-native';
 import styles from '../styles/CheckPointScreenPOCStyles';
 import Icon from 'react-native-vector-icons/Feather';
@@ -50,6 +51,7 @@ import finalPropsSelectorFactory from 'react-redux/es/connect/selectorFactory';
 import auth from '../../../services/Auditpro-Auth';
 import { ROUTES } from 'constants/app-constant';
 import RichText from '../components/RichText';
+import LinearGradient from 'react-native-linear-gradient';
 import GlobalHeader from 'components/GlobalHeader';
 import AttachmentSelectionModal from 'components/attachment-selection-modal';
 const INITIAL_WINDOW = Dimensions.get('window');
@@ -65,6 +67,7 @@ const Colors = {
     '-1': '#fff',
     '-2': '#fff',
 };
+const FOOTER_BUTTON_GRADIENT = ['#123C95', '#1B5FDB', '#6A35D8'];
 
 const toastConfig = {
     error: props => (
@@ -180,6 +183,7 @@ class CheckPointDemo extends Component {
             ReportId: '',
             screenWidth: INITIAL_WINDOW.width,
             screenHeight: INITIAL_WINDOW.height,
+            serialRailExpanded: false,
             isPickingAttachment: false,
             activeSlide: 0,
             categoryModalVisible: false,
@@ -348,6 +352,8 @@ class CheckPointDemo extends Component {
             return;
         }
 
+        this.playSerialTouchSound();
+
         if (!this._serialListRef) {
             return;
         }
@@ -361,7 +367,7 @@ class CheckPointDemo extends Component {
             this._serialListRef.scrollToIndex({
                 index: activeIndex,
                 animated: true,
-                viewPosition: 0.5,
+                viewPosition: 0.08,
             });
         } catch (e) {
             // Ignore scroll errors while FlatList is still measuring.
@@ -5348,9 +5354,50 @@ class CheckPointDemo extends Component {
             this._serialListRef.scrollToIndex({
                 index: info.index,
                 animated: true,
-                viewPosition: 0.5,
+                viewPosition: 0.08,
             });
         }, 200);
+    };
+
+    toggleSerialRail = () => {
+        this.setState(
+            prevState => ({
+                serialRailExpanded: !prevState.serialRailExpanded,
+            }),
+            () => {
+                if (!this.state.serialRailExpanded) {
+                    return;
+                }
+
+                setTimeout(() => {
+                    if (!this._serialListRef) {
+                        return;
+                    }
+
+                    try {
+                        this._serialListRef.scrollToIndex({
+                            index: this.state.ActiveId,
+                            animated: false,
+                            viewPosition: 0.08,
+                        });
+                    } catch (e) {
+                        // Ignore scroll errors while FlatList is still measuring.
+                    }
+                }, 120);
+            },
+        );
+    };
+
+    playSerialTouchSound = () => {
+        if (Platform.OS !== 'android') {
+            return;
+        }
+
+        try {
+            NativeModules?.SoundManager?.playTouchSound?.();
+        } catch (error) {
+            // Ignore sound playback issues.
+        }
     };
 
     // Normalizes iOS file paths for attachments
@@ -6356,14 +6403,16 @@ class CheckPointDemo extends Component {
         const stackCardOffset = useStackLayout ? (isTablet ? 24 : 18) : 0;
         const carouselInactiveScale = useStackLayout ? 0.93 : 1;
         const carouselInactiveOpacity = useStackLayout ? 0.92 : 1;
-        const questionMetaNavButtonWidth = isTablet ? (isLandscape ? 190 : 170) : isLandscape ? 104 : 110;
-        const questionMetaArrowSize = isTablet ? 42 : isLandscape ? 28 : 32;
-        const questionMetaTextSize = isTablet ? (isLandscape ? 24 : 26) : isLandscape ? 17 : 18;
-        const questionMetaNavTextSize = isTablet ? 20 : isLandscape ? 14 : 16;
+        const questionMetaArrowSize = isTablet ? 32 : isLandscape ? 22 : 20;
+        const questionMetaTextSize = isTablet ? (isLandscape ? 24 : 26) : isLandscape ? 15 : 16;
         const serialGridMinWidth = isTablet ? (isLandscape ? 150 : 140) : SERIAL_GRID_MIN_WIDTH;
         const serialGridHeight = isTablet ? 76 : SERIAL_GRID_HEIGHT;
         const serialGridTextSize = isTablet ? 20 : 16;
         const serialMandatoryIconSize = isTablet ? 18 : 14;
+        const serialRailWidth = isTablet ? (isLandscape ? 122 : 132) : 110;
+        const serialRailItemHeight = isTablet ? (isLandscape ? 60 : 64) : 54;
+        const serialRailGap = 12;
+        const serialRailToggleWidth = 78;
         //console.log('CheckPointDemo~checkpointList:>', this.state.checkpointList);
 
         // if (this.state.failureloaded === false){
@@ -6418,7 +6467,7 @@ class CheckPointDemo extends Component {
                         ) : null}
 
                         {this.state.checkpointList.length ? (
-                            <View style={[styles.body, styles.bodyColumn]}>
+                            <View style={[styles.body, styles.bodyRightRailLayout]}>
                                 <View style={styles.carouselBottomWrapper}>
                                     {isCarouselReady ? (
                                         <Carousel
@@ -6485,7 +6534,6 @@ class CheckPointDemo extends Component {
                                                                 <TouchableOpacity
                                                                     style={[
                                                                         styles.questionMetaNavButton,
-                                                                        { width: questionMetaNavButtonWidth },
                                                                         index === 0 ? styles.questionMetaNavButtonDisabled : null,
                                                                     ]}
                                                                     disabled={index === 0}
@@ -6493,16 +6541,8 @@ class CheckPointDemo extends Component {
                                                                     <Icon
                                                                         name="arrow-left"
                                                                         size={questionMetaArrowSize}
-                                                                        color={index === 0 ? '#9AA6B5' : '#0AA7D4'}
+                                                                        color={index === 0 ? '#9AA6B5' : '#123C95'}
                                                                     />
-                                                                    <Text
-                                                                        style={[
-                                                                            styles.questionMetaNavText,
-                                                                            { fontSize: questionMetaNavTextSize },
-                                                                            index === 0 ? styles.questionMetaNavTextDisabled : null,
-                                                                        ]}>
-                                                                        Previous
-                                                                    </Text>
                                                                 </TouchableOpacity>
 
                                                                 <Text style={[styles.questionMetaText, { fontSize: questionMetaTextSize }]}>
@@ -6513,30 +6553,19 @@ class CheckPointDemo extends Component {
                                                                     style={[
                                                                         styles.questionMetaNavButton,
                                                                         styles.questionMetaNavButtonRight,
-                                                                        { width: questionMetaNavButtonWidth },
                                                                         index === this.state.checkpointList.length - 1
                                                                             ? styles.questionMetaNavButtonDisabled
                                                                             : null,
                                                                     ]}
                                                                     disabled={index === this.state.checkpointList.length - 1}
                                                                     onPress={() => this.onNext(index, item)}>
-                                                                    <Text
-                                                                        style={[
-                                                                            styles.questionMetaNavText,
-                                                                            { fontSize: questionMetaNavTextSize },
-                                                                            index === this.state.checkpointList.length - 1
-                                                                                ? styles.questionMetaNavTextDisabled
-                                                                                : null,
-                                                                        ]}>
-                                                                        Next
-                                                                    </Text>
                                                                     <Icon
                                                                         name="arrow-right"
                                                                         size={questionMetaArrowSize}
                                                                         color={
                                                                             index === this.state.checkpointList.length - 1
                                                                                 ? '#9AA6B5'
-                                                                                : '#0AA7D4'
+                                                                                : '#123C95'
                                                                         }
                                                                     />
                                                                 </TouchableOpacity>
@@ -8668,75 +8697,122 @@ class CheckPointDemo extends Component {
                                         this.render_loader(stackCardMinHeight)
                                     )}
                                 </View>
-                                <View style={styles.serialStripWrapper}>
-                                    <FlatList
-                                        ref={ref => {
-                                            this._serialListRef = ref;
-                                        }}
-                                        data={this.state.checkpointList}
-                                        keyExtractor={item => String(item.ActualIndex)}
-                                        horizontal
-                                        showsHorizontalScrollIndicator={false}
-                                        extraData={{
-                                            revision: this.state.checkpointRevision,
-                                            radioKey: this.state.radioResetKey,
-                                            activeId: this.state.ActiveId,
-                                        }}
-                                        onScrollToIndexFailed={this.handleSerialScrollToIndexFailed}
-                                        contentContainerStyle={styles.serialStripContent}
-                                        renderItem={({ item, index }) => {
-                                            const checkpointState = this.state.checkPointsDetails[index] || {};
-                                            const isRemarkRequired = this.isRemarkMandatory(checkpointState);
-                                            const isAttachmentRequired = this.isAttachmentMandatory(checkpointState);
-                                            const isRemarkFilled = this.hasRemarkValue(checkpointState);
-                                            const isAttachmentFilled = this.hasAttachmentValue(checkpointState);
-                                            const hasOutstandingRequirement =
-                                                (isRemarkRequired && !isRemarkFilled) || (isAttachmentRequired && !isAttachmentFilled);
-                                            const hasRequirement = isRemarkRequired || isAttachmentRequired;
+                                <View
+                                    style={[
+                                        styles.serialRailWrapper,
+                                        {
+                                            width: this.state.serialRailExpanded ? serialRailWidth : serialRailToggleWidth,
+                                        },
+                                    ]}>
+                                    {this.state.serialRailExpanded ? (
+                                        <View style={styles.serialRailExpandedWrap}>
+                                            <FlatList
+                                                ref={ref => {
+                                                    this._serialListRef = ref;
+                                                }}
+                                                style={styles.serialRailList}
+                                                data={this.state.checkpointList}
+                                                keyExtractor={item => String(item.ActualIndex)}
+                                                showsVerticalScrollIndicator={false}
+                                                inverted
+                                                extraData={{
+                                                    revision: this.state.checkpointRevision,
+                                                    radioKey: this.state.radioResetKey,
+                                                    activeId: this.state.ActiveId,
+                                                }}
+                                                onScrollToIndexFailed={this.handleSerialScrollToIndexFailed}
+                                                contentContainerStyle={styles.serialRailContent}
+                                                getItemLayout={(data, index) => ({
+                                                    length: serialRailItemHeight + serialRailGap,
+                                                    offset: (serialRailItemHeight + serialRailGap) * index,
+                                                    index,
+                                                })}
+                                                renderItem={({ item, index }) => {
+                                                    const isActive = this.state.ActiveId == index;
 
-                                            return (
-                                                <TouchableOpacity
-                                                    style={[
-                                                        styles.bottomSerialBtn,
-                                                        {
-                                                            backgroundColor: this.state.ActiveId == index ? '#00BAC8' : '#FFFFFF',
-                                                            borderColor: this.state.ActiveId == index ? '#00BAC8' : '#BDBDBD',
-                                                            minWidth: serialGridMinWidth,
-                                                            height: serialGridHeight,
-                                                        },
-                                                    ]}
-                                                    onPress={() => this.btnDatapress(index, item)}>
-                                                    <Text
-                                                        style={[
-                                                            styles.bottomSerialText,
-                                                            {
-                                                                color: this.state.ActiveId == index ? 'white' : 'black',
-                                                                fontSize: serialGridTextSize,
-                                                            },
-                                                        ]}>
-                                                        {item.SerialNo}
-                                                    </Text>
-                                                    {hasOutstandingRequirement ? (
-                                                        <View style={styles.bottomMandatoryIcon}>
-                                                            <ResponsiveImage
-                                                                source={Images.ManIcon1}
-                                                                initHeight={serialMandatoryIconSize}
-                                                                initWidth={serialMandatoryIconSize}
-                                                            />
-                                                        </View>
-                                                    ) : hasRequirement ? (
-                                                        <View style={styles.bottomMandatoryIcon}>
-                                                            <ResponsiveImage
-                                                                source={Images.ManIcon3}
-                                                                initHeight={serialMandatoryIconSize}
-                                                                initWidth={serialMandatoryIconSize}
-                                                            />
-                                                        </View>
-                                                    ) : null}
-                                                </TouchableOpacity>
-                                            );
-                                        }}
-                                    />
+                                                    return (
+                                                        <TouchableOpacity
+                                                            style={[
+                                                                styles.serialRailButton,
+                                                                {
+                                                                    backgroundColor: isActive ? 'transparent' : '#FFFFFF',
+                                                                    borderColor: isActive ? '#1099BF' : '#D9DEE8',
+                                                                    width: serialRailWidth - 10,
+                                                                    height: serialRailItemHeight,
+                                                                },
+                                                            ]}
+                                                            touchSoundDisabled={false}
+                                                            onPress={() => {
+                                                                this.playSerialTouchSound();
+                                                                this.btnDatapress(index, item);
+                                                            }}>
+                                                            {isActive ? (
+                                                                <LinearGradient
+                                                                    start={{ x: 0, y: 0 }}
+                                                                    end={{ x: 1, y: 0 }}
+                                                                    colors={FOOTER_BUTTON_GRADIENT}
+                                                                    style={styles.serialRailButtonGradient}>
+                                                                    <Text
+                                                                        style={[
+                                                                            styles.serialRailText,
+                                                                            {
+                                                                                color: '#FFFFFF',
+                                                                            },
+                                                                        ]}>
+                                                                        {item.SerialNo}
+                                                                    </Text>
+                                                                </LinearGradient>
+                                                            ) : (
+                                                                <Text
+                                                                    style={[
+                                                                        styles.serialRailText,
+                                                                        {
+                                                                            color: '#10224C',
+                                                                        },
+                                                                    ]}>
+                                                                    {item.SerialNo}
+                                                                </Text>
+                                                            )}
+                                                        </TouchableOpacity>
+                                                    );
+                                                }}
+                                            />
+
+                                            <TouchableOpacity
+                                                style={[styles.serialRailToggle, styles.serialRailToggleGradientShell]}
+                                                touchSoundDisabled={false}
+                                                onPress={() => {
+                                                    this.playSerialTouchSound();
+                                                    this.toggleSerialRail();
+                                                }}>
+                                                <LinearGradient
+                                                    start={{ x: 0, y: 0 }}
+                                                    end={{ x: 1, y: 0 }}
+                                                    colors={FOOTER_BUTTON_GRADIENT}
+                                                    style={styles.serialRailToggleGradient}>
+                                                    <Text style={[styles.serialRailToggleText, styles.serialRailToggleTextLight]}>Close</Text>
+                                                    <Icon name="chevron-right" size={16} color="#FFFFFF" />
+                                                </LinearGradient>
+                                            </TouchableOpacity>
+                                        </View>
+                                    ) : (
+                                        <TouchableOpacity
+                                            style={[styles.serialRailToggle, styles.serialRailToggleGradientShell]}
+                                            touchSoundDisabled={false}
+                                            onPress={() => {
+                                                this.playSerialTouchSound();
+                                                this.toggleSerialRail();
+                                            }}>
+                                            <LinearGradient
+                                                start={{ x: 0, y: 0 }}
+                                                end={{ x: 1, y: 0 }}
+                                                colors={FOOTER_BUTTON_GRADIENT}
+                                                style={styles.serialRailToggleGradient}>
+                                                <Text style={[styles.serialRailToggleText, styles.serialRailToggleTextLight]}>S.No</Text>
+                                                <Icon name="chevron-left" size={16} color="#FFFFFF" />
+                                            </LinearGradient>
+                                        </TouchableOpacity>
+                                    )}
                                 </View>
                             </View>
                         ) : (
