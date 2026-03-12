@@ -20,7 +20,7 @@ const InputComponent = ({
     inputStyle = {},
     labelStyle = {},
     placeholderTextColor = COLORS.searchText,
-    focusBorderColor = COLORS.primaryLightThemeColor,
+    focusBorderColor = COLORS.primaryDarkThemeColor,
     blurBorderColor = COLORS.whiteGrey,
     errorBorderColor = COLORS.ERROR,
     style: textInputStyle,

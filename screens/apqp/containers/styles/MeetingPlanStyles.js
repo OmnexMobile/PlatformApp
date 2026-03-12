@@ -390,9 +390,9 @@ export default StyleSheet.create({
     bottom: 10,
   },
   statusDropdownLabel: {
-      // fontWeight: "bold",
-      fontFamily:'OpenSans-Bold',
-      fontSize: FONT_SIZE.SMALL,
+      color: '#000',
+      fontSize: 16,
+      fontFamily: 'OpenSans-SemiBold',
   },
   toastStyle: {
     backgroundColor: "black",
@@ -400,5 +400,16 @@ export default StyleSheet.create({
   },
   toastTextStyle: {
     color: "white",
+  },
+  meetingTitle: {
+      color: '#000',
+      fontSize: 16,
+      fontFamily: 'OpenSans-SemiBold',
+      marginBottom: 2,
+  },
+  meetingSubTitle: {
+      color: '#5b5b5b',
+      fontSize: 16,
+      fontFamily: 'OpenSans-Regular',
   },
 });

@@ -258,8 +258,8 @@ getData = async (userdata) => {
           {this.state.apqpRiskActionList.length > 0 ? (
             <View>
               <View style={styles.line1}>
-                <TextComponent fontSize={FONT_SIZE.SMALL} type={FONT_TYPE.BOLD}>Risk Number</TextComponent>
-                <TextComponent fontSize={FONT_SIZE.SMALL}>
+                <TextComponent style={styles.riskTitle}>Risk Number</TextComponent>
+                <TextComponent style={styles.riskSubTitle}>
                   {this.state.apqpRiskActionList[0].RiskNumber}
                 </TextComponent>
 
@@ -269,8 +269,8 @@ getData = async (userdata) => {
                 </Text> */}
               </View>
               <View style={styles.line1}>
-                <TextComponent fontSize={FONT_SIZE.SMALL} type={FONT_TYPE.BOLD}>Risk Name</TextComponent>
-                <TextComponent fontSize={FONT_SIZE.SMALL}>
+                <TextComponent style={styles.riskTitle}>Risk Name</TextComponent>
+                <TextComponent style={styles.riskSubTitle}>
                   {this.state.apqpRiskActionList[0].RiskName}
                 </TextComponent>
                 {/* <Text style={styles.flatListContent}>Risk Name </Text>
@@ -279,8 +279,8 @@ getData = async (userdata) => {
                 </Text> */}
               </View>
               <View style={styles.line1}>
-                <TextComponent fontSize={FONT_SIZE.SMALL} type={FONT_TYPE.BOLD}>Mitigation Action</TextComponent>
-                <TextComponent fontSize={FONT_SIZE.SMALL}>
+                <TextComponent style={styles.riskTitle}>Mitigation Action</TextComponent>
+                <TextComponent style={styles.riskSubTitle}>
                   {this.state.apqpRiskActionList[0].ActionType}
                 </TextComponent>
                 {/* <Text style={styles.flatListContent }>Mitigation Action</Text>
@@ -289,8 +289,8 @@ getData = async (userdata) => {
                 </Text> */}
               </View>
               <View style={styles.line1}>
-                <TextComponent fontSize={FONT_SIZE.SMALL} type={FONT_TYPE.BOLD}>DeadLine Date</TextComponent>
-                <TextComponent fontSize={FONT_SIZE.SMALL}>
+                <TextComponent style={styles.riskTitle}>DeadLine Date</TextComponent>
+                <TextComponent style={styles.riskSubTitle}>
                   {this.state.apqpRiskActionList[0].DeadlineDate}
                 </TextComponent>
                 {/* <Text style={styles.flatListContent}>DeadLine Date</Text>
@@ -299,8 +299,8 @@ getData = async (userdata) => {
                 </Text> */}
               </View>
               <View style={styles.line1}>
-                <TextComponent fontSize={FONT_SIZE.SMALL} type={FONT_TYPE.BOLD}>Phase Deadline</TextComponent>
-                <TextComponent fontSize={FONT_SIZE.SMALL}>
+                <TextComponent style={styles.riskTitle}>Phase Deadline</TextComponent>
+                <TextComponent style={styles.riskSubTitle}>
                   {this.state.apqpRiskActionList[0].PhaseDeadline}
                 </TextComponent>
                 {/* <Text style={styles.flatListContent}>Phase Deadline</Text>
@@ -309,8 +309,8 @@ getData = async (userdata) => {
                 </Text> */}
               </View>
               <View style={styles.line1}>
-                <TextComponent fontSize={FONT_SIZE.SMALL} type={FONT_TYPE.BOLD}>Implementation Date</TextComponent>
-                <TextComponent fontSize={FONT_SIZE.SMALL}>
+                <TextComponent style={styles.riskTitle}>Implementation Date</TextComponent>
+                <TextComponent style={styles.riskSubTitle}>
                   {this.state.apqpRiskActionList[0].ImplementationDate}
                 </TextComponent>
                 {/* <Text style={styles.flatListContent}>Implementation Date</Text>
@@ -319,8 +319,8 @@ getData = async (userdata) => {
                 </Text> */}
               </View>
               <View style={styles.line1}>
-                <TextComponent fontSize={FONT_SIZE.SMALL} type={FONT_TYPE.BOLD}>Verification Date</TextComponent>
-                <TextComponent fontSize={FONT_SIZE.SMALL}>
+                <TextComponent style={styles.riskTitle}>Verification Date</TextComponent>
+                <TextComponent style={styles.riskSubTitle}>
                   {this.state.apqpRiskActionList[0].VerificationDate}
                 </TextComponent>
                 {/* <Text style={styles.flatListContent}>Verification Date</Text>
@@ -335,8 +335,8 @@ getData = async (userdata) => {
                   <Dropdown
                     label="Status"
                     data={data}
-                    baseColor="#484848"
-                    textColor="#484848"
+                    baseColor="#000"
+                    textColor="#5b5b5b"
                     labelFontSize={FONT_SIZE.SMALL}
                     valueTextStyle={styles.statusDropdownLabelText}
                     labelTextStyle={styles.statusDropdownLabelText}

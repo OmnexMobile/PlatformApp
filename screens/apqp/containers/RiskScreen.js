@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   FlatList,
   ActivityIndicator,
+  TextInput,
 } from "react-native";
 // import ResponsiveImage from "react-native-responsive-image";
 // import InputField from "../Components/Shared/InputField";
@@ -100,6 +101,10 @@ class RiskScreen extends Component {
 
       ProjectSearch: "",
       ProjectColumn: "",
+      dueByDaysSearch: false,
+      dueByDaysRetried: false,
+      dueByDaysValue: "",
+      isDateSearchActive: false,
 
       projects: 0,
       risks: 4, //completed: '',
@@ -374,52 +379,106 @@ class RiskScreen extends Component {
   filterSection() {
     return (
       <>
-      {/* <View style={styles.filterCont}>
-        <TouchableOpacity
-          style={styles.filterBox}
-          // onPress={() =>
-          //   this.props.navigation.navigate(ROUTES.FILTER_SCREEN_APQP, {
-          //     callback_flag:
-          //       this.state.filterArrSplit.length == 0 ? false : true,
-          // })}
-        >
-          <Icon name="filter" size={20} color="#89888A" />
-          <Text style={styles.filterLabelText}>
-            {strings.filter}
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.filterBox}>
-          <View style={styles.dropdownContainer}>
-            <Dropdown
-              // value={strings.SortByStartDate}
-              value={this.state.project_sortText} 
-              onChangeText={this.onChangeText.bind(this)}
-              data={this.dropdata}
-              containerStyle={styles.dropdownInnerContainer}
-              itemPadding={5}
-              dropdownOffset={dropdownOffset}
-              width={300}
-              baseColor="grey"
-              itemTextStyle={styles.dropdownItemText}
+        <View style={styles.filterCont}>
+          <View style={styles.searchContainer}>
+            <Icon name="search" size={20} color="#123C95" />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search by action"
+              placeholderTextColor="#A6A6A6"
+              value={this.state.searchText}
+              editable={!this.state.isDateSearchActive}
+            onChangeText={(text) => {
+              this.setState({ searchText: text }, () => {
+                const rawText = (text || "").trim();
+                if (rawText === "") {
+                  this.setState(
+                    {
+                      ProjectSearch: "",
+                      ProjectColumn: "",
+                      dueByDaysSearch: false,
+                      dueByDaysRetried: false,
+                      dueByDaysValue: "",
+                      isDateSearchActive: false,
+                      StartDate: "",
+                      EndDate: "",
+                      isLoading: true,
+                      apqpRiskListdata: [],
+                    },
+                    () => this.getapqpRiskListdata("search_clear")
+                  );
+                } else {
+                  const dueDaysText = rawText.replace(/[^\d-]/g, "");
+                  const isDueDaysSearch = dueDaysText !== "";
+                  this.setState(
+                    {
+                      ProjectSearch: isDueDaysSearch ? dueDaysText : rawText,
+                      ProjectColumn: isDueDaysSearch ? "DueDays" : "",
+                      dueByDaysSearch: isDueDaysSearch,
+                      dueByDaysRetried: false,
+                      dueByDaysValue: dueDaysText,
+                      isDateSearchActive: false,
+                      isLoading: true,
+                      apqpRiskListdata: [],
+                    },
+                    () => this.getapqpRiskListdata("search_typing")
+                  );
+                }
+              });
+            }}
+              returnKeyType="search"
+              onSubmitEditing={() => {
+                const rawText = (this.state.searchText || "").trim();
+                const dueDaysText = rawText.replace(/[^\d-]/g, "");
+                const isDueDaysSearch = dueDaysText !== "";
+                this.setState(
+                  {
+                    ProjectSearch: isDueDaysSearch ? dueDaysText : rawText,
+                    ProjectColumn: isDueDaysSearch ? "DueDays" : "",
+                    dueByDaysSearch: isDueDaysSearch,
+                    dueByDaysRetried: false,
+                    dueByDaysValue: dueDaysText,
+                    isDateSearchActive: false,
+                    isLoading: true,
+                    apqpRiskListdata: [],
+                  },
+                  () => this.getapqpRiskListdata("search")
+                );
+              }}
             />
+            {this.state.searchText ? (
+              <TouchableOpacity
+                onPress={() =>
+                  this.setState(
+                    {
+                      searchText: "",
+                      ProjectSearch: "",
+                      ProjectColumn: "",
+                      dueByDaysSearch: false,
+                      dueByDaysRetried: false,
+                      dueByDaysValue: "",
+                      isDateSearchActive: false,
+                      StartDate: "",
+                      EndDate: "",
+                      isLoading: true,
+                      apqpRiskListdata: [],
+                    },
+                    () => this.getapqpRiskListdata("search_clear")
+                  )
+                }
+                style={styles.searchClearButton}
+              >
+                <Icon name="times-circle" size={18} color="#8E8E93" />
+              </TouchableOpacity>
+            ) : null}
+            <TouchableOpacity
+              onPress={() => this.setState({ isDateVisible: true })}
+              style={styles.searchCalendarButton}
+            >
+              <Icon name="calendar" size={18} color="#123C95" />
+            </TouchableOpacity>
           </View>
-          {this.state.project_sort == 0 ? (
-            <TouchableOpacity
-              onPress={() => this.changeRiskSort(1)}
-              style={styles.sortToggleButton}
-            >
-              <Icon name="long-arrow-down" size={20} color="#19BFC1" />
-            </TouchableOpacity>
-          ) : (
-            <TouchableOpacity
-              onPress={() => this.changeRiskSort(0)}
-              style={styles.sortToggleButton}
-            >
-              <Icon name="long-arrow-up" size={20} color="#19BFC1" />
-            </TouchableOpacity>
-          )}
-        </TouchableOpacity>
-      </View> */}
+        </View>
       </>
     );
   }
@@ -456,16 +515,27 @@ class RiskScreen extends Component {
           EndDate: date,
           isDateVisible: false,
           isLoading: true,
+          isDateSearchActive: true,
+          ProjectSearch: "",
+          ProjectColumn: "",
+          searchText:
+            this.state.StartDate && this.state.StartDate !== ""
+              ? this.state.StartDate + " - " + date
+              : date,
         },
         () => {
           console.log("--end date--->", this.state.EndDate);
-          this.getapqpMeetingListdata("calendar");
+          this.getapqpRiskListdata("calendar");
         }
       );
     } else {
       this.setState(
         {
           StartDate: date,
+          isDateSearchActive: true,
+          ProjectSearch: "",
+          ProjectColumn: "",
+          searchText: date,
         },
         () => {
           console.log("--start date--->", this.state.StartDate);
@@ -564,6 +634,33 @@ class RiskScreen extends Component {
           getList = data.data.Data;
           console.log("getList printed");
           //console.log(getList);
+          if (
+            this.state.dueByDaysSearch &&
+            !this.state.dueByDaysRetried &&
+            (!Array.isArray(getList) || getList.length === 0)
+          ) {
+            const nextColumn =
+              this.state.ProjectColumn === "DueDays"
+                ? "DueByDays"
+                : "DueDays";
+            const nextSearch =
+              nextColumn === "DueByDays"
+                ? this.state.dueByDaysValue
+                  ? `%${this.state.dueByDaysValue}%`
+                  : ""
+                : this.state.dueByDaysValue;
+            this.setState(
+              {
+                ProjectColumn: nextColumn,
+                ProjectSearch: nextSearch,
+                dueByDaysRetried: true,
+                isLoading: true,
+                apqpRiskListdata: [],
+              },
+              () => this.getapqpRiskListdata("due_retry")
+            );
+            return;
+          }
           var sectionedList = [];
 
           for (var i = 0; i < getList.length; i++) {
@@ -849,7 +946,7 @@ class RiskScreen extends Component {
         <OfflineNotice />
         {this.renderHeader()}
         <View style={styles.flatList}>
-          {datas.length > 0 ? this.filterSection() : null}
+          {this.filterSection()}
           {this.state.filterArrSplit.length > 0 ? this.renderFilter() : null}
           {!this.state.isLoading ? (
             datas.length > 0 ? (

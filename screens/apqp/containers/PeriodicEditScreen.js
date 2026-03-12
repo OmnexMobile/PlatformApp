@@ -584,35 +584,40 @@ class PeriodicEditScreen extends Component {
           contentContainerStyle={styles.formContentContainer}
           showsVerticalScrollIndicator={false}
         >
-          <View>
-            <View style={styles.textHeader}>
-              <TextComponent fontSize={FONT_SIZE.SMALL} type={FONT_TYPE.BOLD}>Project Name: </TextComponent>
-              <TextComponent fontSize={FONT_SIZE.SMALL}>
+          <View style={styles.infoCard}>
+            <View style={styles.infoHeader}>
+              <TextComponent style={styles.infoHeaderTitle}>
                 {this.ProjectName ? this.ProjectName : "  -  "}
               </TextComponent>
-            </View>
-            <View style={styles.textHeader}>
-              <TextComponent fontSize={FONT_SIZE.SMALL} type={FONT_TYPE.BOLD}>Task Name: </TextComponent>
-              <TextComponent fontSize={FONT_SIZE.SMALL}>
-                {this.TaskName ? this.TaskName : "  -  "}
-              </TextComponent>
-            </View>
-            <View style={styles.textHeader}>
-              <TextComponent fontSize={FONT_SIZE.SMALL} type={FONT_TYPE.BOLD}>Period: </TextComponent>
-              <TextComponent fontSize={FONT_SIZE.SMALL}>
-                {this.StartDate
-                  ? this.changeDateFormatCard(this.StartDate)
-                  : "  -  "}{" "}
-                -{" "}
-                {this.EndDate
-                  ? this.changeDateFormatCard(this.EndDate)
-                  : "  -  "}
-              </TextComponent>
-
-              <View style={styles.roundView}>
-                <Text style={styles.roundViewText} numberOfLines={1}>
+              <View style={styles.progressPill}>
+                <Text style={styles.progressPillText} numberOfLines={1}>
                   {this.percentage ? this.percentage + "%" : "0"}
                 </Text>
+              </View>
+            </View>
+            <View style={styles.infoDivider} />
+            <View style={styles.infoBody}>
+              <View style={styles.infoLine}>
+                {/* <TextComponent style={styles.infoLabel}>Task Name</TextComponent> */}
+                {/* <View style={styles.infoValuePill}> */}
+                  <TextComponent style={styles.infoValuePillText}>
+                    {this.TaskName ? this.TaskName : "  -  "}
+                  </TextComponent>
+                {/* </View> */}
+              </View>
+              <View style={styles.infoLine}>
+                {/* <TextComponent style={styles.infoLabel}>Period</TextComponent> */}
+                {/* <View style={styles.infoValuePill}> */}
+                  <TextComponent style={styles.infoValuePillText}>
+                    {this.StartDate
+                      ? this.changeDateFormatCard(this.StartDate)
+                      : "  -  "}{" "}
+                    -{" "}
+                    {this.EndDate
+                      ? this.changeDateFormatCard(this.EndDate)
+                      : "  -  "}
+                  </TextComponent>
+                {/* </View> */}
               </View>
             </View>
           </View>
@@ -645,7 +650,7 @@ class PeriodicEditScreen extends Component {
 
             <InputComponent
               label={strings.completed + " %"}
-              // labelStyle={styles.title}
+              labelStyle={styles.title}
               keyboardType="numeric"
               required
               style={styles.subTitle}
@@ -657,7 +662,9 @@ class PeriodicEditScreen extends Component {
                 // const numericText = text.replace(/[^0-9]/g, ""); // allow only digits
                 this.setState({ completedtext: text });
               }}
-              onBlur={this.validateHours}
+              onBlur={() => {
+                this.validatefield();
+              }}
             />
 
 
@@ -706,9 +713,10 @@ class PeriodicEditScreen extends Component {
 
             <InputComponent
               label={strings.StartDate}
-              // labelStyle={styles.title}
+              labelStyle={styles.title}
               required
               keyboardType="numeric"
+              style={styles.subTitle}
               value={this.state.startdate}
               placeholder={strings.StartDate}
               containerStyle={styles.inputContainerNoPad}
@@ -755,9 +763,10 @@ class PeriodicEditScreen extends Component {
 
             <InputComponent
               label={strings.EndDate}
-              // labelStyle={styles.title}
+              labelStyle={styles.title}
               keyboardType="numeric"
               required
+              style={styles.subTitle}
               value={this.state.endate}
               placeholder={strings.EndDate}
               containerStyle={styles.inputContainerNoPad}
@@ -801,9 +810,10 @@ class PeriodicEditScreen extends Component {
             /> */}
             <InputComponent
               label={strings.Hours}
-              // labelStyle={styles.title}
+              labelStyle={styles.title}
               keyboardType="numeric"
               required
+              style={styles.subTitle}
               value={this.state.hourstext}
               placeholder={strings.Hours}
               inputStyle={styles.inputNoHorizontalPadding}
@@ -837,7 +847,7 @@ class PeriodicEditScreen extends Component {
           // ]}
           >
             {/* <Text style={styles.listText}>Default Remarks :</Text> */}
-            <TextComponent fontSize={FONT_SIZE.SMALL} type={FONT_TYPE.BOLD}>
+            <TextComponent style={styles.title}>
               Default Remarks :
             </TextComponent>
             <SwitchToggle
@@ -886,8 +896,9 @@ class PeriodicEditScreen extends Component {
 
                 <InputComponent
                   label={strings.ClientName}
-                  // labelStyle={styles.title}
+                  labelStyle={styles.title}
                   required
+                  style={styles.subTitle}
                   value={this.state.ClientName}
                   placeholder={strings.ClientName}
                   inputStyle={styles.inputNoHorizontalPadding}
@@ -934,8 +945,9 @@ class PeriodicEditScreen extends Component {
 
                 <InputComponent
                   label={strings.TypeofWorkConducted}
-                  // labelStyle={styles.title}
+                  labelStyle={styles.title}
                   required
+                  style={styles.subTitle}
                   value={this.state.TypeofWorkConducted}
                   placeholder={strings.TypeofWorkConducted}
                   inputStyle={styles.inputNoHorizontalPadding}
@@ -982,8 +994,9 @@ class PeriodicEditScreen extends Component {
 
                 <InputComponent
                   label={strings.AnyOpportunities}
-                  // labelStyle={styles.title}
+                  labelStyle={styles.title}
                   required
+                  style={styles.subTitle}
                   value={this.state.AnyOpportunities}
                   placeholder={strings.AnyOpportunities}
                   inputStyle={styles.inputNoHorizontalPadding}
@@ -1029,8 +1042,9 @@ class PeriodicEditScreen extends Component {
 
                 <InputComponent
                   label={strings.IssueFaced}
-                  // labelStyle={styles.title}
+                  labelStyle={styles.title}
                   required
+                  style={styles.subTitle}
                   value={this.state.IssueFaced}
                   placeholder={strings.IssueFaced}
                   inputStyle={styles.inputNoHorizontalPadding}
@@ -1089,8 +1103,9 @@ class PeriodicEditScreen extends Component {
             /> */}
             <InputComponent
               label={strings.Remarks}
-              // labelStyle={styles.title}
+              labelStyle={styles.title}
               required
+              style={styles.subTitle}
               value={this.state.remarktext}
               placeholder={strings.Remarks}
               inputStyle={[styles.inputNoHorizontalPadding, this.state.remarktext ? styles.remarksMultilineInput : null]}

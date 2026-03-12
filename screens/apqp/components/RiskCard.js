@@ -17,6 +17,26 @@ const RiskCard = ({ item = {}, handleClickCard }) => {
             StyleSheet.create({
                 actionTypeText: {
                     color: theme.colors.primaryThemeColor,
+                    fontSize: 17,
+                    fontFamily: 'OpenSans-SemiBold',
+                },
+                dateText: {
+                    color: '#000',
+                    fontSize: 15,
+                    fontFamily: 'OpenSans-Regular',
+                },
+                siteText: {
+                    color: '#000',
+                    fontSize: 15,
+                    fontFamily: 'OpenSans-Regular',
+                },
+                dueText: {
+                    color: '#000',
+                    fontSize: 15,
+                    fontFamily: 'OpenSans-Regular',
+                },
+                dueByDaysValuePositive: {
+                    color: theme.colors.primaryThemeColor,
                 },
             }),
         [theme],
@@ -46,12 +66,12 @@ const RiskCard = ({ item = {}, handleClickCard }) => {
                 onPress={() => handleClickCard?.(item)}
                 style={[
                     styles.cardTouchable,
-                    elevation,
+                    // elevation,
                 ]}>
                 <View style={styles.cardOuterView}>
                     <View style={styles.projectBoxContent}>
                         {item?.ActionType ? ( <View style={styles.actionTypeContainer}>
-                            <TextComponent numberOfLines={1} fontSize={FONT_SIZE.LARGE} style={themedStyles.actionTypeText}>
+                            <TextComponent numberOfLines={1} style={themedStyles.actionTypeText}>
                                 {item.ActionType == "" || item.ActionType == null
                                     ? " - "
                                     : item.ActionType.replace("&apos;", "'")}
@@ -61,11 +81,11 @@ const RiskCard = ({ item = {}, handleClickCard }) => {
                         {item?.ActionCreatedDate ? (<View style={styles.dateRow}>
                             <View style={styles.dateIconWrap}>
                                 <View style={styles.calendarIconBox}>
-                                    <IconComponent name="calendar" color={COLORS.white} type={ICON_TYPE.AntDesign} size={FONT_SIZE.X_SMALL} />
+                                    <IconComponent name="calendar" color={COLORS.white} type={ICON_TYPE.AntDesign} size={FONT_SIZE.XXX_SMALL} />
                                 </View>
                             </View>
                             <View style={styles.dateTextWrap}>
-                                <TextComponent numberOfLines={1} fontSize={FONT_SIZE.SMALL} type={FONT_TYPE.BOLD} style={styles.dateText}>
+                                <TextComponent numberOfLines={1} style={themedStyles.dateText}>
                                     {changeDateFormatCard(item.ActionCreatedDate)} -{" "}
                                     {changeDateFormatCard(item.DueDate)}
                                 </TextComponent>
@@ -73,9 +93,9 @@ const RiskCard = ({ item = {}, handleClickCard }) => {
                         </View>
                         ) : null}
                         {item?.Site ? (<TextComponent style={styles.siteText} numberOfLines={1}>
-                            <TextComponent type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.SMALL}>{item?.Site}</TextComponent>
+                            <TextComponent style={themedStyles.siteText}>{item?.Site}</TextComponent>
                         </TextComponent>) : null}
-                        {item?.DueByDays ? (<TextComponent fontSize={FONT_SIZE.SMALL} numberOfLines={1}>
+                        {item?.DueByDays ? (<TextComponent style={themedStyles.dueText} numberOfLines={1}>
                             Due by days: <TextComponent type={FONT_TYPE.BOLD}
                             style={item.DueByDays > 0 ? styles.dueByDaysPositive : styles.dueByDaysNegative}
                             >{item?.DueByDays}</TextComponent>
@@ -91,14 +111,18 @@ export default RiskCard;
 
 const styles = StyleSheet.create({
     container: {
-        paddingHorizontal: SPACING.MEDIUM,
+        paddingHorizontal: SPACING.NORMAL,
     },
     cardTouchable: {
         padding: SPACING.NORMAL,
         borderRadius: SPACING.SMALL,
-        marginBottom: SPACING.SMALL,
-        marginTop: SPACING.NORMAL,
+        marginBottom: SPACING.X_SMALL,
+        marginTop: SPACING.X_SMALL,
         width: '100%',
+        borderLeftColor:'#123C95',
+        borderColor:'#123C95',
+        borderWidth: 0.5,
+        borderLeftWidth: 4,
     },
     cardOuterView: {
         flexDirection: 'row',
@@ -119,8 +143,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     calendarIconBox: {
-        width: RFPercentage(2.5),
-        height: RFPercentage(2.5),
+        width: RFPercentage(2),
+        height: RFPercentage(2),
         backgroundColor: COLORS.WARNING,
         alignItems: 'center',
         justifyContent: 'center',
@@ -138,12 +162,14 @@ const styles = StyleSheet.create({
         paddingBottom: SPACING.SMALL,
     },
     dueByDaysPositive: {
-        fontSize: FONT_SIZE.SMALL,
-        color: 'green',
+        fontSize: 15,
+        color: '#123C95',
+        fontFamily: 'OpenSans-SemiBold',
     },
     dueByDaysNegative: {
-        fontSize: FONT_SIZE.SMALL,
+        fontSize: 15,
         color: 'red',
+        fontFamily: 'OpenSans-SemiBold',
     },
     borderEnabled: {
         borderBottomWidth: 0.5,

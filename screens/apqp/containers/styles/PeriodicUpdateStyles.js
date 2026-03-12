@@ -184,21 +184,21 @@ export default StyleSheet.create({
   },
   deliveryTypeTextStyleHours: {
     color: "#5b5b5b",
-    fontSize: 16,
+    fontSize: 15,
     fontFamily: 'OpenSans-Regular',
     //width: "85%",
     paddingVertical: 2,
   },
   deliveryTypeTextStylePercent: {
     color: "#5b5b5b",
-    fontSize: 16,
+    fontSize: 15,
     fontFamily: 'OpenSans-Regular',
     width: "85%",
     paddingVertical: 2,
   },
   dateTextStyle: {
     color: "#5b5b5b",
-    fontSize: 16,
+    fontSize: 15,
     fontFamily: 'OpenSans-Regular',
     paddingVertical: 2,
   },
@@ -210,7 +210,7 @@ export default StyleSheet.create({
   },
   remarksLineText: {
     color: "#5b5b5b",
-    fontSize: 16,
+    fontSize: 15,
     fontFamily: 'OpenSans-Regular',
     marginBottom: 2,
   },

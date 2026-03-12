@@ -386,9 +386,9 @@ export default StyleSheet.create({
     bottom: 10,
   },
   statusDropdownLabelText: {
-    // fontWeight: "bold",
-    fontFamily:'OpenSans-Bold',
-    fontSize: FONT_SIZE.SMALL,
+      color: '#000',
+      fontSize: 16,
+      fontFamily: 'OpenSans-SemiBold',
   },
   headerDiv: {
     width: width(50),
@@ -424,5 +424,16 @@ export default StyleSheet.create({
   },
   toastText: {
     color: "white",
+  },
+  riskTitle: {
+      color: '#000',
+      fontSize: 16,
+      fontFamily: 'OpenSans-SemiBold',
+      marginBottom: 2,
+  },
+  riskSubTitle: {
+      color: '#5b5b5b',
+      fontSize: 16,
+      fontFamily: 'OpenSans-Regular',
   },
 });

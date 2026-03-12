@@ -296,8 +296,8 @@ console.log("HI old", Array);
           {this.state.apqpMeetingPlanList.length > 0 ? (
             <View>
               <View style={styles.line1}>
-                <TextComponent fontSize={FONT_SIZE.SMALL} type={FONT_TYPE.BOLD}>Action Created Date</TextComponent>
-                <TextComponent fontSize={FONT_SIZE.SMALL}>
+                <TextComponent style={styles.meetingTitle}>Action Created Date</TextComponent>
+                <TextComponent style={styles.meetingSubTitle}>
                   {this.changeDateFormat(
                     this.state.apqpMeetingPlanList[0].ActionCreatedDate
                   )}
@@ -310,8 +310,8 @@ console.log("HI old", Array);
                 </Text> */}
               </View>
               <View style={styles.line1}>
-                <TextComponent fontSize={FONT_SIZE.SMALL} type={FONT_TYPE.BOLD}>ActionType</TextComponent>
-                <TextComponent fontSize={FONT_SIZE.SMALL}>
+                <TextComponent style={styles.meetingTitle}>ActionType</TextComponent>
+                <TextComponent style={styles.meetingSubTitle}>
                   {this.state.apqpMeetingPlanList[0].ActionType}
                 </TextComponent>
                 {/* <Text style={styles.flatListContent}>ActionType</Text>
@@ -320,8 +320,8 @@ console.log("HI old", Array);
                 </Text> */}
               </View>
               <View style={styles.line1}>
-                <TextComponent fontSize={FONT_SIZE.SMALL} type={FONT_TYPE.BOLD}>Action</TextComponent>
-                <TextComponent fontSize={FONT_SIZE.SMALL}>
+                <TextComponent style={styles.meetingTitle}>Action</TextComponent>
+                <TextComponent style={styles.meetingSubTitle}>
                   {this.state.apqpMeetingPlanList[0].Actions}
                 </TextComponent>
                 {/* <Text style={styles.flatListContent}>Action</Text>
@@ -330,8 +330,8 @@ console.log("HI old", Array);
                 </Text> */}
               </View>
               <View style={styles.line1}>
-                <TextComponent fontSize={FONT_SIZE.SMALL} type={FONT_TYPE.BOLD}>Description</TextComponent>
-                <TextComponent fontSize={FONT_SIZE.SMALL}>
+                <TextComponent style={styles.meetingTitle}>Description</TextComponent>
+                <TextComponent style={styles.meetingSubTitle}>
                   {this.state.apqpMeetingPlanList[0].Description}
                 </TextComponent>
                 {/* <Text style={styles.flatListContent}>Description</Text>
@@ -340,8 +340,8 @@ console.log("HI old", Array);
                 </Text> */}
               </View>
               <View style={styles.line1}>
-                <TextComponent fontSize={FONT_SIZE.SMALL} type={FONT_TYPE.BOLD}>Due By Days</TextComponent>
-                <TextComponent fontSize={FONT_SIZE.SMALL}>
+                <TextComponent style={styles.meetingTitle}>Due By Days</TextComponent>
+                <TextComponent style={styles.meetingSubTitle}>
                   {this.props?.route?.params?.MeetingDetails?.DueByDays
                     ? this.props?.route?.params?.MeetingDetails?.DueByDays
                     : "-"}
@@ -354,8 +354,8 @@ console.log("HI old", Array);
                 </Text> */}
               </View>
               <View style={styles.line1}>
-                <TextComponent fontSize={FONT_SIZE.SMALL} type={FONT_TYPE.BOLD}>Due Date</TextComponent>
-                <TextComponent fontSize={FONT_SIZE.SMALL}>
+                <TextComponent style={styles.meetingTitle}>Due Date</TextComponent>
+                <TextComponent style={styles.meetingSubTitle}>
                   {this.changeDateFormat(
                     this.state.apqpMeetingPlanList[0].DueDate
                   )}
@@ -368,8 +368,8 @@ console.log("HI old", Array);
                 </Text> */}
               </View>
               <View style={styles.line1}>
-                <TextComponent fontSize={FONT_SIZE.SMALL} type={FONT_TYPE.BOLD}>Site</TextComponent>
-                <TextComponent fontSize={FONT_SIZE.SMALL}>
+                <TextComponent style={styles.meetingTitle}>Site</TextComponent>
+                <TextComponent style={styles.meetingSubTitle}>
                   {this.state.apqpMeetingPlanList[0].Site}
                 </TextComponent>
                 {/* <Text style={styles.flatListContent}>Site</Text>
@@ -381,8 +381,8 @@ console.log("HI old", Array);
                   <Dropdown
                     label="Status"
                     data={data}
-                    baseColor="#484848"
-                    textColor="#484848"
+                    baseColor="#000"
+                    textColor="#5b5b5b"
                     labelFontSize={FONT_SIZE.SMALL}
                     value={this.StatusVal}
                     valueTextStyle={styles.statusDropdownLabel}

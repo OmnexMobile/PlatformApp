@@ -36,6 +36,12 @@ export default StyleSheet.create({
     fontFamily: 'OpenSans-Regular',
   },
 
+  subTitle1: {
+    color:'#123C95',
+    fontSize: 16,
+    fontFamily: 'OpenSans-SemiBold',
+  },
+
   bgImage: {
     width: "100%",
     height: 65,
@@ -112,6 +118,92 @@ export default StyleSheet.create({
   },
   formContentContainer: {
     paddingBottom: 70,
+  },
+  infoCard: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 18,
+    padding: 16,
+    marginHorizontal: 8,
+    marginBottom: SPACING.NORMAL,
+    shadowColor: "#0F172A",
+    shadowOpacity: 0.08,
+    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 8 },
+    // elevation: 4,
+    borderLeftWidth: 5,
+    borderLeftColor: "#123C95",
+    borderWidth: 1,
+    borderColor: "#123C95",
+    
+  },
+  infoHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  infoHeaderTitle: {
+    flex: 1,
+    fontSize: 16,
+    color: "#000",
+    fontFamily: "OpenSans-SemiBold",
+    paddingRight: 12,
+  },
+  progressPill: {
+    width: 33,
+    height: 33,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#123C95",
+    borderRadius: 22,
+    borderWidth: 1,
+    borderColor: "#123C95",
+  },
+  progressPillText: {
+    fontSize: 13,
+    color: "#E8EEFF",
+    fontFamily: "OpenSans-SemiBold",
+  },
+  infoDivider: {
+    height: 1,
+    backgroundColor: "#E8EEFF",
+    marginVertical: 12,
+  },
+  infoBody: {
+    marginBottom: 0,
+  },
+  infoLine: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  infoLabel: {
+    width: 90,
+    fontSize: 15,
+    color: "#000",
+    fontFamily: "OpenSans-SemiBold",
+  },
+  infoValuePill: {
+    flex: 1,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    backgroundColor: "#F3F4F6",
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+  },
+  infoValuePillAlt: {
+    flex: 1,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    backgroundColor: "#EEF2FF",
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#D9E1FF",
+  },
+  infoValuePillText: {
+    fontSize: 16,
+    color: "#5b5b5b",
+    fontFamily: "OpenSans-Regular",
   },
 
   apqpTextStyle: {
@@ -464,7 +556,7 @@ export default StyleSheet.create({
   roundViewText: {
     color: "#fff",
     fontWeight: "bold",
-    fontSize: 12,
+    fontFamily: 'OpenSans-Regular',
   },
   rowDirection: {
     flexDirection: "row",
