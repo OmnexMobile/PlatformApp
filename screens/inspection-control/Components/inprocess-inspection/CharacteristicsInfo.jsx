@@ -508,7 +508,7 @@ const CharacteristicsInfo = ({
                             }
                             handleInputChange(cleaned, item.id, type, item);
                         }}
-                        keyboardType={type == 'number' ? 'number-pad' : 'default'}
+                        keyboardType={type == 'number' ? Platform.OS === 'ios' ? 'numbers-and-punctuation' : 'numeric' : 'default'}
                         returnKeyType="done"
                         onSubmitEditing={() => handleSubmit(index)}
                         ref={ref => (inputsRef.current[index] = ref)}
