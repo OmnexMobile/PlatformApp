@@ -35,8 +35,8 @@ export const WrapperMultiSelectDropdownComponent = ({ input, handleInputChange }
     };
 
     useEffect(() => {
-        getData(sites?.selectedSite?.SiteId);
-    }, [sites?.selectedSite?.SiteId]);
+        getData(sites?.selectedSite?.Siteid);
+    }, [sites?.selectedSite?.Siteid]);
 
     return <MultiSelectDropdownComponent {...{ ...input, data, onChange: value => handleInputChange?.(input?.name, value) }} />;
 };
