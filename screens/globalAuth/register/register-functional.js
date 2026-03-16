@@ -181,11 +181,15 @@ const RegisterFunctional = ({}) => {
             });
             const data = await res.json();
             // const res = await postAPI(`${API_URL.GET_DEVICE_STATUS}`, req);
-            // handleAppSetting(null, {
-            //     serverUrl: state?.serverUrl || '',
-            //     deviceStatusSettings: data?.Data || {},
-            // });
-            // localStorage.storeData(LOCAL_STORAGE_VARIABLES.DEVICE_STATUS_SETTINGS, data?.Data);
+            const ServerUrl = data?.Data.ServerUrl.split('/').slice(0, 3).join('/') + '/';
+            handleAppSetting(null, {
+                serverUrl: data?.Data?.ServerUrl || '',
+                deviceStatusSettings: {...data?.Data,
+                   InstanceUrl: ServerUrl
+                },
+            });
+            
+            localStorage.storeData(LOCAL_STORAGE_VARIABLES.DEVICE_STATUS_SETTINGS, {...data?.Data,InstanceUrl: ServerUrl});
             // console.log('state?.globalServerURL-->', state?.globalServerURL, '--', globalServerUrl);
             handleGlobalURL('serverUrl', targetUrl);
             localStorage.storeData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL, targetUrl);
