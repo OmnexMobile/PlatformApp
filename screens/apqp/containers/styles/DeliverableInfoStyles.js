@@ -28,7 +28,8 @@ export default StyleSheet.create({
     flex: 1,
     // alignItems: "center",
     // justifyContent: "center",
-    paddingHorizontal: '2%'
+    paddingHorizontal: '2%',
+    top: 6,
   },
   bgImage: {
     width: "100%",

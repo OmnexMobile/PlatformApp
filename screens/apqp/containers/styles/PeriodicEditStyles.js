@@ -112,7 +112,7 @@ export default StyleSheet.create({
   flatListWholeViewWithTopMargin: {
     flex: 1,
     width: "100%",
-    marginTop: 0,
+    marginTop: 6,
     padding: 8,
     flexDirection: "column",
   },
@@ -437,6 +437,7 @@ export default StyleSheet.create({
     width: "100%",
     minHeight: 58,
     marginBottom: SPACING.X_SMALL,
+    paddingRight: 12,
   },
   startDateSectionEmpty: {
     marginTop: -10,
