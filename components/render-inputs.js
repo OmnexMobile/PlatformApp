@@ -163,7 +163,7 @@ const RenderInputs = ({
                 return input?.formelementID ? (
                     <WrapperDropDown
                         {...{
-                            key: index,
+                            key: `${input.name}-${input.formelementID || input.label}`,
                             input,
                             handleInputChange,
                         }}
@@ -171,7 +171,7 @@ const RenderInputs = ({
                 ) : (
                     <DropdownComponent
                         {...{
-                            key: index,
+                            key: `${input.name}-${input.formelementID || input.label}`,
                             label: input?.label,
                             value: input?.name,
                             onChange: value => handleInputChange(input?.name, value),
@@ -184,7 +184,7 @@ const RenderInputs = ({
                 return input?.formelementID ? (
                     <WrapperMultiSelectDropdownComponent
                         {...{
-                            key: index,
+                            key: `${input.name}-${input.formelementID || input.label}`,
                             input,
                             handleInputChange,
                         }}
@@ -192,7 +192,7 @@ const RenderInputs = ({
                 ) : (
                     <MultiSelectDropdownComponent
                         {...{
-                            key: index,
+                            key: `${input.name}-${input.formelementID || input.label}`,
                             label: input?.label,
                             value: input?.name,
                             onChange: value => handleInputChange(input?.name, value),
@@ -205,7 +205,7 @@ const RenderInputs = ({
                 return (
                     <InputWithLabel
                         {...{
-                            key: index,
+                            key: `${input.name}-${input.formelementID || input.label}`,
                             label: input?.label,
                             name: input?.name,
                             value: input?.value,
@@ -218,7 +218,7 @@ const RenderInputs = ({
                 return (
                     <NumberInputWithLabel
                         {...{
-                            key: index,
+                            key: `${input.name}-${input.formelementID || input.label}`,
                             label: input?.label,
                             name: input?.name,
                             value: input?.value,
@@ -231,7 +231,7 @@ const RenderInputs = ({
                 return (
                     <InputWithLabel
                         {...{
-                            key: index,
+                            key: `${input.name}-${input.formelementID || input.label}`,
                             label: input?.label,
                             name: input?.name,
                             value: input?.value,
@@ -263,13 +263,13 @@ const RenderInputs = ({
                     //         </TouchableOpacity>
                     //     </View>
                     // </View>
-                    <LinkComponent {...{ key: index, input }} />
+                    <LinkComponent {...{ key: `${input.name}-${input.formelementID || input.label}`, input }} />
                 );
             case INPUTS_CONSTANTS.RICH_EDITOR:
                 return (
                     <RichTextEditor
                         {...{
-                            key: index,
+                            key: `${input.name}-${input.formelementID || input.label}`,
                             label: input?.label,
                             name: input?.name,
                             value: input?.value,
@@ -283,32 +283,32 @@ const RenderInputs = ({
                     />
                 );
             case INPUTS_CONSTANTS.DATE_PICKER:
-                return <DatePickerComponent {...{ key: index, ...input, onChange: (name, value) => handleInputChange?.(name, value) }} />;
+                return <DatePickerComponent {...{ key: `${input.name}-${input.formelementID || input.label}`, ...input, onChange: (name, value) => handleInputChange?.(name, value) }} />;
             case INPUTS_CONSTANTS.ESTIMATION_PICKER:
-                return <EstimationPickerComponent {...{ key: index, ...input, handleInputChange, handleNestedInputChange, concernDetails }} />;
+                return <EstimationPickerComponent {...{ key: `${input.name}-${input.formelementID || input.label}`, ...input, handleInputChange, handleNestedInputChange, concernDetails }} />;
             case INPUTS_CONSTANTS.CUSTOMER_PICKER:
-                return <CustomerPickerComponent {...{ key: index, ...input, handleInputChange, handleNestedInputChange, concernDetails }} />;
+                return <CustomerPickerComponent {...{ key: `${input.name}-${input.formelementID || input.label}`, ...input, handleInputChange, handleNestedInputChange, concernDetails }} />;
             case INPUTS_CONSTANTS.SUPPLIER_PICKER:
-                return <SupplierPickerComponent {...{ key: index, ...input, handleInputChange, handleNestedInputChange, concernDetails }} />;
+                return <SupplierPickerComponent {...{ key: `${input.name}-${input.formelementID || input.label}`, ...input, handleInputChange, handleNestedInputChange, concernDetails }} />;
             case INPUTS_CONSTANTS.PROBLEMINFORMATION_PICKER:
                 return (
-                    <ProblemInformationPickerComponent {...{ key: index, ...input, handleInputChange, handleNestedInputChange, concernDetails }} />
+                    <ProblemInformationPickerComponent {...{ key: `${input.name}-${input.formelementID || input.label}`, ...input, handleInputChange, handleNestedInputChange, concernDetails }} />
                 );
             case INPUTS_CONSTANTS.EQUIPMENT_PICKER:
-                return <DynamicPickerComponent {...{ key: index, ...input, handleInputChange }} />;
+                return <DynamicPickerComponent {...{ key: `${input.name}-${input.formelementID || input.label}`, ...input, handleInputChange }} />;
             case INPUTS_CONSTANTS.TEAM_PICKER:
-                return <TeamPickerComponent {...{ key: index, ...input, handleInputChange }} />;
+                return <TeamPickerComponent {...{ key: `${input.name}-${input.formelementID || input.label}`, ...input, handleInputChange }} />;
             case INPUTS_CONSTANTS.PROBLEM_IMAGES:
                 return (
                     <ProblemImages
-                        {...{ key: index, ...input, handleInputChange, handleProblemImages, ConcernID, isEditPage, concernDetails }}
+                        {...{ key: `${input.name}-${input.formelementID || input.label}`, ...input, handleInputChange, handleProblemImages, ConcernID, isEditPage, concernDetails }}
                         allowAdd
                     />
                 );
             case INPUTS_CONSTANTS.ATTACHMENT_PICKER:
                 return (
                     <AttachmentPicker
-                        {...{ key: index, ...input, handleInputChange, handleAttachments, ConcernID, isEditPage, concernDetails }}
+                        {...{ key: `${input.name}-${input.formelementID || input.label}`, ...input, handleInputChange, handleAttachments, ConcernID, isEditPage, concernDetails }}
                         allowAdd
                     />
                 );
@@ -317,7 +317,7 @@ const RenderInputs = ({
                     <OKPicker
                         {...{
                             ...input,
-                            key: index,
+                            key: `${input.name}-${input.formelementID || input.label}`,
                             handleInputChange,
                             handleOKPicker,
                             ConcernID,
@@ -331,7 +331,7 @@ const RenderInputs = ({
                     <NotOKPicker
                         {...{
                             ...input,
-                            key: index,
+                            key: `${input.name}-${input.formelementID || input.label}`,
                             handleInputChange,
                             handleNotOKPicker,
                             ConcernID,
@@ -340,53 +340,53 @@ const RenderInputs = ({
                         }}
                     />
                 );
-            // return <DynamicPickerComponent {...{ key: index, ...input, handleInputChange }} />;
+            // return <DynamicPickerComponent {...{ key: `${input.name}-${input.formelementID || input.label}`, ...input, handleInputChange }} />;
             case INPUTS_CONSTANTS.TREE_PICKER:
                 return null;
-                return <TreeViewPickerComponent {...{ key: index, ...input, handleInputChange }} />;
+                return <TreeViewPickerComponent {...{ key: `${input.name}-${input.formelementID || input.label}`, ...input, handleInputChange }} />;
             case INPUTS_CONSTANTS.RADIO_BUTTON:
                 return input?.formelementID ? (
                     <WrapperRadioButton
                         {...{
-                            key: index,
+                            key: `${input.name}-${input.formelementID || input.label}`,
                             input,
                             handleInputChange,
                         }}
                     />
                 ) : (
-                    <RadioButton {...{ key: index, ...input, onChange: (name, value) => handleInputChange?.(name, value) }} />
+                    <RadioButton {...{ key: `${input.name}-${input.formelementID || input.label}`, ...input, onChange: (name, value) => handleInputChange?.(name, value) }} />
                 );
             case INPUTS_CONSTANTS.RADIOBUTTON:
                 return input?.formelementID ? (
                     <WrapperRadioButton
                         {...{
-                            key: index,
+                            key: `${input.name}-${input.formelementID || input.label}`,
                             input,
                             handleInputChange,
                         }}
                     />
                 ) : (
-                    <RadioButton {...{ key: index, ...input, onChange: (name, value) => handleInputChange?.(name, value) }} />
+                    <RadioButton {...{ key: `${input.name}-${input.formelementID || input.label}`, ...input, onChange: (name, value) => handleInputChange?.(name, value) }} />
                 );
             case INPUTS_CONSTANTS.CHECK_BOX:
                 return input?.formelementID ? (
                     <WrapperCheckBox
                         {...{
-                            key: index,
+                            key: `${input.name}-${input.formelementID || input.label}`,
                             input,
                             handleInputChange,
                         }}
                     />
                 ) : (
-                    <CheckBox {...{ key: index, ...input, onChange: (name, value) => handleInputChange?.(name, value) }} />
+                    <CheckBox {...{ key: `${input.name}-${input.formelementID || input.label}`, ...input, onChange: (name, value) => handleInputChange?.(name, value) }} />
                 );
             // case INPUTS_CONSTANTS.IMAGE_PICKER:
-            //     return <ImagePicker {...{ key: index, ...input, onChange: (name, value) => handleInputChange?.(name, value) }} />;
+            //     return <ImagePicker {...{ key: `${input.name}-${input.formelementID || input.label}`, ...input, onChange: (name, value) => handleInputChange?.(name, value) }} />;
             // case INPUTS_CONSTANTS.FILE_PICKER:
-            //     return <FilePicker {...{ key: index, ...input, onChange: (name, value) => handleInputChange?.(name, value) }} />;
+            //     return <FilePicker {...{ key: `${input.name}-${input.formelementID || input.label}`, ...input, onChange: (name, value) => handleInputChange?.(name, value) }} />;
             case INPUTS_CONSTANTS.FILE_UPLOAD:
-                return <AttachmentPicker {...{ key: index, ...input, handleInputChange, handleAttachments, ConcernID }} allowAdd />;
-            // return <FilePicker {...{ key: index, ...input, onChange: (name, value) => handleInputChange?.(name, value) }} />;
+                return <AttachmentPicker {...{ key: `${input.name}-${input.formelementID || input.label}`, ...input, handleInputChange, handleAttachments, ConcernID }} allowAdd />;
+            // return <FilePicker {...{ key: `${input.name}-${input.formelementID || input.label}`, ...input, onChange: (name, value) => handleInputChange?.(name, value) }} />;
             default:
                 break;
         }

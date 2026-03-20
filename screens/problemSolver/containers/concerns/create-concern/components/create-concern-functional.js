@@ -391,17 +391,7 @@ const CreateConcernFunctional = ({}) => {
         }
     }, [concernDetails?.ConcernTitle]);
 
-    const handleDynamicInputs = dynamicConcernDetails => {
-        const dyInputs = dynamicInputs.map(input => {
-            return {
-                ...input,
-                ...(!ConcernID && {
-                    value: dynamicConcernDetails?.[input?.name],
-                }),
-            };
-        });
-        setDynamicInputs([...dyInputs]);
-    };
+
 
     const handleNestedInputChange = (name, Value, Key, isBulk) => {
         if (isBulk) {
@@ -428,19 +418,37 @@ const CreateConcernFunctional = ({}) => {
     // const nestedDynamicInputs = useMemo(() => {
     //     return convertObjectToArray(nestedConcernDetails);
     // }, [nestedConcernDetails]);
-
+    const handleDynamicInputs = dynamicConcernDetails => {
+        const dyInputs = dynamicInputs.map(input => {
+            return {
+                ...input,
+                ...(!ConcernID && {
+                    value: dynamicConcernDetails?.[input?.name],
+                }),
+            };
+        });
+        setDynamicInputs([...dyInputs]);
+    };
     const handleDynamicInputChange = (label, value, isBulk = false) => {
         if (isBulk) {
-            setDynamicConcernDetails({
-                ...dynamicConcernDetails,
-                ...value,
-            });
+            let tempObj = {
+                    ...dynamicConcernDetails,
+                    ...value
+            };
+            handleDynamicInputs(tempObj);
+            setDynamicConcernDetails(tempObj);
         } else {
             const fieldName = label === 'CustomerId' ? 'CustomerID' : label === 'SupplierId' ? 'SupplierID' : label;
-            setDynamicConcernDetails({
-                ...dynamicConcernDetails,
-                [fieldName]: value,
-            });
+            let tempObj = {
+                    ...dynamicConcernDetails,
+                    [fieldName]: value,
+            };
+            handleDynamicInputs(tempObj);
+            setDynamicConcernDetails(tempObj);
+            // setDynamicConcernDetails({
+            //     ...dynamicConcernDetails,
+            //     [fieldName]: value,
+            // });
         }
     };
 
