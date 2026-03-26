@@ -13,6 +13,7 @@ class Avatar extends Component {
         placeholder: PropTypes.string,
         width: PropTypes.number.isRequired,
         height: PropTypes.number.isRequired,
+        textSize: PropTypes.number,
         roundedImage: PropTypes.bool,
         roundedPlaceholder: PropTypes.bool,
         small: PropTypes.bool,
@@ -24,6 +25,7 @@ class Avatar extends Component {
         roundedImage: true,
         roundedPlaceholder: true,
         small: false,
+        textSize: null,
     };
 
     renderImage = () => {
@@ -53,7 +55,7 @@ class Avatar extends Component {
     };
 
     renderPlaceholder = () => {
-        const { placeholder, width, height, roundedPlaceholder, small, selected, style, theme } = this.props;
+        const { placeholder, width, height, roundedPlaceholder, small, selected, style, theme, textSize } = this.props;
         const { placeholderContainer, placeholderText } = styles;
 
         const viewStyle = [placeholderContainer];
@@ -68,7 +70,7 @@ class Avatar extends Component {
                         adjustsFontSizeToFit
                         numberOfLines={1}
                         minimumFontScale={0.01}
-                        style={[{ fontSize: small ? FONT_SIZE.X_SMALL : FONT_SIZE.REGULAR }, placeholderText]}>
+                        style={[{ fontSize: textSize || (small ? FONT_SIZE.X_SMALL : FONT_SIZE.REGULAR) }, placeholderText]}>
                         {placeholder}
                     </TextComponent>
                 )}

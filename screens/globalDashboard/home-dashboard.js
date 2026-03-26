@@ -554,9 +554,18 @@ const HomeDashboard = () => {
         );
     };
 
-    const navigateToSettings = () => {
-        console.log('click settings');
-        navigation.navigate(ROUTES.GLOBAL_SETTINGS);
+    // const navigateToSettings = () => {
+    //     console.log('click settings');
+    //     navigation.navigate(ROUTES.GLOBAL_SETTINGS);
+    // };
+
+    const navigateToSites = () => {
+        console.log('click Sites');
+        navigation.navigate(ROUTES.GLOBAL_SITES);
+    };
+
+    const navigateToLogout = () => {
+        navigation.navigate(ROUTES.GLOBAL_LOGOUT);
     };
 
     const getUniqueKey = (item) =>
@@ -633,6 +642,7 @@ const HomeDashboard = () => {
     console.log(' hasSupplierManagementLicense', appLicenses?.hasSupplierManagementLicense);
     console.log(' appLicenses------->', appLicenses);
 
+    const displayName = (sites?.selectedSite?.FullName || currentName || '').replace(/\s+/g, ' ').trim();
 
     
 
@@ -651,21 +661,61 @@ const HomeDashboard = () => {
                         {strings.welcome}!
                     </TextComponent>
                     <TextComponent type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.XX_LARGE}>
-                        {sites?.selectedSite?.FullName || currentName}
+                        {displayName}
                     </TextComponent>
                 </View>
                 <View style={{ flex: 1, alignItems: 'flex-end', justifyContent: 'center' }}>
-                    <TouchableOpacity activeOpacity={0.8} onPress={() => navigateToSettings()}>
+                    <TouchableOpacity style={{bottom: 12}} activeOpacity={0.8} onPress={() => navigateToSites()}>
                         <Avatar
                             // img={activeOrganization?.img}
                             placeholder={getAvatarInitials(sites?.selectedSite?.SiteName)}
-                            width={RFPercentage(7)}
-                            height={RFPercentage(7)}
+                            width={RFPercentage(4)}
+                            height={RFPercentage(4)}
+                            textSize={FONT_SIZE.NORMAL}
                             style={{
                                 backgroundColor: theme.colors.primaryThemeColor,
                                 borderRadius: 100,
                             }}
                         />
+                    </TouchableOpacity>
+                </View>
+                <View style={{ alignItems: 'flex-end', justifyContent: 'center', marginLeft: SPACING.SMALL }}>
+                    <TouchableOpacity
+                        activeOpacity={0.8}
+                        // onPress={navigateToNotifications}
+                        style={{
+                            width: RFPercentage(4),
+                            height: RFPercentage(4),
+                            borderRadius: 100,
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            backgroundColor: theme.colors.primaryThemeColor,
+                            borderWidth: 1,
+                            borderColor: theme.colors.primaryThemeColor,
+                            bottom: 12,
+                        }}
+                            
+                    >
+                        <IconComponent type={ICON_TYPE.FontAwesome} name="bell-o" size={18} color={'#fff'} />
+                    </TouchableOpacity>
+                </View>
+                <View style={{ alignItems: 'flex-end', justifyContent: 'center', marginLeft: SPACING.SMALL }}>
+                    <TouchableOpacity
+                        activeOpacity={0.8}
+                        onPress={navigateToLogout}
+                        style={{
+                            width: RFPercentage(4),
+                            height: RFPercentage(4),
+                            borderRadius: 100,
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            backgroundColor: theme.colors.primaryThemeColor,
+                            borderWidth: 1,
+                            borderColor: theme.colors.primaryThemeColor,
+                            bottom: 12
+                        }}
+                    >
+                        <IconComponent type={ICON_TYPE.FontAwesome} name="power-off" size={18} color={'#fff'} />
                     </TouchableOpacity>
                 </View>
             </View>
