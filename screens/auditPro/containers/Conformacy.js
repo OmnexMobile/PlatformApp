@@ -37,12 +37,12 @@ import DeviceInfo from 'react-native-device-info';
 import AsyncStorage from "@react-native-community/async-storage";
 import ConformacyText from './ConformacyText';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
-import { ROUTES } from 'constants/app-constant';
+import { ROUTES, ICON_TYPE } from 'constants/app-constant';
 import { SPACING } from 'constants/theme-constants';
-import { F } from 'ramda';
 import OfflineNotice from '../components/OfflineNotice';
 import NetInfo from '@react-native-community/netinfo';
 import GlobalHeader from 'components/GlobalHeader';
+import FAB from 'components/fab';
 
 
 let Window = Dimensions.get('window');
@@ -1180,17 +1180,17 @@ class Conformacy extends React.Component {
           )}
         </KeyboardAvoidingView>
         {this.state.loading !== true && (
-        <View style={styles.floatingSaveButton}>
-          {this.state.loadingSync ? (
-            <ActivityIndicator size="small" color="white" />
-          ) : (
-            <TouchableOpacity
-              onPress={() => this.onsyncToServer()}
-              style={{alignItems: 'center', justifyContent: 'center'}}>
-              <Icon name="refresh-ccw" size={24} color="white" />
-            </TouchableOpacity>
-          )}
-        </View>
+          <FAB
+            iconType={ICON_TYPE.Feather}
+            iconName={this.state.loadingSync ? 'loader' : 'refresh-ccw'}
+            bottom={SPACING.LARGE}
+            disabled={this.state.loadingSync}
+            onPress={() => {
+              if (!this.state.loadingSync) {
+                this.onsyncToServer();
+              }
+            }}
+          />
         )}
       </>
     );

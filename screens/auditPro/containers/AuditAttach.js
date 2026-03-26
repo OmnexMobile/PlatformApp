@@ -32,6 +32,7 @@ import RNFetchBlob from 'react-native-fetch-blob';
 import XLSX from 'xlsx'; // Import the xlsx library
 import FileViewer from 'react-native-file-viewer';
 import AsyncStorage from '@react-native-community/async-storage';
+import AnimatedLottieView from 'lottie-react-native';
 import { ROUTES } from 'constants/app-constant';
 import { SPACING } from 'constants/theme-constants';
 import GlobalHeader from 'components/GlobalHeader';
@@ -501,16 +502,21 @@ class AuditAttach extends React.Component {
             <View tabLabel={strings.History} style={styles.scrollViewBody}>
               <View
                 style={{
-                  marginTop: 60,
+                  flex: 1,
                   justifyContent: 'center',
                   alignItems: 'center',
+                  padding: SPACING.NORMAL,
                 }}>
-                <Text
+                <AnimatedLottieView
+                  source={require('../../../assets/lottie/norecords.json')}
+                  autoPlay
+                  loop
                   style={{
-                    fontSize: Fonts.size.h5,
-                    color: 'grey',
-                    fontFamily: 'OpenSans-Regular',
-                  }}>
+                    width: Window.width * 0.5,
+                    height: Window.width * 0.5,
+                  }}
+                />
+                <Text style={styles.noRecordsText}>
                   {strings.No_records_found}
                 </Text>
               </View>

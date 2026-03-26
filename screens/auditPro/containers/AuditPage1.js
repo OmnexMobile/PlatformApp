@@ -3927,10 +3927,10 @@ console.log('checktheaudits---Auditpage----Auditppro',recentAudits);
               })
             }>
             <Icon
-              name="times-circle"
+              name="x-circle"
               style={{left: 0}}
               size={30}
-              color="white"
+              color="#fff"
             />
           </TouchableOpacity>
           <View style={styles.modalContainer}>
@@ -4027,7 +4027,7 @@ console.log('checktheaudits---Auditpage----Auditppro',recentAudits);
               onPress={debounce(this._startRecognizing.bind(this), 1000)}>
               {this.state.startVoice === true ? (
                 <Icon
-                  name="assistive-listening-systems"
+                  name="loader"
                   size={30}
                   color="#00b678"
                 />
