@@ -78,6 +78,7 @@ import org.apache.tools.ant.taskdefs.condition.Os
  * ]
  */
 
+apply plugin: 'com.google.gms.google-services'
 project.ext.react = [
     enableHermes: false,  // clean and rebuild if changing
 ]

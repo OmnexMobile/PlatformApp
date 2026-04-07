@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "608973740916",
+    "project_id": "ewqims-platfrom",
+    "storage_bucket": "ewqims-platfrom.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:608973740916:android:a907a3b06ff01601e62a21",
+        "android_client_info": {
+          "package_name": "com.Omnex.IntegratedApp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDqqT1QLqm5-DDDORTPx-XCa1z3gDKb1nw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
