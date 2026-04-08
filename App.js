@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Provider } from 'react-redux';
 import { SafeAreaView, useColorScheme, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
@@ -17,18 +17,27 @@ import RNBootSplash from 'react-native-bootsplash';
 import { AppProvider } from 'contexts/app-context';
 import ThemeProvider from 'theme/ThemeProvider';
 import useTheme from 'theme/useTheme';
-import { isJailBroken } from 'helpers/utils';
+import { requestNotificationPermission} from 'helpers/utils';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { PaperProvider } from 'react-native-paper';
 import { PersistGate } from 'redux-persist/integration/react';
 import { persistor } from 'store';
-import { createInspectTable  } from 'store/database/inspectStorage';
+import { createInspectTable } from 'store/database/inspectStorage';
 import { checkForUpdate } from 'helpers/updateAppAlert';
 import UpdateModal from 'helpers/UpdateModal';
+import {
+    setNavigationRef,
+    setupForegroundHandler,
+    setupBackgroundOpenHandler,
+    setupQuitOpenHandler,
+    fetchFCMToken,
+} from './screens/notificationService';
+import NotificationModal from 'screens/inspection-control/notification/NotificationModal';
 
 setupInterceptors();
 
 const Parent = () => {
+    const navigationRef = useRef();
     const { theme } = useTheme();
     const isDarkMode = useColorScheme() === 'dark';
     const [warningList, setWarningList] = useState({ loading: true });
@@ -39,6 +48,34 @@ const Parent = () => {
     };
 
     const [showUpdateModal, setShowUpdateModal] = useState(false);
+    // for IC Notification
+    const [notificationData, setNotificationData] = useState({
+        showModal:false,
+        remoteMessage:null,
+    });
+    useEffect(() => {
+        async function init() {
+            const granted = await requestNotificationPermission();
+            console.log('Permission granted:', granted);
+            if (granted) {
+                fetchFCMToken();
+            }
+        }
+
+        init();
+    }, []);
+
+    useEffect(() => {
+        setNavigationRef(navigationRef.current);
+        
+        const unsubscribe = setupForegroundHandler(setNotificationData);
+        setupBackgroundOpenHandler();
+        setupQuitOpenHandler();
+
+        return unsubscribe;
+    }, []);
+
+    console.log(notificationData,'notificationData');
 
     // useEffect(() => {
     //     const check = async () => {
@@ -111,6 +148,7 @@ const Parent = () => {
                 <FlashMessage />
             </SafeAreaView>
             <UpdateModal visible={showUpdateModal} onClose={() => setShowUpdateModal(false)} />
+            <NotificationModal visible={notificationData.showModal} onClose={() => setNotificationData({ showModal: false})} data={notificationData.remoteMessage} />
         </GestureHandlerRootView>
     );
 };

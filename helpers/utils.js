@@ -7,7 +7,6 @@ import useTheme from 'theme/useTheme';
 import { LOCAL_STORAGE_VARIABLES, TOAST_STATUS } from 'constants/app-constant';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { check, request, openSettings, PERMISSIONS, RESULTS } from 'react-native-permissions';
-
 export const getAvatarInitials = textString => {
     if (!textString) return '';
     const text = textString.trim();
@@ -63,7 +62,7 @@ export const successMessage = ({ message = 'Success', description = 'Successfull
         // },
     });
 
-export const showErrorMessage = (message,position='bottom') =>
+export const showErrorMessage = (message, position = 'bottom') =>
     showMessage({
         message: 'Error',
         description: message,
@@ -203,3 +202,55 @@ export const requestAllPermissionsOnce = async () => {
         await AsyncStorage.setItem('permissionsAskedOnce', 'true');
     }
 };
+
+
+
+export async function requestNotificationPermission() {
+ let status;
+
+  // --- 1. HANDLE ANDROID 13+ ---
+  if (Platform.OS === 'android' && Platform.Version >= 33) {
+    // Use the raw string since your library constant is missing
+    const androidPermission = 'android.permission.POST_NOTIFICATIONS';
+    status = await check(androidPermission);
+
+    if (status === RESULTS.DENIED) {
+      status = await request(androidPermission);
+    }
+  } 
+  
+  // --- 2. HANDLE IOS ---
+  else if (Platform.OS === 'ios') {
+    status = await check(PERMISSIONS.IOS.NOTIFICATIONS);
+
+    if (status === RESULTS.DENIED) {
+      status = await request(PERMISSIONS.IOS.NOTIFICATIONS);
+    }
+  } 
+  
+  // --- 3. HANDLE OLDER ANDROID (API < 33) ---
+  else {
+    // On Android 12 and below, permissions are granted by default on install
+    console.log("Older Android version: Notifications granted by default.");
+    return true;
+  }
+
+  // --- 4. HANDLE FINAL STATUS ---
+  if (status === RESULTS.GRANTED) {
+    console.log("Permission Granted");
+    return true;
+  }
+
+  if (status === RESULTS.BLOCKED) {
+    Alert.alert(
+      'Notifications Disabled',
+      'You have blocked notifications. Please enable them in settings to stay updated.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Open Settings', onPress: () => openSettings() },
+      ]
+    );
+  }
+
+  return false;
+}

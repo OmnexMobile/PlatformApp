@@ -97,6 +97,7 @@ export const COLORS = {
     inputBG:'#f5f5f5',
     ipBgColor:'#FFA726',
     fiBgColor:'#66BB6B',
+    notificationShadow:'#35ebf820',
 };
 
 // FONTS
