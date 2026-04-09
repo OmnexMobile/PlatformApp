@@ -1313,9 +1313,10 @@ import {
 
     getCheckUserapi(UserId, RegisterDevice, token, cb) {
       var formData = new FormData();
+      const resolvedRegisterDevice = RegisterDevice || '';
       formData.append('UserId', UserId);
-      formData.append('RegisterdDevice',RegisterDevice)
-      console.log(UserId,RegisterDevice,"op/api.js")
+      formData.append('RegisterdDevice', resolvedRegisterDevice);
+      console.log(UserId, resolvedRegisterDevice,"op/api.js")
       console.log(formData,"formdatareg")
       console.log(sURL + 'CredentialCheck 1274');
   

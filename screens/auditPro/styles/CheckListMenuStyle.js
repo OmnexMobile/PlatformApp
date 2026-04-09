@@ -392,7 +392,7 @@ export default StyleSheet.create({
     flexDirection: 'row',
   },
   itemText: {
-    color: '#00bec1',
+    color: '#123C95',
     fontSize: Fonts.size.small,
     fontFamily: 'OpenSans-Regular',
   },

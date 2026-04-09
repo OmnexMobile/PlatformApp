@@ -3599,7 +3599,7 @@ class AuditForm extends Component {
                                                     <LinearGradient
                                                         start={{ x: 0, y: 0 }}
                                                         end={{ x: 1, y: 0 }}
-                                                        colors={['#14D0AE', '#1FBFD0', '#2EA4E2']}
+                                                        colors={['#123C95', '#1B5FDB', '#6A35D8']}
                                                         style={styles.CheckButton}>
                                                         <View style={styles.formNameContainer}>
                                                             <Text style={styles.buttonText}>

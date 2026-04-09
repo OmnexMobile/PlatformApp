@@ -1006,6 +1006,8 @@ class AuditForm extends Component {
 
             const combinedArray = newArray.concat(this.checkListObjects);
             console.log('filteredNCArray---------combinedArray', combinedArray);
+            console.log('this.checkListObjects---------combinedArray', this.checkListObjects);
+
 
             for (var i = 0; i < this.auditAttachments.length; i++) {
                 var formRequestObj = '';

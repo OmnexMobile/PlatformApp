@@ -774,12 +774,20 @@ class NCOFIPage extends Component {
         var ID = this.state.currentUserData?.userId || this.props.data.audits.userId;
         var type = 3;
         var path = '';
-        const deviceId = await AsyncStorage.getItem('loginDeviceId');
-
+        const loginDeviceId = await AsyncStorage.getItem('loginDeviceId');
+        const fallbackDeviceId = await AsyncStorage.getItem('deviceid');
+        const nativeDeviceId = this.state.deviceId || (await DeviceInfo.getUniqueId());
         var RegisterDevice = this.props.data.audits.deviceid;
-        console.log(userid, token, deviceId, RegisterDevice);
+        const resolvedDeviceId = loginDeviceId || fallbackDeviceId || RegisterDevice || nativeDeviceId || '';
+        if (!this.state.deviceId && nativeDeviceId) {
+            this.setState({ deviceId: nativeDeviceId });
+        }
+        if (!loginDeviceId && resolvedDeviceId) {
+            await AsyncStorage.setItem('loginDeviceId', resolvedDeviceId);
+        }
+        console.log(userid, token, resolvedDeviceId, RegisterDevice, 'checkUser---NCOFIPageSM');
 
-        auth.getCheckUser(userid, deviceId, token, (res, data) => {
+        auth.getCheckUser(userid, resolvedDeviceId, token, (res, data) => {
             console.log('User information', data);
             if (data.data.Message == 'Success') {
                 UserStatus = data.data.Data.ActiveStatus;

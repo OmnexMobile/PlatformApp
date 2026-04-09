@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import Ripple from 'react-native-material-ripple';
 import { useNavigation } from '@react-navigation/native';
+import { useDispatch } from 'react-redux';
 import moment from 'moment';
 import { COLORS, FONT_SIZE, SPACING } from 'constants/theme-constants';
 import { DATE_FORMAT, FONT_TYPE, ICON_TYPE, ROUTES, STATUS, STATUS_CODES, USER_TYPE } from 'constants/app-constant';
@@ -12,7 +13,7 @@ import IconComponent from './icon-component';
 import TextComponent from './text';
 import { IMAGES } from 'assets/images';
 import ImageComponent from './image-component';
-import AsyncStorage from '@react-native-async-storage/async-storage';  
+import AsyncStorage from '@react-native-async-storage/async-storage';
 // import Tag from './tag';
 
 const ListCardLogoSM = ({ item = {} }) => {
@@ -20,34 +21,53 @@ const ListCardLogoSM = ({ item = {} }) => {
     const { theme } = useTheme();
     const elevation = getElevation();
     const navigation = useNavigation();
+    const dispatch = useDispatch();
     console.log('ListCardLogoSMitem in list card logo------->>>', item);
 
-    const handleClickCard = async item => {
-        console.log('checckitemmmmm',item);
+    const getSupplierIndex = moduleName => {
+        if (moduleName === 'Supplier Initial Assessment') {
+            return 2;
+        }
 
-        if(item?.Module_name==='Supplier Initial Assessment' || item?.Module_name==='Supplier Routine Audit'){
-            if(item?.Module_name==='Supplier Initial Assessment'){
-            await AsyncStorage.setItem('supplierIndex', JSON.stringify(2));
-            }else if(item?.Module_name==='Supplier Routine Audit'){
-            await AsyncStorage.setItem('supplierIndex', JSON.stringify(3));
-            }else{
-            await AsyncStorage.setItem('supplierIndex', JSON.stringify(1));
-            }
-             navigation.navigate(ROUTES.AUDIT_PAGE_SM, {
+        if (moduleName === 'Supplier Routine Audit') {
+            return 3;
+        }
+
+        return 1;
+    };
+
+    const handleClickCard = async selectedItem => {
+        console.log('checckitemmmmm', selectedItem);
+        console.log('checkinngloggggg--------', selectedItem?.Module_name);
+
+        if (selectedItem?.Module_name === 'Supplier Initial Assessment' || selectedItem?.Module_name === 'Supplier Routine Audit') {
+            console.log('checkinngloggggg--------SupplierManagement......');
+
+            const smData = getSupplierIndex(selectedItem?.Module_name);
+            const auditStatusPass = selectedItem?.cStatus ?? selectedItem?.AuditStatus;
+
+            dispatch({ type: 'STORE_SUPPLIER_DATA', smdata: smData });
+            await AsyncStorage.setItem('supplierIndex', JSON.stringify(smData));
+
+            navigation.navigate(ROUTES.AUDIT_PAGE_SM, {
                 screenFrom: 'Dashboard',
-                datapass: item,
+                datapass: { ...selectedItem, smData, cStatus: auditStatusPass },
+                auditStatusPass,
+                smData,
             });
-        }else if(item?.Module_name === 'AuditPro') {
+        } else if (selectedItem?.Module_name === 'AuditPro') {
+            console.log('checkinngloggggg--------Auditpro......');
+
             navigation.navigate(ROUTES.AUDIT_PAGE, {
                 screenFrom: 'Dashboard',
-                datapass: item,
+                datapass: selectedItem,
             });
         } else {
-            navigation.navigate(item?.Status === STATUS.CREATED ? ROUTES.CONCERN_INITIAL_EVALUATION : ROUTES.VIEW_CONCERN_PS, {
-                ConcernID: item?.ConcernID,
-                ...(item?.StatusID === STATUS_CODES.IN_PROGRESS.toString() && { FormTypeID: 3 }),
+            navigation.navigate(selectedItem?.Status === STATUS.CREATED ? ROUTES.CONCERN_INITIAL_EVALUATION : ROUTES.VIEW_CONCERN_PS, {
+                ConcernID: selectedItem?.ConcernID,
+                ...(selectedItem?.StatusID === STATUS_CODES.IN_PROGRESS.toString() && { FormTypeID: 3 }),
             });
-            handleRecentActivity?.(item);
+            handleRecentActivity?.(selectedItem);
         }
     };
     return (
@@ -59,7 +79,6 @@ const ListCardLogoSM = ({ item = {} }) => {
                     {
                         padding: SPACING.NORMAL,
                         borderRadius: SPACING.SMALL,
-                        padding: SPACING.NORMAL,
                         marginBottom: SPACING.NORMAL,
                         marginTop: SPACING.X_SMALL,
                     },

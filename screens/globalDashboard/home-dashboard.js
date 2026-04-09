@@ -27,7 +27,7 @@ import { getInspectionDataByUserAndSite } from 'store/database/inspectStorage';
 import { useModuleLicenses } from 'hooks/useModuleLicenses';
 import { formReq, getAvatarInitials, getICList, RFPercentage, getICSettingsData } from 'helpers/utils';
 import { APQP_URL, AUDITPRO_URL, PROBLEMSOLVING_URL, ensureTrailingSlash } from 'screens/globalConstant/globalURL';
-
+import constants from '../../constants/SupplierMgnt/AppConstants';
 const HomeDashboard = () => {
     const { theme } = useTheme();
     const navigation = useNavigation();
@@ -51,6 +51,7 @@ const HomeDashboard = () => {
     const [recentActivity, setRecentActivity] = useState([]);
     const [currentUserData, setCurrentUserData] = useState([]);
     const [appLicenses, setAppLicenses] = useState([]);
+    const [notificationsList, setNotificationsList] = useState([]);
 
     // const [recentActivitySM, setRecentActivitySM] = useState([]);
     // const [recentSM, setRecentSM] = useState([]);
@@ -75,10 +76,8 @@ const HomeDashboard = () => {
     );
     // const [, set] = useState("");aa1eeeeer
     const isFocused = useIsFocused();
-    const auditProUrl = ensureTrailingSlash(
-        globalDeviceDetails?.deviceDetails?.AuditProURL || AUDITPRO_URL,
-    );
- 
+    const auditProUrl = ensureTrailingSlash(globalDeviceDetails?.deviceDetails?.AuditProURL || AUDITPRO_URL);
+
     useEffect(() => {
         if (auditProUrl) {
             supplierAuth.setServerUrl(auditProUrl);
@@ -97,36 +96,31 @@ const HomeDashboard = () => {
     console.log('selectedSiteId:', selectedSiteId);
 
     const siteRecord = currentUserData?.data?.find(item => {
-        console.log(
-            'Comparing Site IDs:',
-            String(item.Siteid),'---',
-            String(selectedSiteId)
-        );
+        console.log('Comparing Site IDs:', String(item.Siteid), '---', String(selectedSiteId));
 
         return String(item.Siteid) === String(selectedSiteId);
     });
 
-
     const rawModuleString = siteRecord?.ModuleLicense || '';
-    console.log("rawModuleString:", rawModuleString,);
-    console.log('currentUserData----', currentUserData,);
-    console.log('siteRecord----', siteRecord,'===',siteRecord?.ModuleLicense);
+    console.log('rawModuleString:', rawModuleString);
+    console.log('currentUserData----', currentUserData);
+    console.log('siteRecord----', siteRecord, '===', siteRecord?.ModuleLicense);
     const {
-			isReady,
-			hasSupplierManagementLicense,
-			hasAuditProLicense,
-			hasApqpPpapLicense,
-			hasProblemSolverLicense,
-			hasInspectionControlLicense,
-			hasDocumentProLicense
-		} = useModuleLicenses(rawModuleString);
+        isReady,
+        hasSupplierManagementLicense,
+        hasAuditProLicense,
+        hasApqpPpapLicense,
+        hasProblemSolverLicense,
+        hasInspectionControlLicense,
+        hasDocumentProLicense,
+    } = useModuleLicenses(rawModuleString);
 
-    console.log("Supplier:", hasSupplierManagementLicense);
-    console.log("Audit:", hasAuditProLicense);
-    console.log("APQP:", hasApqpPpapLicense);
-    console.log("ProblemSolver:", hasProblemSolverLicense);
-    console.log("Inspection:", hasInspectionControlLicense);
-    console.log("Document:", hasDocumentProLicense);
+    console.log('Supplier:', hasSupplierManagementLicense);
+    console.log('Audit:', hasAuditProLicense);
+    console.log('APQP:', hasApqpPpapLicense);
+    console.log('ProblemSolver:', hasProblemSolverLicense);
+    console.log('Inspection:', hasInspectionControlLicense);
+    console.log('Document:', hasDocumentProLicense);
 
     useEffect(() => {
         if (!isReady || !sites?.selectedSite?.Siteid) return; // 🚨 KEY FIX
@@ -137,27 +131,25 @@ const HomeDashboard = () => {
                 hasApqpPpapLicense,
                 hasProblemSolverLicense,
                 hasInspectionControlLicense,
-                hasDocumentProLicense
+                hasDocumentProLicense,
             };
-            await AsyncStorage.setItem("moduleLicenses", JSON.stringify(licenses));
+            await AsyncStorage.setItem('moduleLicenses', JSON.stringify(licenses));
             setAppLicenses(licenses);
-            console.log("Stored module licenses:", licenses);
+            console.log('Stored module licenses:', licenses);
         };
         storeLicenses();
     }, [
-            isReady,
-            sites?.selectedSite?.Siteid,
-            hasSupplierManagementLicense,
-            hasAuditProLicense,
-            hasApqpPpapLicense,
-            hasProblemSolverLicense,
-            hasInspectionControlLicense,
-            hasDocumentProLicense,
-            
+        isReady,
+        sites?.selectedSite?.Siteid,
+        hasSupplierManagementLicense,
+        hasAuditProLicense,
+        hasApqpPpapLicense,
+        hasProblemSolverLicense,
+        hasInspectionControlLicense,
+        hasDocumentProLicense,
     ]);
 
     console.log('appLicenses in home dashboard', appLicenses, 'sites?.selectedSite?.Siteid--->', sites?.selectedSite?.Siteid);
-
 
     useEffect(() => {
         const fetchUserDetails = async () => {
@@ -168,7 +160,7 @@ const HomeDashboard = () => {
                 if (userDetails) {
                     setuserDetailsAudit(userDetails);
                     setaccessToken(userDetails.accessToken);
-                    if(sites?.selectedSite?.Siteid){
+                    if (sites?.selectedSite?.Siteid) {
                         setsiteId(sites?.selectedSite?.Siteid);
                     } else {
                         setsiteId(userDetails?.siteId);
@@ -177,7 +169,7 @@ const HomeDashboard = () => {
                     setCurrentUserData(userDetails);
                 }
             } catch (err) {
-                console.log("Error fetching user details", err);
+                console.log('Error fetching user details', err);
             }
         };
 
@@ -194,6 +186,7 @@ const HomeDashboard = () => {
             console.log('inside isFocused----->');
             getAuditlist('', '');
             getApqpList();
+            getNotifications();
         }
     }, [accessToken, siteId, userId, isFocused]);
 
@@ -212,7 +205,7 @@ const HomeDashboard = () => {
             const UserFullName = await localStorage.getData(LOCAL_STORAGE_VARIABLES.UserFullName);
             console.log('UserFullName------------', UserFullName);
             setCurrentName(UserFullName);
-        }
+        };
         fetchData();
     }, [currentName]);
 
@@ -240,7 +233,8 @@ const HomeDashboard = () => {
             const mergedActivity = [...todaysActivitySM, ...todaysActivityPS, ...todaysActivityAPQP];
             settodaysActivity(mergedActivity);
             console.log('Final today activity------->123', mergedActivity);
-        } else { //update to handle empty states
+        } else {
+            //update to handle empty states
             const mergedActivity = [...todaysActivitySM, ...todaysActivityPS, ...todaysActivityAPQP];
             settodaysActivity(mergedActivity);
             console.log('Final today activity 2------->123', mergedActivity);
@@ -256,30 +250,29 @@ const HomeDashboard = () => {
         console.log('Final recent activity rPS:', rPS);
 
         if (rSM.length > 0 || rAPQP.length > 0 || rPS.length > 0) {
-        // if (rSM.length > 0  || rPS.length > 0) {
+            // if (rSM.length > 0  || rPS.length > 0) {
             const mergedRecentActivity = [...rSM, ...rAPQP, ...rPS];
             // const mergedRecentActivity = [...rSM, ...rPS];
             setRecentActivity(mergedRecentActivity);
             console.log('Final merged recent activity:', mergedRecentActivity);
         }
-
     }, [todaysActivitySM, todaysActivityAPQP, todaysActivityPS]);
-    console.log('Final array of today and Recent activity------->', todaysActivity, '------',recentActivity);
+    console.log('Final array of today and Recent activity------->', todaysActivity, '------', recentActivity);
 
-    const hasAPQPToday = Array.isArray(todaysActivity) && todaysActivity.some( item => item?.ProjectId != null || item?.TaskId != null);
-    console.log("final hasAPQPToday------->", hasAPQPToday);
+    const hasAPQPToday = Array.isArray(todaysActivity) && todaysActivity.some(item => item?.ProjectId != null || item?.TaskId != null);
+    console.log('final hasAPQPToday------->', hasAPQPToday);
 
-    const hasPSToday = Array.isArray(todaysActivity) && todaysActivity.some( item => item?.ConcernID != null || item?.ConcernNo != null);
-    console.log("final hasPSToday------->", hasPSToday);
+    const hasPSToday = Array.isArray(todaysActivity) && todaysActivity.some(item => item?.ConcernID != null || item?.ConcernNo != null);
+    console.log('final hasPSToday------->', hasPSToday);
 
-    const SUPPLIER_MODULES = ['AuditPro', 'Supplier Initial Assessment', 'Supplier Routine Audit',];
-    const hasSMToday = Array.isArray(todaysActivity) && todaysActivity.some(item => SUPPLIER_MODULES.includes(item?.Module_name) || item?.ActualAuditId != null);
+    const SUPPLIER_MODULES = ['AuditPro', 'Supplier Initial Assessment', 'Supplier Routine Audit'];
+    const hasSMToday =
+        Array.isArray(todaysActivity) && todaysActivity.some(item => SUPPLIER_MODULES.includes(item?.Module_name) || item?.ActualAuditId != null);
     console.log('final hasSMToday------->', hasSMToday);
-    
+
     console.log('HomeListRecentActivity SM------->', recentActivitySM, recentActivityPS, recentActivityAPQP);
     console.log('final PS todaysActivityPS------->', todaysActivityPS);
 
-    
     // useEffect(() => {
     //   const loadLicenses = async () => {
     //     const stored = await AsyncStorage.getItem('moduleLicenses');
@@ -306,7 +299,187 @@ const HomeDashboard = () => {
     //     console.log(updatedList);
     //     setRecentActivitySM(updatedList);
     // }
+    const getNotifications = () => {
+        console.log('inside getNotifications', accessToken, userId, siteId);
+        const auditCount = 0;
+        supplierAuth.getAuditNotification(auditCount, accessToken, userId, siteId, (response, data) => {
+            console.log('------------------------------', data);
+            if (data?.data?.Message == 'Success') {
+                console.log('Audit notifications data', data.data.Data);
 
+                const formattedNotifications = (data?.data?.Data || []).map((item, index) => {
+                    let cStatus = constants.StatusScheduled;
+
+                    if (item?.AuditStatus == 3 && (item?.CloseOutStatus == '7' || item?.CloseOutStatus === '9')) {
+                        cStatus = constants.StatusCompleted;
+                    } else if (item?.AuditStatus == 3 && item?.CloseOutStatus != '7' && item?.CloseOutStatus != '9') {
+                        cStatus = constants.Completed;
+                    } else if (item?.AuditStatus == 2 && item?.PerformStarted == 0) {
+                        cStatus = constants.StatusScheduled;
+                    } else if (item?.AuditStatus == 2 && item?.PerformStarted == 1) {
+                        cStatus = constants.StatusProcessing;
+                    } else if (item?.AuditStatus == 4) {
+                        cStatus = constants.StatusDV;
+                    } else if (item?.AuditStatus == 5) {
+                        cStatus = constants.StatusDVC;
+                    }
+
+                    let color = '#1081de';
+                    switch (cStatus) {
+                        case constants.StatusScheduled:
+                            color = '#1081de';
+                            break;
+                        case constants.StatusDownloaded:
+                            color = '#cd8cff';
+                            break;
+                        case constants.StatusNotSynced:
+                            color = '#2ec3c7';
+                            break;
+                        case constants.StatusProcessing:
+                            color = '#e88316';
+                            break;
+                        case constants.StatusSynced:
+                            color = '#48bcf7';
+                            break;
+                        case constants.Completed:
+                            color = 'green';
+                            break;
+                        case constants.StatusCompleted:
+                            color = '#000';
+                            break;
+                        case constants.StatusDV:
+                            color = 'red';
+                            break;
+                        case constants.StatusDVC:
+                            color = 'green';
+                            break;
+                        default:
+                            color = '#1081de';
+                            break;
+                    }
+
+                    return {
+                        ...item,
+                        cStatus,
+                        color,
+                        key: String(item?.ActualAuditId ?? item?.AuditNumber ?? index),
+                    };
+                });
+
+                setNotificationsList(formattedNotifications);
+                console.log('notificationlist--->', formattedNotifications);
+            } else {
+                setNotificationsList([]);
+            }
+            // console.log('Audit notifications data', data);
+            // console.log('------------------------------');
+            // if (data.data) {
+            //   if (data.data.Message == 'Success') {
+            //     var auditList = [];
+            //     // var auditListProps = this.props.data.audits.audits;
+
+            //     for (var i = 0; i < data.data.Data.length; i++) {
+            //       var auditInfo = data.data.Data[i];
+            //       auditInfo['color'] = '#1081de';
+            //       auditInfo['cStatus'] = constants.StatusScheduled;
+            //       auditInfo['key'] = this.keyVal + 1;
+
+            //       // Set Audit Status
+            //       if (auditInfo.AuditStatus == 3 && (auditInfo.CloseOutStatus == "7" || auditInfo.CloseOutStatus === "9")) {
+            //         auditInfo['cStatus'] = constants.StatusCompleted;
+            //       }else if (auditInfo.AuditStatus == 3 && auditInfo.CloseOutStatus != "7" && auditInfo.CloseOutStatus != "9") {
+            //         auditInfo['cStatus'] = constants.Completed;
+            //       }
+            //        else if (
+            //         data.data.Data[i].AuditStatus == 2 &&
+            //         data.data.Data[i].PerformStarted == 0
+            //       ) {
+            //         auditInfo['cStatus'] = constants.StatusScheduled;
+            //       } else if (
+            //         data.data.Data[i].AuditStatus == 2 &&
+            //         data.data.Data[i].PerformStarted == 1
+            //       ) {
+            //         auditInfo['cStatus'] = constants.StatusProcessing;
+            //       } else if (data.data.Data[i].AuditStatus == 4) {
+            //         auditInfo['cStatus'] = constants.StatusDV;
+            //       } else if (data.data.Data[i].AuditStatus == 5) {
+            //         auditInfo['cStatus'] = constants.StatusDVC;
+            //       }
+
+            //     //   for (var j = 0; j < auditListProps.length; j++) {
+            //     //     if (
+            //     //       parseInt(auditListProps[j].ActualAuditId) ==
+            //     //       parseInt(data.data.Data[i].ActualAuditId)
+            //     //     ) {
+            //     //       // Update Audit Status
+            //     //       if (
+            //     //         auditListProps[j].cStatus == constant.StatusDownloaded ||
+            //     //         auditListProps[j].cStatus == constant.StatusNotSynced ||
+            //     //         auditListProps[j].cStatus == constant.StatusSynced
+            //     //       ) {
+            //     //         auditInfo['cStatus'] = auditListProps[j].cStatus;
+            //     //       }
+            //     //       break;
+            //     //     }
+            //     //   }
+
+            //       // Set Audit Card color by checking its Status
+            //       switch (auditInfo['cStatus']) {
+            //         case constants.StatusScheduled:
+            //           auditInfo['color'] = '#1081de';
+            //           break;
+            //         case constants.StatusDownloaded:
+            //           auditInfo['color'] = '#cd8cff';
+            //           break;
+            //         case constants.StatusNotSynced:
+            //           auditInfo['color'] = '#2ec3c7';
+            //           break;
+            //         case constants.StatusProcessing:
+            //           auditInfo['color'] = '#e88316';
+            //           break;
+            //         case constants.StatusSynced:
+            //           auditInfo['color'] = '#48bcf7';
+            //           break;
+            //         case constants.Completed:
+            //           auditInfo['color'] = 'green';
+            //           break;
+            //         case constants.StatusCompleted:
+            //           auditInfo['color'] = '#000';
+            //           break;
+            //         case constants.StatusDV:
+            //           auditInfo['color'] = 'red';
+            //           break;
+            //         case constants.StatusDVC:
+            //           auditInfo['color'] = 'green';
+            //           break;
+            //         default:
+            //           auditInfo['color'] = '#1081de';
+            //           break;
+            //       }
+
+            //       auditList.push(auditInfo);
+            //       this.keyVal = this.keyVal + 1;
+            //     }
+
+            //     let bufferList = Array.from(new Set(auditList));
+
+            //     if (dynamicAuditCount == noaudits) {
+            //       console.log('no new notification');
+            //       this.setState({ShowNotifyBadge: 0});
+            //     } else {
+            //       let badge = noaudits - dynamicAuditCount;
+            //       console.log('badge', badge);
+            //       this.setState({ShowNotifyBadge: badge});
+            //     }
+            //     this.setState({notifybadge: bufferList});
+            //   } else {
+            //     this.setState({ShowNotifyBadge: 0, notifybadge: []});
+            //   }
+            // } else {
+            //   this.setState({ShowNotifyBadge: 0, notifybadge: []});
+            // }
+        });
+    };
     const getAuditlist = () => {
         NetInfo.fetch().then(netState => {
             if (netState.isConnected) {
@@ -319,16 +492,16 @@ const HomeDashboard = () => {
                 const SortBy = '';
                 const SortOrder = '';
                 const Default = 1;
- 
+
                 console.log('checkaccesstokennnnn', accessToken, userId, siteId);
- 
+
                 const formatDateYmd = date => {
                     const year = date.getFullYear();
                     const month = String(date.getMonth() + 1).padStart(2, '0');
                     const day = String(date.getDate()).padStart(2, '0');
                     return `${year}-${month}-${day}`;
                 };
- 
+
                 const getStartDateKey = value => {
                     if (!value) return '';
                     if (value instanceof Date) {
@@ -340,7 +513,7 @@ const HomeDashboard = () => {
                     }
                     return String(value).split('T')[0];
                 };
- 
+
                 // 🔹 helper function to fetch audits by SM
                 const fetchAuditData = SM =>
                     new Promise(resolve => {
@@ -359,15 +532,14 @@ const HomeDashboard = () => {
                             SM,
                             Default,
                             (response, data) => {
-                                console.log('chekdatascuccess------->',data);
+                                console.log('chekdatascuccess------->', data);
                                 if (data?.data?.Message === 'Success' && data?.data?.Data) {
- 
                                     // Add S_name based on SM value
                                     const updatedData = data.data.Data.map(item => ({
                                         ...item,
                                         Module_name: SM === 1 ? 'AuditPro' : SM == 2 ? 'Supplier Initial Assessment' : 'Supplier Routine Audit',
                                     }));
- 
+
                                     resolve(updatedData);
                                 } else {
                                     resolve([]); // No data
@@ -376,17 +548,17 @@ const HomeDashboard = () => {
                             },
                         );
                     });
- 
+
                 // 🔹 Fetch both SM=2 and SM=3 data in parallel
                 Promise.all([fetchAuditData(1), fetchAuditData(2), fetchAuditData(3)])
                     .then(([sm1Data, sm2Data, sm3Data]) => {
                         // Merge results
                         const combinedData = [...sm1Data, ...sm2Data, ...sm3Data];
- 
+
                         // 🔹 Date & status filter
                         const todayKey = formatDateYmd(new Date());
-                        console.log('checksites----->',sites?.selectedSite);
- 
+                        console.log('checksites----->', sites?.selectedSite);
+
                         const filteredAuditList = combinedData
                             .filter(audit => {
                                 const isValidStatus = audit.AuditStatus === 2 || audit.AuditStatus === 4;
@@ -397,7 +569,7 @@ const HomeDashboard = () => {
                                 ...audit,
                                 SiteName: sites?.selectedSite?.SiteName, // 👈 Add SiteName here
                             }));
- 
+
                         console.log('✅ Final Filtered AuditList:', filteredAuditList);
                         settodaysActivitySM(filteredAuditList);
                     })
@@ -409,26 +581,24 @@ const HomeDashboard = () => {
             }
         });
     };
- 
 
     const getApqpList = async () => {
         const UserFullName = await localStorage.getData(LOCAL_STORAGE_VARIABLES.UserFullName);
         console.log('UserFullName------------', UserFullName);
         // if(hasApqpPpapLicense) {
-            getData()
-                .then(res => {
-                    console.log('async  getdata apqp', res);
-                    APQPAuth.setServerUrl(APQP_URL);
-                    getapqpDashboarddata(res); //counts API
-                    getTodaysTask(res);
-                    // getRecentTask(res);
-                })
-                .catch(e => {
-                    console.log('Async aerror', e);
-                });
+        getData()
+            .then(res => {
+                console.log('async  getdata apqp', res);
+                APQPAuth.setServerUrl(APQP_URL);
+                getapqpDashboarddata(res); //counts API
+                getTodaysTask(res);
+                // getRecentTask(res);
+            })
+            .catch(e => {
+                console.log('Async aerror', e);
+            });
         // }
     };
-
 
     const getData = async () => {
         try {
@@ -516,11 +686,11 @@ const HomeDashboard = () => {
             );
             const UserFullName = await localStorage.getData(LOCAL_STORAGE_VARIABLES.UserFullName);
             console.log('UserFullName------------', UserFullName);
-                if (sites?.selectedSite) {
-                    console.log('🚀 ~ sites?.selectedSite2', sites, '----', sites?.selectedSite);
-                    storeUrl(PROBLEMSOLVING_URL);
-                    getListData(sites?.selectedSite);
-                }
+            if (sites?.selectedSite) {
+                console.log('🚀 ~ sites?.selectedSite2', sites, '----', sites?.selectedSite);
+                storeUrl(PROBLEMSOLVING_URL);
+                getListData(sites?.selectedSite);
+            }
         };
         fetchData(); // call it
         // optional cleanup:
@@ -563,28 +733,24 @@ const HomeDashboard = () => {
         console.log('click Sites');
         navigation.navigate(ROUTES.GLOBAL_SITES);
     };
+    const navigateToNotification = () => {
+        console.log('click Notification');
+        navigation.navigate(ROUTES.AUDIT_NOTIFICATIONS, {
+            notifications: notificationsList,
+        });
+    };
 
     const navigateToLogout = () => {
         navigation.navigate(ROUTES.GLOBAL_LOGOUT);
     };
 
-    const getUniqueKey = (item) =>
-      item?.ConcernID ??
-      item?.ProjectID ??
-      item?.ActionId ??
-      item?.ActualAuditId ??
-      item?.AuditNumber ??
-      item?.AuditTemplateId;
+    const getUniqueKey = item =>
+        item?.ConcernID ?? item?.ProjectID ?? item?.ActionId ?? item?.ActualAuditId ?? item?.AuditNumber ?? item?.AuditTemplateId;
 
-    const getItemDate = (item) => {
-      const date =
-        item?.lastOpened ||
-        item?.UpdatedDate ||
-        item?.CreatedDate ||
-        item?.StartDate ||
-        item?.EndDate;
+    const getItemDate = item => {
+        const date = item?.lastOpened || item?.UpdatedDate || item?.CreatedDate || item?.StartDate || item?.EndDate;
 
-      return date ? new Date(date).getTime() : -Infinity;
+        return date ? new Date(date).getTime() : -Infinity;
     };
 
     const recentLatestList = React.useMemo(() => {
@@ -600,35 +766,24 @@ const HomeDashboard = () => {
 
             // ✅ keep the latest item for the same key
             if (!existing || getItemDate(item) > getItemDate(existing)) {
-            uniqueMap.set(key, item);
+                uniqueMap.set(key, item);
             }
         });
 
         return Array.from(uniqueMap.values())
             .sort((a, b) => getItemDate(b) - getItemDate(a)) // latest first
             .slice(0, 3);
-            // .slice(-3).reverse(); // keep only top 3, reverse to show oldest first
+        // .slice(-3).reverse(); // keep only top 3, reverse to show oldest first
     }, [recentActivity]);
 
     console.log('final recentLatestList', recentLatestList);
 
+    const recentAPQP = recentLatestList.filter(item => item?.ProjectID != null || item?.ActionId != null);
 
-    const recentAPQP = recentLatestList.filter(
-        item =>
-            item?.ProjectID != null ||
-            item?.ActionId != null
-    );
-
-    const recentPS = recentLatestList.filter(
-    item =>
-        item?.ConcernID != null ||
-        item?.ConcernNo != null
-    );
+    const recentPS = recentLatestList.filter(item => item?.ConcernID != null || item?.ConcernNo != null);
 
     const recentSM = recentLatestList.filter(
-    item =>
-        ['AuditPro', 'Supplier Initial Assessment', 'Supplier Routine Audit']
-        .includes(item?.Module_name) || item?.ActualAuditId != null
+        item => ['AuditPro', 'Supplier Initial Assessment', 'Supplier Routine Audit'].includes(item?.Module_name) || item?.ActualAuditId != null,
     );
     console.log('final recentSM', recentSM);
 
@@ -643,8 +798,6 @@ const HomeDashboard = () => {
     console.log(' appLicenses------->', appLicenses);
 
     const displayName = (sites?.selectedSite?.FullName || currentName || '').replace(/\s+/g, ' ').trim();
-
-    
 
     // const orderedRecentList = [
     //   ...(showPS ? recentPS.map(item => ({ ...item, type: 'PS' })) : []),
@@ -665,7 +818,7 @@ const HomeDashboard = () => {
                     </TextComponent>
                 </View>
                 <View style={{ flex: 1, alignItems: 'flex-end', justifyContent: 'center' }}>
-                    <TouchableOpacity style={{bottom: 12}} activeOpacity={0.8} onPress={() => navigateToSites()}>
+                    <TouchableOpacity style={{ bottom: 12 }} activeOpacity={0.8} onPress={() => navigateToSites()}>
                         <Avatar
                             // img={activeOrganization?.img}
                             placeholder={getAvatarInitials(sites?.selectedSite?.SiteName)}
@@ -682,7 +835,7 @@ const HomeDashboard = () => {
                 <View style={{ alignItems: 'flex-end', justifyContent: 'center', marginLeft: SPACING.SMALL }}>
                     <TouchableOpacity
                         activeOpacity={0.8}
-                        // onPress={navigateToNotifications}
+                        onPress={() => navigateToNotification()}
                         style={{
                             width: RFPercentage(4),
                             height: RFPercentage(4),
@@ -693,9 +846,7 @@ const HomeDashboard = () => {
                             borderWidth: 1,
                             borderColor: theme.colors.primaryThemeColor,
                             bottom: 12,
-                        }}
-                            
-                    >
+                        }}>
                         <IconComponent type={ICON_TYPE.FontAwesome} name="bell-o" size={18} color={'#fff'} />
                     </TouchableOpacity>
                 </View>
@@ -712,9 +863,8 @@ const HomeDashboard = () => {
                             backgroundColor: theme.colors.primaryThemeColor,
                             borderWidth: 1,
                             borderColor: theme.colors.primaryThemeColor,
-                            bottom: 12
-                        }}
-                    >
+                            bottom: 12,
+                        }}>
                         <IconComponent type={ICON_TYPE.FontAwesome} name="power-off" size={18} color={'#fff'} />
                     </TouchableOpacity>
                 </View>
@@ -729,20 +879,20 @@ const HomeDashboard = () => {
                         // loading: todayList?.loading,
                         loading: false,
                         currentName: currentName,
-						moduleLicenses: appLicenses,
+                        moduleLicenses: appLicenses,
                         hasAPQPToday: hasAPQPToday,
                         hasPSToday: hasPSToday,
                         hasSMToday: hasSMToday,
                     }}
                 />
-                {/* Recent Activity */} 
+                {/* Recent Activity */}
                 <>
-                <View style={{  }}>
-                    <TextComponent fontSize={FONT_SIZE.LARGE} style={{ padding: SPACING.NORMAL }} type={FONT_TYPE.BOLD}>
-                        {`Recently Viewed`}
-                    </TextComponent>
+                    <View style={{}}>
+                        <TextComponent fontSize={FONT_SIZE.LARGE} style={{ padding: SPACING.NORMAL }} type={FONT_TYPE.BOLD}>
+                            {`Recently Viewed`}
+                        </TextComponent>
 
-                    {/* {orderedRecentList.map(item => {
+                        {/* {orderedRecentList.map(item => {
                         if (item.type === 'PS') {
                             return (
                                 <HomeListRecentActivity
@@ -787,40 +937,39 @@ const HomeDashboard = () => {
                         return null;
                     })} */}
 
+                        {showAPQP && (
+                            <HomeListComponentApqp
+                                statusCode={STATUS_CODES.PENDING_CONCERN}
+                                title="Recently Viewed"
+                                data={recentAPQP}
+                                loading={false}
+                                hideSeeAll
+                                currentName={currentName}
+                            />
+                        )}
 
-                    {showAPQP && (
-                    <HomeListComponentApqp
-                        statusCode={STATUS_CODES.PENDING_CONCERN}
-                        title="Recently Viewed"
-                        data={recentAPQP}
-                        loading={false}
-                        hideSeeAll
-                        currentName={currentName}
-                    />
-                    )}
+                        {showPS && (
+                            <HomeListRecentActivity
+                                statusCode={STATUS_CODES.PENDING_CONCERN}
+                                title="Recently Viewed"
+                                data={recentPS}
+                                loading={false}
+                                hideSeeAll
+                                currentName={currentName}
+                            />
+                        )}
 
-                    {showPS && (
-                    <HomeListRecentActivity
-                        statusCode={STATUS_CODES.PENDING_CONCERN}
-                        title="Recently Viewed"
-                        data={recentPS}
-                        loading={false}
-                        hideSeeAll
-                        currentName={currentName}
-                    />
-                    )}
-
-                   {(showSM || showAuditPro) && (
-                    <HomeListRecentActivitySM
-                        statusCode={STATUS_CODES.PENDING_CONCERN}
-                        title="Recently Viewed"
-                        data={recentSM}
-                        loading={false}
-                        hideSeeAll
-                        currentName={currentName}
-                        />
-                    )}
-                   {!hasRecentActivity && <NoRecordFound />}
+                        {(showSM || showAuditPro) && (
+                            <HomeListRecentActivitySM
+                                statusCode={STATUS_CODES.PENDING_CONCERN}
+                                title="Recently Viewed"
+                                data={recentSM}
+                                loading={false}
+                                hideSeeAll
+                                currentName={currentName}
+                            />
+                        )}
+                        {!hasRecentActivity && <NoRecordFound />}
                     </View>
                 </>
             </ScrollView>

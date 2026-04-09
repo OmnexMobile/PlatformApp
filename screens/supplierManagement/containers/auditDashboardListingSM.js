@@ -62,7 +62,8 @@ class AuditDashboardListing extends Component {
 
         var filterIDasync = await AsyncStorage.getItem('FILTERIDLIST');
         var SMDATAraw = await AsyncStorage.getItem('supplierIndex');
-        const SMDATA = SMDATAraw ? JSON.parse(SMDATAraw) : null;
+        
+        const SMDATA =  (SMDATAraw ? JSON.parse(SMDATAraw) : null);
         console.log('checkingsmdatvalllll', SMDATA);
 
         if (this.props.data.audits.language === 'Chinese') {
@@ -83,7 +84,7 @@ class AuditDashboardListing extends Component {
             },
             () => {
                 // Keep Redux copy in sync so consumers reading smdata from props get the latest selection
-                if (SMDATA !== null) {
+                if (SMDATA !== null && typeof SMDATA !== 'undefined') {
                     this.props.dispatch({ type: 'STORE_SUPPLIER_DATA', smdata: SMDATA });
                 }
                 console.log('FILTERIDCHECK*****************smmmm', this.state.filterID, this.state.SM);
@@ -175,7 +176,7 @@ class AuditDashboardListing extends Component {
                                 this.applyAuditFilter();
                             })
                         }
-                        placeholder="Search by audit no, auditee or date (YYYY-MM-DD)"
+                        placeholder="Search by audit no, auditee"
                     />
                     {this.state.loader ? (
                         <View style={styles.loaderParent}>

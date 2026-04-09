@@ -9,19 +9,21 @@ import {
   StyleSheet,
 } from 'react-native';
 //components
-import OfflineNotice from '../components/OfflineNotice';
-import AuditCard from '../components/AuditCard';
+import OfflineNotice from '../auditPro/components/OfflineNotice';
+import AuditCard from '../auditPro/components/AuditCard';
 //library
 import * as _ from 'lodash';
 import {connect} from 'react-redux';
 // import {width} from 'react-native-dimension';
 //assets
-import {Fonts, Images} from '../Themes';
+import {Fonts, Images} from '../auditPro/Themes';
 import Icon from 'react-native-vector-icons/FontAwesome';
 //strings
-import {strings} from '../language/Language';
+import {strings} from '../auditPro/language/Language';
 import { ROUTES } from 'constants/app-constant';
 import { SPACING } from 'constants/theme-constants';
+import AsyncStorage from '@react-native-community/async-storage';
+import auth from '../../services/SupplierMgnt-Auth';
 
 const {whitneyBook_18} = Fonts.style;
 const {blackGrey} = Fonts.colors;
@@ -29,19 +31,16 @@ const {blackGrey} = Fonts.colors;
 class AuditNotifications extends Component {
   constructor(props) {
     super(props);
-    console.log('get props--->', props)
+    const allNotifications = this.props?.route?.params?.notifications || [];
+    console.log('get props--->checkkkkkk', props)
     this.state = {
-      allNotifications: this.props?.route?.params?.notifications,
-      notificationsList: _.slice(
-        // this.props.navigation.getParam('notifications'),
-        this.props?.route?.params?.notifications,
-        0,
-        20,
-      ),
+      allNotifications,
+      notificationsList: _.slice(allNotifications, 0, 20),
     };
   }
 
-  componentDidMount() {
+   componentDidMount() {
+
     if (this.props.data.audits.language === 'Chinese') {
       this.setState({ChineseScript: true}, () => {
         strings.setLanguage('zh');
@@ -58,6 +57,7 @@ class AuditNotifications extends Component {
       });
     }
   }
+ 
 
   render() {
     console.log('notificationsList', this.state.notificationsList);
@@ -96,27 +96,7 @@ class AuditNotifications extends Component {
           </View>
           </ImageBackground>
 
-          {/* <View style={styles.header}>
-            <TouchableOpacity
-              onPress={() => this.props.navigation.goBack()}
-              style={styles.backlogo}>
-              <Icon name="angle-left" size={30} color="white" />
-            </TouchableOpacity>
-            <View style={styles.heading}>
-              <Text numberOfLines={1} style={styles.headingText}>
-                {strings.notifications}
-              </Text>
-            </View>
-            <View style={styles.headerDiv}>
-              <TouchableOpacity
-                style={{paddingHorizontal: 10}}
-                onPress={() =>
-                  this.props.navigation.navigate('AuditDashboard')
-                }>
-                <Icon name="home" size={30} color="white" />
-              </TouchableOpacity>
-            </View>
-          </View> */}
+        
         <View style={styles.body}>
           {this.state.notificationsList.length === 0 ? (
             <View style={styles.errorWrapper}>
@@ -154,7 +134,9 @@ class AuditNotifications extends Component {
             naviData={this.props.navigation}
           />
         )}
-        keyExtractor={item => item.key}
+        keyExtractor={(item, index) =>
+          String(item?.key ?? item?.ActualAuditId ?? item?.AuditNumber ?? index)
+        }
         onEndReachedThreshold={Platform.OS === 'ios' ? 0 : 0.5}
         onEndReached={({distanceFromEnd}) => {
           if (!this.onEndReachedCalledDuringMomentum) {

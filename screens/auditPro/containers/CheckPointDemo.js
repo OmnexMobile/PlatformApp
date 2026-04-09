@@ -7596,7 +7596,7 @@ class CheckPointDemo extends Component {
                                                                         <Icon
                                                                             name="paperclip"
                                                                             size={20}
-                                                                            color="#2D7FBE"
+                                                                            color="#123C95"
                                                                             style={styles.attachmentActionIcon}
                                                                         />
                                                                         <Text style={styles.attachmentActionLabel}>Add Attachment</Text>
@@ -8830,25 +8830,47 @@ class CheckPointDemo extends Component {
                 )}
 
                 {this.state.checkpointList.length > 0 && (
-                    <View style={styles.actionBar}>
-                        <TouchableOpacity onPress={() => this.setState({ dialogVisibleReset: true })} style={styles.resetButton}>
-                            <Icon name="rotate-ccw" size={20} color="white" />
-                            <Text style={styles.actionButtonText}>{strings.clearall}</Text>
-                        </TouchableOpacity>
+                    <View style={[styles.footer, styles.footerWhite]}>
+                        <View style={styles.footerDiv}>
+                            <View style={styles.footerActionRow}>
+                                <TouchableOpacity
+                                    style={[styles.footerActionButton, styles.footerActionButtonLeft]}
+                                    onPress={() => this.setState({ dialogVisibleReset: true })}>
+                                    <LinearGradient
+                                        start={{ x: 0, y: 0 }}
+                                        end={{ x: 1, y: 0 }}
+                                        colors={FOOTER_BUTTON_GRADIENT}
+                                        style={styles.footerGradientButton}>
+                                        <Icon name="rotate-ccw" size={20} color="#FFFFFF" />
+                                        <Text numberOfLines={1} style={styles.footerActionText}>
+                                            {strings.Reset}
+                                        </Text>
+                                    </LinearGradient>
+                                </TouchableOpacity>
 
-                        <TouchableOpacity
-                            onPress={debounce(this.updateCheckPointsValues.bind(this), 1500)}
-                            disabled={this.state.isSaving}
-                            style={[styles.saveButton, this.state.isSaving && styles.saveButtonDisabled]}>
-                            {this.state.isSaving ? (
-                                <ActivityIndicator size="small" color="#fff" />
-                            ) : (
-                                <>
-                                    <Icon name="save" size={20} color="white" />
-                                    <Text style={styles.actionButtonText}>{strings.Save}</Text>
-                                </>
-                            )}
-                        </TouchableOpacity>
+                                <TouchableOpacity
+                                    style={[styles.footerActionButton, styles.footerActionButtonRight]}
+                                    onPress={debounce(this.updateCheckPointsValues.bind(this), 1500)}
+                                    disabled={this.state.isSaving}>
+                                    <LinearGradient
+                                        start={{ x: 0, y: 0 }}
+                                        end={{ x: 1, y: 0 }}
+                                        colors={FOOTER_BUTTON_GRADIENT}
+                                        style={[styles.footerGradientButton, this.state.isSaving && styles.saveButtonDisabled]}>
+                                        {this.state.isSaving ? (
+                                            <ActivityIndicator size="small" color="#FFFFFF" />
+                                        ) : (
+                                            <>
+                                                <Icon name="save" size={20} color="#FFFFFF" />
+                                                <Text numberOfLines={1} style={styles.footerActionText}>
+                                                    {strings.Save}
+                                                </Text>
+                                            </>
+                                        )}
+                                    </LinearGradient>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
                     </View>
                 )}
 
