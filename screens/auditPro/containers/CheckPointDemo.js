@@ -54,6 +54,7 @@ import RichText from '../components/RichText';
 import LinearGradient from 'react-native-linear-gradient';
 import GlobalHeader from 'components/GlobalHeader';
 import AttachmentSelectionModal from 'components/attachment-selection-modal';
+import AnimatedLottieView from 'lottie-react-native';
 const INITIAL_WINDOW = Dimensions.get('window');
 const SERIAL_GRID_MIN_WIDTH = 96;
 const SERIAL_GRID_HEIGHT = 62;
@@ -8816,7 +8817,15 @@ class CheckPointDemo extends Component {
                                 </View>
                             </View>
                         ) : (
-                            <View style={styles.listMarginTop}>
+                            <View style={styles.noRecordsContainer}>
+                                <AnimatedLottieView
+                                    source={require('../../../assets/lottie/norecords.json')}
+                                    autoPlay
+                                    loop
+                                    renderMode="SOFTWARE"
+                                    resizeMode="contain"
+                                    style={styles.noRecordsLottie}
+                                />
                                 <Text style={styles.noRecordsFound}>{strings.No_checkpoints_found}</Text>
                             </View>
                         )}

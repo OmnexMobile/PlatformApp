@@ -696,11 +696,19 @@ export default StyleSheet.create({
   noRecordsFound: {
     width: '100%',
     textAlign: 'center',
-    marginTop: 45,
     fontSize: Fonts.size.h5,
-    paddingTop: 40,
     color: 'grey',
     fontFamily: 'OpenSans-Regular',
+  },
+  noRecordsContainer: {
+    marginTop: 55,
+    minHeight: 280,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  noRecordsLottie: {
+    width: Window.width * 0.44,
+    height: Window.width * 0.44,
   },
 
   // Attachments

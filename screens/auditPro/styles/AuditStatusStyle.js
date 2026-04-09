@@ -1,6 +1,7 @@
 import { StyleSheet, Dimensions} from 'react-native'
 import { width, height } from 'react-native-dimension'
 import Fonts from '../Themes/Fonts'
+import { COLORS } from 'constants/theme-constants';
 
 let Window = Dimensions.get('window')
 
@@ -88,7 +89,7 @@ export default StyleSheet.create({
     justifyContent:'center',
     width:60,
     height:60,
-    backgroundColor:'#00b3d6',
+    backgroundColor: COLORS.primaryDarkThemeColor,
     borderRadius:100,
     elevation:15,
   },
@@ -159,6 +160,21 @@ export default StyleSheet.create({
     fontSize: Fonts.size.regular, 
     color: '#1d1d1d',
     fontFamily:'OpenSans-Regular'
+  },
+  noRecordsContainer: {
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 24,
+  },
+  noRecordsLottie: {
+    width: Window.width * 0.5,
+    height: Window.width * 0.5,
+  },
+  noRecordsText: {
+    marginTop: 8,
+    fontSize: 18,
+    fontFamily: 'OpenSans-Regular',
   },
   div1:{
   width:Window.width,

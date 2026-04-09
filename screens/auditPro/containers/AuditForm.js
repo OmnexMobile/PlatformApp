@@ -48,7 +48,7 @@ import Moment from 'moment';
 import constants from '../constants/AppConstants';
 import { ROUTES, ICON_TYPE } from 'constants/app-constant';
 import AsyncStorage from '@react-native-community/async-storage';
-import { SPACING } from 'constants/theme-constants';
+import { COLORS, SPACING } from 'constants/theme-constants';
 import SQLite from 'react-native-sqlite-storage';
 import GlobalHeader from 'components/GlobalHeader';
 import FAB from 'components/fab';
@@ -1747,6 +1747,8 @@ class AuditForm extends Component {
                 source={require('../../../assets/lottie/norecords.json')}
                 autoPlay
                 loop
+                renderMode="SOFTWARE"
+                resizeMode="contain"
                 style={styles.emptyLottie}
             />
             <Text style={styles.emptyText}>{message}</Text>
@@ -3565,11 +3567,11 @@ class AuditForm extends Component {
                             renderTabBar={() => (
                                 <DefaultTabBar
                                     backgroundColor="white"
-                                    activeTextColor="#2CB5FD"
+                                    activeTextColor={COLORS.primaryDarkThemeColor}
                                     inactiveTextColor="#747474"
                                     underlineStyle={{
-                                        backgroundColor: '#2CB5FD',
-                                        borderBottomColor: '#2CB5FD',
+                                        backgroundColor: COLORS.primaryDarkThemeColor,
+                                        borderBottomColor: COLORS.primaryDarkThemeColor,
                                         height: Platform.select({
                                             android: 0,
                                             ios: 5,

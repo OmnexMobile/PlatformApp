@@ -668,6 +668,12 @@ alignContent:'center',    borderWidth: 1,
   },
   emptyState: {
     marginTop: '20%',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emptyLottie: {
+    width: Window.width * 0.44,
+    height: Window.width * 0.44,
   },
   emptyRowCenter: {
     flexDirection: 'row',

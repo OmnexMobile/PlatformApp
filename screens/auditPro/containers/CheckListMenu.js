@@ -20,6 +20,7 @@ import { stat } from 'react-native-fs';
 import { ROUTES } from 'constants/app-constant';
 import { SPACING} from 'constants/theme-constants';
 import GlobalHeader from 'components/GlobalHeader';
+import AnimatedLottieView from 'lottie-react-native';
 
 import localStorage from 'global/localStorage';
 
@@ -498,15 +499,30 @@ class CheckListMenu extends Component {
                   </View>
                 </ScrollView>
               ) : !this.state.pageLoader ? (
-                <View
-                  style={styles.emptyOverlay}>
+                <View style={[styles.emptyOverlay, styles.emptyOverlayVisible]}>
+                  <AnimatedLottieView
+                    source={require('../../../assets/lottie/norecords.json')}
+                    autoPlay
+                    loop
+                    renderMode="SOFTWARE"
+                    resizeMode="contain"
+                    style={styles.emptyLottie}
+                  />
                   <Text style={styles.emptyText}>
                     No checklists found!
                   </Text>
                 </View>
               ) : null
             ) : !this.state.pageLoader ? (
-              <View style={styles.emptyOverlay}>
+              <View style={[styles.emptyOverlay, styles.emptyOverlayVisible]}>
+                <AnimatedLottieView
+                  source={require('../../../assets/lottie/norecords.json')}
+                  autoPlay
+                  loop
+                  renderMode="SOFTWARE"
+                  resizeMode="contain"
+                  style={styles.emptyLottie}
+                />
                 <Text style={styles.emptyText}>
                   {strings.No_checklists_found}
                 </Text>

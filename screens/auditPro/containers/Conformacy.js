@@ -38,7 +38,7 @@ import AsyncStorage from "@react-native-community/async-storage";
 import ConformacyText from './ConformacyText';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import { ROUTES, ICON_TYPE } from 'constants/app-constant';
-import { SPACING } from 'constants/theme-constants';
+import { COLORS, SPACING } from 'constants/theme-constants';
 import OfflineNotice from '../components/OfflineNotice';
 import NetInfo from '@react-native-community/netinfo';
 import GlobalHeader from 'components/GlobalHeader';
@@ -1076,19 +1076,19 @@ class Conformacy extends React.Component {
               <TouchableOpacity
                   style={{paddingHorizontal: 5}}
                   onPress={() => this.onsyncToServer()}>
-                  <Icon name="upload" size={22} color="#00b3d6" />
+                  <Icon name="upload" size={22} color={COLORS.primaryDarkThemeColor} />
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={{paddingHorizontal: 5}}
                   onPress={() => this.refreshConformance()}>
-                  <Icon name="refresh-ccw" size={22} color="#00b3d6" />
+                  <Icon name="refresh-ccw" size={22} color={COLORS.primaryDarkThemeColor} />
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={{paddingHorizontal: 5}}
                   onPress={() =>
                     this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)
                   }>
-                  <Icon name="home" size={25} color="#00b3d6" />
+                  <Icon name="home" size={25} color={COLORS.primaryDarkThemeColor} />
                 </TouchableOpacity>
               </View>
             }
@@ -1184,6 +1184,7 @@ class Conformacy extends React.Component {
             iconType={ICON_TYPE.Feather}
             iconName={this.state.loadingSync ? 'loader' : 'refresh-ccw'}
             bottom={SPACING.LARGE}
+            color={COLORS.primaryDarkThemeColor}
             disabled={this.state.loadingSync}
             onPress={() => {
               if (!this.state.loadingSync) {

@@ -76,6 +76,9 @@ export default StyleSheet.create({
     listPadding: {
         paddingBottom: 85
     },
+    emptyListContent: {
+        flexGrow: 1,
+    },
     appHeight: {
         flex: 1
     },
