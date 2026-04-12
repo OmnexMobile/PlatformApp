@@ -21,13 +21,14 @@ target 'IntegratedApp' do
   pod 'react-native-fetch-blob', :path => '../node_modules/react-native-fetch-blob'
 
   flags = get_default_flags()
-
+use_frameworks! :linkage => :static
+$RNFirebaseAsStaticFramework = true
   use_react_native!(
     :path => config[:reactNativePath],
     :hermes_enabled => false,
     :fabric_enabled => flags[:fabric_enabled],
     # FIX 2: Flipper is managed here; I removed the 'use_flipper!' line from above
-    :flipper_configuration => FlipperConfiguration.enabled,
+    # :flipper_configuration => FlipperConfiguration.enabled,
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
 
@@ -43,7 +44,7 @@ target 'IntegratedApp' do
   end
 
   post_install do |installer|
-    flipper_post_install(installer)
+    # flipper_post_install(installer)
     installer.pods_project.targets.each do |target| # Simplified targeting
       target.build_configurations.each do |config|
         config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.0'

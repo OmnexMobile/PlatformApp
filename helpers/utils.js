@@ -7,6 +7,16 @@ import useTheme from 'theme/useTheme';
 import { LOCAL_STORAGE_VARIABLES, TOAST_STATUS } from 'constants/app-constant';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { check, request, openSettings, PERMISSIONS, RESULTS } from 'react-native-permissions';
+import { getApp } from '@react-native-firebase/app';
+import { 
+  getMessaging, 
+  requestPermission, 
+  getToken, 
+  getAPNSToken,
+  isDeviceRegisteredForRemoteMessages,
+  registerDeviceForRemoteMessages
+} from '@react-native-firebase/messaging';
+
 export const getAvatarInitials = textString => {
     if (!textString) return '';
     const text = textString.trim();
@@ -206,51 +216,90 @@ export const requestAllPermissionsOnce = async () => {
 
 
 export async function requestNotificationPermission() {
- let status;
+  const firebaseApp = getApp();
+  const messaging = getMessaging(firebaseApp);
 
-  // --- 1. HANDLE ANDROID 13+ ---
+  // --- 1. ANDROID 13+ ---
   if (Platform.OS === 'android' && Platform.Version >= 33) {
-    // Use the raw string since your library constant is missing
     const androidPermission = 'android.permission.POST_NOTIFICATIONS';
-    status = await check(androidPermission);
+    let status = await check(androidPermission);
 
     if (status === RESULTS.DENIED) {
       status = await request(androidPermission);
     }
-  } 
-  
-  // --- 2. HANDLE IOS ---
-  else if (Platform.OS === 'ios') {
-    status = await check(PERMISSIONS.IOS.NOTIFICATIONS);
 
-    if (status === RESULTS.DENIED) {
-      status = await request(PERMISSIONS.IOS.NOTIFICATIONS);
+    if (status === RESULTS.GRANTED) {
+      console.log('✅ Android Notification Permission Granted');
+      const token = await getToken(messaging);
+      console.log('FCM Token:', token);
+      return true;
     }
-  } 
-  
-  // --- 3. HANDLE OLDER ANDROID (API < 33) ---
-  else {
-    // On Android 12 and below, permissions are granted by default on install
-    console.log("Older Android version: Notifications granted by default.");
-    return true;
+
+    if (status === RESULTS.BLOCKED) {
+      Alert.alert(
+        'Notifications Disabled',
+        'Enable notifications from settings.',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Open Settings', onPress: openSettings },
+        ]
+      );
+    }
+    return false;
   }
 
-  // --- 4. HANDLE FINAL STATUS ---
-  if (status === RESULTS.GRANTED) {
-    console.log("Permission Granted");
-    return true;
+  // --- 2. IOS ---
+  if (Platform.OS === 'ios') {
+    // Modular requestPermission
+    const authStatus = await requestPermission(messaging);
+
+    // Status 1 = Authorized, 2 = Provisional
+    const enabled = authStatus === 1 || authStatus === 2;
+    console.log('iOS Permission Status:', authStatus);
+
+    if (!enabled) {
+      Alert.alert(
+        'Notifications Disabled',
+        'Please enable notifications in settings.',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Open Settings', onPress: openSettings },
+        ]
+      );
+      return false;
+    }
+
+    try {
+      // Check if already registered to avoid redundant calls/warnings
+      if (!isDeviceRegisteredForRemoteMessages(messaging)) {
+        await registerDeviceForRemoteMessages(messaging);
+      }
+
+      // getAPNSToken is used primarily to verify Apple connectivity
+      const apnsToken = await getAPNSToken(messaging);
+      
+      if (!apnsToken) {
+        console.warn('❌ APNS token not available (Likely running on Simulator)');
+        // Note: You can still try to get the FCM token, but it might fail on physical devices without APNS
+      } else {
+        console.log('✅ APNS Token:', apnsToken);
+      }
+
+      // Get FCM token
+      const fcmToken = await getToken(messaging);
+      console.log('✅ FCM Token:', fcmToken);
+
+      return true;
+    } catch (error) {
+      console.error('❌ iOS Notification Setup Error:', error);
+      return false;
+    }
   }
 
-  if (status === RESULTS.BLOCKED) {
-    Alert.alert(
-      'Notifications Disabled',
-      'You have blocked notifications. Please enable them in settings to stay updated.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Open Settings', onPress: () => openSettings() },
-      ]
-    );
-  }
+  // --- 3. ANDROID < 13 ---
+  console.log('✅ Older Android: Permission auto granted');
+  const token = await getToken(messaging);
+  console.log('FCM Token:', token);
 
-  return false;
+  return true;
 }
