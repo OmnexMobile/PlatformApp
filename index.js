@@ -15,4 +15,5 @@ setBackgroundMessageHandler(getMessaging(), async remoteMessage => {
   console.log('🟡 Background received:', remoteMessage);
 });
 console.log('Registering App');
+
 AppRegistry.registerComponent(appName, () => App);

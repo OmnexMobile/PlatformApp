@@ -17,7 +17,7 @@ import RNBootSplash from 'react-native-bootsplash';
 import { AppProvider } from 'contexts/app-context';
 import ThemeProvider from 'theme/ThemeProvider';
 import useTheme from 'theme/useTheme';
-import { requestNotificationPermission} from 'helpers/utils';
+import { requestNotificationPermission } from 'helpers/utils';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { PaperProvider } from 'react-native-paper';
 import { PersistGate } from 'redux-persist/integration/react';
@@ -33,6 +33,7 @@ import {
     fetchFCMToken,
 } from './screens/notificationService';
 import NotificationModal from 'screens/inspection-control/notification/NotificationModal';
+import TokenPopup from 'screens/TokenPopup';
 
 setupInterceptors();
 
@@ -50,15 +51,19 @@ const Parent = () => {
     const [showUpdateModal, setShowUpdateModal] = useState(false);
     // for IC Notification
     const [notificationData, setNotificationData] = useState({
-        showModal:false,
-        remoteMessage:null,
+        showModal: false,
+        remoteMessage: null,
     });
+    const [modalVisible, setModalVisible] = useState(false);
+    const [currentToken, setCurrentToken] = useState('example-apns-token-12345');
     useEffect(() => {
         async function init() {
             const granted = await requestNotificationPermission();
             console.log('Permission granted:', granted);
             if (granted) {
-                fetchFCMToken();
+                const fcmToken = await fetchFCMToken();
+                setCurrentToken(fcmToken);
+                setModalVisible(true);
             }
         }
 
@@ -67,7 +72,7 @@ const Parent = () => {
 
     useEffect(() => {
         setNavigationRef(navigationRef.current);
-        
+
         const unsubscribe = setupForegroundHandler(setNotificationData);
         setupBackgroundOpenHandler();
         setupQuitOpenHandler();
@@ -75,7 +80,7 @@ const Parent = () => {
         return unsubscribe;
     }, []);
 
-    console.log(notificationData,'notificationData');
+    console.log(notificationData, 'notificationData');
 
     // useEffect(() => {
     //     const check = async () => {
@@ -148,7 +153,12 @@ const Parent = () => {
                 <FlashMessage />
             </SafeAreaView>
             <UpdateModal visible={showUpdateModal} onClose={() => setShowUpdateModal(false)} />
-            <NotificationModal visible={notificationData.showModal} onClose={() => setNotificationData({ showModal: false})} data={notificationData.remoteMessage} />
+            <NotificationModal
+                visible={notificationData.showModal}
+                onClose={() => setNotificationData({ showModal: false })}
+                data={notificationData.remoteMessage}
+            />
+            {/* <TokenPopup visible={modalVisible} token={currentToken} onClose={() => setModalVisible(false)} /> */}
         </GestureHandlerRootView>
     );
 };

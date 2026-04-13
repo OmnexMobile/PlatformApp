@@ -16,10 +16,10 @@ const persistConfig = {
 };
 const persistedReducer = persistReducer(persistConfig, rootReducers);
 
-if (__DEV__) {
-    const createDebugger = require('redux-flipper').default;
-    middleware.push(createDebugger());
-}
+// if (__DEV__) {
+//     const createDebugger = require('redux-flipper').default;
+//     middleware.push(createDebugger());
+// }
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
     ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({

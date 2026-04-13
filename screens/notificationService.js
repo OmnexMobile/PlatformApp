@@ -16,6 +16,7 @@ export async function fetchFCMToken() {
   const messaging = getMessaging();
   const token = await getToken(messaging);
   console.log('🔥 FCM TOKEN :', token);
+  return token;
 }
 
 // 🟢 FOREGROUND (App is OPEN)
