@@ -35,7 +35,7 @@ import constant from '../../../constants/SupplierMgnt/AppConstants';
 // Voice packages
 import Voice from '@react-native-community/voice';
 import Tts from 'react-native-tts';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import RNFetchBlob from 'react-native-fetch-blob';
 import ToastNew, { ErrorToast } from 'react-native-toast-message';
 import { ROUTES } from 'constants/app-constant';

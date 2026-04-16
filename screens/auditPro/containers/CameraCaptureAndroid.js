@@ -29,7 +29,7 @@ import { Image as compressImage, Video, getVideoMetaData} from 'react-native-com
 import styles from '../styles/CameraCaptureStyle';
 import { ROUTES } from 'constants/app-constant';
 import { SPACING } from 'constants/theme-constants';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import GlobalHeader from 'components/GlobalHeader';
  
 class CameraCapture extends Component {

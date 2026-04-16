@@ -53,10 +53,6 @@ const Modal = ({
         setInputs(dynamicInputs?.data?.map(data => ({ ...data, keyboardType: 'numeric' })));
     }, [dynamicInputs?.data]);
 
-    // useEffect(() => {
-    //     selectedTeam?.name && handleInputChange?.(selectedTeam?.name);
-    // }, [selectedTeam?.name]);
-
     const handleDynamicInputChange = (label, value) => {
         const updatedInputs = inputs?.map(input => ({
             ...input,
@@ -85,7 +81,7 @@ const Modal = ({
                 label: 'Currency',
                 masterurl: '',
                 name: 'CurrencyId',
-                required: false,
+                required: false,    
                 search: false,
                 type: 'DROPDOWN',
                 value: '',

@@ -16,7 +16,7 @@ import Toast, { DURATION } from "react-native-easy-toast";
 // import SegmentedControlTab from "react-native-segmented-control-tab";
 // import DropdownMenu from "react-native-dropdown-menu";
 import auth from "../../../services/APQP-Auth";
-import AsyncStorage from "@react-native-community/async-storage";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { strings } from "../language/Language";
 // Styles
 import styles from "./styles/PeriodicUpdateStyles";

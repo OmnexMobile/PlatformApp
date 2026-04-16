@@ -22,7 +22,7 @@ import {ActivityIndicator} from 'react-native';
 import {Dropdown} from 'react-native-element-dropdown';
 import { SPACING } from 'constants/theme-constants';
 import { ROUTES } from 'constants/app-constant';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // const nodeColors = ["rgb(168,224,166)", "rgb(255,206,101)", "rgb(252,151,96)", "#138D75",
 //     "#E59866", "#5D6D7E", "#9B59B6", "#E74C3C", "#48C9B0", "#FA8072", "#FF00FF", "#000080"]

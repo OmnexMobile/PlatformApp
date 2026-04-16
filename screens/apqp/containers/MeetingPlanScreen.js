@@ -17,7 +17,7 @@ import { ConfirmDialog } from "react-native-simple-dialogs";
 import Toast, { DURATION } from "react-native-easy-toast";
 import { strings } from "../language/Language";
 // Styles
-import AsyncStorage from "@react-native-community/async-storage";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import styles from "./styles/MeetingPlanStyles";
 
 import Moment from "moment";

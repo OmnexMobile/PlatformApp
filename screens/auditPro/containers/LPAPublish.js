@@ -24,7 +24,7 @@ import TableRenderer, {tableModel} from '@native-html/table-plugin';
 // import {WebView} from 'react-native-webview';
 import LinearGradient from 'react-native-linear-gradient';
 // import {TabRouter} from 'react-navigation';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import auth from '../../../services/Auditpro-Auth';
 import Moment from 'moment';
 import ToastNew, {SuccessToast} from 'react-native-toast-message';

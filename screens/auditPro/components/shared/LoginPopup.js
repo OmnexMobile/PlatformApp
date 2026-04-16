@@ -13,7 +13,7 @@ import CryptoJS from 'crypto-js';
 import auth from '../../../../services/Auditpro-Auth';
 import { connect, useDispatch } from 'react-redux';
 import { storeLoginData, storeSupplierManagement, storeUserName } from 'store/AuditPro/auditRedux';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { showErrorMessage, showWarningMessage } from 'helpers/utils';
 
 

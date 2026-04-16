@@ -34,7 +34,7 @@ let Window = Dimensions.get("window");
 const moment = extendMoment(Moment);
 
 import Icon from "react-native-vector-icons/FontAwesome";
-import AsyncStorage from "@react-native-community/async-storage";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // ApqpProjectScreenStyle
 // Styles

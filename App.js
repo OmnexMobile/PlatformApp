@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Provider } from 'react-redux';
-import { useColorScheme, View } from 'react-native';
+import { InteractionManager, useColorScheme, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 // import { Colors } from 'react-native/Libraries/NewAppScreen';
 import FlashMessage from 'react-native-flash-message';
@@ -27,7 +27,6 @@ import { createInspectTable } from 'store/database/inspectStorage';
 import { checkForUpdate } from 'helpers/updateAppAlert';
 import UpdateModal from 'helpers/UpdateModal';
 import { loadGlobalUrls } from 'screens/globalConstant/globalURL';
-import { refreshUrlsFromGlobals } from 'services/AuditPro-Api';
 import { LogBox } from 'react-native';
 import { android15FooterPadding, android15HeaderPadding } from './screens/auditPro/Themes/AndroidInsets';
 
@@ -49,30 +48,28 @@ const Parent = () => {
     };
 
     const [showUpdateModal, setShowUpdateModal] = useState(false);
-    const [reduxReady, setReduxReady] = useState(false);
-    const [navReady, setNavReady] = useState(false);
     const [splashHidden, setSplashHidden] = useState(false);
+
+    const hideSplash = useCallback(() => {
+        if (splashHidden) {
+            return;
+        }
+        RNBootSplash.hide({ fade: true }).catch(() => {});
+        setSplashHidden(true);
+    }, [splashHidden]);
 
     useEffect(() => {
         LogBox.ignoreAllLogs();
     }, []);
 
     useEffect(() => {
-        // Hide only after both redux and navigation are ready, with a safety timeout.
-        const hideSplash = () => {
-            if (splashHidden) return;
-            RNBootSplash.hide({ fade: true }).catch(() => {});
-            setSplashHidden(true);
-        };
-        if (reduxReady && navReady) {
-            hideSplash();
-            return;
-        }
+        // Never keep the native splash on screen indefinitely while async startup work settles.
         const timer = setTimeout(() => {
             hideSplash();
-        }, 8000);
+        }, 1500);
+
         return () => clearTimeout(timer);
-    }, [reduxReady, navReady, splashHidden]);
+    }, [hideSplash]);
 
     // useEffect(() => {
     //     const check = async () => {
@@ -92,11 +89,23 @@ const Parent = () => {
     };
 
     useEffect(() => {
-        (async () => {
-            await loadGlobalUrls();
-            refreshUrlsFromGlobals();
-            await createInspectTable();
-        })();
+        let isCancelled = false;
+        const deferredTask = InteractionManager.runAfterInteractions(() => {
+            (async () => {
+                try {
+                    await loadGlobalUrls();
+                    if (isCancelled) return;
+                    await createInspectTable();
+                } catch (error) {
+                    console.error('Startup initialization failed', error);
+                }
+            })();
+        });
+
+        return () => {
+            isCancelled = true;
+            deferredTask.cancel();
+        };
     }, []);
 
     useEffect(() => {
@@ -125,18 +134,12 @@ const Parent = () => {
                             </View>
                         }
                         persistor={persistor}
-                        onBeforeLift={() => setReduxReady(true)}>
+                        onBeforeLift={hideSplash}>
                         <AppProvider>
                             <PaperProvider>
                                 <StatusBarAndroidIOS />
-                                <NavigationContainer onReady={() => setNavReady(true)}>
-                                    {!reduxReady || !navReady ? (
-                                        <View style={{ flex: 1, backgroundColor: theme.mode.backgroundColor }}>
-                                            <StatusBarAndroidIOS />
-                                        </View>
-                                    ) : (
-                                        <AppStack />
-                                    )}
+                                <NavigationContainer onReady={hideSplash}>
+                                    <AppStack />
                                 </NavigationContainer>
                                 {/* {warningList?.loading ? (x
                         <Loader />

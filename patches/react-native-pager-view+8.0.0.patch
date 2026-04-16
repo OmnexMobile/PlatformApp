@@ -1,0 +1,765 @@
+diff --git a/node_modules/react-native-pager-view/android/build/generated/source/buildConfig/debug/com/reactnativepagerview/BuildConfig.java b/node_modules/react-native-pager-view/android/build/generated/source/buildConfig/debug/com/reactnativepagerview/BuildConfig.java
+new file mode 100644
+index 0000000..375a81c
+--- /dev/null
++++ b/node_modules/react-native-pager-view/android/build/generated/source/buildConfig/debug/com/reactnativepagerview/BuildConfig.java
+@@ -0,0 +1,14 @@
++/**
++ * Automatically generated file. DO NOT MODIFY
++ */
++package com.reactnativepagerview;
++
++public final class BuildConfig {
++  public static final boolean DEBUG = Boolean.parseBoolean("true");
++  public static final String LIBRARY_PACKAGE_NAME = "com.reactnativepagerview";
++  public static final String BUILD_TYPE = "debug";
++  // Field from default config.
++  public static final String CODEGEN_MODULE_REGISTRATION = null;
++  // Field from default config.
++  public static final boolean IS_NEW_ARCHITECTURE_ENABLED = false;
++}
+diff --git a/node_modules/react-native-pager-view/android/build/intermediates/aapt_friendly_merged_manifests/debug/aapt/AndroidManifest.xml b/node_modules/react-native-pager-view/android/build/intermediates/aapt_friendly_merged_manifests/debug/aapt/AndroidManifest.xml
+new file mode 100644
+index 0000000..d3c169c
+--- /dev/null
++++ b/node_modules/react-native-pager-view/android/build/intermediates/aapt_friendly_merged_manifests/debug/aapt/AndroidManifest.xml
+@@ -0,0 +1,7 @@
++<?xml version="1.0" encoding="utf-8"?>
++<manifest xmlns:android="http://schemas.android.com/apk/res/android"
++    package="com.reactnativepagerview" >
++
++    <uses-sdk android:minSdkVersion="24" />
++
++</manifest>
+\ No newline at end of file
+diff --git a/node_modules/react-native-pager-view/android/build/intermediates/aapt_friendly_merged_manifests/debug/aapt/output-metadata.json b/node_modules/react-native-pager-view/android/build/intermediates/aapt_friendly_merged_manifests/debug/aapt/output-metadata.json
+new file mode 100644
+index 0000000..c55d178
+--- /dev/null
++++ b/node_modules/react-native-pager-view/android/build/intermediates/aapt_friendly_merged_manifests/debug/aapt/output-metadata.json
+@@ -0,0 +1,18 @@
++{
++  "version": 3,
++  "artifactType": {
++    "type": "AAPT_FRIENDLY_MERGED_MANIFESTS",
++    "kind": "Directory"
++  },
++  "applicationId": "com.reactnativepagerview",
++  "variantName": "debug",
++  "elements": [
++    {
++      "type": "SINGLE",
++      "filters": [],
++      "attributes": [],
++      "outputFile": "AndroidManifest.xml"
++    }
++  ],
++  "elementType": "File"
++}
+\ No newline at end of file
+diff --git a/node_modules/react-native-pager-view/android/build/intermediates/aar_metadata/debug/aar-metadata.properties b/node_modules/react-native-pager-view/android/build/intermediates/aar_metadata/debug/aar-metadata.properties
+new file mode 100644
+index 0000000..1211b1e
+--- /dev/null
++++ b/node_modules/react-native-pager-view/android/build/intermediates/aar_metadata/debug/aar-metadata.properties
+@@ -0,0 +1,6 @@
++aarFormatVersion=1.0
++aarMetadataVersion=1.0
++minCompileSdk=1
++minCompileSdkExtension=0
++minAndroidGradlePluginVersion=1.0.0
++coreLibraryDesugaringEnabled=false
+diff --git a/node_modules/react-native-pager-view/android/build/intermediates/annotation_processor_list/debug/annotationProcessors.json b/node_modules/react-native-pager-view/android/build/intermediates/annotation_processor_list/debug/annotationProcessors.json
+new file mode 100644
+index 0000000..9e26dfe
+--- /dev/null
++++ b/node_modules/react-native-pager-view/android/build/intermediates/annotation_processor_list/debug/annotationProcessors.json
+@@ -0,0 +1 @@
++{}
+\ No newline at end of file
+diff --git a/node_modules/react-native-pager-view/android/build/intermediates/compile_library_classes_jar/debug/classes.jar b/node_modules/react-native-pager-view/android/build/intermediates/compile_library_classes_jar/debug/classes.jar
+new file mode 100644
+index 0000000..d3b95bb
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/intermediates/compile_library_classes_jar/debug/classes.jar differ
+diff --git a/node_modules/react-native-pager-view/android/build/intermediates/compile_r_class_jar/debug/R.jar b/node_modules/react-native-pager-view/android/build/intermediates/compile_r_class_jar/debug/R.jar
+new file mode 100644
+index 0000000..2d88590
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/intermediates/compile_r_class_jar/debug/R.jar differ
+diff --git a/node_modules/react-native-pager-view/android/build/intermediates/compile_symbol_list/debug/R.txt b/node_modules/react-native-pager-view/android/build/intermediates/compile_symbol_list/debug/R.txt
+new file mode 100644
+index 0000000..e69de29
+diff --git a/node_modules/react-native-pager-view/android/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties b/node_modules/react-native-pager-view/android/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties
+new file mode 100644
+index 0000000..0ef32c3
+--- /dev/null
++++ b/node_modules/react-native-pager-view/android/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties
+@@ -0,0 +1 @@
++#Fri Mar 20 12:57:17 IST 2026
+diff --git a/node_modules/react-native-pager-view/android/build/intermediates/incremental/debug/packageDebugResources/merger.xml b/node_modules/react-native-pager-view/android/build/intermediates/incremental/debug/packageDebugResources/merger.xml
+new file mode 100644
+index 0000000..17ac153
+--- /dev/null
++++ b/node_modules/react-native-pager-view/android/build/intermediates/incremental/debug/packageDebugResources/merger.xml
+@@ -0,0 +1,2 @@
++<?xml version="1.0" encoding="utf-8"?>
++<merger version="3"><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="main$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="C:\Users\Omnex\PlatformApp\node_modules\react-native-pager-view\android\src\main\res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="main" generated-set="main$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="C:\Users\Omnex\PlatformApp\node_modules\react-native-pager-view\android\src\main\res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="debug$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="C:\Users\Omnex\PlatformApp\node_modules\react-native-pager-view\android\src\debug\res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="debug" generated-set="debug$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="C:\Users\Omnex\PlatformApp\node_modules\react-native-pager-view\android\src\debug\res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="generated$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="C:\Users\Omnex\PlatformApp\node_modules\react-native-pager-view\android\build\generated\res\resValues\debug"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="generated" generated-set="generated$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="C:\Users\Omnex\PlatformApp\node_modules\react-native-pager-view\android\build\generated\res\resValues\debug"/></dataSet><mergedItems/></merger>
+\ No newline at end of file
+diff --git a/node_modules/react-native-pager-view/android/build/intermediates/javac/debug/classes/com/reactnativepagerview/BuildConfig.class b/node_modules/react-native-pager-view/android/build/intermediates/javac/debug/classes/com/reactnativepagerview/BuildConfig.class
+new file mode 100644
+index 0000000..f72c43f
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/intermediates/javac/debug/classes/com/reactnativepagerview/BuildConfig.class differ
+diff --git a/node_modules/react-native-pager-view/android/build/intermediates/local_only_symbol_list/debug/R-def.txt b/node_modules/react-native-pager-view/android/build/intermediates/local_only_symbol_list/debug/R-def.txt
+new file mode 100644
+index 0000000..78ac5b8
+--- /dev/null
++++ b/node_modules/react-native-pager-view/android/build/intermediates/local_only_symbol_list/debug/R-def.txt
+@@ -0,0 +1,2 @@
++R_DEF: Internal format may change without notice
++local
+diff --git a/node_modules/react-native-pager-view/android/build/intermediates/manifest_merge_blame_file/debug/manifest-merger-blame-debug-report.txt b/node_modules/react-native-pager-view/android/build/intermediates/manifest_merge_blame_file/debug/manifest-merger-blame-debug-report.txt
+new file mode 100644
+index 0000000..59066ab
+--- /dev/null
++++ b/node_modules/react-native-pager-view/android/build/intermediates/manifest_merge_blame_file/debug/manifest-merger-blame-debug-report.txt
+@@ -0,0 +1,7 @@
++1<?xml version="1.0" encoding="utf-8"?>
++2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
++3    package="com.reactnativepagerview" >
++4
++5    <uses-sdk android:minSdkVersion="24" />
++6
++7</manifest>
+diff --git a/node_modules/react-native-pager-view/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml b/node_modules/react-native-pager-view/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml
+new file mode 100644
+index 0000000..d3c169c
+--- /dev/null
++++ b/node_modules/react-native-pager-view/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml
+@@ -0,0 +1,7 @@
++<?xml version="1.0" encoding="utf-8"?>
++<manifest xmlns:android="http://schemas.android.com/apk/res/android"
++    package="com.reactnativepagerview" >
++
++    <uses-sdk android:minSdkVersion="24" />
++
++</manifest>
+\ No newline at end of file
+diff --git a/node_modules/react-native-pager-view/android/build/intermediates/navigation_json/debug/navigation.json b/node_modules/react-native-pager-view/android/build/intermediates/navigation_json/debug/navigation.json
+new file mode 100644
+index 0000000..0637a08
+--- /dev/null
++++ b/node_modules/react-native-pager-view/android/build/intermediates/navigation_json/debug/navigation.json
+@@ -0,0 +1 @@
++[]
+\ No newline at end of file
+diff --git a/node_modules/react-native-pager-view/android/build/intermediates/symbol_list_with_package_name/debug/package-aware-r.txt b/node_modules/react-native-pager-view/android/build/intermediates/symbol_list_with_package_name/debug/package-aware-r.txt
+new file mode 100644
+index 0000000..5a35765
+--- /dev/null
++++ b/node_modules/react-native-pager-view/android/build/intermediates/symbol_list_with_package_name/debug/package-aware-r.txt
+@@ -0,0 +1 @@
++com.reactnativepagerview
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab
+new file mode 100644
+index 0000000..9650ba5
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream
+new file mode 100644
+index 0000000..b7192ce
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream.len b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream.len
+new file mode 100644
+index 0000000..eb9e230
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream.len differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.len b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.len
+new file mode 100644
+index 0000000..eb0b8a0
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.len differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.values.at b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.values.at
+new file mode 100644
+index 0000000..f37882c
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.values.at differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i
+new file mode 100644
+index 0000000..4063de4
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i.len b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i.len
+new file mode 100644
+index 0000000..131e265
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i.len differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab
+new file mode 100644
+index 0000000..a791826
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream
+new file mode 100644
+index 0000000..0dc5ee9
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream.len b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream.len
+new file mode 100644
+index 0000000..a32f5be
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream.len differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.len b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.len
+new file mode 100644
+index 0000000..cf8a30a
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.len differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.values.at b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.values.at
+new file mode 100644
+index 0000000..63c4975
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.values.at differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i
+new file mode 100644
+index 0000000..e5235e8
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i.len b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i.len
+new file mode 100644
+index 0000000..131e265
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i.len differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab
+new file mode 100644
+index 0000000..27da40f
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream
+new file mode 100644
+index 0000000..0dc5ee9
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream.len b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream.len
+new file mode 100644
+index 0000000..a32f5be
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream.len differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.len b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.len
+new file mode 100644
+index 0000000..cf8a30a
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.len differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.values.at b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.values.at
+new file mode 100644
+index 0000000..4d5d2ad
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.values.at differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i
+new file mode 100644
+index 0000000..e5235e8
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i.len b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i.len
+new file mode 100644
+index 0000000..131e265
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i.len differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab
+new file mode 100644
+index 0000000..c1342b6
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab.keystream b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab.keystream
+new file mode 100644
+index 0000000..85038bf
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab.keystream differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab.keystream.len b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab.keystream.len
+new file mode 100644
+index 0000000..f1eeb59
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab.keystream.len differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab.len b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab.len
+new file mode 100644
+index 0000000..93a595b
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab.len differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab.values.at b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab.values.at
+new file mode 100644
+index 0000000..ba86ebd
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab.values.at differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab_i b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab_i
+new file mode 100644
+index 0000000..7518ecf
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab_i differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab_i.len b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab_i.len
+new file mode 100644
+index 0000000..131e265
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab_i.len differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab
+new file mode 100644
+index 0000000..c4b1e76
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream
+new file mode 100644
+index 0000000..88783ad
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream.len b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream.len
+new file mode 100644
+index 0000000..f3591c6
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream.len differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.len b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.len
+new file mode 100644
+index 0000000..cf8a30a
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.len differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.values.at b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.values.at
+new file mode 100644
+index 0000000..d953f74
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.values.at differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i
+new file mode 100644
+index 0000000..edaeda4
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i.len b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i.len
+new file mode 100644
+index 0000000..131e265
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i.len differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/java-sources-proto-map.tab b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/java-sources-proto-map.tab
+new file mode 100644
+index 0000000..bdf584a
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/java-sources-proto-map.tab differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/java-sources-proto-map.tab.keystream b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/java-sources-proto-map.tab.keystream
+new file mode 100644
+index 0000000..455c6cc
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/java-sources-proto-map.tab.keystream differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/java-sources-proto-map.tab.keystream.len b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/java-sources-proto-map.tab.keystream.len
+new file mode 100644
+index 0000000..beea674
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/java-sources-proto-map.tab.keystream.len differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/java-sources-proto-map.tab.len b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/java-sources-proto-map.tab.len
+new file mode 100644
+index 0000000..2a17e6e
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/java-sources-proto-map.tab.len differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/java-sources-proto-map.tab.values.at b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/java-sources-proto-map.tab.values.at
+new file mode 100644
+index 0000000..b2fa035
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/java-sources-proto-map.tab.values.at differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/java-sources-proto-map.tab_i b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/java-sources-proto-map.tab_i
+new file mode 100644
+index 0000000..ef35be1
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/java-sources-proto-map.tab_i differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/java-sources-proto-map.tab_i.len b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/java-sources-proto-map.tab_i.len
+new file mode 100644
+index 0000000..131e265
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/java-sources-proto-map.tab_i.len differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab
+new file mode 100644
+index 0000000..d89af95
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream
+new file mode 100644
+index 0000000..a75ff7c
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream.len b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream.len
+new file mode 100644
+index 0000000..cf9afbc
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream.len differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.len b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.len
+new file mode 100644
+index 0000000..cf8a30a
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.len differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.values.at b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.values.at
+new file mode 100644
+index 0000000..837be1f
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.values.at differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i
+new file mode 100644
+index 0000000..994a4c8
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i.len b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i.len
+new file mode 100644
+index 0000000..131e265
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i.len differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab
+new file mode 100644
+index 0000000..a148ea1
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream
+new file mode 100644
+index 0000000..aad54fd
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream.len b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream.len
+new file mode 100644
+index 0000000..e3f1394
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream.len differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.len b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.len
+new file mode 100644
+index 0000000..fd5292d
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.len differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.values.at b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.values.at
+new file mode 100644
+index 0000000..c6958b5
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.values.at differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i
+new file mode 100644
+index 0000000..3817975
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i.len b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i.len
+new file mode 100644
+index 0000000..131e265
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i.len differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab
+new file mode 100644
+index 0000000..9bee377
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab.keystream b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab.keystream
+new file mode 100644
+index 0000000..4730cf1
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab.keystream differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab.keystream.len b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab.keystream.len
+new file mode 100644
+index 0000000..9d30930
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab.keystream.len differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab.len b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab.len
+new file mode 100644
+index 0000000..9e27f73
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab.len differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab.values.at b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab.values.at
+new file mode 100644
+index 0000000..899b730
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab.values.at differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab_i b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab_i
+new file mode 100644
+index 0000000..3f56930
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab_i differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab_i.len b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab_i.len
+new file mode 100644
+index 0000000..131e265
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab_i.len differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab
+new file mode 100644
+index 0000000..cb40626
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab.keystream b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab.keystream
+new file mode 100644
+index 0000000..88d0399
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab.keystream differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab.keystream.len b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab.keystream.len
+new file mode 100644
+index 0000000..3085af4
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab.keystream.len differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab.len b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab.len
+new file mode 100644
+index 0000000..fa606b6
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab.len differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab.values.at b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab.values.at
+new file mode 100644
+index 0000000..58e6595
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab.values.at differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab_i b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab_i
+new file mode 100644
+index 0000000..24e5a5c
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab_i differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab_i.len b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab_i.len
+new file mode 100644
+index 0000000..131e265
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab_i.len differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/counters.tab b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/counters.tab
+new file mode 100644
+index 0000000..9202d67
+--- /dev/null
++++ b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/counters.tab
+@@ -0,0 +1,2 @@
++9
++0
+\ No newline at end of file
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab
+new file mode 100644
+index 0000000..2d93668
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream
+new file mode 100644
+index 0000000..4d9e7a5
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream.len b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream.len
+new file mode 100644
+index 0000000..eb9e230
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream.len differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.len b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.len
+new file mode 100644
+index 0000000..eb0b8a0
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.len differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.values.at b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.values.at
+new file mode 100644
+index 0000000..a30ec1a
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.values.at differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i
+new file mode 100644
+index 0000000..fc296c1
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i.len b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i.len
+new file mode 100644
+index 0000000..131e265
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i.len differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab
+new file mode 100644
+index 0000000..a5550ef
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream
+new file mode 100644
+index 0000000..afd1b6e
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream.len b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream.len
+new file mode 100644
+index 0000000..9a6f654
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream.len differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.len b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.len
+new file mode 100644
+index 0000000..eb0b8a0
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.len differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.values.at b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.values.at
+new file mode 100644
+index 0000000..bac91c3
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.values.at differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab_i b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab_i
+new file mode 100644
+index 0000000..cdf4c62
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab_i differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab_i.len b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab_i.len
+new file mode 100644
+index 0000000..131e265
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab_i.len differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab
+new file mode 100644
+index 0000000..027e473
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream
+new file mode 100644
+index 0000000..5ce187a
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream.len b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream.len
+new file mode 100644
+index 0000000..7c58f3b
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream.len differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.len b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.len
+new file mode 100644
+index 0000000..6e76021
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.len differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.values.at b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.values.at
+new file mode 100644
+index 0000000..b172fa8
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.values.at differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i
+new file mode 100644
+index 0000000..f90950f
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i.len b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i.len
+new file mode 100644
+index 0000000..131e265
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i.len differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/last-build.bin b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/last-build.bin
+new file mode 100644
+index 0000000..9e2f1ba
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/cacheable/last-build.bin differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/classpath-snapshot/shrunk-classpath-snapshot.bin b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/classpath-snapshot/shrunk-classpath-snapshot.bin
+new file mode 100644
+index 0000000..c3261fc
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/classpath-snapshot/shrunk-classpath-snapshot.bin differ
+diff --git a/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/local-state/build-history.bin b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/local-state/build-history.bin
+new file mode 100644
+index 0000000..bcf905f
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/kotlin/compileDebugKotlin/local-state/build-history.bin differ
+diff --git a/node_modules/react-native-pager-view/android/build/outputs/logs/manifest-merger-debug-report.txt b/node_modules/react-native-pager-view/android/build/outputs/logs/manifest-merger-debug-report.txt
+new file mode 100644
+index 0000000..c973594
+--- /dev/null
++++ b/node_modules/react-native-pager-view/android/build/outputs/logs/manifest-merger-debug-report.txt
+@@ -0,0 +1,16 @@
++-- Merging decision tree log ---
++manifest
++ADDED from C:\Users\Omnex\PlatformApp\node_modules\react-native-pager-view\android\src\main\AndroidManifest.xml:1:1-4:12
++INJECTED from C:\Users\Omnex\PlatformApp\node_modules\react-native-pager-view\android\src\main\AndroidManifest.xml:1:1-4:12
++	package
++		INJECTED from C:\Users\Omnex\PlatformApp\node_modules\react-native-pager-view\android\src\main\AndroidManifest.xml
++	xmlns:android
++		ADDED from C:\Users\Omnex\PlatformApp\node_modules\react-native-pager-view\android\src\main\AndroidManifest.xml:1:11-69
++uses-sdk
++INJECTED from C:\Users\Omnex\PlatformApp\node_modules\react-native-pager-view\android\src\main\AndroidManifest.xml reason: use-sdk injection requested
++INJECTED from C:\Users\Omnex\PlatformApp\node_modules\react-native-pager-view\android\src\main\AndroidManifest.xml
++INJECTED from C:\Users\Omnex\PlatformApp\node_modules\react-native-pager-view\android\src\main\AndroidManifest.xml
++	android:targetSdkVersion
++		INJECTED from C:\Users\Omnex\PlatformApp\node_modules\react-native-pager-view\android\src\main\AndroidManifest.xml
++	android:minSdkVersion
++		INJECTED from C:\Users\Omnex\PlatformApp\node_modules\react-native-pager-view\android\src\main\AndroidManifest.xml
+diff --git a/node_modules/react-native-pager-view/android/build/tmp/compileDebugJavaWithJavac/previous-compilation-data.bin b/node_modules/react-native-pager-view/android/build/tmp/compileDebugJavaWithJavac/previous-compilation-data.bin
+new file mode 100644
+index 0000000..25cdb25
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/tmp/compileDebugJavaWithJavac/previous-compilation-data.bin differ
+diff --git a/node_modules/react-native-pager-view/android/build/tmp/kotlin-classes/debug/META-INF/react-native-pager-view_debug.kotlin_module b/node_modules/react-native-pager-view/android/build/tmp/kotlin-classes/debug/META-INF/react-native-pager-view_debug.kotlin_module
+new file mode 100644
+index 0000000..1e9f2ca
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/tmp/kotlin-classes/debug/META-INF/react-native-pager-view_debug.kotlin_module differ
+diff --git a/node_modules/react-native-pager-view/android/build/tmp/kotlin-classes/debug/com/reactnativepagerview/NestedScrollableHost.class b/node_modules/react-native-pager-view/android/build/tmp/kotlin-classes/debug/com/reactnativepagerview/NestedScrollableHost.class
+new file mode 100644
+index 0000000..5bab859
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/tmp/kotlin-classes/debug/com/reactnativepagerview/NestedScrollableHost.class differ
+diff --git a/node_modules/react-native-pager-view/android/build/tmp/kotlin-classes/debug/com/reactnativepagerview/PagerViewPackage.class b/node_modules/react-native-pager-view/android/build/tmp/kotlin-classes/debug/com/reactnativepagerview/PagerViewPackage.class
+new file mode 100644
+index 0000000..075182d
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/tmp/kotlin-classes/debug/com/reactnativepagerview/PagerViewPackage.class differ
+diff --git a/node_modules/react-native-pager-view/android/build/tmp/kotlin-classes/debug/com/reactnativepagerview/PagerViewViewManager$Companion.class b/node_modules/react-native-pager-view/android/build/tmp/kotlin-classes/debug/com/reactnativepagerview/PagerViewViewManager$Companion.class
+new file mode 100644
+index 0000000..3ae39e8
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/tmp/kotlin-classes/debug/com/reactnativepagerview/PagerViewViewManager$Companion.class differ
+diff --git a/node_modules/react-native-pager-view/android/build/tmp/kotlin-classes/debug/com/reactnativepagerview/PagerViewViewManager$createViewInstance$1$1.class b/node_modules/react-native-pager-view/android/build/tmp/kotlin-classes/debug/com/reactnativepagerview/PagerViewViewManager$createViewInstance$1$1.class
+new file mode 100644
+index 0000000..c62df68
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/tmp/kotlin-classes/debug/com/reactnativepagerview/PagerViewViewManager$createViewInstance$1$1.class differ
+diff --git a/node_modules/react-native-pager-view/android/build/tmp/kotlin-classes/debug/com/reactnativepagerview/PagerViewViewManager.class b/node_modules/react-native-pager-view/android/build/tmp/kotlin-classes/debug/com/reactnativepagerview/PagerViewViewManager.class
+new file mode 100644
+index 0000000..3b9bd04
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/tmp/kotlin-classes/debug/com/reactnativepagerview/PagerViewViewManager.class differ
+diff --git a/node_modules/react-native-pager-view/android/build/tmp/kotlin-classes/debug/com/reactnativepagerview/PagerViewViewManagerImpl.class b/node_modules/react-native-pager-view/android/build/tmp/kotlin-classes/debug/com/reactnativepagerview/PagerViewViewManagerImpl.class
+new file mode 100644
+index 0000000..5fa6c13
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/tmp/kotlin-classes/debug/com/reactnativepagerview/PagerViewViewManagerImpl.class differ
+diff --git a/node_modules/react-native-pager-view/android/build/tmp/kotlin-classes/debug/com/reactnativepagerview/ViewPagerAdapter.class b/node_modules/react-native-pager-view/android/build/tmp/kotlin-classes/debug/com/reactnativepagerview/ViewPagerAdapter.class
+new file mode 100644
+index 0000000..06e97fe
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/tmp/kotlin-classes/debug/com/reactnativepagerview/ViewPagerAdapter.class differ
+diff --git a/node_modules/react-native-pager-view/android/build/tmp/kotlin-classes/debug/com/reactnativepagerview/ViewPagerViewHolder$Companion.class b/node_modules/react-native-pager-view/android/build/tmp/kotlin-classes/debug/com/reactnativepagerview/ViewPagerViewHolder$Companion.class
+new file mode 100644
+index 0000000..cbf5eef
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/tmp/kotlin-classes/debug/com/reactnativepagerview/ViewPagerViewHolder$Companion.class differ
+diff --git a/node_modules/react-native-pager-view/android/build/tmp/kotlin-classes/debug/com/reactnativepagerview/ViewPagerViewHolder.class b/node_modules/react-native-pager-view/android/build/tmp/kotlin-classes/debug/com/reactnativepagerview/ViewPagerViewHolder.class
+new file mode 100644
+index 0000000..a479d11
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/tmp/kotlin-classes/debug/com/reactnativepagerview/ViewPagerViewHolder.class differ
+diff --git a/node_modules/react-native-pager-view/android/build/tmp/kotlin-classes/debug/com/reactnativepagerview/event/PageScrollEvent$Companion.class b/node_modules/react-native-pager-view/android/build/tmp/kotlin-classes/debug/com/reactnativepagerview/event/PageScrollEvent$Companion.class
+new file mode 100644
+index 0000000..50a3d23
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/tmp/kotlin-classes/debug/com/reactnativepagerview/event/PageScrollEvent$Companion.class differ
+diff --git a/node_modules/react-native-pager-view/android/build/tmp/kotlin-classes/debug/com/reactnativepagerview/event/PageScrollEvent.class b/node_modules/react-native-pager-view/android/build/tmp/kotlin-classes/debug/com/reactnativepagerview/event/PageScrollEvent.class
+new file mode 100644
+index 0000000..25d827a
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/tmp/kotlin-classes/debug/com/reactnativepagerview/event/PageScrollEvent.class differ
+diff --git a/node_modules/react-native-pager-view/android/build/tmp/kotlin-classes/debug/com/reactnativepagerview/event/PageScrollStateChangedEvent$Companion.class b/node_modules/react-native-pager-view/android/build/tmp/kotlin-classes/debug/com/reactnativepagerview/event/PageScrollStateChangedEvent$Companion.class
+new file mode 100644
+index 0000000..248d3e1
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/tmp/kotlin-classes/debug/com/reactnativepagerview/event/PageScrollStateChangedEvent$Companion.class differ
+diff --git a/node_modules/react-native-pager-view/android/build/tmp/kotlin-classes/debug/com/reactnativepagerview/event/PageScrollStateChangedEvent.class b/node_modules/react-native-pager-view/android/build/tmp/kotlin-classes/debug/com/reactnativepagerview/event/PageScrollStateChangedEvent.class
+new file mode 100644
+index 0000000..3b3a366
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/tmp/kotlin-classes/debug/com/reactnativepagerview/event/PageScrollStateChangedEvent.class differ
+diff --git a/node_modules/react-native-pager-view/android/build/tmp/kotlin-classes/debug/com/reactnativepagerview/event/PageSelectedEvent$Companion.class b/node_modules/react-native-pager-view/android/build/tmp/kotlin-classes/debug/com/reactnativepagerview/event/PageSelectedEvent$Companion.class
+new file mode 100644
+index 0000000..931ab7b
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/tmp/kotlin-classes/debug/com/reactnativepagerview/event/PageSelectedEvent$Companion.class differ
+diff --git a/node_modules/react-native-pager-view/android/build/tmp/kotlin-classes/debug/com/reactnativepagerview/event/PageSelectedEvent.class b/node_modules/react-native-pager-view/android/build/tmp/kotlin-classes/debug/com/reactnativepagerview/event/PageSelectedEvent.class
+new file mode 100644
+index 0000000..dbf740c
+Binary files /dev/null and b/node_modules/react-native-pager-view/android/build/tmp/kotlin-classes/debug/com/reactnativepagerview/event/PageSelectedEvent.class differ
+diff --git a/node_modules/react-native-pager-view/android/src/main/java/com/reactnativepagerview/PagerViewViewManager.kt b/node_modules/react-native-pager-view/android/src/main/java/com/reactnativepagerview/PagerViewViewManager.kt
+index 8ec286a..70c899c 100644
+--- a/node_modules/react-native-pager-view/android/src/main/java/com/reactnativepagerview/PagerViewViewManager.kt
++++ b/node_modules/react-native-pager-view/android/src/main/java/com/reactnativepagerview/PagerViewViewManager.kt
+@@ -11,8 +11,6 @@ import com.facebook.react.common.MapBuilder
+ import com.facebook.react.module.annotations.ReactModule
+ import com.facebook.react.uimanager.*
+ import com.facebook.react.uimanager.annotations.ReactProp
+-import com.facebook.react.viewmanagers.RNCViewPagerManagerDelegate
+-import com.facebook.react.viewmanagers.RNCViewPagerManagerInterface
+ import com.facebook.soloader.SoLoader
+ import com.reactnativepagerview.event.PageScrollEvent
+ import com.reactnativepagerview.event.PageScrollStateChangedEvent
+@@ -20,7 +18,7 @@ import com.reactnativepagerview.event.PageSelectedEvent
+ 
+ 
+ @ReactModule(name = PagerViewViewManagerImpl.NAME)
+-class PagerViewViewManager : ViewGroupManager<NestedScrollableHost>(), RNCViewPagerManagerInterface<NestedScrollableHost> {
++class PagerViewViewManager : ViewGroupManager<NestedScrollableHost>() {
+     companion object {
+         init {
+             if (BuildConfig.CODEGEN_MODULE_REGISTRATION != null) {
+@@ -29,16 +27,12 @@ class PagerViewViewManager : ViewGroupManager<NestedScrollableHost>(), RNCViewPa
+         }
+     }
+ 
+-    private val mDelegate: ViewManagerDelegate<NestedScrollableHost> = RNCViewPagerManagerDelegate(this)
+-
+-    override fun getDelegate() = mDelegate
+-
+     override fun getName(): String {
+         return PagerViewViewManagerImpl.NAME
+     }
+ 
+     override fun receiveCommand(root: NestedScrollableHost, commandId: String, args: ReadableArray?) {
+-        mDelegate.receiveCommand(root, commandId, args)
++        // No codegen delegate available in this setup; property commands are handled directly.
+     }
+ 
+     public override fun createViewInstance(reactContext: ThemedReactContext): NestedScrollableHost {
+@@ -115,61 +109,61 @@ class PagerViewViewManager : ViewGroupManager<NestedScrollableHost>(), RNCViewPa
+     }
+ 
+     @ReactProp(name = "scrollEnabled", defaultBoolean = true)
+-    override fun setScrollEnabled(view: NestedScrollableHost?, value: Boolean) {
++    fun setScrollEnabled(view: NestedScrollableHost?, value: Boolean) {
+         if (view != null) {
+             PagerViewViewManagerImpl.setScrollEnabled(view, value)
+         }
+     }
+ 
+     @ReactProp(name = "layoutDirection")
+-    override fun setLayoutDirection(view: NestedScrollableHost?, value: String?) {
++    fun setLayoutDirection(view: NestedScrollableHost?, value: String?) {
+         if (view != null && value != null) {
+             PagerViewViewManagerImpl.setLayoutDirection(view, value)
+         }
+     }
+ 
+     @ReactProp(name = "initialPage", defaultInt = 0)
+-    override fun setInitialPage(view: NestedScrollableHost?, value: Int) {
++    fun setInitialPage(view: NestedScrollableHost?, value: Int) {
+         if (view != null) {
+             PagerViewViewManagerImpl.setInitialPage(view, value)
+         }
+     }
+ 
+     @ReactProp(name = "orientation")
+-    override fun setOrientation(view: NestedScrollableHost?, value: String?) {
++    fun setOrientation(view: NestedScrollableHost?, value: String?) {
+         if (view != null && value != null) {
+             PagerViewViewManagerImpl.setOrientation(view, value)
+         }
+     }
+ 
+     @ReactProp(name = "offscreenPageLimit", defaultInt = ViewPager2.OFFSCREEN_PAGE_LIMIT_DEFAULT)
+-    override fun setOffscreenPageLimit(view: NestedScrollableHost?, value: Int) {
++    fun setOffscreenPageLimit(view: NestedScrollableHost?, value: Int) {
+         if (view != null) {
+             PagerViewViewManagerImpl.setOffscreenPageLimit(view, value)
+         }
+     }
+ 
+     @ReactProp(name = "pageMargin", defaultInt = 0)
+-    override fun setPageMargin(view: NestedScrollableHost?, value: Int) {
++    fun setPageMargin(view: NestedScrollableHost?, value: Int) {
+         if (view != null) {
+             PagerViewViewManagerImpl.setPageMargin(view, value)
+         }
+     }
+ 
+     @ReactProp(name = "overScrollMode")
+-    override fun setOverScrollMode(view: NestedScrollableHost?, value: String?) {
++    fun setOverScrollMode(view: NestedScrollableHost?, value: String?) {
+         if (view != null && value != null) {
+             PagerViewViewManagerImpl.setOverScrollMode(view, value)
+         }
+     }
+ 
+     @ReactProp(name = "overdrag")
+-    override fun setOverdrag(view: NestedScrollableHost?, value: Boolean) {
++    fun setOverdrag(view: NestedScrollableHost?, value: Boolean) {
+         return
+     }
+ 
+     @ReactProp(name = "keyboardDismissMode")
+-    override fun setKeyboardDismissMode(view: NestedScrollableHost?, value: String?) {
++    fun setKeyboardDismissMode(view: NestedScrollableHost?, value: String?) {
+         return
+     }
+ 
+@@ -186,15 +180,15 @@ class PagerViewViewManager : ViewGroupManager<NestedScrollableHost>(), RNCViewPa
+         }
+     }
+ 
+-    override fun setPage(view: NestedScrollableHost?, selectedPage: Int) {
++    fun setPage(view: NestedScrollableHost?, selectedPage: Int) {
+         goTo(view, selectedPage, true)
+     }
+ 
+-    override fun setPageWithoutAnimation(view: NestedScrollableHost?, selectedPage: Int) {
++    fun setPageWithoutAnimation(view: NestedScrollableHost?, selectedPage: Int) {
+         goTo(view, selectedPage, false)
+     }
+ 
+-    override fun setScrollEnabledImperatively(view: NestedScrollableHost?, scrollEnabled: Boolean) {
++    fun setScrollEnabledImperatively(view: NestedScrollableHost?, scrollEnabled: Boolean) {
+         if (view != null) {
+             PagerViewViewManagerImpl.setScrollEnabled(view, scrollEnabled)
+         }

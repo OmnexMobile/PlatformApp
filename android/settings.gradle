@@ -1,13 +1,39 @@
-rootProject.name = 'IntegratedApp'
-apply from: file("../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesSettingsGradle(settings)
-include ':app'
-includeBuild('../node_modules/react-native-gradle-plugin')
-include ':@react-native-community_voice', ':app'
-project(':@react-native-community_voice').projectDir = new File(rootProject.projectDir, '../node_modules/@react-native-community/voice/android')
+// pluginManagement { includeBuild("../node_modules/@react-native/gradle-plugin") }
+// plugins { id("com.facebook.react.settings") }
+// extensions.configure(com.facebook.react.ReactSettingsExtension){ ex -> ex.autolinkLibrariesFromCommand() }
 
-if (settings.hasProperty("newArchEnabled") && settings.newArchEnabled == "true") {
-    include(":ReactAndroid")
-    project(":ReactAndroid").projectDir = file('../node_modules/react-native/ReactAndroid')
-    include(":ReactAndroid:hermes-engine")
-    project(":ReactAndroid:hermes-engine").projectDir = file('../node_modules/react-native/ReactAndroid/hermes-engine')
+// rootProject.name = 'IntegratedApp'
+// include ':app'
+// includeBuild('../node_modules/@react-native/gradle-plugin')
+
+pluginManagement {
+    includeBuild("../node_modules/@react-native/gradle-plugin")
+
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
 }
+
+plugins {
+    id("com.facebook.react.settings")
+}
+
+extensions.configure(com.facebook.react.ReactSettingsExtension) { ex ->
+    ex.autolinkLibrariesFromCommand()
+}
+
+rootProject.name = "IntegratedApp"
+include(":app")
+includeBuild("../node_modules/@react-native/gradle-plugin")
+include(":react-native-community_slider")
+project(":react-native-community_slider").projectDir = file("../node_modules/@react-native-community/slider/android")
+include(":react-native-geocoder")
+project(":react-native-geocoder").projectDir = file("../node_modules/react-native-geocoder/android")
+include(":react-native-compressor")
+project(":react-native-compressor").projectDir = file("../node_modules/react-native-compressor/android")
+include(":react-native-image-marker")
+project(":react-native-image-marker").projectDir = file("../node_modules/react-native-image-marker/android")
+include(":react-native-pager-view")
+project(":react-native-pager-view").projectDir = file("../node_modules/react-native-pager-view/android")

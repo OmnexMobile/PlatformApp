@@ -5,7 +5,7 @@ import { LOCAL_STORAGE_VARIABLES } from 'constants/app-constant';
 import localStorage from 'global/localStorage';
 import RegisterPresentational from './register-presentational';
 import { useAppContext } from 'contexts/app-context';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const RegisterFunctional = ({}) => {
     const navigation = useNavigation();

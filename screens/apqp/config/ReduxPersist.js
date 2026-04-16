@@ -1,5 +1,5 @@
 import immutablePersistenceTransform from '../Services/ImmutablePersistenceTransform'
-import { AsyncStorage } from 'react-native'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 import FSStorage, { CacheDir } from 'redux-persist-fs-storage';
 
 

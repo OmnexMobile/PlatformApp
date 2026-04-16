@@ -29,7 +29,7 @@ import { strings } from "../language/Language";
 import NetInfo from "@react-native-community/netinfo";
 const moment = extendMoment(Moment);
 import Icon from "react-native-vector-icons/FontAwesome";
-import AsyncStorage from "@react-native-community/async-storage";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 // import { RadioGroup, RadioButton } from "react-native-flexi-radio-button";
 // import { Dropdown } from "react-native-material-dropdown";
 import { Dropdown } from "react-native-element-dropdown";

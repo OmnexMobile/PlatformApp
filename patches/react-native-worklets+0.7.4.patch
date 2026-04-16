@@ -1,0 +1,14 @@
+diff --git a/node_modules/react-native-worklets/android/CMakeLists.txt b/node_modules/react-native-worklets/android/CMakeLists.txt
+index 82fb4ea..42890df 100644
+--- a/node_modules/react-native-worklets/android/CMakeLists.txt
++++ b/node_modules/react-native-worklets/android/CMakeLists.txt
+@@ -104,6 +104,8 @@ if(${JS_RUNTIME} STREQUAL "hermes")
+ 
+     target_link_libraries(worklets ReactAndroid::hermestooling)
+   endif()
+ elseif(${JS_RUNTIME} STREQUAL "jsc")
+-  target_link_libraries(worklets ReactAndroid::jsctooling)
++  if(TARGET ReactAndroid::jsctooling)
++    target_link_libraries(worklets ReactAndroid::jsctooling)
++  endif()
+ endif()

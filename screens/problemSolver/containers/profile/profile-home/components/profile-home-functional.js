@@ -9,7 +9,7 @@ import { showErrorMessage, successMessage } from 'helpers/utils';
 import { registerDevice, REGISTER_TYPES } from 'screens/globalAuth/register/register-functional';
 import { getUniqueId } from 'react-native-device-info';
 import localStorage from 'global/localStorage';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const menus = [
     // {
     //     // title: 'Tasks',

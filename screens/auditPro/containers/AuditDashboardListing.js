@@ -22,7 +22,7 @@ import { strings } from '../../auditPro/language/Language';
 import constant from '../../auditPro/constants/AppConstants';
 // import { NavigationEvents } from 'react-navigation';
 import CryptoJS from 'react-native-crypto-js';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SPACING } from 'constants/theme-constants';
 import DeviceInfo from 'react-native-device-info';
 import { ROUTES } from 'constants/app-constant';

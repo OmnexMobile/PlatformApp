@@ -11,7 +11,7 @@ import { Images } from "../themes";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { connect } from "react-redux";
 import Toast, { DURATION } from "react-native-easy-toast";
-import AsyncStorage from "@react-native-community/async-storage";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import auth from "../../../services/APQP-Auth";
 // import DeviceInfo from "react-native-device-info";
 import Moment from "moment";

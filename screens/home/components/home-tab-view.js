@@ -6,7 +6,7 @@ import { View, useWindowDimensions } from 'react-native';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import TabsCard from './home-tab-card';
 import { FONT_TYPE } from 'constants/app-constant';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 const TabsView = ({ countDetails, currentName }) => {

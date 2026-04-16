@@ -11,7 +11,7 @@ import auth from "../../../services/APQP-Auth";
 import { ConfirmDialog } from "react-native-simple-dialogs";
 import Toast, { DURATION } from "react-native-easy-toast";
 import { strings } from "../language/Language";
-import AsyncStorage from "@react-native-community/async-storage";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import styles from "./styles/RiskActionStyles";
 import Moment from "moment";
 import { extendMoment } from "moment-range";

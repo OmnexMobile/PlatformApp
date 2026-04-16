@@ -8,7 +8,7 @@ import localStorage from 'global/localStorage';
 import { useAppContext } from 'contexts/app-context';
 import { formReq, showErrorMessage, successMessage } from 'helpers/utils';
 import RegisterPresentational from './register-presentational';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { PROBLEMSOLVING_URL } from 'screens/globalConstant/globalURL';
 
 export const REGISTER_TYPES = {

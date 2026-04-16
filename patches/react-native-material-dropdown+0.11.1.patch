@@ -1,17 +1,25 @@
 diff --git a/node_modules/react-native-material-dropdown/src/components/dropdown/index.js b/node_modules/react-native-material-dropdown/src/components/dropdown/index.js
-index b1e65a1..9c0ddc6 100644
+index b1e65a1..9eedb0c 100644
 --- a/node_modules/react-native-material-dropdown/src/components/dropdown/index.js
 +++ b/node_modules/react-native-material-dropdown/src/components/dropdown/index.js
-@@ -17,7 +17,7 @@ import { TextField } from 'react-native-material-textfield';
+@@ -9,7 +9,6 @@ import {
+   TouchableWithoutFeedback,
+   Dimensions,
+   Platform,
+-  ViewPropTypes,
+   I18nManager,
+ } from 'react-native';
+ import Ripple from 'react-native-material-ripple';
+@@ -17,7 +16,7 @@ import { TextField } from 'react-native-material-textfield';
  
  import DropdownItem from '../item';
  import styles from './styles';
 -
-+import { TextPropTypes } from 'deprecated-react-native-prop-types';
++import { TextPropTypes, ViewPropTypes } from 'deprecated-react-native-prop-types';
  export default class Dropdown extends PureComponent {
    static defaultProps = {
      hitSlop: { top: 6, right: 4, bottom: 6, left: 4 },
-@@ -133,7 +133,7 @@ export default class Dropdown extends PureComponent {
+@@ -133,7 +132,7 @@ export default class Dropdown extends PureComponent {
      disabledItemColor: PropTypes.string,
      baseColor: PropTypes.string,
  
@@ -20,7 +28,20 @@ index b1e65a1..9c0ddc6 100644
  
      itemCount: PropTypes.number,
      itemPadding: PropTypes.number,
-@@ -499,9 +499,11 @@ export default class Dropdown extends PureComponent {
+@@ -146,9 +145,9 @@ export default class Dropdown extends PureComponent {
+     renderBase: PropTypes.func,
+     renderAccessory: PropTypes.func,
+ 
+-    containerStyle: (ViewPropTypes || View.propTypes).style,
+-    overlayStyle: (ViewPropTypes || View.propTypes).style,
+-    pickerStyle: (ViewPropTypes || View.propTypes).style,
++    containerStyle: (ViewPropTypes || View.propTypes || {}).style,
++    overlayStyle: (ViewPropTypes || View.propTypes || {}).style,
++    pickerStyle: (ViewPropTypes || View.propTypes || {}).style,
+ 
+     supportedOrientations: PropTypes.arrayOf(PropTypes.string),
+ 
+@@ -499,9 +498,11 @@ export default class Dropdown extends PureComponent {
        return renderBase({ ...props, title, value, renderAccessory });
      }
  

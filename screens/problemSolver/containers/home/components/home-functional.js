@@ -8,7 +8,7 @@ import { useAppContext } from 'contexts/app-context';
 import { getDashboardConcernCounts, getPendingConcernList, getTodayConcernList, getUpcomingConcernList } from '../home.action';
 import { formReq } from 'helpers/utils';
 import HomePresentational from './home-presentational';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const HomeFunctional = ({}) => {
     const { sites } = useAppContext();

@@ -26,7 +26,7 @@ import {strings} from '../language/Language';
 import {width, height} from 'react-native-dimension';
 import NetInfo from '@react-native-community/netinfo';
 // import AsyncStorage from '@react-native-async-storage/async-storage';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import InputField from '../components/shared/InputField';
 import { ROUTES } from 'constants/app-constant';
 

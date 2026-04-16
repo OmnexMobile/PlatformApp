@@ -9,7 +9,7 @@ import { useAppContext } from 'contexts/app-context';
 import ListCardLogo from 'components/ListCard-logo';
 import ListCardLogoSM from 'components/ListCard-logoSM';
 import ListCardLogoApqp from 'components/ListCard-logo-apqp';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const HomeListComponent = ({ title, data, loading, statusCode, hideSeeAll, currentName, moduleLicenses, hasAPQPToday, hasPSToday, hasSMToday }) => {
     const { theme } = useTheme();

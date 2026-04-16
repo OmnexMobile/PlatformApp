@@ -49,7 +49,7 @@ import { FlatList } from 'react-navigation';
 import constants from '../constants/AppConstants';
 import { ROUTES } from 'constants/app-constant';
 // import AsyncStorage from '@react-native-async-storage/async-storage';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 // import { SPACING } from 'constants/theme-constants';
 
 let Window = Dimensions.get('window');

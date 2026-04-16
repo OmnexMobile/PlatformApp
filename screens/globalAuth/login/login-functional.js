@@ -10,7 +10,7 @@ import { useAppContext } from 'contexts/app-context';
 import LoginPresentational from './login-presentational';
 import { postAPI } from 'global/api-helpers';
 import globalAuth from '../../../services/Auditpro-Auth';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useDispatch, useSelector } from 'react-redux';
 import ApiUrl from 'global/ApiUrl';
 import { GLOBALSERVER_URL, ensureTrailingSlash, setGlobalUrls } from 'screens/globalConstant/globalURL';
@@ -51,8 +51,13 @@ const LoginFunctional = ({}) => {
 
     useEffect(() => {
         console.log('currentToken--->', currentToken);
-        currentToken && navigation.navigate(ROUTES.SPLASH_SCREEN);
-    }, [currentToken]);
+        if (currentToken) {
+            navigation.reset({
+                index: 0,
+                routes: [{ name: ROUTES.GLOBAL_DASHBOARD }],
+            });
+        }
+    }, [currentToken, navigation]);
 
     // useEffect(() => {
     // 	async function fetchData() {

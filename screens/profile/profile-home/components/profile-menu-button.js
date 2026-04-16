@@ -7,7 +7,7 @@ import { FONT_TYPE, LOCAL_STORAGE_VARIABLES } from 'constants/app-constant';
 import useTheme from 'theme/useTheme';
 import { IconComponent, TextComponent } from 'components';
 import localStorage from 'global/localStorage';
-import AsyncStorage from "@react-native-community/async-storage";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const ProfileMenuButton = ({ menu, getProfileReset }) => {
   const [loading, setLoading] = useState(false);

@@ -31,7 +31,7 @@ import NetInfo from '@react-native-community/netinfo';
 import RNFetchBlob from 'react-native-fetch-blob';
 import XLSX from 'xlsx'; // Import the xlsx library
 import FileViewer from 'react-native-file-viewer';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ROUTES } from 'constants/app-constant';
 import { SPACING } from 'constants/theme-constants';
 import GlobalHeader from 'components/GlobalHeader';

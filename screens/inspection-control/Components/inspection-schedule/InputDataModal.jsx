@@ -10,7 +10,7 @@ import { Bubbles } from 'react-native-loader';
 import { showMessage } from 'react-native-flash-message';
 import { postAPI } from 'global/api-helpers';
 import ApiUrl from 'global/ApiUrl';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import moment from 'moment';
 import uuid from 'react-native-uuid';
 import { addInspectionData } from 'store/database/inspectStorage';

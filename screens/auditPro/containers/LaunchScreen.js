@@ -14,7 +14,7 @@ import ResponsiveImage from 'react-native-responsive-image';
 import {Dimensions} from 'react-native';
 import {strings} from '../language/Language';
 // import AsyncStorage from '@react-native-async-storage/async-storage';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 let Window = Dimensions.get('window');
 // Styles

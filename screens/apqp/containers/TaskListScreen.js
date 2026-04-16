@@ -25,7 +25,7 @@ import ProgressCircle from "react-native-progress-circle";
 import Icon2 from "react-native-vector-icons/Feather";
 // import * as Animatable from "react-native-animatable";
 import Toast, { DURATION } from "react-native-easy-toast";
-import AsyncStorage from "@react-native-community/async-storage";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { strings } from "../language/Language";
 // import Reactotron from "reactotron-react-native";
 

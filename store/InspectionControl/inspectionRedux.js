@@ -1,4 +1,4 @@
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { update } from 'ramda';
 import { persistReducer } from 'redux-persist';
 import { createReducer, createActions } from 'reduxsauce';

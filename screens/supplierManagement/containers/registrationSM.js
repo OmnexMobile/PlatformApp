@@ -25,7 +25,7 @@ import {strings} from '../../auditPro/language/Language';
 import NetInfo from '@react-native-community/netinfo';
 import {isRegExp} from 'lodash';
 // import AsyncStorage from '@react-native-async-storage/async-storage';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import InputField from '../../auditPro/components/shared/InputField';
 import { ROUTES } from 'constants/app-constant';
 let Window = Dimensions.get('window');

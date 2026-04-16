@@ -39,7 +39,7 @@ import Modal from 'react-native-modal';
 import DateTimePicker from 'react-native-modal-datetime-picker';
 import NetInfo from '@react-native-community/netinfo';
 import {debounce, once} from 'underscore';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ROUTES } from 'constants/app-constant';
 import { SPACING } from 'constants/theme-constants';
 import { Header } from 'components';

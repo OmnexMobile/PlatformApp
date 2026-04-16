@@ -46,7 +46,7 @@ import DeviceInfo from 'react-native-device-info';
 import Moment from 'moment';
 import constants from '../../auditPro/constants/AppConstants';
 import { ROUTES } from 'constants/app-constant';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SPACING } from 'constants/theme-constants';
 import GlobalHeader from 'components/GlobalHeader';
 import CommonAlertModal from 'components/common_alert_modal';

@@ -23,7 +23,7 @@ import { Bubbles, DoubleBounce, Bars, Pulse } from "react-native-loader";
 import Modal from "react-native-modal";
 import CalendarPicker from "react-native-calendar-picker";
 import Toast, { DURATION } from "react-native-easy-toast";
-import AsyncStorage from "@react-native-community/async-storage";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { width, height } from "react-native-dimension";
 import styles from "./styles/ApqpPpapManagerScreenStyles";
 import styles1 from "../components/styles/ApqpDashboardHeaderStyle";

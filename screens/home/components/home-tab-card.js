@@ -25,7 +25,7 @@ import FastImage from 'react-native-fast-image';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 import { FONT_TYPE, LOCAL_STORAGE_VARIABLES, ROUTES, APP_VARIABLES, STATUS_CODES, ICON_TYPE } from 'constants/app-constant';
 import { RFPercentage } from 'helpers/utils';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from "react-native-simple-toast";
 import { useAppContext } from 'contexts/app-context';
 import localStorage from 'global/localStorage';

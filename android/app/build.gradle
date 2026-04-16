@@ -1,7 +1,18 @@
-apply plugin: "com.android.application"
+plugins {
+    id("com.android.application")
+    id("com.facebook.react")
+}
 
 import com.android.build.OutputFile
 import org.apache.tools.ant.taskdefs.condition.Os
+
+/**
+ * Configure the React Native Gradle Plugin to handle autolinking
+ * and to make react-android artifact available.
+ */
+react {
+    autolinkLibrariesWithApp()
+}
 
 /**
  * The react.gradle file registers a task for each build variant (e.g. bundleDebugJsAndAssets
@@ -79,10 +90,9 @@ import org.apache.tools.ant.taskdefs.condition.Os
  */
 
 project.ext.react = [
-    enableHermes: false,  // clean and rebuild if changing
+    enableHermes: true
 ]
 
-apply from: "../../node_modules/react-native/react.gradle"
 
 /**
  * Set this to true to create two separate APKs instead of one:
@@ -130,7 +140,12 @@ def reactNativeArchitectures() {
 }
 
 android {
+    namespace "com.Omnex.IntegratedApp"
     ndkVersion rootProject.ext.ndkVersion
+
+    buildFeatures {
+        buildConfig true
+    }
 
     compileSdkVersion rootProject.ext.compileSdkVersion
 
@@ -145,64 +160,6 @@ android {
         missingDimensionStrategy 'react-native-camera', 'general'
         manifestPlaceholders = [appAuthRedirectScheme: 'com.omnex.auditpro']
 
-        if (isNewArchitectureEnabled()) {
-            // We configure the CMake build only if you decide to opt-in for the New Architecture.
-            externalNativeBuild {
-                cmake {
-                    arguments "-DPROJECT_BUILD_DIR=$buildDir",
-                        "-DREACT_ANDROID_DIR=$rootDir/../node_modules/react-native/ReactAndroid",
-                        "-DREACT_ANDROID_BUILD_DIR=$rootDir/../node_modules/react-native/ReactAndroid/build",
-                        "-DNODE_MODULES_DIR=$rootDir/../node_modules",
-                        "-DANDROID_STL=c++_shared"
-                }
-            }
-            if (!enableSeparateBuildPerCPUArchitecture) {
-                ndk {
-                    abiFilters (*reactNativeArchitectures())
-                }
-            }
-        }
-    }
-
-    if (isNewArchitectureEnabled()) {
-        // We configure the NDK build only if you decide to opt-in for the New Architecture.
-        externalNativeBuild {
-            cmake {
-                path "$projectDir/src/main/jni/CMakeLists.txt"
-            }
-        }
-        def reactAndroidProjectDir = project(':ReactAndroid').projectDir
-        def packageReactNdkDebugLibs = tasks.register("packageReactNdkDebugLibs", Copy) {
-            dependsOn(":ReactAndroid:packageReactNdkDebugLibsForBuck")
-            from("$reactAndroidProjectDir/src/main/jni/prebuilt/lib")
-            into("$buildDir/react-ndk/exported")
-        }
-        def packageReactNdkReleaseLibs = tasks.register("packageReactNdkReleaseLibs", Copy) {
-            dependsOn(":ReactAndroid:packageReactNdkReleaseLibsForBuck")
-            from("$reactAndroidProjectDir/src/main/jni/prebuilt/lib")
-            into("$buildDir/react-ndk/exported")
-        }
-        afterEvaluate {
-            // If you wish to add a custom TurboModule or component locally,
-            // you should uncomment this line.
-            // preBuild.dependsOn("generateCodegenArtifactsFromSchema")
-            preDebugBuild.dependsOn(packageReactNdkDebugLibs)
-            preReleaseBuild.dependsOn(packageReactNdkReleaseLibs)
-
-            // Due to a bug inside AGP, we have to explicitly set a dependency
-            // between configureCMakeDebug* tasks and the preBuild tasks.
-            // This can be removed once this is solved: https://issuetracker.google.com/issues/207403732
-            configureCMakeRelWithDebInfo.dependsOn(preReleaseBuild)
-            configureCMakeDebug.dependsOn(preDebugBuild)
-            reactNativeArchitectures().each { architecture ->
-                tasks.findByName("configureCMakeDebug[${architecture}]")?.configure {
-                    dependsOn("preDebugBuild")
-                }
-                tasks.findByName("configureCMakeRelWithDebInfo[${architecture}]")?.configure {
-                    dependsOn("preReleaseBuild")
-                }
-            }
-        }
     }
 
     splits {
@@ -263,60 +220,29 @@ dependencies {
     implementation 'org.jetbrains:annotations:16.0.2'
     implementation fileTree(dir: "libs", include: ["*.jar"])
 
-    //noinspection GradleDynamicVersion
-    implementation "com.facebook.react:react-native:+"  // From node_modules
+    // The React Native Gradle Plugin exposes the correct react artifacts
+    implementation("com.facebook.react:react-android")
     implementation "androidx.core:core-splashscreen:1.0.0" // Bootsplash
 
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
 
-    implementation project(':@react-native-community_voice')
+    implementation project(':react-native-community_voice')
+    implementation project(':react-native-community_slider')
+    implementation project(':react-native-compressor')
+    implementation project(':react-native-geocoder')
+    implementation project(':react-native-image-marker')
+    implementation project(':react-native-pager-view')
 
     implementation 'androidx.multidex:multidex:2.0.1'
 
-    implementation("androidx.browser:browser:1.5.0") {
-      force = true
-    }
-    implementation("androidx.webkit:webkit:1.7.0") {
-      force = true
-    }
+    implementation("androidx.browser:browser:1.5.0")
+    implementation("androidx.webkit:webkit:1.7.0")
 
-
-    debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}") {
-        exclude group:'com.facebook.fbjni'
-    }
-
-    debugImplementation("com.facebook.flipper:flipper-network-plugin:${FLIPPER_VERSION}") {
-        exclude group:'com.facebook.flipper'
-        exclude group:'com.squareup.okhttp3', module:'okhttp'
-    }
-
-    debugImplementation("com.facebook.flipper:flipper-fresco-plugin:${FLIPPER_VERSION}") {
-        exclude group:'com.facebook.flipper'
-    }
 
     if (enableHermes) {
-        //noinspection GradleDynamicVersion
-        implementation("com.facebook.react:hermes-engine:+") { // From node_modules
-            exclude group:'com.facebook.fbjni'
-        }
+        implementation("com.facebook.react:hermes-android")
     } else {
         implementation jscFlavor
-    }
-}
-
-if (isNewArchitectureEnabled()) {
-    // If new architecture is enabled, we let you build RN from source
-    // Otherwise we fallback to a prebuilt .aar bundled in the NPM package.
-    // This will be applied to all the imported transtitive dependency.
-    configurations.all {
-        resolutionStrategy.dependencySubstitution {
-            substitute(module("com.facebook.react:react-native"))
-                    .using(project(":ReactAndroid"))
-                    .because("On New Architecture we're building React Native from source")
-            substitute(module("com.facebook.react:hermes-engine"))
-                    .using(project(":ReactAndroid:hermes-engine"))
-                    .because("On New Architecture we're building Hermes from source")
-        }
     }
 }
 
@@ -327,7 +253,7 @@ task copyDownloadableDepsToLibs(type: Copy) {
     into 'libs'
 }
 
-apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)
+// autolinking handled by new Gradle plugin
 apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
 
 def isNewArchitectureEnabled() {

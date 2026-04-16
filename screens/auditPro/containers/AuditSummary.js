@@ -33,7 +33,7 @@ import {strings} from '../language/Language';
 import * as Animatable from 'react-native-animatable';
 import FS from '../../../services/ReactNativeFS';
 // import AsyncStorage from '@react-native-async-storage/async-storage';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ROUTES } from 'constants/app-constant';
 import { SPACING } from 'constants/theme-constants';
 import { log } from 'ramdasauce';

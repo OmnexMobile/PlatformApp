@@ -6,7 +6,7 @@ import NetInfo from "@react-native-community/netinfo";
 import {strings} from '../language/Language'
 import {create} from 'apisauce'
 import * as constant  from '../constants/AppConstants'
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 let netSubscribe;
 MiniOfflineSign = () => {

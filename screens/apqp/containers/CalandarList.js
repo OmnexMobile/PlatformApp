@@ -19,7 +19,7 @@ import NetInfo from "@react-native-community/netinfo";
 //assets
 import { Images, Fonts } from "../themes";
 import Icon from "react-native-vector-icons/FontAwesome";
-import AsyncStorage from "@react-native-community/async-storage";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 //services
 import auth from "../../../services/APQP-Auth";
 //strings

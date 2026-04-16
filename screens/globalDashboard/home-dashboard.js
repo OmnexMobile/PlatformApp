@@ -16,7 +16,7 @@ import localStorage from 'global/localStorage';
 import { HomeListComponent } from './home-list';
 import { HomeListRecentActivity } from './home-RecentActivity';
 import { HomeListRecentActivitySM } from './home-RecentActivitySM';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import NetInfo from '@react-native-community/netinfo';
 import supplierAuth from '../../services/SupplierMgnt-Auth';
 import { useIsFocused } from '@react-navigation/native';

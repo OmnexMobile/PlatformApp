@@ -41,7 +41,7 @@ import Slider from '@react-native-community/slider';
 import Moment from 'moment';
 import constant from '../../../constants/SupplierMgnt/AppConstants';
 import RNFS from 'react-native-fs';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import ToastNew, { ErrorToast } from 'react-native-toast-message';
 // import {forEach, slice} from 'lodash';
 // import moment from 'moment';

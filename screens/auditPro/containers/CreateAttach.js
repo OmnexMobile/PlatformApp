@@ -30,7 +30,7 @@ import { toast } from 'helpers/utils';
 import { TOAST_STATUS } from 'constants/app-constant';
 import DeviceInfo from 'react-native-device-info';
 import RNFS from 'react-native-fs';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ROUTES } from 'constants/app-constant';
 import { SPACING } from 'constants/theme-constants';
 import FileViewer from 'react-native-file-viewer';

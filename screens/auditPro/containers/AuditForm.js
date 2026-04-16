@@ -47,7 +47,7 @@ import DeviceInfo from 'react-native-device-info';
 import Moment from 'moment';
 import constants from '../constants/AppConstants';
 import { ROUTES, ICON_TYPE } from 'constants/app-constant';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SPACING } from 'constants/theme-constants';
 import SQLite from 'react-native-sqlite-storage';
 import GlobalHeader from 'components/GlobalHeader';

@@ -37,7 +37,7 @@ import LinearGradient from 'react-native-linear-gradient';
 // Voice packages
 import Voice from '@react-native-community/voice';
 import Tts from 'react-native-tts';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import RNFetchBlob from 'react-native-fetch-blob';
 import { ROUTES, ICON_TYPE } from 'constants/app-constant';
 import { SPACING } from 'constants/theme-constants';

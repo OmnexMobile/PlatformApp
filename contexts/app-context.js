@@ -3,7 +3,7 @@ import moment from 'moment';
 import localStorage from '../global/localStorage';
 import { API_URL, COMPANY_DETAILS, DATE_FORMAT, Languages, LOCAL_STORAGE_VARIABLES } from '../constants/app-constant';
 import strings from '../config/localization';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Creating the context object and passing the default values.
 const AppContext = React.createContext({});

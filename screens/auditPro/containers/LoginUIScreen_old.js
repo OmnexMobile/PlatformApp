@@ -26,7 +26,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import {strings} from '../language/Language';
 // import {width, height} from 'react-native-dimension';
 // import DeviceInfo from 'react-native-device-info';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 // import firebase from 'react-native-firebase';
 // import { ReactNativeFirebase } from '@react-native-firebase/app';
 import NetInfo from '@react-native-community/netinfo';

@@ -32,7 +32,7 @@ import VersionCheck from 'react-native-version-check';
 import { Platform } from 'react-native';
 import { SPACING } from 'constants/theme-constants';
 import { ROUTES } from 'constants/app-constant';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 let Window = Dimensions.get('window');
 
 class UserPreference extends React.Component {

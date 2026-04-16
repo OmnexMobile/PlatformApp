@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 import auth from "../../../services/APQP-Auth";
-import AsyncStorage from "@react-native-community/async-storage";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import Toast, { DURATION } from "react-native-easy-toast";
 // import Reactotron from "reactotron-react-native";
 import RenderHtml from "react-native-render-html";

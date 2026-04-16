@@ -18,7 +18,7 @@ import { width, height } from 'react-native-dimension'
 import CalendarPicker from 'react-native-calendar-picker';
 import { extendMoment } from 'moment-range';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import styles from './styles/InProgressStyles';
 import {RadioGroup, RadioButton} from 'react-native-flexi-radio-button'
 import  { Dropdown } from 'react-native-material-dropdown';

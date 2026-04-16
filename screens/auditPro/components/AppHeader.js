@@ -24,7 +24,7 @@ import NetInfo from '@react-native-community/netinfo';
 import auth from '../../../services/Auditpro-Auth'
 import DeviceInfo from 'react-native-device-info';
 import {debounce, once} from 'underscore';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {revoke} from 'react-native-app-auth';
 import { ROUTES } from 'constants/app-constant';
 

@@ -23,7 +23,7 @@ import OfflineNotice from "../components/OfflineNotice";
 // import AppHeader from "../Components/AppHeader";
 import ApqpDashboardFooter from "../components/ApqpDashboardFooter";
 // import { ConfirmDialog } from "react-native-simple-dialogs";
-import AsyncStorage from "@react-native-community/async-storage";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { strings } from "../language/Language";
 import NetInfo from "@react-native-community/netinfo";
 // import DeviceInfo from "react-native-device-info";

@@ -30,7 +30,7 @@ import {strings} from '../language/Language';
 // import {width, height} from 'react-native-dimension';
 // import DeviceInfo from 'react-native-device-info';
 // import AsyncStorage from '@react-native-async-storage/async-storage';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 // import firebase from 'react-native-firebase';
 import NetInfo from '@react-native-community/netinfo';
 import {CheckBox as CheckedElement} from 'react-native-elements';

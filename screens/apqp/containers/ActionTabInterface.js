@@ -33,7 +33,7 @@ import Icon from "react-native-vector-icons/FontAwesome";
 import CalendarAgenda from "../components/CalendarAgenda";
 import { Dropdown } from "react-native-material-dropdown";
 import * as _ from "lodash";
-import AsyncStorage from "@react-native-community/async-storage";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import auth from "../../../services/APQP-Auth";
 import { ROUTES } from "constants/app-constant";
 import { SPACING } from "constants/theme-constants";

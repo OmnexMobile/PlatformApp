@@ -15,7 +15,7 @@ import auth from '../../../services/Auditpro-Auth';
 import Toast, { DURATION } from 'react-native-easy-toast';
 import NetInfo from '@react-native-community/netinfo';
 import { ROUTES } from 'constants/app-constant';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SPACING } from 'constants/theme-constants';
 import GlobalHeader from 'components/GlobalHeader';
 

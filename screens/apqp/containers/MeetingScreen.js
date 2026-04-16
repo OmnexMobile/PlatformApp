@@ -20,7 +20,7 @@ import Modal from "react-native-modal";
 import { width, height } from "react-native-dimension";
 import CalendarPicker from "react-native-calendar-picker";
 import Icon from "react-native-vector-icons/FontAwesome";
-import AsyncStorage from "@react-native-community/async-storage";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import styles from "./styles/MeetingScreenStyles";
 // import { RadioGroup, RadioButton } from "react-native-flexi-radio-button";
 import { Dropdown } from "react-native-material-dropdown";

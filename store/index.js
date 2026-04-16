@@ -2,12 +2,16 @@ import { createStore, compose, applyMiddleware } from 'redux';
 import { createLogger } from 'redux-logger';
 import createSagaMiddleware from 'redux-saga';
 import rootReducers from './reducer';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { persistStore, persistReducer } from 'redux-persist';
 import rootSagas from './saga';
 
 const sagaMiddleware = createSagaMiddleware();
-const middleware = [createLogger({ collapsed: false }), sagaMiddleware];
+const middleware = [sagaMiddleware];
+
+if (__DEV__) {
+    middleware.unshift(createLogger({ collapsed: true }));
+}
 const persistConfig = {
     key: 'root',
     storage: AsyncStorage,
@@ -16,13 +20,13 @@ const persistConfig = {
 };
 const persistedReducer = persistReducer(persistConfig, rootReducers);
 
-if (__DEV__) {
-    const createDebugger = require('redux-flipper').default;
-    middleware.push(createDebugger());
-}
+const reduxDevtoolsCompose =
+    typeof window !== 'undefined' && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
+        ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
+        : null;
 
-const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
-    ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({
+const composeEnhancers = reduxDevtoolsCompose
+    ? reduxDevtoolsCompose({
           shouldHotReload: true,
       })
     : compose => compose;

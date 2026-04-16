@@ -38,7 +38,7 @@ import RNFetchBlob from 'react-native-fetch-blob';
 import CryptoJS from 'crypto-js';
 import FileViewer from 'react-native-file-viewer';
 import { ROUTES } from 'constants/app-constant';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import GlobalHeader from 'components/GlobalHeader';
 import CommonAlertModal from 'components/common_alert_modal';
 import IconAwesome from 'react-native-vector-icons/FontAwesome';

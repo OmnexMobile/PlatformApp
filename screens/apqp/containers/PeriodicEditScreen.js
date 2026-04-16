@@ -19,7 +19,7 @@ import auth from "../../../services/APQP-Auth";
 import CalendarPicker from "react-native-calendar-picker";
 import Modal from "react-native-modal";
 import Toast, { DURATION } from "react-native-easy-toast";
-import AsyncStorage from "@react-native-community/async-storage";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { strings } from "../language/Language";
 import OfflineNotice from "../components/OfflineNotice";
 

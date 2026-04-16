@@ -23,7 +23,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import {strings} from '../language/Language';
 import NetInfo from '@react-native-community/netinfo';
 // import {isRegExp} from 'lodash';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ICON_TYPE, ROUTES } from 'constants/app-constant';
 import { IconComponent, ImageComponent } from 'components';
 import { IMAGES } from 'assets/images';

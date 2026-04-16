@@ -27,7 +27,7 @@ import auth from '../../../services/Auditpro-Auth';
 import constant from '../constants/AppConstants';
 import VersionCheck from 'react-native-version-check';
 import { ROUTES } from 'constants/app-constant';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SPACING } from 'constants/theme-constants';
 import ToastNew, {ErrorToast} from 'react-native-toast-message';
 class AuditProDashboard extends Component {

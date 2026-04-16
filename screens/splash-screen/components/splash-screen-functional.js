@@ -1,68 +1,69 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import localStorage from 'global/localStorage';
-import { COMPANY_DETAILS, Languages, LOCAL_STORAGE_VARIABLES, ROUTES } from 'constants/app-constant';
-import strings from 'config/localization';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { LOCAL_STORAGE_VARIABLES, ROUTES } from 'constants/app-constant';
 import SplashScreenPresentational from './splash-screen-presentational';
-import { useDispatch, useSelector } from 'react-redux';
-import { getProfileSuccess } from 'screens/profile/profile.action';
-import { useAppContext } from 'contexts/app-context';
 
 const SplashScreenFunctional = ({}) => {
     const [loading, setLoading] = useState(true);
-    const [token, setToken] = useState('');
-    const { profile } = useAppContext();
+    const [startupRoute, setStartupRoute] = useState(ROUTES.GLOBAL_REGISTER);
     const navigation = useNavigation();
 
     useEffect(() => {
-   
-    console.log('token----> splash', token?.length, token)
-        !loading &&
+        if (!loading) {
             navigation.reset({
                 index: 0,
-                // routes: [{ name: token?.length > 0 ? ROUTES.HOME_FAB_VIEW : ROUTES.GLOBAL_LOGIN }],
-                routes: [{ name: token?.length > 0 ? ROUTES.GLOBAL_DASHBOARD : ROUTES.GLOBAL_REGISTER }],
+                routes: [{ name: startupRoute }],
             });
-    }, [loading]);
-
-    const getLocalStorageData = async () => {
-        setLoading(false);
-    };
-
-    useEffect(() => {
-        async function fetchData() {
-          const currentToken = await localStorage.getData(LOCAL_STORAGE_VARIABLES.Token);
-          console.log('currentToken--->splash', currentToken, currentToken?.length)
-          setToken(currentToken)
         }
-        fetchData();
-      }, [token]);
-
-    // const currentAppToken = async () => {
-    //     const currentToken = await localStorage.getData(LOCAL_STORAGE_VARIABLES.Token);
-    //     console.log('currentToken--->splash', currentToken, currentToken?.length)
-    //     setToken(currentToken)
-    // }
+    }, [loading, navigation, startupRoute]);
 
     useEffect(() => {
-        setTimeout(() => {
-            getLocalStorageData();
-            // currentAppToken();
+        let isMounted = true;
+        const timer = setTimeout(async () => {
+            try {
+                const [token, storedGlobalUrl, storedRegisterUrl, storedAuthUrl] = await Promise.all([
+                    localStorage.getData(LOCAL_STORAGE_VARIABLES.Token),
+                    localStorage.getData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL),
+                    localStorage.getData(LOCAL_STORAGE_VARIABLES.globalRegister),
+                    AsyncStorage.getItem('storedserverrul'),
+                ]);
+
+                if (!isMounted) {
+                    return;
+                }
+
+                const isRegistered = !!(storedGlobalUrl || storedRegisterUrl || storedAuthUrl);
+                const nextRoute = token
+                    ? ROUTES.GLOBAL_DASHBOARD
+                    : isRegistered
+                      ? ROUTES.GLOBAL_LOGIN
+                      : ROUTES.GLOBAL_REGISTER;
+
+                console.log('[Splash] startup state', {
+                    hasToken: !!token,
+                    isRegistered,
+                    nextRoute,
+                });
+                setStartupRoute(nextRoute);
+            } catch (error) {
+                console.log('[Splash] failed to resolve startup route', error);
+                if (isMounted) {
+                    setStartupRoute(ROUTES.GLOBAL_REGISTER);
+                }
+            } finally {
+                if (isMounted) {
+                    setLoading(false);
+                }
+            }
         }, 1000);
-        // handleLanguage();
+
+        return () => {
+            isMounted = false;
+            clearTimeout(timer);
+        };
     }, []);
-
-    // useEffect(() => {
-    //     setTimeout(() => {
-    //         currentAppToken();
-    //     }, 1000);
-    //     // handleLanguage();
-    // }, []);
-
-    // const handleLanguage = async () => {
-    //     const language = (await localStorage.getData(LOCAL_STORAGE_VARIABLES.SELECTED_LANGUAGE)) || Languages.ENGLISH;
-    //     strings.setLanguage(language);
-    // };
 
     return <SplashScreenPresentational />;
 };

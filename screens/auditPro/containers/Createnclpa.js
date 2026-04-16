@@ -38,7 +38,7 @@ import { debounce, once, select } from 'underscore';
 import Voice from '@react-native-community/voice';
 import Tts from 'react-native-tts';
 // import AsyncStorage from '@react-native-async-storage/async-storage';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import FileViewer from 'react-native-file-viewer';
 // import XLSX from 'xlsx'; // Import the xlsx library
 import constant from '../constants/AppConstants';

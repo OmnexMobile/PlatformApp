@@ -26,7 +26,7 @@ import { strings } from "../language/Language";
 import OfflineNotice from "../components/OfflineNotice";
 import Fonts from "../themes/Fonts";
 // Styles
-import AsyncStorage from "@react-native-community/async-storage";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import styles from "./styles/PeriodicHistoryStyles";
 const window_width = Dimensions.get("window").width;
 import Moment from "moment";

@@ -40,7 +40,7 @@ import {
   ProgressDialog,
 } from 'react-native-simple-dialogs';
 import CryptoJS from 'crypto-js';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 // import AsyncStorage from '@react-native-async-storage/async-storage';
 import {revoke} from 'react-native-app-auth';
 import { LOCAL_STORAGE_VARIABLES, ROUTES } from 'constants/app-constant';

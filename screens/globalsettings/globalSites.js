@@ -11,7 +11,7 @@ import { useAppContext } from 'contexts/app-context';
 import { LOCAL_STORAGE_VARIABLES, STATUS_CODES, TOAST_STATUS } from 'constants/app-constant';
 import { getDashboardConcernCounts, getPendingConcernList, getTodayConcernList, getUpcomingConcernList } from '../home/home.action';
 import { useDispatch, useSelector } from 'react-redux';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {  showErrorMessage,successMessage } from 'helpers/utils';
 
 const GlobalSites = () => {
