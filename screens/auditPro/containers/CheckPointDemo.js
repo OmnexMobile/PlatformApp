@@ -46,7 +46,6 @@ import Video from 'react-native-video';
 import FileViewer from 'react-native-file-viewer';
 import { Image as compressImage, Video as compressVideo, getVideoMetaData } from 'react-native-compressor';
 import NetInfo from '@react-native-community/netinfo';
-import finalPropsSelectorFactory from 'react-redux/es/connect/selectorFactory';
 import auth from '../../../services/Auditpro-Auth';
 import { ROUTES } from 'constants/app-constant';
 import RichText from '../components/RichText';
@@ -4880,7 +4879,7 @@ class CheckPointDemo extends Component {
         try {
             const response = await DocumentPicker.pickSingle({
                 presentationStyle: 'fullScreen',
-                allowMultiSelection: finalPropsSelectorFactory,
+                allowMultiSelection: false,
             });
             //console.log('one:DocumentPicker:', response);
             if (response) {

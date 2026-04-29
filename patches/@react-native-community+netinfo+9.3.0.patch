@@ -1,0 +1,63 @@
+diff --git a/node_modules/@react-native-community/netinfo/src/internal/state.ts b/node_modules/@react-native-community/netinfo/src/internal/state.ts
+--- a/node_modules/@react-native-community/netinfo/src/internal/state.ts
++++ b/node_modules/@react-native-community/netinfo/src/internal/state.ts
+@@ -12,6 +12,15 @@ import NativeInterface from './nativeInterface';
+ import InternetReachability from './internetReachability';
+ import * as Types from './types';
+ import * as PrivateTypes from './privateTypes';
+ 
++const FALLBACK_STATE: Types.NetInfoState = {
++  type: Types.NetInfoStateType.unknown,
++  isConnected: true,
++  isInternetReachable: true,
++  details: null,
++};
++
++let hasWarnedAboutMissingGetCurrentState = false;
++
+ export default class State {
+   private _nativeEventSubscription: NativeEventSubscription | null = null;
+   private _subscriptions = new Set<Types.NetInfoChangeHandler>();
+@@ -59,7 +68,40 @@ export default class State {
+ 
+   public _fetchCurrentState = async (
+     requestedInterface?: string,
+   ): Promise<Types.NetInfoState> => {
+-    const state = await NativeInterface.getCurrentState(requestedInterface);
++    if (typeof NativeInterface.getCurrentState !== 'function') {
++      if (!hasWarnedAboutMissingGetCurrentState) {
++        hasWarnedAboutMissingGetCurrentState = true;
++        console.warn(
++          '@react-native-community/netinfo: getCurrentState is unavailable on the native module. Falling back to an optimistic online state.',
++        );
++      }
++
++      const fallbackState = this._latestState ?? FALLBACK_STATE;
++      if (!requestedInterface) {
++        this._latestState = fallbackState;
++      }
++      return fallbackState;
++    }
++
++    let state: PrivateTypes.NetInfoNativeModuleState;
++
++    try {
++      state = await NativeInterface.getCurrentState(requestedInterface);
++    } catch (error) {
++      if (!hasWarnedAboutMissingGetCurrentState) {
++        hasWarnedAboutMissingGetCurrentState = true;
++        console.warn(
++          '@react-native-community/netinfo: getCurrentState failed. Falling back to an optimistic online state.',
++          error,
++        );
++      }
++
++      const fallbackState = this._latestState ?? FALLBACK_STATE;
++      if (!requestedInterface) {
++        this._latestState = fallbackState;
++      }
++      return fallbackState;
++    }
+ 
+     // Update the internet reachability module
+     this._internetReachability.update(state);

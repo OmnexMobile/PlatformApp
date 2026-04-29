@@ -1,37 +1,64 @@
 import { createStore, compose, applyMiddleware } from 'redux';
-import { createLogger } from 'redux-logger';
-import createSagaMiddleware from 'redux-saga';
-import rootReducers from './reducer';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { persistStore, persistReducer } from 'redux-persist';
-import rootSagas from './saga';
 
-const sagaMiddleware = createSagaMiddleware();
-const middleware = [sagaMiddleware];
+const createFallbackPersistor = () => ({
+    purge: async () => {},
+    flush: async () => {},
+    pause: () => {},
+    persist: () => {},
+    dispatch: () => {},
+    getState: () => ({}),
+    subscribe: () => () => {},
+});
 
-if (__DEV__) {
-    middleware.unshift(createLogger({ collapsed: true }));
-}
-const persistConfig = {
-    key: 'root',
-    storage: AsyncStorage,
-    // whitelist: [],
-    // blacklist: ['user'],
+const createFallbackStore = enhancer => createStore((state = {}) => state, enhancer);
+
+const resolveComposeEnhancer = () => {
+    const reduxDevtoolsCompose =
+        typeof window !== 'undefined' && typeof window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ === 'function'
+            ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
+            : null;
+
+    return reduxDevtoolsCompose
+        ? reduxDevtoolsCompose({
+              shouldHotReload: true,
+          })
+        : compose;
 };
-const persistedReducer = persistReducer(persistConfig, rootReducers);
 
-const reduxDevtoolsCompose =
-    typeof window !== 'undefined' && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
-        ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
-        : null;
+let store;
+let persistor;
 
-const composeEnhancers = reduxDevtoolsCompose
-    ? reduxDevtoolsCompose({
-          shouldHotReload: true,
-      })
-    : compose => compose;
-const store = createStore(persistedReducer, composeEnhancers(applyMiddleware(...middleware)));
-const persistor = persistStore(store);
-sagaMiddleware.run(rootSagas);
+try {
+    const { createLogger } = require('redux-logger');
+    const createSagaMiddleware = require('redux-saga').default;
+    const { persistStore, persistReducer } = require('redux-persist');
+    const AsyncStorage = require('@react-native-async-storage/async-storage').default;
+    const rootReducers = require('./reducer').default;
+    const rootSagas = require('./saga').default;
+
+    const sagaMiddleware = createSagaMiddleware();
+    const middleware = [sagaMiddleware];
+
+    if (__DEV__ && typeof createLogger === 'function') {
+        middleware.unshift(createLogger({ collapsed: true }));
+    }
+
+    const persistConfig = {
+        key: 'root',
+        storage: AsyncStorage,
+    };
+
+    const persistedReducer = persistReducer(persistConfig, rootReducers);
+    const enhancer = resolveComposeEnhancer()(applyMiddleware(...middleware));
+
+    store = createStore(persistedReducer, enhancer);
+    persistor = persistStore(store);
+    sagaMiddleware.run(rootSagas);
+} catch (error) {
+    console.error('[store] Failed to initialize persisted store', error);
+    const enhancer = resolveComposeEnhancer()(applyMiddleware());
+    store = createFallbackStore(enhancer);
+    persistor = createFallbackPersistor();
+}
 
 export { store, persistor };

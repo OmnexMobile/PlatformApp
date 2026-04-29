@@ -12,134 +12,6 @@ import GlobalLogout from '../screens/globalAuth/logout';
 import GlobalSettings from '../screens/globalsettings/index';
 import GlobalSites from '../screens/globalsettings/globalSites';
 import LaunchScreen from '../screens/launch-screen';
-import { BottomTab } from './bottom-tab';
-import HomeFabView from '../screens/home/components/home-fab-view';
-//// AUDITPRO ////
-import AuditDashboardListing from '../screens/auditPro/containers/AuditDashboardListing';
-import AuditPage from '../screens/auditPro/containers/AuditPage1';
-import AuditAttach from '../screens/auditPro/containers/AuditAttach';
-import AuditAttachSM from '../screens/supplierManagement/containers/AuditAttachSM';
-import CreateAttachSM from 'screens/supplierManagement/containers/CreateAttachSM';
-import AuditForm from '../screens/auditPro/containers/AuditForm';
-import NCOFIPage from 'screens/auditPro/containers/NCOFIPage';
-import CreateNC from 'screens/auditPro/containers/CreateNC';
-import Conformacy from 'screens/auditPro/containers/Conformacy';
-import AuditSummary from 'screens/auditPro/containers/AuditSummary';
-import CreateAttach from 'screens/auditPro/containers/CreateAttach';
-import AuditWebView from 'screens/auditPro/containers/AuditWebView';
-import UserPreference from 'screens/auditPro/containers/UserPreference';
-import CameraCapture from 'screens/auditPro/containers/CameraCaptureAndroid';
-import AuditHome from 'screens/home';
-import AuditLaunchScreen from 'screens/auditPro/containers/LaunchScreen';
-import AuditCard from 'screens/auditPro/components/AuditCard';
-// import CameraCapture from 'screens/auditPro/containers/CameraCaptureIos';
-// import VideoCapture from 'screens/auditPro/containers/VideoCapture';
-import CheckListMenuSM from 'screens/auditPro/containers/CheckListMenuSM';
-import CheckListMenu from 'screens/auditPro/containers/CheckListMenu';
-import CheckPointDemo from 'screens/auditPro/containers/CheckPointDemo';
-import AuditStatus from 'screens/auditPro/containers/AuditStatus';
-import LPAPublish from 'screens/auditPro/containers/LPAPublish';
-import AuditResult from 'screens/auditPro/containers/AuditResult';
-import ConformacyVoice from 'screens/auditPro/containers/ConformacyVoice';
-import VoiceAssist from 'screens/auditPro/components/VoiceAssist';
-import LoginUIScreen from 'screens/auditPro/containers/LoginUIScreen';
-import Registration from 'screens/auditPro/containers/Registration';
-import Languages from 'screens/auditPro/containers/Languages';
-import UnRegistration from 'screens/auditPro/containers/UnRegister';
-import AllTabAuditList from 'screens/auditPro/containers/AllTabAuditList';
-import AuditProDashboard from 'screens/auditPro/containers/AuditProDashboard';
-import AuditNotifications from 'screens/auditPro/containers/AuditNotifications';
-import VoiceRecognition from 'screens/auditPro/containers/VoiceRecognition';
-import FilterScreen from 'screens/auditPro/containers/FilterScreen';
-import Profile from 'screens/auditPro/containers/Profile';
-import Downloads from 'screens/auditPro/containers/Downloads';
-import SyncDetails from 'screens/auditPro/containers/SyncDetails';
-import Help from 'screens/auditPro/containers/Help';
-import SupplyManage from 'screens/auditPro/containers/SupplyManage';
-import CalendarList from 'screens/auditPro/containers/CalandarList';
-import Createnclpa from 'screens/auditPro/containers/Createnclpa';
-//// PROBLEMSOLVER ////
-import LoginPrblmSolver from 'screens/problemSolver/containers/auth/login';
-import RegisterPrblmSolver from 'screens/problemSolver/containers/auth/register';
-import Settings from '../screens/problemSolver/containers/settings';
-import PreferredLanguage from '../screens/problemSolver/containers/settings/preferred-language.js';
-import ThemePicker from '../screens/problemSolver/containers/settings/theme-picker';
-import ProblemSolver from '../screens/problemSolver/containers/problem-solver';
-import TeamSelection from '../screens/problemSolver/containers/team-selection';
-import InitiateProblemSolving from '../screens/problemSolver/containers/initiate-problem-solving';
-import NewConcernCreations from '../screens/problemSolver/containers/new-concern-creations';
-import ConcernInitialEvaluation from '../screens/problemSolver/containers/concerns/concern-initial-evaluation';
-import ListScreen from '../screens/problemSolver/containers/list-screen';
-import ConcernScreen from '../screens/problemSolver/containers/concerns/create-concern';
-import FilteredConcernListScreen from 'screens/problemSolver/containers/filtered-concern-list-screen';
-import ConcernListScreen from 'screens/problemSolver/containers/concerns/concern-list-screen';
-import ViewConcern from 'screens/problemSolver/containers/concerns/view-concern';
-import HomeListCard from '../screens/globalDashboard/home-listcard';
-import { BottomTabPS } from './bottom-tab-ps';
-import SplashScreenPS from '../screens/problemSolver/containers/splash-screen';
-import ProjectListScreen from 'screens/problemSolver/containers/projects/project-list-screen';
-import EditConcern from 'screens/problemSolver/containers/concerns/edit-concern';
-import ViewLogs from 'screens/problemSolver/containers/view-logs';
-import EightDDynamicPage from 'screens/problemSolver/containers/eightd-dynamic-page';
-import TimeSettings from 'screens/problemSolver/containers/settings/time-settings';
-//// APQP ////
-import DashBoardAPQP from '../screens/apqp/containers/DashboardScreen';
-import CalandarListAPQP from '../screens/apqp/containers/CalandarList';
-import ProjectListAPQP from '../screens/apqp/containers/ProjectListScreen';
-import ApqpPpapManagerScreen from '../screens/apqp/containers/ApqpPpapManagerScreen';
-import RiskScreen from '../screens/apqp/containers/RiskScreen';
-import FilterScreenAPQP from 'screens/apqp/containers/FilterScreen';
-import MeetingScreen from 'screens/apqp/containers/MeetingScreen';
-import OpenScreen from 'screens/apqp/containers/OpenScreen';
-import InProgressScreen from 'screens/apqp/containers/InProgressScreen';
-import TodaysTask from 'screens/apqp/containers/TodaysTask';
-import ActionTabInterface from 'screens/apqp/containers/ActionTabInterface';
-import PeriodicUpdateScreen from 'screens/apqp/containers/PeriodicUpdateScreen';
-import Calenderview from 'screens/apqp/containers/DailyAction';
-import RiskActionScreen from 'screens/apqp/containers/RiskActionScreen';
-import MeetingPlanScreen from 'screens/apqp/containers/MeetingPlanScreen';
-import ApqpmanagerScreen from 'screens/apqp/containers/ApqpmanagerScreen';
-import TaskListScreen from 'screens/apqp/containers/TaskListScreen';
-import PeriodicHistoryScreen from 'screens/apqp/containers/PeriodicHistoryScreen';
-import PeriodicEditScreen from 'screens/apqp/containers/PeriodicEditScreen';
-import DeliverableInfoScreen from 'screens/apqp/containers/DeliverableInfoScreen';
-import RevisionHistoryScreen from 'screens/apqp/containers/RevisionHistoryScreen';
-import OpenDocumentScreen from 'screens/apqp/containers/OpenDocumentScreen';
-import AttachAdditionalDocScreen from 'screens/apqp/containers/AttachAdditionalDocScreen';
-import ProfileAPQP from 'screens/apqp/containers/Profile';
-import HelpAPQP from 'screens/apqp/containers/Help';
-import DailyAction from 'screens/apqp/containers/DailyAction';
-import HomeListCardApqp from '../screens/globalDashboard/home-listcard-apqp';
-//// SUPPLIERMANAGEMENT ////
-import SupplyManageSM from 'screens/supplierManagement/containers/supplyManage';
-import RegisterSM from 'screens/supplierManagement/containers/registrationSM';
-import LoginSM from 'screens/supplierManagement/containers/loginUIScreenSM';
-import AllTabAuditListSM from 'screens/supplierManagement/containers/allTabAuditListSM';
-import AuditDashboardListingSM from 'screens/supplierManagement/containers/auditDashboardListingSM';
-import AuditDashboardSM from 'screens/supplierManagement/containers/auditProDashboardSM';
-import CheckPointDemoSM from 'screens/supplierManagement/containers/checkPointDemoSM';
-import AuditPageSM from 'screens/supplierManagement/containers/auditPageSM';
-import AuditFormSM from '../screens/supplierManagement/containers/auditFormSM';
-import CreateNCSM from 'screens/supplierManagement/containers/createNC-SM';
-import NCOFIPageSM from 'screens/supplierManagement/containers/NCOFIPageSM';
-//DOC-PRO
-import DocproDashboard from 'screens/docpro/DocproDashboard';
-// import DocproAction from 'screens/docpro/actions/DocproAction';
-import DocproAction from 'screens/docpro/actions/DocproAction';
-import DocproAdminAction from 'screens/docpro/DocproAdminAction';
-import DocproDocuments from 'screens/docpro/DocproDocuments';
-import DocproNewDocumentRequest from 'screens/docpro/DocproNewDocumentRequest';
-import DocumentFolder from 'screens/docpro/Levels/DocumentFolder';
-//INNSPECTION-CONTROL
-import InspectionSchedule from 'screens/inspection-control/inspection-schedule';
-import OperatorWorksheet from 'screens/inspection-control/operator-worksheet';
-import CompletedInspection from 'screens/inspection-control/completed-inspection';
-import SupervisorSchedule from 'screens/inspection-control/supervisor-schedule';
-import InprocessInspection from 'screens/inspection-control/inprocess-inspection';
-import ContainmentActions from 'screens/inspection-control/containmentActions';
-import IcSettings from 'screens/inspection-control/icSettings';
-import SearchInspection from 'screens/inspection-control/search-inspection';
-import Calender from 'screens/problemSolver/containers/calender';
 
 const Stack = createStackNavigator();
 
@@ -197,137 +69,137 @@ export const AppStackData = [
     },
     {
         name: ROUTES.SETTINGS,
-        component: Settings,
+        getComponent: () => require('../screens/problemSolver/containers/settings').default,
         cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
     },
     {
         name: ROUTES.PREFERRED_LANGUAGE,
-        component: PreferredLanguage,
+        getComponent: () => require('../screens/problemSolver/containers/settings/preferred-language.js').default,
         cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
     },
     {
         name: ROUTES.THEME_PICKER,
-        component: ThemePicker,
+        getComponent: () => require('../screens/problemSolver/containers/settings/theme-picker').default,
         cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
     },
     {
         name: ROUTES.HOME,
-        component: BottomTab,
+        getComponent: () => require('./bottom-tab').BottomTab,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.AUDIT_HOME,
-        component: AuditHome,
+        getComponent: () => require('../screens/home').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.LIST_SCREEN,
-        component: ListScreen,
+        getComponent: () => require('../screens/problemSolver/containers/list-screen').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.CONCERN_SCREEN,
-        component: ConcernScreen,
+        getComponent: () => require('../screens/problemSolver/containers/concerns/create-concern').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.PROBLEM_SOLVER,
-        component: ProblemSolver,
+        getComponent: () => require('../screens/problemSolver/containers/problem-solver').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.TEAM_SELECTION,
-        component: TeamSelection,
+        getComponent: () => require('../screens/problemSolver/containers/team-selection').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.INITIATE_PROBLEM_SOLVING,
-        component: InitiateProblemSolving,
+        getComponent: () => require('../screens/problemSolver/containers/initiate-problem-solving').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.NEW_CONCERN_CREATIONS,
-        component: NewConcernCreations,
+        getComponent: () => require('../screens/problemSolver/containers/new-concern-creations').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.CONCERN_INITIAL_EVALUATION,
-        component: ConcernInitialEvaluation,
+        getComponent: () => require('../screens/problemSolver/containers/concerns/concern-initial-evaluation').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.HOME_FAB_VIEW,
-        component: HomeFabView,
+        getComponent: () => require('../screens/home/components/home-fab-view').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.AUDIT_DASHBOARD_LISTING,
-        component: AuditDashboardListing,
+        getComponent: () => require('../screens/auditPro/containers/AuditDashboardListing').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.AUDIT_PAGE,
-        component: AuditPage,
+        getComponent: () => require('../screens/auditPro/containers/AuditPage1').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.AUDIT_ATTACH,
-        component: AuditAttach,
+        getComponent: () => require('../screens/auditPro/containers/AuditAttach').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.CREATE_ATTACHSM,
-        component: CreateAttachSM,
+        getComponent: () => require('../screens/supplierManagement/containers/CreateAttachSM').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.AUDIT_ATTACHSM,
-        component: AuditAttachSM,
+        getComponent: () => require('../screens/supplierManagement/containers/AuditAttachSM').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.AUDIT_FORM,
-        component: AuditForm,
+        getComponent: () => require('../screens/auditPro/containers/AuditForm').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.NC_OFI_PAGE,
-        component: NCOFIPage,
+        getComponent: () => require('../screens/auditPro/containers/NCOFIPage').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.CREATE_NC,
-        component: CreateNC,
+        getComponent: () => require('../screens/auditPro/containers/CreateNC').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.CONFORMACY,
-        component: Conformacy,
+        getComponent: () => require('../screens/auditPro/containers/Conformacy').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.AUDIT_SUMMARY,
-        component: AuditSummary,
+        getComponent: () => require('../screens/auditPro/containers/AuditSummary').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.CREATE_ATTACH,
-        component: CreateAttach,
+        getComponent: () => require('../screens/auditPro/containers/CreateAttach').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.AUDIT_WEBVIEW,
-        component: AuditWebView,
+        getComponent: () => require('../screens/auditPro/containers/AuditWebView').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.AUDIT_CARD,
-        component: AuditCard,
+        getComponent: () => require('../screens/auditPro/components/AuditCard').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.CAMERA_CAPTURE,
-        component: CameraCapture,
+        getComponent: () => require('../screens/auditPro/containers/CameraCaptureAndroid').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     // {
@@ -337,132 +209,132 @@ export const AppStackData = [
     // },
     {
         name: ROUTES.USER_PREFERENCE,
-        component: UserPreference,
+        getComponent: () => require('../screens/auditPro/containers/UserPreference').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.CHECKLIST_MENU_SM,
-        component: CheckListMenuSM,
+        getComponent: () => require('../screens/auditPro/containers/CheckListMenuSM').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.CHECKLIST_MENU,
-        component: CheckListMenu,
+        getComponent: () => require('../screens/auditPro/containers/CheckListMenu').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.CHECKPOINT_DEMO,
-        component: CheckPointDemo,
+        getComponent: () => require('../screens/auditPro/containers/CheckPointDemo').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.AUDIT_STATUS,
-        component: AuditStatus,
+        getComponent: () => require('../screens/auditPro/containers/AuditStatus').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.LPA_PUBLISH,
-        component: LPAPublish,
+        getComponent: () => require('../screens/auditPro/containers/LPAPublish').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.AUDIT_RESULT,
-        component: AuditResult,
+        getComponent: () => require('../screens/auditPro/containers/AuditResult').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.CONFORMACY_VOICE,
-        component: ConformacyVoice,
+        getComponent: () => require('../screens/auditPro/containers/ConformacyVoice').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.VOICE_ASSIST,
-        component: VoiceAssist,
+        getComponent: () => require('../screens/auditPro/components/VoiceAssist').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.LOGINUISCREEN,
-        component: LoginUIScreen,
+        getComponent: () => require('../screens/auditPro/containers/LoginUIScreen').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.REGISTRATION,
-        component: Registration,
+        getComponent: () => require('../screens/auditPro/containers/Registration').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.LANGUAGES,
-        component: Languages,
+        getComponent: () => require('../screens/auditPro/containers/Languages').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.AUDIT_LAUNCH,
-        component: AuditLaunchScreen,
+        getComponent: () => require('../screens/auditPro/containers/LaunchScreen').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.UNREGISTER,
-        component: UnRegistration,
+        getComponent: () => require('../screens/auditPro/containers/UnRegister').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.ALLTABAUDITLIST,
-        component: AllTabAuditList,
+        getComponent: () => require('../screens/auditPro/containers/AllTabAuditList').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.AUDITPRODASHBOARD,
-        component: AuditProDashboard,
+        getComponent: () => require('../screens/auditPro/containers/AuditProDashboard').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.AUDIT_NOTIFICATIONS,
-        component: AuditNotifications,
+        getComponent: () => require('../screens/auditPro/containers/AuditNotifications').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.VOICE_RECOGNITION,
-        component: VoiceRecognition,
+        getComponent: () => require('../screens/auditPro/containers/VoiceRecognition').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.FILTER_SCREEN,
-        component: FilterScreen,
+        getComponent: () => require('../screens/auditPro/containers/FilterScreen').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.PROFILE_SCREEN,
-        component: Profile,
+        getComponent: () => require('../screens/auditPro/containers/Profile').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.DOWNLOADS,
-        component: Downloads,
+        getComponent: () => require('../screens/auditPro/containers/Downloads').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.SYNC_DETAILS,
-        component: SyncDetails,
+        getComponent: () => require('../screens/auditPro/containers/SyncDetails').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.HELP,
-        component: Help,
+        getComponent: () => require('../screens/auditPro/containers/Help').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.SUPPLY_MANAGE,
-        component: SupplyManage,
+        getComponent: () => require('../screens/auditPro/containers/SupplyManage').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.CALENDER_LIST,
-        component: CalendarList,
+        getComponent: () => require('../screens/auditPro/containers/CalandarList').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.CREATE_NCLPA,
-        component: Createnclpa,
+        getComponent: () => require('../screens/auditPro/containers/Createnclpa').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
 
@@ -470,77 +342,77 @@ export const AppStackData = [
 
     {
         name: ROUTES.SPLASH_SCREEN_PS,
-        component: SplashScreenPS,
+        getComponent: () => require('../screens/problemSolver/containers/splash-screen').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.LOGIN_PS,
-        component: LoginPrblmSolver,
+        getComponent: () => require('../screens/problemSolver/containers/auth/login').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.REGISTER_PS,
-        component: RegisterPrblmSolver,
+        getComponent: () => require('../screens/problemSolver/containers/auth/register').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.FILTERED_LIST_PS,
-        component: FilteredConcernListScreen,
+        getComponent: () => require('../screens/problemSolver/containers/filtered-concern-list-screen').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.LIST_SCREEN_PS,
-        component: ConcernListScreen,
+        getComponent: () => require('../screens/problemSolver/containers/concerns/concern-list-screen').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.HOME_LIST_PS,
-        component: HomeListCard,
+        getComponent: () => require('../screens/globalDashboard/home-listcard').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.HOME_LIST_APQP,
-        component: HomeListCardApqp,
+        getComponent: () => require('../screens/globalDashboard/home-listcard-apqp').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.VIEW_CONCERN_PS,
-        component: ViewConcern,
+        getComponent: () => require('../screens/problemSolver/containers/concerns/view-concern').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.HOME_PS,
-        component: BottomTabPS,
+        getComponent: () => require('./bottom-tab-ps').BottomTabPS,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.EDIT_CONCERN,
-        component: EditConcern,
+        getComponent: () => require('../screens/problemSolver/containers/concerns/edit-concern').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.VIEW_LOGS,
-        component: ViewLogs,
+        getComponent: () => require('../screens/problemSolver/containers/view-logs').default,
         cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
     },
     {
         name: ROUTES.EIGHTD_DYNAMIC_PAGE,
-        component: EightDDynamicPage,
+        getComponent: () => require('../screens/problemSolver/containers/eightd-dynamic-page').default,
         cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
     },
     {
         name: ROUTES.TIME_SETTINGS,
-        component: TimeSettings,
+        getComponent: () => require('../screens/problemSolver/containers/settings/time-settings').default,
         cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
     },
     {
         name: ROUTES.CALENDER,
-        component: Calender,
+        getComponent: () => require('../screens/problemSolver/containers/calender').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.PROJECT_LIST_PS,
-        component: ProjectListScreen,
+        getComponent: () => require('../screens/problemSolver/containers/projects/project-list-screen').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
 
@@ -548,262 +420,262 @@ export const AppStackData = [
 
     {
         name: ROUTES.DASHBOARD_APQP,
-        component: DashBoardAPQP,
+        getComponent: () => require('../screens/apqp/containers/DashboardScreen').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.CALANDAR_LIST_APQP,
-        component: CalandarListAPQP,
+        getComponent: () => require('../screens/apqp/containers/CalandarList').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.PROJECT_LIST_APQP,
-        component: ProjectListAPQP,
+        getComponent: () => require('../screens/apqp/containers/ProjectListScreen').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.APQP_PPAP_MANAGER_SCREEN,
-        component: ApqpPpapManagerScreen,
+        getComponent: () => require('../screens/apqp/containers/ApqpPpapManagerScreen').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.RISK_SCREEN,
-        component: RiskScreen,
+        getComponent: () => require('../screens/apqp/containers/RiskScreen').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.FILTER_SCREEN_APQP,
-        component: FilterScreenAPQP,
+        getComponent: () => require('../screens/apqp/containers/FilterScreen').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.MEETING_SCREEN,
-        component: MeetingScreen,
+        getComponent: () => require('../screens/apqp/containers/MeetingScreen').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.OPEN_SCREEN,
-        component: OpenScreen,
+        getComponent: () => require('../screens/apqp/containers/OpenScreen').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.INPROGRESS_SCREEN,
-        component: InProgressScreen,
+        getComponent: () => require('../screens/apqp/containers/InProgressScreen').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.TODAYS_TASK,
-        component: TodaysTask,
+        getComponent: () => require('../screens/apqp/containers/TodaysTask').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.ACTION_TAB_INTERFACE,
-        component: ActionTabInterface,
+        getComponent: () => require('../screens/apqp/containers/ActionTabInterface').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.PERIODIC_UPDATE_SCREEN,
-        component: PeriodicUpdateScreen,
+        getComponent: () => require('../screens/apqp/containers/PeriodicUpdateScreen').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.CALENDER_VIEW,
-        component: Calenderview,
+        getComponent: () => require('../screens/apqp/containers/DailyAction').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.RISK_ACTION_SCREEN,
-        component: RiskActionScreen,
+        getComponent: () => require('../screens/apqp/containers/RiskActionScreen').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.MEETING_PLAN_SCREEN,
-        component: MeetingPlanScreen,
+        getComponent: () => require('../screens/apqp/containers/MeetingPlanScreen').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.APQP_MANAGER_SCREEN,
-        component: ApqpmanagerScreen,
+        getComponent: () => require('../screens/apqp/containers/ApqpmanagerScreen').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.TASK_LIST_SCREEN,
-        component: TaskListScreen,
+        getComponent: () => require('../screens/apqp/containers/TaskListScreen').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.PERIODIC_HISTORY_SCREEN,
-        component: PeriodicHistoryScreen,
+        getComponent: () => require('../screens/apqp/containers/PeriodicHistoryScreen').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.PERIODIC_EDIT_SCREEN,
-        component: PeriodicEditScreen,
+        getComponent: () => require('../screens/apqp/containers/PeriodicEditScreen').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.DELIVERABLE_INFO_SCREEN,
-        component: DeliverableInfoScreen,
+        getComponent: () => require('../screens/apqp/containers/DeliverableInfoScreen').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.REVISION_HISTORY_SCREEN,
-        component: RevisionHistoryScreen,
+        getComponent: () => require('../screens/apqp/containers/RevisionHistoryScreen').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.OPEN_DOCUMENT_SCREEN,
-        component: OpenDocumentScreen,
+        getComponent: () => require('../screens/apqp/containers/OpenDocumentScreen').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.ATTACH_ADDITIONAL_DOC_SCREEN,
-        component: AttachAdditionalDocScreen,
+        getComponent: () => require('../screens/apqp/containers/AttachAdditionalDocScreen').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.PROFILE_APQP,
-        component: ProfileAPQP,
+        getComponent: () => require('../screens/apqp/containers/Profile').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.HELP_APQP,
-        component: HelpAPQP,
+        getComponent: () => require('../screens/apqp/containers/Help').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.DAILY_ACTION,
-        component: DailyAction,
+        getComponent: () => require('../screens/apqp/containers/DailyAction').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.SUPPLY_MANAGE_SM,
-        component: SupplyManageSM,
+        getComponent: () => require('../screens/supplierManagement/containers/supplyManage').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.REGISTRATION_SM,
-        component: RegisterSM,
+        getComponent: () => require('../screens/supplierManagement/containers/registrationSM').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.LOGIN_SM,
-        component: LoginSM,
+        getComponent: () => require('../screens/supplierManagement/containers/loginUIScreenSM').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.ALLTABAUDITLIST_SM,
-        component: AllTabAuditListSM,
+        getComponent: () => require('../screens/supplierManagement/containers/allTabAuditListSM').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.AUDIT_DASHBOARD_LISTING_SM,
-        component: AuditDashboardListingSM,
+        getComponent: () => require('../screens/supplierManagement/containers/auditDashboardListingSM').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
 
     {
         name: ROUTES.AUDITPRODASHBOARD_SM,
-        component: AuditDashboardSM,
+        getComponent: () => require('../screens/supplierManagement/containers/auditProDashboardSM').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.CHECKPOINT_DEMO_SM,
-        component: CheckPointDemoSM,
+        getComponent: () => require('../screens/supplierManagement/containers/checkPointDemoSM').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.AUDIT_PAGE_SM,
-        component: AuditPageSM,
+        getComponent: () => require('../screens/supplierManagement/containers/auditPageSM').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.AUDIT_FORM_SM,
-        component: AuditFormSM,
+        getComponent: () => require('../screens/supplierManagement/containers/auditFormSM').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.CREATE_NC_SM,
-        component: CreateNCSM,
+        getComponent: () => require('../screens/supplierManagement/containers/createNC-SM').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.NC_OFI_PAGE_SM,
-        component: NCOFIPageSM,
+        getComponent: () => require('../screens/supplierManagement/containers/NCOFIPageSM').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
 
     //DOC-PRO
     {
         name: ROUTES.DOCPRO_DASHBOARD,
-        component: DocproDashboard,
+        getComponent: () => require('../screens/docpro/DocproDashboard').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
         name: ROUTES.DOCPRO_ACTION,
-        component: DocproAction,
+        getComponent: () => require('../screens/docpro/actions/DocproAction').default,
         cardStyleInterpolator: CardStyleInterpolators.forNoAnimation,
     },
     {
         name: ROUTES.DOCPRO_ADMINACTION,
-        component: DocproAdminAction,
+        getComponent: () => require('../screens/docpro/DocproAdminAction').default,
         cardStyleInterpolator: CardStyleInterpolators.forNoAnimation,
     },
     {
         name: ROUTES.DOCPRO_DOCUMENTS,
-        component: DocproDocuments,
+        getComponent: () => require('../screens/docpro/DocproDocuments').default,
         cardStyleInterpolator: CardStyleInterpolators.forNoAnimation,
     },
     {
         name: ROUTES.DOCPRO_NEWDOCUMENTREQUEST,
-        component: DocproNewDocumentRequest,
+        getComponent: () => require('../screens/docpro/DocproNewDocumentRequest').default,
         cardStyleInterpolator: CardStyleInterpolators.forNoAnimation,
     },
     {
         name: ROUTES.DOCPRO_DOCUMENTFOLDER,
-        component: DocumentFolder,
+        getComponent: () => require('../screens/docpro/Levels/DocumentFolder').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
 
     // INSPECTION CONTROL
     {
         name: ROUTES.INSPECTION_SCHEDULE,
-        component: InspectionSchedule,
+        getComponent: () => require('../screens/inspection-control/inspection-schedule').default,
         cardStyleInterpolator: CardStyleInterpolators.forFadeFromCenter,
     },
     {
         name: ROUTES.OPERATOR_WORKSHEET,
-        component: OperatorWorksheet,
+        getComponent: () => require('../screens/inspection-control/operator-worksheet').default,
         cardStyleInterpolator: CardStyleInterpolators.forFadeFromCenter,
     },
     {
         name: ROUTES.COMPLETED_INSPECTION,
-        component: CompletedInspection,
+        getComponent: () => require('../screens/inspection-control/completed-inspection').default,
         cardStyleInterpolator: CardStyleInterpolators.forFadeFromCenter,
     },
     {
         name: ROUTES.SUPERVISOR_SCHEDULE,
-        component: SupervisorSchedule,
+        getComponent: () => require('../screens/inspection-control/supervisor-schedule').default,
         cardStyleInterpolator: CardStyleInterpolators.forFadeFromCenter,
     },
     {
         name: ROUTES.INPROCESS_INSPECTION,
-        component: InprocessInspection,
+        getComponent: () => require('../screens/inspection-control/inprocess-inspection').default,
         cardStyleInterpolator: CardStyleInterpolators.forFadeFromCenter,
     },
     {
         name: ROUTES.CONTAINMENT_ACTIONS,
-        component: ContainmentActions,
+        getComponent: () => require('../screens/inspection-control/containmentActions').default,
         cardStyleInterpolator: CardStyleInterpolators.forFadeFromCenter,
     },
     {
         name: ROUTES.INSPECTION_SETTINGS,
-        component: IcSettings,
+        getComponent: () => require('../screens/inspection-control/icSettings').default,
         cardStyleInterpolator: CardStyleInterpolators.forFadeFromCenter,
     },
     {
         name: ROUTES.SEARCH_INSPECTION,
-        component: SearchInspection,
+        getComponent: () => require('../screens/inspection-control/search-inspection').default,
         cardStyleInterpolator: CardStyleInterpolators.forFadeFromCenter,
     },
 ];
@@ -811,7 +683,7 @@ export const AppStackData = [
 export const ProjectData = [
     {
         name: ROUTES.PROJECT_LIST_PS,
-        component: ProjectListScreen,
+        getComponent: () => require('../screens/problemSolver/containers/projects/project-list-screen').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
 ];
@@ -824,12 +696,13 @@ export const ProjectStack = () => (
             headerShown: false,
         }}
         initialRouteName={ROUTES.PROJECT_LIST_PS}>
-        {ProjectData.map(({ name, component }, index) => (
+        {ProjectData.map(({ name, component, getComponent }, index) => (
             <Stack.Screen
                 key={index}
                 {...{
                     name,
-                    component,
+                    ...(component ? { component } : {}),
+                    ...(getComponent ? { getComponent } : {}),
                     options: {
                         cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
                     },
@@ -850,14 +723,15 @@ export function AppStack() {
                 headerShown: false,
             }}
             initialRouteName={ROUTES.SPLASH_SCREEN}>
-            {AppStackData.map(({ name, component, cardStyleInterpolator }, index) => {
+            {AppStackData.map(({ name, component, getComponent, cardStyleInterpolator }, index) => {
             const isLogout = name === ROUTES.GLOBAL_LOGOUT;
             return (
                 <Stack.Screen
                     key={index}
                     {...{
                         name,
-                        component,
+                        ...(component ? { component } : {}),
+                        ...(getComponent ? { getComponent } : {}),
                         // options: {
                         //     cardStyleInterpolator: cardStyleInterpolator || CardStyleInterpolators.forHorizontalIOS,
                         // },

@@ -142,7 +142,7 @@ const LoginFunctional = ({}) => {
         }
     };
 
-    const handleServerURL = currentData => {
+    const handleServerURL = async currentData => {
         console.log('loginDetails?.username---->', loginDetails?.username, currentData?.Data[0], typeof currentData?.Data[0].FullName);
         const userDetails = {
             userId: currentData?.Data[0]?.UserId.toString(),
@@ -155,9 +155,9 @@ const LoginFunctional = ({}) => {
             data: currentData?.Data,
         };
         const stringifiedUserDetails = JSON.stringify(userDetails);
-        AsyncStorage.setItem('userDetails', stringifiedUserDetails);
+        await AsyncStorage.setItem('userDetails', stringifiedUserDetails);
         console.log('Set Async userDetails ', stringifiedUserDetails);
-        localStorage.storeData('appLogged', true);
+        await localStorage.storeData('appLogged', true);
     };
 
     const handleLoginCall = async (encryptedPassword, loginflag, isSso) => {
@@ -222,7 +222,7 @@ const LoginFunctional = ({}) => {
                         AsyncStorage.setItem('userDetails', JSON.stringify(data?.data));
                         data?.data?.Token && (await setProfileCall(data?.data)); // navigate to home
                         handleGlobalLogin(data?.data);
-                        handleServerURL(data?.data);
+                        await handleServerURL(data?.data);
                     } else {
                     // console.log('global loginUser---->',  res?.data?.Message);
 
