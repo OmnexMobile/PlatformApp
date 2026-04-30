@@ -24,7 +24,7 @@ import CryptoJS from 'crypto-js';
 import { connect } from 'react-redux';
 import Toast, { DURATION } from 'react-native-easy-toast';
 import { Bubbles, DoubleBounce, Bars, Pulse } from 'react-native-loader';
-import auth from '../../../services/Auditpro-Auth';
+import auth from '../../../services/SupplierMgnt-Auth';
 import OfflineNotice from '../../auditPro/components/OfflineNotice';
 import ScrollableTabView, { DefaultTabBar } from 'react-native-scrollable-tab-view';
 import DocumentPicker from 'react-native-document-picker';
@@ -112,6 +112,7 @@ class AuditForm extends Component {
             redDotID: '',
             uploadSpeed: null,
             AUDITPROG_ID: '',
+            currentUserData: null,
         };
     }
 
@@ -144,20 +145,31 @@ class AuditForm extends Component {
     async getAccessToken() {
         try {
             const stringifiedUserDetails = await AsyncStorage.getItem('userDetails');
-            const value = JSON.parse(stringifiedUserDetails);
+            const value = stringifiedUserDetails ? JSON.parse(stringifiedUserDetails) : null;
             console.log('current userdata--->', value);
             if (value !== null) {
                 // value previously stored
                 console.log('current token2--->', value.accessToken);
-                this.setState({ currentUserData: value }, () => {
+                this.setState({ currentUserData: value, token: value.accessToken || this.state.token }, () => {
                     console.log('Token set');
                 });
             }
+            return value;
         } catch (e) {
             // error reading value
             console.log('error--->', e);
+            return null;
         }
     }
+
+    resolveAuthSession = async () => {
+        const currentUserData = this.state.currentUserData?.accessToken ? this.state.currentUserData : await this.getAccessToken();
+        return {
+            token: currentUserData?.accessToken || this.state.token || this.props?.data?.audits?.token,
+            userId: currentUserData?.userId || this.props?.data?.audits?.userId,
+            siteId: currentUserData?.siteId || this.props?.data?.audits?.siteId,
+        };
+    };
 
     componentDidMount() {
         console.log('dhfjdhfksfksfksfjsn dfnsd f', this.props);
@@ -954,14 +966,15 @@ class AuditForm extends Component {
         return new Promise(async (resolve, reject) => {
             // Dynamic parameters
             // console.log('dksfskfhskdfhsdhfksdhfsdhf893393483993',this.props.data.audits.siteId);
+            const session = await this.resolveAuthSession();
             var dnum = this.state.Checkpointpass.AUDIT_NO;
-            var siteId = this.state.currentUserData?.siteId || this.props.data.audits.siteId;
-            var UserId = this.state.currentUserData?.userId || this.props.data.audits.userId;
+            var siteId = session.siteId;
+            var UserId = session.userId;
             var siteid = 'sit' + siteId;
             var effectivedate = Moment(new Date()).format('MM/DD/YYYY');
             var revdate = Moment(new Date()).format('MM/DD/YYYY');
             var deviceId = await DeviceInfo.getUniqueId();
-            var token = this.state.currentUserData?.accessToken || this.props.data.audits.token;
+            var token = session.token;
 
             // Static parameters
             var langid = 1;
@@ -1107,7 +1120,7 @@ class AuditForm extends Component {
                     console.log('formRequestArr.lengthcheck------', formRequestArr.length, this.auditAttachments.length, loopCount);
                     if (formRequestArr.length == loopCount) {
                         console.log('ArrayCHECKKKKKKK------->,formRequestArr', formRequestArr);
-                        this.attachmentFileApiCall(formRequestArr);
+                        this.attachmentFileApiCall(formRequestArr, token);
                     } else {
                         this.updateAttachmentStatus(null, res.i, null);
                         notDownloadedAttach++;
@@ -1125,12 +1138,19 @@ class AuditForm extends Component {
             console.log('ledfjhxgdfjhsgdfjhs', formRequestArr.length, loopCount);
         });
     }
-    attachmentFileApiCall(formRequestArr) {
-        var token = this.props.data.audits.token;
+    async attachmentFileApiCall(formRequestArr, authToken) {
+        var token = authToken || (await this.resolveAuthSession()).token;
+        if (!token) {
+            console.log('attachmentFileApiCall skipped: missing token');
+            this.setState({ isLoaderVisible: false }, () => {
+                this.refs.toast.show(strings.AuditFail, DURATION.LENGTH_LONG);
+            });
+            return;
+        }
         console.log('fromrequestArrayCHECK-------', formRequestArr);
         const formRequestArrPush = [];
-        console.log('arraychjdhfjshf-0', arraylistData);
         const arraylistData = formRequestArr;
+        console.log('arraychjdhfjshf-0', arraylistData);
         console.log('arraychjdhfjshf-1', arraylistData);
         //const objArray = objValues;
         console.log('arraychjdhfjshf-2', arraylistData);
@@ -1628,9 +1648,10 @@ class AuditForm extends Component {
             />
         );
     };
-    handleNCOFIConnection() {
+    async handleNCOFIConnection() {
         console.log('getting local unsaved data', this.props.data.audits.ncofiRecords);
-        var token = this.props.data.audits.token;
+        const session = await this.resolveAuthSession();
+        var token = session.token;
         var formRequest = [];
         var dataArr = this.props.data.audits.ncofiRecords;
         console.log(dataArr, 'duplicatees');
@@ -1764,6 +1785,13 @@ class AuditForm extends Component {
 
         if (formRequest) {
             if (formRequest.length > 0) {
+                if (!token) {
+                    console.log('syncNCOFIToServer skipped: missing token');
+                    this.setState({ isLoaderVisible: false }, () => {
+                        this.refs.toast.show(strings.AuditFail, DURATION.LENGTH_LONG);
+                    });
+                    return;
+                }
                 console.log('checkncsuccess now formrequest-------');
                 this.formRequestArr(formRequest, token);
             } else {
@@ -2319,10 +2347,11 @@ class AuditForm extends Component {
     // AsyncStorage.setItem('AUDIT_SITE_ID',this.state.AUDIT_SITE_ID);
     // AsyncStorage.setItem('AUDIT_STATUS',this.props.route.params.datapass.AuditStatus);
     // }
-    syncAuditFormsToServer = () => {
+    syncAuditFormsToServer = async () => {
         var documentList = [];
-        const TOKEN = this.state.token;
-        var userid = this.props.data.audits.userId;
+        const session = await this.resolveAuthSession();
+        const TOKEN = session.token;
+        var userid = session.userId;
         this.formObjects = [];
         console.log('this.state.formDetails', this.state.formDetails);
 
@@ -2361,6 +2390,13 @@ class AuditForm extends Component {
 
         if (documentList) {
             if (documentList.length > 0) {
+                if (!TOKEN) {
+                    console.log('syncAuditFormsToServer skipped: missing token');
+                    this.setState({ isLoaderVisible: false }, () => {
+                        this.refs.toast.show(strings.AuditFail, DURATION.LENGTH_LONG);
+                    });
+                    return;
+                }
                 console.log('syncAuditFormsToServer--->BF');
                 auth.syncAuditFormsToServer(documentList, TOKEN, (res, data) => {
                     console.log('120 syncAuditFormsToServer--->AF', data);
@@ -2669,6 +2705,7 @@ class AuditForm extends Component {
                         }
                         console.log('Sync process completed successfully!');
                         console.log(!this.isDocsAvail, 'docavail');
+                        const syncToastDuration = DURATION.LENGTH_LONG;
                         if (this.props.data.audits.smdata === 2 || this.props.data.audits.smdata === 3) {
                             console.log('auditpagegoint');
                             //   if(this.props.data.audits.smdata == 2 || this.props.data.audits.smdata == 3){
@@ -2681,12 +2718,15 @@ class AuditForm extends Component {
                                 ...(this.props.route?.params?.datapassParam || {}),
                                 cStatus: constants.StatusSynced,
                             };
-                            this.props.navigation.navigate(ROUTES.AUDIT_PAGE_SM, {
-                                isSubmitted: this.state.notifyRed,
-                                datapass: updatedDataPass,
-                            });
+                            this.refs.toast.show(strings.AuditSync, syncToastDuration);
+                            setTimeout(() => {
+                                this.props.navigation.navigate(ROUTES.AUDIT_PAGE_SM, {
+                                    isSubmitted: this.state.notifyRed,
+                                    datapass: updatedDataPass,
+                                });
+                            }, syncToastDuration);
                         } else if (!this.isDocsAvail) {
-                            this.refs.toast.show(strings.AuditSync, DURATION.LENGTH_LONG);
+                            this.refs.toast.show(strings.AuditSync, syncToastDuration);
                             setTimeout(() => {
                                 this.props.navigation.navigate(ROUTES.AUDIT_STATUS, {
                                     isSubmitted: true,
@@ -2694,15 +2734,17 @@ class AuditForm extends Component {
                                     breadCrumb: this.state.breadCrumbText,
                                     generatereport: this.state.generarereport_param.length > 0 ? this.state.generarereport_param : 'empty',
                                 });
-                            }, 1000);
+                            }, syncToastDuration);
                         } else {
                             this.isDocsAvail = false;
-                            this.refs.toast.show(strings.AuditSync, DURATION.LENGTH_LONG);
-                            this.props.navigation.navigate(ROUTES.AUDIT_STATUS, {
-                                AuditID: this.state.AuditID,
-                                breadCrumb: this.state.breadCrumbText,
-                                generatereport: this.state.generarereport_param.length > 0 ? this.state.generarereport_param : 'empty',
-                            });
+                            this.refs.toast.show(strings.AuditSync, syncToastDuration);
+                            setTimeout(() => {
+                                this.props.navigation.navigate(ROUTES.AUDIT_STATUS, {
+                                    AuditID: this.state.AuditID,
+                                    breadCrumb: this.state.breadCrumbText,
+                                    generatereport: this.state.generarereport_param.length > 0 ? this.state.generarereport_param : 'empty',
+                                });
+                            }, syncToastDuration);
                         }
                     });
                 } else {

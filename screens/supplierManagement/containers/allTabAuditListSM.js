@@ -2545,7 +2545,7 @@ class AllTabAuditList extends Component {
                 console.log('SortOrder', this.state.SortOrder);
                 console.log('SortOrder', this.state.SortOrder);
 
-                console.log('getAuditlist ------>');
+                console.log('getAuditlist ------>11111');
                 var pageNo = this.state.page;
                 // var token = this.props.data.audits.token;
                 // var userId = this.props.data.audits.userId;
@@ -2994,7 +2994,8 @@ class AllTabAuditList extends Component {
         }
         NetInfo.fetch().then(netState => {
             if (netState.isConnected) {
-                console.log('getAuditlist ------>');
+                console.log('getAuditlist ------>222222',this?.props?.route?.params?.filter_Arr[0]?.startDate);
+                console.log('getAuditlist ------>222222',this?.props?.route?.params?.filter_Arr[0]?.endDate);
                 var pageNo = this.state.page;
                 // var token = this.props.data.audits.token;
                 // var userId = this.props.data.audits.userId;
@@ -3005,9 +3006,10 @@ class AllTabAuditList extends Component {
                 var filterId = this.state.filterId;
                 var pageSize = 10;
                 var GlobalFilter = this.state.AuditSearch;
-                var StartDate = startDate == undefined ? '' : startDate;
-                var EndDate = endDate == undefined ? '' : endDate;
-                var SortBy = this.state.SortBy;
+                var StartDate = this?.props?.route?.params?.filter_Arr[0]?.startDate == undefined ? '' : this?.props?.route?.params?.filter_Arr[0]?.startDate;
+                var EndDate = this?.props?.route?.params?.filter_Arr[0]?.endDate == undefined ? '' : this?.props?.route?.params?.filter_Arr[0]?.endDate;
+                // var SortBy = this.state.SortBy;
+                var SortBy = '';
                 var SortOrder = this.state.SortOrder;
                 var Default = 0;
                 var SM = smIndex || this.props.data.audits.smdata;
@@ -3040,7 +3042,7 @@ class AllTabAuditList extends Component {
                     EndDate,
                     SortBy,
                     SortOrder,
-                    SM,
+                    3,
                     Default,
                     (response, data) => {
                         console.log('AuditList list data', data);
@@ -3292,7 +3294,7 @@ class AllTabAuditList extends Component {
         }
         NetInfo.fetch().then(netState => {
             if (netState.isConnected) {
-                console.log('getAuditlist ------>');
+                console.log('getAuditlist ------>3333');
                 var pageNo = this.state.page;
                 // var token = this.props.data.audits.token;
                 // var userId = this.props.data.audits.userId;
@@ -3303,9 +3305,10 @@ class AllTabAuditList extends Component {
                 var filterId = this.state.filterId;
                 var pageSize = 10;
                 var GlobalFilter = this.state.AuditSearch;
-                var StartDate = startDate == undefined ? '' : startDate;
-                var EndDate = endDate == undefined ? '' : endDate;
-                var SortBy = this.state.SortBy;
+                var StartDate = this?.props?.route?.params?.filter_Arr[0]?.startDate == undefined ? '' : this?.props?.route?.params?.filter_Arr[0]?.startDate;
+                var EndDate = this?.props?.route?.params?.filter_Arr[0]?.endDate == undefined ? '' : this?.props?.route?.params?.filter_Arr[0]?.endDate;
+                // var SortBy = this.state.SortBy;
+                var SortBy = '';
                 var SortOrder = this.state.SortOrder;
                 var Default = 1;
                 var SM = smIndex || this.props.data.audits.smdata;
@@ -3338,7 +3341,7 @@ class AllTabAuditList extends Component {
                     EndDate,
                     SortBy,
                     SortOrder,
-                    SM,
+                    3,
                     Default,
                     (response, data) => {
                         console.log('AuditList list data', data);

@@ -24,6 +24,7 @@ import { ROUTES } from 'constants/app-constant';
 import { SPACING } from 'constants/theme-constants';
 import AsyncStorage from '@react-native-community/async-storage';
 import auth from '../../services/SupplierMgnt-Auth';
+import GlobalHeader from "components/GlobalHeader";
 
 const {whitneyBook_18} = Fonts.style;
 const {blackGrey} = Fonts.colors;
@@ -40,6 +41,7 @@ class AuditNotifications extends Component {
   }
 
    componentDidMount() {
+console.log('check--------->',this.props);
 
     if (this.props.data.audits.language === 'Chinese') {
       this.setState({ChineseScript: true}, () => {
@@ -66,14 +68,14 @@ class AuditNotifications extends Component {
         {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
         {/* Offline notification */}
         <OfflineNotice />
-        <ImageBackground
-          source={Images.DashboardBG}
-          style={{
-            resizeMode: 'stretch',
-            width: '100%',
-            height: 60,
-          }}>
-          <View style={{flexDirection:'row',justifyContent:'space-between',alignContent:'center',margin:15}}> 
+          <GlobalHeader
+                    title={strings.notifications}
+                    subtitle={this.state.breadCrumbText}
+                    onLeftPress={() => this.props.navigation.goBack()}
+                    onRightPress={() => this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)}
+                    containerStyle={styles.headerContainer}
+                />
+          {/* <View style={{flexDirection:'row',justifyContent:'space-between',alignContent:'center'}}> 
           <TouchableOpacity
               onPress={() => this.props.navigation.goBack()}
               style={styles.backlogo}>
@@ -93,9 +95,7 @@ class AuditNotifications extends Component {
                 <Icon name="home" size={30} color="white" />
               </TouchableOpacity>
           </View>
-          </View>
-          </ImageBackground>
-
+          </View> */}
         
         <View style={styles.body}>
           {this.state.notificationsList.length === 0 ? (
