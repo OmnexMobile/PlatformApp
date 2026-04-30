@@ -41,8 +41,7 @@ index 0000000..0d259dd
 +o/classes
 diff --git a/node_modules/react-native-tts/android/build/.transforms/62917d1c85b472b3271dc01c15e63895/transformed/classes/classes_dex/classes.dex b/node_modules/react-native-tts/android/build/.transforms/62917d1c85b472b3271dc01c15e63895/transformed/classes/classes_dex/classes.dex
 new file mode 100644
-index 0000000..d0223cd
-Binary files /dev/null and b/node_modules/react-native-tts/android/build/.transforms/62917d1c85b472b3271dc01c15e63895/transformed/classes/classes_dex/classes.dex differ
+index 0000000..e69de29
 diff --git a/node_modules/react-native-tts/android/build/.transforms/a2afddb6aeb008e105f389f19c16bb8f/results.bin b/node_modules/react-native-tts/android/build/.transforms/a2afddb6aeb008e105f389f19c16bb8f/results.bin
 new file mode 100644
 index 0000000..4c288ce
@@ -59,32 +58,25 @@ index 0000000..5ff383e
 +o/debug
 diff --git a/node_modules/react-native-tts/android/build/.transforms/b58d693b17aaa9e44cd664ef4bdfd2fd/transformed/debug/debug_dex/net/no_mad/tts/BuildConfig.dex b/node_modules/react-native-tts/android/build/.transforms/b58d693b17aaa9e44cd664ef4bdfd2fd/transformed/debug/debug_dex/net/no_mad/tts/BuildConfig.dex
 new file mode 100644
-index 0000000..c0d0d9e
-Binary files /dev/null and b/node_modules/react-native-tts/android/build/.transforms/b58d693b17aaa9e44cd664ef4bdfd2fd/transformed/debug/debug_dex/net/no_mad/tts/BuildConfig.dex differ
+index 0000000..e69de29
 diff --git a/node_modules/react-native-tts/android/build/.transforms/b58d693b17aaa9e44cd664ef4bdfd2fd/transformed/debug/debug_dex/net/no_mad/tts/TextToSpeechModule$1.dex b/node_modules/react-native-tts/android/build/.transforms/b58d693b17aaa9e44cd664ef4bdfd2fd/transformed/debug/debug_dex/net/no_mad/tts/TextToSpeechModule$1.dex
 new file mode 100644
-index 0000000..ef2f29e
-Binary files /dev/null and b/node_modules/react-native-tts/android/build/.transforms/b58d693b17aaa9e44cd664ef4bdfd2fd/transformed/debug/debug_dex/net/no_mad/tts/TextToSpeechModule$1.dex differ
+index 0000000..e69de29
 diff --git a/node_modules/react-native-tts/android/build/.transforms/b58d693b17aaa9e44cd664ef4bdfd2fd/transformed/debug/debug_dex/net/no_mad/tts/TextToSpeechModule$2.dex b/node_modules/react-native-tts/android/build/.transforms/b58d693b17aaa9e44cd664ef4bdfd2fd/transformed/debug/debug_dex/net/no_mad/tts/TextToSpeechModule$2.dex
 new file mode 100644
-index 0000000..17f58e4
-Binary files /dev/null and b/node_modules/react-native-tts/android/build/.transforms/b58d693b17aaa9e44cd664ef4bdfd2fd/transformed/debug/debug_dex/net/no_mad/tts/TextToSpeechModule$2.dex differ
+index 0000000..e69de29
 diff --git a/node_modules/react-native-tts/android/build/.transforms/b58d693b17aaa9e44cd664ef4bdfd2fd/transformed/debug/debug_dex/net/no_mad/tts/TextToSpeechModule$3.dex b/node_modules/react-native-tts/android/build/.transforms/b58d693b17aaa9e44cd664ef4bdfd2fd/transformed/debug/debug_dex/net/no_mad/tts/TextToSpeechModule$3.dex
 new file mode 100644
-index 0000000..41f4ee3
-Binary files /dev/null and b/node_modules/react-native-tts/android/build/.transforms/b58d693b17aaa9e44cd664ef4bdfd2fd/transformed/debug/debug_dex/net/no_mad/tts/TextToSpeechModule$3.dex differ
+index 0000000..e69de29
 diff --git a/node_modules/react-native-tts/android/build/.transforms/b58d693b17aaa9e44cd664ef4bdfd2fd/transformed/debug/debug_dex/net/no_mad/tts/TextToSpeechModule.dex b/node_modules/react-native-tts/android/build/.transforms/b58d693b17aaa9e44cd664ef4bdfd2fd/transformed/debug/debug_dex/net/no_mad/tts/TextToSpeechModule.dex
 new file mode 100644
-index 0000000..b9539b7
-Binary files /dev/null and b/node_modules/react-native-tts/android/build/.transforms/b58d693b17aaa9e44cd664ef4bdfd2fd/transformed/debug/debug_dex/net/no_mad/tts/TextToSpeechModule.dex differ
+index 0000000..e69de29
 diff --git a/node_modules/react-native-tts/android/build/.transforms/b58d693b17aaa9e44cd664ef4bdfd2fd/transformed/debug/debug_dex/net/no_mad/tts/TextToSpeechPackage.dex b/node_modules/react-native-tts/android/build/.transforms/b58d693b17aaa9e44cd664ef4bdfd2fd/transformed/debug/debug_dex/net/no_mad/tts/TextToSpeechPackage.dex
 new file mode 100644
-index 0000000..93c234d
-Binary files /dev/null and b/node_modules/react-native-tts/android/build/.transforms/b58d693b17aaa9e44cd664ef4bdfd2fd/transformed/debug/debug_dex/net/no_mad/tts/TextToSpeechPackage.dex differ
+index 0000000..e69de29
 diff --git a/node_modules/react-native-tts/android/build/.transforms/b58d693b17aaa9e44cd664ef4bdfd2fd/transformed/debug/desugar_graph.bin b/node_modules/react-native-tts/android/build/.transforms/b58d693b17aaa9e44cd664ef4bdfd2fd/transformed/debug/desugar_graph.bin
 new file mode 100644
-index 0000000..b980ded
-Binary files /dev/null and b/node_modules/react-native-tts/android/build/.transforms/b58d693b17aaa9e44cd664ef4bdfd2fd/transformed/debug/desugar_graph.bin differ
+index 0000000..e69de29
 diff --git a/node_modules/react-native-tts/android/build/generated/source/buildConfig/debug/net/no_mad/tts/BuildConfig.java b/node_modules/react-native-tts/android/build/generated/source/buildConfig/debug/net/no_mad/tts/BuildConfig.java
 new file mode 100644
 index 0000000..63ca074
@@ -162,12 +154,10 @@ index 0000000..9e26dfe
 \ No newline at end of file
 diff --git a/node_modules/react-native-tts/android/build/intermediates/compile_library_classes_jar/debug/classes.jar b/node_modules/react-native-tts/android/build/intermediates/compile_library_classes_jar/debug/classes.jar
 new file mode 100644
-index 0000000..8c17de9
-Binary files /dev/null and b/node_modules/react-native-tts/android/build/intermediates/compile_library_classes_jar/debug/classes.jar differ
+index 0000000..e69de29
 diff --git a/node_modules/react-native-tts/android/build/intermediates/compile_r_class_jar/debug/R.jar b/node_modules/react-native-tts/android/build/intermediates/compile_r_class_jar/debug/R.jar
 new file mode 100644
-index 0000000..43d354b
-Binary files /dev/null and b/node_modules/react-native-tts/android/build/intermediates/compile_r_class_jar/debug/R.jar differ
+index 0000000..e69de29
 diff --git a/node_modules/react-native-tts/android/build/intermediates/compile_symbol_list/debug/R.txt b/node_modules/react-native-tts/android/build/intermediates/compile_symbol_list/debug/R.txt
 new file mode 100644
 index 0000000..e69de29
@@ -216,28 +206,22 @@ index 0000000..56a1a72
 \ No newline at end of file
 diff --git a/node_modules/react-native-tts/android/build/intermediates/javac/debug/classes/net/no_mad/tts/BuildConfig.class b/node_modules/react-native-tts/android/build/intermediates/javac/debug/classes/net/no_mad/tts/BuildConfig.class
 new file mode 100644
-index 0000000..eb9c4ab
-Binary files /dev/null and b/node_modules/react-native-tts/android/build/intermediates/javac/debug/classes/net/no_mad/tts/BuildConfig.class differ
+index 0000000..e69de29
 diff --git a/node_modules/react-native-tts/android/build/intermediates/javac/debug/classes/net/no_mad/tts/TextToSpeechModule$1.class b/node_modules/react-native-tts/android/build/intermediates/javac/debug/classes/net/no_mad/tts/TextToSpeechModule$1.class
 new file mode 100644
-index 0000000..1874ea8
-Binary files /dev/null and b/node_modules/react-native-tts/android/build/intermediates/javac/debug/classes/net/no_mad/tts/TextToSpeechModule$1.class differ
+index 0000000..e69de29
 diff --git a/node_modules/react-native-tts/android/build/intermediates/javac/debug/classes/net/no_mad/tts/TextToSpeechModule$2.class b/node_modules/react-native-tts/android/build/intermediates/javac/debug/classes/net/no_mad/tts/TextToSpeechModule$2.class
 new file mode 100644
-index 0000000..c0f63f2
-Binary files /dev/null and b/node_modules/react-native-tts/android/build/intermediates/javac/debug/classes/net/no_mad/tts/TextToSpeechModule$2.class differ
+index 0000000..e69de29
 diff --git a/node_modules/react-native-tts/android/build/intermediates/javac/debug/classes/net/no_mad/tts/TextToSpeechModule$3.class b/node_modules/react-native-tts/android/build/intermediates/javac/debug/classes/net/no_mad/tts/TextToSpeechModule$3.class
 new file mode 100644
-index 0000000..689529c
-Binary files /dev/null and b/node_modules/react-native-tts/android/build/intermediates/javac/debug/classes/net/no_mad/tts/TextToSpeechModule$3.class differ
+index 0000000..e69de29
 diff --git a/node_modules/react-native-tts/android/build/intermediates/javac/debug/classes/net/no_mad/tts/TextToSpeechModule.class b/node_modules/react-native-tts/android/build/intermediates/javac/debug/classes/net/no_mad/tts/TextToSpeechModule.class
 new file mode 100644
-index 0000000..2c55898
-Binary files /dev/null and b/node_modules/react-native-tts/android/build/intermediates/javac/debug/classes/net/no_mad/tts/TextToSpeechModule.class differ
+index 0000000..e69de29
 diff --git a/node_modules/react-native-tts/android/build/intermediates/javac/debug/classes/net/no_mad/tts/TextToSpeechPackage.class b/node_modules/react-native-tts/android/build/intermediates/javac/debug/classes/net/no_mad/tts/TextToSpeechPackage.class
 new file mode 100644
-index 0000000..14d559b
-Binary files /dev/null and b/node_modules/react-native-tts/android/build/intermediates/javac/debug/classes/net/no_mad/tts/TextToSpeechPackage.class differ
+index 0000000..e69de29
 diff --git a/node_modules/react-native-tts/android/build/intermediates/local_only_symbol_list/debug/R-def.txt b/node_modules/react-native-tts/android/build/intermediates/local_only_symbol_list/debug/R-def.txt
 new file mode 100644
 index 0000000..78ac5b8
@@ -283,32 +267,25 @@ index 0000000..0637a08
 \ No newline at end of file
 diff --git a/node_modules/react-native-tts/android/build/intermediates/runtime_library_classes_dir/debug/net/no_mad/tts/BuildConfig.class b/node_modules/react-native-tts/android/build/intermediates/runtime_library_classes_dir/debug/net/no_mad/tts/BuildConfig.class
 new file mode 100644
-index 0000000..eb9c4ab
-Binary files /dev/null and b/node_modules/react-native-tts/android/build/intermediates/runtime_library_classes_dir/debug/net/no_mad/tts/BuildConfig.class differ
+index 0000000..e69de29
 diff --git a/node_modules/react-native-tts/android/build/intermediates/runtime_library_classes_dir/debug/net/no_mad/tts/TextToSpeechModule$1.class b/node_modules/react-native-tts/android/build/intermediates/runtime_library_classes_dir/debug/net/no_mad/tts/TextToSpeechModule$1.class
 new file mode 100644
-index 0000000..1874ea8
-Binary files /dev/null and b/node_modules/react-native-tts/android/build/intermediates/runtime_library_classes_dir/debug/net/no_mad/tts/TextToSpeechModule$1.class differ
+index 0000000..e69de29
 diff --git a/node_modules/react-native-tts/android/build/intermediates/runtime_library_classes_dir/debug/net/no_mad/tts/TextToSpeechModule$2.class b/node_modules/react-native-tts/android/build/intermediates/runtime_library_classes_dir/debug/net/no_mad/tts/TextToSpeechModule$2.class
 new file mode 100644
-index 0000000..c0f63f2
-Binary files /dev/null and b/node_modules/react-native-tts/android/build/intermediates/runtime_library_classes_dir/debug/net/no_mad/tts/TextToSpeechModule$2.class differ
+index 0000000..e69de29
 diff --git a/node_modules/react-native-tts/android/build/intermediates/runtime_library_classes_dir/debug/net/no_mad/tts/TextToSpeechModule$3.class b/node_modules/react-native-tts/android/build/intermediates/runtime_library_classes_dir/debug/net/no_mad/tts/TextToSpeechModule$3.class
 new file mode 100644
-index 0000000..689529c
-Binary files /dev/null and b/node_modules/react-native-tts/android/build/intermediates/runtime_library_classes_dir/debug/net/no_mad/tts/TextToSpeechModule$3.class differ
+index 0000000..e69de29
 diff --git a/node_modules/react-native-tts/android/build/intermediates/runtime_library_classes_dir/debug/net/no_mad/tts/TextToSpeechModule.class b/node_modules/react-native-tts/android/build/intermediates/runtime_library_classes_dir/debug/net/no_mad/tts/TextToSpeechModule.class
 new file mode 100644
-index 0000000..2c55898
-Binary files /dev/null and b/node_modules/react-native-tts/android/build/intermediates/runtime_library_classes_dir/debug/net/no_mad/tts/TextToSpeechModule.class differ
+index 0000000..e69de29
 diff --git a/node_modules/react-native-tts/android/build/intermediates/runtime_library_classes_dir/debug/net/no_mad/tts/TextToSpeechPackage.class b/node_modules/react-native-tts/android/build/intermediates/runtime_library_classes_dir/debug/net/no_mad/tts/TextToSpeechPackage.class
 new file mode 100644
-index 0000000..14d559b
-Binary files /dev/null and b/node_modules/react-native-tts/android/build/intermediates/runtime_library_classes_dir/debug/net/no_mad/tts/TextToSpeechPackage.class differ
+index 0000000..e69de29
 diff --git a/node_modules/react-native-tts/android/build/intermediates/runtime_library_classes_jar/debug/classes.jar b/node_modules/react-native-tts/android/build/intermediates/runtime_library_classes_jar/debug/classes.jar
 new file mode 100644
-index 0000000..14c4d3f
-Binary files /dev/null and b/node_modules/react-native-tts/android/build/intermediates/runtime_library_classes_jar/debug/classes.jar differ
+index 0000000..e69de29
 diff --git a/node_modules/react-native-tts/android/build/intermediates/symbol_list_with_package_name/debug/package-aware-r.txt b/node_modules/react-native-tts/android/build/intermediates/symbol_list_with_package_name/debug/package-aware-r.txt
 new file mode 100644
 index 0000000..0bace5b
@@ -341,5 +318,4 @@ index 0000000..45af131
 +		INJECTED from C:\Users\Omnex\PlatformApp\node_modules\react-native-tts\android\src\main\AndroidManifest.xml
 diff --git a/node_modules/react-native-tts/android/build/tmp/compileDebugJavaWithJavac/previous-compilation-data.bin b/node_modules/react-native-tts/android/build/tmp/compileDebugJavaWithJavac/previous-compilation-data.bin
 new file mode 100644
-index 0000000..00385f6
-Binary files /dev/null and b/node_modules/react-native-tts/android/build/tmp/compileDebugJavaWithJavac/previous-compilation-data.bin differ
+index 0000000..e69de29

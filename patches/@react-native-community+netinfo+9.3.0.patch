@@ -1,8 +1,8 @@
 diff --git a/node_modules/@react-native-community/netinfo/src/internal/state.ts b/node_modules/@react-native-community/netinfo/src/internal/state.ts
+index bf1f476..2fbd29d 100644
 --- a/node_modules/@react-native-community/netinfo/src/internal/state.ts
 +++ b/node_modules/@react-native-community/netinfo/src/internal/state.ts
-@@ -12,6 +12,15 @@ import NativeInterface from './nativeInterface';
- import InternetReachability from './internetReachability';
+@@ -13,6 +13,15 @@ import InternetReachability from './internetReachability';
  import * as Types from './types';
  import * as PrivateTypes from './privateTypes';
  
@@ -18,8 +18,7 @@ diff --git a/node_modules/@react-native-community/netinfo/src/internal/state.ts 
  export default class State {
    private _nativeEventSubscription: NativeEventSubscription | null = null;
    private _subscriptions = new Set<Types.NetInfoChangeHandler>();
-@@ -59,7 +68,40 @@ export default class State {
- 
+@@ -68,7 +77,40 @@ export default class State {
    public _fetchCurrentState = async (
      requestedInterface?: string,
    ): Promise<Types.NetInfoState> => {
