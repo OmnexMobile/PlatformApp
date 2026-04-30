@@ -48,10 +48,11 @@ import Moment from 'moment';
 import constants from '../constants/AppConstants';
 import { ROUTES, ICON_TYPE } from 'constants/app-constant';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { SPACING } from 'constants/theme-constants';
+import { COLORS, SPACING } from 'constants/theme-constants';
 import SQLite from 'react-native-sqlite-storage';
 import GlobalHeader from 'components/GlobalHeader';
 import FAB from 'components/fab';
+import AnimatedLottieView from 'lottie-react-native';
 
 let Window = Dimensions.get('window');
 //import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -314,12 +315,14 @@ class AuditForm extends Component {
         console.log('--CurrentPage--->', CurrentPage);
 
         if (CurrentPage == ROUTES.AUDIT_FORM) {
-            console.log('Audit form page focussed!');
-            console.log('--AuditForm-PROPS-->', props);
-            console.log('--AuditForm-this.PROPS-->', this.props);
-
-            console.log('componentWillReceiveProps', props.data.audits.ncofiRecords);
-            console.log('componentWillReceiveProps-state', this.props.data.audits);
+            const notifyRedasync = await AsyncStorage.getItem('redDotActive');
+            this.setState({ CheckListbtn: true, redDotID : notifyRedasync }, () => {
+              console.log('Check list button enabled',notifyRedasync)
+            
+            });
+            // Refresh per-audit red-dot state instead of global flag
+            this.setState({ CheckListbtn: true });
+            await this.loadAuditEditedFlag();
             this.displayNCSync(props.data.audits.ncofiRecords);
         } else {
             console.log('AuditForm pass');
@@ -1717,13 +1720,13 @@ class AuditForm extends Component {
                                     return <Icon name="check-circle" size={20} color="green" />;
                                 }
                                 if (item.status === false && item.exist === false) {
-                                    return <Icon name="times-circle" size={15} color="red" />;
+                                    return <Icon name="refresh-cw" size={15} color="red" />;
                                 }
                                 if (item.status === false) {
                                     return (
                                         <TouchableOpacity onPress={() => this.retryFailedAttachments(item)}>
                                             <View style={styles.retryWrapper}>
-                                                <Icon name="refresh" size={15} />
+                                                <Icon name="refresh-cw" size={15} />
                                                 <Text style={styles.retryText}>{'Retry'}</Text>
                                             </View>
                                         </TouchableOpacity>
@@ -1737,6 +1740,20 @@ class AuditForm extends Component {
             />
         );
     };
+
+    renderEmptyState = message => (
+        <View style={styles.emptyState}>
+            <AnimatedLottieView
+                source={require('../../../assets/lottie/norecords.json')}
+                autoPlay
+                loop
+                renderMode="SOFTWARE"
+                resizeMode="contain"
+                style={styles.emptyLottie}
+            />
+            <Text style={styles.emptyText}>{message}</Text>
+        </View>
+    );
 
     //End Sync to DocPro
 
@@ -3550,11 +3567,11 @@ class AuditForm extends Component {
                             renderTabBar={() => (
                                 <DefaultTabBar
                                     backgroundColor="white"
-                                    activeTextColor="#2CB5FD"
+                                    activeTextColor={COLORS.primaryDarkThemeColor}
                                     inactiveTextColor="#747474"
                                     underlineStyle={{
-                                        backgroundColor: '#2CB5FD',
-                                        borderBottomColor: '#2CB5FD',
+                                        backgroundColor: COLORS.primaryDarkThemeColor,
+                                        borderBottomColor: COLORS.primaryDarkThemeColor,
                                         height: Platform.select({
                                             android: 0,
                                             ios: 5,
@@ -3584,7 +3601,7 @@ class AuditForm extends Component {
                                                     <LinearGradient
                                                         start={{ x: 0, y: 0 }}
                                                         end={{ x: 1, y: 0 }}
-                                                        colors={['#14D0AE', '#1FBFD0', '#2EA4E2']}
+                                                        colors={['#123C95', '#1B5FDB', '#6A35D8']}
                                                         style={styles.CheckButton}>
                                                         <View style={styles.formNameContainer}>
                                                             <Text style={styles.buttonText}>
@@ -3597,17 +3614,7 @@ class AuditForm extends Component {
                                         ))}
                                     </View>
                                 ) : (
-                                    <View style={styles.emptyState}>
-                                        <View style={styles.emptyRowCenter}>
-                                            <Image source={Images.emptybox} style={styles.emptyImageSmall} />
-                                        </View>
-                                        <View>
-                                            <Text
-                                                style={styles.emptyText}>
-                                                {strings.No_online_form_found}
-                                            </Text>
-                                        </View>
-                                    </View>
+                                    this.renderEmptyState(strings.No_online_form_found)
                                 )}
                             </ScrollView>
                             <ScrollView tabLabel={strings.Templates} style={styles.scrollViewBody}>
@@ -3943,17 +3950,7 @@ class AuditForm extends Component {
                                         ))}
                                     </View>
                                 ) : (
-                                    <View style={styles.emptyState}>
-                                        <View style={styles.emptyRowCenter}>
-                                            <Image source={Images.emptybox} style={styles.emptyImageSmall} />
-                                        </View>
-                                        <View>
-                                            <Text
-                                                style={styles.emptyText}>
-                                                {strings.No_templates_found}
-                                            </Text>
-                                        </View>
-                                    </View>
+                                    this.renderEmptyState(strings.No_templates_found)
                                 )}
                             </ScrollView>
 
@@ -4270,18 +4267,7 @@ class AuditForm extends Component {
                                         ))}
                                     </View>
                                 ) : (
-                                    <View style={styles.emptyState}>
-                                        <View
-                                        style={styles.emptyRowCenter}>
-                                            <Image source={Images.emptybox} style={styles.emptyImageSmall} />
-                                        </View>
-                                        <View>
-                                            <Text
-                                                style={styles.emptyText}>
-                                                {strings.No_references_found}
-                                            </Text>
-                                        </View>
-                                    </View>
+                                    this.renderEmptyState(strings.No_references_found)
                                 )}
                             </ScrollView>
                         </ScrollableTabView>
@@ -4332,20 +4318,18 @@ class AuditForm extends Component {
                 {/* Floating sync/proceed control */}
                 <View style={styles.floatingSync}>
                     {!this.state.isSyncing ? (
-                        <>
-                            {this.state.redDotID === 'true' ? (
-                                <View style={styles.redDot}>
-                                    <Icon name="target" size={10} color="red" />
-                                </View>
-                            ) : null}
-                            <FAB
-                                iconType={ICON_TYPE.Feather}
-                                iconName="refresh-ccw"
-                                bottom={0}
-                                right={0}
-                                onPress={() => this.checkoffline()}
-                            />
-                        </>
+                        <FAB
+                            iconType={ICON_TYPE.Feather}
+                            iconName="refresh-ccw"
+                            bottom={0}
+                            right={0}
+                            badge={
+                                this.state.redDotID === 'true'
+                                    ? { type: ICON_TYPE.Feather, name: 'target', color: 'red', size: 12 }
+                                    : null
+                            }
+                            onPress={() => this.checkoffline()}
+                        />
                     ) : this.state.syncMode !== 4 ? (
                         <View
                             style={styles.syncingIndicator}>

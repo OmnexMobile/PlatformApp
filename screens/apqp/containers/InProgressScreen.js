@@ -23,7 +23,7 @@ import styles from './styles/InProgressStyles';
 import {RadioGroup, RadioButton} from 'react-native-flexi-radio-button'
 import  { Dropdown } from 'react-native-material-dropdown';
 
-import { Bubbles, DoubleBounce, Bars, Pulse } from 'react-native-loader';
+import { Bubbles } from 'react-native-loader';
 import { SPACING } from 'constants/theme-constants'
 
 let Window = Dimensions.get('window')

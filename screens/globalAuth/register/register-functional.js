@@ -181,11 +181,15 @@ const RegisterFunctional = ({}) => {
             });
             const data = await res.json();
             // const res = await postAPI(`${API_URL.GET_DEVICE_STATUS}`, req);
-            // handleAppSetting(null, {
-            //     serverUrl: state?.serverUrl || '',
-            //     deviceStatusSettings: data?.Data || {},
-            // });
-            // localStorage.storeData(LOCAL_STORAGE_VARIABLES.DEVICE_STATUS_SETTINGS, data?.Data);
+            const ServerUrl = data?.Data.ServerUrl.split('/').slice(0, 3).join('/') + '/';
+            handleAppSetting(null, {
+                serverUrl: data?.Data?.ServerUrl || '',
+                deviceStatusSettings: {...data?.Data,
+                   InstanceUrl: ServerUrl
+                },
+            });
+            
+            localStorage.storeData(LOCAL_STORAGE_VARIABLES.DEVICE_STATUS_SETTINGS, {...data?.Data,InstanceUrl: ServerUrl});
             // console.log('state?.globalServerURL-->', state?.globalServerURL, '--', globalServerUrl);
             handleGlobalURL('serverUrl', targetUrl);
             localStorage.storeData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL, targetUrl);
@@ -299,7 +303,7 @@ const RegisterFunctional = ({}) => {
             )
                 .then(async data => {
                     setLoading(false);
-                    if (data?.Success) {
+                    if (data?.Success && data?.Data!='Max Concurrency Reached') {
                         console.log('🚀 ~ file: register-functional.js:236 ~ handleRegister ~ data:', data);
                         localStorage.storeData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL, targetUrl);
                         navigation.reset({
@@ -316,7 +320,7 @@ const RegisterFunctional = ({}) => {
                         successMessage({ message: 'Success', description: 'Successfully Registered this Device' });
                         dispatch({ type: 'DATE_FORMAT', dateFormat: 'DD/MM/YYYY' });
                     } else {
-                        // showErrorMessage(data?.Data || 'Something went wrong while Registering the Device');
+                        showErrorMessage(data?.Data || 'Something went wrong while Registering the Device');
                     }
                     console.log('🚀 ~ file: register-functional.js:246 ~ .then ~ data:', data);
                 })

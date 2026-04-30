@@ -77,7 +77,7 @@ const ProfileMenuButton = ({ menu, getProfileReset }) => {
                 <TextComponent
                   style={[
                     { fontSize: FONT_SIZE.REGULAR },
-                    isLogout && { color: COLORS.primaryThemeColor },
+                    isLogout && { color: '#123C95' },
                   ]}
                 >
                   {menu.title}
@@ -112,9 +112,9 @@ const ProfileMenuButton = ({ menu, getProfileReset }) => {
         animationType="fade"
         onRequestClose={() => {}}
       >
-        <View style={styles.loaderOverlay}>
+        {/* <View style={styles.loaderOverlay}>
           <ActivityIndicator size="large" color={COLORS.primaryThemeColor} />
-        </View>
+        </View> */}
       </Modal>
     </View>
   );

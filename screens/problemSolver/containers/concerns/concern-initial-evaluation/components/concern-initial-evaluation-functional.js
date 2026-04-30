@@ -322,27 +322,61 @@ const ConcernInitialEvaluationFunctional = ({}) => {
         if (CREATE_PROJECT_URL) {
             setIsProjectCreating(true);
             try {
+                // const url = `${CREATE_PROJECT_URL}common/ProblemSolver/concerns/CreateProject?concernid=${ConcernID}&checksession=0`;
+                // const res = await getAPI(url);
+                // console.log(
+                //     '🚀 ~ file: concern-initial-evaluation-functional.js:280 ~ createProject ~ res:',
+                //     res?.data,
+                //     typeof res?.data,
+                //     typeof res?.data === 'number',
+                // );
+                // // const res = await getAPI(`${API_URL.CREATE_PROJECT}?ConcernId=${ConcernID}`);
+                // if (typeof res?.data === 'number') {
+                //     // setIsProjectCreating(false);
+                //     handleSubmitConcern({
+                //         [APP_VARIABLES.STATUS_ID]: concernDetails?.StatusID,
+                //         [APP_VARIABLES.CONCERN_ID]: ConcernID,
+                //         [APP_VARIABLES.PROJECT_START_DATE]: concernDetails?.ProjectStartDate,
+                //     });
+                //     // navigation.goBack();
+                //     // getListData(sites?.selectedSite);
+                //     // successMessage({ message: 'Success', description: 'Project has been created for this Concern successfully' });
+                // } else {
+                //     showErrorMessage(res?.Error);
+                //     setIsSubmitting(false);
+                //     setIsProjectCreating(false);
+                // }
                 const url = `${CREATE_PROJECT_URL}common/ProblemSolver/concerns/CreateProject?concernid=${ConcernID}&checksession=0`;
-                const res = await getAPI(url);
-                console.log(
-                    '🚀 ~ file: concern-initial-evaluation-functional.js:280 ~ createProject ~ res:',
-                    res?.data,
-                    typeof res?.data,
-                    typeof res?.data === 'number',
-                );
-                // const res = await getAPI(`${API_URL.CREATE_PROJECT}?ConcernId=${ConcernID}`);
-                if (typeof res?.data === 'number') {
-                    // setIsProjectCreating(false);
-                    handleSubmitConcern({
-                        [APP_VARIABLES.STATUS_ID]: concernDetails?.StatusID,
-                        [APP_VARIABLES.CONCERN_ID]: ConcernID,
-                        [APP_VARIABLES.PROJECT_START_DATE]: concernDetails?.ProjectStartDate,
+
+                try {
+                    const response = await fetch(url, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        credentials: 'include', // optional if your API requires cookies/session
                     });
-                    // navigation.goBack();
-                    // getListData(sites?.selectedSite);
-                    // successMessage({ message: 'Success', description: 'Project has been created for this Concern successfully' });
-                } else {
-                    showErrorMessage(res?.Error);
+
+                    const data = await response.json();
+
+                    const res = { data };
+
+                    console.log('🚀 ~ createProject ~ res:', res?.data, typeof res?.data, typeof res?.data === 'number');
+
+                    if (typeof res?.data === 'number') {
+                        handleSubmitConcern({
+                            [APP_VARIABLES.STATUS_ID]: concernDetails?.StatusID,
+                            [APP_VARIABLES.CONCERN_ID]: ConcernID,
+                            [APP_VARIABLES.PROJECT_START_DATE]: concernDetails?.ProjectStartDate,
+                        });
+                    } else {
+                        showErrorMessage(res?.Error);
+                        setIsSubmitting(false);
+                        setIsProjectCreating(false);
+                    }
+                } catch (error) {
+                    console.error('Create Project API error:', error);
+                    showErrorMessage('Something went wrong');
                     setIsSubmitting(false);
                     setIsProjectCreating(false);
                 }

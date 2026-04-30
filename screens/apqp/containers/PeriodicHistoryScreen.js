@@ -10,6 +10,7 @@ import {
   Button,
   FlatList,
   ImageBackground,
+  ActivityIndicator,
 } from "react-native";
 import { Images } from "../themes";
 // import ResponsiveImage from "react-native-responsive-image";
@@ -227,7 +228,9 @@ getData = async () => {
         alignItems: "center",
       }}
     >
-      <DoubleBounce size={20} color="#1CAFF6" />
+      {/* <DoubleBounce size={20} color="#1CAFF6" /> */}
+      <ActivityIndicator size="small" color="#1CAFF6" />
+      
     </View>;
   }
 

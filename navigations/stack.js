@@ -289,7 +289,7 @@ export const AppStackData = [
     },
     {
         name: ROUTES.AUDIT_NOTIFICATIONS,
-        getComponent: () => require('../screens/auditPro/containers/AuditNotifications').default,
+        getComponent: () => require('../screens/globalsettings/AuditNotifications').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {

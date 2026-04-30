@@ -1,6 +1,7 @@
 import { StyleSheet, Dimensions} from 'react-native'
 import { width } from 'react-native-dimension'
 import Fonts from '../Themes/Fonts'
+import { COLORS } from 'constants/theme-constants';
 
 let Window = Dimensions.get('window')
 const screenWidth = Dimensions.get('window').width
@@ -339,7 +340,7 @@ export default StyleSheet.create({
     width:'80%',
     height:'100%',
     backgroundColor:'white',
-    borderColor:'#00bec1',
+    borderColor:'#123C95',
     borderWidth:0.5,
     borderLeftWidth:3,
     elevation:5,
@@ -392,7 +393,7 @@ export default StyleSheet.create({
     flexDirection: 'row',
   },
   itemText: {
-    color: '#00bec1',
+    color: '#123C95',
     fontSize: Fonts.size.small,
     fontFamily: 'OpenSans-Regular',
   },
@@ -400,12 +401,18 @@ export default StyleSheet.create({
     paddingVertical: 20,
     borderTopWidth: 1,
     backgroundColor: 'white',
-    opacity: 0.5,
     width: Window.width,
     height: Window.height,
     justifyContent: 'center',
     alignItems: 'center',
     position: 'absolute',
+  },
+  emptyOverlayVisible: {
+    backgroundColor: 'rgba(255,255,255,0.96)',
+  },
+  emptyLottie: {
+    width: Window.width * 0.44,
+    height: Window.width * 0.44,
   },
   emptyText: {
     fontFamily: 'OpenSans-Regular',
@@ -449,7 +456,7 @@ export default StyleSheet.create({
     borderRadius: circleSize,
     backgroundColor: 'white',
     borderWidth: 1,
-    borderColor: '#00bec1',
+    borderColor: COLORS.primaryDarkThemeColor,
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',

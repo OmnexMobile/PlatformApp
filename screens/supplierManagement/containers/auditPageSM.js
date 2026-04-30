@@ -262,6 +262,44 @@ class AuditPage extends Component {
         this.blurListener = this.props.navigation.addListener('blur', this.loadSupplierIndex);
     }
 
+    getSupplierIndex = moduleName => {
+        if (moduleName === 'Supplier Initial Assessment') {
+            return 2;
+        }
+
+        if (moduleName === 'Supplier Routine Audit') {
+            return 3;
+        }
+
+        return 1;
+    };
+
+    resolveSupplierData = async () => {
+        const routeSmData = this.props?.route?.params?.smData;
+        const dataPassSmData = this.props?.route?.params?.datapass?.smData;
+        const moduleName = this.props?.route?.params?.datapass?.Module_name;
+
+        if (routeSmData !== null && typeof routeSmData !== 'undefined') {
+            return routeSmData;
+        }
+
+        if (dataPassSmData !== null && typeof dataPassSmData !== 'undefined') {
+            return dataPassSmData;
+        }
+
+        if (moduleName) {
+            return this.getSupplierIndex(moduleName);
+        }
+
+        const reduxSmData = this.props?.data?.audits?.smdata;
+        if (reduxSmData !== null && typeof reduxSmData !== 'undefined') {
+            return reduxSmData;
+        }
+
+        const smIndexRaw = await AsyncStorage.getItem('supplierIndex');
+        return smIndexRaw ? JSON.parse(smIndexRaw) : null;
+    };
+
     async getAccessToken() {
         try {
             const userDetailsString = await AsyncStorage.getItem('userDetails');
@@ -387,12 +425,12 @@ class AuditPage extends Component {
         var recentAuditListProps = this.props.data.audits.recentAudits;
         var recentAudits = [];
         const screenName = this.props?.route?.name || ROUTES.AUDIT_PAGE_SM;
-        const smIndexRaw = await AsyncStorage.getItem('supplierIndex');
+        const smData = await this.resolveSupplierData();
         const recentModule = screenName;
         const auditPropWithModule = {
             ...this.state.AuditProp,
             recent_Module: recentModule,
-            smData: smIndexRaw ? JSON.parse(smIndexRaw) : null,
+            smData,
         };
 
         if (recentAuditListProps.length > 0) {
@@ -427,18 +465,12 @@ class AuditPage extends Component {
 
     async loadSupplierIndex() {
         try {
-            const smIndexRaw = await AsyncStorage.getItem('supplierIndex');
-            var smIndex = '';
-            if (this.props?.route?.params?.screenFrom == 'Dashboard') {
-                smIndex = this.props?.route?.params?.datapass?.smData;
-            } else {
-                smIndex = smIndexRaw ? JSON.parse(smIndexRaw) : null;
-            }
+            const smIndex = await this.resolveSupplierData();
             console.log('Loaded supplierIndex:', smIndex);
             this.setState({ smData: smIndex }, () => {
                 console.log('checksmdatavalue------>', this.state.smData);
             });
-            if (this.props.storeSupplierData && smIndex) {
+            if (this.props.storeSupplierData && smIndex !== null && typeof smIndex !== 'undefined') {
                 this.props.storeSupplierData(smIndex);
             }
         } catch (error) {
@@ -1502,9 +1534,13 @@ class AuditPage extends Component {
                     console.log('*** path', path);
                     // this.deleteUserFile(path)
                     this.refs.toast.show(strings.user_disabled_text, DURATION.LENGTH_SHORT);
+                   console.log('Your session has expired,Please login again.33333333333333');
+
                     this.props.navigation.navigate(ROUTES.GLOBAL_LOGIN);
                 } else if (UserStatus == 0) {
                     Alert.alert('Your session has expired,Please login again.');
+                   console.log('Your session has expired,Please login again.');
+
 
                     this.refs.toast.show(strings.user_inactive_text, DURATION.LENGTH_SHORT);
                     this.props.navigation.navigate(ROUTES.GLOBAL_LOGIN);
@@ -1519,8 +1555,8 @@ class AuditPage extends Component {
             this.refs.toast.show(strings.Offline_Notice, DURATION.LENGTH_LONG);
         } else {
             console.log(this.state.auditDetailList, 'download:downloadauditform');
-            var auditfilledStatus = this.state.auditDetailList.AuditagendaFilledStatus;
-            var auditmandatory = this.state.auditDetailList.AuditAgendaMandatory;
+            var auditfilledStatus = this.state.auditDetailList?.AuditagendaFilledStatus;
+            var auditmandatory = this.state.auditDetailList?.AuditAgendaMandatory;
 
             if (auditmandatory == 1 && auditfilledStatus == 0) {
                 alert('EwQIMS : Please Fill Audit Agenda from Web to Continue');
@@ -2903,11 +2939,12 @@ class AuditPage extends Component {
 
     getCurrentAuditCStatus = () => {
         const dataPass = this.props?.route?.params?.datapass;
+        const routeAuditStatus = this.props?.route?.params?.auditStatusPass;
         const targetAuditId =
             this.state.AuditProp?.ActualAuditId || dataPass?.ActualAuditId || this.state.AUDIT_ID || this.state.auditDetailList?.AuditId;
 
         if (!targetAuditId) {
-            return this.state.AuditProp?.cStatus || dataPass?.cStatus;
+            return this.state.AuditProp?.cStatus || dataPass?.cStatus || routeAuditStatus || this.state.AuditProp?.AuditStatus || dataPass?.AuditStatus;
         }
 
         const auditRecords = this.props?.data?.audits?.auditRecords || [];
@@ -2919,7 +2956,16 @@ class AuditPage extends Component {
         const auditList = this.props?.data?.audits?.audits || [];
         const currentAudit = auditList.find(item => `${item.ActualAuditId}` === `${targetAuditId}`);
 
-        return currentAudit?.cStatus || this.state.AuditProp?.cStatus || dataPass?.cStatus;
+        return (
+            currentAudit?.cStatus ||
+            this.state.AuditProp?.cStatus ||
+            dataPass?.cStatus ||
+            routeAuditStatus ||
+            currentAudit?.AuditStatus ||
+            this.state.AuditProp?.AuditStatus ||
+            dataPass?.AuditStatus ||
+            this.state.auditDetailList?.AuditStatus
+        );
     };
 
     changeDateFormat = inDate => {
@@ -2969,7 +3015,7 @@ class AuditPage extends Component {
                             onPress={() => {
                                 this.setState({ dialogVisible: true });
                             }}>
-                            <Icon name="trash" size={25} color="#00b3d6" />
+                            <Icon name="trash" size={25} color="#123C95" />
                         </TouchableOpacity>
                         <TouchableOpacity
                             style={{ paddingRight: 10 }}
@@ -2977,12 +3023,12 @@ class AuditPage extends Component {
                                 this.setState({ dialogVisibleRefresh: true, webToMob: true, downloadAsync: true });
                             }}>
                             {/* <ResponsiveImage initWidth='25' initHeight='25' source={Images.deleteIcon}/> */}
-                            <Icon name="refresh-cw" size={25} color="#00b3d6" />
+                            <Icon name="refresh-cw" size={25} color="#123C95" />
                         </TouchableOpacity>
                     </>
                 ) : null}
                 <TouchableOpacity onPress={() => this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)}>
-                    <Icon name="home" size={25} color="#00b3d6" />
+                    <Icon name="home" size={25} color="#123C95" />
                 </TouchableOpacity>
             </View>
         ) : (
@@ -3265,7 +3311,7 @@ class AuditPage extends Component {
                             width: '100%',
                             height: '100%',
                         }}>
-                        <ActivityIndicator size={30} color="#48BCF7" />
+                        <ActivityIndicator size={30} color="#123C95" />
                     </View>
                 )}
 
@@ -3289,9 +3335,9 @@ class AuditPage extends Component {
                             style={[styles.floatingDownloadBtn, this.state.isDownloading ? styles.floatingBtnDisabled : null]}>
                             <View style={styles.fabCenterContent}>
                                 {this.state.isDownloading ? (
-                                    <ActivityIndicator size={20} color="white" />
+                                    <ActivityIndicator size={20} color="#123C95" />
                                 ) : (
-                                    <Icon name="download" size={24} color="white" />
+                                    <Icon name="download-cloud" size={24} color="white" />
                                 )}
                             </View>
                         </TouchableOpacity>
@@ -3313,7 +3359,7 @@ class AuditPage extends Component {
                                                     alignItems: 'center',
                                                 }}>
                                                 {/* <ResponsiveImage source={Images.BTN5} initWidth="26" initHeight="25"/> */}
-                                                <Icon name="paperclip" size={20} color="black" />
+                                                <Icon name="paperclip" size={20} color="#123C95" />
                                                 <Text style={styles.footerTextContent}>{strings.Attach}</Text>
                                             </TouchableOpacity>
                                         </View>
@@ -3323,7 +3369,7 @@ class AuditPage extends Component {
                                                 <View style={{ width: '100%' }}>
                                                     <TouchableOpacity onPress={this.onNavigateTo.bind(this, 4)} style={{ alignItems: 'center' }}>
                                                         {/* <ResponsiveImage source={Images.BTN5} initWidth="26" initHeight="25"/> */}
-                                                        <Icon name="paperclip" size={20} color="black" />
+                                                        <Icon name="paperclip" size={20} color="#123C95" />
                                                         <Text style={styles.footerTextContent}>{strings.Attach}</Text>
                                                     </TouchableOpacity>
                                                 </View>
@@ -3343,14 +3389,14 @@ class AuditPage extends Component {
                                         }>
                                         <TouchableOpacity onPress={this.onNavigateTo.bind(this, 2)} style={{ alignItems: 'center' }}>
                                             {/* <ResponsiveImage source={Images.BTN2} initWidth="26" initHeight="25"/> */}
-                                            <Icon name="list" size={20} color="black" />
+                                            <Icon name="list" size={20} color="#123C95" />
                                             <Text style={styles.footerTextContent}>{strings.AuditRecords}</Text>
                                         </TouchableOpacity>
                                     </View>
                                     <View style={{ width: '22%' }}>
                                         <TouchableOpacity onPress={once(this.onNavigateTo.bind(this, 3))} style={{ alignItems: 'center' }}>
                                             {/* <ResponsiveImage source={Images.BTN5} initWidth="26" initHeight="25"/> */}
-                                            <Icon name="file" size={20} color="black" />
+                                            <Icon name="file" size={20} color="#123C95" />
                                             <Text style={styles.footerTextContent}>{strings.NC_OFI}</Text>
                                         </TouchableOpacity>
                                     </View>
@@ -3359,7 +3405,7 @@ class AuditPage extends Component {
                                         <View style={{ width: '25%' }}>
                                             <TouchableOpacity onPress={once(this.onNavigateTo.bind(this, 6))} style={{ alignItems: 'center' }}>
                                                 {/* <ResponsiveImage source={Images.BTN5} initWidth="26" initHeight="25"/> */}
-                                                <Icon name="file" size={20} color="black" />
+                                                <Icon name="file" size={20} color="#123C95" />
                                                 <Text style={styles.footerTextContent}>Conformance</Text>
                                             </TouchableOpacity>
                                         </View>
@@ -3367,7 +3413,7 @@ class AuditPage extends Component {
                                 </View>
                             ) : (
                                 <View style={styles.footerLoader}>
-                                    <ActivityIndicator size={20} color="white" />
+                                    <ActivityIndicator size={20} color="#123C95" />
                                 </View>
                             )}
                         </View>
@@ -3391,11 +3437,11 @@ class AuditPage extends Component {
                     confirmText={strings.yes}
                     cancelText={strings.no}
                     onConfirm={this.deleteAuditRecord.bind(this)}
-                    onCancel={() => this.setState({ deleteDialogVisible: false })}
+                    onCancel={() => this.setState({ dialogVisible: false })}
                 />
                 <CommonAlertModal
                     visible={this.state.dialogVisibleRefresh}
-                    title={strings.Confirm_delete}
+                    title={strings.Rrefresh}
                     message={strings.Confirm_refresh}
                     showCancel
                     confirmText={strings.yes}

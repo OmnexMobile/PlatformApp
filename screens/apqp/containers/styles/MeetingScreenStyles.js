@@ -24,8 +24,7 @@ export default StyleSheet.create({
   },
   mainContainer: {
     flex: 1,
-    width: Window.width,
-    height: Window.height,
+    width: "100%",
   },
   bgImage: {
     width: Window.width,
@@ -72,8 +71,8 @@ export default StyleSheet.create({
     padding: 2,
   },
   flatList: {
-    width: Window.width,
-    height: "92%",
+    flex: 1,
+    width: "100%",
     padding: 5,
     //marginBottom: 30,
   },
@@ -552,11 +551,41 @@ export default StyleSheet.create({
     width: "100%",
     height: 60,
     flexDirection: "row",
-    borderBottomWidth: 0.5,
-    borderBottomColor: "grey",
+    borderBottomWidth: 0,
+    borderBottomColor: "transparent",
     justifyContent: "center",
     alignItems: "center",
     marginTop: 0,
+    paddingHorizontal: SPACING.NORMAL,
+    paddingVertical: SPACING.SMALL,
+  },
+  searchContainer: {
+    flex: 1,
+    height: 46,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#E6E6E6",
+    paddingHorizontal: SPACING.NORMAL,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  searchInput: {
+    flex: 1,
+    paddingLeft: SPACING.SMALL,
+    fontSize: 16,
+    color: "#4A4A4A",
+    fontFamily: "OpenSans-Regular",
+  },
+  searchClearButton: {
+    paddingLeft: SPACING.SMALL,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  searchCalendarButton: {
+    paddingLeft: SPACING.SMALL,
+    justifyContent: "center",
+    alignItems: "center",
   },
   filterLabelText: {
     fontSize: Fonts.size.medium,
@@ -606,11 +635,11 @@ export default StyleSheet.create({
   },
   bounceContainer: {
     paddingVertical: 20,
-    width: Window.width,
-    height: height(100) - 213,
+    width: "100%",
     flex: 1,
     flexDirection: "column",
     alignItems: "center",
+    justifyContent: "center",
   },
   footerHomeButton: {
     justifyContent: "center",
@@ -648,5 +677,14 @@ export default StyleSheet.create({
     // justifyContent: 'center',
     // alignItems: 'center',
     // borderRadius: 5
+  },
+  emptyStateContainer1: {
+    width: "92%",
+    height: 160,
+    justifyContent: "center",
+    alignItems: "center",
+    alignSelf: "center",
+    marginTop: 100,
+    backgroundColor: "#FFFFFF",
   },
 });

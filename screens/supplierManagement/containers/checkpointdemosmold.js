@@ -50,6 +50,7 @@ import RichText from '../../auditPro/containers/RichText';
 import LinearGradient from 'react-native-linear-gradient';
 import { Image as compressImage, Video as compressVideo, getVideoMetaData } from 'react-native-compressor';
 import NetInfo from '@react-native-community/netinfo';
+// import finalPropsSelectorFactory from 'react-redux/es/connect/selectorFactory';
 import auth from '../../../services/SupplierMgnt-Auth';
 // import {saveNavigationParams} from '../Redux/AuditRedux';
 import Fonts from '../../auditPro/Themes/Fonts';

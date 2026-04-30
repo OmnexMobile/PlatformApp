@@ -172,7 +172,7 @@ class AuditCard extends Component {
             }
             console.log('isDownloadedDone', isDownloadedDone);
         }
-        console.log('this.props.naviData-->', this.props, '--', this.props?.naviData);
+        console.log('this.props.naviData-->1', this.props, '--', this.props?.naviData);
         if (isDownloadedDone) {
             console.log('this.props.naviData-->', this.props, '--', this.props?.naviData);
             // this.props.navigation.navigate(ROUTES.AUDIT_PAGE)

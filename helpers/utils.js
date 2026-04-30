@@ -97,10 +97,15 @@ export const successMessage = (messageOrConfig, descriptionOrPosition, position 
     });
 };
 
-export const showErrorMessage = (message, position = 'top') =>
-    showMessage({
+export const showErrorMessage = (message, position = 'top') => {
+    const normalizedMessage =
+        typeof message === 'string'
+            ? message.trim()
+            : message?.message || message?.Message || message?.error || message?.Error || '';
+
+    return showMessage({
         message: 'Error',
-        description: `${message}`,
+        description: normalizedMessage || 'Something Went Wrong.',
         type: 'danger',
         backgroundColor: FlashMessage.ColorTheme.danger,
         color: COLORS.white,
@@ -111,8 +116,9 @@ export const showErrorMessage = (message, position = 'top') =>
             margin: SPACING.SMALL,
         },
     });
+};
 
-export const showWarningMessage = message =>
+export const showWarningMessage =  ({ message, position = 'top' }) =>
     showMessage({
         message: 'Warning',
         description: message,

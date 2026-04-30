@@ -1,4 +1,4 @@
-import { COLORS } from 'constants/theme-constants';
+import { COLORS, SPACING } from 'constants/theme-constants';
 import React, { useEffect, useRef, useState } from 'react';
 import {
     BackHandler,
@@ -26,6 +26,8 @@ import moment from 'moment';
 import DeleteModal from '../DeleteModal';
 import ConfirmationModal from './ConfirmationModal';
 import { showMessage } from 'react-native-flash-message';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+
 const moreList = [
     {
         id: 1,
@@ -40,14 +42,14 @@ const moreList = [
         iconFrom: 'AntDesign',
     },
 ];
-const suzlonMoreList=[
-     {
+const suzlonMoreList = [
+    {
         id: 1,
         title: 'Next Sample',
         iconName: 'play-skip-forward-outline',
         iconFrom: 'Ionicons',
-    }
-]
+    },
+];
 
 const BorderContent = ({ title = 'Title', count = 0, color = '#000' }) => {
     return (
@@ -94,7 +96,7 @@ const CharacteristicsInfo = ({
     const navigation = useNavigation();
     useEffect(() => {
         getOverAllData();
-    }, [type,selectedData]);
+    }, [type, selectedData]);
     const getOverAllData = () => {
         if (selectedData?.isSamplePopup) {
             if (type == 'number') {
@@ -687,15 +689,36 @@ const CharacteristicsInfo = ({
                     </View>
                 </View>
                 <View style={[styles.btnContainer]}>
+                    {selectedData?.isSamplePopup ? (
+                        <TouchableOpacity
+                            style={{
+                                height: 40,
+                                flex: 1,
+                                backgroundColor: COLORS.apptheme,
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                borderRadius: SPACING.SMALL,
+                            }}
+                            onPress={() => {
+                                handleMenuPress({
+                                    id: 2,
+                                    title: 'Add Sample',
+                                    iconName: 'plus',
+                                    iconFrom: 'AntDesign',
+                                });
+                            }}>
+                            <MaterialIcons name="add" size={20} color={COLORS.white} />
+                        </TouchableOpacity>
+                    ) : null}
                     <ButtonComponent
                         textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}
-                        style={{ height: 40, width: '89%' }}
+                        style={{ height: 40, flex: 5, marginHorizontal: 10 }}
                         onPress={() => {
                             handleSavePress(true, 'saveBtn');
                         }}>
                         Save
                     </ButtonComponent>
-                    <View style={[styles.iconFilter]}>
+                    {/* <View style={[styles.iconFilter]}>
                         <FilterWithMenu
                             dataList={selectedData?.isSamplePopup?moreList:suzlonMoreList}
                             type="IconFilter"
@@ -704,7 +727,26 @@ const CharacteristicsInfo = ({
                             }}
                             anchorPosition="top"
                         />
-                    </View>
+                    </View> */}
+                    <TouchableOpacity
+                        style={{
+                            height: 40,
+                            flex: 1,
+                            backgroundColor: COLORS.apptheme,
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            borderRadius: SPACING.SMALL,
+                        }}
+                        onPress={() => {
+                            handleMenuPress({
+                                id: 1,
+                                title: 'Next Sample',
+                                iconName: 'play-skip-forward-outline',
+                                iconFrom: 'Ionicons',
+                            });
+                        }}>
+                        <MaterialIcons name="navigate-next" size={20} color={COLORS.white} />
+                    </TouchableOpacity>
                 </View>
             </View>
         </KeyboardAvoidingView>

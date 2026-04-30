@@ -13,6 +13,7 @@ import IconComponent from './icon-component';
 import GradientButton from './gradient-button';
 import RenderInputs from './render-inputs';
 import KeyboardAwareScrollViewComponent from './keyboard-aware-scroll-view';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const TeamContext = createContext({});
 
@@ -42,7 +43,7 @@ const Modal = ({
 }) => {
     const [inputs, setInputs] = useState(dynamicInputs?.data);
     const { theme } = useTheme();
-
+    const insets = useSafeAreaInsets();
     const handleCancel = () => {
         setModalVisible(false);
         // setEstimationDetails(DEFAULT_ESTIMATION_DETAILS);
@@ -52,6 +53,10 @@ const Modal = ({
     useEffect(() => {
         setInputs(dynamicInputs?.data?.map(data => ({ ...data, keyboardType: 'numeric' })));
     }, [dynamicInputs?.data]);
+
+    // useEffect(() => {
+    //     selectedTeam?.name && handleInputChange?.(selectedTeam?.name);
+    // }, [selectedTeam?.name]);
 
     const handleDynamicInputChange = (label, value) => {
         const updatedInputs = inputs?.map(input => ({
@@ -81,7 +86,7 @@ const Modal = ({
                 label: 'Currency',
                 masterurl: '',
                 name: 'CurrencyId',
-                required: false,    
+                required: false,
                 search: false,
                 type: 'DROPDOWN',
                 value: '',
@@ -139,8 +144,7 @@ const Modal = ({
                     </KeyboardAwareScrollViewComponent>
                 </View>
             </View>
-
-            <View style={{ padding: SPACING.NORMAL, backgroundColor: theme.mode.backgroundColor }}>
+            <View style={{ padding: SPACING.NORMAL, backgroundColor: theme.mode.backgroundColor, paddingBottom: insets.bottom }}>
                 {total ? (
                     <GradientButton
                         onPress={() => {

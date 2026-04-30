@@ -391,7 +391,7 @@ return(
 
         <View style={[styles.auditPageBody, {padding: 0}]}>
           <ImageBackground
-            source={Images.BGlayerFooter}
+            source={Images.checklist_bg}
             style={{
               resizeMode: 'stretch',
               width: '100%',
@@ -402,22 +402,7 @@ return(
                 <ScrollView
                   style={styles.scrollViewBody}
                   contentContainerStyle={{flexGrow: 1}}>
-                  {/* <View style={styles.statistics}>
-            <View style={styles.statCard1}>
-              <Text style={{ fontSize: 14 }}>{strings.Total_checkpoints}</Text>
-              <Text style={{ fontSize: Fonts.size.h5 }}>{this.state.totalCheck}</Text>
-            </View>
-
-            <View style={styles.statCard3}>
-              <Text style={{ fontSize: 14}}>{strings.Mandatory}</Text>
-              <Text style={{ fontSize: Fonts.size.h5}}>{this.state.mandatoryCheck}</Text>
-            </View>
-
-            <View style={styles.statCard2}>
-              <Text style={{ fontSize: 14}}>{strings.Optional}</Text>
-              <Text style={{ fontSize: Fonts.size.h5}}>{this.state.optionalCheck}</Text>
-            </View>
-          </View> */}
+               
                   <View style={{marginTop: 10}}>
                     {this.state.displayData.map((items, i) =>
                       items.CompLevelId == 1 ? (
@@ -429,7 +414,7 @@ return(
                             <LinearGradient
                               start={{x: 0, y: 0}}
                               end={{x: 1, y: 0}}
-                              colors={['#00aed0', '#1FBFD0', '#00bec1']}
+                              colors={['#123C95', '#1B5FDB', '#6A35D8']}
                               style={styles.LG}>
                               <View
                                 style={{
@@ -475,7 +460,7 @@ return(
                             <LinearGradient
                               start={{x: 0, y: 0}}
                               end={{x: 1, y: 0}}
-                              colors={['#00aed0', '#1FBFD0', '#00bec1']}
+                              colors={['#123C95', '#1B5FDB', '#6A35D8']}
                               style={styles.LG2}>
                               <View
                                 style={{
@@ -518,7 +503,7 @@ return(
                             <Icon
                               name={'arrow-right'}
                               size={15}
-                              color={'#00bec1'}
+                              color={'#123C95'}
                             />
                           </View>
                           <View style={styles.LG3}>
@@ -564,7 +549,7 @@ return(
                                 <Text
                                   numberOfLines={2}
                                   style={{
-                                    color: '#00bec1',
+                                    color: '#123C95',
                                     fontSize: Fonts.size.small,
                                     fontFamily: 'OpenSans-Regular',
                                   }}>

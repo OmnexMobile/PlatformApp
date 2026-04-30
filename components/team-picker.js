@@ -61,7 +61,7 @@ const TeamList = () => {
         try {
             const { Data } = await postAPI(
                 `${API_URL.GET_TEAM_LIST}${objToQs({
-                    SiteID: req.SiteId,
+                    SiteID: req.Siteid,
                 })}`,
             );
             setList({
@@ -129,7 +129,7 @@ const TeamUsers = () => {
 
     const getListData = async req => {
         var formData = new FormData();
-        formData.append(APP_VARIABLES.SITE_ID, req.SiteId);
+        formData.append(APP_VARIABLES.SITE_ID, req.Siteid);
         formData.append(APP_VARIABLES.CHAMPION_ID, 0);
         formData.append(APP_VARIABLES.PAGE, 1);
         formData.append(APP_VARIABLES.SIZE, 10);
@@ -217,7 +217,7 @@ const ModalTabs = ({ modalVisible, setModalVisible, ConcernID, handleInputChange
     };
     return (
         <ModalComponent noStatusBarHeight modalVisible={modalVisible} onRequestClose={() => setModalVisible(false)}>
-            <View style={{ flex: 1 }}>
+            <View style={{ flex: 1,backgroundColor:'#fff' }}>
                 <Header title="Select Team" handleBackClick={() => setModalVisible(false)} />
                 <TeamList />
                 {/* <TabViewComponent
@@ -232,14 +232,15 @@ const ModalTabs = ({ modalVisible, setModalVisible, ConcernID, handleInputChange
                         // },
                     ]}
                 /> */}
-            </View>
-            {selectedTeam ? (
+                {selectedTeam ? (
                 <View style={{ padding: SPACING.NORMAL }}>
                     <GradientButton loading={savingTeam} onPress={handleSaveTeam}>
                         Save
                     </GradientButton>
                 </View>
             ) : null}
+            </View>
+            
         </ModalComponent>
     );
 };

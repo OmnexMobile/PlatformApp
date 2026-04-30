@@ -11,6 +11,7 @@ import {
   TextInput,
   TouchableOpacity,
   LogBox,
+  ActivityIndicator,
 } from "react-native";
 import Images from "../themes/Images";
 import Moment from "moment";
@@ -28,7 +29,7 @@ import { strings } from "../language/Language";
 import NetInfo from "@react-native-community/netinfo";
 // import DeviceInfo from "react-native-device-info";
 import { getUniqueId } from "react-native-device-info";
-import { DoubleBounce, Pulse } from "react-native-loader";
+// import { DoubleBounce, Pulse } from "react-native-loader";
 import Toast, { DURATION } from "react-native-easy-toast";
 // import Modal from "react-native-modal";
 import Fonts from "../themes/Fonts";
@@ -1254,7 +1255,8 @@ class DashboardScreen extends Component {
           justifyContent: "center",
         }}
       >
-        <DoubleBounce size={20} color="#1CAFF6" />
+        {/* <DoubleBounce size={20} color="#1CAFF6" /> */}
+        <ActivityIndicator size={20} color="#1CAFF6" />
       </View>
     );
   }

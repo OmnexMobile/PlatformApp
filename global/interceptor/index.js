@@ -10,6 +10,21 @@ export const BaseURL = () => localStorage.getStringItem(LOCAL_STORAGE_VARIABLES.
 // export const BaseURL = () => 'http://1.22.172.236/ProblemSolverAPI/';
 export const LoginStatus = () => localStorage.getStringItem('appLogged');
 
+const getErrorMessage = (response, fallbackMessage) => {
+    const message =
+        response?.data?.message ??
+        response?.data?.Message ??
+        response?.data?.error ??
+        response?.data?.Error ??
+        response?.message;
+
+    if (typeof message === 'string' && message.trim().length > 0) {
+        return message.trim();
+    }
+
+    return fallbackMessage;
+};
+
 // const { globalLoginData } = useAppContext();
 
 // eslint-disable-next-line no-unused-vars
@@ -62,28 +77,22 @@ const setupInterceptors = async store => {
             // use store.dispatch() to dispatch any redux ArticleActions
             // console.warn('---------------------Network', response);
             if (response?.status >= 500) {
-                // throw new ApiError(ERRORS.SERVER_ERROR);
-                return Promise.reject(response.data.message);
+                return Promise.reject(getErrorMessage(response, `Server Error (${response?.status}). Please Try Again Later.`));
             } else if (response?.status === 401) {
                 localStorage.removeItem(APP_VARIABLES.TOKEN);
-                // throw new ApiError(ERRORS.UNAUTHORISED_ERROR);
-                return Promise.reject(response.data.message);
+                return Promise.reject(getErrorMessage(response, 'Unauthorized Access.'));
             } else if (response?.status === 403) {
-                // throw new ApiError(ERRORS.FORBIDDEN_ERROR);
-                return Promise.reject(response.data.message);
+                return Promise.reject(getErrorMessage(response, 'Access Forbidden.'));
             } else if (response?.status === 404) {
-                // throw new ApiError(ERRORS.NOT_FOUND);
-                return Promise.reject(response.data.message);
+                return Promise.reject(getErrorMessage(response, `Server Error (${response?.status}). Please Try Again Later.`));
             } else if (response?.status === 406) {
-                // throw new ApiError(ERRORS.LOGIN_ERROR);
-                return Promise.reject(response.data.message);
+                return Promise.reject(getErrorMessage(response, `Server Error (${response?.status}). Please Try Again Later.`));
             } else if (response?.status === 200 || response?.status === 201 || response?.status === 202) {
                 return response.data;
             } else if (response?.status === 422) {
-                return Promise.reject(response.data.message);
-                // throw new ApiError(response.data.error);
+                return Promise.reject(getErrorMessage(response, 'Validation Failed.'));
             } else if (response?.status === 400) {
-                return Promise.reject(response.data.message);
+                return Promise.reject(getErrorMessage(response, 'Bad Request.'));
             } else {
                 return response;
             }

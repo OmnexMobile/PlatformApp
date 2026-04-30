@@ -14,12 +14,32 @@ export default StyleSheet.create({
   },
   mainContainer: {
     flex: 1,
-    width: Window.width,
-    height: Window.height,
+    width: "100%",
+    height: "100%",
   },
   textHeader: {
     flexDirection: "row",
     alignItems: "center",
+    paddingBottom: 10,
+    paddingHorizontal: 15,
+  },
+
+  title: {
+    fontSize: 16,
+    color: '#000',
+    fontFamily: 'OpenSans-SemiBold',
+  },
+
+  subTitle: {
+    fontSize: 16,
+    color: '#5b5b5b',
+    fontFamily: 'OpenSans-Regular',
+  },
+
+  subTitle1: {
+    color:'#123C95',
+    fontSize: 16,
+    fontFamily: 'OpenSans-SemiBold',
   },
 
   bgImage: {
@@ -90,14 +110,100 @@ export default StyleSheet.create({
     marginLeft: '3%',
   },
   flatListWholeViewWithTopMargin: {
+    flex: 1,
     width: "100%",
-    height: "81%",
-    position: "absolute",
-    marginTop: 100,
+    marginTop: 6,
     padding: 8,
     flexDirection: "column",
-    marginBottom: 10,
-    marginLeft: "3%",
+  },
+  formContentContainer: {
+    paddingBottom: 70,
+  },
+  infoCard: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 18,
+    padding: 16,
+    marginHorizontal: 8,
+    marginBottom: SPACING.NORMAL,
+    shadowColor: "#0F172A",
+    shadowOpacity: 0.08,
+    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 8 },
+    // elevation: 4,
+    borderLeftWidth: 5,
+    borderLeftColor: "#123C95",
+    borderWidth: 1,
+    borderColor: "#123C95",
+    
+  },
+  infoHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  infoHeaderTitle: {
+    flex: 1,
+    fontSize: 16,
+    color: "#000",
+    fontFamily: "OpenSans-SemiBold",
+    paddingRight: 12,
+  },
+  progressPill: {
+    width: 33,
+    height: 33,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#123C95",
+    borderRadius: 22,
+    borderWidth: 1,
+    borderColor: "#123C95",
+  },
+  progressPillText: {
+    fontSize: 13,
+    color: "#E8EEFF",
+    fontFamily: "OpenSans-SemiBold",
+  },
+  infoDivider: {
+    height: 1,
+    backgroundColor: "#E8EEFF",
+    marginVertical: 12,
+  },
+  infoBody: {
+    marginBottom: 0,
+  },
+  infoLine: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  infoLabel: {
+    width: 90,
+    fontSize: 15,
+    color: "#000",
+    fontFamily: "OpenSans-SemiBold",
+  },
+  infoValuePill: {
+    flex: 1,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    backgroundColor: "#F3F4F6",
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+  },
+  infoValuePillAlt: {
+    flex: 1,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    backgroundColor: "#EEF2FF",
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#D9E1FF",
+  },
+  infoValuePillText: {
+    fontSize: 16,
+    color: "#5b5b5b",
+    fontFamily: "OpenSans-Regular",
   },
 
   apqpTextStyle: {
@@ -329,8 +435,9 @@ export default StyleSheet.create({
   },
   sec1: {
     width: "100%",
-    height: 75,
-    marginLeft: '1%',
+    minHeight: 58,
+    marginBottom: SPACING.X_SMALL,
+    paddingRight: 12,
   },
   startDateSectionEmpty: {
     marginTop: -10,
@@ -340,7 +447,7 @@ export default StyleSheet.create({
   },
   remark: {
     width: "100%",
-    marginLeft: '1%',
+    marginBottom: SPACING.X_NORMAL,
   },
   remarkClientEmpty: {
     marginTop: -10,
@@ -436,22 +543,21 @@ export default StyleSheet.create({
   },
   roundView: {
     position: "absolute",
-    //paddingTop: 10,
-    top: 5,
+    top: 40,
     height: 40,
-    //textAlign: "right",
     width: 40,
-    right: '2%',
+    right: '5%',
     borderRadius: 40,
-    borderColor: "#00BAC8",
+    borderColor: "#123C95",
     borderWidth: 0.7,
-    backgroundColor: "#00BAC8",
+    backgroundColor: "#123C95",
     justifyContent: "center",
     alignItems: "center",
   },
   roundViewText: {
     color: "#fff",
     fontWeight: "bold",
+    fontFamily: 'OpenSans-Regular',
   },
   rowDirection: {
     flexDirection: "row",
@@ -469,6 +575,12 @@ export default StyleSheet.create({
   defaultRemarksRowFilled: {
     marginTop: "6%",
     marginBottom: "1.2%",
+  },
+  fieldRowSpacing: {
+    marginBottom: SPACING.X_SMALL,
+  },
+  defaultRemarksCompact: {
+    paddingBottom: SPACING.X_SMALL,
   },
   bottomSpacer: {
     height: 50,
@@ -505,5 +617,22 @@ export default StyleSheet.create({
   },
   toastText: {
     color: "white",
+  },
+  inputNoHorizontalPadding: {
+      paddingHorizontal: 0,
+  },
+  remarksMultilineInput: {
+      minHeight: 90,
+      textAlignVertical: "top",
+  },
+  inputContainerNoPad: {
+      paddingHorizontal: 0,
+      marginBottom: 0,
+      marginLeft: 15,
+  },
+  inputContainer: {
+      paddingHorizontal: 0,
+      marginBottom: 0,
+      marginLeft: 15,
   },
 });

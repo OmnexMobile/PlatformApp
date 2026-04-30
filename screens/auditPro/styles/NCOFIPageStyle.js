@@ -1,7 +1,7 @@
 import { StyleSheet, Dimensions, Platform } from 'react-native';
 import Fonts from '../Themes/Fonts';
 import { width, height } from 'react-native-dimension';
-import { SPACING } from 'constants/theme-constants';
+import { COLORS, SPACING } from 'constants/theme-constants';
 
 let Window = Dimensions.get('window');
 const loaderMarginTop = Window.height / 2 - 200;
@@ -99,15 +99,21 @@ export default StyleSheet.create({
         color: '#ffffff',
         fontSize: 14,
         fontFamily: 'OpenSans-SemiBold',
-        paddingTop: 5,
+        paddingTop: 6,
+        lineHeight: 18,
+        minHeight: 42,
+        textAlign: 'center',
+        textAlignVertical: 'center',
+        width: '100%',
     },
     footerShadowButton: {
         alignItems: 'center',
         justifyContent: 'center',
+        minHeight: 84,
         paddingVertical: 12,
-        paddingHorizontal: 12,
-        borderRadius: 8,
-        backgroundColor: '#00b3d6',
+        paddingHorizontal: 10,
+        borderRadius: 10,
+        backgroundColor: COLORS.primaryDarkThemeColor,
         shadowColor: '#000',
         shadowOpacity: 0.18,
         shadowOffset: {width: 0, height: 2},
@@ -122,7 +128,7 @@ export default StyleSheet.create({
     },
     footerButtonsRow: {
         flexDirection: 'row',
-        alignItems: 'center',
+        alignItems: 'stretch',
         justifyContent: 'space-between',
         width: '100%',
         paddingHorizontal: 6,
@@ -131,6 +137,7 @@ export default StyleSheet.create({
         flex: 1,
         minWidth: 0,
         marginHorizontal: 4,
+        justifyContent: 'center',
     },
 
     // Body styles
@@ -613,10 +620,16 @@ export default StyleSheet.create({
     },
     emptyStateWrapper: {
         marginTop: '20%',
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     emptyStateRow: {
         flexDirection: 'row',
         justifyContent: 'center',
+    },
+    emptyStateLottie: {
+        width: Window.width * 0.44,
+        height: Window.width * 0.44,
     },
     emptyStateImage: {
         height: 50,
@@ -746,25 +759,50 @@ export default StyleSheet.create({
         height: attachmentHeight,
     },
     proceedWrapper: {
-        borderColor: '#CED0CE',
+        width: '100%',
         justifyContent: 'center',
         alignItems: 'center',
     },
     proceedButton: {
+        width: '100%',
         alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: 84,
+        paddingVertical: 12,
+        paddingHorizontal: 10,
+        borderRadius: 10,
+        backgroundColor: COLORS.primaryDarkThemeColor,
+        shadowColor: '#000',
+        shadowOpacity: 0.18,
+        shadowOffset: { width: 0, height: 2 },
+        shadowRadius: 2,
+        elevation: 1,
     },
     proceedText: {
-        color: '#00b3d6',
-        fontSize: Fonts.size.medium,
-        marginTop: 2,
-        fontFamily: 'OpenSans-Regular',
+        color: '#ffffff',
+        fontSize: 14,
+        marginTop: 6,
+        lineHeight: 18,
+        minHeight: 42,
+        textAlign: 'center',
+        textAlignVertical: 'center',
+        fontFamily: 'OpenSans-SemiBold',
+        width: '100%',
     },
     activityWrapper: {
-        paddingVertical: 20,
-        borderTopWidth: 1,
-        borderColor: '#CED0CE',
+        width: '100%',
+        minHeight: 84,
+        paddingVertical: 12,
+        paddingHorizontal: 10,
+        borderRadius: 10,
+        backgroundColor: COLORS.primaryDarkThemeColor,
         justifyContent: 'center',
         alignItems: 'center',
+        shadowColor: '#000',
+        shadowOpacity: 0.18,
+        shadowOffset: { width: 0, height: 2 },
+        shadowRadius: 2,
+        elevation: 1,
     },
 
     // Missing attachment modal
@@ -918,8 +956,8 @@ export default StyleSheet.create({
 
     // Tabs
     tabUnderline: {
-        backgroundColor: '#2CB5FD',
-        borderBottomColor: '#2CB5FD',
+        backgroundColor: COLORS.primaryDarkThemeColor,
+        borderBottomColor: COLORS.primaryDarkThemeColor,
         height: Platform.select({
             android: 0,
             ios: 5,

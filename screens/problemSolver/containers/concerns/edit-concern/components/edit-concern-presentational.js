@@ -80,6 +80,7 @@ const EditConcernPresentational = ({
                                 handleAttachments,
                                 handleOKPicker,
                                 handleNotOKPicker,
+                                padding: true
                             }}
                         />
                     </KeyboardAwareScrollViewComponent>

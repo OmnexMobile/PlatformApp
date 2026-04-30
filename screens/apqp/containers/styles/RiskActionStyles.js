@@ -2,7 +2,7 @@ import { StyleSheet, Dimensions } from "react-native";
 import { Metrics, ApplicationStyles } from "../../themes";
 import Fonts from "../../themes/Fonts";
 import { width, height } from "react-native-dimension";
-import { SPACING } from "constants/theme-constants";
+import { FONT_SIZE, SPACING } from "constants/theme-constants";
 // import { android15FooterPadding } from "../../../auditPro/Themes/AndroidInsets";
 
 let Window = Dimensions.get("window");
@@ -22,8 +22,8 @@ export default StyleSheet.create({
   },
   mainContainer: {
     flex: 1,
-    width: Window.width,
-    height: Window.height,
+    width: "100%",
+    height: "100%",
   },
   bgImage: {
     width: "100%",
@@ -64,13 +64,13 @@ export default StyleSheet.create({
 
   flatListWholeView: {
     width: "100%",
-    height: "80%",
-    position: "absolute",
-    marginTop: 100,
-    padding: 5,
+    flex: 1,
+    paddingHorizontal: SPACING.NORMAL,
+    paddingTop: SPACING.X_SMALL,
     flexDirection: "column",
-    //backgroundColor:'yellow'
-    marginLeft: '3%',
+  },
+  flatListWholeContent: {
+    paddingBottom: SPACING.XX_LARGE,
   },
   flatList: {
     width: "100%",
@@ -347,9 +347,7 @@ export default StyleSheet.create({
     width: "100%",
     height: 60,
     backgroundColor: "transparent",
-    position: "absolute",
-    // bottom: 20 + android15FooterPadding,
-    bottom: 0,
+    justifyContent: "center",
   },
   footerButton2: {
     width: "50%",
@@ -378,8 +376,9 @@ export default StyleSheet.create({
 
   line2: {
     width: "100%",
+    paddingHorizontal: 12,
     // backgroundColor:'yellow',
-    padding: 10,
+    // padding: 10,
     // borderBottomColor:'lightgrey',
     // borderBottomWidth:0.7
   },
@@ -387,7 +386,9 @@ export default StyleSheet.create({
     bottom: 10,
   },
   statusDropdownLabelText: {
-    fontWeight: "bold",
+      color: '#000',
+      fontSize: 16,
+      fontFamily: 'OpenSans-SemiBold',
   },
   headerDiv: {
     width: width(50),
@@ -423,5 +424,16 @@ export default StyleSheet.create({
   },
   toastText: {
     color: "white",
+  },
+  riskTitle: {
+      color: '#000',
+      fontSize: 16,
+      fontFamily: 'OpenSans-SemiBold',
+      marginBottom: 2,
+  },
+  riskSubTitle: {
+      color: '#5b5b5b',
+      fontSize: 16,
+      fontFamily: 'OpenSans-Regular',
   },
 });

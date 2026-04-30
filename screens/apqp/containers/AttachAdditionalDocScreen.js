@@ -5,7 +5,9 @@ import {
   Image,
   View,
   TextInput,
+  ScrollView,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
 import { Images } from "../themes";
 import Icon from "react-native-vector-icons/FontAwesome";
@@ -16,7 +18,6 @@ import auth from "../../../services/APQP-Auth";
 // import DeviceInfo from "react-native-device-info";
 import Moment from "moment";
 import DocumentPicker from "react-native-document-picker";
-import RNFetchBlob from "react-native-fetch-blob";
 import { Bubbles } from "react-native-loader";
 // import Reactotron from "reactotron-react-native";
 
@@ -27,6 +28,7 @@ import RNFS from "react-native-fs";
 import { ICON_TYPE, ROUTES } from "constants/app-constant";
 import { FAB } from "components";
 import GlobalHeader from "components/GlobalHeader";
+import { showErrorMessage, showWarningMessage, successMessage } from "helpers/utils";
 
 // import RNBlobUtil from "react-native-blob-util";
 
@@ -148,10 +150,11 @@ class AttachAdditionalDocScreen extends Component {
               loader: false,
             },
             () => {
-              this.refs.toast.show(
-                "Failed to initialize the attachment component!",
-                DURATION.LENGTH_SHORT
-              );
+              // this.refs.toast.show(
+              //   "Failed to initialize the attachment component!",
+              //   DURATION.LENGTH_SHORT
+              // );
+              showErrorMessage('Failed To Initialize The Attachment!')
             }
           );
         }
@@ -228,7 +231,8 @@ class AttachAdditionalDocScreen extends Component {
       this.state.docName == "" ||
       this.state.comments == ""
     ) {
-      this.refs.toast.show("Please fill all the fields", DURATION.LENGTH_SHORT);
+      // this.refs.toast.show("Please fill all the fields", DURATION.LENGTH_SHORT);
+      showWarningMessage({ message: "Please Fill All The Fields"})
       this.setState({
         loader: false,
       });
@@ -246,7 +250,8 @@ class AttachAdditionalDocScreen extends Component {
             },
             () => {
               console.log("hellohellohello");
-              this.refs.toast.show("Attachment done.", 5000);
+              // this.refs.toast.show("Attachment done.", 5000);
+              successMessage({message: "", description: "Attachment Uploaded Successfully."})
               this.senduploadAttachments();
             }
           );
@@ -258,10 +263,11 @@ class AttachAdditionalDocScreen extends Component {
               loader: false,
             },
             () => {
-              this.refs.toast.show(
-                "Failed to attach / Access denied",
-                DURATION.LENGTH_SHORT
-              );
+              // this.refs.toast.show(
+              //   "Failed to attach / Access denied",
+              //   DURATION.LENGTH_SHORT
+              // );
+              showErrorMessage('Failed To Attach / Access Denied')
             }
           );
         }
@@ -274,7 +280,8 @@ class AttachAdditionalDocScreen extends Component {
       loader: true,
     });
     console.log("attachment moced to nexrs");
-    this.refs.toast.show("Attachment moved to next.", DURATION.LENGTH_SHORT);
+    // this.refs.toast.show("Attachment Moved to Next.", DURATION.LENGTH_SHORT);
+    // successMessage({ message: '', description: "Attachment Moved to Next."}); //removed
     // const WebToken = await AsyncStorage.getItem("WebToken");
     const WebToken = this.WebToken;
     // const weburl = await AsyncStorage.getItem("weburl");
@@ -328,7 +335,8 @@ class AttachAdditionalDocScreen extends Component {
               loader: false,
             },
             () => {
-              this.refs.toast.show("Attachment done.", DURATION.LENGTH_SHORT);
+              // this.refs.toast.show("Attachment done.", DURATION.LENGTH_SHORT);
+              // successMessage({message: "", description: "Attachment Done."})
               this.props.navigation.navigate(ROUTES.DELIVERABLE_INFO_SCREEN);
             }
           );
@@ -340,10 +348,11 @@ class AttachAdditionalDocScreen extends Component {
               isLoading: false,
             },
             () => {
-              this.refs.toast.show(
-                "Failed to sync attachment to server!",
-                DURATION.LENGTH_SHORT
-              );
+              // this.refs.toast.show(
+              //   "Failed to sync attachment to server!",
+              //   DURATION.LENGTH_SHORT
+              // );
+              showErrorMessage('Failed To Sync Attachment To Server!')
             }
           );
         }
@@ -406,10 +415,12 @@ class AttachAdditionalDocScreen extends Component {
               loader: false,
             },
             () => {
-              this.refs.toast.show(
-                "Attachment saved successfully.",
-                DURATION.LENGTH_SHORT
-              );
+              // this.refs.toast.show(
+              //   "Attachment saved successfully.",
+              //   DURATION.LENGTH_SHORT
+              // );
+
+              successMessage({message: "", description: "Attachment Saved Successfully."})
               setTimeout(() => {
                 this.onPressBack();
               }, 500);
@@ -421,10 +432,11 @@ class AttachAdditionalDocScreen extends Component {
               loader: false,
             },
             () => {
-              this.refs.toast.show(
-                "Failed to sync attachment to server!",
-                DURATION.LENGTH_SHORT
-              );
+              // this.refs.toast.show(
+              //   "Failed to sync attachment to server!",
+              //   DURATION.LENGTH_SHORT
+              // );
+              showErrorMessage('Failed To Sync Attachment To Server!')
             }
           );
         }
@@ -458,62 +470,40 @@ class AttachAdditionalDocScreen extends Component {
       console.log('reach handleDocumentSelection--->')
       const response = await DocumentPicker.pickSingle({
         presentationStyle: "fullScreen",
+        copyTo: "cachesDirectory",
       });
       if (response) {
         console.log('handleDocumentSelect response if--->', response, '--', response?.uri)
-        
 
-        RNFetchBlob.fs.readFile(response?.uri, "base64").then(
-          (data) => {
-            console.log("data fetchblob", data);
-            response.data = data;
-            console.log("xdx", response.name, response.uri);
-            console.log("Base64Conversion---->"+response.name+"===========>"+response.uri)
-            return response.readFile("base64");
-          },
-          // () =>
-          this.setState({
-            attachedDocName: response.name,
-            attachedDoc: response.uri,
-            attachfilebyte: response,
-          })
-        );
+        // Prefer a copied local file path for reliable image/document reading.
+        const localUri = response?.fileCopyUri || response?.uri;
+        const normalizedPath =
+          Platform.OS === "ios" && localUri?.startsWith("file://")
+            ? localUri.replace("file://", "")
+            : localUri;
 
-    //   const response = await DocumentPicker.pickSingle({
-    //     presentationStyle: 'fullScreen',
-    //   });
-    //  if (response) {
-    //   console.log('Picked file URI:', response?.uri);
-  
-    //   // Convert content:// URI to file path
-    //   const fileStat = await RNBlobUtil.stat(response.uri);
-    //   const filePath = fileStat.path;
-  
-    //   // Read file as base64
-    //   const base64Data = await RNBlobUtil.fs.readFile(filePath, 'base64');
-  
-    //   console.log('Base64Conversion---->', response.name, '===========>', filePath);
-  
-    //   // You can now store or upload this data
-    //   this.setState({
-    //     attachedDocName: response.name,
-    //     attachedDoc: response.uri,
-    //     attachfilebyte: base64Data,
-    //   });
+        if (!normalizedPath) {
+          // this.refs.toast.show("Unable to read selected file", DURATION.LENGTH_SHORT);
+          showWarningMessage({ message: "Unable To Read Selected File"})
+          return;
+        }
 
-      
-        var data = await RNFS.readFile(response.uri, "base64").then((res) => {
-          this.setState({ attachedfilebyteArray: res });
+        const base64Data = await RNFS.readFile(normalizedPath, "base64");
+
+        this.setState({
+          attachedDocName: response.name || "",
+          attachedDoc: localUri || "",
+          attachfilebyte: response,
+          attachedfilebyteArray: base64Data || "",
         });
-        var data1 = await RNFS.readFile(response.uri, "base64")
-        console.log("data reach-->", data, '--', data1);
-
-        // this.setState({
-        //     attachedfilebyteArray:data
-        // })
       }
     } catch (err) {
+      if (DocumentPicker.isCancel && DocumentPicker.isCancel(err)) {
+        return;
+      }
       console.log("Base64Conversion----======Error=====>"+err);
+      // this.refs.toast.show("Failed to read selected file", DURATION.LENGTH_SHORT);
+          showWarningMessage({ message: "Unable To Read Selected File"})
     }
 
     // DocumentPicker.pick({
@@ -623,7 +613,8 @@ class AttachAdditionalDocScreen extends Component {
       this.state.docName == "" ||
       this.state.comments == ""
     ) {
-      this.refs.toast.show("Please fill all the fields", DURATION.LENGTH_SHORT);
+      // this.refs.toast.show("Please fill all the fields", DURATION.LENGTH_SHORT);
+      showWarningMessage({ message: "Please Fill All The Fields"})
     } else {
       this.setState(
         {
@@ -649,10 +640,11 @@ class AttachAdditionalDocScreen extends Component {
                       loader: false,
                     },
                     () => {
-                      this.refs.toast.show(
-                        "Failed to sync attachment to server!",
-                        DURATION.LENGTH_SHORT
-                      );
+                      // this.refs.toast.show(
+                      //   "Failed to sync attachment to server!",
+                      //   DURATION.LENGTH_SHORT
+                      // );
+                      showErrorMessage('Failed To Sync Attachment To Server!')
                     }
                   );
                 }
@@ -662,10 +654,11 @@ class AttachAdditionalDocScreen extends Component {
                     loader: false,
                   },
                   () => {
-                    this.refs.toast.show(
-                      "Failed to sync attachment to server!",
-                      DURATION.LENGTH_SHORT
-                    );
+                    // this.refs.toast.show(
+                    //   "Failed to sync attachment to server!",
+                    //   DURATION.LENGTH_SHORT
+                    // );
+                    showErrorMessage('Failed To Sync Attachment To Server!')
                   }
                 );
               }
@@ -676,10 +669,11 @@ class AttachAdditionalDocScreen extends Component {
                 loader: false,
               },
               () => {
-                this.refs.toast.show(
-                  "Failed to sync attachment to server!",
-                  DURATION.LENGTH_SHORT
-                );
+                // this.refs.toast.show(
+                //   "Failed to sync attachment to server!",
+                //   DURATION.LENGTH_SHORT
+                // );
+                showErrorMessage('Failed To Sync Attachment To Server!')
               }
             );
           }
@@ -700,7 +694,8 @@ class AttachAdditionalDocScreen extends Component {
             docName: "",
           },
           () => {
-            this.refs.toast.show("Invalid format!", DURATION.LENGTH_SHORT);
+            // this.refs.toast.show("Invalid format!", DURATION.LENGTH_SHORT);
+            showWarningMessage({message: "Invalid Format!"})
           }
         );
       }
@@ -732,79 +727,69 @@ class AttachAdditionalDocScreen extends Component {
 
         {this.state.loader === true ? (
           <View style={styles.loaderView}>
-            <Bubbles size={10} color="#8CE7DC" />
+            {/* <Bubbles size={10} color="#8CE7DC" /> */}
+            <ActivityIndicator size="small" color="#1CAFF6" />
           </View>
         ) : (
-          // <View style={styles.flatListWholeView}>
-          <View style={styles.sectionHeaderContainer}>
-            <View style={styles.sectionHeader}>
-              <View style={styles.sec1}>
-                {this.state.docName != "" ? (
-                  <Text style={styles.completedTextStyle}>Doc Name</Text>
-                ) : null}
-                <TextInput
-                  placeholder={"Doc Name"}
-                  placeholderTextColor= "#000"
-                  style={styles.textInputStyle}
-                  value={this.state.docName}
-                  onChangeText={(text) => {
-                    this.setState({ docName: text });
-                  }}
-                />
-                <View style={styles.check}>
-                  <Icon
-                    style={styles.asteriskIcon}
-                    name="asterisk"
-                    size={8}
-                    color="red"
+          <ScrollView
+            style={styles.formScroll}
+            contentContainerStyle={styles.formContentContainer}
+            showsVerticalScrollIndicator={false}
+          >
+            <View style={styles.sectionHeaderContainer}>
+              <View style={styles.sectionHeader}>
+                <View style={styles.sec1}>
+                  <View style={styles.requiredLabelRow}>
+                    <Text style={styles.completedTextStyle}>Doc Name</Text>
+                    <Text style={styles.requiredStar}>*</Text>
+                  </View>
+                  <TextInput
+                    placeholder={"Doc Name"}
+                    placeholderTextColor= "#5b5b5b"
+                    style={styles.textInputStyle}
+                    value={this.state.docName}
+                    onChangeText={(text) => {
+                      this.setState({ docName: text });
+                    }}
+                    autoCapitalize="words"
                   />
                 </View>
-              </View>
 
-              <View style={styles.sec1}>
-                {this.state.comments != "" ? (
-                  <Text style={styles.completedTextStyle}>Comments</Text>
-                ) : null}
-                <TextInput
-                  placeholder={"Comments"}
-                  placeholderTextColor= "#000"
-                  style={styles.textInputStyle}
-                  value={this.state.comments.replace(regex, "")}
-                  onChangeText={(text) => {
-                    this.setState({ comments: text });
-                  }}
-                />
-                <View style={styles.check}>
-                  <Icon
-                    style={styles.asteriskIcon}
-                    name="asterisk"
-                    size={8}
-                    color="red"
+                <View style={styles.sec1}>
+                  <View style={styles.requiredLabelRow}>
+                    <Text style={styles.completedTextStyle}>Comments</Text>
+                    <Text style={styles.requiredStar}>*</Text>
+                  </View>
+                  <TextInput
+                    placeholder={"Comments"}
+                    placeholderTextColor= "#5b5b5b"
+                    style={styles.textInputStyle}
+                    value={this.state.comments.replace(regex, "")}
+                    onChangeText={(text) => {
+                      this.setState({ comments: text });
+                    }}
                   />
                 </View>
-              </View>
-              <View style={styles.sec1}>
-                <Text style={styles.completedTextStyle}>Attach File</Text>
-                <TouchableOpacity
-                  onPress={this.handleDocumentSelection.bind(this)}
-                >
-                  <Text numberOfLines={1} style={styles.boxContent}>
-                    {this.state.attachedDocName}
-                  </Text>
-                  <Icon name="paperclip" size={20} color="black" />
-                </TouchableOpacity>
-
-                <View style={styles.check}>
-                  <Icon
-                    style={styles.asteriskIcon}
-                    name="asterisk"
-                    size={8}
-                    color="red"
-                  />
+                <View style={styles.sec1}>
+                  <View style={styles.requiredLabelRow}>
+                    <Text style={styles.completedTextStyle}>Attach File</Text>
+                    <Text style={styles.requiredStar}>*</Text>
+                  </View>
+                  <TouchableOpacity
+                    style={styles.filePickerButton}
+                    onPress={this.handleDocumentSelection.bind(this)}
+                  >
+                    <Text numberOfLines={1} style={styles.filePickerText}>
+                      {this.state.attachedDocName || "Choose file to attach"}
+                    </Text>
+                    <View style={styles.filePickerIconWrap}>
+                      <Icon name="paperclip" size={18} color="#123C95" />
+                    </View>
+                  </TouchableOpacity>
                 </View>
               </View>
             </View>
-          </View>
+          </ScrollView>
         )}
 
         {this.state.loader === true ? null : (

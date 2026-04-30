@@ -5,7 +5,7 @@ import styles from '../styles/AuditDashboardListingStyle';
 //components
 import OfflineNotice from '../components/OfflineNotice';
 import AuditCard from '../components/AuditCard';
-import { Content, Header, ListSearch } from 'components';
+import { Content, Header, ListSearch, NoRecordFound } from 'components';
 import GlobalHeader from 'components/GlobalHeader';
 //library
 import * as _ from 'lodash';
@@ -23,7 +23,7 @@ import constant from '../../auditPro/constants/AppConstants';
 // import { NavigationEvents } from 'react-navigation';
 import CryptoJS from 'react-native-crypto-js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { SPACING } from 'constants/theme-constants';
+import { COLORS, SPACING } from 'constants/theme-constants';
 import DeviceInfo from 'react-native-device-info';
 import { ROUTES } from 'constants/app-constant';
 import ToastNew, { ErrorToast } from 'react-native-toast-message';
@@ -816,7 +816,6 @@ class AuditDashboardListing extends Component {
                     onRightPress={() => this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)}
                     containerStyle={{ backgroundColor: 'transparent' }}
                     titleStyle={{ color: '#000' }}
-                    leftIconColor="#00b3d6"
                 />
                 <View style={styles.auditPageBody}>
                     {/* Search by Audit Number / Auditee / Date */}
@@ -832,11 +831,11 @@ class AuditDashboardListing extends Component {
 
                     {this.state.loader ? (
                         <View style={styles.loaderParent}>
-                            <ActivityIndicator size={20} color="#1CAFF6" />
+                            <ActivityIndicator size={20} color={COLORS.primaryDarkThemeColor} />
                         </View>
                     ) : this.state.error ? (
                         <View style={styles.errorWrapper}>
-                            <Text style={[whitneyBook_18, blackGrey, { fontFamily: 'OpenSans-Regular' }]}>{strings.No_records_found}</Text>
+                            <NoRecordFound />
                         </View>
                     ) : (
                         this.renderFlatList()
@@ -850,7 +849,10 @@ class AuditDashboardListing extends Component {
         return (
             <>
                 <FlatList
-                    contentContainerStyle={styles.listPadding}
+                    contentContainerStyle={[
+                        styles.listPadding,
+                        this.state.auditList.length === 0 && styles.emptyListContent,
+                    ]}
                     data={this.state.auditList}
                     showsVerticalScrollIndicator={false}
                     showsHorizontalScrollIndicator={false}
@@ -877,6 +879,7 @@ class AuditDashboardListing extends Component {
                     onMomentumScrollBegin={() => {
                         this.onEndReachedCalledDuringMomentum = false;
                     }}
+                    ListEmptyComponent={<NoRecordFound />}
                     ListFooterComponent={this.listFooter.bind(this)}
                 />
                 <ToastNew config={toastConfig} />
@@ -888,7 +891,7 @@ class AuditDashboardListing extends Component {
         if (this.state.subLoader) {
             return (
                 <View style={styles.subLoaderWrap}>
-                    <ActivityIndicator size={16} color="#1CAFF6" />
+                    <ActivityIndicator size={16} color={COLORS.primaryDarkThemeColor} />
                 </View>
             );
         } else {

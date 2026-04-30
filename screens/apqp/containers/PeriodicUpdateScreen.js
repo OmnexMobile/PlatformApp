@@ -24,8 +24,10 @@ import Moment from "moment";
 import { ICON_TYPE, ROUTES } from "constants/app-constant";
 // import Reactotron from "reactotron-react-native";
 import GlobalHeader from "components/GlobalHeader";
-import { FAB } from "components";
+import { FAB, NoRecordFound } from "components";
+import IconComponent from "components/icon-component";
 import CardProgress from "../components/CardProgress";
+import { successMessage } from "helpers/utils";
 
 class PeriodicUpdateScreen extends Component {
   TaskId = "";
@@ -180,13 +182,16 @@ class PeriodicUpdateScreen extends Component {
         this.props?.route?.params?.mailIDD !== "" &&
         this.props?.route?.params?.mailIDD != null
       ) {
-        this.refs.toast.show(
-          strings.Save_Message_update +
-          strings.mail_sent_to +
-          "\n" +
-          this.props?.route?.params?.mailIDD,
-          DURATION.LENGH_LONG
-        );
+        // this.refs.toast.show(
+        //   strings.Save_Message_update +
+        //   strings.mail_sent_to +
+        //   "\n" +
+        //   this.props?.route?.params?.mailIDD,
+        //   DURATION.LENGH_LONG
+        // );
+        successMessage({message: '', description: strings.Save_Message_update +
+          strings.mail_sent_to + "\n" + this.props?.route?.params?.mailIDD
+        })
       }
 
       console.log(
@@ -306,10 +311,23 @@ class PeriodicUpdateScreen extends Component {
     }
   }
 
+  formatRemarksText = (remarks) => {
+    if (!remarks) return "";
+    return remarks
+      .replace(/\r\n/g, "\n")
+      .replace(/\n{2,}/g, "\n")
+      .trim();
+  };
+
+  getRemarksLines = (remarks) => {
+    const formatted = this.formatRemarksText(remarks);
+    return formatted ? formatted.split("\n").filter(Boolean) : [];
+  };
+
   renderBounce() {
     return (
       <View style={styles.bounceContainer}>
-        <ActivityIndicator size="small" color="#1CAFF6" />
+        <ActivityIndicator size="small" color="#123C95" />
       </View>
     );
   }
@@ -479,9 +497,12 @@ class PeriodicUpdateScreen extends Component {
 
   NoRecordsFound() {
     return (
-      <Text style={styles.noRecordsText}>
-        {strings.No_records_found}
-      </Text>
+      // <Text style={styles.noRecordsText}>
+      //   {strings.No_records_found}
+      // </Text>
+      <View style={styles.emptyStateContainer1}>
+        <NoRecordFound />
+      </View>
     );
   }
 
@@ -506,7 +527,14 @@ class PeriodicUpdateScreen extends Component {
           this.renderBounce()
         ) : (
           <View style={styles.flatListWholeViewWithTopMargin}>
-            <CardProgress ProjectName={this.ProjectName} TaskName={this.TaskName} StartDate={this.StartDate} EndDate={this.EndDate} />
+            <CardProgress
+              ProjectName={this.ProjectName}
+              TaskName={this.TaskName}
+              StartDate={this.StartDate}
+              EndDate={this.EndDate}
+              completedPercent={this.ResourcePercent}
+              updatesCount={apqpPeriodicList?.length || 0}
+            />
 
             {this.state.apqpPeriodicList.length > 0 ? (
               <FlatList
@@ -518,17 +546,31 @@ class PeriodicUpdateScreen extends Component {
                 onEndReached={this.handleEnd.bind(this)}
                 renderItem={({ item }) => (
                   <View style={styles.sectionHeaderContainer}>
+                    <View style={styles.sectionArrowSlot}>
+                      <IconComponent
+                        name="arrow-right"
+                        type={ICON_TYPE.Feather}
+                        size={18}
+                        color="#123C95"
+                      />
+                    </View>
                     <View style={styles.sectionHeader}>
                       <TouchableOpacity
                         onPress={this.onPressedit.bind(this, item, "Edit")}
+                        activeOpacity={0.8}
+                        style={styles.childCardTouchable}
                       >
-                        <View style={styles.flatListInsideView}>
+                        {/* <View style={styles.childBadgeRow}>
+                          <View style={styles.childDot} />
+                          <Text style={styles.childBadgeText}>Periodic Update</Text>
+                        </View> */}
+                        <View style={[styles.flatListInsideView, styles.compactRow]}>
                           <Text style={styles.listText}>Completed % :</Text>
                           <Text style={styles.deliveryTypeTextStylePercent}>
                             {item.Percentage}
                           </Text>
                         </View>
-                        <View style={styles.flatListInsideView}>
+                        <View style={[styles.flatListInsideView, styles.compactRow]}>
                           <Text style={styles.listText}>Period :</Text>
                           <Text
                             style={styles.dateTextStyle}
@@ -547,12 +589,14 @@ class PeriodicUpdateScreen extends Component {
                         <View style={styles.flatListInsideView}>
                           <Text style={styles.listText}>{strings.Remarks}:</Text>
                         </View>
-                        <View style={styles.flatListInsideView}>
-                          <Text
-                            style={styles.remarksText}
-                          >
-                            {item.Remarks}
-                          </Text>
+                        <View style={styles.flatListInsideView1}>
+                          <View style={styles.remarksText}>
+                            {this.getRemarksLines(item.Remarks).map((remark, idx) => (
+                              <Text key={`${item.Id || "remarks"}-${idx}`} style={styles.remarksLineText}>
+                                {remark}
+                              </Text>
+                            ))}
+                          </View>
                         </View>
                       </TouchableOpacity>
                     </View>

@@ -475,7 +475,38 @@ export default StyleSheet.create({
   },
   filterCont: {
     width: "100%",
-    minHeight: height(2.5),
+    minHeight: height(6),
+    paddingHorizontal: SPACING.NORMAL,
+    paddingVertical: SPACING.SMALL,
+    flexDirection: "row",
+  },
+  searchContainer: {
+    flex: 1,
+    height: 46,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#E6E6E6",
+    paddingHorizontal: SPACING.NORMAL,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  searchInput: {
+    flex: 1,
+    paddingLeft: SPACING.SMALL,
+    fontSize: 16,
+    color: "#4A4A4A",
+    fontFamily: "OpenSans-Regular",
+  },
+  searchClearButton: {
+    paddingLeft: SPACING.SMALL,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  searchCalendarButton: {
+    paddingLeft: SPACING.SMALL,
+    justifyContent: "center",
+    alignItems: "center",
   },
   filterBox: {
     flex: 1,
@@ -570,6 +601,10 @@ export default StyleSheet.create({
     marginTop: height(6),
     fontFamily: "OpenSans-Regular",
   },
+  noRecords: {
+    paddingTop: height(5),
+    marginTop: height(6),
+  },
   bounceContainer: {
     paddingVertical: 20,
     width: Window.width,
@@ -585,7 +620,7 @@ export default StyleSheet.create({
   footerTopBorder: {
     borderTopWidth: 1,
     borderTopColor: "lightgrey",
-    marginBottom: 5,
+    marginBottom: 0,
   },
   footerMenuRow: {
     flexDirection: "row",
@@ -653,27 +688,29 @@ export default StyleSheet.create({
   },
   tabTextActive: {
     fontWeight: "700",
-    color: "#4ACECD",
+    // color: "#4ACECD",
+    color:'#123C95',
     textAlign: "center",
     fontSize: 14,
   },
   tabTextInactive: {
     fontWeight: "400",
-    color: "#888",
+    color: "#000",
     textAlign: "center",
     fontSize: 14,
   },
   tabTextSmallActive: {
     fontWeight: "700",
-    color: "#4ACECD",
+    // color: "#4ACECD",
+    color:'#123C95',
     textAlign: "center",
-    fontSize: 12,
+    fontSize: 14,
   },
   tabTextSmallInactive: {
     fontWeight: "400",
-    color: "#888",
+    color: "#000",
     textAlign: "center",
-    fontSize: 12,
+    fontSize: 14,
   },
   tabIndicatorTrack: {
     width: Window.width,
@@ -686,7 +723,8 @@ export default StyleSheet.create({
     height: 2,
   },
   tabIndicator: {
-    backgroundColor: "#4ACECD",
+    // backgroundColor: "#4ACECD",
+    backgroundColor:'#123C95',
     width: Window.width / 3,
     height: 4,
   },
@@ -742,7 +780,7 @@ export default StyleSheet.create({
     fontFamily: "OpenSans-Regular",
   },
   footerSpacer: {
-    marginTop: height(8),
+    marginTop: 0,
   },
 
   separatorSection: {
@@ -765,8 +803,8 @@ export default StyleSheet.create({
   },
   sectionHeaderContainer: {
     backgroundColor: "#fff",
-    paddingBottom: SPACING.X_NORMAL,
-    paddingHorizontal: SPACING.NORMAL,
+    paddingBottom: '2%',
+    paddingHorizontal: SPACING.X_NORMAL,
     flexDirection: "column",
     justifyContent: "flex-start",
     alignSelf: "center",
@@ -774,16 +812,27 @@ export default StyleSheet.create({
   },
 
   sectionHeader: {
-    backgroundColor: '#1FBFD0',
+    backgroundColor: '#123C95',
     borderRadius: 8,
     paddingVertical: 10,
     paddingHorizontal: SPACING.NORMAL,
   },
 
   sectionHeaderText: {
-    fontSize: Fonts.size.h5,
-    fontWeight: "bold",
+    // fontSize: Fonts.size.h5,
+    // fontWeight: "bold",
+    fontSize: 16,
+    fontFamily: 'OpenSans-SemiBold',
     color: '#fff',
+  },
+  emptyStateContainer1: {
+    width: "92%",
+    height: 160,
+    justifyContent: "center",
+    alignItems: "center",
+    alignSelf: "center",
+    marginTop: 100,
+    backgroundColor: "#FFFFFF",
   },
 
 });

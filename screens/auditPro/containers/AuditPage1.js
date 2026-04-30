@@ -3389,14 +3389,14 @@ console.log('checktheaudits---Auditpage----Auditppro',recentAudits);
             onPress={() => {
               this.setState({dialogVisible: true});
             }}>
-            <Icon name="trash" size={25} color="#00b3d6" />
+            <Icon name="trash" size={25} color="#123C95" />
           </TouchableOpacity>
         ) : null}
         <TouchableOpacity
           onPress={() =>
             this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)
           }>
-          <Icon name="home" size={25} color="#00b3d6" />
+          <Icon name="home" size={25} color="#123C95" />
         </TouchableOpacity>
       </View>
     ) : (
@@ -3763,7 +3763,7 @@ console.log('checktheaudits---Auditpage----Auditppro',recentAudits);
                       <Icon
                         name="paperclip"
                         size={20}
-                        color="#000"
+                        color="#123C95"
                         style={{marginLeft: 15}}
                       />
                       <Text style={styles.footerTextContent}>
@@ -3781,7 +3781,7 @@ console.log('checktheaudits---Auditpage----Auditppro',recentAudits);
                     <Icon
                       name="list"
                       size={20}
-                      color="#000"
+                      color="#123C95"
                       style={{marginLeft: 15}}
                     />
                     <Text style={styles.footerTextContent}>
@@ -3804,7 +3804,7 @@ console.log('checktheaudits---Auditpage----Auditppro',recentAudits);
                       <Icon
                         name="file"
                         size={20}
-                        color="#000"
+                        color="#123C95"
                         style={{marginLeft: 15}}
                       />
                       <Text style={styles.footerTextContent}>
@@ -3824,7 +3824,7 @@ console.log('checktheaudits---Auditpage----Auditppro',recentAudits);
                       <Icon
                         name="file"
                         size={20}
-                        color="#000000"
+                        color="#123C95"
                         style={{marginLeft: 30}}
                       />
                       <Text style={styles.footerTextContent}>
@@ -3927,10 +3927,10 @@ console.log('checktheaudits---Auditpage----Auditppro',recentAudits);
               })
             }>
             <Icon
-              name="times-circle"
+              name="x-circle"
               style={{left: 0}}
               size={30}
-              color="white"
+              color="#fff"
             />
           </TouchableOpacity>
           <View style={styles.modalContainer}>
@@ -3938,7 +3938,7 @@ console.log('checktheaudits---Auditpage----Auditppro',recentAudits);
               <Text
                 style={{
                   fontSize: Fonts.size.h5,
-                  color: '#00b3d6',
+                  color: '#123C95',
                   fontFamily: 'OpenSans-Regular',
                 }}>
                 {strings.Voice_Assistant}
@@ -3953,7 +3953,7 @@ console.log('checktheaudits---Auditpage----Auditppro',recentAudits);
                   }}>
                   <View
                     style={{justifyContent: 'center', alignItems: 'center'}}>
-                    <Icon name="user-circle" size={20} color="#00b3d6" />
+                    <Icon name="user-circle" size={20} color="#123C95" />
                   </View>
                   <View style={styles.speechTextBlock}>
                     {this.state.partialResults.map((result, index) => {
@@ -3976,7 +3976,7 @@ console.log('checktheaudits---Auditpage----Auditppro',recentAudits);
                   }}>
                   <View
                     style={{justifyContent: 'center', alignItems: 'center'}}>
-                    <Icon name="user-circle" size={20} color="#00b3d6" />
+                    <Icon name="user-circle" size={20} color="#123C95" />
                   </View>
                   <View style={styles.speechTextBlock}>
                     <Text style={{fontFamily: 'OpenSans-Regular'}}>
@@ -4027,12 +4027,12 @@ console.log('checktheaudits---Auditpage----Auditppro',recentAudits);
               onPress={debounce(this._startRecognizing.bind(this), 1000)}>
               {this.state.startVoice === true ? (
                 <Icon
-                  name="assistive-listening-systems"
+                  name="loader"
                   size={30}
                   color="#00b678"
                 />
               ) : (
-                <Icon name="mic" size={30} color="#00b3d6" />
+                <Icon name="mic" size={30} color="#123C95" />
               )}
             </TouchableOpacity>
           </View>

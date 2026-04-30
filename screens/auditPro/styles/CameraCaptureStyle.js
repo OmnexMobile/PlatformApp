@@ -2,6 +2,7 @@ import {StyleSheet} from 'react-native';
 import {Colors, Metrics} from '../Themes/';
 import {width, height} from 'react-native-dimension';
 import Fonts from '../Themes/Fonts';
+import { COLORS } from 'constants/theme-constants';
 
 export default StyleSheet.create({
   container: {
@@ -105,7 +106,7 @@ export default StyleSheet.create({
     width:60,
     height:60,
     borderRadius:30,
-    backgroundColor:'#00b3d6',
+    backgroundColor: COLORS.primaryDarkThemeColor,
     alignItems:'center',
     justifyContent:'center',
     elevation:10,
@@ -140,7 +141,7 @@ export default StyleSheet.create({
     marginHorizontal:8,
     paddingVertical:12,
     borderRadius:12,
-    backgroundColor:'#00b3d6',
+    backgroundColor: COLORS.primaryDarkThemeColor,
     alignItems:'center',
     justifyContent:'center',
     elevation:6,

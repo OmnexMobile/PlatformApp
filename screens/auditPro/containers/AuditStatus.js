@@ -41,9 +41,10 @@ import NetInfo from '@react-native-community/netinfo';
 import {debounce, once} from 'underscore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ROUTES } from 'constants/app-constant';
-import { SPACING } from 'constants/theme-constants';
+import { COLORS, SPACING } from 'constants/theme-constants';
 import { Header } from 'components';
 import GlobalHeader from 'components/GlobalHeader';
+import AnimatedLottieView from 'lottie-react-native';
 
 let Window = Dimensions.get('window');
 
@@ -845,11 +846,11 @@ class AuditStatus extends React.Component {
             renderTabBar={() => (
               <DefaultTabBar
                 backgroundColor="white"
-                activeTextColor="#2CB5FD"
-                inactiveTextColor="#747474"
+                activeTextColor={COLORS.primaryDarkThemeColor}
+                inactiveTextColor={COLORS.primaryDarkThemeColor}
                 underlineStyle={{
-                  backgroundColor: '#2CB5FD',
-                  borderBottomColor: '#2CB5FD',
+                  backgroundColor: COLORS.primaryDarkThemeColor,
+                  borderBottomColor: COLORS.primaryDarkThemeColor,
                   // height: Platform.select({
                   //   android: 0,
                   //   ios: 5,
@@ -1324,15 +1325,14 @@ class AuditStatus extends React.Component {
                       )}
                     />
                   ) : (
-                    <View
-                      style={{
-                        width: '100%',
-                        height: 100,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                      }}>
-                      <Text
-                        style={{fontSize: 18, fontFamily: 'OpenSans-Regular'}}>
+                    <View style={styles.noRecordsContainer}>
+                      <AnimatedLottieView
+                        source={require('../../../assets/lottie/norecords.json')}
+                        autoPlay
+                        loop
+                        style={styles.noRecordsLottie}
+                      />
+                      <Text style={styles.noRecordsText}>
                         {strings.No_records_found}
                       </Text>
                     </View>
@@ -1466,7 +1466,11 @@ class AuditStatus extends React.Component {
                 <View
                   style={[
                     styles.floatinBtn,
-                    {backgroundColor: '#00b3d6', width: 60, height: 60},
+                    {
+                      backgroundColor: COLORS.primaryDarkThemeColor,
+                      width: 60,
+                      height: 60,
+                    },
                   ]}>
                   <Pulse size={20} color="white" />
                 </View>
@@ -1482,7 +1486,7 @@ class AuditStatus extends React.Component {
                   {this.state.disableBtn === false ? (
                     <Icon name="save" size={24} color="white" />
                   ) : (
-                    <Icon name="refresh" size={24} color="white" />
+                    <Icon name="refresh-ccw" size={24} color="white" />
                   )}
                 </TouchableOpacity>
               )}

@@ -3992,7 +3992,7 @@ class AuditPage extends Component {
                 });
               }}
               style={styles.floatinBtn}>
-              <Icon name="microphone" size={25} color="#00b3d6" />
+              <Icon name="microphone" size={25} color="#123C95" />
             </TouchableOpacity>
           </View>
         )}
@@ -4161,7 +4161,7 @@ class AuditPage extends Component {
                   color="#00b678"
                 />
               ) : (
-                <Icon name="microphone" size={30} color="#00b3d6" />
+                <Icon name="microphone" size={30} color="#123C95"/>
               )}
             </TouchableOpacity>
           </View>

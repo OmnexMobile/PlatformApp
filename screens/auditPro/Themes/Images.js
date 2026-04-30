@@ -99,7 +99,8 @@ const images = {
   omnex_resizeLog:require("../Images/omnex_logos.jpg"),
   norecords: require('../Images/documents.png'),
   nodata: require('../Images/ban.png'),
-  emptybox: require('../Images/emptybox.png')
+  emptybox: require('../Images/emptybox.png'),
+  checklist_bg:require('../Images/checklist_bg.png'),
 
 }
 

@@ -14,6 +14,7 @@ import ModalComponent from './modal-component';
 import IconComponent from './icon-component';
 import { postAPI } from 'global/api-helpers';
 import Loader from './loader';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const ProblemImages = ({
     images = [],
@@ -34,6 +35,8 @@ const ProblemImages = ({
     const [fixedImages, setFixedImages] = useState([]);
     const [loading, setLoading] = useState(false);
     const { theme } = useTheme();
+    const insets = useSafeAreaInsets();
+    
 
     const getProblemImages = async () => {
         try {
@@ -278,6 +281,7 @@ const ProblemImages = ({
                             flexDirection: 'row',
                             alignItems: 'center',
                             justifyContent: 'space-between',
+                            paddingBottom: insets.bottom,
                         }}>
                         <TouchableOpacity
                             style={{

@@ -40,6 +40,8 @@ import FileViewer from 'react-native-file-viewer';
 import { ROUTES } from 'constants/app-constant';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import GlobalHeader from 'components/GlobalHeader';
+import { COLORS } from 'constants/theme-constants';
+import AnimatedLottieView from 'lottie-react-native';
 var RNFS = require('react-native-fs');
 
 let Window = Dimensions.get('window');
@@ -2289,7 +2291,7 @@ class NCOFIPage extends Component {
                             renderTabBar={() => (
                                 <DefaultTabBar
                                     backgroundColor="white"
-                                    activeTextColor="#2CB5FD"
+                                    activeTextColor={COLORS.primaryDarkThemeColor}
                                     inactiveTextColor="#747474"
                                     underlineStyle={styles.tabUnderline}
                                     textStyle={styles.tabText}
@@ -2350,12 +2352,15 @@ class NCOFIPage extends Component {
                                     </View>
                                 ) : (
                                     <View style={styles.emptyStateWrapper}>
-                                        <View style={styles.emptyStateRow}>
-                                            <Image source={Images.emptybox} style={styles.emptyStateImage} />
-                                        </View>
-                                        <View>
-                                            <Text style={styles.norecordefound}>{strings.No_records_found}</Text>
-                                        </View>
+                                        <AnimatedLottieView
+                                            source={require('../../../assets/lottie/norecords.json')}
+                                            autoPlay
+                                            loop
+                                            renderMode="SOFTWARE"
+                                            resizeMode="contain"
+                                            style={styles.emptyStateLottie}
+                                        />
+                                        <Text style={styles.norecordefound}>{strings.No_records_found}</Text>
                                     </View>
                                 )}
                             </ScrollView>
@@ -2394,7 +2399,15 @@ class NCOFIPage extends Component {
                                         ))}
                                     </View>
                                 ) : (
-                                    <View style={styles.listMarginTop}>
+                                    <View style={styles.emptyStateWrapper}>
+                                        <AnimatedLottieView
+                                            source={require('../../../assets/lottie/norecords.json')}
+                                            autoPlay
+                                            loop
+                                            renderMode="SOFTWARE"
+                                            resizeMode="contain"
+                                            style={styles.emptyStateLottie}
+                                        />
                                         <Text style={styles.norecordefound}>{strings.No_records_found}</Text>
                                     </View>
                                 )}
@@ -2432,7 +2445,9 @@ class NCOFIPage extends Component {
                                 {this.state.syncMode === 0 && (
                                     <TouchableOpacity onPress={once(this.onNavigaTo.bind(this, 1))} style={styles.footerShadowButton}>
                                         <Icon name={'upload-cloud'} size={20} color="#fff" />
-                                        <Text style={styles.footerTextContent}>{strings.Create_NC}</Text>
+                                        <Text numberOfLines={2} style={styles.footerTextContent}>
+                                            {strings.Create_NC}
+                                        </Text>
                                     </TouchableOpacity>
                                 )}
                             </View>
@@ -2452,22 +2467,26 @@ class NCOFIPage extends Component {
                                         }}
                                         style={styles.footerShadowButton}>
                                         <Icon name={'refresh-ccw'} size={20} color="#ffffff" />
-                                        <Text style={styles.footerTextContent}>{strings.Upload_to_server}</Text>
+                                        <Text numberOfLines={2} style={styles.footerTextContent}>
+                                            {strings.Upload_to_server}
+                                        </Text>
                                     </TouchableOpacity>
                                 </View>
                             ) : this.state.syncMode === 2 || this.state.syncMode === 4 ? (
                                 <View style={styles.footerButtonWrapper}>
                                     <View style={styles.proceedWrapper}>
                                         <TouchableOpacity style={styles.proceedButton} onPress={this.CheckSync.bind(this)}>
-                                            <Icon name="check-square" size={20} color="#00b3d6" />
-                                            <Text style={styles.proceedText}>{'Proceed'}</Text>
+                                            <Icon name="check-square" size={20} color="#ffffff" />
+                                            <Text numberOfLines={2} style={styles.proceedText}>
+                                                {'Proceed'}
+                                            </Text>
                                         </TouchableOpacity>
                                     </View>
                                 </View>
                             ) : (
                                 <View style={styles.footerButtonWrapper}>
                                     <View style={styles.activityWrapper}>
-                                        <ActivityIndicator size={20} color="#1CAFF6" />
+                                        <ActivityIndicator size={20} color="#ffffff" />
                                     </View>
                                 </View>
                             )}
@@ -2476,7 +2495,9 @@ class NCOFIPage extends Component {
                                 {this.state.syncMode === 0 && (
                                     <TouchableOpacity onPress={once(this.onNavigaTo.bind(this, 2))} style={styles.footerShadowButton}>
                                         <Icon name={'upload-cloud'} size={20} color="#ffffff" />
-                                        <Text style={styles.footerTextContent}>{strings.Create_OFI}</Text>
+                                        <Text numberOfLines={2} style={styles.footerTextContent}>
+                                            {strings.Create_OFI}
+                                        </Text>
                                     </TouchableOpacity>
                                 )}
                             </View>

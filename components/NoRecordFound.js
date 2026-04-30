@@ -35,6 +35,8 @@ const NoRecordFound = () => {
                         source={require('../assets/lottie/norecords.json')}
                         loop
                         autoPlay={false} // We control it manually
+                        cacheComposition={false}
+                        cacheStrategy="none"
                         renderMode="SOFTWARE"
                         resizeMode="contain"
                         style={{ width: '100%', height: '100%' }}

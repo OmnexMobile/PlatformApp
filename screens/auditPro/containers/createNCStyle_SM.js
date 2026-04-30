@@ -48,6 +48,7 @@ export default StyleSheet.create({
     },
     inputNoHorizontalPadding: {
         paddingHorizontal: 0,
+        color: '#123C95',
     },
     inputContainerNoPad: {
         paddingHorizontal: 0,
@@ -675,7 +676,7 @@ export default StyleSheet.create({
         paddingVertical: 12,
         paddingHorizontal: 10,
         borderRadius: 8,
-        backgroundColor: '#00b3d6',
+        backgroundColor: '#123C95',
         shadowColor: '#000',
         shadowOpacity: 0.18,
         shadowOffset: { width: 0, height: 2 },
@@ -687,7 +688,7 @@ export default StyleSheet.create({
     footerPrimaryButton: {
         height: 65,
         borderRadius: 18,
-        backgroundColor: '#00b3d6',
+        backgroundColor: 'transparent',
         justifyContent: 'center',
         alignItems: 'center',
         shadowColor: '#000',
@@ -696,8 +697,19 @@ export default StyleSheet.create({
         shadowRadius: 4,
         elevation: 4,
     },
+    footerPrimaryButtonGradient: {
+        width: '100%',
+        height: '100%',
+        borderRadius: 18,
+        justifyContent: 'center',
+        alignItems: 'center',
+        overflow: 'hidden',
+    },
     footerPrimaryButtonTablet: {
         height: 72,
+        borderRadius: 22,
+    },
+    footerPrimaryButtonGradientTablet: {
         borderRadius: 22,
     },
     footerButtonText: {
@@ -707,20 +719,20 @@ export default StyleSheet.create({
         marginTop: 6,
     },
     footerButtonPrimary: {
-        backgroundColor: '#00b3d6',
+        backgroundColor: '#123C95',
     },
     footerButtonSecondary: {
         backgroundColor: 'white',
         borderWidth: 1.2,
-        borderColor: '#00b3d6',
+        borderColor: '#123C95',
     },
     footerVoiceButton: {
         backgroundColor: 'white',
         borderWidth: 1,
-        borderColor: '#00b3d6',
+        borderColor: '#123C95',
     },
     footerVoiceButtonActive: {
-        backgroundColor: '#14D0AE',
+        backgroundColor: '#123C95',
     },
     footerActionText: {
         color: '#ffffff',
@@ -729,7 +741,7 @@ export default StyleSheet.create({
         paddingTop: 5,
     },
     footerActionTextSecondary: {
-        color: '#00b3d6',
+        color: '#123C95',
     },
     pulseWrapper: {
         right: 70,
@@ -963,7 +975,7 @@ export default StyleSheet.create({
         paddingVertical: 5,
         paddingHorizontal: 10,
         borderRadius: 8,
-        backgroundColor: '#00b3d6',
+        backgroundColor: '#123C95',
         shadowColor: '#000',
         shadowOpacity: 0.18,
         shadowOffset: { width: 0, height: 2 },

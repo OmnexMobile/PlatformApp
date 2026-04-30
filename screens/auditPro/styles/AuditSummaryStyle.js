@@ -48,13 +48,13 @@ export default StyleSheet.create({
     height: 50,
     backgroundColor: '#fff',
     borderBottomWidth: 3,
-    borderBottomColor: '#00BAC8',
+    borderBottomColor: '#123C95',
     alignItems: 'center',
     justifyContent: 'center'
   },
   subText: {
     fontSize: 18,
-    color: '#00BAC8',
+    color: '#123C95',
     fontFamily: 'OpenSans-Bold'
   },
   scrollViewBody: {

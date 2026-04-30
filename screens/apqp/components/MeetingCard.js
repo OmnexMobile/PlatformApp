@@ -39,53 +39,62 @@ const MeetingCard = ({ item = {}, handleClickCard }) => {
                 onPress={() => handleClickCard?.(item)}
                 style={[
                     styles.cardContainer,
-                    elevation,
+                    // elevation,
                 ]}>
                 <View style={styles.cardOuterView}>
                     <View style={styles.projectBoxContent}>
                         {item?.Actions ? ( <View style={styles.fullWidthRow}>
-                            <TextComponent style={styles.primaryLabelText}  type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.SMALL}>
-                                Action : <TextComponent numberOfLines={1} fontSize={FONT_SIZE.SMALL} style={themedStyles.actionPrimaryValueText}>
+                            {/* <TextComponent style={styles.primaryLabelText}  type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.SMALL}>
+                                Action :  */}
+                                <TextComponent numberOfLines={1} style={themedStyles.actionPrimaryValueText}>
                                     {item.Actions}
                                 </TextComponent>
-                            </TextComponent>
+                            {/* </TextComponent> */}
                         </View>) : null}
-                        {item?.ActionType ? ( <View style={styles.fullWidthRow}>
+                        {/* {item?.ActionType ? ( <View style={styles.fullWidthRow}>
                             <TextComponent style={styles.primaryLabelText}  type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.SMALL}>
                                 Action Type : <TextComponent numberOfLines={1} fontSize={FONT_SIZE.SMALL} style={styles.secondaryValueText}>
                                 {item.ActionType}
                             </TextComponent>
                             </TextComponent>
-                        </View>) : null}
-                        {item?.Site ? (<TextComponent style={styles.primaryRowText}   type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.SMALL} numberOfLines={1}>
-                            Site : <TextComponent fontSize={FONT_SIZE.SMALL} style={styles.secondaryValueText}>{item?.Site}</TextComponent>
-                        </TextComponent>) : null}
-                        {item?.Description ? (<TextComponent style={styles.primaryRowText}   type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.SMALL} numberOfLines={1}>
+                        </View>) : null} */}
+
+                        {/* {item?.Description ? (<TextComponent style={styles.primaryRowText}   type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.SMALL} numberOfLines={1}>
                             Description : <TextComponent fontSize={FONT_SIZE.SMALL} style={styles.secondaryValueText}>{item?.Description}</TextComponent>
-                        </TextComponent>) : null}
+                        </TextComponent>) : null} */}
                         {item?.ActionCreatedDate ? (<View style={styles.dateRow}>
                             <View style={styles.dateIconWrapper}>
                                 <View
                                     style={styles.dateIconBox}>
-                                    <IconComponent name="calendar" color={COLORS.white} type={ICON_TYPE.AntDesign} size={FONT_SIZE.X_SMALL} />
+                                    <IconComponent name="calendar" color={COLORS.white} type={ICON_TYPE.AntDesign} size={FONT_SIZE.XXX_SMALL} />
                                 </View>
                             </View>
                             <View style={styles.dateValueWrapper}>
-                                <TextComponent numberOfLines={1} fontSize={FONT_SIZE.SMALL} type={FONT_TYPE.BOLD}  style={styles.primaryLabelText}>
+                                <TextComponent numberOfLines={1}  style={themedStyles.dateText}>
                                     {changeDateFormatCard(item.ActionCreatedDate)} -{" "}
                                     {changeDateFormatCard(item.DueDate)}
                                 </TextComponent>
                             </View>
                         </View>
                         ) : null}
-                        {item?.Status ? (<TextComponent style={styles.primaryRowText} type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.SMALL}  numberOfLines={1}>
+
+                        {item?.Site ? (
+                        // <TextComponent style={styles.primaryRowText}   type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.SMALL} numberOfLines={1}>
+                        //     Site :
+                        <View style={styles.fullWidthRow}>
+                            <TextComponent style={themedStyles.siteText}>{item?.Site}</TextComponent>
+                        </View>
+                             
+                        // </TextComponent>
+                        ) : null}
+                        {/* {item?.Status ? (<TextComponent style={styles.primaryRowText} type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.SMALL}  numberOfLines={1}>
                             Status : <TextComponent fontSize={FONT_SIZE.SMALL} style={styles.secondaryValueText}>{item?.Status}</TextComponent>
-                        </TextComponent>) : null}
-                        {item?.DueByDays ? (<TextComponent style={styles.primaryRowText} type={FONT_TYPE.BOLD}   fontSize={FONT_SIZE.SMALL}   numberOfLines={1}>
-                            Due by days: <TextComponent type={FONT_TYPE.BOLD}
+                        </TextComponent>) : null} */}
+                        {item?.DueByDays ? (<TextComponent style={themedStyles.dueText} numberOfLines={1}>
+                            Due by days: <TextComponent 
                             style={
                                 item.DueByDays > 0
-                                ? themedStyles.dueByPositiveText
+                                ? themedStyles.dueByDaysValuePositive
                                 : styles.dueByNegativeText
                             }
                             >{item?.DueByDays}</TextComponent>
@@ -102,14 +111,18 @@ export default MeetingCard;
 
 const styles = StyleSheet.create({
     listContainer: {
-        paddingHorizontal: SPACING.MEDIUM,
+        paddingHorizontal: SPACING.NORMAL,
     },
     cardContainer: {
         padding: SPACING.NORMAL,
         borderRadius: SPACING.SMALL,
-        marginBottom: SPACING.SMALL,
-        marginTop: SPACING.NORMAL,
+        marginBottom: SPACING.X_SMALL,
+        marginTop: SPACING.X_SMALL,
         width: '100%',
+        borderLeftColor:'#123C95',
+        borderColor:'#123C95',
+        borderWidth: 0.5,
+        borderLeftWidth: 4,
     },
     cardOuterView: {
         flexDirection: 'row',
@@ -141,8 +154,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     dateIconBox: {
-        width: RFPercentage(2.5),
-        height: RFPercentage(2.5),
+        width: RFPercentage(2),
+        height: RFPercentage(2),
         backgroundColor: COLORS.WARNING,
         alignItems: 'center',
         justifyContent: 'center',
@@ -153,7 +166,8 @@ const styles = StyleSheet.create({
         width: '100%',
     },
     dueByNegativeText: {
-        fontSize: FONT_SIZE.SMALL,
+        fontSize: 16,
+        fontFamily: 'OpenSans-SemiBold',
         color: 'red',
     },
     borderEnabled: {
@@ -190,9 +204,27 @@ const dynamicStyles = (theme) =>
     StyleSheet.create({
         actionPrimaryValueText: {
             color: theme.colors.primaryThemeColor,
+            fontSize: 17,
+            fontFamily: 'OpenSans-SemiBold',
         },
-        dueByPositiveText: {
-            fontSize: FONT_SIZE.SMALL,
+        dateText: {
+            color: '#000',
+            fontSize: 15,
+            fontFamily: 'OpenSans-Regular',
+        },
+        siteText: {
+            color: '#000',
+            fontSize: 15,
+            fontFamily: 'OpenSans-Regular',
+        },
+        dueText: {
+            color: '#000',
+            fontSize: 15,
+            fontFamily: 'OpenSans-Regular',
+        },
+        dueByDaysValuePositive: {
             color: theme.colors.primaryThemeColor,
+            fontSize: 15,
+            fontFamily: 'OpenSans-SemiBold',
         },
     });

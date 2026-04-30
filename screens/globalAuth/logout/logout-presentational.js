@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   logoutBtn: {
-    backgroundColor: '#1FBFD0',
+    backgroundColor: '#123C95',
   },
   cancelText: {
     color: '#333',

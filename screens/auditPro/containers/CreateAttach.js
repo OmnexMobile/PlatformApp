@@ -1357,30 +1357,32 @@ class CreateAttach extends React.Component {
                     </ScrollView>
                 </View>
 
-                {/* Floating FABs */}
-                <View style={styles.fabContainer}>
-                    {this.props?.route?.params?.Type === 'Edit' && (
-                        <TouchableOpacity
-                            style={[styles.floatingSaveButton, styles.deleteFab]}
-                            onPress={() => this.setState({ dialogVisible: true })}>
-                            <Icon name="trash" size={22} color="white" />
-                        </TouchableOpacity>
-                    )}
+                {this.props?.route?.params?.Type === 'Edit' ? (
                     <TouchableOpacity
                         style={[
                             styles.floatingSaveButton,
-                            this.props?.route?.params?.Type === 'Edit' ? { marginLeft: 12 } : null,
-                            this.props?.route?.params?.Type !== 'Add' ? styles.disabledFab : null,
+                            styles.deleteFloatingButton,
+                            Platform.OS === 'ios' ? styles.floatingButtonIOSOffset : styles.floatingButtonAndroidOffset,
                         ]}
-                        disabled={this.props?.route?.params?.Type !== 'Add' || this.state.saveLoader}
-                        onPress={debounce(this.checkuserstatus.bind(this), 1000)}>
-                        {this.state.saveLoader ? (
-                            <ActivityIndicator size="small" color="#fff" />
-                        ) : (
-                            <Icon name="save" size={25} color="white" />
-                        )}
+                        onPress={() => this.setState({ dialogVisible: true })}>
+                        <Icon name="trash" size={22} color="white" />
                     </TouchableOpacity>
-                </View>
+                ) : null}
+
+                <TouchableOpacity
+                    style={[
+                        styles.floatingSaveButton,
+                        Platform.OS === 'ios' ? styles.floatingButtonIOSOffset : styles.floatingButtonAndroidOffset,
+                        this.props?.route?.params?.Type !== 'Add' ? styles.disabledFab : null,
+                    ]}
+                    disabled={this.props?.route?.params?.Type !== 'Add' || this.state.saveLoader}
+                    onPress={debounce(this.checkuserstatus.bind(this), 1000)}>
+                    {this.state.saveLoader ? (
+                        <ActivityIndicator size="small" color="#fff" />
+                    ) : (
+                        <Icon name="save" size={25} color="white" />
+                    )}
+                </TouchableOpacity>
 
                 <ConfirmDialog
                     title={strings.Confirm}

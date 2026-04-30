@@ -37,12 +37,12 @@ import DeviceInfo from 'react-native-device-info';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import ConformacyText from './ConformacyText';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
-import { ROUTES } from 'constants/app-constant';
-import { SPACING } from 'constants/theme-constants';
-import { F } from 'ramda';
+import { ROUTES, ICON_TYPE } from 'constants/app-constant';
+import { COLORS, SPACING } from 'constants/theme-constants';
 import OfflineNotice from '../components/OfflineNotice';
 import NetInfo from '@react-native-community/netinfo';
 import GlobalHeader from 'components/GlobalHeader';
+import FAB from 'components/fab';
 
 
 let Window = Dimensions.get('window');
@@ -1076,19 +1076,19 @@ class Conformacy extends React.Component {
               <TouchableOpacity
                   style={{paddingHorizontal: 5}}
                   onPress={() => this.onsyncToServer()}>
-                  <Icon name="upload" size={22} color="#00b3d6" />
+                  <Icon name="upload" size={22} color={COLORS.primaryDarkThemeColor} />
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={{paddingHorizontal: 5}}
                   onPress={() => this.refreshConformance()}>
-                  <Icon name="refresh-ccw" size={22} color="#00b3d6" />
+                  <Icon name="refresh-ccw" size={22} color={COLORS.primaryDarkThemeColor} />
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={{paddingHorizontal: 5}}
                   onPress={() =>
                     this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)
                   }>
-                  <Icon name="home" size={25} color="#00b3d6" />
+                  <Icon name="home" size={25} color={COLORS.primaryDarkThemeColor} />
                 </TouchableOpacity>
               </View>
             }
@@ -1180,17 +1180,18 @@ class Conformacy extends React.Component {
           )}
         </KeyboardAvoidingView>
         {this.state.loading !== true && (
-        <View style={styles.floatingSaveButton}>
-          {this.state.loadingSync ? (
-            <ActivityIndicator size="small" color="white" />
-          ) : (
-            <TouchableOpacity
-              onPress={() => this.onsyncToServer()}
-              style={{alignItems: 'center', justifyContent: 'center'}}>
-              <Icon name="refresh-ccw" size={24} color="white" />
-            </TouchableOpacity>
-          )}
-        </View>
+          <FAB
+            iconType={ICON_TYPE.Feather}
+            iconName={this.state.loadingSync ? 'loader' : 'refresh-ccw'}
+            bottom={SPACING.LARGE}
+            color={COLORS.primaryDarkThemeColor}
+            disabled={this.state.loadingSync}
+            onPress={() => {
+              if (!this.state.loadingSync) {
+                this.onsyncToServer();
+              }
+            }}
+          />
         )}
       </>
     );

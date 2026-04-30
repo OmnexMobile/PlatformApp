@@ -199,7 +199,7 @@ const FileViewModal = ({ visible = false, onDismiss = () => {}, selectedValue = 
                     <View style={[styles.contentBox]}>
                         {Boolean(showLoader) ? (
                             <View style={[styles.loaderStyle]}>
-                                <Bubbles size={10} color="#12C0CF" />
+                                <Bubbles size={10} color={COLORS.apptheme} />
                             </View>
                         ) : Boolean(fileList.length) ? (
                             <FlatList data={fileList} renderItem={renderFiles} showsVerticalScrollIndicator={false} />

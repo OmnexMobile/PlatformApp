@@ -18,7 +18,11 @@ const InputComponent = ({
     inputRef,
     containerStyle = {},
     inputStyle = {},
+    labelStyle = {},
     placeholderTextColor = COLORS.searchText,
+    focusBorderColor = COLORS.primaryDarkThemeColor,
+    blurBorderColor = COLORS.whiteGrey,
+    errorBorderColor = COLORS.ERROR,
     style: textInputStyle,
     ...rest
 }) => {
@@ -31,14 +35,14 @@ const InputComponent = ({
             style={[
                 {
                     ...(isPassword && { paddingRight: 0 }),
-                    borderColor: error ? COLORS.ERROR : isFocused ? COLORS.primaryLightThemeColor : COLORS.whiteGrey,
+                    borderColor: error ? errorBorderColor : isFocused ? focusBorderColor : blurBorderColor,
                 },
                 styles.inputContainer,
                 containerStyle,
             ]}>
             <View style={{ flex: 1 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: SPACING.X_SMALL }}>
-                    <TextComponent style={{ fontSize: FONT_SIZE.SMALL }} type={FONT_TYPE.BOLD} color={error ? COLORS.ERROR : null}>
+                    <TextComponent style={[{ fontSize: FONT_SIZE.SMALL }, labelStyle]} type={FONT_TYPE.BOLD} color={error ? COLORS.ERROR : null}>
                         {label}
                     </TextComponent>
                     {required && (

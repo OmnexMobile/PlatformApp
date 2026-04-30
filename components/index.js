@@ -60,6 +60,7 @@ import NotOKPicker from './not-ok-picker';
 import FormAttachmentPicker from './form-attachment-picker';
 import TextAreaWithLabel from './textarea-with-label';
 import FormRichTextEditor from './form-rich-text-editor';
+import MultiSelectDropdownComponent from './multi-select-dropdown';
 
 export {
     IconComponent,
@@ -121,5 +122,6 @@ export {
     NotOKPicker,
     FormAttachmentPicker,
     TextAreaWithLabel,
-    FormRichTextEditor
+    FormRichTextEditor,
+    MultiSelectDropdownComponent
 };

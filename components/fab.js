@@ -1,4 +1,5 @@
 import React from 'react';
+import { View } from 'react-native';
 import { RFPercentage } from 'react-native-responsive-fontsize';
 import LinearGradient from 'react-native-linear-gradient';
 import TouchableScale from 'react-native-touchable-scale';
@@ -9,9 +10,19 @@ import IconComponent from './icon-component';
 import AnimatableView from './animatable-view';
 import TextComponent from './text';
 
-const FAB = ({ iconType = ICON_TYPE.AntDesign, iconName = 'plus', bottom = SPACING.NORMAL, text = '', color = null, ...rest }) => {
+const FAB = ({
+    iconType = ICON_TYPE.AntDesign,
+    iconName = 'plus',
+    bottom = SPACING.NORMAL,
+    text = '',
+    color = null,
+    badge = null,
+    ...rest
+}) => {
     const { theme } = useTheme();
     const buttonColor = color || theme.colors.primaryThemeColor;
+    const size = RFPercentage(8);
+
     return (
         <AnimatableView
             {...{
@@ -20,8 +31,8 @@ const FAB = ({ iconType = ICON_TYPE.AntDesign, iconName = 'plus', bottom = SPACI
             }}>
             <TouchableScale
                 style={{
-                    width: RFPercentage(8),
-                    height: RFPercentage(8),
+                    width: size,
+                    height: size,
                     backgroundColor: COLORS.primaryThemeColor,
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -46,6 +57,19 @@ const FAB = ({ iconType = ICON_TYPE.AntDesign, iconName = 'plus', bottom = SPACI
                     end={{ x: 1, y: 0 }}
                     colors={[buttonColor, buttonColor]}>
                     <IconComponent size={FONT_SIZE.X_LARGE} type={iconType} name={iconName} color={COLORS.whiteGrey} />
+                    {badge ? (
+                        <React.Fragment>
+                            <View
+                                pointerEvents="none"
+                                style={{
+                                    position: 'absolute',
+                                    top: RFPercentage(0.5),
+                                    right: RFPercentage(0.5),
+                                }}>
+                                <IconComponent size={FONT_SIZE.SMALL} color="red" {...badge} />
+                            </View>
+                        </React.Fragment>
+                    ) : null}
                     {text && (
                         <TextComponent type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.X_SMALL} color={COLORS.whiteGrey}>
                             {text}

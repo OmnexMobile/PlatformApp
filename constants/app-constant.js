@@ -12,7 +12,6 @@ import Octicons from 'react-native-vector-icons/Octicons';
 import { Easing } from 'react-native-reanimated';
 import { RFPercentage } from 'react-native-responsive-fontsize';
 import { IMAGES } from '../assets/images';
-
 // export const API_URL = 'http://1.22.172.236/ProblemSolverAPI/';
 
 export const EIGHTD_FORM_VALUE_TYPE = {
@@ -53,6 +52,8 @@ export const INPUTS_CONSTANTS = {
     IMAGE_PICKER: 'IMAGE_PICKER',
     ATTACHMENT_PICKER: 'ATTACHMENT_PICKER',
     FOLLOWUP_PICKER: 'FOLLOWUP_PICKER',
+    MULTI_SELECT: 'MULTI_SELECT',
+    RADIOBUTTON:'RADIOBUTTON'
 };
 
 export const MOTI_TRANSITION = {
@@ -227,6 +228,7 @@ export const ROUTES = {
     GLOBAL_LOGOUT: 'GLOBAL_LOGOUT',
     GLOBAL_SETTINGS: 'GLOBAL_SETTINGS',
     GLOBAL_SITES: 'GLOBAL_SITES',
+    NOTIFICATION: 'NOTIFICATION',
     LAUNCH_SCREEN: 'LAUNCH_SCREEN',
     SETTINGS: 'SETTINGS',
     PREFERRED_LANGUAGE: 'PREFERRED_LANGUAGE',

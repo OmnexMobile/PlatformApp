@@ -163,6 +163,11 @@ class AuditCard extends Component {
   openAuditPage(iAuditDetails) {
     console.log('iAuditDetails', iAuditDetails);
     console.log('auditRecordsthis.props', this.props);
+    const smData = this.props?.smData;
+    const auditDetailsWithSmData =
+      smData !== null && typeof smData !== 'undefined'
+        ? {...iAuditDetails, smData}
+        : iAuditDetails;
 
     var auditRecords = this.props?.data?.audits?.auditRecords;
     console.log('auditRecords', auditRecords);
@@ -180,9 +185,9 @@ class AuditCard extends Component {
       // this.props.naviData.navigate(ROUTES.AUDIT_PAGE, {
         this.props.naviData.navigate(ROUTES.AUDIT_PAGE_SM, {
       // this.props.naviData.navigate(ROUTES.AUDIT_PAGE, {
-        datapass: iAuditDetails,
+        datapass: auditDetailsWithSmData,
         auditStatusPass: this.props?.item?.cStatus,
-        smData: this.props?.smData,
+        smData,
       });
     } else {
       if (this.props.data.audits.isOfflineMode) {
@@ -192,8 +197,9 @@ class AuditCard extends Component {
           if (netState.isConnected) {
             // this.props.navigation.navigate('AuditPage', {
             this.props.naviData.navigate(ROUTES.AUDIT_PAGE_SM, {
-              datapass: iAuditDetails,
+              datapass: auditDetailsWithSmData,
               auditStatusPass: this.props.item.cStatus,
+              smData,
             });
           } else {
             this.toast.show(strings.No_Internet, DURATION.LENGTH_LONG);
@@ -242,7 +248,7 @@ class AuditCard extends Component {
               style={{
                 fontFamily: 'OpenSans-SemiBold',
                 fontSize: 16,
-                color: '#00b3d6',
+                color: '#123C95',
                 marginBottom: 4,
               }}
             >

@@ -1,7 +1,7 @@
 import { StyleSheet, Dimensions, Platform } from 'react-native';
 import { width, height } from 'react-native-dimension';
 import Fonts from '../Themes/Fonts';
-import { SPACING } from 'constants/theme-constants';
+import { COLORS, SPACING } from 'constants/theme-constants';
 
 let Window = Dimensions.get('window');
 
@@ -719,7 +719,7 @@ export default StyleSheet.create({
         paddingVertical: 12,
         paddingHorizontal: 10,
         borderRadius: 8,
-        backgroundColor: '#00b3d6',
+        backgroundColor: COLORS.primaryDarkThemeColor,
         shadowColor: '#000',
         shadowOpacity: 0.18,
         shadowOffset: { width: 0, height: 2 },
@@ -729,7 +729,7 @@ export default StyleSheet.create({
         width: '100%',
     },
     footerButtonPrimary: {
-        backgroundColor: '#00b3d6',
+        backgroundColor: COLORS.primaryDarkThemeColor,
     },
     footerButtonSecondary: {
         backgroundColor: 'white',
@@ -742,7 +742,7 @@ export default StyleSheet.create({
         borderColor: '#00b3d6',
     },
     footerVoiceButtonActive: {
-        backgroundColor: '#14D0AE',
+        backgroundColor: COLORS.primaryDarkThemeColor,
     },
     footerActionText: {
         color: '#ffffff',

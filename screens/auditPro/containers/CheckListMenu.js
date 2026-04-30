@@ -20,6 +20,7 @@ import { stat } from 'react-native-fs';
 import { ROUTES } from 'constants/app-constant';
 import { SPACING} from 'constants/theme-constants';
 import GlobalHeader from 'components/GlobalHeader';
+import AnimatedLottieView from 'lottie-react-native';
 
 import localStorage from 'global/localStorage';
 
@@ -445,7 +446,7 @@ class CheckListMenu extends Component {
                             <LinearGradient
                               start={{x: 0, y: 0}}
                               end={{x: 1, y: 0}}
-                              colors={['#00aed0', '#1FBFD0', '#00bec1']}
+                              colors={['#123C95', '#1B5FDB', '#6A35D8']}
                               style={styles.LG}>
                               <View
                                 style={styles.titleWrapper}>
@@ -462,7 +463,7 @@ class CheckListMenu extends Component {
                           <View style={styles.childSpacer}></View>
                           {items.ChecklistName.toUpperCase() ===
                           'series production' ? null : (
-                            <LinearGradient start={{x: 0, y: 0}} end={{x: 1, y: 0}} colors={['#00aed0', '#1FBFD0', '#00bec1']} style={styles.LG2}>
+                            <LinearGradient start={{x: 0, y: 0}} end={{x: 1, y: 0}} colors={['#123C95', '#1B5FDB', '#6A35D8']} style={styles.LG2}>
                               <View style={styles.titleWrapper}>
                                 <View style={styles.checkText01}>
                                   <Text numberOfLines={2} style={styles.parentTitleText}>
@@ -476,7 +477,7 @@ class CheckListMenu extends Component {
                       ) : (
                         <TouchableOpacity onPress={once( this.onCheckListPress.bind( this, items.ChecklistTemplateId, items.ChecklistName, ), )} style={styles.parentcardBox}>
                           <View style={styles.itemIconWrapper}>
-                            <Icon name={'arrow-right'} size={15} color={'#00bec1'} />
+                            <Icon name={'arrow-right'} size={15} color={'#123C95'} />
                           </View>
                           <View style={styles.LG3}>
                             <View style={styles.itemRow}>
@@ -498,15 +499,30 @@ class CheckListMenu extends Component {
                   </View>
                 </ScrollView>
               ) : !this.state.pageLoader ? (
-                <View
-                  style={styles.emptyOverlay}>
+                <View style={[styles.emptyOverlay, styles.emptyOverlayVisible]}>
+                  <AnimatedLottieView
+                    source={require('../../../assets/lottie/norecords.json')}
+                    autoPlay
+                    loop
+                    renderMode="SOFTWARE"
+                    resizeMode="contain"
+                    style={styles.emptyLottie}
+                  />
                   <Text style={styles.emptyText}>
                     No checklists found!
                   </Text>
                 </View>
               ) : null
             ) : !this.state.pageLoader ? (
-              <View style={styles.emptyOverlay}>
+              <View style={[styles.emptyOverlay, styles.emptyOverlayVisible]}>
+                <AnimatedLottieView
+                  source={require('../../../assets/lottie/norecords.json')}
+                  autoPlay
+                  loop
+                  renderMode="SOFTWARE"
+                  resizeMode="contain"
+                  style={styles.emptyLottie}
+                />
                 <Text style={styles.emptyText}>
                   {strings.No_checklists_found}
                 </Text>

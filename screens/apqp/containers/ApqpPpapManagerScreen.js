@@ -37,9 +37,11 @@ import ScrollableTabView, {
 import { ROUTES } from "constants/app-constant";
 import GlobalHeader from "components/GlobalHeader";
 import CardList from "../components/CardList";
+import { NoRecordFound } from "components";
+import { showErrorMessage, successMessage } from "helpers/utils";
+import { Dropdown } from "react-native-material-dropdown";
 // import Reactotron from "reactotron-react-native";
 const moment = extendMoment(Moment);
-const window_width = Dimensions.get("window").width;
 const Reset = "Reset";
 class ApqpPpapManagerScreen extends Component {
   calendarData = [];
@@ -76,7 +78,9 @@ class ApqpPpapManagerScreen extends Component {
   constructor(props) {
     super(props);
     console.log('get current props--->', props)
+    const { width: viewportWidth } = Dimensions.get("window");
     this.state = {
+      viewportWidth,
       currentTabIndex: 0,
       selectedIndex: 0,
       todayn: 1,
@@ -125,6 +129,10 @@ class ApqpPpapManagerScreen extends Component {
       ProjectSearch: "",
       ProjectColumn: "",
       filterArrSplit: [],
+      dueByDaysSearch: false,
+      dueByDaysRetried: false,
+      dueByDaysValue: "",
+      isDateSearchActive: false,
 
       project_sortText: "StartDate",
       project_filterType: "",
@@ -140,7 +148,18 @@ class ApqpPpapManagerScreen extends Component {
       // apqpList: [],
     };
     this.animatedIndicatorPosition = new Animated.Value(0);
+    this.handleDimensionChange = this.handleDimensionChange.bind(this);
   }
+
+  handleDimensionChange({ window }) {
+    const viewportWidth = window?.width || Dimensions.get("window").width;
+    this.setState({ viewportWidth }, () => {
+      this.animatedIndicatorPosition.setValue(
+        this.state.currentTabIndex * viewportWidth
+      );
+    });
+  }
+
   setting = () => {
     // this.setState({ todayn: this.props.navigation.state.params.todayn });
     this.setState({ todayn: this.props?.route?.params?.todayn });
@@ -156,10 +175,37 @@ class ApqpPpapManagerScreen extends Component {
   unsubscribe;
   componentDidMount() {
     console.log(this.props?.route?.params, "navigationparamsapqp");
-    this.unsubscribe = this.props.navigation.addListener('focus', () => {
-      console.log('Screen focused again');
-      this.getapqplistdata()
-    })
+    this.dimensionSubscription = Dimensions.addEventListener(
+      "change",
+      this.handleDimensionChange
+    );
+    this.unsubscribe = this.props.navigation.addListener("focus", () => {
+      console.log("Screen focused again");
+      if (this.props?.route?.params?.filter_Arr) {
+        console.log(
+          "Filter Applied from Filter Screen from props- focus",
+          this.props?.route?.params?.filter_Arr
+        );
+        this.filterApplied(this.props?.route?.params?.filter_Arr);
+      } else {
+        this.getapqplistdata();
+        if (this.state.isMounted) {
+          this.setState(
+            {
+              loader: false,
+              isRefreshing: false,
+              isFileterApplied: true,
+              isPageEmpty: false,
+              isErrorRefresh: false,
+            },
+            () => { }
+          );
+        }
+        if (this.state.token == "") {
+          this.getSessionValues();
+        }
+      }
+    });
     this.setting();
     this.getData()
       .then(async (res) => {
@@ -180,35 +226,7 @@ class ApqpPpapManagerScreen extends Component {
 
     console.log("ApqpPpapManagerScreen mounted", this.state.selectedIndex);
 
-    this.props.navigation.addListener("didFocus", () => {
-      // console.log('Action List Component Focussed!')
-
-      // if (this.props.navigation.getParam("filter_Arr")) {
-      if (this.props?.route?.params?.filter_Arr) {
-        console.log(
-          "Filter Applied from Filter Screen from props- did mount",
-          this.props?.route?.params?.filter_Arr
-        );
-        this.filterApplied(this.props?.route?.params?.filter_Arr);
-        // this.loadRecentAudits()
-      } else {
-        if (this.state.isMounted) {
-          this.setState(
-            {
-              loader: false,
-              isRefreshing: false,
-              isFileterApplied: true,
-              isPageEmpty: false,
-              isErrorRefresh: false,
-            },
-            () => { }
-          );
-        }
-        if (this.state.token == "") {
-          this.getSessionValues();
-        }
-      }
-    });
+    // Note: handled by "focus" listener above for react-navigation v5+.
   }
 
   componentWillMount() {
@@ -232,6 +250,9 @@ class ApqpPpapManagerScreen extends Component {
   }
 
   componentWillUnmount() {
+    if (this.dimensionSubscription?.remove) {
+      this.dimensionSubscription.remove();
+    }
     if (this.unsubscribe) {
       this.unsubscribe();
     }
@@ -309,7 +330,8 @@ class ApqpPpapManagerScreen extends Component {
           }
         });
       } else {
-        this.refs.toast.show(strings.Project_List_Failed, DURATION.LENGTH_LONG);
+        // this.refs.toast.show(strings.Project_List_Failed, DURATION.LENGTH_LONG);
+        showErrorMessage(strings.Project_List_Failed);
         this.setState(
           {
             loading: false,
@@ -368,10 +390,20 @@ class ApqpPpapManagerScreen extends Component {
     var sortype = this.state.project_sort;
     var droptext = this.state.project_sortText;
     var FilterArray = [];
+    const normalizeDate = (value) => {
+      if (!value) {
+        return "";
+      }
+      const m = Moment(value);
+      return m.isValid() ? m.format("MM/DD/YYYY") : value;
+    };
+    const startDate = normalizeDate(filter?.[0]?.startDate);
+    const endDateRaw = normalizeDate(filter?.[0]?.endDate);
+    const endDate = endDateRaw || startDate;
     if (filter[0].filterType === "GlobalFilter") {
-      filter[0].startDate !== "" && filter[0].endDate !== ""
+      startDate !== "" && endDate !== ""
         ? FilterArray.push(
-          filter[0].startDate + " " + strings.to + " " + filter[0].endDate
+          startDate + " " + strings.to + " " + endDate
         )
         : null;
       // filter[0].globalSearchCol !== ""
@@ -385,7 +417,7 @@ class ApqpPpapManagerScreen extends Component {
         : null;
     } else if (filter[0].filterType === "Calendar") {
       FilterArray = [
-        filter[0].startDate + " " + strings.to + " " + filter[0].endDate,
+        startDate + " " + strings.to + " " + endDate,
       ];
     }
     console.log("FilterArray after array pushed from props ", FilterArray);
@@ -401,12 +433,12 @@ class ApqpPpapManagerScreen extends Component {
         sortOrder: sortype,
         isErrorRefresh: false,
         isMounted: false,
-        StartDate: filter[0].startDate,
+        StartDate: startDate,
         apqpList: [],
-        EndDate: filter[0].endDate,
+        EndDate: endDate,
       },
       () => {
-        //this.getapqplistdata("filter");
+        this.getapqplistdata("filter");
       }
     );
   }
@@ -787,6 +819,33 @@ class ApqpPpapManagerScreen extends Component {
               getList = data.data.Data;
               console.log("getList printed");
               console.log("getList--->" + getList);
+              if (
+                this.state.dueByDaysSearch &&
+                !this.state.dueByDaysRetried &&
+                (!Array.isArray(getList) || getList.length === 0)
+              ) {
+                const nextColumn =
+                  this.state.ProjectColumn === "DueDays"
+                    ? "DueByDays"
+                    : "DueDays";
+                const nextSearch =
+                  nextColumn === "DueByDays"
+                    ? this.state.dueByDaysValue
+                      ? `%${this.state.dueByDaysValue}%`
+                      : ""
+                    : this.state.dueByDaysValue;
+                this.setState(
+                  {
+                    ProjectColumn: nextColumn,
+                    ProjectSearch: nextSearch,
+                    dueByDaysRetried: true,
+                    loader: true,
+                    apqpList: [],
+                  },
+                  () => this.getapqplistdata("due_retry")
+                );
+                return;
+              }
               var sectionedList = [];
 
               for (var i = 0; i < getList.length; i++) {
@@ -850,7 +909,8 @@ class ApqpPpapManagerScreen extends Component {
           }
         );
       } else {
-        this.refs.toast.show(strings.Project_List_Failed, DURATION.LENGTH_LONG);
+        // this.refs.toast.show(strings.Project_List_Failed, DURATION.LENGTH_LONG);
+        showErrorMessage(strings.Project_List_Failed);
         this.setState(
           {
             // auditList: this.props.data.audits.audits,
@@ -1275,12 +1335,13 @@ class ApqpPpapManagerScreen extends Component {
                     modalErrortxt: "",
                   },
                   () => {
-                    this.refs.toast.show(
-                      data.data.Data == ""
-                        ? "Saved successfully"
-                        : data.data.Data,
-                      DURATION.LENGTH_SHORT
-                    );
+                    // this.refs.toast.show(
+                    //   data.data.Data == ""
+                    //     ? "Saved successfully"
+                    //     : data.data.Data,
+                    //   DURATION.LENGTH_SHORT
+                    // );
+                    successMessage({ message: '', description: "Saved Successfully."});
                     this.getapqplistdata(this.state.selectedIndex);
                   }
                 );
@@ -1292,7 +1353,8 @@ class ApqpPpapManagerScreen extends Component {
                     modalErrortxt: data.data.Data,
                   },
                   () => {
-                    this.refs.toast.show(data.data.Data, DURATION.LENGTH_SHORT);
+                    // this.refs.toast.show(data.data.Data, DURATION.LENGTH_SHORT);
+                    showErrorMessage(data.data.Data)
                   }
                 );
               }
@@ -1337,6 +1399,13 @@ class ApqpPpapManagerScreen extends Component {
         {
           EndDate: date,
           isDateVisible: false,
+          isDateSearchActive: true,
+          ProjectSearch: "",
+          ProjectColumn: "",
+          searchText:
+            this.state.StartDate && this.state.StartDate !== ""
+              ? this.state.StartDate + " - " + date
+              : date,
         },
         () => {
           console.log("--end date--->", this.state.EndDate);
@@ -1347,6 +1416,10 @@ class ApqpPpapManagerScreen extends Component {
       this.setState(
         {
           StartDate: date,
+          isDateSearchActive: true,
+          ProjectSearch: "",
+          ProjectColumn: "",
+          searchText: date,
         },
         () => {
           console.log("--start date--->", this.state.StartDate);
@@ -1485,6 +1558,102 @@ class ApqpPpapManagerScreen extends Component {
     return (
       <>
         <View style={styles.filterCont}>
+          <View style={styles.searchContainer}>
+            <Icon name="search" size={20} color="#123C95" />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search by title or action"
+              placeholderTextColor="#A6A6A6"
+              value={this.state.searchText}
+              onChangeText={(text) => {
+                this.setState({ searchText: text }, () => {
+                  const rawText = (text || "").trim();
+                  if (rawText === "") {
+                    this.setState(
+                      {
+                        ProjectSearch: "",
+                        ProjectColumn: "",
+                        dueByDaysSearch: false,
+                        dueByDaysRetried: false,
+                        dueByDaysValue: "",
+                        isDateSearchActive: false,
+                        loader: true,
+                        apqpList: [],
+                      },
+                      () => this.getapqplistdata("search_clear")
+                    );
+                  } else {
+                    const dueDaysText = rawText.replace(/[^\d-]/g, "");
+                    const isDueDaysSearch = dueDaysText !== "";
+                    this.setState(
+                      {
+                        ProjectSearch: isDueDaysSearch ? dueDaysText : rawText,
+                        ProjectColumn: isDueDaysSearch ? "DueDays" : "",
+                        dueByDaysSearch: isDueDaysSearch,
+                        dueByDaysRetried: false,
+                        dueByDaysValue: dueDaysText,
+                        isDateSearchActive: false,
+                        loader: false,
+                        apqpList: [],
+                      },
+                      () => this.getapqplistdata("search_typing")
+                    );
+                  }
+                });
+              }}
+              returnKeyType="search"
+              onSubmitEditing={() => {
+                const rawText = (this.state.searchText || "").trim();
+                const dueDaysText = rawText.replace(/[^\d-]/g, "");
+                const isDueDaysSearch = dueDaysText !== "";
+                this.setState(
+                  {
+                    ProjectSearch: isDueDaysSearch ? dueDaysText : rawText,
+                    ProjectColumn: isDueDaysSearch ? "DueDays" : "",
+                    dueByDaysSearch: isDueDaysSearch,
+                    dueByDaysRetried: false,
+                    dueByDaysValue: dueDaysText,
+                    isDateSearchActive: false,
+                    isFileterApplied: true,
+                    loader: true,
+                    apqpList: [],
+                  },
+                  () => this.getapqplistdata("search")
+                );
+              }}
+            />
+            {this.state.searchText ? (
+              <TouchableOpacity
+                onPress={() =>
+                  this.setState(
+                    {
+                      searchText: "",
+                      ProjectSearch: "",
+                      ProjectColumn: "",
+                      dueByDaysSearch: false,
+                      dueByDaysRetried: false,
+                      dueByDaysValue: "",
+                      isDateSearchActive: false,
+                      StartDate: "",
+                      EndDate: "",
+                      loader: true,
+                      apqpList: [],
+                    },
+                    () => this.getapqplistdata("search_clear")
+                  )
+                }
+                style={styles.searchClearButton}
+              >
+                <Icon name="times-circle" size={18} color="#8E8E93" />
+              </TouchableOpacity>
+            ) : null}
+            <TouchableOpacity
+              onPress={() => this.setState({ isDateVisible: true })}
+              style={styles.searchCalendarButton}
+            >
+              <Icon name="calendar" size={18} color="#123C95" />
+            </TouchableOpacity>
+          </View>
         </View>
       </>
     );
@@ -1685,7 +1854,8 @@ class ApqpPpapManagerScreen extends Component {
           }
         );
       } else {
-        this.refs.toast.show(strings.Project_List_Failed, DURATION.LENGTH_LONG);
+        // this.refs.toast.show(strings.Project_List_Failed, DURATION.LENGTH_LONG);
+        showErrorMessage(strings.Project_List_Failed);
         this.setState(
           {
             //actionsList: this.props.data.actions,
@@ -1723,9 +1893,23 @@ class ApqpPpapManagerScreen extends Component {
 
   NoRecordsFound() {
     return (
-      <Text style={styles.noRecordsText}>
-        {strings.No_records_found}
-      </Text>
+      <View style={styles.emptyStateContainer1}>
+        <NoRecordFound />
+      </View>
+      // <Text style={styles.noRecordsText}>
+      //   {strings.No_records_found}
+      // </Text>
+    );
+  }
+
+  hasProjectCardData() {
+    const { apqpList } = this.state;
+    if (!Array.isArray(apqpList) || apqpList.length === 0) {
+      return false;
+    }
+
+    return apqpList.some(
+      (section) => Array.isArray(section?.data) && section.data.length > 0
     );
   }
 
@@ -1745,15 +1929,22 @@ class ApqpPpapManagerScreen extends Component {
     // this.state.apqpPending):this.state.apqpAll
     //   + ")";
 
+    const hasProjectData = this.hasProjectCardData();
+
+    const shouldShowFilterSection =
+      hasProjectData ||
+      (this.state.searchText || "").trim() !== "" ||
+      (this.state.ProjectSearch || "").trim() !== "" ||
+      this.state.isDateSearchActive ||
+      (this.state.filterArrSplit && this.state.filterArrSplit.length > 0);
+
     return (
       <View style={styles.scrollViewBody}>
-        {this.state.apqpList && this.state.apqpList.length > 0
-          ? this.filterSection()
-          : null}
+        {shouldShowFilterSection ? this.filterSection() : null}
 
         {this.state.filterArrSplit.length > 0 ? this.renderFilter() : null}
         {!this.state.loader
-          ? this.state.apqpList.length > 0
+          ? hasProjectData
             ? this.RenderProjectSectionList()
             : this.state.isErrorRefresh
               ? this.RefreshOnError()
@@ -1766,7 +1957,7 @@ class ApqpPpapManagerScreen extends Component {
   Bounce() {
     return (
       <View style={styles.bounceContainer}>
-        <ActivityIndicator size="small" color="#1CAFF6" />
+        <ActivityIndicator size="small" color="#123C95" />
       </View>
     );
   }
@@ -1774,14 +1965,21 @@ class ApqpPpapManagerScreen extends Component {
   allToBeCompletedProjects() {
     var tabText =
       strings.To_Be_Completed + " (" + this.state.apqpTobecompleted + ")";
+    const hasProjectData = this.hasProjectCardData();
+
+    const shouldShowFilterSection =
+      hasProjectData ||
+      (this.state.searchText || "").trim() !== "" ||
+      (this.state.ProjectSearch || "").trim() !== "" ||
+      this.state.isDateSearchActive ||
+      (this.state.filterArrSplit && this.state.filterArrSplit.length > 0);
+
     return (
       <View tabLabel={tabText} style={styles.scrollViewBody}>
-        {this.state.apqpList && this.state.apqpList.length > 0
-          ? this.filterSection()
-          : null}
+        {shouldShowFilterSection ? this.filterSection() : null}
         {this.state.filterArrSplit.length > 0 ? this.renderFilter() : null}
         {!this.state.loader
-          ? this.state.apqpList.length > 0
+          ? hasProjectData
             ? this.RenderProjectSectionList()
             : this.state.isErrorRefresh
               ? this.RefreshOnError()
@@ -1793,14 +1991,21 @@ class ApqpPpapManagerScreen extends Component {
 
   allPendingProjects() {
     var tabText = strings.Pending + " (" + this.state.apqpPending + ")";
+    const hasProjectData = this.hasProjectCardData();
+
+    const shouldShowFilterSection =
+      hasProjectData ||
+      (this.state.searchText || "").trim() !== "" ||
+      (this.state.ProjectSearch || "").trim() !== "" ||
+      this.state.isDateSearchActive ||
+      (this.state.filterArrSplit && this.state.filterArrSplit.length > 0);
+
     return (
       <View tabLabel={tabText} style={styles.scrollViewBody}>
-        {this.state.apqpList && this.state.apqpList.length > 0
-          ? this.filterSection()
-          : null}
+        {shouldShowFilterSection ? this.filterSection() : null}
         {this.state.filterArrSplit.length > 0 ? this.renderFilter() : null}
         {!this.state.loader
-          ? this.state.apqpList.length > 0
+          ? hasProjectData
             ? this.RenderProjectSectionList()
             : this.state.isErrorRefresh
               ? this.RefreshOnError()
@@ -2296,6 +2501,8 @@ class ApqpPpapManagerScreen extends Component {
     const result = Number.isNaN(v2 + v1) ? 0 : v2 + v1;
     const result1 = v2 + v1;
     console.log("Tab changed result", v1, v2, result, result1);
+    const viewportWidth =
+      this.state.viewportWidth || Dimensions.get("window").width;
     const onScrollHandler = Animated.event(
       [
         {
@@ -2305,8 +2512,9 @@ class ApqpPpapManagerScreen extends Component {
       { useNativeDriver: false }
     );
     const translateX = this.animatedIndicatorPosition.interpolate({
-      inputRange: [0, window_width * 3],
-      outputRange: [0, window_width],
+      inputRange: [0, viewportWidth * 2],
+      outputRange: [0, (viewportWidth * 2) / 3],
+      extrapolate: "clamp",
     });
     if (this.state.todayn == 1) {
       // console.log("----------->PendingTask_Status----this.state.todayn---->"+this.state.todayn)
@@ -2314,12 +2522,12 @@ class ApqpPpapManagerScreen extends Component {
       // console.log("-------->this.state.activeTab------>"+this.state.activeTab)
       // console.log("loadProjects---------->2--------->");
       return (
-        <View style={styles.mainContainer}>
+        <View style={[styles.mainContainer, { width: viewportWidth }]}>
           {this.renderTopSpacer()}
           <OfflineNotice />
           {this.renderHeader()}
           {showHide !== true ? (
-            <View style={styles.tabHeaderContainer}>
+            <View style={[styles.tabHeaderContainer, { width: viewportWidth }]}>
               <TouchableWithoutFeedback
                 onPress={() => {
                   this.setState({
@@ -2329,7 +2537,7 @@ class ApqpPpapManagerScreen extends Component {
                   this.loadProjects(0);
                 }}
               >
-                <View style={styles.tabHeaderItem}>
+                <View style={[styles.tabHeaderItem, { width: viewportWidth / 3 }]}>
                   <Text style={this.getTabTextStyle(0)}>
                     All {`(${result})`}
                   </Text>
@@ -2341,11 +2549,11 @@ class ApqpPpapManagerScreen extends Component {
                   this.setState({
                     currentTabIndex: 1,
                   });
-                  this.animatedIndicatorPosition.setValue(window_width * 1);
+                  this.animatedIndicatorPosition.setValue(viewportWidth * 1);
                   this.loadProjects(1);
                 }}
               >
-                <View style={styles.tabHeaderItem}>
+                <View style={[styles.tabHeaderItem, { width: viewportWidth / 3 }]}>
                   <Text style={this.getTabTextStyle(1, true)}>
                     To be Completed {`(${v1})`}
                   </Text>
@@ -2357,11 +2565,11 @@ class ApqpPpapManagerScreen extends Component {
                   this.setState({
                     currentTabIndex: 2,
                   });
-                  this.animatedIndicatorPosition.setValue(window_width * 2);
+                  this.animatedIndicatorPosition.setValue(viewportWidth * 2);
                   this.loadProjects(2);
                 }}
               >
-                <View style={styles.tabHeaderItem}>
+                <View style={[styles.tabHeaderItem, { width: viewportWidth / 3 }]}>
                   <Text style={this.getTabTextStyle(2)}>
                     Pending {`(${v2})`}
                   </Text>
@@ -2370,16 +2578,18 @@ class ApqpPpapManagerScreen extends Component {
             </View>
           ) : null}
 
-          <View style={styles.tabIndicatorTrack}>
+          <View style={[styles.tabIndicatorTrack, { width: viewportWidth }]}>
             <Animated.View
               style={this.getTabIndicatorSpacerStyle(translateX)}
             />
-            <Animated.View style={styles.tabIndicator} />
+            <Animated.View
+              style={[styles.tabIndicator, { width: viewportWidth / 3 }]}
+            />
           </View>
           <Animated.ScrollView
             onMomentumScrollEnd={(evt) => {
               const { x } = evt.nativeEvent.contentOffset;
-              const i = Math.round(x / window_width);
+              const i = Math.round(x / viewportWidth);
               this.loadProjects(i);
               this.setState({
                 currentTabIndex: i,
@@ -2390,13 +2600,13 @@ class ApqpPpapManagerScreen extends Component {
             showsHorizontalScrollIndicator={false}
             pagingEnabled
           >
-            <View style={styles.tabPage}>
+            <View style={[styles.tabPage, { width: viewportWidth }]}>
               {this.allProjects()}
             </View>
-            <View style={styles.tabPage}>
+            <View style={[styles.tabPage, { width: viewportWidth }]}>
               {this.allToBeCompletedProjects()}
             </View>
-            <View style={styles.tabPage}>
+            <View style={[styles.tabPage, { width: viewportWidth }]}>
               {this.allPendingProjects()}
             </View>
           </Animated.ScrollView>
@@ -2555,7 +2765,7 @@ class ApqpPpapManagerScreen extends Component {
     } else if (this.state.todayn == 2) {
       console.log("loadProjects---------->3--------->");
       return (
-        <View style={styles.mainContainer}>
+        <View style={[styles.mainContainer, { width: viewportWidth }]}>
           {this.renderTopSpacer()}
           <OfflineNotice />
           {this.renderHeader()}
@@ -2733,7 +2943,7 @@ class ApqpPpapManagerScreen extends Component {
       );
     } else {
       return (
-        <View style={styles.mainContainer}>
+        <View style={[styles.mainContainer, { width: viewportWidth }]}>
           {this.renderTopSpacer()}
           <OfflineNotice />
           {this.renderHeader()}

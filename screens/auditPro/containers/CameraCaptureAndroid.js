@@ -28,7 +28,7 @@ import { Image as compressImage, Video, getVideoMetaData} from 'react-native-com
 // Styles
 import styles from '../styles/CameraCaptureStyle';
 import { ROUTES } from 'constants/app-constant';
-import { SPACING } from 'constants/theme-constants';
+import { COLORS, SPACING } from 'constants/theme-constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import GlobalHeader from 'components/GlobalHeader';
  
@@ -413,7 +413,7 @@ class CameraCapture extends Component {
           onLeftPress={() => this.props.navigation.goBack()}
           rightComponent={
             <TouchableOpacity onPress={this.changeCameraType.bind(this)}>
-              <Icon name="refresh-ccw" size={25} color="#00b3d6" />
+              <Icon name="refresh-ccw" size={25} color={COLORS.primaryDarkThemeColor} />
             </TouchableOpacity>
           }
           containerStyle={{backgroundColor: 'transparent'}}

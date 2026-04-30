@@ -26,6 +26,7 @@ import { Bubbles, DoubleBounce, Bars, Pulse } from 'react-native-loader';
 import Moment from 'moment';
 import OfflineNotice from '../../auditPro/components/OfflineNotice';
 import ResponsiveImage from 'react-native-responsive-image';
+import LinearGradient from 'react-native-linear-gradient';
 import { ConfirmDialog } from 'react-native-simple-dialogs';
 import Icon from 'react-native-vector-icons/Feather';
 import { strings } from '../../auditPro/language/Language';
@@ -43,7 +44,7 @@ import GlobalHeader from 'components/GlobalHeader';
 import CommonAlertModal from 'components/common_alert_modal';
 import IconAwesome from 'react-native-vector-icons/FontAwesome';
 import { showErrorMessage, successMessage } from 'helpers/utils';
-
+import { Content, Header, ListSearch, NoRecordFound } from 'components';
 var RNFS = require('react-native-fs');
 
 let Window = Dimensions.get('window');
@@ -63,6 +64,9 @@ const getFileFormat = fileName => {
     const splitFileName = fileName.split('.');
     return splitFileName[splitFileName.length - 1];
 };
+
+const NCOFI_BUTTON_GRADIENT = ['#123C95', '#1B5FDB', '#6A35D8'];
+
 class NCOFIPage extends Component {
     dimensionSubscription = null;
 
@@ -770,12 +774,20 @@ class NCOFIPage extends Component {
         var ID = this.state.currentUserData?.userId || this.props.data.audits.userId;
         var type = 3;
         var path = '';
-        const deviceId = await AsyncStorage.getItem('loginDeviceId');
-
+        const loginDeviceId = await AsyncStorage.getItem('loginDeviceId');
+        const fallbackDeviceId = await AsyncStorage.getItem('deviceid');
+        const nativeDeviceId = this.state.deviceId || (await DeviceInfo.getUniqueId());
         var RegisterDevice = this.props.data.audits.deviceid;
-        console.log(userid, token, deviceId, RegisterDevice);
+        const resolvedDeviceId = loginDeviceId || fallbackDeviceId || RegisterDevice || nativeDeviceId || '';
+        if (!this.state.deviceId && nativeDeviceId) {
+            this.setState({ deviceId: nativeDeviceId });
+        }
+        if (!loginDeviceId && resolvedDeviceId) {
+            await AsyncStorage.setItem('loginDeviceId', resolvedDeviceId);
+        }
+        console.log(userid, token, resolvedDeviceId, RegisterDevice, 'checkUser---NCOFIPageSM');
 
-        auth.getCheckUser(userid, deviceId, token, (res, data) => {
+        auth.getCheckUser(userid, resolvedDeviceId, token, (res, data) => {
             console.log('User information', data);
             if (data.data.Message == 'Success') {
                 UserStatus = data.data.Data.ActiveStatus;
@@ -2400,6 +2412,7 @@ class NCOFIPage extends Component {
         const footerContainerStyle = [styles.footerDiv, styles.footerDivContainer, styles.footerResponsiveWrap, contentWidthStyle];
         const footerActionColumnStyle = [styles.footerActionColumn, styles.footerActionColumnResponsive];
         const footerActionButtonStyle = [styles.footerActionButton, layoutProfile.isTablet ? styles.footerActionButtonTablet : null];
+        const footerActionGradientStyle = [styles.footerActionButtonGradient, layoutProfile.isTablet ? styles.footerActionButtonGradientTablet : null];
         console.log(
             // this.getFileIcon(this.props.navigation.params),
             'fileextension-------',
@@ -2441,7 +2454,7 @@ class NCOFIPage extends Component {
                             renderTabBar={() => (
                                 <DefaultTabBar
                                     backgroundColor="white"
-                                    activeTextColor="#2CB5FD"
+                                    activeTextColor="#123C95"
                                     inactiveTextColor="#747474"
                                     underlineStyle={styles.tabUnderline}
                                     textStyle={styles.tabText}
@@ -2503,7 +2516,7 @@ class NCOFIPage extends Component {
                                 ) : (
                                     // {/* ui check */}
                                     <View style={styles.tabContentTopMargin}>
-                                        <Text style={styles.norecordefound}>{strings.No_records_found}</Text>
+                                        <NoRecordFound />
                                     </View>
                                 )}
                             </ScrollView>
@@ -2545,7 +2558,7 @@ class NCOFIPage extends Component {
                                     </View>
                                 ) : (
                                     <View style={styles.tabContentTopMargin}>
-                                        <Text style={styles.norecordefound}>{strings.No_records_found}</Text>
+                                        <NoRecordFound />
                                     </View>
                                 )}
                             </ScrollView>
@@ -2581,8 +2594,14 @@ class NCOFIPage extends Component {
                             <View style={footerActionColumnStyle}>
                                 {this.state.syncMode === 0 && (
                                     <TouchableOpacity onPress={once(this.onNavigaTo.bind(this, 1))} style={footerActionButtonStyle}>
-                                        <Icon name="upload-cloud" size={25} color="white" />
-                                        <Text style={styles.footerActionButtonText}>{strings.Create_NC}</Text>
+                                        <LinearGradient
+                                            start={{ x: 0, y: 0 }}
+                                            end={{ x: 1, y: 0 }}
+                                            colors={NCOFI_BUTTON_GRADIENT}
+                                            style={footerActionGradientStyle}>
+                                            <Icon name="upload-cloud" size={25} color="white" />
+                                            <Text style={styles.footerActionButtonText}>{strings.Create_NC}</Text>
+                                        </LinearGradient>
                                     </TouchableOpacity>
                                 )}
                             </View>
@@ -2601,22 +2620,40 @@ class NCOFIPage extends Component {
                                             );
                                         }}
                                         style={footerActionButtonStyle}>
-                                        <Icon name="refresh-ccw" size={25} color="white" />
-                                        <Text style={styles.footerActionButtonText}>{strings.Upload_to_server}</Text>
+                                        <LinearGradient
+                                            start={{ x: 0, y: 0 }}
+                                            end={{ x: 1, y: 0 }}
+                                            colors={NCOFI_BUTTON_GRADIENT}
+                                            style={footerActionGradientStyle}>
+                                            <Icon name="refresh-ccw" size={25} color="white" />
+                                            <Text style={styles.footerActionButtonText}>{strings.Upload_to_server}</Text>
+                                        </LinearGradient>
                                     </TouchableOpacity>
                                 </View>
                             ) : this.state.syncMode === 2 || this.state.syncMode === 4 ? (
                                 <View style={footerActionColumnStyle}>
                                     <TouchableOpacity onPress={this.CheckSync.bind(this)} style={footerActionButtonStyle}>
-                                        <Icon name="check-square" size={30} color="white" />
-                                        <Text style={styles.footerActionButtonText}>{'Proceed'}</Text>
+                                        <LinearGradient
+                                            start={{ x: 0, y: 0 }}
+                                            end={{ x: 1, y: 0 }}
+                                            colors={NCOFI_BUTTON_GRADIENT}
+                                            style={footerActionGradientStyle}>
+                                            <Icon name="check-square" size={30} color="white" />
+                                            <Text style={styles.footerActionButtonText}>{'Proceed'}</Text>
+                                        </LinearGradient>
                                     </TouchableOpacity>
                                 </View>
                             ) : (
                                 <View style={footerActionColumnStyle}>
                                     <View style={footerActionButtonStyle}>
-                                        <ActivityIndicator size={20} color="white" />
-                                        <Text style={styles.footerActionButtonText}>{strings.Upload_to_server}</Text>
+                                        <LinearGradient
+                                            start={{ x: 0, y: 0 }}
+                                            end={{ x: 1, y: 0 }}
+                                            colors={NCOFI_BUTTON_GRADIENT}
+                                            style={footerActionGradientStyle}>
+                                            <ActivityIndicator size={20} color="white" />
+                                            <Text style={styles.footerActionButtonText}>{strings.Upload_to_server}</Text>
+                                        </LinearGradient>
                                     </View>
                                 </View>
                             )}
@@ -2624,8 +2661,14 @@ class NCOFIPage extends Component {
                             <View style={footerActionColumnStyle}>
                                 {this.state.syncMode === 0 && (
                                     <TouchableOpacity onPress={once(this.onNavigaTo.bind(this, 2))} style={footerActionButtonStyle}>
-                                        <Icon name="upload-cloud" size={25} color="white" />
-                                        <Text style={styles.footerActionButtonText}>{strings.Create_OFI}</Text>
+                                        <LinearGradient
+                                            start={{ x: 0, y: 0 }}
+                                            end={{ x: 1, y: 0 }}
+                                            colors={NCOFI_BUTTON_GRADIENT}
+                                            style={footerActionGradientStyle}>
+                                            <Icon name="upload-cloud" size={25} color="white" />
+                                            <Text style={styles.footerActionButtonText}>{strings.Create_OFI}</Text>
+                                        </LinearGradient>
                                     </TouchableOpacity>
                                 )}
                             </View>
