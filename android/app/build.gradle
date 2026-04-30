@@ -238,6 +238,14 @@ dependencies {
     implementation("androidx.browser:browser:1.5.0")
     implementation("androidx.webkit:webkit:1.7.0")
 
+    debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}") {
+        exclude group: "com.facebook.fbjni"
+    }
+    debugImplementation("com.facebook.flipper:flipper-network-plugin:${FLIPPER_VERSION}") {
+        exclude group: "com.facebook.flipper"
+        exclude group: "com.squareup.okhttp3", module: "okhttp"
+    }
+
 
     if (enableHermes) {
         implementation("com.facebook.react:hermes-android")

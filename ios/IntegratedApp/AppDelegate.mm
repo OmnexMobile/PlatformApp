@@ -1,43 +1,39 @@
 #import "AppDelegate.h"
+
+#import <React/RCTAppSetupUtils.h>
 #import <React/RCTBridge.h>
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTRootView.h>
 
-#import <React/RCTAppSetupUtils.h>
-
 #if RCT_NEW_ARCH_ENABLED
 #import <React/CoreModulesPlugins.h>
 #import <React/RCTCxxBridgeDelegate.h>
-#import <React/RCTFabricSurfaceHostingProxyRootView.h>
 #import <React/RCTSurfacePresenter.h>
 #import <React/RCTSurfacePresenterBridgeAdapter.h>
 #import <ReactCommon/RCTTurboModuleManager.h>
-
 #import <react/config/ReactNativeConfig.h>
+#endif
 
+#if DEBUG
 #import <FlipperKit/FlipperClient.h>
 #import <FlipperKitLayoutPlugin/FlipperKitLayoutPlugin.h>
 #import <FlipperKitNetworkPlugin/FlipperKitNetworkPlugin.h>
-#import <FlipperKitReactPlugin/FlipperKitReactPlugin.h>
 #import <FlipperKitUserDefaultsPlugin/FKUserDefaultsPlugin.h>
 #import <SKIOSNetworkPlugin/SKIOSNetworkAdapter.h>
 
-- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-  // Initialize Flipper
+static void InitializeFlipper(UIApplication *application)
+{
   FlipperClient *client = [FlipperClient sharedClient];
   [client addPlugin:[[FlipperKitLayoutPlugin alloc] initWithRootNode:application]];
   [client addPlugin:[[FKUserDefaultsPlugin alloc] initWithSuiteName:nil]];
-  [client addPlugin:[FlipperKitReactPlugin new]];
   [client addPlugin:[[FlipperKitNetworkPlugin alloc] initWithNetworkAdapter:[SKIOSNetworkAdapter new]]];
   [client start];
-
-  // Your existing code
-  return [super application:application didFinishLaunchingWithOptions:launchOptions];
 }
-
+#endif
 
 static NSString *const kRNConcurrentRoot = @"concurrentRoot";
 
+#if RCT_NEW_ARCH_ENABLED
 @interface AppDelegate () <RCTCxxBridgeDelegate, RCTTurboModuleManagerDelegate> {
   RCTTurboModuleManager *_turboModuleManager;
   RCTSurfacePresenterBridgeAdapter *_bridgeAdapter;
@@ -51,7 +47,11 @@ static NSString *const kRNConcurrentRoot = @"concurrentRoot";
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-  RCTAppSetupPrepareApp(application);
+#if DEBUG
+  InitializeFlipper(application);
+#endif
+
+  RCTAppSetupPrepareApp(application, YES);
 
   RCTBridge *bridge = [[RCTBridge alloc] initWithDelegate:self launchOptions:launchOptions];
 
@@ -64,7 +64,11 @@ static NSString *const kRNConcurrentRoot = @"concurrentRoot";
 #endif
 
   NSDictionary *initProps = [self prepareInitialProps];
-  UIView *rootView = RCTAppSetupDefaultRootView(bridge, @"IntegratedApp", initProps);
+  BOOL fabricEnabled = NO;
+#if RCT_NEW_ARCH_ENABLED
+  fabricEnabled = YES;
+#endif
+  UIView *rootView = RCTAppSetupDefaultRootView(bridge, @"IntegratedApp", initProps, fabricEnabled);
 
   if (@available(iOS 13.0, *)) {
     rootView.backgroundColor = [UIColor systemBackgroundColor];
@@ -80,22 +84,16 @@ static NSString *const kRNConcurrentRoot = @"concurrentRoot";
   return YES;
 }
 
-/// This method controls whether the `concurrentRoot`feature of React18 is turned on or off.
-///
-/// @see: https://reactjs.org/blog/2022/03/29/react-v18.html
-/// @note: This requires to be rendering on Fabric (i.e. on the New Architecture).
-/// @return: `true` if the `concurrentRoot` feture is enabled. Otherwise, it returns `false`.
 - (BOOL)concurrentRootEnabled
 {
-  // Switch this bool to turn on and off the concurrent root
-  return true;
+  return YES;
 }
 
 - (NSDictionary *)prepareInitialProps
 {
   NSMutableDictionary *initProps = [NSMutableDictionary new];
 
-#ifdef RCT_NEW_ARCH_ENABLED
+#if RCT_NEW_ARCH_ENABLED
   initProps[kRNConcurrentRoot] = @([self concurrentRootEnabled]);
 #endif
 
@@ -120,10 +118,10 @@ static NSString *const kRNConcurrentRoot = @"concurrentRoot";
   _turboModuleManager = [[RCTTurboModuleManager alloc] initWithBridge:bridge
                                                              delegate:self
                                                             jsInvoker:bridge.jsCallInvoker];
-  return RCTAppSetupDefaultJsExecutorFactory(bridge, _turboModuleManager);
+  return RCTAppSetupDefaultJsExecutorFactory(bridge, _turboModuleManager, nullptr);
 }
 
-#pragma mark RCTTurboModuleManagerDelegate
+#pragma mark - RCTTurboModuleManagerDelegate
 
 - (Class)getModuleClassFromName:(const char *)name
 {
@@ -145,7 +143,7 @@ static NSString *const kRNConcurrentRoot = @"concurrentRoot";
 
 - (id<RCTTurboModule>)getModuleInstanceFromClass:(Class)moduleClass
 {
-  return RCTAppSetupDefaultModuleFromClass(moduleClass);
+  return RCTAppSetupDefaultModuleFromClass(moduleClass, nil);
 }
 
 #endif
