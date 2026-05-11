@@ -2259,17 +2259,10 @@
   resolved "https://registry.npmjs.org/@protobufjs/utf8/-/utf8-1.1.0.tgz"
   integrity sha512-Vvn3zZrhQZkkBE8LSuW3em98c0FwgO4nxzv6OdSxPKJIEKY2bGbHn+mhGIPerzI4twdxaP8/0+06HBpwf345Lw==
 
-"@react-native-async-storage/async-storage@^1.13.4":
+"@react-native-async-storage/async-storage@^1.13.4", "@react-native-async-storage/async-storage@^2.2.0":
   version "1.24.0"
   resolved "https://registry.npmjs.org/@react-native-async-storage/async-storage/-/async-storage-1.24.0.tgz"
   integrity sha512-W4/vbwUOYOjco0x3toB8QCr7EjIP6nE9G7o8PMguvvjYT5Awg09lyV4enACRx4s++PPulBiBSjL0KTFx2u0Z/g==
-  dependencies:
-    merge-options "^3.0.4"
-
-"@react-native-async-storage/async-storage@^2.2.0":
-  version "2.2.0"
-  resolved "https://registry.npmjs.org/@react-native-async-storage/async-storage/-/async-storage-2.2.0.tgz"
-  integrity sha512-gvRvjR5JAaUZF8tv2Kcq/Gbt3JHwbKFYfmb445rhOj6NUMx3qPLixmDx5pZAyb9at1bYvJ4/eTUipU5aki45xw==
   dependencies:
     merge-options "^3.0.4"
 
@@ -10938,7 +10931,7 @@ react-native-windows@*, react-native-windows@>=0.63.x, react-native-windows@>=0.
     yeoman-environment "^1.5.3"
     yeoman-generator "^0.21.2"
 
-react-native@*, react-native@^*, "react-native@^0.0.0-0 || >=0.60 <1.0", "react-native@^0.0.0-0 || >=0.65 <1.0", react-native@^0.41.2, "react-native@> 0.50.0", "react-native@>= 0.30.0", "react-native@>= 0.59.0", "react-native@>= 0.63.0", react-native@>=0.14.0, react-native@>=0.19.0, react-native@>=0.20.0, react-native@>=0.40.0, react-native@>=0.42.0, react-native@>=0.44, react-native@>=0.46, react-native@>=0.47, react-native@>=0.48.0, react-native@>=0.48.4, react-native@>=0.50.0, react-native@>=0.50.1, react-native@>=0.57, react-native@>=0.59, react-native@>=0.59.0, react-native@>=0.60.0, react-native@>=0.61.3, react-native@>=0.63.0, react-native@>=0.65.0, react-native@>=0.70.0, react-native@>=0.71.0, react-native@>0.62.0, react-native@>0.64, react-native@~0.41.0, react-native@0.70.0:
+react-native@*, react-native@^*, "react-native@^0.0.0-0 || >=0.60 <1.0", react-native@^0.41.2, "react-native@> 0.50.0", "react-native@>= 0.30.0", "react-native@>= 0.59.0", "react-native@>= 0.63.0", react-native@>=0.14.0, react-native@>=0.19.0, react-native@>=0.20.0, react-native@>=0.40.0, react-native@>=0.42.0, react-native@>=0.44, react-native@>=0.46, react-native@>=0.47, react-native@>=0.48.0, react-native@>=0.48.4, react-native@>=0.50.0, react-native@>=0.50.1, react-native@>=0.57, react-native@>=0.59, react-native@>=0.59.0, react-native@>=0.60.0, react-native@>=0.61.3, react-native@>=0.63.0, react-native@>=0.65.0, react-native@>=0.70.0, react-native@>=0.71.0, react-native@>0.62.0, react-native@>0.64, react-native@~0.41.0, react-native@0.70.0:
   version "0.70.0"
   resolved "https://registry.npmjs.org/react-native/-/react-native-0.70.0.tgz"
   integrity sha512-QjXLbrK9f+/B2eCzn6kAvglLV/8nwPuFGaFv7ggPpAzFRyx5bVN1dwQLHL3MrP7iXR/M7Jc6Nnid7tmRSic6vA==
