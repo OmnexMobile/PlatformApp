@@ -68,16 +68,17 @@ const CustomHeader = ({
     activeTabId,
     showIcons = true,
     showFileIcon = false,
-    handleSyncPress = () => {},
-    handleFilterPress = () => {},
-    handleQRPress = () => {},
-    handleFileIconPress = () => {},
-    handleSearch = () => {},
+    handleSyncPress = () => { },
+    handleFilterPress = () => { },
+    handleQRPress = () => { },
+    handleFileIconPress = () => { },
+    handleSearch = () => { },
     searchValue = '',
-    handleClosePress = () => {},
+    handleClosePress = () => { },
     customBackHandler = false,
-    customHandleGoBack = () => {},
-    handleMultiSearch = () => {},
+    customHandleGoBack = () => { },
+    handleMultiSearch = () => { },
+    showCharCameraIcon = false,
 }) => {
     const { icSettings } = useSelector(state => state.inspection);
     const insets = useSafeAreaInsets();
@@ -176,7 +177,7 @@ const CustomHeader = ({
         }
     };
     return (
-        <SafeAreaView style={[styles.container,{paddingBottom: insets.bottom,}]}>
+        <SafeAreaView style={[styles.container, { paddingBottom: insets.bottom, }]}>
             <View style={[styles.headerBox]}>
                 <TouchableOpacity
                     onPress={() => {
@@ -235,12 +236,20 @@ const CustomHeader = ({
                         </>
                     )}
                     {showFileIcon && (
-                        <TouchableOpacity
-                            onPress={() => {
-                                handleFileIconPress();
-                            }}>
-                            <IconI name="images" size={25} style={styles.iconButton} color={COLORS.white} />
-                        </TouchableOpacity>
+                        <>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    handleFileIconPress();
+                                }}>
+                                <IconI name="images" size={25} style={styles.iconButton} color={COLORS.white} />
+                            </TouchableOpacity>
+                            {/* {Boolean(showCharCameraIcon) && <TouchableOpacity
+                                onPress={() => {
+                                    handleFileIconPress();
+                                }}>
+                                <IconI name="images" size={25} style={styles.iconButton} color={COLORS.white} />
+                            </TouchableOpacity>} */}
+                        </>
                     )}
                 </View>
             </View>

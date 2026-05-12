@@ -46,6 +46,7 @@ module.exports = {
     LOGIN_LOGO:'GetCompanyLogo',
     IC_SUPERVISOR_DOWNLOAD:'GetSupervisorForm',
     IC_OPERATION_LIST:'GetOperations',
-    IC_BULK_SYNC:'BulkSync'
-
+    IC_BULK_SYNC:'BulkSync',
+    IC_FCM_REGISTER:'RegisterToken',
+    IC_GETDOWNTIME:'Downtime/GetDowntimeReasons'
 };

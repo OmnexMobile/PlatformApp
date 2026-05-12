@@ -12,7 +12,7 @@ import DeleteModal from '../Components/DeleteModal';
 import NoDataFound from '../Components/NoDataFound';
 import { useDispatch, useSelector } from 'react-redux';
 import ApiUrl from 'global/ApiUrl';
-import { postAPI } from 'global/api-helpers';
+import { getAPI, getAPICall, postAPI } from 'global/api-helpers';
 import IcSkeleton from '../Components/IcSkeleton';
 import { deleteInspectionByUniqueId, getDatabaseSize, getInspectionDataByUserAndSite } from 'store/database/inspectStorage';
 import ICScrollTab from '../Components/ICScrollTab';
@@ -28,6 +28,7 @@ const OperatorWorksheet = () => {
     const [refreshing, setRefreshing] = useState(false);
     const [selectedValue, setSelectedValue] = useState(null);
     const [showReportModal, setShowReportModal] = useState(false);
+    const [downTimeData, setDownTimeData] = useState([]);
     const isFocused = useIsFocused();
     const dispatch = useDispatch();
 
@@ -142,6 +143,23 @@ const OperatorWorksheet = () => {
             showErrorMessage('Error deleting inspection');
         }
     };
+    const handleReportPress = async item => {
+        setSelectedValue(item);
+        const response = await getAPICall(`${ApiUrl.IC_GETDOWNTIME}`);
+        if (response.length > 0) {
+            let downTimeData = [];
+            downTimeData = response.map(item => ({
+                label: item.description,
+                value: item.description,
+                ...item,
+            }))
+            setDownTimeData(downTimeData);
+        } else {
+            setDownTimeData([]);
+        }
+
+        setShowReportModal(true);
+    }
     const renderItem = ({ item }) => {
         const { status, colorCode } = rendetBtnText(item);
         return (
@@ -173,8 +191,7 @@ const OperatorWorksheet = () => {
                         <TouchableOpacity
                             style={[styles.launchCard, { backgroundColor: COLORS.apptheme, marginTop: 10 }]}
                             onPress={() => {
-                                setSelectedValue(item);
-                                setShowReportModal(true);
+                                handleReportPress(item);
                             }}>
                             <Text style={[styles.launchText]}>Report</Text>
                         </TouchableOpacity>
@@ -202,7 +219,7 @@ const OperatorWorksheet = () => {
                         renderItem={renderItem}
                         keyExtractor={(item, index) => index + 1}
                         showsVerticalScrollIndicator={false}
-                        // refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+                    // refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
                     />
                 ) : (
                     <NoDataFound />
@@ -232,7 +249,7 @@ const OperatorWorksheet = () => {
                     // setShowDelete(false);
                 }}
             />
-            <ReportShutdownModal data={selectedValue} visible={showReportModal} handleClose={() => setShowReportModal(false)}/>
+            <ReportShutdownModal data={selectedValue} visible={showReportModal} handleClose={() => setShowReportModal(false)} dropDownList={downTimeData}/>
         </CustomHeader>
     );
 };

@@ -5,7 +5,7 @@ import { View, Text, StyleSheet, Modal, TouchableOpacity, TextInput } from 'reac
 import Icon from 'react-native-vector-icons/Ionicons';
 import SingleDropDown from './SingleDropDown';
 
-export default function ReportShutdownModal({ visible, data = null, handleClose = () => {} }) {
+export default function ReportShutdownModal({ visible, data = null, handleClose = () => { }, dropDownList = [] }) {
     console.log('ReportShutdownModal data:', data?.strOperationName);
     return (
         <Modal transparent visible={visible} animationType="fade" onRequestClose={() => handleClose()}>
@@ -16,14 +16,14 @@ export default function ReportShutdownModal({ visible, data = null, handleClose 
                     <Text style={[styles.message]}>Lot Number: {data?.strLotNo ? data.strLotNo : '-'}</Text>
                     <View style={{ width: '100%', borderTopWidth: 1, borderTopColor: COLORS.grey, marginVertical: 15 }}>
                         <Text style={[styles.message, { textAlign: 'left', marginTop: 10 }]}>Reason for Downtime</Text>
-                        <SingleDropDown />
+                        <SingleDropDown  data={dropDownList}/>
                         <TextInput
-                            style={[styles.textarea,{backgroundColor: COLORS.inputBG}]}
+                            style={[styles.textarea, { backgroundColor: COLORS.inputBG }]}
                             multiline={true}
                             numberOfLines={4}
                             placeholder="Type your message..."
                             value={''}
-                            // onChangeText={setText}
+                        // onChangeText={setText}
                         />
                     </View>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%' }}>

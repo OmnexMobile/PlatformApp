@@ -12,10 +12,12 @@ import auth from '../../../services/Auditpro-Auth';
 import AsyncStorage from '@react-native-community/async-storage';
 import ApiUrl from 'global/ApiUrl';
 import { useDispatch, useSelector } from 'react-redux';
+import { fetchFCMToken } from 'screens/notificationService';
+import { Platform } from 'react-native';
 
-const LoginFunctional = ({}) => {
+const LoginFunctional = ({ }) => {
     const dispatch = useDispatch();
-    const {icLoginlogo}=useSelector(state=>state.inspection);
+    const { icLoginlogo } = useSelector(state => state.inspection);
     const [selectLanguageModal, setSelectLanguageModal] = useState(false);
     const [loginDetails, setLoginDetails] = useState({
         // username: 'Champion1@michelin',
@@ -119,11 +121,20 @@ const LoginFunctional = ({}) => {
                 userData: response?.Data[0] || {},
                 token: response?.Token || '',
             };
+            const fcmToken = await fetchFCMToken();
+            const tokenPayload = {
+                UserId: icUserData?.userData?.UserId,
+                Token: fcmToken,
+                DeviceId: deviceId,
+                DeviceType: Platform.OS,
+            }
+            const fcmRegister = await postAPI(`${APIURL}${ApiUrl.IC_FCM_REGISTER}`, tokenPayload);
+            console.log('FCM REGISTER RESPONSE--->', fcmRegister);
             dispatch({ type: 'IC_USER_DATA', icUserData: icUserData });
             const newFormData = new FormData();
             newFormData.append('UserID', icUserData?.userData?.UserId);
             newFormData.append('SiteID', icUserData?.userData?.Siteid);
-            const settingsRes = await postAPI(`${APIURL}${ApiUrl.IC_SETTINGS}`,newFormData);
+            const settingsRes = await postAPI(`${APIURL}${ApiUrl.IC_SETTINGS}`, newFormData);
             if (settingsRes.Success) {
                 const settings = {
                     ...settingsRes?.Data[0],
@@ -144,7 +155,7 @@ const LoginFunctional = ({}) => {
     };
 
     const setProfileCall = data => {
-        console.log(data?.Data[0],'***********data?.Data[0]')
+        console.log(data?.Data[0], '***********data?.Data[0]')
         console.log('🚀 ~ file: login-functional.js:69 ~ setProfileCall ~ data', data);
         localStorage.storeData(LOCAL_STORAGE_VARIABLES.Token, data?.Token);
         localStorage.storeData(LOCAL_STORAGE_VARIABLES.UserId, data?.Data[0]?.UserId);
@@ -162,7 +173,7 @@ const LoginFunctional = ({}) => {
     };
     return (
         <LoginPresentational
-            {...{ selectLanguageModal, setSelectLanguageModal, handleInputChange, handleSubmit, loginDetails, navigation, isRegistered ,loginLogo:icLoginlogo}}
+            {...{ selectLanguageModal, setSelectLanguageModal, handleInputChange, handleSubmit, loginDetails, navigation, isRegistered, loginLogo: icLoginlogo }}
         />
     );
 };
