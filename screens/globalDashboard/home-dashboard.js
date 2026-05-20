@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useLayoutEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { TouchableOpacity, View } from 'react-native';
+import { Platform, StatusBar, TouchableOpacity, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
 import { Content, TextComponent, ExitModal, ChooseSite, FAB, Avatar, NoRecordFound } from 'components';
 import { APP_VARIABLES, FONT_TYPE, ROUTES, USER_TYPE, ICON_TYPE, STATUS_CODES, LOCAL_STORAGE_VARIABLES } from 'constants/app-constant';
@@ -31,6 +32,7 @@ import constants from '../../constants/SupplierMgnt/AppConstants';
 const HomeDashboard = () => {
     const { theme } = useTheme();
     const navigation = useNavigation();
+    const insets = useSafeAreaInsets();
     const { sites, recentActivities, handleGlobalURL, globalDeviceDetails } = useAppContext();
     console.log('recentActivities in home dashboard', recentActivities);
     const [currentName, setCurrentName] = useState('');
@@ -798,6 +800,7 @@ const HomeDashboard = () => {
     console.log(' appLicenses------->', appLicenses);
 
     const displayName = (sites?.selectedSite?.FullName || currentName || '').replace(/\s+/g, ' ').trim();
+    const topSafePadding = Math.max(insets.top, Platform.OS === 'android' ? StatusBar.currentHeight || 0 : 0);
 
     // const orderedRecentList = [
     //   ...(showPS ? recentPS.map(item => ({ ...item, type: 'PS' })) : []),
@@ -808,7 +811,7 @@ const HomeDashboard = () => {
 
     return (
         <Content noPadding>
-            <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}>
+            <View style={{ padding: SPACING.NORMAL, paddingTop: topSafePadding + SPACING.NORMAL, flexDirection: 'row' }}>
                 <View style={{ flex: 9 }}>
                     <TextComponent type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.LARGE}>
                         {strings.welcome}!
@@ -818,7 +821,7 @@ const HomeDashboard = () => {
                     </TextComponent>
                 </View>
                 <View style={{ flex: 1, alignItems: 'flex-end', justifyContent: 'center' }}>
-                    <TouchableOpacity style={{ bottom: 12 }} activeOpacity={0.8} onPress={() => navigateToSites()}>
+                    <TouchableOpacity activeOpacity={0.8} onPress={() => navigateToSites()}>
                         <Avatar
                             // img={activeOrganization?.img}
                             placeholder={getAvatarInitials(sites?.selectedSite?.SiteName)}
@@ -845,7 +848,6 @@ const HomeDashboard = () => {
                             backgroundColor: theme.colors.primaryThemeColor,
                             borderWidth: 1,
                             borderColor: theme.colors.primaryThemeColor,
-                            bottom: 12,
                         }}>
                         <IconComponent type={ICON_TYPE.FontAwesome} name="bell-o" size={18} color={'#fff'} />
                     </TouchableOpacity>
@@ -863,7 +865,6 @@ const HomeDashboard = () => {
                             backgroundColor: theme.colors.primaryThemeColor,
                             borderWidth: 1,
                             borderColor: theme.colors.primaryThemeColor,
-                            bottom: 12,
                         }}>
                         <IconComponent type={ICON_TYPE.FontAwesome} name="power-off" size={18} color={'#fff'} />
                     </TouchableOpacity>

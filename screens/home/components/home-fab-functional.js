@@ -4,7 +4,8 @@ import { FONT_TYPE, ICON_TYPE, LOCAL_STORAGE_VARIABLES, ROUTES } from 'constants
 import TabsView from './home-tab-view';
 import TabsCard from './home-tab-card';
 import localStorage from 'global/localStorage';
-import { Platform, Pressable, View, TouchableOpacity } from 'react-native';
+import { Platform, Pressable, StatusBar, StyleSheet, View, TouchableOpacity } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, FONT_SIZE, SPACING } from 'constants/theme-constants';
 import { useAppContext } from 'contexts/app-context';
 import { useNavigation } from '@react-navigation/native';
@@ -17,6 +18,8 @@ const HomeFabFunctional = ({ countDetails }) => {
     const { sites } = useAppContext();
     const navigations = useNavigation();
     const { theme } = useTheme();
+    const insets = useSafeAreaInsets();
+    const topSafePadding = Math.max(insets.top, Platform.OS === 'android' ? StatusBar.currentHeight || 0 : 0);
     // console.log('CURRENT_PAGE---->', 'home-fab-functional')
 
     useEffect(() => {
@@ -50,15 +53,14 @@ const HomeFabFunctional = ({ countDetails }) => {
         <Content noPadding>
             {/* Header */}
             <View
-                style={{
-                    padding: SPACING.SMALL,
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    maxHeight: '12%',
-                    backgroundColor: COLORS.white,
-                }}>
-                <Pressable hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }} onPress={() => handleDashboard()}>
+                style={[
+                    styles.header,
+                    {
+                        paddingTop: topSafePadding + SPACING.SMALL,
+                        minHeight: topSafePadding + 56,
+                    },
+                ]}>
+                <Pressable style={styles.backButton} hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }} onPress={() => handleDashboard()}>
                     <IconComponent name="arrowleft" type={ICON_TYPE.AntDesign} size={FONT_SIZE.XXLARGE} color={theme?.colors?.primaryThemeColor} />
                 </Pressable>
                 {/*<TouchableOpacity
@@ -72,5 +74,22 @@ const HomeFabFunctional = ({ countDetails }) => {
         </Content>
     );
 };
+
+const styles = StyleSheet.create({
+    header: {
+        paddingHorizontal: SPACING.SMALL,
+        paddingBottom: SPACING.SMALL,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        backgroundColor: COLORS.white,
+    },
+    backButton: {
+        width: 44,
+        height: 44,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+});
 
 export default HomeFabFunctional;
