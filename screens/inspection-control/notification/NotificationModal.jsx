@@ -6,8 +6,17 @@ import { View, Text, Modal, TouchableOpacity, StyleSheet, Linking } from 'react-
 import VersionCheck from 'react-native-version-check';
 import IconF from 'react-native-vector-icons/Feather';
 
-const NotificationModal = ({ visible, onClose ,data}) => {
-    console.log(data?.notification?.title,'data in modal');
+const NotificationModal = ({ visible, data, setNotificationData = () => { } }) => {
+    console.log(data?.notification?.title, 'data in modal');
+    const onClose = () => {
+        setNotificationData({
+            showModal: false,
+            remoteMessage: null,
+        });
+    }
+    const handleSnooze = () => {
+        onClose();
+    };
     return (
         <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
             <View style={styles.overlay}>
@@ -48,7 +57,7 @@ const NotificationModal = ({ visible, onClose ,data}) => {
                         <TouchableOpacity style={styles.buttonUpdate}>
                             <Text style={styles.textUpdate}>Start Inspection</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.buttonLater} onPress={onClose}>
+                        <TouchableOpacity style={styles.buttonLater} onPress={handleSnooze}>
                             <Text style={styles.textLater}>Snooze 10 Min</Text>
                         </TouchableOpacity>
                     </View>

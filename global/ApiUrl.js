@@ -48,5 +48,6 @@ module.exports = {
     IC_OPERATION_LIST:'GetOperations',
     IC_BULK_SYNC:'BulkSync',
     IC_FCM_REGISTER:'RegisterToken',
-    IC_GETDOWNTIME:'Downtime/GetDowntimeReasons'
+    IC_GETDOWNTIME:'Downtime/GetDowntimeReasons',
+    IC_REPORTDOWNTIME:'Downtime/ReportDowntime '
 };
