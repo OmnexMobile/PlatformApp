@@ -1,8 +1,8 @@
-import { ButtonComponent, NoRecordFound } from 'components';
+import { ButtonComponent } from 'components';
 import React, { useEffect, useState } from 'react';
 import { FlatList, Platform, RefreshControl, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import CustomHeader from '../Components/CustomHeader';
-import { COLORS, SPACING } from 'constants/theme-constants';
+import { COLORS } from 'constants/theme-constants';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { PLACEHOLDERS, ROUTES } from 'constants/app-constant';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -19,14 +19,12 @@ import IcSkeleton from '../Components/IcSkeleton';
 import { useDispatch, useSelector } from 'react-redux';
 import { showMessage } from 'react-native-flash-message';
 import QRCodeScannerScreen from '../Components/QRCodeScannerScreen';
+import NoDataFound from '../Components/NoDataFound';
 import { postAPI } from 'global/api-helpers';
 import ApiUrl from 'global/ApiUrl';
 import { deleteAllInspectionData, getInspectionDataByUserAndSite } from 'store/database/inspectStorage';
 import { Modal } from 'react-native-paper';
 import { Bubbles } from 'react-native-loader';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { getElevation, getICList } from 'helpers/utils';
-import InputWithSearch from '../Components/InputWithSearch';
 
 const filterList = [
     {
@@ -61,10 +59,8 @@ const moreList = [
     },
 ];
 const InspectionSchedule = () => {
-    const insets = useSafeAreaInsets();
     const { height } = useWindowDimensions();
-    const { icUserData, icSettings, dateFormat } = useSelector(state => state.inspection);
-    const uiDateFormat = dateFormat || 'DD/MM/YYYY';
+    const { icUserData } = useSelector(state => state.inspection);
     const dispatch = useDispatch();
     const isFocused = useIsFocused();
     const {
@@ -109,36 +105,32 @@ const InspectionSchedule = () => {
     //     console.log(list, '*********************************************list.length');
     // };
     const getOverAllSettings = async () => {
-        const formDate = new FormData();
-        formDate.append('UserID', parseInt(icUserData?.userData?.UserId));
-        formDate.append('SiteID', parseInt(icUserData?.userData?.Siteid));
-        const settingsRes = await postAPI(`${ApiUrl.IC_SETTINGS}`, formDate);
+        const settingsRes = await postAPI(`${ApiUrl.IC_SETTINGS}`);
         if (settingsRes.Success) {
-            const settings = {
-                ...settingsRes?.Data[0],
-            };
-            dispatch({ type: 'IC_SETTINGS', icSettings: settings || {} });
+            dispatch({ type: 'IC_SETTINGS', icSettings: settingsRes?.Data[0] || {} });
         }
-        return settingsRes;
     };
     const handleListFetch = async (inspect = null, showSktn = true, filterType = '') => {
         // await deleteAllInspectionData();
         const inspectList = await getInspectionDataByUserAndSite(icUserData?.userData?.UserId, icUserData?.userData?.Siteid);
+        console.log(inspectList.length, '*********************************************inspectList.length');
         showSktn && setShowSkeleton(true);
         const { startDate, endDate, type } = filterData;
         let dateFlag = startDate !== '' && endDate !== '';
         const formData = new FormData();
         formData.append('UserID', icUserData?.userData?.UserId);
+        // formData.append('UserID', 7);
         formData.append('SiteID', parseInt(icUserData?.userData?.Siteid));
         formData.append('LanguageID', 1);
         formData.append('StartDate', dateFlag ? moment(startDate).format('MM/DD/YYYY') : '');
         formData.append('EndDate', dateFlag ? moment(endDate).format('MM/DD/YYYY') : '');
+        // formData.append('InspectionType', inspect !== null ? inspect : type);
         const response = await postAPI(`${ApiUrl.IC_GET_IS}`, formData);
         await getOverAllSettings();
         let retunListData = [];
         if (response.Success) {
             let temp = response?.Data?.InspectionSchedules || [];
-            let updatedArray = temp.map(item => {
+            const updatedArray = temp.map(item => {
                 const match = inspectList.some(
                     compareItem =>
                         compareItem.intProductionItemID === item.ProductionItemId &&
@@ -150,13 +142,6 @@ const InspectionSchedule = () => {
                     isDownloaded: match,
                 };
             });
-
-            const allowedTypes = [];
-            if (icSettings.TabReceivingLotScheduleNeeded) allowedTypes.push('1');
-            if (icSettings.TabInprocessLotScheduleNeeded) allowedTypes.push('2');
-            if (icSettings.TabFinalLotScheduleNeeded) allowedTypes.push('3');
-            updatedArray = allowedTypes.length === 0 ? [] : updatedArray.filter(item => allowedTypes.includes(item.TypeOfInspection));
-
             const sortedSchedules = updatedArray.sort((a, b) => {
                 return new Date(b.ProductionStartDate) - new Date(a.ProductionStartDate);
             });
@@ -202,7 +187,8 @@ const InspectionSchedule = () => {
     };
 
     useEffect(() => {
-        if (icUserData.userData && isFocused) {
+        if (icUserData && isFocused) {
+            console.log('icUserData', icUserData);
             handleListFetch(null, true, filterData.type);
         }
         return () => {
@@ -257,28 +243,16 @@ const InspectionSchedule = () => {
                 statusBarHeight: 40,
                 icon: 'danger',
                 position: 'right',
-                style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : { paddingTop: insets.top },
+                style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
             });
         }
     };
     const renderIconBgColor = value => {
         return value == '1' ? COLORS.apptheme : value == '2' ? COLORS.ipBgColor : COLORS.fiBgColor;
     };
-    const elevation = getElevation();
-
     const renderData = ({ item }) => {
         return (
-            <View
-                style={[
-                    styles.recordConatiner,
-                    {
-                        borderRadius: SPACING.SMALL,
-                        marginBottom: SPACING.NORMAL,
-                        marginTop: SPACING.X_SMALL,
-                        marginHorizontal: SPACING.X_SMALL,
-                    },
-                    elevation,
-                ]}>
+            <View style={[styles.recordConatiner]}>
                 <View style={[styles.iconBox, { backgroundColor: renderIconBgColor(item?.TypeOfInspection) }]}>
                     <Icon name="layers-outline" size={25} color={COLORS.white} />
                 </View>
@@ -292,7 +266,7 @@ const InspectionSchedule = () => {
                     </Text>
                 </View>
                 <View style={[styles.lastBox]}>
-                    <Text style={[styles.secondText]}>{moment(new Date(item.ProductionStartDate)).format(uiDateFormat)}</Text>
+                    <Text style={[styles.secondText]}>{moment(new Date(item.ProductionStartDate)).format('DD/MM/YYYY')}</Text>
                     <View style={[styles.iconlist]}>
                         <TouchableOpacity
                             style={{ marginLeft: 15 }}
@@ -379,12 +353,11 @@ const InspectionSchedule = () => {
             };
         });
         setMasterData(updatedArray);
-        await getICList(icUserData?.userData?.UserId, icUserData?.userData?.Siteid);
         setShowBubble(false);
     };
+    console.log(masterData.length, 'masterData');
     return (
         <CustomHeader
-            showHomeIcon
             title="Inspection Schedule"
             activeTabId={1}
             handleQRPress={() => {
@@ -450,17 +423,6 @@ const InspectionSchedule = () => {
                         /> */}
                     </View>
                 </View>
-                <View style={[styles.searchBox]}>
-                    <InputWithSearch
-                        onSearch={value => {
-                            setSearch(value);
-                            if (!value?.length) {
-                                handleSearch('', filterData?.type);
-                            }
-                        }}
-                        searchValue={search}
-                    />
-                </View>
                 {showSkeleton ? (
                     <IcSkeleton type={PLACEHOLDERS.INSPECTION_CARD} />
                 ) : Boolean(masterData?.length) ? (
@@ -472,16 +434,15 @@ const InspectionSchedule = () => {
                         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
                     />
                 ) : (
-                    <NoRecordFound />
+                    <NoDataFound />
                 )}
-                {/* <View style={[styles.bottombox]}>
+                <View style={[styles.bottombox]}>
                     <Text style={[styles.bottomText]}>Total Inspections </Text>
                     <View style={[styles.totalBox]}>
                         <Text style={[styles.bottomText, { color: COLORS.white }]}>{masterData?.length}</Text>
                     </View>
-                </View> */}
+                </View>
             </View>
-
             {/* <View style={[styles.btnContainer]}>
                 <ButtonComponent
                     textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}
@@ -542,7 +503,7 @@ const InspectionSchedule = () => {
                         flex: 1,
                         height: '100%',
                     }}>
-                    <Bubbles size={10} color={COLORS.apptheme} />
+                    <Bubbles size={10} color="#12C0CF" />
                 </Modal>
             )}
         </CustomHeader>
@@ -551,6 +512,7 @@ const InspectionSchedule = () => {
 const styles = StyleSheet.create({
     mainContainer: {
         flex: 1,
+        backgroundColor: COLORS.white,
         borderRadius: 10,
     },
     btnContainer: {
@@ -558,8 +520,9 @@ const styles = StyleSheet.create({
     },
     recordConatiner: {
         flex: 1,
-        paddingHorizontal: 10,
-        paddingVertical:15,
+        padding: 10,
+        borderBottomWidth: 1,
+        borderBottomColor: COLORS.icborder,
         flexDirection: 'row',
     },
     iconBox: {
@@ -625,7 +588,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     overAllBox: {
-        paddingVertical: 10,
+        padding: 10,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -633,14 +596,10 @@ const styles = StyleSheet.create({
     getDataBox: {
         height: 35,
         width: 35,
-        backgroundColor: COLORS.white,
+        backgroundColor: COLORS.inputBorder,
         alignItems: 'center',
         justifyContent: 'center',
         borderRadius: 40,
-    },
-    searchBox: {
-        paddingHorizontal: 1,
-        marginBottom:5
     },
 });
 

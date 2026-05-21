@@ -138,7 +138,7 @@ import SupervisorSchedule from 'screens/inspection-control/supervisor-schedule';
 import InprocessInspection from 'screens/inspection-control/inprocess-inspection';
 import ContainmentActions from 'screens/inspection-control/containmentActions';
 import IcSettings from 'screens/inspection-control/icSettings';
-import SearchInspection from 'screens/inspection-control/search-inspection';
+// import SearchInspection from 'screens/inspection-control/search-inspection';
 import Calender from 'screens/problemSolver/containers/calender';
 
 const Stack = createStackNavigator();
@@ -801,11 +801,11 @@ export const AppStackData = [
         component: IcSettings,
         cardStyleInterpolator: CardStyleInterpolators.forFadeFromCenter,
     },
-    {
-        name: ROUTES.SEARCH_INSPECTION,
-        component: SearchInspection,
-        cardStyleInterpolator: CardStyleInterpolators.forFadeFromCenter,
-    },
+    // {
+    //     name: ROUTES.SEARCH_INSPECTION,
+    //     component: SearchInspection,
+    //     cardStyleInterpolator: CardStyleInterpolators.forFadeFromCenter,
+    // },
 ];
 
 export const ProjectData = [

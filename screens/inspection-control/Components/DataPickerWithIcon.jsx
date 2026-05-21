@@ -5,8 +5,9 @@ import Icon from 'react-native-vector-icons/Entypo';
 import IconE from 'react-native-vector-icons/Fontisto';
 // import DateTimePicker from '@react-native-community/datetimepicker';
 import DateTimePicker from 'react-native-modal-datetime-picker';
+
 import moment from 'moment';
-import { useSelector } from 'react-redux';
+import { RFPercentage } from 'react-native-responsive-fontsize';
 
 const DataPickerWithIcon = ({
     placeHolder = 'Start Date',
@@ -22,8 +23,6 @@ const DataPickerWithIcon = ({
     value = null,
     editable = true,
 }) => {
-    const { dateFormat} = useSelector(state => state.inspection);
-    const uiDateFormat = dateFormat || 'DD/MM/YYYY';
     const [date, setDate] = useState(null);
     const [tempDate, setTempDate] = useState(new Date());
     const [showPicker, setShowPicker] = useState(false);
@@ -70,7 +69,7 @@ const DataPickerWithIcon = ({
                 }}
                 activeOpacity={editable ? 0.5 : 1}>
                 <Text numberOfLines={1} style={[styles.textStyle]}>
-                    {date !== null ? (type == 'date' ? moment(date).format(uiDateFormat) : moment(date).format('hh:mm A')) : placeHolder}
+                    {date !== null ? (type == 'date' ? moment(date).format('DD/MM/YYYY') : moment(date).format('hh:mm A')) : placeHolder}
                 </Text>
                 {type == 'date' ? (
                     <Icon name="calendar" size={20} color={COLORS.moreIcon} />
@@ -113,6 +112,7 @@ const DataPickerWithIcon = ({
                         setShowPicker(false);
                         if (selectedDate) {
                             onSelectedDate(selectedDate);
+                            setDate(selectedDate);
                         }
                     }}
                 />

@@ -1,13 +1,11 @@
 import { COLORS } from 'constants/theme-constants';
 import React from 'react';
-import { StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
+import { StyleSheet, Text, TextInput, View } from 'react-native';
 import SingleDropDown from './SingleDropDown';
 import DataPickerWithIcon from './DataPickerWithIcon';
 import moment from 'moment';
 import { TouchableOpacity } from 'react-native';
 import InputFilePicker from './inprocess-inspection/InputFilePicker';
-import ListRadioButton from './inprocess-inspection/ListRadioButton';
-import AutoSizingTextInput from './AutoSizingTextInput';
 
 const DynamicFormField = ({
     fieldType = '',
@@ -17,22 +15,17 @@ const DynamicFormField = ({
     placeHolder = '',
     isEditable = true,
     title = '',
-    DisplayName = '',
-    backgroundColor = COLORS.inputBG,
-    dropdownPosition = 'top',
 }) => {
-    const { width } = useWindowDimensions();
     switch (fieldType) {
         case 'textinput':
         case 'text':
         case 'Integer':
-        case 'Text':
             return (
                 <TextInput
                     value={value || ''}
-                    style={[styles.inputBox, { backgroundColor: isEditable ? backgroundColor : COLORS.whiteGrey }]}
+                    style={[styles.inputBox, { backgroundColor: isEditable ? COLORS.inputBG : COLORS.whiteGrey}]}
                     onChangeText={val => {
-                        if (isEditable) {
+                        if(isEditable){
                             handleChange(val);
                         }
                     }}
@@ -41,11 +34,10 @@ const DynamicFormField = ({
                 />
             );
         case 'singleDropDown':
-        case 'Dropdown':
             return (
                 <SingleDropDown
                     data={dropDownData}
-                    backgroundColor={isEditable ? backgroundColor : COLORS.whiteGrey}
+                    backgroundColor={isEditable ? COLORS.inputBG : COLORS.whiteGrey}
                     borderWidth={1}
                     marginTop={8}
                     title=""
@@ -60,19 +52,16 @@ const DynamicFormField = ({
                     editable={isEditable}
                     containerStyle={{
                         elevation: 10,
-                        width: width / 2.2,
+                        width:220
                     }}
-                    dropdownPosition={dropdownPosition}
                 />
             );
         case 'datePicker':
         case 'datetime':
-        case 'DateTime':
-        case 'Date':
             return (
                 <View style={{ marginTop: 8 }}>
                     <DataPickerWithIcon
-                        value={value ? moment(new Date(value), 'MM/DD/YYYY').toDate() : null}
+                        value={value ? moment(value, 'MM/DD/YYYY').toDate() : null}
                         onSelectedDate={val => {
                             handleChange(val);
                         }}
@@ -80,14 +69,12 @@ const DynamicFormField = ({
                         paddingVertical={9}
                         borderColor={COLORS.icBottomBox}
                         placeHolder={placeHolder}
-                        backgroundColor={isEditable ? backgroundColor : COLORS.whiteGrey}
+                        backgroundColor={isEditable ? COLORS.inputBG : COLORS.whiteGrey}
                         editable={isEditable}
                     />
                 </View>
             );
         case 'timePicker':
-        case 'TimePicker':
-        case 'Time':
             return (
                 <View style={{ marginTop: 8 }}>
                     <DataPickerWithIcon
@@ -100,66 +87,31 @@ const DynamicFormField = ({
                         borderColor={COLORS.icBottomBox}
                         placeHolder={placeHolder}
                         type="time"
-                        backgroundColor={isEditable ? backgroundColor : COLORS.whiteGrey}
+                        backgroundColor={isEditable ? COLORS.inputBG : COLORS.whiteGrey}
                         editable={isEditable}
                     />
                 </View>
             );
         case 'filepicker':
-        case 'File':
             return (
                 <View style={{ marginTop: 8 }}>
                     <InputFilePicker
-                        maxLimit={1}
-                        ListData={typeof value == 'object' ? [value] : value || []}
+                        ListData={value || []}
                         isEditable={isEditable}
                         title={title}
                         handleInputChange={val => {
-                            if (val.length) {
-                                console.log(val[0], 'val[0]');
-                                handleChange(val[0]);
-                            } else {
-                                handleChange('');
-                            }
+                            handleChange(val);
                         }}
-                    />
-                </View>
-            );
-        case 'radioButton':
-        case 'RadioButton':
-        case 'Radio':
-            return (
-                <View style={{ marginTop: 8 }}>
-                    <ListRadioButton
-                        options={dropDownData}
-                        value={value}
-                        handleRadioChange={val => {
-                            handleChange(val.value);
-                        }}
-                        title={DisplayName}
-                    />
-                </View>
-            );
-        case 'textarea':
-        case 'Textarea':
-        case 'TextArea':
-            return (
-                <View style={{ marginTop: 8 }}>
-                    <AutoSizingTextInput
-                        isEditable={isEditable}
-                        value={value || ''}
-                        handleChange={val => handleChange(val)}
-                        placeholder={placeHolder}
                     />
                 </View>
             );
         default:
             return (
                 <TextInput
-                    value={value || ''}
-                    style={[styles.inputBox, { backgroundColor: isEditable ? backgroundColor : COLORS.whiteGrey }]}
+                   value={value || ''}
+                    style={[styles.inputBox, { backgroundColor: isEditable ? COLORS.inputBG : COLORS.whiteGrey}]}
                     onChangeText={val => {
-                        if (isEditable) {
+                        if(isEditable){
                             handleChange(val);
                         }
                     }}
