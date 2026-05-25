@@ -1,5 +1,5 @@
 import { COLORS } from 'constants/theme-constants';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
     BackHandler,
     FlatList,
@@ -7,15 +7,18 @@ import {
     Keyboard,
     KeyboardAvoidingView,
     Platform,
+    SafeAreaView,
     ScrollView,
     StyleSheet,
     Text,
     TextInput,
     TouchableOpacity,
     View,
+    Modal,
 } from 'react-native';
 import IconF from 'react-native-vector-icons/Feather';
 import IconM from 'react-native-vector-icons/MaterialCommunityIcons';
+import IconMM from 'react-native-vector-icons/MaterialIcons';
 import FilterWithMenu from '../FilterWithMenu';
 import { ButtonComponent } from 'components';
 import { RFPercentage } from 'helpers/utils';
@@ -27,6 +30,9 @@ import DeleteModal from '../DeleteModal';
 import ConfirmationModal from './ConfirmationModal';
 import { showMessage } from 'react-native-flash-message';
 import CapabilityCard from '../CapabilityCard';
+import ImageView from "react-native-image-viewing";
+import ZoomableImage from '../ZoomableImage';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 const moreList = [
     {
         id: 1,
@@ -61,29 +67,54 @@ const BorderContent = ({ title = 'Title', count = 0, color = '#000' }) => {
         </View>
     );
 };
+
+const imageExtensions = [
+    'jpg',
+    'jpeg',
+    'png',
+    'gif',
+    'webp',
+    'bmp',
+    'svg',
+];
 const CharacteristicsInfo = ({
     selectedData = {},
     type = '',
-    setShowChar = () => {},
+    setShowChar = () => { },
     masterData,
-    setMasterData = () => {},
-    setValueUpadted = () => {},
-    handleSavePress = () => {},
-    handleNextSamplePress = () => {},
+    setMasterData = () => { },
+    setValueUpadted = () => { },
+    handleSavePress = () => { },
+    handleNextSamplePress = () => { },
     icSettings = {},
     inspectionType = '',
     showCharInfo = false,
-    setSelectedData = () => {},
-    setShowConfirmModal = () => {},
+    setSelectedData = () => { },
+    setShowConfirmModal = () => { },
     showConfirmModal = false,
-    setTimer = () => {},
+    setTimer = () => { },
     timer = null,
     userUpdateValue,
-    setUserUpdateValue = () => {},
-    setTypeOfModal = () => {},
+    setUserUpdateValue = () => { },
+    setTypeOfModal = () => { },
     flatListRef = null,
+    FileList = []
 }) => {
     const [showCPKModal, setShowCPKModal] = useState(false);
+    const [showImageWithSample, setShowImageWithSample] = useState(false);
+    const imageFiles = useMemo(() => {
+        return FileList
+            .filter(file =>
+                imageExtensions.includes(
+                    file.FileExtension?.toLowerCase()
+                )
+            )
+            .map(file => ({
+                uri: `data:image/${file.FileExtension};base64,${file.FileContentBase64}`,
+            }));
+    }, [FileList]);
+
+    console.log('imageFiles', imageFiles.length);
     useEffect(() => {
         const backAction = () => {
             setShowChar(false);
@@ -94,6 +125,7 @@ const CharacteristicsInfo = ({
     }, []);
     const inputsRef = useRef([]);
     const navigation = useNavigation();
+    console.log('FileList', FileList.length);
     useEffect(() => {
         getOverAllData();
     }, [type, selectedData]);
@@ -382,13 +414,13 @@ const CharacteristicsInfo = ({
         const updatedData = masterData.map(item =>
             item.id === id
                 ? {
-                      ...item,
-                      value: val,
-                      FunctionValue: val,
-                      EnteredDate: moment(new Date()).format('MM/DD/YYYY h:mm:ss A '),
-                      backColor: getBackColorValue,
-                      IsRejected: getBackColorValue == '#00FF00' ? 0 : 1,
-                  }
+                    ...item,
+                    value: val,
+                    FunctionValue: val,
+                    EnteredDate: moment(new Date()).format('MM/DD/YYYY h:mm:ss A '),
+                    backColor: getBackColorValue,
+                    IsRejected: getBackColorValue == '#00FF00' ? 0 : 1,
+                }
                 : item,
         );
         setMasterData(updatedData);
@@ -398,12 +430,12 @@ const CharacteristicsInfo = ({
         const updatedData = masterData.map(item =>
             item.id === value.id
                 ? {
-                      ...value,
-                      FunctionValue: value.value,
-                      EnteredDate: moment(new Date()).format('MM/DD/YYYY h:mm:ss A '),
-                      backColor: getBackColorValue,
-                      IsRejected: getBackColorValue == '#00FF00' ? 0 : 1,
-                  }
+                    ...value,
+                    FunctionValue: value.value,
+                    EnteredDate: moment(new Date()).format('MM/DD/YYYY h:mm:ss A '),
+                    backColor: getBackColorValue,
+                    IsRejected: getBackColorValue == '#00FF00' ? 0 : 1,
+                }
                 : item,
         );
         setMasterData(updatedData);
@@ -590,15 +622,15 @@ const CharacteristicsInfo = ({
         let temp =
             type == 'number'
                 ? value?.filter(
-                      x =>
-                          x?.value != '' &&
-                          (inspectionType == 2
-                              ? Number(x?.value) >= Number(x?.tolerance) - Number(x?.lowValue)
-                              : Number(x?.value) >= Number(x?.lowValue)) &&
-                          (inspectionType == 2
-                              ? Number(x?.value) <= Number(x?.tolerance) + Number(x?.highValue)
-                              : Number(x?.value) <= Number(x?.highValue)),
-                  )
+                    x =>
+                        x?.value != '' &&
+                        (inspectionType == 2
+                            ? Number(x?.value) >= Number(x?.tolerance) - Number(x?.lowValue)
+                            : Number(x?.value) >= Number(x?.lowValue)) &&
+                        (inspectionType == 2
+                            ? Number(x?.value) <= Number(x?.tolerance) + Number(x?.highValue)
+                            : Number(x?.value) <= Number(x?.highValue)),
+                )
                 : value.filter(x => x?.value?.toLowerCase() == 'ok' && x?.value !== '');
         return temp.length || 0;
     };
@@ -606,23 +638,98 @@ const CharacteristicsInfo = ({
         let temp =
             type == 'number'
                 ? value.filter(
-                      x =>
-                          x?.value != '' &&
-                          !(
-                              (inspectionType == 2
-                                  ? Number(x?.value) >= Number(x?.tolerance) - Number(x?.lowValue)
-                                  : Number(x?.value) >= Number(x?.lowValue)) &&
-                              (inspectionType == 2
-                                  ? Number(x?.value) <= Number(x?.tolerance) + Number(x?.highValue)
-                                  : Number(x?.value) <= Number(x?.highValue))
-                          ),
-                  )
+                    x =>
+                        x?.value != '' &&
+                        !(
+                            (inspectionType == 2
+                                ? Number(x?.value) >= Number(x?.tolerance) - Number(x?.lowValue)
+                                : Number(x?.value) >= Number(x?.lowValue)) &&
+                            (inspectionType == 2
+                                ? Number(x?.value) <= Number(x?.tolerance) + Number(x?.highValue)
+                                : Number(x?.value) <= Number(x?.highValue))
+                        ),
+                )
                 : value.filter(x => x?.value?.toLowerCase() != 'ok' && x?.value !== '');
         return temp?.length || 0;
     };
-    const handleCloseCPKModal=()=>{
+    const handleCloseCPKModal = () => {
         setShowCPKModal(false);
         handleSavePress(true, 'saveBtn')
+    }
+    const handleViewPhotoWithSample = (item, index) => {
+        setShowImageWithSample(true);
+    }
+    const renderFaltList = (showHeader = true) => {
+        return (
+            <View style={{}}>
+                <FlatList
+                    keyboardShouldPersistTaps="handled"
+                    ref={flatListRef}
+                    data={masterData}
+                    keyExtractor={(item, index) => index.toString()}
+                    renderItem={({ item, index }) => {
+                        return <View style={[styles.tableBox]}>{renderItem(item, index)}</View>;
+                    }}
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={{ paddingBottom: 100 }}
+                    // contentContainerStyle={[styles.tableBox]}
+
+                    ListHeaderComponent={
+                        <View>
+                            {showCharInfo && showHeader && (
+                                <SampleCharInfo
+                                    selectedData={selectedData}
+                                    setSelectedData={setSelectedData}
+                                    masterData={masterData}
+                                    setMasterData={setMasterData}
+                                    setValueUpadted={setValueUpadted}
+                                    showConfirmModal={showConfirmModal}
+                                    setShowConfirmModal={setShowConfirmModal}
+                                    setTimer={setTimer}
+                                    timer={timer}
+                                    userUpdateValue={userUpdateValue}
+                                    setUserUpdateValue={setUserUpdateValue}
+                                    setTypeOfModal={setTypeOfModal}
+                                    charType={type}
+                                    inspectionType={inspectionType}
+                                />
+                            )}
+                            {Boolean(selectedData?.isSamplePopup) && (
+                                <View style={[styles.headerBox]}>
+                                    <View style={{ flex: 1 }}>
+                                        <Text style={[styles.headerText, { marginLeft: 15 }]}>No</Text>
+                                    </View>
+                                    <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center' }}>
+                                        <Text style={[styles.headerText]}>Actual Value</Text>
+                                        {showHeader && <TouchableOpacity
+                                            style={[styles.deleteIcon]}
+                                            onPress={() => {
+                                                handleViewPhotoWithSample();
+                                            }}>
+                                            <IconMM name="file-present" size={25} color={COLORS.apptheme} />
+                                        </TouchableOpacity>}
+                                    </View>
+
+                                </View>
+                            )}
+                        </View>
+                    }
+                    ListFooterComponent={
+                        Boolean(selectedData?.isSamplePopup) ? (
+                            <View>
+                                <BorderContent title="Total Samples Tested" color={COLORS.apptheme} count={masterData?.length} />
+                                <BorderContent title="Sample(s) OK " color={COLORS.SUCCESS} count={renderOkCount(masterData)} />
+                                <BorderContent title="Sample(s) Not OK " color={COLORS.ERROR} count={renderNotOkCount(masterData)} />
+                            </View>
+                        ) : null
+                    }
+                />
+                {/* {Boolean(masterData?.length) &&
+                            masterData.map((item, index) => {
+                                return renderItem(item, index);
+                            })} */}
+            </View>
+        )
     }
     return (
         <KeyboardAvoidingView
@@ -632,65 +739,7 @@ const CharacteristicsInfo = ({
             <View style={[styles.container]}>
                 <View style={[styles.overallBox]}>
                     {/* need to chage the infodata as selectedData and setSelectedData */}
-                    <View style={{}}>
-                        <FlatList
-                            keyboardShouldPersistTaps="handled"
-                            ref={flatListRef}
-                            data={masterData}
-                            keyExtractor={(item, index) => index.toString()}
-                            renderItem={({ item, index }) => {
-                                return <View style={[styles.tableBox]}>{renderItem(item, index)}</View>;
-                            }}
-                            showsVerticalScrollIndicator={false}
-                            contentContainerStyle={{ paddingBottom: 100 }}
-                            // contentContainerStyle={[styles.tableBox]}
-                            ListHeaderComponent={
-                                <View>
-                                    {showCharInfo && (
-                                        <SampleCharInfo
-                                            selectedData={selectedData}
-                                            setSelectedData={setSelectedData}
-                                            masterData={masterData}
-                                            setMasterData={setMasterData}
-                                            setValueUpadted={setValueUpadted}
-                                            showConfirmModal={showConfirmModal}
-                                            setShowConfirmModal={setShowConfirmModal}
-                                            setTimer={setTimer}
-                                            timer={timer}
-                                            userUpdateValue={userUpdateValue}
-                                            setUserUpdateValue={setUserUpdateValue}
-                                            setTypeOfModal={setTypeOfModal}
-                                            charType={type}
-                                            inspectionType={inspectionType}
-                                        />
-                                    )}
-                                    {Boolean(selectedData?.isSamplePopup) && (
-                                        <View style={[styles.headerBox]}>
-                                            <View style={{ flex: 1 }}>
-                                                <Text style={[styles.headerText, { marginLeft: 15 }]}>No</Text>
-                                            </View>
-                                            <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center' }}>
-                                                <Text style={[styles.headerText]}>Actual Value</Text>
-                                            </View>
-                                        </View>
-                                    )}
-                                </View>
-                            }
-                            ListFooterComponent={
-                                Boolean(selectedData?.isSamplePopup) ? (
-                                    <View>
-                                        <BorderContent title="Total Samples Tested" color={COLORS.apptheme} count={masterData?.length} />
-                                        <BorderContent title="Sample(s) OK " color={COLORS.SUCCESS} count={renderOkCount(masterData)} />
-                                        <BorderContent title="Sample(s) Not OK " color={COLORS.ERROR} count={renderNotOkCount(masterData)} />
-                                    </View>
-                                ) : null
-                            }
-                        />
-                        {/* {Boolean(masterData?.length) &&
-                            masterData.map((item, index) => {
-                                return renderItem(item, index);
-                            })} */}
-                    </View>
+                    {renderFaltList(true)}
                 </View>
                 <View style={[styles.btnContainer]}>
                     <ButtonComponent
@@ -726,6 +775,37 @@ const CharacteristicsInfo = ({
                     cpk: -0.22,
                 }}
             />
+            <Modal
+                visible={showImageWithSample}
+                animationType="slide"
+                transparent={false}
+                onRequestClose={() => setShowImageWithSample(false)}
+            >
+                <GestureHandlerRootView style={{ flex: 1 }}>  
+                <SafeAreaView style={styles.modalContainer}>
+                    <View style={styles.header}>
+                        <Text style={styles.title}>View Image Attachment with Sample</Text>
+                        <TouchableOpacity
+                            style={[styles.deleteIcon]}
+                            onPress={() => {
+                                setShowImageWithSample(false);
+                            }}>
+                            <IconMM name="close" size={25} color={COLORS.apptheme} />
+                        </TouchableOpacity>
+                    </View>
+                    <View style={styles.content}>
+                        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', }}>
+                            <ZoomableImage fileList={FileList} />
+                        </View>
+                        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 10 }}>
+                            <View style={{ flex: 1, width: '100%' }}>
+                                {renderFaltList(false)}
+                            </View>
+                        </View>
+                    </View>
+                </SafeAreaView>
+                </GestureHandlerRootView>
+            </Modal>
         </KeyboardAvoidingView>
     );
 };
@@ -815,6 +895,33 @@ const styles = StyleSheet.create({
     deleteIcon: {
         marginLeft: 10,
         alignSelf: 'center',
+    },
+    modalContainer: {
+        flex: 1,
+        backgroundColor: '#fff',
+    },
+
+    header: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        padding: 10,
+        borderBottomWidth: 1,
+        borderBottomColor: '#ddd',
+    },
+
+    title: {
+        fontSize: 16,
+        fontFamily: 'OpenSans-Bold',
+        color: '#000',
+    },
+
+    close: {
+        color: 'red',
+        fontSize: 16,
+    },
+
+    content: {
+        flex: 1,
     },
 });
 

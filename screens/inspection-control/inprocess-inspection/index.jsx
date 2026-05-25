@@ -852,6 +852,7 @@ const InprocessInspection = ({ route }) => {
                                 setUserUpdateValue={setUserUpdateValue}
                                 setTypeOfModal={setTypeOfModal}
                                 flatListRef={flatListRef}
+                                FileList={inspectData?.attachments || []}
                             />
                         </View>
                     </View>
