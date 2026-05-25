@@ -3763,7 +3763,9 @@ class CreateNC extends Component {
                 </View>
 
                 <Toast
-                    ref="toast"
+                    ref={toast => {
+            this.toast = toast;
+          }}
                     position="top"
                     opacity={1}
                     style={{ backgroundColor: 'black' }}

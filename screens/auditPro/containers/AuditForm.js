@@ -4348,7 +4348,9 @@ class AuditForm extends Component {
                 </View>
 
                 <Toast
-                    ref="toast"
+                    ref={toast => {
+            this.toast = toast;
+          }}
                     style={styles.toastContainer}
                     position="top"
                     positionValue={200}

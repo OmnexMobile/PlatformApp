@@ -1570,7 +1570,9 @@ class LoginUIScreen extends Component {
               <Icon name="cogs" size={40} color="white" />
             </TouchableOpacity>
           </View>}
-          <Toast ref="toast" position="top" opacity={0.8} />
+          <Toast ref={toast => {
+            this.toast = toast;
+          }} position="top" opacity={0.8} />
           <ProgressDialog
             titleStyle={{fontFamily: 'OpenSans-SemiBold'}}
             messageStyle={{fontFamily: 'OpenSans-Regular'}}

@@ -3671,7 +3671,9 @@ class CreateNC extends Component {
                     )}
                 </View>
 
-                <Toast ref="toast" position="top" opacity={1} />
+                <Toast ref={toast => {
+            this.toast = toast;
+          }} position="top" opacity={1} />
                 <CommonAlertModal
                     visible={this.state.commonAlertVisible}
                     title={this.state.commonAlertTitle}

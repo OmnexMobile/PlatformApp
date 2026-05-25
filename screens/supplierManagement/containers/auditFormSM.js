@@ -116,7 +116,7 @@ class AuditForm extends Component {
         };
     }
 
-    componentWillMount() {
+    initializeFromRoute() {
         DeviceInfo.getUniqueId().then(deviceId => {
             this.setState({
                 deviceId,
@@ -136,6 +136,7 @@ class AuditForm extends Component {
         }
         this.getparamsDetails();
     }
+
     componentWillUnmount() {
         if (typeof this._navFocusListener === 'function') {
             this._navFocusListener();
@@ -173,6 +174,7 @@ class AuditForm extends Component {
 
     componentDidMount() {
         console.log('dhfjdhfksfksfksfjsn dfnsd f', this.props);
+        this.initializeFromRoute();
 
         const AuditID = this.props.route.params.AuditID;
         let Files = '/' + RNFetchBlob.fs.dirs.DocumentDir + '/' + (Platform.OS == 'ios' ? 'IosFiles' : 'AuditFiles');
@@ -4251,7 +4253,9 @@ class AuditForm extends Component {
                 </View>
 
                 <Toast
-                    ref="toast"
+                    ref={toast => {
+            this.toast = toast;
+          }}
                     style={{ backgroundColor: 'black', margin: 20 }}
                     position="top"
                     positionValue={200}

@@ -308,7 +308,9 @@ class CalendarAgenda extends Component {
             style={{ backgroundColor: "#F5F4F6" }}
           ></Agenda>
           <Toast
-            ref="toast"
+            ref={toast => {
+            this.toast = toast;
+          }}
             style={{ backgroundColor: "black", margin: 20 }}
             position="bottom"
             positionValue={300}

@@ -1142,9 +1142,9 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
 
             <View style={styles.filterRow}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
-                    <TouchableOpacity style={styles.filterIcon} onPress={handleCalendarPress}>
+                    {/* <TouchableOpacity style={styles.filterIcon} onPress={handleCalendarPress}>
                         <IconComponent type={ICON_TYPE.FontAwesome} name="calendar" size={18} color={COLORS.themeBlack} />
-                    </TouchableOpacity>
+                    </TouchableOpacity> */}
                     <TouchableOpacity
                         style={styles.filterIcon}
                         onPress={() => {

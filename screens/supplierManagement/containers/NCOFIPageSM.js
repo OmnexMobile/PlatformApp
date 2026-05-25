@@ -2676,7 +2676,9 @@ class NCOFIPage extends Component {
                     </View>
                 </View>
 
-                <Toast ref="toast" position="top" opacity={0.8} />
+                <Toast ref={toast => {
+            this.toast = toast;
+          }} position="top" opacity={0.8} />
 
                 <CommonAlertModal
                     visible={this.state.dialogVisible}

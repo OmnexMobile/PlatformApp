@@ -40,7 +40,6 @@ import Tts from 'react-native-tts';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import RNFetchBlob from 'react-native-fetch-blob';
 import { ROUTES, ICON_TYPE } from 'constants/app-constant';
-import { SPACING } from 'constants/theme-constants';
 import ToastNew, {ErrorToast} from 'react-native-toast-message';
 import { LogBox } from 'react-native';
 import GlobalHeader from 'components/GlobalHeader';
@@ -3405,7 +3404,6 @@ console.log('checktheaudits---Auditpage----Auditppro',recentAudits);
 
     return (
       <View style={styles.wrapper}>
-        {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
         <OfflineNotice />
 
         {!this.state.isLoading ? (

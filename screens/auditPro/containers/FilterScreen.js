@@ -520,7 +520,9 @@ class FilterScreen extends Component {
                         </View>
                     </View>
                 </Modal>
-                <Toast ref="toast"
+                <Toast ref={toast => {
+            this.toast = toast;
+          }}
                 style={{ backgroundColor: 'black', margin: 20 }}
                 position='bottom'
                 positionValue={200}

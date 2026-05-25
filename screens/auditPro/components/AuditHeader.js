@@ -1436,7 +1436,9 @@ class AuditHeader extends Component {
 
         <View style={{ flexDirection: "column" }}>
           <Toast
-            ref="toast"
+            ref={toast => {
+            this.toast = toast;
+          }}
             style={{ backgroundColor: "black", margin: 20 }}
             position="top"
             positionValue={200}

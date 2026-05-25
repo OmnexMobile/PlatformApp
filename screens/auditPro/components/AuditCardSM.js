@@ -309,7 +309,9 @@ class AuditCard extends Component {
   
         {/* Toast Message */}
         <Toast
-          ref="toast"
+          ref={toast => {
+            this.toast = toast;
+          }}
           style={{ backgroundColor: 'black', margin: 20 }}
           position="top"
           positionValue={0}

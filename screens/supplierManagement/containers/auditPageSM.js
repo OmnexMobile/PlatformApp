@@ -39,7 +39,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import RNFetchBlob from 'react-native-fetch-blob';
 import ToastNew, { ErrorToast } from 'react-native-toast-message';
 import { ROUTES } from 'constants/app-constant';
-import { SPACING } from 'constants/theme-constants';
 import GlobalHeader from 'components/GlobalHeader';
 import CommonAlertModal from 'components/common_alert_modal';
 let Window = Dimensions.get('window');
@@ -2007,9 +2006,9 @@ class AuditPage extends Component {
         var auditDetailList = this.state.auditDetailList;
         var Formdata = this.state.Formdata;
         var CheckListPropData = this.state.CheckListPropData;
-        var CheckpointLogic = this.state.CheckpointLogic;
-        var CheckpointsDetails = this.state.CheckpointLogic.AuditCheckpointDetail;
-        var checkPointAttachment = CheckpointLogic.CheckpointAttachment;
+        var CheckpointLogic = this.state.CheckpointLogic || {};
+        var CheckpointsDetails = CheckpointLogic.AuditCheckpointDetail || [];
+        var checkPointAttachment = CheckpointLogic.CheckpointAttachment || [];
         var DropDownProps = this.state.DropDownProps;
         var formId = this.state.IFormID;
         var userId = this.state.userId;
@@ -2407,9 +2406,18 @@ class AuditPage extends Component {
         this.props.storeAudits(auditList);
 
         this.setState(
-            {
+            prevState => ({
                 isDownloading: false,
-            },
+                isDownloaded: true,
+                AuditProp: {
+                    ...(prevState.AuditProp || {}),
+                    cStatus: constant.StatusDownloaded,
+                },
+                auditDetailList: {
+                    ...(prevState.auditDetailList || {}),
+                    cStatus: constant.StatusDownloaded,
+                },
+            }),
             () => {
                 console.log('Audit form downloaded successfully.');
                 console.log('download:auditDetailList', auditDetailList);
@@ -3006,19 +3014,35 @@ class AuditPage extends Component {
         ];
         const currentAuditStatus = this.getCurrentAuditCStatus();
         const canShowHeaderActions = !this.state.isLoading && !this.state.isDownloading;
+        const scrollBottomPadding = this.state.isDownloaded ? 170 : 132;
+        const headerActionButtonStyle = { paddingHorizontal: 8, paddingVertical: 6 };
+        const downloadedFooterStyle = [
+            styles.footer,
+            {
+                position: 'absolute',
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundColor: 'white',
+                borderTopWidth: 1,
+                borderTopColor: 'lightgrey',
+                zIndex: 1000,
+                elevation: 12,
+            },
+        ];
         const rightActions = canShowHeaderActions ? (
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 {this.state.isDownloaded ? (
                     <>
                         <TouchableOpacity
-                            style={styles.rightHeader}
+                            style={headerActionButtonStyle}
                             onPress={() => {
                                 this.setState({ dialogVisible: true });
                             }}>
                             <Icon name="trash" size={25} color="#123C95" />
                         </TouchableOpacity>
                         <TouchableOpacity
-                            style={{ paddingRight: 10 }}
+                            style={headerActionButtonStyle}
                             onPress={() => {
                                 this.setState({ dialogVisibleRefresh: true, webToMob: true, downloadAsync: true });
                             }}>
@@ -3037,11 +3061,6 @@ class AuditPage extends Component {
 
         return (
             <View style={styles.wrapper}>
-                {Platform.OS === 'ios' ? (
-                    <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }} />
-                ) : (
-                    <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }} />
-                )}
                 <OfflineNotice />
 
                 {!this.state.isLoading ? (
@@ -3063,7 +3082,12 @@ class AuditPage extends Component {
 
                 {!this.state.isLoading ? (
                     <View style={styles.auditPageBody}>
-                        <ScrollView>
+                        <ScrollView
+                            style={{ flex: 1 }}
+                            contentContainerStyle={{ paddingBottom: scrollBottomPadding }}
+                            nestedScrollEnabled
+                            keyboardShouldPersistTaps="handled"
+                            showsVerticalScrollIndicator>
                             {this.state.auditDetailList ? (
                                 <View style={styles.detailsCard}>
                                     <View style={styles.card1}>
@@ -3343,7 +3367,7 @@ class AuditPage extends Component {
                         </TouchableOpacity>
                     </View>
                 ) : (
-                    <View style={styles.footer}>
+                    <View style={downloadedFooterStyle}>
                         {/* <Image source={Images.Footer}/> */}
 
                         <View style={styles.footerDiv}>
@@ -3420,7 +3444,9 @@ class AuditPage extends Component {
                     </View>
                 )}
                 <Toast
-                    ref="toast"
+                    ref={toast => {
+                        this.toast = toast;
+                    }}
                     style={{ backgroundColor: 'black', margin: 20 }}
                     position="top"
                     positionValue={200}

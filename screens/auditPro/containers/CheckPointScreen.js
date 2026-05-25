@@ -3793,7 +3793,9 @@ class CheckPointScreen extends Component {
           </View>
         </Modal>
 
-        <Toast ref="toast"
+        <Toast ref={toast => {
+            this.toast = toast;
+          }}
           style={{ backgroundColor: 'black', margin: 20 }}
           position='top'
           positionValue={200}

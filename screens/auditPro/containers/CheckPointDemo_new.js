@@ -8707,7 +8707,9 @@ getAttachmentByFormID_TemplateID(FormId,CheckPointTemplateId,dataAttachment){
         </Modal>
 
         <Toast
-          ref="toast"
+          ref={toast => {
+            this.toast = toast;
+          }}
           style={{backgroundColor: 'black', margin: 20}}
           position="top"
           positionValue={200}

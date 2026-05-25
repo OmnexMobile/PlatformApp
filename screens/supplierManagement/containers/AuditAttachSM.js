@@ -161,6 +161,12 @@ class AuditAttach extends React.Component {
                         }
                     }
                     console.log('RequestParam-->', RequestParam);
+                    if (!RequestParam.length) {
+                        this.setState({ pageLoad: false, History: [] }, () => {
+                            this.refs.toast.show(strings.ErrFetch, DURATION.LENGTH_SHORT);
+                        });
+                        return;
+                    }
                     console.log('Auditcheck-----AuditId', RequestParam[0].AuditId);
                     console.log('Auditcheck-----AuditProgramId', RequestParam[0].AuditProgramId);
                     console.log('Auditcheck-----AuditProgramOrder', RequestParam[0].AuditProgramOrder);
@@ -348,92 +354,92 @@ class AuditAttach extends React.Component {
                         />
                     )}
                     tabBarPosition="overlayTop">
-                    {this.state.History.length > 0 ? (
-                        <View tabLabel={strings.History} style={styles.scrollViewBody}>
-                            {this.state.NetInfo === true ? (
-                                <View style={styles.networkInfoContainer}>
-                                    <Text style={styles.noInternetText}>{strings.NoInternet}</Text>
-                                </View>
-                            ) : (
-                                <View style={styles.historyContentTopMargin}>
-                                    {this.state.pageLoad === true ? (
-                                        <View style={styles.historyLoaderContainer}>
-                                            <Pulse size={30} color={'#123C95'} />
-                                        </View>
-                                    ) : (
-                                        <FlatList
-                                            data={History}
-                                            keyExtractor={item => item.key}
-                                            renderItem={({ item, index }) => (
-                                                <TouchableOpacity
-                                                    onPress={() => {
-                                                        this.onPress(item);
-                                                    }}
-                                                    style={styles.card}>
-                                                    <View style={styles.card1}>
-                                                        <View style={styles.boxCard1}>
-                                                            <Text style={styles.detailTitle}>{strings.AttachType}</Text>
-                                                            <Text style={styles.detailContent}>
-                                                                {item.Type === 'Controlled' || item.Type === 'Attachment' ? 'Attachment' : item.Type}
-                                                            </Text>
-                                                        </View>
-                                                        <View style={styles.boxCard1}>
-                                                            <Text style={styles.detailTitle}>{strings.AttachName}</Text>
-                                                            <TouchableOpacity
-                                                                onPress={index => {
-                                                                    let url = item.UncontrolledLink;
-                                                                    url = url.indexOf('http') !== 0 ? 'https://' + url : url;
-                                                                    if (item.Type === 'Link') {
-                                                                        Linking.openURL(url);
-                                                                    } else if (item.Type === 'Attachment') {
-                                                                        this.setState(
-                                                                            {
-                                                                                // isVisible : true
-                                                                            },
-                                                                            () => {
-                                                                                this.initiateDownload(item.UncontrolledLink);
-                                                                            },
-                                                                        );
-                                                                    }
-                                                                }}>
-                                                                <View>
-                                                                    <Text
-                                                                        style={[
-                                                                            styles.detailContent,
-                                                                            styles.attachmentLinkText,
-                                                                            item.Type === 'Link'
-                                                                                ? styles.attachmentLinkUnderline
-                                                                                : styles.attachmentLinkNoUnderline,
-                                                                        ]}
-                                                                        numberOfLines={1}>
-                                                                        {item.Type === 'UnControlled' || item.Type === 'Link'
-                                                                            ? item.UncontrolledLink
-                                                                            : item.FileName}
-                                                                    </Text>
-                                                                </View>
-                                                            </TouchableOpacity>
-                                                        </View>
-                                                        <View style={styles.boxCard1}>
-                                                            <Text style={styles.detailTitle}>{strings.AttachCom}</Text>
-                                                            <Text style={styles.detailContent} numberOfLines={1}>
-                                                                {item.Comments === 'null' || item.Comments === null ? '-' : item.Comments}
-                                                            </Text>
-                                                        </View>
-                                                        <View style={styles.boxCard1}>
-                                                            <Text style={styles.detailTitle}>{strings.UploadedOn}</Text>
-                                                            <Text style={styles.detailContent}>{this.changeDateFormat(item.Uploadedon)}</Text>
-                                                        </View>
+                    <View tabLabel={strings.History} style={styles.scrollViewBody}>
+                        {this.state.NetInfo === true ? (
+                            <View style={styles.networkInfoContainer}>
+                                <Text style={styles.noInternetText}>{strings.NoInternet}</Text>
+                            </View>
+                        ) : (
+                            <View style={styles.historyContentTopMargin}>
+                                {this.state.pageLoad === true ? (
+                                    <View style={styles.historyLoaderContainer}>
+                                        <Pulse size={30} color={'#123C95'} />
+                                    </View>
+                                ) : History.length > 0 ? (
+                                    <FlatList
+                                        data={History}
+                                        keyExtractor={(item, index) =>
+                                            String(item.key || item.FileId || item.UncontrolledLink || index)
+                                        }
+                                        renderItem={({ item }) => (
+                                            <TouchableOpacity
+                                                onPress={() => {
+                                                    this.onPress(item);
+                                                }}
+                                                style={styles.card}>
+                                                <View style={styles.card1}>
+                                                    <View style={styles.boxCard1}>
+                                                        <Text style={styles.detailTitle}>{strings.AttachType}</Text>
+                                                        <Text style={styles.detailContent}>
+                                                            {item.Type === 'Controlled' || item.Type === 'Attachment' ? 'Attachment' : item.Type}
+                                                        </Text>
                                                     </View>
-                                                </TouchableOpacity>
-                                            )}
-                                        />
-                                    )}
-                                </View>
-                            )}
-                        </View>
-                    ) : (
-                        <NoRecordFound />
-                    )}
+                                                    <View style={styles.boxCard1}>
+                                                        <Text style={styles.detailTitle}>{strings.AttachName}</Text>
+                                                        <TouchableOpacity
+                                                            onPress={() => {
+                                                                let url = item.UncontrolledLink;
+                                                                url = url.indexOf('http') !== 0 ? 'https://' + url : url;
+                                                                if (item.Type === 'Link') {
+                                                                    Linking.openURL(url);
+                                                                } else if (item.Type === 'Attachment') {
+                                                                    this.setState(
+                                                                        {
+                                                                            // isVisible : true
+                                                                        },
+                                                                        () => {
+                                                                            this.initiateDownload(item.UncontrolledLink);
+                                                                        },
+                                                                    );
+                                                                }
+                                                            }}>
+                                                            <View>
+                                                                <Text
+                                                                    style={[
+                                                                        styles.detailContent,
+                                                                        styles.attachmentLinkText,
+                                                                        item.Type === 'Link'
+                                                                            ? styles.attachmentLinkUnderline
+                                                                            : styles.attachmentLinkNoUnderline,
+                                                                    ]}
+                                                                    numberOfLines={1}>
+                                                                    {item.Type === 'UnControlled' || item.Type === 'Link'
+                                                                        ? item.UncontrolledLink
+                                                                        : item.FileName}
+                                                                </Text>
+                                                            </View>
+                                                        </TouchableOpacity>
+                                                    </View>
+                                                    <View style={styles.boxCard1}>
+                                                        <Text style={styles.detailTitle}>{strings.AttachCom}</Text>
+                                                        <Text style={styles.detailContent} numberOfLines={1}>
+                                                            {item.Comments === 'null' || item.Comments === null ? '-' : item.Comments}
+                                                        </Text>
+                                                    </View>
+                                                    <View style={styles.boxCard1}>
+                                                        <Text style={styles.detailTitle}>{strings.UploadedOn}</Text>
+                                                        <Text style={styles.detailContent}>{this.changeDateFormat(item.Uploadedon)}</Text>
+                                                    </View>
+                                                </View>
+                                            </TouchableOpacity>
+                                        )}
+                                    />
+                                ) : (
+                                    <NoRecordFound />
+                                )}
+                            </View>
+                        )}
+                    </View>
                 </ScrollableTabView>
                 {/** Floating add button */}
                 <TouchableOpacity
