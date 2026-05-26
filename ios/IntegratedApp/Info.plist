@@ -32,7 +32,6 @@
 	<true/>
 	<key>NSAppTransportSecurity</key>
 	<dict>
-		<!-- Do not change NSAllowsArbitraryLoads to true, or you will risk app rejection! -->
 		<key>NSAllowsArbitraryLoads</key>
 		<false/>
 		<key>NSAllowsLocalNetworking</key>
@@ -58,6 +57,8 @@
 	<string>Please allow the app to acces the gallery. It will be used to upload the images</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string>recognize speech</string>
+	<key>RCTNewArchEnabled</key>
+	<true/>
 	<key>UIAppFonts</key>
 	<array>
 		<string>AntDesign.ttf</string>

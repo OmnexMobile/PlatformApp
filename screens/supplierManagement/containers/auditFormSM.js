@@ -26,7 +26,6 @@ import Toast, { DURATION } from 'react-native-easy-toast';
 import { Bubbles, DoubleBounce, Bars, Pulse } from 'react-native-loader';
 import auth from '../../../services/SupplierMgnt-Auth';
 import OfflineNotice from '../../auditPro/components/OfflineNotice';
-import ScrollableTabView, { DefaultTabBar } from 'react-native-scrollable-tab-view';
 import DocumentPicker from 'react-native-document-picker';
 import RNFetchBlob from 'react-native-fetch-blob';
 import ResponsiveImage from 'react-native-responsive-image';
@@ -35,6 +34,7 @@ import Fonts from '../../auditPro/Themes/Fonts';
 import Icon from 'react-native-vector-icons/Feather';
 import LinearGradient from 'react-native-linear-gradient';
 import { strings } from '../../auditPro/language/Language';
+import AnimatedLottieView from 'lottie-react-native';
 var RNFS = require('react-native-fs');
 import base64 from 'react-native-base64';
 import NetInfo from '@react-native-community/netinfo';
@@ -51,7 +51,6 @@ import { SPACING } from 'constants/theme-constants';
 import GlobalHeader from 'components/GlobalHeader';
 import CommonAlertModal from 'components/common_alert_modal';
 let Window = Dimensions.get('window');
-import { Content, Header, ListSearch, NoRecordFound } from 'components';
 // Form type -1- Online
 // Form type -2- Reference
 // Form type -0- Template
@@ -1650,6 +1649,40 @@ class AuditForm extends Component {
             />
         );
     };
+
+    renderEmptyState = message => (
+        <View style={styles.emptyState}>
+            <AnimatedLottieView
+                source={require('../../../assets/lottie/norecords.json')}
+                autoPlay
+                loop
+                renderMode="SOFTWARE"
+                resizeMode="contain"
+                style={styles.emptyLottie}
+            />
+            <Text style={styles.emptyText}>{message}</Text>
+        </View>
+    );
+
+    renderRecordsTab = (label, tabIndex) => {
+        const isActive = this.state.ActiveTab === tabIndex;
+
+        return (
+            <TouchableOpacity key={label} style={styles.auditRecordsTabButton} onPress={() => this.setState({ ActiveTab: tabIndex })}>
+                <Text style={[styles.auditRecordsTabText, isActive ? styles.auditRecordsTabTextActive : null]}>{label}</Text>
+                {isActive ? <View style={styles.auditRecordsTabUnderline} /> : null}
+            </TouchableOpacity>
+        );
+    };
+
+    renderRecordsTabBar = () => (
+        <View style={styles.auditRecordsTabBar}>
+            {this.renderRecordsTab(strings.Online, 0)}
+            {this.renderRecordsTab(strings.Templates, 1)}
+            {this.renderRecordsTab(strings.References, 2)}
+        </View>
+    );
+
     async handleNCOFIConnection() {
         console.log('getting local unsaved data', this.props.data.audits.ncofiRecords);
         const session = await this.resolveAuthSession();
@@ -3456,155 +3489,136 @@ class AuditForm extends Component {
 
                 {this.state.isLoaderVisible === false ? (
                     <View style={styles.auditPageBody}>
-                        {/* Tab View */}
-                        <ScrollableTabView
-                            initialPage={this.state.ActiveTab}
-                            renderTabBar={() => (
-                                <DefaultTabBar
-                                    backgroundColor="white"
-                                    activeTextColor="#123C95"
-                                    inactiveTextColor="#747474"
-                                    underlineStyle={{
-                                        backgroundColor: '#123C95',
-                                        borderBottomColor: '#123C95',
-                                        height: Platform.select({
-                                            android: 0,
-                                            ios: 5,
-                                        }),
-                                    }}
-                                    textStyle={{
-                                        fontSize: Fonts.size.regular,
-                                        fontFamily: 'OpenSans-Regular',
-                                    }}
-                                />
-                            )}
-                            tabBarPosition="overlayTop">
-                            <ScrollView tabLabel={strings.Online} style={styles.scrollViewBody}>
-                                {this.state.OnlineList.length > 0 ? (
-                                    <View style={{ marginTop: 60 }}>
-                                        {this.state.OnlineList.map((item, key) => (
-                                            <View key={key} style={styles.secondDiv}>
-                                                {console.log(this.state.OnlineList, 'onlinelist==>')}
-                                                <TouchableOpacity
-                                                    onPress={
-                                                        this.state.isLoaderVisible === false
-                                                            ? this.onCheckPress.bind(this, item)
-                                                            : () => {
-                                                                  console.log('please wait');
-                                                              }
-                                                    }>
-                                                    <LinearGradient
-                                                        start={{ x: 0, y: 0 }}
-                                                        end={{ x: 1, y: 0 }}
-                                                        colors={['#123C95', '#1B5FDB', '#6A35D8']}
-                                                        style={styles.CheckButton}>
-                                                        <View style={{ width: '95%', height: null }}>
-                                                            <Text style={styles.buttonText}>
-                                                                {item.FormName.length > 30 ? item.FormName.slice(0, 30) + '...' : item.FormName}
-                                                            </Text>
-                                                        </View>
-                                                    </LinearGradient>
-                                                </TouchableOpacity>
-                                            </View>
-                                        ))}
-                                    </View>
-                                ) : (
-                                    <View style={{ marginTop: '20%' }}>
-                                       <NoRecordFound />
-                                    </View>
-                                )}
-                            </ScrollView>
-                            <ScrollView tabLabel={strings.Templates} style={styles.scrollViewBody}>
-                                {this.state.TempList.length > 0 ? (
-                                    <View style={{ marginTop: 60 }}>
-                                        {this.state.TempList.map((item, key) => (
-                                            <View key={key} style={styles.cardBox}>
-                                                <View style={styles.sectionTop}>
-                                                    <View style={styles.sectionContent}>
-                                                        <Text numberOfLines={1} style={styles.boxHeader}>
-                                                            {strings.Form_Name}
-                                                        </Text>
-                                                    </View>
-                                                    <View style={styles.sectionContent}>
-                                                        <Text numberOfLines={1} style={styles.boxContent}>
-                                                            {item.FormName}
-                                                        </Text>
-                                                    </View>
+                        <View style={styles.auditRecordsTabWrapper}>
+                            {this.renderRecordsTabBar()}
+                            {this.state.ActiveTab === 0 ? (
+                                <ScrollView style={styles.scrollViewBody}>
+                                    {this.state.OnlineList.length > 0 ? (
+                                        <View style={{ marginTop: 60 }}>
+                                            {this.state.OnlineList.map((item, key) => (
+                                                <View key={key} style={styles.secondDiv}>
+                                                    {console.log(this.state.OnlineList, 'onlinelist==>')}
+                                                    <TouchableOpacity
+                                                        onPress={
+                                                            this.state.isLoaderVisible === false
+                                                                ? this.onCheckPress.bind(this, item)
+                                                                : () => {
+                                                                      console.log('please wait');
+                                                                  }
+                                                        }>
+                                                        <LinearGradient
+                                                            start={{ x: 0, y: 0 }}
+                                                            end={{ x: 1, y: 0 }}
+                                                            colors={['#123C95', '#1B5FDB', '#6A35D8']}
+                                                            style={styles.CheckButton}>
+                                                            <View style={{ width: '95%', height: null }}>
+                                                                <Text style={styles.buttonText}>
+                                                                    {item.FormName.length > 30 ? item.FormName.slice(0, 30) + '...' : item.FormName}
+                                                                </Text>
+                                                            </View>
+                                                        </LinearGradient>
+                                                    </TouchableOpacity>
                                                 </View>
-                                                {item.Attachmenttype == 0 ? (
-                                                    <View style={styles.sectionBottom}>
+                                            ))}
+                                        </View>
+                                    ) : (
+                                        this.renderEmptyState(strings.No_online_form_found)
+                                    )}
+                                </ScrollView>
+                            ) : null}
+                            {this.state.ActiveTab === 1 ? (
+                                <ScrollView style={styles.scrollViewBody}>
+                                    {this.state.TempList.length > 0 ? (
+                                        <View style={{ marginTop: 60 }}>
+                                            {this.state.TempList.map((item, key) => (
+                                                <View key={key} style={styles.cardBox}>
+                                                    <View style={styles.sectionTop}>
                                                         <View style={styles.sectionContent}>
                                                             <Text numberOfLines={1} style={styles.boxHeader}>
-                                                                {strings.Attach_Files}
+                                                                {strings.Form_Name}
                                                             </Text>
                                                         </View>
                                                         <View style={styles.sectionContent}>
-                                                            <TouchableOpacity onPress={() => this.FilePress(item)} style={styles.AttBox}>
-                                                                <Text numberOfLines={1} style={styles.boxContent}>
-                                                                    {item.Attachmenttype == 1
-                                                                        ? '-'
-                                                                        : item.AttachedDocument == ''
-                                                                        ? ' - '
-                                                                        : item.AttachedDocument}
+                                                            <Text numberOfLines={1} style={styles.boxContent}>
+                                                                {item.FormName}
+                                                            </Text>
+                                                        </View>
+                                                    </View>
+                                                    {item.Attachmenttype == 0 ? (
+                                                        <View style={styles.sectionBottom}>
+                                                            <View style={styles.sectionContent}>
+                                                                <Text numberOfLines={1} style={styles.boxHeader}>
+                                                                    {strings.Attach_Files}
                                                                 </Text>
-                                                            </TouchableOpacity>
-                                                            {item.AttachedDocument && item.Attachmenttype == 0 ? (
-                                                                <TouchableOpacity onPress={() => this.deleteAttachments(item, 'temp')}>
-                                                                    <Icon name="trash" size={20} color="red" />
+                                                            </View>
+                                                            <View style={styles.sectionContent}>
+                                                                <TouchableOpacity onPress={() => this.FilePress(item)} style={styles.AttBox}>
+                                                                    <Text numberOfLines={1} style={styles.boxContent}>
+                                                                        {item.Attachmenttype == 1
+                                                                            ? '-'
+                                                                            : item.AttachedDocument == ''
+                                                                            ? ' - '
+                                                                            : item.AttachedDocument}
+                                                                    </Text>
                                                                 </TouchableOpacity>
-                                                            ) : null}
-                                                            {item.Attachmenttype == 0 ? (
-                                                                <TouchableOpacity
-                                                                    onPress={() => {
-                                                                        // iPhone/Android
-                                                                        if (Platform.OS == 'android') {
-                                                                            DocumentPicker.pick(
-                                                                                {
-                                                                                    type: [DocumentPicker.types.allFiles],
-                                                                                },
-                                                                                (error, res) => {
-                                                                                    console.log('File upload error:', error);
-                                                                                    console.log('Document response:', res);
+                                                                {item.AttachedDocument && item.Attachmenttype == 0 ? (
+                                                                    <TouchableOpacity onPress={() => this.deleteAttachments(item, 'temp')}>
+                                                                        <Icon name="trash" size={20} color="red" />
+                                                                    </TouchableOpacity>
+                                                                ) : null}
+                                                                {item.Attachmenttype == 0 ? (
+                                                                    <TouchableOpacity
+                                                                        onPress={() => {
+                                                                            // iPhone/Android
+                                                                            if (Platform.OS == 'android') {
+                                                                                DocumentPicker.pick(
+                                                                                    {
+                                                                                        type: [DocumentPicker.types.allFiles],
+                                                                                    },
+                                                                                    (error, res) => {
+                                                                                        console.log('File upload error:', error);
+                                                                                        console.log('Document response:', res);
 
-                                                                                    if (res) {
-                                                                                        var formDetailsOrg = this.state.formDetails;
-                                                                                        var formDetails = [];
+                                                                                        if (res) {
+                                                                                            var formDetailsOrg = this.state.formDetails;
+                                                                                            var formDetails = [];
 
-                                                                                        for (var i = 0; i < formDetailsOrg.length; i++) {
-                                                                                            formDetails.push({
-                                                                                                AttachedDocument: formDetailsOrg[i].AttachedDocument,
-                                                                                                Attachmenttype: formDetailsOrg[i].Attachmenttype,
-                                                                                                DocName: formDetailsOrg[i].DocName,
-                                                                                                FormId: formDetailsOrg[i].FormId,
-                                                                                                FormName: formDetailsOrg[i].FormName,
-                                                                                                FormType: formDetailsOrg[i].FormType,
-                                                                                                DocumentId: formDetailsOrg[i].DocumentId,
-                                                                                                isModified: formDetailsOrg[i].isModified,
-                                                                                                // Attachmenttype: data.data.Data[i].Attachmenttype,
-                                                                                                // FormId: data.data.Data[i].FormId,
-                                                                                                // DocumentId:data.data.Data[i].DocumentId,
-                                                                                                // FormName: data.data.Data[i].FormName,
-                                                                                                // DocName:data.data.Data[i].FileName,
-                                                                                                // FormType: data.data.Data[i].FormType,
-                                                                                                // AttachedDocument: '',
-                                                                                            });
-                                                                                        }
-
-                                                                                        for (var i = 0; i < formDetails.length; i++) {
-                                                                                            if (formDetails[i].FormId == item.FormId) {
-                                                                                                formDetails[i].DocName = res.fileName;
-                                                                                                formDetails[i].AttachedDocument = res.uri;
-                                                                                                formDetails[i].Attachmenttype = 0;
-                                                                                                formDetails[i].isModified = true;
+                                                                                            for (var i = 0; i < formDetailsOrg.length; i++) {
+                                                                                                formDetails.push({
+                                                                                                    AttachedDocument:
+                                                                                                        formDetailsOrg[i].AttachedDocument,
+                                                                                                    Attachmenttype: formDetailsOrg[i].Attachmenttype,
+                                                                                                    DocName: formDetailsOrg[i].DocName,
+                                                                                                    FormId: formDetailsOrg[i].FormId,
+                                                                                                    FormName: formDetailsOrg[i].FormName,
+                                                                                                    FormType: formDetailsOrg[i].FormType,
+                                                                                                    DocumentId: formDetailsOrg[i].DocumentId,
+                                                                                                    isModified: formDetailsOrg[i].isModified,
+                                                                                                    // Attachmenttype: data.data.Data[i].Attachmenttype,
+                                                                                                    // FormId: data.data.Data[i].FormId,
+                                                                                                    // DocumentId:data.data.Data[i].DocumentId,
+                                                                                                    // FormName: data.data.Data[i].FormName,
+                                                                                                    // DocName:data.data.Data[i].FileName,
+                                                                                                    // FormType: data.data.Data[i].FormType,
+                                                                                                    // AttachedDocument: '',
+                                                                                                });
                                                                                             }
-                                                                                        }
-                                                                                        this.setState({ formDetails: formDetails }, () => {
-                                                                                            console.log('formDetails', this.state.formDetails);
-                                                                                            this.updateFormUploadDetails();
-                                                                                            this.getForname();
-                                                                                        });
 
-                                                                                        /**
+                                                                                            for (var i = 0; i < formDetails.length; i++) {
+                                                                                                if (formDetails[i].FormId == item.FormId) {
+                                                                                                    formDetails[i].DocName = res.fileName;
+                                                                                                    formDetails[i].AttachedDocument = res.uri;
+                                                                                                    formDetails[i].Attachmenttype = 0;
+                                                                                                    formDetails[i].isModified = true;
+                                                                                                }
+                                                                                            }
+                                                                                            this.setState({ formDetails: formDetails }, () => {
+                                                                                                console.log('formDetails', this.state.formDetails);
+                                                                                                this.updateFormUploadDetails();
+                                                                                                this.getForname();
+                                                                                            });
+
+                                                                                            /**
                                     RNFetchBlob.fs.readFile(res.uri, 'base64')
                                       .then((data) => {
                                         // handle the data ..
@@ -3620,573 +3634,578 @@ class AuditForm extends Component {
                                         // console.log('Form item', item)
                                         // console.log('Form item', this.state.formDetails)
                                       }) */
-                                                                                    }
-                                                                                },
-                                                                            );
-                                                                        } else {
-                                                                            DocumentPicker.pick(
-                                                                                {
-                                                                                    type: ['public.content'],
-                                                                                },
-                                                                                (error, res) => {
-                                                                                    console.log('File upload error:', error);
-                                                                                    console.log('Document response:', res);
-                                                                                    if (res) {
-                                                                                        var getURI = res.uri;
-                                                                                        var uridata = getURI.slice(7);
-                                                                                        console.log('uridata', uridata);
-                                                                                        RNFetchBlob.fs.readFile(uridata, 'base64').then(data => {
-                                                                                            res.data = data;
-                                                                                            console.log(
-                                                                                                'fetchBlobdata',
-                                                                                                res.uri,
-                                                                                                res.type,
-                                                                                                res.fileName,
-                                                                                                res.fileSize,
-                                                                                                res.data,
-                                                                                            );
-                                                                                            if (res.fileSize > 52428800) {
-                                                                                                alert(strings.alert);
-                                                                                            } else {
-                                                                                                let IosFilesPath =
-                                                                                                    RNFetchBlob.fs.dirs.DocumentDir +
-                                                                                                    '/' +
-                                                                                                    'IosFiles';
-                                                                                                console.log('IosFilesPath--->', IosFilesPath);
-                                                                                                const arr = uridata.split('/');
-                                                                                                var uripathIos =
-                                                                                                    IosFilesPath + '/' + arr[arr.length - 1];
-                                                                                                RNFetchBlob.fs
-                                                                                                    .writeFile(uripathIos, data, 'base64')
-                                                                                                    .then(data => {
-                                                                                                        console.log('File added sucessfully');
-                                                                                                    });
-                                                                                                var formDetailsOrg = this.state.formDetails;
-                                                                                                var formDetails = [];
-
-                                                                                                for (var i = 0; i < formDetailsOrg.length; i++) {
-                                                                                                    formDetails.push({
-                                                                                                        AttachedDocument:
-                                                                                                            formDetailsOrg[i].AttachedDocument,
-                                                                                                        Attachmenttype:
-                                                                                                            formDetailsOrg[i].Attachmenttype,
-                                                                                                        DocName: formDetailsOrg[i].DocName,
-                                                                                                        FormId: formDetailsOrg[i].FormId,
-                                                                                                        FormName: formDetailsOrg[i].FormName,
-                                                                                                        FormType: formDetailsOrg[i].FormType,
-                                                                                                        DocumentId: formDetailsOrg[i].DocumentId,
-                                                                                                        isModified: formDetailsOrg[i].isModified,
-                                                                                                        // Attachmenttype: data.data.Data[i].Attachmenttype,
-                                                                                                        // FormId: data.data.Data[i].FormId,
-                                                                                                        // DocumentId:data.data.Data[i].DocumentId,
-                                                                                                        // FormName: data.data.Data[i].FormName,
-                                                                                                        // DocName:data.data.Data[i].FileName,
-                                                                                                        // FormType: data.data.Data[i].FormType,
-                                                                                                        // AttachedDocument: '',
-                                                                                                    });
-                                                                                                }
-
-                                                                                                // check iOS
-                                                                                                for (var i = 0; i < formDetails.length; i++) {
-                                                                                                    if (formDetails[i].FormId == item.FormId) {
-                                                                                                        formDetails[i].DocName = res.fileName;
-                                                                                                        formDetails[i].AttachedDocument = uridata;
-                                                                                                        (formDetails[i].Attachmenttype = 0),
-                                                                                                            (formDetails[i].isModified = true);
-                                                                                                    }
-                                                                                                }
-                                                                                                console.log('Form item', item);
-                                                                                                console.log('Form item', this.state.formDetails);
-
-                                                                                                this.setState(
-                                                                                                    {
-                                                                                                        formDetails: formDetails,
-                                                                                                    },
-                                                                                                    () => {
-                                                                                                        // console.log('formDetails', this.state.formDetails)
-                                                                                                        this.updateFormUploadDetails();
-                                                                                                        this.getForname();
-                                                                                                    },
-                                                                                                );
-                                                                                            }
-                                                                                        });
-                                                                                    }
-                                                                                },
-                                                                            );
-                                                                        }
-                                                                    }}>
-                                                                    <ResponsiveImage source={Images.AttachIcon} initWidth="24" initHeight="22" />
-                                                                </TouchableOpacity>
-                                                            ) : null}
-                                                        </View>
-                                                    </View>
-                                                ) : null}
-                                                <View style={styles.sectionBottom}>
-                                                    <View style={styles.sectionContent}>
-                                                        {/* <Text numberOfLines={1} style={styles.boxHeader}>{strings.Attach_Files}</Text> */}
-                                                    </View>
-                                                    <View style={{ width: '100%', height: null }}>
-                                                        <Dropdown
-                                                            data={attachmentType2}
-                                                            label={strings.attachmenttype}
-                                                            labelField={'label'}
-                                                            valueField={'value'}
-                                                            value={
-                                                                this.state.TempList[key]
-                                                                    ? this.state.TempList[key].Attachmenttype == 0
-                                                                        ? attachmentType2[0].value
-                                                                        : attachmentType2[1].value
-                                                                    : attachmentType2[0].value
-                                                            }
-                                                            fontSize={Fonts.size.regular}
-                                                            labelFontSize={Fonts.size.small}
-                                                            baseColor={'#A6A6A6'}
-                                                            selectedItemColor="#000"
-                                                            textColor="#000"
-                                                            itemColor="#000"
-                                                            itemPadding={5}
-                                                            dropdownOffset={{ top: 10, left: 0 }}
-                                                            itemTextStyle={{ fontFamily: 'OpenSans-Regular' }}
-                                                            onChange={value => {
-                                                                var TempList = [];
-
-                                                                TempList = this.state.TempList;
-                                                                for (var i = 0; i < attachmentType2.length; i++) {
-                                                                    if (value.value == attachmentType2[i].value) {
-                                                                        console.log('selected', attachmentType2[i]);
-                                                                        var typeID = attachmentType2[i].id;
-                                                                    }
-                                                                }
-                                                                TempList[key].Attachmenttype = typeID;
-                                                                TempList[key].AttachedDocument = '';
-                                                                this.setState(
-                                                                    {
-                                                                        TempList: TempList,
-                                                                    },
-                                                                    () => {
-                                                                        console.log('Modified', TempList);
-                                                                    },
-                                                                );
-                                                            }}
-                                                        />
-                                                    </View>
-                                                    {this.state.TempList[key].Attachmenttype == 1 ? (
-                                                        <View style={[styles.sectionContent, { width: '100%', flexDirection: 'column' }]}>
-                                                            <View style={{ width: '100%', height: null }}>
-                                                                {this.state.TempList[key].AttachedDocument != '' ? (
-                                                                    <Text
-                                                                        style={{
-                                                                            color: 'grey',
-                                                                            left: 0,
-                                                                            fontFamily: 'OpenSans-Regular',
-                                                                        }}>
-                                                                        {strings.UncontrolledLink}
-                                                                    </Text>
-                                                                ) : null}
-                                                            </View>
-                                                            <View style={{ width: '100%', height: null }}>
-                                                                <TextInput
-                                                                    multiline={true}
-                                                                    value={this.state.TempList[key].AttachedDocument}
-                                                                    style={{
-                                                                        fontSize: 18,
-                                                                        fontFamily: 'OpenSans-Regular',
-                                                                    }}
-                                                                    placeholder={strings.UncontrolledLink}
-                                                                    placeholderTextColor="#A9A9A9"
-                                                                    baseColor="#A6A6A6"
-                                                                    textColor="#747474"
-                                                                    onChangeText={text => {
-                                                                        var TempList = [];
-
-                                                                        TempList = this.state.TempList;
-                                                                        TempList[key].AttachedDocument = text;
-                                                                        TempList[key].DocName = text;
-                                                                        TempList[key].isModified = true;
-                                                                        this.setState(
-                                                                            {
-                                                                                TempList: TempList,
-                                                                            },
-                                                                            () => {
-                                                                                console.log('TempList modified', this.state.TempList);
-                                                                            },
-                                                                        );
-                                                                    }}
-                                                                    onBlur={() => {
-                                                                        Keyboard.dismiss();
-                                                                        console.log('this.state.formDetails', this.state.formDetails);
-                                                                        console.log('this.state.RefList', this.state.TempList);
-                                                                        var formDetails = [];
-                                                                        for (var i = 0; i < this.state.formDetails.length; i++) {
-                                                                            if (this.state.formDetails[i].FormId == this.state.TempList[key].FormId) {
-                                                                                formDetails.push({
-                                                                                    AttachedDocument: this.state.TempList[key].AttachedDocument,
-                                                                                    Attachmenttype: this.state.TempList[key].Attachmenttype,
-                                                                                    DocName: this.state.TempList[key].AttachedDocument,
-                                                                                    DocumentId: this.state.formDetails[i].DocumentId,
-                                                                                    FormId: this.state.formDetails[i].FormId,
-                                                                                    FormName: this.state.formDetails[i].FormName,
-                                                                                    FormType: this.state.formDetails[i].FormType,
-                                                                                    isModified: this.state.TempList[key].isModified,
-                                                                                });
-                                                                                console.log('Modified object', formDetails);
+                                                                                        }
+                                                                                    },
+                                                                                );
                                                                             } else {
-                                                                                formDetails.push(this.state.formDetails[i]);
-                                                                            }
-                                                                        }
-                                                                        console.log('formDetails', formDetails);
-                                                                        this.setState(
-                                                                            {
-                                                                                formDetails: formDetails,
-                                                                            },
-                                                                            () => {
-                                                                                console.log('formDetails modified', this.state.formDetails);
-                                                                                this.updateFormUploadDetails();
-                                                                                this.getForname();
-                                                                            },
-                                                                        );
-                                                                    }}
-                                                                />
-                                                            </View>
-                                                        </View>
-                                                    ) : null}
-                                                </View>
-                                            </View>
-                                        ))}
-                                    </View>
-                                ) : (
-                                    <View style={{ marginTop: '20%' }}>
-                                        <NoRecordFound />
-                                    </View>
-                                )}
-                            </ScrollView>
+                                                                                DocumentPicker.pick(
+                                                                                    {
+                                                                                        type: ['public.content'],
+                                                                                    },
+                                                                                    (error, res) => {
+                                                                                        console.log('File upload error:', error);
+                                                                                        console.log('Document response:', res);
+                                                                                        if (res) {
+                                                                                            var getURI = res.uri;
+                                                                                            var uridata = getURI.slice(7);
+                                                                                            console.log('uridata', uridata);
+                                                                                            RNFetchBlob.fs.readFile(uridata, 'base64').then(data => {
+                                                                                                res.data = data;
+                                                                                                console.log(
+                                                                                                    'fetchBlobdata',
+                                                                                                    res.uri,
+                                                                                                    res.type,
+                                                                                                    res.fileName,
+                                                                                                    res.fileSize,
+                                                                                                    res.data,
+                                                                                                );
+                                                                                                if (res.fileSize > 52428800) {
+                                                                                                    alert(strings.alert);
+                                                                                                } else {
+                                                                                                    let IosFilesPath =
+                                                                                                        RNFetchBlob.fs.dirs.DocumentDir +
+                                                                                                        '/' +
+                                                                                                        'IosFiles';
+                                                                                                    console.log('IosFilesPath--->', IosFilesPath);
+                                                                                                    const arr = uridata.split('/');
+                                                                                                    var uripathIos =
+                                                                                                        IosFilesPath + '/' + arr[arr.length - 1];
+                                                                                                    RNFetchBlob.fs
+                                                                                                        .writeFile(uripathIos, data, 'base64')
+                                                                                                        .then(data => {
+                                                                                                            console.log('File added sucessfully');
+                                                                                                        });
+                                                                                                    var formDetailsOrg = this.state.formDetails;
+                                                                                                    var formDetails = [];
 
-                            <ScrollView tabLabel={strings.References} style={styles.scrollViewBody}>
-                                {this.state.RefList.length > 0 ? (
-                                    <View style={{ marginTop: 60 }}>
-                                        {this.state.RefList.map((item, key) => (
-                                            <View key={key} style={styles.cardBox}>
-                                                <View style={styles.sectionTop}>
-                                                    <View style={styles.sectionContent}>
-                                                        <Text numberOfLines={1} style={styles.boxHeader}>
-                                                            {strings.Form_Name}
-                                                        </Text>
-                                                    </View>
-                                                    <View style={styles.sectionContent}>
-                                                        <Text numberOfLines={1} style={styles.boxContent}>
-                                                            {item.FormName}
-                                                        </Text>
-                                                    </View>
-                                                </View>
-                                                {item.Attachmenttype == 0 ? (
-                                                    <View style={styles.sectionTop}>
-                                                        <View style={styles.sectionContent}>
-                                                            <Text numberOfLines={1} style={styles.boxHeader}>
-                                                                {strings.Attach_Files}
-                                                            </Text>
-                                                        </View>
-                                                        <View style={styles.sectionContent}>
-                                                            <View style={{ flexDirection: 'row' }}>
-                                                                <TouchableOpacity onPress={() => this.FilePress(item)} style={styles.AttBox}>
-                                                                    <Text numberOfLines={1} style={styles.boxContent}>
-                                                                        {item.Attachmenttype == 1
-                                                                            ? '-'
-                                                                            : item.AttachedDocument == ''
-                                                                            ? ' - '
-                                                                            : item.AttachedDocument}
-                                                                    </Text>
-                                                                </TouchableOpacity>
-                                                                {item.AttachedDocument && item.Attachmenttype == 0 ? (
-                                                                    <TouchableOpacity onPress={() => this.deleteAttachments(item, 'ref')}>
-                                                                        <Icon name="trash" size={20} color="red" />
+                                                                                                    for (var i = 0; i < formDetailsOrg.length; i++) {
+                                                                                                        formDetails.push({
+                                                                                                            AttachedDocument:
+                                                                                                                formDetailsOrg[i].AttachedDocument,
+                                                                                                            Attachmenttype:
+                                                                                                                formDetailsOrg[i].Attachmenttype,
+                                                                                                            DocName: formDetailsOrg[i].DocName,
+                                                                                                            FormId: formDetailsOrg[i].FormId,
+                                                                                                            FormName: formDetailsOrg[i].FormName,
+                                                                                                            FormType: formDetailsOrg[i].FormType,
+                                                                                                            DocumentId: formDetailsOrg[i].DocumentId,
+                                                                                                            isModified: formDetailsOrg[i].isModified,
+                                                                                                            // Attachmenttype: data.data.Data[i].Attachmenttype,
+                                                                                                            // FormId: data.data.Data[i].FormId,
+                                                                                                            // DocumentId:data.data.Data[i].DocumentId,
+                                                                                                            // FormName: data.data.Data[i].FormName,
+                                                                                                            // DocName:data.data.Data[i].FileName,
+                                                                                                            // FormType: data.data.Data[i].FormType,
+                                                                                                            // AttachedDocument: '',
+                                                                                                        });
+                                                                                                    }
+
+                                                                                                    // check iOS
+                                                                                                    for (var i = 0; i < formDetails.length; i++) {
+                                                                                                        if (formDetails[i].FormId == item.FormId) {
+                                                                                                            formDetails[i].DocName = res.fileName;
+                                                                                                            formDetails[i].AttachedDocument = uridata;
+                                                                                                            (formDetails[i].Attachmenttype = 0),
+                                                                                                                (formDetails[i].isModified = true);
+                                                                                                        }
+                                                                                                    }
+                                                                                                    console.log('Form item', item);
+                                                                                                    console.log('Form item', this.state.formDetails);
+
+                                                                                                    this.setState(
+                                                                                                        {
+                                                                                                            formDetails: formDetails,
+                                                                                                        },
+                                                                                                        () => {
+                                                                                                            // console.log('formDetails', this.state.formDetails)
+                                                                                                            this.updateFormUploadDetails();
+                                                                                                            this.getForname();
+                                                                                                        },
+                                                                                                    );
+                                                                                                }
+                                                                                            });
+                                                                                        }
+                                                                                    },
+                                                                                );
+                                                                            }
+                                                                        }}>
+                                                                        <ResponsiveImage source={Images.AttachIcon} initWidth="24" initHeight="22" />
                                                                     </TouchableOpacity>
                                                                 ) : null}
                                                             </View>
+                                                        </View>
+                                                    ) : null}
+                                                    <View style={styles.sectionBottom}>
+                                                        <View style={styles.sectionContent}>
+                                                            {/* <Text numberOfLines={1} style={styles.boxHeader}>{strings.Attach_Files}</Text> */}
+                                                        </View>
+                                                        <View style={{ width: '100%', height: null }}>
+                                                            <Dropdown
+                                                                data={attachmentType2}
+                                                                label={strings.attachmenttype}
+                                                                labelField={'label'}
+                                                                valueField={'value'}
+                                                                value={
+                                                                    this.state.TempList[key]
+                                                                        ? this.state.TempList[key].Attachmenttype == 0
+                                                                            ? attachmentType2[0].value
+                                                                            : attachmentType2[1].value
+                                                                        : attachmentType2[0].value
+                                                                }
+                                                                fontSize={Fonts.size.regular}
+                                                                labelFontSize={Fonts.size.small}
+                                                                baseColor={'#A6A6A6'}
+                                                                selectedItemColor="#000"
+                                                                textColor="#000"
+                                                                itemColor="#000"
+                                                                itemPadding={5}
+                                                                dropdownOffset={{ top: 10, left: 0 }}
+                                                                itemTextStyle={{ fontFamily: 'OpenSans-Regular' }}
+                                                                onChange={value => {
+                                                                    var TempList = [];
 
-                                                            {item.Attachmenttype == 0 ? (
-                                                                <TouchableOpacity
-                                                                    onPress={() => {
-                                                                        if (Platform.OS == 'android') {
-                                                                            // iPhone/Android
-                                                                            DocumentPicker.pick(
+                                                                    TempList = this.state.TempList;
+                                                                    for (var i = 0; i < attachmentType2.length; i++) {
+                                                                        if (value.value == attachmentType2[i].value) {
+                                                                            console.log('selected', attachmentType2[i]);
+                                                                            var typeID = attachmentType2[i].id;
+                                                                        }
+                                                                    }
+                                                                    TempList[key].Attachmenttype = typeID;
+                                                                    TempList[key].AttachedDocument = '';
+                                                                    this.setState(
+                                                                        {
+                                                                            TempList: TempList,
+                                                                        },
+                                                                        () => {
+                                                                            console.log('Modified', TempList);
+                                                                        },
+                                                                    );
+                                                                }}
+                                                            />
+                                                        </View>
+                                                        {this.state.TempList[key].Attachmenttype == 1 ? (
+                                                            <View style={[styles.sectionContent, { width: '100%', flexDirection: 'column' }]}>
+                                                                <View style={{ width: '100%', height: null }}>
+                                                                    {this.state.TempList[key].AttachedDocument != '' ? (
+                                                                        <Text
+                                                                            style={{
+                                                                                color: 'grey',
+                                                                                left: 0,
+                                                                                fontFamily: 'OpenSans-Regular',
+                                                                            }}>
+                                                                            {strings.UncontrolledLink}
+                                                                        </Text>
+                                                                    ) : null}
+                                                                </View>
+                                                                <View style={{ width: '100%', height: null }}>
+                                                                    <TextInput
+                                                                        multiline={true}
+                                                                        value={this.state.TempList[key].AttachedDocument}
+                                                                        style={{
+                                                                            fontSize: 18,
+                                                                            fontFamily: 'OpenSans-Regular',
+                                                                        }}
+                                                                        placeholder={strings.UncontrolledLink}
+                                                                        placeholderTextColor="#A9A9A9"
+                                                                        baseColor="#A6A6A6"
+                                                                        textColor="#747474"
+                                                                        onChangeText={text => {
+                                                                            var TempList = [];
+
+                                                                            TempList = this.state.TempList;
+                                                                            TempList[key].AttachedDocument = text;
+                                                                            TempList[key].DocName = text;
+                                                                            TempList[key].isModified = true;
+                                                                            this.setState(
                                                                                 {
-                                                                                    filetype: [DocumentPicker.types.allFiles],
+                                                                                    TempList: TempList,
                                                                                 },
-                                                                                (error, res) => {
-                                                                                    console.log('File upload error:', error);
-                                                                                    console.log('Document response:', res);
-                                                                                    if (res) {
-                                                                                        // handle the data ..
-                                                                                        // res.data = data
-                                                                                        // Android
-                                                                                        console.log(
-                                                                                            res.uri,
-                                                                                            res.type, // mime type
-                                                                                            res.fileName,
-                                                                                            res.fileSize,
-                                                                                            res.data,
-                                                                                        );
-                                                                                        // console.log('Form item', item)
-                                                                                        var formDetailsOrg = this.state.formDetails;
-                                                                                        var formDetails = [];
-
-                                                                                        for (var i = 0; i < formDetailsOrg.length; i++) {
-                                                                                            formDetails.push({
-                                                                                                AttachedDocument: formDetailsOrg[i].AttachedDocument,
-                                                                                                Attachmenttype: formDetailsOrg[i].Attachmenttype,
-                                                                                                DocName: formDetailsOrg[i].DocName,
-                                                                                                FormId: formDetailsOrg[i].FormId,
-                                                                                                FormName: formDetailsOrg[i].FormName,
-                                                                                                FormType: formDetailsOrg[i].FormType,
-                                                                                                DocumentId: formDetailsOrg[i].DocumentId,
-                                                                                                isModified: formDetailsOrg[i].isModified,
-                                                                                            });
-                                                                                        }
-                                                                                        for (var i = 0; i < formDetails.length; i++) {
-                                                                                            if (formDetails[i].FormId == item.FormId) {
-                                                                                                formDetails[i].DocName = res.fileName;
-                                                                                                formDetails[i].AttachedDocument = res.uri;
-                                                                                                formDetails[i].Attachmenttype = 0;
-                                                                                                formDetails[i].isModified = true;
-                                                                                            }
-                                                                                        }
-                                                                                        this.setState({ formDetails: formDetails }, () => {
-                                                                                            console.log('formDetails', this.state.formDetails);
-                                                                                            this.updateFormUploadDetails();
-                                                                                            this.getForname();
-                                                                                        });
-                                                                                    }
+                                                                                () => {
+                                                                                    console.log('TempList modified', this.state.TempList);
                                                                                 },
                                                                             );
-                                                                        } else {
-                                                                            // iPhone/Android
-                                                                            DocumentPicker.pick(
+                                                                        }}
+                                                                        onBlur={() => {
+                                                                            Keyboard.dismiss();
+                                                                            console.log('this.state.formDetails', this.state.formDetails);
+                                                                            console.log('this.state.RefList', this.state.TempList);
+                                                                            var formDetails = [];
+                                                                            for (var i = 0; i < this.state.formDetails.length; i++) {
+                                                                                if (
+                                                                                    this.state.formDetails[i].FormId ==
+                                                                                    this.state.TempList[key].FormId
+                                                                                ) {
+                                                                                    formDetails.push({
+                                                                                        AttachedDocument: this.state.TempList[key].AttachedDocument,
+                                                                                        Attachmenttype: this.state.TempList[key].Attachmenttype,
+                                                                                        DocName: this.state.TempList[key].AttachedDocument,
+                                                                                        DocumentId: this.state.formDetails[i].DocumentId,
+                                                                                        FormId: this.state.formDetails[i].FormId,
+                                                                                        FormName: this.state.formDetails[i].FormName,
+                                                                                        FormType: this.state.formDetails[i].FormType,
+                                                                                        isModified: this.state.TempList[key].isModified,
+                                                                                    });
+                                                                                    console.log('Modified object', formDetails);
+                                                                                } else {
+                                                                                    formDetails.push(this.state.formDetails[i]);
+                                                                                }
+                                                                            }
+                                                                            console.log('formDetails', formDetails);
+                                                                            this.setState(
                                                                                 {
-                                                                                    filetype: ['public.content'],
+                                                                                    formDetails: formDetails,
                                                                                 },
-                                                                                (error, res) => {
-                                                                                    console.log('File upload error:', error);
-                                                                                    console.log('Document response:', res);
-                                                                                    if (res) {
-                                                                                        var getURI = res.uri;
-                                                                                        var uridata = getURI.slice(7);
-                                                                                        console.log('uridata', uridata);
+                                                                                () => {
+                                                                                    console.log('formDetails modified', this.state.formDetails);
+                                                                                    this.updateFormUploadDetails();
+                                                                                    this.getForname();
+                                                                                },
+                                                                            );
+                                                                        }}
+                                                                    />
+                                                                </View>
+                                                            </View>
+                                                        ) : null}
+                                                    </View>
+                                                </View>
+                                            ))}
+                                        </View>
+                                    ) : (
+                                        this.renderEmptyState(strings.No_templates_found)
+                                    )}
+                                </ScrollView>
+                            ) : null}
 
-                                                                                        RNFetchBlob.fs.readFile(uridata, 'base64').then(data => {
-                                                                                            res.data = data;
+                            {this.state.ActiveTab === 2 ? (
+                                <ScrollView style={styles.scrollViewBody}>
+                                    {this.state.RefList.length > 0 ? (
+                                        <View style={{ marginTop: 60 }}>
+                                            {this.state.RefList.map((item, key) => (
+                                                <View key={key} style={styles.cardBox}>
+                                                    <View style={styles.sectionTop}>
+                                                        <View style={styles.sectionContent}>
+                                                            <Text numberOfLines={1} style={styles.boxHeader}>
+                                                                {strings.Form_Name}
+                                                            </Text>
+                                                        </View>
+                                                        <View style={styles.sectionContent}>
+                                                            <Text numberOfLines={1} style={styles.boxContent}>
+                                                                {item.FormName}
+                                                            </Text>
+                                                        </View>
+                                                    </View>
+                                                    {item.Attachmenttype == 0 ? (
+                                                        <View style={styles.sectionTop}>
+                                                            <View style={styles.sectionContent}>
+                                                                <Text numberOfLines={1} style={styles.boxHeader}>
+                                                                    {strings.Attach_Files}
+                                                                </Text>
+                                                            </View>
+                                                            <View style={styles.sectionContent}>
+                                                                <View style={{ flexDirection: 'row' }}>
+                                                                    <TouchableOpacity onPress={() => this.FilePress(item)} style={styles.AttBox}>
+                                                                        <Text numberOfLines={1} style={styles.boxContent}>
+                                                                            {item.Attachmenttype == 1
+                                                                                ? '-'
+                                                                                : item.AttachedDocument == ''
+                                                                                ? ' - '
+                                                                                : item.AttachedDocument}
+                                                                        </Text>
+                                                                    </TouchableOpacity>
+                                                                    {item.AttachedDocument && item.Attachmenttype == 0 ? (
+                                                                        <TouchableOpacity onPress={() => this.deleteAttachments(item, 'ref')}>
+                                                                            <Icon name="trash" size={20} color="red" />
+                                                                        </TouchableOpacity>
+                                                                    ) : null}
+                                                                </View>
+
+                                                                {item.Attachmenttype == 0 ? (
+                                                                    <TouchableOpacity
+                                                                        onPress={() => {
+                                                                            if (Platform.OS == 'android') {
+                                                                                // iPhone/Android
+                                                                                DocumentPicker.pick(
+                                                                                    {
+                                                                                        filetype: [DocumentPicker.types.allFiles],
+                                                                                    },
+                                                                                    (error, res) => {
+                                                                                        console.log('File upload error:', error);
+                                                                                        console.log('Document response:', res);
+                                                                                        if (res) {
+                                                                                            // handle the data ..
+                                                                                            // res.data = data
+                                                                                            // Android
                                                                                             console.log(
-                                                                                                'fetchBlobdata',
                                                                                                 res.uri,
-                                                                                                res.type,
+                                                                                                res.type, // mime type
                                                                                                 res.fileName,
                                                                                                 res.fileSize,
                                                                                                 res.data,
                                                                                             );
-                                                                                            if (res.fileSize > 52428800) {
-                                                                                                alert(strings.alert);
-                                                                                            } else {
-                                                                                                let IosFilesPath =
-                                                                                                    RNFetchBlob.fs.dirs.DocumentDir +
-                                                                                                    '/' +
-                                                                                                    'IosFiles';
-                                                                                                console.log('IosFilesPath--->', IosFilesPath);
-                                                                                                const arr = uridata.split('/');
-                                                                                                var uripathIos =
-                                                                                                    IosFilesPath + '/' + arr[arr.length - 1];
-                                                                                                RNFetchBlob.fs
-                                                                                                    .writeFile(uripathIos, data, 'base64')
-                                                                                                    .then(data => {
-                                                                                                        console.log('File added sucessfully');
-                                                                                                    });
+                                                                                            // console.log('Form item', item)
+                                                                                            var formDetailsOrg = this.state.formDetails;
+                                                                                            var formDetails = [];
 
-                                                                                                // console.log('Form item', item)
-                                                                                                var formDetailsOrg = this.state.formDetails;
-                                                                                                var formDetails = [];
-
-                                                                                                for (var i = 0; i < formDetailsOrg.length; i++) {
-                                                                                                    formDetails.push({
-                                                                                                        AttachedDocument:
-                                                                                                            formDetailsOrg[i].AttachedDocument,
-                                                                                                        Attachmenttype:
-                                                                                                            formDetailsOrg[i].Attachmenttype,
-                                                                                                        DocName: formDetailsOrg[i].DocName,
-                                                                                                        FormId: formDetailsOrg[i].FormId,
-                                                                                                        FormName: formDetailsOrg[i].FormName,
-                                                                                                        FormType: formDetailsOrg[i].FormType,
-                                                                                                        DocumentId: formDetailsOrg[i].DocumentId,
-                                                                                                        isModified: formDetailsOrg[i].isModified,
-                                                                                                    });
-                                                                                                }
-                                                                                                for (var i = 0; i < formDetails.length; i++) {
-                                                                                                    if (formDetails[i].FormId == item.FormId) {
-                                                                                                        formDetails[i].DocName = res.fileName;
-                                                                                                        formDetails[i].AttachedDocument = uridata;
-                                                                                                        formDetails[i].Attachmenttype = 0;
-                                                                                                        formDetails[i].isModified = true;
-                                                                                                    }
-                                                                                                }
-                                                                                                this.setState(
-                                                                                                    {
-                                                                                                        formDetails: formDetails,
-                                                                                                    },
-                                                                                                    () => {
-                                                                                                        // console.log('formDetails', this.state.formDetails)
-                                                                                                        this.updateFormUploadDetails();
-                                                                                                        this.getForname();
-                                                                                                    },
-                                                                                                );
+                                                                                            for (var i = 0; i < formDetailsOrg.length; i++) {
+                                                                                                formDetails.push({
+                                                                                                    AttachedDocument:
+                                                                                                        formDetailsOrg[i].AttachedDocument,
+                                                                                                    Attachmenttype: formDetailsOrg[i].Attachmenttype,
+                                                                                                    DocName: formDetailsOrg[i].DocName,
+                                                                                                    FormId: formDetailsOrg[i].FormId,
+                                                                                                    FormName: formDetailsOrg[i].FormName,
+                                                                                                    FormType: formDetailsOrg[i].FormType,
+                                                                                                    DocumentId: formDetailsOrg[i].DocumentId,
+                                                                                                    isModified: formDetailsOrg[i].isModified,
+                                                                                                });
                                                                                             }
-                                                                                        });
-                                                                                    }
-                                                                                },
-                                                                            );
-                                                                        }
-                                                                    }}>
-                                                                    <ResponsiveImage source={Images.AttachIcon} initWidth="24" initHeight="22" />
-                                                                </TouchableOpacity>
-                                                            ) : null}
-                                                        </View>
-                                                    </View>
-                                                ) : null}
-                                                <View style={styles.sectionBottom}>
-                                                    <View style={styles.sectionContent}></View>
-                                                    <View style={{ width: '100%', height: null }}>
-                                                        <Dropdown
-                                                            data={attachmentType}
-                                                            label={strings.attachmenttype}
-                                                            labelField="text"
-                                                            valueField="value"
-                                                            value={
-                                                                this.state.RefList[key]
-                                                                    ? this.state.RefList[key].Attachmenttype == 0
-                                                                        ? attachmentType[0].value
-                                                                        : attachmentType[1].value
-                                                                    : attachmentType[0].value
-                                                            }
-                                                            fontSize={Fonts.size.regular}
-                                                            labelFontSize={Fonts.size.small}
-                                                            baseColor={'#A6A6A6'}
-                                                            selectedItemColor="#000"
-                                                            textColor="#000"
-                                                            itemColor="#000"
-                                                            itemPadding={5}
-                                                            dropdownOffset={{ top: 10, left: 0 }}
-                                                            itemTextStyle={{ fontFamily: 'OpenSans-Regular' }}
-                                                            onChange={value => {
-                                                                var RefList = [];
-
-                                                                RefList = this.state.RefList;
-                                                                for (var i = 0; i < attachmentType.length; i++) {
-                                                                    if (value.value == attachmentType[i].value) {
-                                                                        console.log('selected', attachmentType[i]);
-                                                                        var typeID = attachmentType[i].id;
-                                                                    }
-                                                                }
-                                                                RefList[key].Attachmenttype = typeID;
-                                                                RefList[key].AttachedDocument = '';
-                                                                this.setState(
-                                                                    {
-                                                                        RefList: RefList,
-                                                                    },
-                                                                    () => {
-                                                                        console.log('Modified', RefList);
-                                                                    },
-                                                                );
-                                                            }}
-                                                        />
-                                                    </View>
-                                                    {this.state.RefList[key].Attachmenttype == 1 ? (
-                                                        <View style={[styles.sectionContent, { width: '100%', flexDirection: 'column' }]}>
-                                                            <View style={{ width: '100%', height: null }}>
-                                                                {this.state.RefList[key].AttachedDocument != '' ? (
-                                                                    <Text
-                                                                        style={{
-                                                                            color: 'grey',
-                                                                            left: 0,
-                                                                            fontFamily: 'OpenSans-Regular',
-                                                                        }}>
-                                                                        {strings.UncontrolledLink}
-                                                                    </Text>
-                                                                ) : null}
-                                                            </View>
-                                                            <View style={{ width: '100%', height: null }}>
-                                                                <TextInput
-                                                                    multiline={true}
-                                                                    value={this.state.RefList[key].AttachedDocument}
-                                                                    style={{
-                                                                        fontSize: 18,
-                                                                        fontFamily: 'OpenSans-Regular',
-                                                                    }}
-                                                                    placeholder={strings.UncontrolledLink}
-                                                                    placeholderTextColor="#A9A9A9"
-                                                                    baseColor="#A6A6A6"
-                                                                    textColor="#747474"
-                                                                    onChangeText={text => {
-                                                                        var RefList = [];
-
-                                                                        RefList = this.state.RefList;
-                                                                        RefList[key].AttachedDocument = text;
-                                                                        RefList[key].DocName = text;
-                                                                        RefList[key].isModified = true;
-                                                                        this.setState(
-                                                                            {
-                                                                                RefList: RefList,
-                                                                            },
-                                                                            () => {
-                                                                                console.log('RefList modified', this.state.RefList);
-                                                                            },
-                                                                        );
-                                                                    }}
-                                                                    onBlur={() => {
-                                                                        Keyboard.dismiss();
-                                                                        console.log('this.state.formDetails', this.state.formDetails);
-                                                                        console.log('this.state.RefList', this.state.RefList);
-                                                                        var formDetails = [];
-                                                                        for (var i = 0; i < this.state.formDetails.length; i++) {
-                                                                            if (this.state.formDetails[i].FormId == this.state.RefList[key].FormId) {
-                                                                                formDetails.push({
-                                                                                    AttachedDocument:
-                                                                                        this.state.RefList[key].AttachedDocument.toLowerCase(),
-                                                                                    Attachmenttype: this.state.RefList[key].Attachmenttype,
-                                                                                    DocName: this.state.RefList[key].AttachedDocument,
-                                                                                    DocumentId: this.state.formDetails[i].DocumentId,
-                                                                                    FormId: this.state.formDetails[i].FormId,
-                                                                                    FormName: this.state.formDetails[i].FormName,
-                                                                                    FormType: this.state.formDetails[i].FormType,
-                                                                                    isModified: this.state.RefList[key].isModified,
-                                                                                });
-                                                                                console.log('Modified object', formDetails);
+                                                                                            for (var i = 0; i < formDetails.length; i++) {
+                                                                                                if (formDetails[i].FormId == item.FormId) {
+                                                                                                    formDetails[i].DocName = res.fileName;
+                                                                                                    formDetails[i].AttachedDocument = res.uri;
+                                                                                                    formDetails[i].Attachmenttype = 0;
+                                                                                                    formDetails[i].isModified = true;
+                                                                                                }
+                                                                                            }
+                                                                                            this.setState({ formDetails: formDetails }, () => {
+                                                                                                console.log('formDetails', this.state.formDetails);
+                                                                                                this.updateFormUploadDetails();
+                                                                                                this.getForname();
+                                                                                            });
+                                                                                        }
+                                                                                    },
+                                                                                );
                                                                             } else {
-                                                                                formDetails.push(this.state.formDetails[i]);
+                                                                                // iPhone/Android
+                                                                                DocumentPicker.pick(
+                                                                                    {
+                                                                                        filetype: ['public.content'],
+                                                                                    },
+                                                                                    (error, res) => {
+                                                                                        console.log('File upload error:', error);
+                                                                                        console.log('Document response:', res);
+                                                                                        if (res) {
+                                                                                            var getURI = res.uri;
+                                                                                            var uridata = getURI.slice(7);
+                                                                                            console.log('uridata', uridata);
+
+                                                                                            RNFetchBlob.fs.readFile(uridata, 'base64').then(data => {
+                                                                                                res.data = data;
+                                                                                                console.log(
+                                                                                                    'fetchBlobdata',
+                                                                                                    res.uri,
+                                                                                                    res.type,
+                                                                                                    res.fileName,
+                                                                                                    res.fileSize,
+                                                                                                    res.data,
+                                                                                                );
+                                                                                                if (res.fileSize > 52428800) {
+                                                                                                    alert(strings.alert);
+                                                                                                } else {
+                                                                                                    let IosFilesPath =
+                                                                                                        RNFetchBlob.fs.dirs.DocumentDir +
+                                                                                                        '/' +
+                                                                                                        'IosFiles';
+                                                                                                    console.log('IosFilesPath--->', IosFilesPath);
+                                                                                                    const arr = uridata.split('/');
+                                                                                                    var uripathIos =
+                                                                                                        IosFilesPath + '/' + arr[arr.length - 1];
+                                                                                                    RNFetchBlob.fs
+                                                                                                        .writeFile(uripathIos, data, 'base64')
+                                                                                                        .then(data => {
+                                                                                                            console.log('File added sucessfully');
+                                                                                                        });
+
+                                                                                                    // console.log('Form item', item)
+                                                                                                    var formDetailsOrg = this.state.formDetails;
+                                                                                                    var formDetails = [];
+
+                                                                                                    for (var i = 0; i < formDetailsOrg.length; i++) {
+                                                                                                        formDetails.push({
+                                                                                                            AttachedDocument:
+                                                                                                                formDetailsOrg[i].AttachedDocument,
+                                                                                                            Attachmenttype:
+                                                                                                                formDetailsOrg[i].Attachmenttype,
+                                                                                                            DocName: formDetailsOrg[i].DocName,
+                                                                                                            FormId: formDetailsOrg[i].FormId,
+                                                                                                            FormName: formDetailsOrg[i].FormName,
+                                                                                                            FormType: formDetailsOrg[i].FormType,
+                                                                                                            DocumentId: formDetailsOrg[i].DocumentId,
+                                                                                                            isModified: formDetailsOrg[i].isModified,
+                                                                                                        });
+                                                                                                    }
+                                                                                                    for (var i = 0; i < formDetails.length; i++) {
+                                                                                                        if (formDetails[i].FormId == item.FormId) {
+                                                                                                            formDetails[i].DocName = res.fileName;
+                                                                                                            formDetails[i].AttachedDocument = uridata;
+                                                                                                            formDetails[i].Attachmenttype = 0;
+                                                                                                            formDetails[i].isModified = true;
+                                                                                                        }
+                                                                                                    }
+                                                                                                    this.setState(
+                                                                                                        {
+                                                                                                            formDetails: formDetails,
+                                                                                                        },
+                                                                                                        () => {
+                                                                                                            // console.log('formDetails', this.state.formDetails)
+                                                                                                            this.updateFormUploadDetails();
+                                                                                                            this.getForname();
+                                                                                                        },
+                                                                                                    );
+                                                                                                }
+                                                                                            });
+                                                                                        }
+                                                                                    },
+                                                                                );
                                                                             }
-                                                                        }
-                                                                        console.log('formDetails', formDetails);
-                                                                        this.setState(
-                                                                            {
-                                                                                formDetails: formDetails,
-                                                                            },
-                                                                            () => {
-                                                                                console.log('formDetails modified', this.state.formDetails);
-                                                                                this.updateFormUploadDetails();
-                                                                                this.getForname();
-                                                                            },
-                                                                        );
-                                                                    }}
-                                                                />
+                                                                        }}>
+                                                                        <ResponsiveImage source={Images.AttachIcon} initWidth="24" initHeight="22" />
+                                                                    </TouchableOpacity>
+                                                                ) : null}
                                                             </View>
                                                         </View>
                                                     ) : null}
+                                                    <View style={styles.sectionBottom}>
+                                                        <View style={styles.sectionContent}></View>
+                                                        <View style={{ width: '100%', height: null }}>
+                                                            <Dropdown
+                                                                data={attachmentType}
+                                                                label={strings.attachmenttype}
+                                                                labelField="text"
+                                                                valueField="value"
+                                                                value={
+                                                                    this.state.RefList[key]
+                                                                        ? this.state.RefList[key].Attachmenttype == 0
+                                                                            ? attachmentType[0].value
+                                                                            : attachmentType[1].value
+                                                                        : attachmentType[0].value
+                                                                }
+                                                                fontSize={Fonts.size.regular}
+                                                                labelFontSize={Fonts.size.small}
+                                                                baseColor={'#A6A6A6'}
+                                                                selectedItemColor="#000"
+                                                                textColor="#000"
+                                                                itemColor="#000"
+                                                                itemPadding={5}
+                                                                dropdownOffset={{ top: 10, left: 0 }}
+                                                                itemTextStyle={{ fontFamily: 'OpenSans-Regular' }}
+                                                                onChange={value => {
+                                                                    var RefList = [];
+
+                                                                    RefList = this.state.RefList;
+                                                                    for (var i = 0; i < attachmentType.length; i++) {
+                                                                        if (value.value == attachmentType[i].value) {
+                                                                            console.log('selected', attachmentType[i]);
+                                                                            var typeID = attachmentType[i].id;
+                                                                        }
+                                                                    }
+                                                                    RefList[key].Attachmenttype = typeID;
+                                                                    RefList[key].AttachedDocument = '';
+                                                                    this.setState(
+                                                                        {
+                                                                            RefList: RefList,
+                                                                        },
+                                                                        () => {
+                                                                            console.log('Modified', RefList);
+                                                                        },
+                                                                    );
+                                                                }}
+                                                            />
+                                                        </View>
+                                                        {this.state.RefList[key].Attachmenttype == 1 ? (
+                                                            <View style={[styles.sectionContent, { width: '100%', flexDirection: 'column' }]}>
+                                                                <View style={{ width: '100%', height: null }}>
+                                                                    {this.state.RefList[key].AttachedDocument != '' ? (
+                                                                        <Text
+                                                                            style={{
+                                                                                color: 'grey',
+                                                                                left: 0,
+                                                                                fontFamily: 'OpenSans-Regular',
+                                                                            }}>
+                                                                            {strings.UncontrolledLink}
+                                                                        </Text>
+                                                                    ) : null}
+                                                                </View>
+                                                                <View style={{ width: '100%', height: null }}>
+                                                                    <TextInput
+                                                                        multiline={true}
+                                                                        value={this.state.RefList[key].AttachedDocument}
+                                                                        style={{
+                                                                            fontSize: 18,
+                                                                            fontFamily: 'OpenSans-Regular',
+                                                                        }}
+                                                                        placeholder={strings.UncontrolledLink}
+                                                                        placeholderTextColor="#A9A9A9"
+                                                                        baseColor="#A6A6A6"
+                                                                        textColor="#747474"
+                                                                        onChangeText={text => {
+                                                                            var RefList = [];
+
+                                                                            RefList = this.state.RefList;
+                                                                            RefList[key].AttachedDocument = text;
+                                                                            RefList[key].DocName = text;
+                                                                            RefList[key].isModified = true;
+                                                                            this.setState(
+                                                                                {
+                                                                                    RefList: RefList,
+                                                                                },
+                                                                                () => {
+                                                                                    console.log('RefList modified', this.state.RefList);
+                                                                                },
+                                                                            );
+                                                                        }}
+                                                                        onBlur={() => {
+                                                                            Keyboard.dismiss();
+                                                                            console.log('this.state.formDetails', this.state.formDetails);
+                                                                            console.log('this.state.RefList', this.state.RefList);
+                                                                            var formDetails = [];
+                                                                            for (var i = 0; i < this.state.formDetails.length; i++) {
+                                                                                if (
+                                                                                    this.state.formDetails[i].FormId == this.state.RefList[key].FormId
+                                                                                ) {
+                                                                                    formDetails.push({
+                                                                                        AttachedDocument:
+                                                                                            this.state.RefList[key].AttachedDocument.toLowerCase(),
+                                                                                        Attachmenttype: this.state.RefList[key].Attachmenttype,
+                                                                                        DocName: this.state.RefList[key].AttachedDocument,
+                                                                                        DocumentId: this.state.formDetails[i].DocumentId,
+                                                                                        FormId: this.state.formDetails[i].FormId,
+                                                                                        FormName: this.state.formDetails[i].FormName,
+                                                                                        FormType: this.state.formDetails[i].FormType,
+                                                                                        isModified: this.state.RefList[key].isModified,
+                                                                                    });
+                                                                                    console.log('Modified object', formDetails);
+                                                                                } else {
+                                                                                    formDetails.push(this.state.formDetails[i]);
+                                                                                }
+                                                                            }
+                                                                            console.log('formDetails', formDetails);
+                                                                            this.setState(
+                                                                                {
+                                                                                    formDetails: formDetails,
+                                                                                },
+                                                                                () => {
+                                                                                    console.log('formDetails modified', this.state.formDetails);
+                                                                                    this.updateFormUploadDetails();
+                                                                                    this.getForname();
+                                                                                },
+                                                                            );
+                                                                        }}
+                                                                    />
+                                                                </View>
+                                                            </View>
+                                                        ) : null}
+                                                    </View>
                                                 </View>
-                                            </View>
-                                        ))}
-                                    </View>
-                                ) : (
-                                    <View style={{ marginTop: '20%' }}>
-                                        <NoRecordFound />
-                                    </View>
-                                )}
-                            </ScrollView>
-                        </ScrollableTabView>
+                                            ))}
+                                        </View>
+                                    ) : (
+                                        this.renderEmptyState(strings.No_references_found)
+                                    )}
+                                </ScrollView>
+                            ) : null}
+                        </View>
                         <View style={styles.floatingDiv}>
                             <TouchableOpacity
                                 onPress={() => {
@@ -4254,8 +4273,8 @@ class AuditForm extends Component {
 
                 <Toast
                     ref={toast => {
-            this.toast = toast;
-          }}
+                        this.toast = toast;
+                    }}
                     style={{ backgroundColor: 'black', margin: 20 }}
                     position="top"
                     positionValue={200}
@@ -4265,7 +4284,6 @@ class AuditForm extends Component {
                     textStyle={{ color: 'white' }}
                 />
 
-                
                 <CommonAlertModal
                     visible={this.state.dialogVisible}
                     title={strings.Sync_title}

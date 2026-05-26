@@ -690,6 +690,46 @@ alignContent:'center',    borderWidth: 1,
     color: 'grey',
     fontFamily: 'OpenSans-Regular',
   },
+  auditRecordsTabWrapper: {
+    flex: 1,
+  },
+  auditRecordsTabBar: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    height: 50,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    backgroundColor: 'white',
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+    zIndex: 10,
+    elevation: 4,
+  },
+  auditRecordsTabButton: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingBottom: 10,
+  },
+  auditRecordsTabText: {
+    color: '#747474',
+    fontSize: Fonts.size.regular,
+    fontFamily: 'OpenSans-Regular',
+  },
+  auditRecordsTabTextActive: {
+    color: '#123C95',
+    fontFamily: 'OpenSans-Bold',
+  },
+  auditRecordsTabUnderline: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: 4,
+    backgroundColor: '#123C95',
+  },
 
   // Loader
   loaderContainer: {

@@ -89,7 +89,7 @@ const toastConfig = {
     ),
 };
 
-class CheckPointDemo extends Component {
+class CheckPointDemoSM extends Component {
     constructor(props) {
         super(props);
         console.log('get this.props--->', props);
@@ -8414,4 +8414,4 @@ const mapDispatchToProps = dispatch => {
     };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(CheckPointDemo);
+export default connect(mapStateToProps, mapDispatchToProps)(CheckPointDemoSM);

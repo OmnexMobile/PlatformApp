@@ -14,18 +14,12 @@ require Pod::Executable.execute_command('node', ['-p',
 platform :ios, min_ios_version_supported
 prepare_react_native_project!
 install! 'cocoapods', :deterministic_uuids => false
-flipper_version = '0.233.0'
 target 'IntegratedApp' do
   config = use_native_modules!
 
   # add custom pods before use_react_native!
   pod 'react-native-fetch-blob', :path => '../node_modules/react-native-fetch-blob'
   pod 'lottie-react-native', :path => '../node_modules/lottie-react-native'
-  pod 'FlipperKit', flipper_version, :configuration => 'Debug'
-  pod 'FlipperKit/FlipperKitLayoutPlugin', flipper_version, :configuration => 'Debug'
-  pod 'FlipperKit/FlipperKitUserDefaultsPlugin', flipper_version, :configuration => 'Debug'
-  pod 'FlipperKit/SKIOSNetworkPlugin', flipper_version, :configuration => 'Debug'
-
   use_react_native!(
     :path => config[:reactNativePath],
     :hermes_enabled => false,
@@ -56,10 +50,24 @@ target 'IntegratedApp' do
       project.targets.each do |target|
         target.build_configurations.each do |config|
           config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = min_ios_version_supported
+          config.build_settings['OTHER_CPLUSPLUSFLAGS'] ||= '$(inherited) '
+          unless config.build_settings['OTHER_CPLUSPLUSFLAGS'].include?('FOLLY_CFG_NO_COROUTINES')
+            config.build_settings['OTHER_CPLUSPLUSFLAGS'] << ' -DFOLLY_CFG_NO_COROUTINES'
+          end
           # additional header search paths
           config.build_settings['HEADER_SEARCH_PATHS'] ||= '$(inherited) '
           config.build_settings['HEADER_SEARCH_PATHS'] << '"${PODS_ROOT}/../../node_modules/react-native/ReactCommon" '
         end
+      end
+    end
+
+    installer.aggregate_targets.each do |target|
+      target.xcconfigs.each do |_config_name, xcconfig|
+        xcconfig.attributes['OTHER_CPLUSPLUSFLAGS'] ||= '$(inherited)'
+        unless xcconfig.attributes['OTHER_CPLUSPLUSFLAGS'].include?('FOLLY_CFG_NO_COROUTINES')
+          xcconfig.attributes['OTHER_CPLUSPLUSFLAGS'] << ' -DFOLLY_CFG_NO_COROUTINES'
+        end
+        xcconfig.save_as(target.xcconfig_path(_config_name))
       end
     end
   end

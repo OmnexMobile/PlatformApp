@@ -3,8 +3,9 @@ index 4cb92de..88e62ac 100644
 --- a/node_modules/react-native-scrollable-tab-view/DefaultTabBar.js
 +++ b/node_modules/react-native-scrollable-tab-view/DefaultTabBar.js
 @@ -1,5 +1,6 @@
- const React = require('react');
+-const React = require('react');
 -const { ViewPropTypes } = ReactNative = require('react-native');
++const React = require('../react');
 +import { ViewPropTypes, TextPropTypes } from 'deprecated-react-native-prop-types';
 +const ReactNative = require('react-native');
  const PropTypes = require('prop-types');
@@ -24,8 +25,9 @@ index 5db3793..9f4bb4b 100644
 --- a/node_modules/react-native-scrollable-tab-view/ScrollableTabBar.js
 +++ b/node_modules/react-native-scrollable-tab-view/ScrollableTabBar.js
 @@ -1,5 +1,6 @@
- const React = require('react');
+-const React = require('react');
 -const { ViewPropTypes } = ReactNative = require('react-native');
++const React = require('../react');
 +import { ViewPropTypes, TextPropTypes } from 'deprecated-react-native-prop-types';
 +const ReactNative = require('react-native');
  const PropTypes = require('prop-types');
@@ -45,7 +47,8 @@ index 82e53c5..0a0a772 100644
 --- a/node_modules/react-native-scrollable-tab-view/index.js
 +++ b/node_modules/react-native-scrollable-tab-view/index.js
 @@ -1,6 +1,7 @@
- const React = require('react');
+-const React = require('react');
++const React = require('../react');
  const { Component } = React;
 -const { ViewPropTypes } = ReactNative = require('react-native');
 +import { ViewPropTypes } from 'deprecated-react-native-prop-types';
@@ -93,3 +96,36 @@ index 82e53c5..0a0a772 100644
          }
        }
      }
+diff --git a/node_modules/react-native-scrollable-tab-view/Button.android.js b/node_modules/react-native-scrollable-tab-view/Button.android.js
+--- a/node_modules/react-native-scrollable-tab-view/Button.android.js
++++ b/node_modules/react-native-scrollable-tab-view/Button.android.js
+@@ -1,4 +1,4 @@
+-const React = require('react');
++const React = require('../react');
+ const ReactNative = require('react-native');
+ const {
+   TouchableNativeFeedback,
+diff --git a/node_modules/react-native-scrollable-tab-view/Button.ios.js b/node_modules/react-native-scrollable-tab-view/Button.ios.js
+--- a/node_modules/react-native-scrollable-tab-view/Button.ios.js
++++ b/node_modules/react-native-scrollable-tab-view/Button.ios.js
+@@ -1,4 +1,4 @@
+-const React = require('react');
++const React = require('../react');
+ const ReactNative = require('react-native');
+ const {
+   TouchableOpacity,
+diff --git a/node_modules/react-native-scrollable-tab-view/SceneComponent.js b/node_modules/react-native-scrollable-tab-view/SceneComponent.js
+--- a/node_modules/react-native-scrollable-tab-view/SceneComponent.js
++++ b/node_modules/react-native-scrollable-tab-view/SceneComponent.js
+@@ -1,4 +1,4 @@
+-const React = require('react');
++const React = require('../react');
+ const ReactNative = require('react-native');
+ const { Component } = React;
+ const { View, StyleSheet } = ReactNative;
+diff --git a/node_modules/react-native-scrollable-tab-view/StaticContainer.js b/node_modules/react-native-scrollable-tab-view/StaticContainer.js
+--- a/node_modules/react-native-scrollable-tab-view/StaticContainer.js
++++ b/node_modules/react-native-scrollable-tab-view/StaticContainer.js
+@@ -1,1 +1,1 @@
+-const React = require('react');
++const React = require('../react');

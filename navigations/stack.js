@@ -15,6 +15,8 @@ import LaunchScreen from '../screens/launch-screen';
 
 const Stack = createStackNavigator();
 
+const getModuleDefault = module => module?.default || module;
+
 export const AppStackData = [
     {
         name: ROUTES.SPLASH_SCREEN,
@@ -581,7 +583,7 @@ export const AppStackData = [
     },
     {
         name: ROUTES.CHECKPOINT_DEMO_SM,
-        getComponent: () => require('../screens/supplierManagement/containers/checkPointDemoSM').default,
+        getComponent: () => getModuleDefault(require('../screens/supplierManagement/containers/checkPointDemoSM')),
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
