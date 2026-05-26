@@ -752,7 +752,7 @@ getData = async () => {
           }
         );
       } else {
-        this.refs.toast.show(strings.Project_List_Failed, DURATION.LENGTH_LONG);
+        this.toast?.show(strings.Project_List_Failed, DURATION.LENGTH_LONG);
         this.setState(
           {
             // auditList: this.props.data.audits.audits,
@@ -1242,7 +1242,7 @@ getData = async () => {
                     modalErrortxt: "",
                   },
                   () => {
-                    this.refs.toast.show(
+                    this.toast?.show(
                       data.data.Data == ""
                         ? "Saved successfully"
                         : data.data.Data,
@@ -1259,7 +1259,7 @@ getData = async () => {
                     modalErrortxt: data.data.Data,
                   },
                   () => {
-                    this.refs.toast.show(data.data.Data, DURATION.LENGTH_SHORT);
+                    this.toast?.show(data.data.Data, DURATION.LENGTH_SHORT);
                   }
                 );
               }
@@ -1759,7 +1759,7 @@ getData = async () => {
           }
         );
       } else {
-        this.refs.toast.show(strings.Project_List_Failed, DURATION.LENGTH_LONG);
+        this.toast?.show(strings.Project_List_Failed, DURATION.LENGTH_LONG);
         this.setState(
           {
             //actionsList: this.props.data.actions,
@@ -3004,7 +3004,9 @@ getData = async () => {
             </View>
           </Modal>
           <Toast
-            ref="toast"
+            ref={(toast) => {
+              this.toast = toast;
+            }}
             style={{ backgroundColor: "black", margin: 20 }}
             position="top"
             positionValue={200}
@@ -3192,7 +3194,9 @@ getData = async () => {
             </View>
           </Modal>
           <Toast
-            ref="toast"
+            ref={(toast) => {
+              this.toast = toast;
+            }}
             style={{ backgroundColor: "black", margin: 20 }}
             position="top"
             positionValue={200}
@@ -3381,7 +3385,9 @@ getData = async () => {
             </View>
           </Modal>
           <Toast
-            ref="toast"
+            ref={(toast) => {
+              this.toast = toast;
+            }}
             style={{ backgroundColor: "black", margin: 20 }}
             position="top"
             positionValue={200}

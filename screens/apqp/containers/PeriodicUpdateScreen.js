@@ -614,7 +614,9 @@ class PeriodicUpdateScreen extends Component {
           <FAB iconName="plus" iconType={ICON_TYPE.Feather} onPress={() => this.onPressedit(this, "Add")} />
         </View>
         <Toast
-          ref="toast"
+          ref={(toast) => {
+            this.toast = toast;
+          }}
           style={styles.toastStyle}
           position="top"
           positionValue={200}

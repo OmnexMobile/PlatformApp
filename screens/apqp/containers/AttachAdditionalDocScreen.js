@@ -801,7 +801,9 @@ class AttachAdditionalDocScreen extends Component {
         )}
 
         <Toast
-          ref="toast"
+          ref={(toast) => {
+            this.toast = toast;
+          }}
           style={styles.toastStyle}
           position="top"
           positionValue={200}

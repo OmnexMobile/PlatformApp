@@ -425,7 +425,9 @@ console.log("HI old", Array);
           }}
         />
         <Toast
-          ref="toast"
+          ref={(toast) => {
+            this.toast = toast;
+          }}
           style={styles.toastStyle}
           position="top"
           positionValue={200}

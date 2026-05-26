@@ -350,7 +350,9 @@ export class DeliverableInfoScreen extends Component {
         </View>
 
         <Toast
-          ref="toast"
+          ref={(toast) => {
+            this.toast = toast;
+          }}
           style={styles.toastStyle}
           position="top"
           positionValue={200}

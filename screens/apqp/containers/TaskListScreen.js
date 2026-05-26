@@ -337,7 +337,7 @@ getData = async () => {
                     modalErrortxt: "",
                   },
                   () => {
-                    this.refs.toast.show(
+                    this.toast?.show(
                       data.data.Data == ""
                         ? "Saved successfully"
                         : data.data.Data,
@@ -354,7 +354,7 @@ getData = async () => {
                     modalErrortxt: "",
                   },
                   () => {
-                    this.refs.toast.show(data.data.Data, DURATION.LENGTH_SHORT);
+                    this.toast?.show(data.data.Data, DURATION.LENGTH_SHORT);
                   }
                 );
               }
@@ -1203,7 +1203,9 @@ getData = async () => {
         </Modal>
 
         <Toast
-          ref="toast"
+          ref={(toast) => {
+            this.toast = toast;
+          }}
           style={{ backgroundColor: "black", margin: 20 }}
           position="top"
           positionValue={200}

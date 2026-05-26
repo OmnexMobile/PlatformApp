@@ -681,7 +681,7 @@ class FilterSection extends Component {
       }
       // this.resetAll()
     } else {
-      this.refs.toast.show(strings.nofilterapply, DURATION.LENGTH_LONG);
+      this.toast?.show(strings.nofilterapply, DURATION.LENGTH_LONG);
     }
   }
 
@@ -890,7 +890,9 @@ class FilterSection extends Component {
           </View>
         </Modal>
         <Toast
-          ref="toast"
+          ref={(toast) => {
+            this.toast = toast;
+          }}
           style={{ backgroundColor: "grey", margin: 20 }}
           position="bottom"
           positionValue={200}

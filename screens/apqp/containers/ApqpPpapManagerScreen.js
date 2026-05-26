@@ -2751,7 +2751,9 @@ class ApqpPpapManagerScreen extends Component {
             </View>
           </Modal>
           <Toast
-            ref="toast"
+            ref={(toast) => {
+              this.toast = toast;
+            }}
             style={styles.toastStyle}
             position="top"
             positionValue={200}
@@ -2930,7 +2932,9 @@ class ApqpPpapManagerScreen extends Component {
             </View>
           </Modal>
           <Toast
-            ref="toast"
+            ref={(toast) => {
+              this.toast = toast;
+            }}
             style={styles.toastStyle}
             position="top"
             positionValue={200}
@@ -3111,7 +3115,9 @@ class ApqpPpapManagerScreen extends Component {
             </View>
           </Modal>
           <Toast
-            ref="toast"
+            ref={(toast) => {
+              this.toast = toast;
+            }}
             style={styles.toastStyle}
             position="top"
             positionValue={200}

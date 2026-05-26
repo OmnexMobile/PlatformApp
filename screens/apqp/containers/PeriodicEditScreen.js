@@ -235,8 +235,8 @@ class PeriodicEditScreen extends Component {
   onDateChange = (date) => {
     console.log('onStartDateChange date-->', date)
     //Start Date Change
-    var dt = new Date(date).setHours(0, 0, 0, 0);
-    var sdate = new Date().setHours(0, 0, 0, 0);
+    var dt = Moment(date).startOf("day").valueOf();
+    var sdate = Moment().startOf("day").valueOf();
 
     // var ddate = new Date(
     //   this.props.navigation.state.params.itemData.DueDate
@@ -270,12 +270,29 @@ class PeriodicEditScreen extends Component {
     }
   };
 
+  getPickerDate = (dateValue) => {
+    if (!dateValue) {
+      return null;
+    }
+
+    if (Moment.isMoment(dateValue)) {
+      return dateValue.toDate();
+    }
+
+    if (dateValue instanceof Date) {
+      return dateValue;
+    }
+
+    const parsedDate = Moment(dateValue, ["MM/DD/YYYY", Moment.ISO_8601], true);
+    return parsedDate.isValid() ? parsedDate.toDate() : null;
+  };
+
   onEndDateChange = (date) => {
     ////End Date Change
     console.log('onEndDateChange date-->', date)
-    var dt = new Date(date).setHours(0, 0, 0, 0);
-    var startdate = new Date(this.state.startdate).setHours(0, 0, 0, 0);
-    var today = new Date().setHours(0, 0, 0, 0);
+    var dt = Moment(date).startOf("day").valueOf();
+    var startdate = Moment(this.state.startdate, "MM/DD/YYYY").startOf("day").valueOf();
+    var today = Moment().startOf("day").valueOf();
     console.log('startdate-->', startdate, 'dt-->', dt, 'dt >= startdate-->', dt >= startdate, 'today-->', today, 'dt <= today-->', dt <= today)
     // if (dt <= today && dt >= startdate) {
     if (dt >= startdate) {
@@ -1144,11 +1161,11 @@ class PeriodicEditScreen extends Component {
               </Text>
             </View>
             <CalendarPicker
-              onDateChange={this.handleCalenderDate}
+              onDateChange={(date) => this.handleCalenderDate(date, "START_DATE")}
               previousTitle={"  <<" + strings.previous}
               nextTitle={strings.next + ">>  "}
               todayBackgroundColor="#61BAD0"
-              selectedStartDate={this.state.startdate}
+              selectedStartDate={this.getPickerDate(this.state.startdate)}
               allowRangeSelection={false}
             />
             {this.state.isValid === false ? (
@@ -1191,9 +1208,8 @@ class PeriodicEditScreen extends Component {
                 previousTitle={"  <<" + strings.previous}
                 nextTitle={strings.next + ">>  "}
                 todayBackgroundColor="#61BAD0"
-                selectedStartDate={this.state.startdate}
-                selectedEndDate={this.state.endate}
-                minDate={this.state.startdate}
+                selectedStartDate={this.getPickerDate(this.state.endate)}
+                minDate={this.getPickerDate(this.state.startdate)}
                 // maxDate={this.state?.RouteParam == "Edit" ? today : null}
                 allowRangeSelection={false}
               />
@@ -1233,7 +1249,9 @@ class PeriodicEditScreen extends Component {
         </View>
 
         <Toast
-          ref="toast"
+          ref={(toast) => {
+            this.toast = toast;
+          }}
           style={styles.toastStyle}
           position="top"
           positionValue={200}

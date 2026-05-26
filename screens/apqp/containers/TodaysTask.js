@@ -779,7 +779,9 @@ class ActionTabInterface extends Component {
         </View> */}
 
         <Toast
-          ref="toast"
+          ref={(toast) => {
+            this.toast = toast;
+          }}
           style={{ backgroundColor: "black", margin: 20 }}
           position="bottom"
           positionValue={200}
@@ -1118,7 +1120,7 @@ class ActionTabInterface extends Component {
           }
         });
       } else {
-        this.refs.toast.show(strings.Project_List_Failed, DURATION.LENGTH_LONG);
+        this.toast?.show(strings.Project_List_Failed, DURATION.LENGTH_LONG);
         this.setState(
           {
             // projectList: this.props?.data?.projects?.projects,
@@ -1735,7 +1737,7 @@ class ActionTabInterface extends Component {
           }
         );
       } else {
-        this.refs.toast.show(strings.Project_List_Failed, DURATION.LENGTH_LONG);
+        this.toast?.show(strings.Project_List_Failed, DURATION.LENGTH_LONG);
         this.setState(
           {
             //actionsList: this.props.data.actions,

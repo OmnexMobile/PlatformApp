@@ -12,7 +12,10 @@ import {
   TouchableOpacity,
   LogBox,
   ActivityIndicator,
+  Platform,
+  StatusBar,
 } from "react-native";
+import { initialWindowMetrics } from "react-native-safe-area-context";
 import Images from "../themes/Images";
 import Moment from "moment";
 // import ResponsiveImage from "react-native-responsive-image";
@@ -45,7 +48,10 @@ import styles from "./styles/DashboardStyles";
 import PendingCard from "../components/PendingCard";
 import VersionCheck from 'react-native-version-check';
 import { ROUTES } from "constants/app-constant";
-import { SPACING } from "constants/theme-constants";
+
+const DASHBOARD_HEADER_HEIGHT = 70;
+const MIN_ANDROID_TOP_INSET = 24;
+const MIN_IOS_TOP_INSET = 20;
 
 class DashboardScreen extends Component {
   UserId = "";
@@ -767,7 +773,7 @@ class DashboardScreen extends Component {
           }
         });
       } else {
-        this.refs.toast.show(strings.Project_List_Failed, DURATION.LENGTH_LONG);
+        this.toast?.show(strings.Project_List_Failed, DURATION.LENGTH_LONG);
         this.setState(
           {
             loading: false,
@@ -952,7 +958,6 @@ class DashboardScreen extends Component {
   render() {
     return (
       <View style={styles.mainContainer}>
-        {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
         <OfflineNotice />
         {this.render_header()}
         {this.state.loading ? this.render_loader() : this.render_statusBar()}
@@ -1122,7 +1127,9 @@ class DashboardScreen extends Component {
           </View>
         </ScrollView>
         <Toast
-          ref="toast"
+          ref={(toast) => {
+            this.toast = toast;
+          }}
           style={{ backgroundColor: "black", margin: 20 }}
           position="bottom"
           positionValue={200}
@@ -1147,12 +1154,24 @@ class DashboardScreen extends Component {
   render_header() {
 
     {console.log('this.state.Username', this.state.Username)}
+    const topInset = Math.max(
+      initialWindowMetrics?.insets?.top || 0,
+      Platform.OS === "android"
+        ? StatusBar.currentHeight || MIN_ANDROID_TOP_INSET
+        : MIN_IOS_TOP_INSET
+    );
     return (
-      <ImageBackground source={Images.headerBG} style={styles.header}>
+      <ImageBackground
+        source={Images.headerBG}
+        style={[
+          styles.header,
+          { height: DASHBOARD_HEADER_HEIGHT + topInset, paddingTop: topInset },
+        ]}
+      >
         <TouchableOpacity
           onPress={() => this.props.navigation.navigate(ROUTES.HOME_FAB_VIEW) }
           style={{left: 10}}
-          hitSlop={{ top: 100, bottom: 100, left: 100, right: 100 }}
+          hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
           >
           <Icon name="angle-left" size={30} color="white" />
         </TouchableOpacity>

@@ -764,7 +764,7 @@ class ProjectListScreen extends Component {
                     modalErrortxt: "",
                   },
                   () => {
-                    this.refs.toast.show(
+                    this.toast?.show(
                       data.data.Data == ""
                         ? "Saved successfully"
                         : data.data.Data,
@@ -781,7 +781,7 @@ class ProjectListScreen extends Component {
                     modalErrortxt: "",
                   },
                   () => {
-                    this.refs.toast.show(data.data.Data, DURATION.LENGTH_SHORT);
+                    this.toast?.show(data.data.Data, DURATION.LENGTH_SHORT);
                   }
                 );
               }
@@ -1166,7 +1166,9 @@ class ProjectListScreen extends Component {
           </View>
         </Modal>
         <Toast
-          ref="toast"
+          ref={(toast) => {
+            this.toast = toast;
+          }}
           style={{ backgroundColor: "black", margin: 20 }}
           position="top"
           positionValue={200}
