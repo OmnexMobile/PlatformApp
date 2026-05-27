@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import { Platform, View, StyleSheet, TouchableOpacity } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 // import { RFPercentage } from 'react-native-responsive-fontsize';
 import { useNavigation } from '@react-navigation/native';
 import { FONT_TYPE, ICON_TYPE } from 'constants/app-constant';
@@ -12,6 +13,8 @@ import { RFPercentage } from 'helpers/utils';
 const Header = ({ title, leftIcon = null, rightIcon = null, back = true, rightIconClick, handleBackClick = null }) => {
     const navigation = useNavigation();
     const { theme } = useTheme();
+    const insets = useSafeAreaInsets();
+    const topInset = Platform.OS === 'ios' ? insets.top : 0;
 
     const handleLeftIconClick = () => {
         console.log('clicked');
@@ -32,6 +35,8 @@ const Header = ({ title, leftIcon = null, rightIcon = null, back = true, rightIc
                 {
                     backgroundColor: theme.mode.backgroundColor,
                     borderBottomColor: theme.mode.borderColor,
+                    minHeight: styles.headerContainer.minHeight + topInset,
+                    paddingTop: topInset,
                 },
             ]}>
             {leftIcon || back ? (
