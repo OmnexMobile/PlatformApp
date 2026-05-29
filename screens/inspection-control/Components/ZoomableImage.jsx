@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   Dimensions,
+  useWindowDimensions,
 } from 'react-native';
 import {
   GestureDetector,
@@ -17,11 +18,12 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated';
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+// const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const imageExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
 
 function ZoomableImage({ fileList }) {  // ← pass full list
-
+  const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = useWindowDimensions();
+  const styles = makeStyles(SCREEN_WIDTH, SCREEN_HEIGHT);
   const [currentIndex, setCurrentIndex] = useState(0);
 
   // ── Filter only images from list ──
@@ -162,23 +164,25 @@ function ZoomableImage({ fileList }) {  // ← pass full list
           {currentFile?.FileName}
         </Text>
       </View>
-
       <Text style={styles.hint}>Pinch to zoom · Double-tap to reset</Text>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (SCREEN_WIDTH, SCREEN_HEIGHT) => StyleSheet.create({
   wrapper: {
     flex: 1,
     backgroundColor: '#000',
     overflow: 'hidden',
+    height: SCREEN_HEIGHT / 2,
+
   },
   imageContainer: {
     width: SCREEN_WIDTH,
     height: SCREEN_HEIGHT * 0.38,
     alignItems: 'center',
     justifyContent: 'center',
+    alignSelf: 'center',
   },
   image: {
     width: SCREEN_WIDTH,
@@ -227,16 +231,17 @@ const styles = StyleSheet.create({
 
   // ── Footer ──
   footer: {
-    position: 'absolute',
-    bottom: 24,
     width: '100%',
+    flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    justifyContent: 'center',
+    paddingTop: 10
   },
   counter: {
     color: '#fff',
     fontSize: 13,
     fontWeight: '600',
+    marginRight: 10,
   },
   filename: {
     color: 'rgba(255,255,255,0.5)',
@@ -244,8 +249,6 @@ const styles = StyleSheet.create({
     maxWidth: SCREEN_WIDTH * 0.7,
   },
   hint: {
-    position: 'absolute',
-    bottom: 6,
     alignSelf: 'center',
     fontSize: 11,
     color: 'rgba(255,255,255,0.3)',

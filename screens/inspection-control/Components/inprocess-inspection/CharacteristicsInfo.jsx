@@ -33,6 +33,7 @@ import CapabilityCard from '../CapabilityCard';
 import ImageView from "react-native-image-viewing";
 import ZoomableImage from '../ZoomableImage';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import CaptureDefect from './CaptureDefect';
 const moreList = [
     {
         id: 1,
@@ -102,6 +103,7 @@ const CharacteristicsInfo = ({
 }) => {
     const [showCPKModal, setShowCPKModal] = useState(false);
     const [showImageWithSample, setShowImageWithSample] = useState(false);
+    const [showCaptureDefect, setShowCaptureDefect] = useState(false);
     const imageFiles = useMemo(() => {
         return FileList
             .filter(file =>
@@ -694,6 +696,20 @@ const CharacteristicsInfo = ({
                                     inspectionType={inspectionType}
                                 />
                             )}
+                            <View style={{flexDirection: 'row', alignItems: 'center', paddingHorizontal: 15, marginBottom: 10}}>
+                                <View style={{flex: 1}}>
+                                    <TouchableOpacity
+                                        style={{ flexDirection: 'row', alignItems: 'center' }}
+                                        onPress={() => {
+                                            setShowCaptureDefect(true);
+                                        }}>
+                                        <IconM name="camera" size={20} color={COLORS.apptheme} />
+                                    </TouchableOpacity>
+                                </View>
+                                <View style={{flex: 1}}>
+                                    <Text style={[styles.headerText, {marginLeft: 5}]}>Sample Size: {masterData?.length || 0}</Text>
+                                </View>
+                            </View>
                             {Boolean(selectedData?.isSamplePopup) && (
                                 <View style={[styles.headerBox]}>
                                     <View style={{ flex: 1 }}>
@@ -781,31 +797,32 @@ const CharacteristicsInfo = ({
                 transparent={false}
                 onRequestClose={() => setShowImageWithSample(false)}
             >
-                <GestureHandlerRootView style={{ flex: 1 }}>  
-                <SafeAreaView style={styles.modalContainer}>
-                    <View style={styles.header}>
-                        <Text style={styles.title}>View Image Attachment with Sample</Text>
-                        <TouchableOpacity
-                            style={[styles.deleteIcon]}
-                            onPress={() => {
-                                setShowImageWithSample(false);
-                            }}>
-                            <IconMM name="close" size={25} color={COLORS.apptheme} />
-                        </TouchableOpacity>
-                    </View>
-                    <View style={styles.content}>
-                        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', }}>
-                            <ZoomableImage fileList={FileList} />
+                <GestureHandlerRootView style={{ flex: 1 }}>
+                    <SafeAreaView style={styles.modalContainer}>
+                        <View style={styles.header}>
+                            <Text style={styles.title}>View Image Attachment with Sample</Text>
+                            <TouchableOpacity
+                                style={[styles.deleteIcon]}
+                                onPress={() => {
+                                    setShowImageWithSample(false);
+                                }}>
+                                <IconMM name="close" size={25} color={COLORS.apptheme} />
+                            </TouchableOpacity>
                         </View>
-                        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 10 }}>
-                            <View style={{ flex: 1, width: '100%' }}>
-                                {renderFaltList(false)}
+                        <View style={styles.content}>
+                            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', }}>
+                                <ZoomableImage fileList={FileList} />
+                            </View>
+                            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 10 }}>
+                                <View style={{ flex: 1, width: '100%' }}>
+                                    {renderFaltList(false)}
+                                </View>
                             </View>
                         </View>
-                    </View>
-                </SafeAreaView>
+                    </SafeAreaView>
                 </GestureHandlerRootView>
             </Modal>
+            <CaptureDefect visible={showCaptureDefect} onRequestClose={() => setShowCaptureDefect(false)} />
         </KeyboardAvoidingView>
     );
 };
