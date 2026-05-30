@@ -88,7 +88,6 @@ const InspectionSchedule = () => {
         personList: [],
     });
     const [showBubble, setShowBubble] = useState(false);
-    const [pageNumber, setPageNumber] = useState(1);
     const handleFilePress = item => {
         let temp = {
             ProductionItem: item.ProductionItem,
@@ -98,15 +97,23 @@ const InspectionSchedule = () => {
         setSelectedData(temp);
         setShowFileModal(true);
     };
+    // useEffect(() => {
+    //     getSQliteList()
+    // }, [isFocused]);
+    // const getSQliteList = async () => {
+    //     const list = await getAllInspectionData();
+    //     console.log(list, '*********************************************list.length');
+    // };
     const getOverAllSettings = async () => {
         const settingsRes = await postAPI(`${ApiUrl.IC_SETTINGS}`);
         if (settingsRes.Success) {
             dispatch({ type: 'IC_SETTINGS', icSettings: settingsRes?.Data[0] || {} });
         }
     };
-    const handleListFetch = async (inspect = null, showSktn = true, filterType = '', PgNumber = pageNumber) => {
+    const handleListFetch = async (inspect = null, showSktn = true, filterType = '') => {
         // await deleteAllInspectionData();
         const inspectList = await getInspectionDataByUserAndSite(icUserData?.userData?.UserId, icUserData?.userData?.Siteid);
+        console.log(inspectList.length, '*********************************************inspectList.length');
         showSktn && setShowSkeleton(true);
         const { startDate, endDate, type } = filterData;
         let dateFlag = startDate !== '' && endDate !== '';
@@ -117,8 +124,6 @@ const InspectionSchedule = () => {
         formData.append('LanguageID', 1);
         formData.append('StartDate', dateFlag ? moment(startDate).format('MM/DD/YYYY') : '');
         formData.append('EndDate', dateFlag ? moment(endDate).format('MM/DD/YYYY') : '');
-        formData.append('PageNumber', PgNumber);
-        formData.append('PageSize', 10);
         // formData.append('InspectionType', inspect !== null ? inspect : type);
         const response = await postAPI(`${ApiUrl.IC_GET_IS}`, formData);
         await getOverAllSettings();
@@ -140,27 +145,14 @@ const InspectionSchedule = () => {
             const sortedSchedules = updatedArray.sort((a, b) => {
                 return new Date(b.ProductionStartDate) - new Date(a.ProductionStartDate);
             });
-            let filterTemp = [];
-            let overall = [];
             if (filterType !== '') {
-                filterTemp = sortedSchedules.filter(item => item.TypeOfInspection == filterType);
-                // setMasterData(filterTemp || []);
+                let filterTemp = sortedSchedules.filter(item => item.TypeOfInspection == filterType);
+                setMasterData(filterTemp || []);
             } else {
-                overall = sortedSchedules;
-                // setMasterData(sortedSchedules || []);
-            }
-            let overallFinal = filterType !== '' ? filterTemp : overall;
-            if (PgNumber == 1) {
-                setMasterData(overallFinal|| []);
-                setOverAllData(overall || []);
-                setPageNumber(2);
-            } else if (PgNumber > 1) {
-                setPageNumber(pre => pre + 1);
-                setMasterData([...masterData, ...(overallFinal || [])]);
-                setOverAllData([...overAllData, ...(overall || [])]);
+                setMasterData(sortedSchedules || []);
             }
             retunListData = sortedSchedules;
-            // setOverAllData(sortedSchedules || []);
+            setOverAllData(sortedSchedules || []);
             let tempShift = response?.Data?.InspectionShifts.map(item => ({ ...item, label: item.ShiftName, value: item.ShiftID }));
             setFormList(pre => ({ ...pre, shiftList: tempShift || [] }));
         } else {
@@ -196,7 +188,8 @@ const InspectionSchedule = () => {
 
     useEffect(() => {
         if (icUserData && isFocused) {
-            handleListFetch(null, true, filterData.type, 1);
+            console.log('icUserData', icUserData);
+            handleListFetch(null, true, filterData.type);
         }
         return () => {
             setSearch('');
@@ -240,7 +233,7 @@ const InspectionSchedule = () => {
         const tempStart = moment(startDate);
         const tempEnd = moment(endDate);
         if (tempStart.isBefore(tempEnd)) {
-            handleListFetch(null, true, filterData.type, 1);
+            handleListFetch(null, true, filterData.type);
         } else {
             showMessage({
                 message: 'Start Date must be less than End Date',
@@ -310,8 +303,7 @@ const InspectionSchedule = () => {
     const onRefresh = () => {
         setRefreshing(true);
         setSearch('');
-        setPageNumber(1);
-        handleListFetch(null, false, filterData.type, 1);
+        handleListFetch(null, false, filterData.type);
     };
     const handleSearch = (value, filterType) => {
         let temp = JSON.parse(JSON.stringify(overAllData));
@@ -345,8 +337,7 @@ const InspectionSchedule = () => {
     const handleSubmitBtnPress = async val => {
         setShowBubble(true);
         const latestInspection = await getInspectionDataByUserAndSite(icUserData?.userData?.UserId, icUserData?.userData?.Siteid);
-        // const apiData = await handleListFetch(null, false, filterData.type);
-        const apiData = [...overAllData];
+        const apiData = await handleListFetch(null, false, filterData.type);
         let filterTemp = filterData.type !== '' ? apiData.filter(item => item.TypeOfInspection == filterData.type) : apiData;
         let temp = [...filterTemp] || [];
         const updatedArray = temp.map(item => {
@@ -364,6 +355,7 @@ const InspectionSchedule = () => {
         setMasterData(updatedArray);
         setShowBubble(false);
     };
+    console.log(masterData.length, 'masterData');
     return (
         <CustomHeader
             title="Inspection Schedule"
@@ -440,11 +432,6 @@ const InspectionSchedule = () => {
                         keyExtractor={(item, index) => index + 1}
                         showsVerticalScrollIndicator={false}
                         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-                        onEndReached={async () => {
-                            setShowBubble(true);
-                            await handleListFetch(null, false, filterData.type, pageNumber);
-                            setShowBubble(false);
-                        }}
                     />
                 ) : (
                     <NoDataFound />
