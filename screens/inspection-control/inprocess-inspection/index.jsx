@@ -227,7 +227,7 @@ const InprocessInspection = ({ route }) => {
                     statusBarHeight: 40,
                     icon: 'warning',
                     position: 'right',
-                    style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+                    style:  { height: 90, alignItems: 'flex-end' } ,
                 });
             }
         } else {
@@ -240,7 +240,7 @@ const InprocessInspection = ({ route }) => {
                 statusBarHeight: 40,
                 icon: 'warning',
                 position: 'right',
-                style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+                style:  { height: 90, alignItems: 'flex-end' } ,
             });
         }
     };
@@ -466,7 +466,7 @@ const InprocessInspection = ({ route }) => {
                 //     statusBarHeight: 40,
                 //     icon: 'warning',
                 //     position: 'right',
-                //     style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+                //     style:  { height: 90, alignItems: 'flex-end' } ,
                 // });
                 // setUserUpdateValue(pre => ({ ...pre, CSampleSize: selectedData.CSampleSize.toString() }));
             } else {
@@ -486,7 +486,7 @@ const InprocessInspection = ({ route }) => {
                     statusBarHeight: 40,
                     icon: 'warning',
                     position: 'right',
-                    style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+                    style:  { height: 90, alignItems: 'flex-end' } ,
                 });
                 setUserUpdateValue(pre => ({ ...pre, CHighValue: selectedData.CHighValue.toString() }));
             } else {
@@ -510,7 +510,7 @@ const InprocessInspection = ({ route }) => {
                     statusBarHeight: 40,
                     icon: 'warning',
                     position: 'right',
-                    style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+                    style:  { height: 90, alignItems: 'flex-end' } ,
                 });
                 setUserUpdateValue(pre => ({ ...pre, CLowValue: selectedData.CLowValue.toString() }));
             }
@@ -615,7 +615,7 @@ const InprocessInspection = ({ route }) => {
                                 //         color: COLORS.white,
                                 //         duration: 1500,
                                 //         statusBarHeight: 40,
-                                //         // style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+                                //         // style:  { height: 90, alignItems: 'flex-end' } ,
                                 //         position: 'bottom',
                                 //     });
                                 // }

@@ -60,7 +60,7 @@ const ModalFilePickerWithList = ({
                     statusBarHeight: 40,
                     icon: 'danger',
                     position: 'right',
-                    style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+                    style:  { height: 90, alignItems: 'flex-end' } ,
                 });
             }
         } catch (err) {
@@ -68,11 +68,11 @@ const ModalFilePickerWithList = ({
                 message: `${err}`,
                 backgroundColor: COLORS.ERROR,
                 color: COLORS.white,
-                duration: 1500,
+                duration: 1500, 
                 statusBarHeight: 40,
                 icon: 'danger',
                 position: 'right',
-                style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+                style:  { height: 90, alignItems: 'flex-end' } ,
             });
         }
     };

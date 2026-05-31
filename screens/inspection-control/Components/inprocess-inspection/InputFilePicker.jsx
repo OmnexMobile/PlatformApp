@@ -52,7 +52,7 @@ const InputFilePicker = ({ ListData = [], isEditable = false, title = '', handle
                     statusBarHeight: 40,
                     icon: 'danger',
                     position: 'right',
-                    style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+                    style:  { height: 90, alignItems: 'flex-end' } ,
                 });
             }
         } catch (err) {
@@ -65,7 +65,7 @@ const InputFilePicker = ({ ListData = [], isEditable = false, title = '', handle
                 statusBarHeight: 40,
                 icon: 'danger',
                 position: 'right',
-                style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+                style:  { height: 90, alignItems: 'flex-end' } ,
             });
         }
     };

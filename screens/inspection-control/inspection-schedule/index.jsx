@@ -223,7 +223,7 @@ const InspectionSchedule = () => {
     //                 statusBarHeight: 40,
     //                 icon: 'danger',
     //                 position: 'right',
-    //                 style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+    //                 style:  { height: 90, alignItems: 'flex-end' } ,
     //             });
     //         }
     //     }
@@ -243,7 +243,7 @@ const InspectionSchedule = () => {
                 statusBarHeight: 40,
                 icon: 'danger',
                 position: 'right',
-                style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+                style:  { height: 90, alignItems: 'flex-end' } ,
             });
         }
     };

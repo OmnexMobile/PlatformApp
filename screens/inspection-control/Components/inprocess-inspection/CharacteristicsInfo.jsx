@@ -206,7 +206,7 @@ const CharacteristicsInfo = ({
                 //     statusBarHeight: 40,
                 //     icon: 'warning',
                 //     position: 'right',
-                //     style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+                //     style:  { height: 90, alignItems: 'flex-end' } ,
                 // });
             } else {
                 console.log('********************step6');
@@ -344,7 +344,7 @@ const CharacteristicsInfo = ({
                 //     statusBarHeight: 40,
                 //     icon: 'warning',
                 //     position: 'right',
-                //     style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+                //     style:  { height: 90, alignItems: 'flex-end' } ,
                 // });
             } else {
                 console.log('1111********************step6');

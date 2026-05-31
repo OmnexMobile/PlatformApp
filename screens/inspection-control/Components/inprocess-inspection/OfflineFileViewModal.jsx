@@ -53,7 +53,7 @@ const OfflineFileViewModal = ({ list = [], visible = false, onDismiss = () => {}
                     statusBarHeight: 40,
                     icon: 'success',
                     position: 'right',
-                    style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+                    style:  { height: 90, alignItems: 'flex-end' } ,
                 });
                 return filePath;
             } else {
@@ -74,7 +74,7 @@ const OfflineFileViewModal = ({ list = [], visible = false, onDismiss = () => {}
                         statusBarHeight: 40,
                         icon: 'success',
                         position: 'right',
-                        style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+                        style:  { height: 90, alignItems: 'flex-end' } ,
                     });
                 }
 

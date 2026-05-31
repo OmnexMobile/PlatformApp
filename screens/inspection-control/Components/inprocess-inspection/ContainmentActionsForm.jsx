@@ -60,7 +60,7 @@ const ContainmentActionsForm = ({ type = '', masterData, handleSubmit = () => {}
                 statusBarHeight: 40,
                 icon: 'warning',
                 position: 'right',
-                style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+                style:  { height: 90, alignItems: 'flex-end' } ,
             });
         }
     };
