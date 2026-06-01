@@ -12,10 +12,11 @@ import DeleteModal from '../Components/DeleteModal';
 import NoDataFound from '../Components/NoDataFound';
 import { useDispatch, useSelector } from 'react-redux';
 import ApiUrl from 'global/ApiUrl';
-import { postAPI } from 'global/api-helpers';
+import { getAPI, getAPICall, postAPI } from 'global/api-helpers';
 import IcSkeleton from '../Components/IcSkeleton';
 import { deleteInspectionByUniqueId, getDatabaseSize, getInspectionDataByUserAndSite } from 'store/database/inspectStorage';
 import ICScrollTab from '../Components/ICScrollTab';
+import ReportShutdownModal from '../Components/ReportShutdownModal';
 
 const OperatorWorksheet = () => {
     const { icUserData } = useSelector(state => state.inspection);
@@ -26,6 +27,8 @@ const OperatorWorksheet = () => {
     const [showSkeleton, setShowSkeleton] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
     const [selectedValue, setSelectedValue] = useState(null);
+    const [showReportModal, setShowReportModal] = useState(false);
+    const [downTimeData, setDownTimeData] = useState([]);
     const isFocused = useIsFocused();
     const dispatch = useDispatch();
 
@@ -66,7 +69,7 @@ const OperatorWorksheet = () => {
         const formDate = new FormData();
         formDate.append('UserID', parseInt(icUserData?.userData?.UserId));
         formDate.append('SiteID', parseInt(icUserData?.userData?.Siteid));
-        const settingsRes = await postAPI(`${ApiUrl.IC_SETTINGS}`,formDate);
+        const settingsRes = await postAPI(`${ApiUrl.IC_SETTINGS}`, formDate);
         if (settingsRes?.Success) {
             const settings = {
                 ...settingsRes?.Data[0],
@@ -140,6 +143,23 @@ const OperatorWorksheet = () => {
             showErrorMessage('Error deleting inspection');
         }
     };
+    const handleReportPress = async item => {
+        setSelectedValue(item);
+        const response = await getAPICall(`${ApiUrl.IC_GETDOWNTIME}`);
+        if (response.length > 0) {
+            let downTimeData = [];
+            downTimeData = response.map(item => ({
+                label: item.description,
+                value: item.description,
+                ...item,
+            }))
+            setDownTimeData(downTimeData);
+        } else {
+            setDownTimeData([]);
+        }
+
+        setShowReportModal(true);
+    }
     const renderItem = ({ item }) => {
         const { status, colorCode } = rendetBtnText(item);
         return (
@@ -160,13 +180,23 @@ const OperatorWorksheet = () => {
                     </Text>
                 </View>
                 <View style={[styles.lastBox]}>
-                    <TouchableOpacity
-                        style={[styles.launchCard, { backgroundColor: colorCode }]}
-                        onPress={() => {
-                            handleLaunchPress(item);
-                        }}>
-                        <Text style={[styles.launchText]}>{status}</Text>
-                    </TouchableOpacity>
+                    <View>
+                        <TouchableOpacity
+                            style={[styles.launchCard, { backgroundColor: colorCode }]}
+                            onPress={() => {
+                                handleLaunchPress(item);
+                            }}>
+                            <Text style={[styles.launchText]}>{status}</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={[styles.launchCard, { backgroundColor: COLORS.apptheme, marginTop: 10 }]}
+                            onPress={() => {
+                                handleReportPress(item);
+                            }}>
+                            <Text style={[styles.launchText]}>Report</Text>
+                        </TouchableOpacity>
+                    </View>
+
                     <TouchableOpacity
                         onPress={() => {
                             handleDeletePress(item);
@@ -189,7 +219,7 @@ const OperatorWorksheet = () => {
                         renderItem={renderItem}
                         keyExtractor={(item, index) => index + 1}
                         showsVerticalScrollIndicator={false}
-                        // refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+                    // refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
                     />
                 ) : (
                     <NoDataFound />
@@ -219,6 +249,7 @@ const OperatorWorksheet = () => {
                     // setShowDelete(false);
                 }}
             />
+            <ReportShutdownModal data={selectedValue} visible={showReportModal} handleClose={() => setShowReportModal(false)} dropDownList={downTimeData}/>
         </CustomHeader>
     );
 };
@@ -261,6 +292,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 13,
         paddingVertical: 4,
         borderRadius: 5,
+        alignItems: 'center',
     },
     launchText: {
         color: '#fff',

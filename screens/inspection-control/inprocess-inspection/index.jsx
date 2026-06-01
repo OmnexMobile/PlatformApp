@@ -702,6 +702,7 @@ const InprocessInspection = ({ route }) => {
             activeTabId={2}
             showIcons={false}
             showFileIcon={true}
+            showCharCameraIcon={showChar}
             handleFileIconPress={() => {
                 // setShowFilePage(true);
                 setShowFileModal(true);

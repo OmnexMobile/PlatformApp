@@ -32,8 +32,8 @@ import {
     setupQuitOpenHandler,
     fetchFCMToken,
 } from './screens/notificationService';
-import messaging from '@react-native-firebase/messaging';
 import NotificationModal from 'screens/inspection-control/notification/NotificationModal';
+import TokenPopup from 'screens/TokenPopup';
 
 setupInterceptors();
 
@@ -80,28 +80,6 @@ const Parent = () => {
         return unsubscribe;
     }, []);
 
-    useEffect(() => {
-  // ✅ App in FOREGROUND
-  const unsubscribeForeground = messaging().onMessage(async remoteMessage => {
-    console.log('📩 Foreground notification:', JSON.stringify(remoteMessage));
-    // Foreground notifications don't show automatically on iOS
-    // You need to display them manually e.g. with a local notification
-  });
-
-  // ✅ App in BACKGROUND (opened via notification tap)
-  messaging().onNotificationOpenedApp(remoteMessage => {
-    console.log('📩 Background notification opened:', JSON.stringify(remoteMessage));
-  });
-
-  // ✅ App was QUIT (opened from killed state)
-  messaging().getInitialNotification().then(remoteMessage => {
-    if (remoteMessage) {
-      console.log('📩 Quit state notification:', JSON.stringify(remoteMessage));
-    }
-  });
-
-  return unsubscribeForeground;
-}, []);
     console.log(notificationData, 'notificationData');
 
     // useEffect(() => {
@@ -177,9 +155,8 @@ const Parent = () => {
             <UpdateModal visible={showUpdateModal} onClose={() => setShowUpdateModal(false)} />
             <NotificationModal
                 visible={notificationData.showModal}
-                // onClose={() => setNotificationData({ showModal: false })}
+                onClose={() => setNotificationData({ showModal: false })}
                 data={notificationData.remoteMessage}
-                setNotificationData={setNotificationData}
             />
             {/* <TokenPopup visible={modalVisible} token={currentToken} onClose={() => setModalVisible(false)} /> */}
         </GestureHandlerRootView>

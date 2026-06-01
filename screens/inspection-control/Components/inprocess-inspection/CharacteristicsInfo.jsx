@@ -26,6 +26,7 @@ import moment from 'moment';
 import DeleteModal from '../DeleteModal';
 import ConfirmationModal from './ConfirmationModal';
 import { showMessage } from 'react-native-flash-message';
+import CapabilityCard from '../CapabilityCard';
 const moreList = [
     {
         id: 1,
@@ -40,14 +41,14 @@ const moreList = [
         iconFrom: 'AntDesign',
     },
 ];
-const suzlonMoreList=[
-     {
+const suzlonMoreList = [
+    {
         id: 1,
         title: 'Next Sample',
         iconName: 'play-skip-forward-outline',
         iconFrom: 'Ionicons',
-    }
-]
+    },
+];
 
 const BorderContent = ({ title = 'Title', count = 0, color = '#000' }) => {
     return (
@@ -82,6 +83,7 @@ const CharacteristicsInfo = ({
     setTypeOfModal = () => {},
     flatListRef = null,
 }) => {
+    const [showCPKModal, setShowCPKModal] = useState(false);
     useEffect(() => {
         const backAction = () => {
             setShowChar(false);
@@ -94,7 +96,7 @@ const CharacteristicsInfo = ({
     const navigation = useNavigation();
     useEffect(() => {
         getOverAllData();
-    }, [type,selectedData]);
+    }, [type, selectedData]);
     const getOverAllData = () => {
         if (selectedData?.isSamplePopup) {
             if (type == 'number') {
@@ -618,6 +620,10 @@ const CharacteristicsInfo = ({
                 : value.filter(x => x?.value?.toLowerCase() != 'ok' && x?.value !== '');
         return temp?.length || 0;
     };
+    const handleCloseCPKModal=()=>{
+        setShowCPKModal(false);
+        handleSavePress(true, 'saveBtn')
+    }
     return (
         <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -691,13 +697,15 @@ const CharacteristicsInfo = ({
                         textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}
                         style={{ height: 40, width: '89%' }}
                         onPress={() => {
-                            handleSavePress(true, 'saveBtn');
+                            setShowCPKModal(true);
+                            // handleSavePress(true, 'saveBtn');
+
                         }}>
                         Save
                     </ButtonComponent>
                     <View style={[styles.iconFilter]}>
                         <FilterWithMenu
-                            dataList={selectedData?.isSamplePopup?moreList:suzlonMoreList}
+                            dataList={selectedData?.isSamplePopup ? moreList : suzlonMoreList}
                             type="IconFilter"
                             onSelectedPress={value => {
                                 handleMenuPress(value);
@@ -707,6 +715,17 @@ const CharacteristicsInfo = ({
                     </View>
                 </View>
             </View>
+            <CapabilityCard
+                visible={showCPKModal}
+                // setVisible={setShowCPKModal}
+                handleClose={handleCloseCPKModal}
+                data={{
+                    pp: 2.5,
+                    ppk: 2.1,
+                    cp: 0.78,
+                    cpk: -0.22,
+                }}
+            />
         </KeyboardAvoidingView>
     );
 };
