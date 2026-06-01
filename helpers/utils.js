@@ -8,13 +8,13 @@ import { LOCAL_STORAGE_VARIABLES, TOAST_STATUS } from 'constants/app-constant';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { check, request, openSettings, PERMISSIONS, RESULTS } from 'react-native-permissions';
 import { getApp } from '@react-native-firebase/app';
-import { 
-  getMessaging, 
-  requestPermission, 
-  getToken, 
-  getAPNSToken,
-  isDeviceRegisteredForRemoteMessages,
-  registerDeviceForRemoteMessages
+import {
+    getMessaging,
+    requestPermission,
+    getToken,
+    getAPNSToken,
+    isDeviceRegisteredForRemoteMessages,
+    registerDeviceForRemoteMessages
 } from '@react-native-firebase/messaging';
 
 export const getAvatarInitials = textString => {
@@ -213,93 +213,136 @@ export const requestAllPermissionsOnce = async () => {
     }
 };
 
-
-
 export async function requestNotificationPermission() {
-  const firebaseApp = getApp();
-  const messaging = getMessaging(firebaseApp);
+    const firebaseApp = getApp();
+    const messaging = getMessaging(firebaseApp);
 
-  // --- 1. ANDROID 13+ ---
-  if (Platform.OS === 'android' && Platform.Version >= 33) {
-    const androidPermission = 'android.permission.POST_NOTIFICATIONS';
-    let status = await check(androidPermission);
+    // --- 1. ANDROID 13+ ---
+    if (Platform.OS === 'android' && Platform.Version >= 33) {
+        const androidPermission = 'android.permission.POST_NOTIFICATIONS';
+        let status = await check(androidPermission);
 
-    if (status === RESULTS.DENIED) {
-      status = await request(androidPermission);
+        if (status === RESULTS.DENIED) {
+            status = await request(androidPermission);
+        }
+
+        if (status === RESULTS.GRANTED) {
+            console.log('✅ Android Notification Permission Granted');
+            const token = await getToken(messaging);
+            console.log('FCM Token:', token);
+            return true;
+        }
+
+        if (status === RESULTS.BLOCKED) {
+            Alert.alert(
+                'Notifications Disabled',
+                'Enable notifications from settings.',
+                [
+                    { text: 'Cancel', style: 'cancel' },
+                    { text: 'Open Settings', onPress: openSettings },
+                ]
+            );
+        }
+        return false;
     }
 
-    if (status === RESULTS.GRANTED) {
-      console.log('✅ Android Notification Permission Granted');
-      const token = await getToken(messaging);
-      console.log('FCM Token:', token);
-      return true;
+    // --- 2. IOS ---
+    //   if (Platform.OS === 'ios') {
+    //     // Modular requestPermission
+    //     const authStatus = await requestPermission(messaging);
+
+    //     // Status 1 = Authorized, 2 = Provisional
+    //     const enabled = authStatus === 1 || authStatus === 2;
+    //     console.log('iOS Permission Status:', authStatus);
+
+    //     if (!enabled) {
+    //       Alert.alert(
+    //         'Notifications Disabled',
+    //         'Please enable notifications in settings.',
+    //         [
+    //           { text: 'Cancel', style: 'cancel' },
+    //           { text: 'Open Settings', onPress: openSettings },
+    //         ]
+    //       );
+    //       return false;
+    //     }
+
+    //     try {
+    //       // Check if already registered to avoid redundant calls/warnings
+    //       if (!isDeviceRegisteredForRemoteMessages(messaging)) {
+    //         await registerDeviceForRemoteMessages(messaging);
+    //       }
+
+    //       // getAPNSToken is used primarily to verify Apple connectivity
+    //       const apnsToken = await getAPNSToken(messaging);
+
+    //       if (!apnsToken) {
+    //         console.warn('❌ APNS token not available (Likely running on Simulator)');
+    //         // Note: You can still try to get the FCM token, but it might fail on physical devices without APNS
+    //       } else {
+    //         console.log('✅ APNS Token:', apnsToken);
+    //       }
+
+    //       // Get FCM token
+    //       const fcmToken = await getToken(messaging);
+    //       console.log('✅ FCM Token:', fcmToken);
+
+    //       return true;
+    //     } catch (error) {
+    //       console.error('❌ iOS Notification Setup Error:', error);
+    //       return false;
+    //     }
+    //   }
+    if (Platform.OS === 'ios') {
+        try {
+            const authStatus = await requestPermission(messaging);
+            const enabled = authStatus === 1 || authStatus === 2;
+            console.log('iOS Permission Status:', authStatus);
+
+            if (!enabled) {
+                Alert.alert(
+                    'Notifications Disabled',
+                    'Please enable notifications in settings.',
+                    [
+                        { text: 'Cancel', style: 'cancel' },
+                        { text: 'Open Settings', onPress: openSettings },
+                    ]
+                );
+                return false;
+            }
+
+            // ✅ Wait for APNs token — Firebase needs it before it can generate FCM token
+            let apnsToken = null;
+            let retries = 0;
+            while (!apnsToken && retries < 10) {
+                apnsToken = await getAPNSToken(messaging);
+                if (!apnsToken) {
+                    await new Promise(res => setTimeout(res, 1000));
+                    retries++;
+                }
+            }
+
+            if (!apnsToken) {
+                console.warn('❌ APNS token unavailable — likely a simulator or APNs capability missing');
+                return false;
+            }
+
+            console.log('✅ APNS Token:', apnsToken);
+
+            const fcmToken = await getToken(messaging);
+            console.log('✅ FCM Token:', fcmToken);
+
+            return true;
+        } catch (error) {
+            console.error('❌ iOS Notification Setup Error:', error);
+            return false;
+        }
     }
 
-    if (status === RESULTS.BLOCKED) {
-      Alert.alert(
-        'Notifications Disabled',
-        'Enable notifications from settings.',
-        [
-          { text: 'Cancel', style: 'cancel' },
-          { text: 'Open Settings', onPress: openSettings },
-        ]
-      );
-    }
-    return false;
-  }
+    // --- 3. ANDROID < 13 ---
+    console.log('✅ Older Android: Permission auto granted');
+    const token = await getToken(messaging);
+    console.log('FCM Token:', token);
 
-  // --- 2. IOS ---
-  if (Platform.OS === 'ios') {
-    // Modular requestPermission
-    const authStatus = await requestPermission(messaging);
-
-    // Status 1 = Authorized, 2 = Provisional
-    const enabled = authStatus === 1 || authStatus === 2;
-    console.log('iOS Permission Status:', authStatus);
-
-    if (!enabled) {
-      Alert.alert(
-        'Notifications Disabled',
-        'Please enable notifications in settings.',
-        [
-          { text: 'Cancel', style: 'cancel' },
-          { text: 'Open Settings', onPress: openSettings },
-        ]
-      );
-      return false;
-    }
-
-    try {
-      // Check if already registered to avoid redundant calls/warnings
-      if (!isDeviceRegisteredForRemoteMessages(messaging)) {
-        await registerDeviceForRemoteMessages(messaging);
-      }
-
-      // getAPNSToken is used primarily to verify Apple connectivity
-      const apnsToken = await getAPNSToken(messaging);
-      
-      if (!apnsToken) {
-        console.warn('❌ APNS token not available (Likely running on Simulator)');
-        // Note: You can still try to get the FCM token, but it might fail on physical devices without APNS
-      } else {
-        console.log('✅ APNS Token:', apnsToken);
-      }
-
-      // Get FCM token
-      const fcmToken = await getToken(messaging);
-      console.log('✅ FCM Token:', fcmToken);
-
-      return true;
-    } catch (error) {
-      console.error('❌ iOS Notification Setup Error:', error);
-      return false;
-    }
-  }
-
-  // --- 3. ANDROID < 13 ---
-  console.log('✅ Older Android: Permission auto granted');
-  const token = await getToken(messaging);
-  console.log('FCM Token:', token);
-
-  return true;
+    return true;
 }
