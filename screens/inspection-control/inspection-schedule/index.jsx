@@ -1,0 +1,617 @@
+import { ButtonComponent } from 'components';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, FlatList, Platform, RefreshControl, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
+import CustomHeader from '../Components/CustomHeader';
+import { COLORS } from 'constants/theme-constants';
+import { useIsFocused, useNavigation } from '@react-navigation/native';
+import { PLACEHOLDERS, ROUTES } from 'constants/app-constant';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import IconI from 'react-native-vector-icons/Ionicons';
+import IconF from 'react-native-vector-icons/Feather';
+import DataPickerWithIcon from '../Components/DataPickerWithIcon';
+import FilterWithMenu from '../Components/FilterWithMenu';
+import InputDataModal from '../Components/inspection-schedule/InputDataModal';
+import ICFileIcon from '../../../assets/images/svg/icFile.svg';
+import { useAppContext } from 'contexts/app-context';
+import moment from 'moment';
+import FileViewModal from '../Components/supervisor-schedule/FileViewModal';
+import IcSkeleton from '../Components/IcSkeleton';
+import { useDispatch, useSelector } from 'react-redux';
+import { showMessage } from 'react-native-flash-message';
+import QRCodeScannerScreen from '../Components/QRCodeScannerScreen';
+import NoDataFound from '../Components/NoDataFound';
+import { postAPI } from 'global/api-helpers';
+import ApiUrl from 'global/ApiUrl';
+import { deleteAllInspectionData, getInspectionDataByUserAndSite } from 'store/database/inspectStorage';
+import { Modal } from 'react-native-paper';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+const filterList = [
+    {
+        id: 0,
+        title: 'All',
+    },
+    {
+        id: 1,
+        title: 'Receiving Inspection',
+    },
+    {
+        id: 2,
+        title: 'In-process Inspection',
+    },
+    {
+        id: 3,
+        title: 'Final Inspection',
+    },
+];
+const moreList = [
+    {
+        id: 1,
+        title: 'Get Schedule',
+        iconName: 'calendar-check-o',
+        iconFrom: 'FontAwesome',
+    },
+    {
+        id: 2,
+        title: 'Start Inspection',
+        iconName: 'search',
+        iconFrom: 'FontAwesome',
+    },
+];
+const InspectionSchedule = () => {
+    const insets = useSafeAreaInsets();
+    const { height } = useWindowDimensions();
+    const { icUserData,icSettings, dateFormat } = useSelector(state => state.inspection);
+    const uiDateFormat = dateFormat || 'DD/MM/YYYY';
+    const dispatch = useDispatch();
+    const isFocused = useIsFocused();
+    const {
+        profile,
+        sites: { selectedSite },
+    } = useAppContext();
+    const navigation = useNavigation();
+    const [showModal, setShowModal] = useState(false);
+    const [filterData, setFilterData] = useState({
+        startDate: moment().subtract(7, 'days').toDate(),
+        endDate: new Date(),
+        type: '',
+    });
+    const [showFileModal, setShowFileModal] = useState(false);
+    const [showSkeleton, setShowSkeleton] = useState(false);
+    const [masterData, setMasterData] = useState([]);
+    const [overAllData, setOverAllData] = useState([]);
+    const [showQR, setShowQR] = useState(false);
+    const [refreshing, setRefreshing] = useState(false);
+    const [search, setSearch] = useState('');
+    const [selectedData, setSelectedData] = useState({});
+    const [formList, setFormList] = useState({
+        shiftList: [],
+        frequencyList: [],
+        personList: [],
+    });
+    const [showBubble, setShowBubble] = useState(false);
+    const handleFilePress = item => {
+        let temp = {
+            ProductionItem: item.ProductionItem,
+            OperationID: item.OperationID,
+            ProductionItemId: item.ProductionItemId,
+        };
+        setSelectedData(temp);
+        setShowFileModal(true);
+    };
+    // useEffect(() => {
+    //     getSQliteList()
+    // }, [isFocused]);
+    // const getSQliteList = async () => {
+    //     const list = await getAllInspectionData();
+    //     console.log(list, '*********************************************list.length');
+    // };
+    const getOverAllSettings = async () => {
+        const formDate=new FormData();
+        formDate.append('UserID', parseInt(icUserData?.userData?.UserId));
+        formDate.append('SiteID', parseInt(icUserData?.userData?.Siteid));
+        const settingsRes = await postAPI(`${ApiUrl.IC_SETTINGS}`,formDate);
+        if (settingsRes.Success) {
+            const settings = {
+                ...settingsRes?.Data[0],
+            };
+            dispatch({ type: 'IC_SETTINGS', icSettings: settings || {} });
+        }
+        return settingsRes;
+    };
+    const handleListFetch = async (inspect = null, showSktn = true, filterType = '') => {
+        // await deleteAllInspectionData();
+        const inspectList = await getInspectionDataByUserAndSite(icUserData?.userData?.UserId, icUserData?.userData?.Siteid);
+        showSktn && setShowSkeleton(true);
+        const { startDate, endDate, type } = filterData;
+        let dateFlag = startDate !== '' && endDate !== '';
+        const formData = new FormData();
+        formData.append('UserID', icUserData?.userData?.UserId);
+        formData.append('SiteID', parseInt(icUserData?.userData?.Siteid));
+        formData.append('LanguageID', 1);
+        formData.append('StartDate', dateFlag ? moment(startDate).format('MM/DD/YYYY') : '');
+        formData.append('EndDate', dateFlag ? moment(endDate).format('MM/DD/YYYY') : '');
+        const response = await postAPI(`${ApiUrl.IC_GET_IS}`, formData);
+        await getOverAllSettings();
+        let retunListData = [];
+        if (response.Success) {
+            let temp = response?.Data?.InspectionSchedules || [];
+            let updatedArray = temp.map(item => {
+                const match = inspectList.some(
+                    compareItem =>
+                        compareItem.intProductionItemID === item.ProductionItemId &&
+                        compareItem.OperationID == item.OperationID &&
+                        compareItem?.OrderDetailsId == item?.OrderDetailsId,
+                );
+                return {
+                    ...item,
+                    isDownloaded: match,
+                };
+            });
+
+            const allowedTypes = [];
+            if (icSettings.TabReceivingLotScheduleNeeded) allowedTypes.push('1');
+            if (icSettings.TabInprocessLotScheduleNeeded) allowedTypes.push('2');
+            if (icSettings.TabFinalLotScheduleNeeded) allowedTypes.push('3');
+            updatedArray = allowedTypes.length === 0 ? [] : updatedArray.filter(item => allowedTypes.includes(item.TypeOfInspection));
+
+            const sortedSchedules = updatedArray.sort((a, b) => {
+                return new Date(b.ProductionStartDate) - new Date(a.ProductionStartDate);
+            });
+            if (filterType !== '') {
+                let filterTemp = sortedSchedules.filter(item => item.TypeOfInspection == filterType);
+                setMasterData(filterTemp || []);
+            } else {
+                setMasterData(sortedSchedules || []);
+            }
+            retunListData = sortedSchedules;
+            setOverAllData(sortedSchedules || []);
+            let tempShift = response?.Data?.InspectionShifts.map(item => ({ ...item, label: item.ShiftName, value: item.ShiftID }));
+            setFormList(pre => ({ ...pre, shiftList: tempShift || [] }));
+        } else {
+            setMasterData([]);
+            setOverAllData([]);
+            retunListData = [];
+        }
+        setRefreshing(false);
+        showSktn && setShowSkeleton(false);
+        return retunListData;
+    };
+    const handleInputChange = (key, value, filter) => {
+        setFilterData(pre => ({ ...pre, [key]: value }));
+        handleFilterInspection(value, filter);
+    };
+    const handleFilterInspection = (value, filtertype) => {
+        let temp = JSON.parse(JSON.stringify(overAllData));
+        let tempSearch = [];
+        if (value !== '' && filtertype == 'typeFilter') {
+            tempSearch = temp.filter(item => item.TypeOfInspection == value);
+        } else {
+            tempSearch = temp;
+        }
+        if (search.length) {
+            tempSearch = tempSearch.filter(
+                item =>
+                    item.ProductionItem.toLowerCase().includes(search.toLowerCase()) ||
+                    item.OperationName.toLowerCase().includes(search.toLowerCase()),
+            );
+        }
+        setMasterData(tempSearch);
+    };
+
+    useEffect(() => {
+        if (icUserData.userData && isFocused) {
+            handleListFetch(null, true, filterData.type);
+        }
+        return () => {
+            setSearch('');
+        };
+    }, [icUserData, isFocused]);
+    const handleCIbtnpress = () => {
+        navigation.navigate(ROUTES.COMPLETED_INSPECTION);
+    };
+    const handleDownloadPress = async item => {
+        setSelectedData(item);
+        await getOverAllSettings();
+        setShowModal(true);
+    };
+    // const handleMenuPress = value => {
+    //     if (value.id == 2) {
+    //         navigation.navigate(ROUTES.OPERATOR_WORKSHEET);
+    //         return null;
+    //     }
+    //     if (value.id == 1) {
+    //         const { startDate, endDate } = filterData;
+    //         const tempStart = moment(startDate);
+    //         const tempEnd = moment(endDate);
+    //         if (tempStart.isBefore(tempEnd)) {
+    //             handleListFetch(null, true, filterData.type);
+    //         } else {
+    //             showMessage({
+    //                 message: 'Start Date must be less than End Date',
+    //                 backgroundColor: COLORS.ERROR,
+    //                 color: COLORS.white,
+    //                 duration: 1500,
+    //                 statusBarHeight: 40,
+    //                 icon: 'danger',
+    //                 position: 'right',
+    //                 style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+    //             });
+    //         }
+    //     }
+    // };
+    const handleMenuPress = () => {
+        const { startDate, endDate } = filterData;
+        const tempStart = moment(startDate);
+        const tempEnd = moment(endDate);
+        if (tempStart.isBefore(tempEnd)) {
+            handleListFetch(null, true, filterData.type);
+        } else {
+            showMessage({
+                message: 'Start Date must be less than End Date',
+                backgroundColor: COLORS.ERROR,
+                color: COLORS.white,
+                duration: 1500,
+                statusBarHeight: 40,
+                icon: 'danger',
+                position: 'right',
+                style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : { paddingTop: insets.top },
+            });
+        }
+    };
+    const renderIconBgColor = value => {
+        return value == '1' ? COLORS.apptheme : value == '2' ? COLORS.ipBgColor : COLORS.fiBgColor;
+    };
+    const renderData = ({ item }) => {
+        return (
+            <View style={[styles.recordConatiner]}>
+                <View style={[styles.iconBox, { backgroundColor: renderIconBgColor(item?.TypeOfInspection) }]}>
+                    <Icon name="layers-outline" size={25} color={COLORS.white} />
+                </View>
+                <View style={{ flex: 1, paddingHorizontal: 10 }}>
+                    <Text style={[styles.cardText]}>{item?.ProductionItem}</Text>
+                    <Text style={[styles.operationText]}>
+                        Operation Name : <Text style={[styles.secondText]}>{item?.OperationName}</Text>
+                    </Text>
+                    <Text style={[styles.operationText]}>
+                        Invoice No : <Text style={[styles.secondText]}>{item?.OrderNumber ? item?.OrderNumber : '-'}</Text>
+                    </Text>
+                </View>
+                <View style={[styles.lastBox]}>
+                    <Text style={[styles.secondText]}>{moment(new Date(item.ProductionStartDate)).format(uiDateFormat)}</Text>
+                    <View style={[styles.iconlist]}>
+                        <TouchableOpacity
+                            style={{ marginLeft: 15 }}
+                            onPress={() => {
+                                handleFilePress(item);
+                            }}>
+                            <ICFileIcon />
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={{ marginLeft: 15 }}
+                            onPress={() => {
+                                if (item?.canDownload) {
+                                    handleDownloadPress(item);
+                                } else {
+                                    showMessage({
+                                        message: 'Template or operation mapping not done for this Production item, please do the mapping',
+                                        backgroundColor: COLORS.WARNING,
+                                        color: COLORS.white,
+                                        duration: 1500,
+                                        statusBarHeight: 45,
+                                        icon: 'danger',
+                                        position: 'right',
+                                        style: Platform.OS === 'ios' ? { height: 100, alignItems: 'flex-end' } : {},
+                                    });
+                                }
+                            }}>
+                            <IconF name="download" size={25} color={item.isDownloaded ? '#66BB6B' : '#666666'} />
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </View>
+        );
+    };
+    const onRefresh = () => {
+        setRefreshing(true);
+        setSearch('');
+        handleListFetch(null, false, filterData.type);
+    };
+    const handleSearch = (value, filterType) => {
+        let temp = JSON.parse(JSON.stringify(overAllData));
+        let tempList = [];
+        if (filterType !== '') {
+            tempList = temp.filter(item => item.TypeOfInspection == filterType);
+        } else {
+            tempList = temp;
+        }
+        if (value?.length) {
+            const tempSearch = tempList.filter(
+                item =>
+                    item.ProductionItem.toLowerCase().includes(value.toLowerCase()) || item.OperationName.toLowerCase().includes(value.toLowerCase()),
+            );
+            setMasterData(tempSearch);
+        } else {
+            setMasterData(tempList);
+        }
+    };
+    useEffect(() => {
+        var handler;
+        if (search.length && isFocused) {
+            handler = setTimeout(() => {
+                handleSearch(search, filterData?.type);
+            }, 500);
+        }
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [search, isFocused]);
+    const handleSubmitBtnPress = async val => {
+        setShowBubble(true);
+        const latestInspection = await getInspectionDataByUserAndSite(icUserData?.userData?.UserId, icUserData?.userData?.Siteid);
+        const apiData = await handleListFetch(null, false, filterData.type);
+        let filterTemp = filterData.type !== '' ? apiData.filter(item => item.TypeOfInspection == filterData.type) : apiData;
+        let temp = [...filterTemp] || [];
+        const updatedArray = temp.map(item => {
+            const match = latestInspection.some(
+                compareItem =>
+                    compareItem.intProductionItemID === item.ProductionItemId &&
+                    compareItem.OperationID == item.OperationID &&
+                    compareItem?.OrderDetailsId == item?.OrderDetailsId,
+            );
+            return {
+                ...item,
+                isDownloaded: match,
+            };
+        });
+        setMasterData(updatedArray);
+        setShowBubble(false);
+    };
+    return (
+        <CustomHeader
+            title="Inspection Schedule"
+            activeTabId={1}
+            handleQRPress={() => {
+                setShowQR(true);
+            }}
+            hideSearch={isFocused}
+            handleSearch={value => {
+                setSearch(value);
+                if (!value?.length) {
+                    handleSearch('', filterData?.type);
+                }
+            }}
+            searchValue={search}
+            handleClosePress={() => {
+                setSearch('');
+                handleSearch('', filterData?.type);
+            }}>
+            <View style={[styles.mainContainer]}>
+                <View style={[styles.overAllBox]}>
+                    <View style={[styles.filterBox]}>
+                        <DataPickerWithIcon
+                            value={filterData?.startDate || null}
+                            onSelectedDate={val => {
+                                // handleInputChange('startDate', val, 'dateFilter');
+                                setFilterData(pre => ({ ...pre, startDate: val }));
+                            }}
+                        />
+                    </View>
+                    <View style={[styles.filterBox]}>
+                        <DataPickerWithIcon
+                            value={filterData?.endDate || null}
+                            placeHolder="End Date"
+                            onSelectedDate={val => {
+                                setFilterData(pre => ({ ...pre, endDate: val }));
+                                // handleInputChange('endDate', val, 'dateFilter');
+                            }}
+                        />
+                    </View>
+                    <View style={[styles.filterList]}>
+                        <FilterWithMenu
+                            dataList={filterList}
+                            type="BtnFilter"
+                            onSelectedPress={val => {
+                                // handleListFetch(val.id != 0 ? val.id : '');
+                                handleInputChange('type', val.id != 0 ? val.id : '', 'typeFilter');
+                            }}
+                        />
+                    </View>
+                    <View style={[styles.iconFilter]}>
+                        <TouchableOpacity
+                            style={styles.getDataBox}
+                            onPress={() => {
+                                handleMenuPress();
+                            }}>
+                            <IconI name="sync-sharp" size={22} color={COLORS.black} />
+                        </TouchableOpacity>
+                        {/* <FilterWithMenu
+                            dataList={moreList}
+                            type="IconFilter"
+                            onSelectedPress={value => {
+                                handleMenuPress(value);
+                            }}
+                        /> */}
+                    </View>
+                </View>
+                {showSkeleton ? (
+                    <IcSkeleton type={PLACEHOLDERS.INSPECTION_CARD} />
+                ) : Boolean(masterData?.length) ? (
+                    <FlatList
+                        data={masterData}
+                        renderItem={renderData}
+                        keyExtractor={(item, index) => index + 1}
+                        showsVerticalScrollIndicator={false}
+                        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+                    />
+                ) : (
+                    <NoDataFound />
+                )}
+                <View style={[styles.bottombox]}>
+                    <Text style={[styles.bottomText]}>Total Inspections </Text>
+                    <View style={[styles.totalBox]}>
+                        <Text style={[styles.bottomText, { color: COLORS.white }]}>{masterData?.length}</Text>
+                    </View>
+                </View>
+            </View>
+            {/* <View style={[styles.btnContainer]}>
+                <ButtonComponent
+                    textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}
+                    style={{ height: 40 }}
+                    onPress={() => {
+                        handleCIbtnpress();
+                    }}>
+                    Completed Inspections
+                </ButtonComponent>
+            </View> */}
+            {Boolean(showModal) && (
+                <InputDataModal
+                    selectedValue={selectedData}
+                    modalVisible={showModal}
+                    hideModal={() => {
+                        setShowModal(false);
+                    }}
+                    handleSubmitPress={val => {
+                        handleSubmitBtnPress(val);
+                    }}
+                    shiftData={formList.shiftList}
+                    userData={icUserData?.userData}
+                    selectedSite={selectedSite}
+                />
+            )}
+            {Boolean(showFileModal) && (
+                <FileViewModal
+                    selectedValue={selectedData}
+                    visible={showFileModal}
+                    onDismiss={() => {
+                        setShowFileModal(false);
+                    }}
+                    userData={icUserData?.userData}
+                />
+            )}
+            {Boolean(showQR) && (
+                <QRCodeScannerScreen
+                    modalVisible={showQR}
+                    hideModal={() => {
+                        setShowQR(false);
+                    }}
+                    handleScanData={val => {
+                        handleSearch(val);
+                    }}
+                />
+            )}
+            {Boolean(showBubble) && (
+                <Modal
+                    transparent={true}
+                    animationType={'none'}
+                    visible={showBubble}
+                    onRequestClose={() => {
+                        console.log('close modal');
+                    }}
+                    contentContainerStyle={{
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flex: 1,
+                        height: '100%',
+                    }}>
+                    <ActivityIndicator size="large" color="#12C0CF" />
+                </Modal>
+            )}
+        </CustomHeader>
+    );
+};
+const styles = StyleSheet.create({
+    mainContainer: {
+        flex: 1,
+        backgroundColor: COLORS.white,
+        borderRadius: 10,
+    },
+    btnContainer: {
+        paddingTop: 10,
+    },
+    recordConatiner: {
+        flex: 1,
+        padding: 10,
+        borderBottomWidth: 1,
+        borderBottomColor: COLORS.icborder,
+        flexDirection: 'row',
+    },
+    iconBox: {
+        borderRadius: 40,
+        backgroundColor: COLORS.apptheme,
+        height: 40,
+        width: 40,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    cardText: {
+        fontSize: 16,
+        fontFamily: 'OpenSans-SemiBold',
+        color: COLORS.ictextBlack,
+    },
+    operationText: {
+        fontSize: 14,
+        fontFamily: 'OpenSans-Regular',
+        color: COLORS.ictextBlack,
+        lineHeight: 22,
+    },
+    secondText: {
+        color: COLORS.textDark,
+        fontFamily: 'OpenSans-Regular',
+    },
+    iconlist: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'flex-end',
+    },
+    lastBox: {
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+    },
+    bottombox: {
+        flexDirection: 'row',
+        height: 34,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: COLORS.icBottomBox,
+        borderBottomRightRadius: 10,
+        borderBottomLeftRadius: 10,
+    },
+    totalBox: {
+        backgroundColor: COLORS.apptheme,
+        paddingHorizontal: 10,
+        paddingVertical: 3,
+        borderRadius: 4,
+    },
+    bottomText: {
+        fontSize: 14,
+        fontFamily: 'OpenSans-Regular',
+        color: COLORS.headerText,
+    },
+    filterBox: {
+        width: '30%',
+    },
+    filterList: {
+        width: '25%',
+    },
+    iconFilter: {
+        width: '10%',
+        alignItems: 'center',
+    },
+    overAllBox: {
+        padding: 10,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+    },
+    getDataBox: {
+        height: 35,
+        width: 35,
+        backgroundColor: COLORS.inputBorder,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 40,
+    },
+});
+
+export default InspectionSchedule;

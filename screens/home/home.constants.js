@@ -1,0 +1,7 @@
+import { createAction } from 'helpers/utils';
+
+export const GET_USERS = createAction('GET_USERS');
+export const GET_DASHBOARD_CONCERN_COUNTS = createAction('GET_DASHBOARD_CONCERN_COUNTS');
+export const GET_DASHBOARD_TODAY_CONCERN_LIST = createAction('GET_DASHBOARD_TODAY_CONCERN_LIST');
+export const GET_DASHBOARD_UPCOMING_CONCERN_LIST = createAction('GET_DASHBOARD_UPCOMING_CONCERN_LIST');
+export const GET_DASHBOARD_PENDING_CONCERN_LIST = createAction('GET_DASHBOARD_PENDING_CONCERN_LIST');

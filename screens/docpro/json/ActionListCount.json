@@ -1,0 +1,31 @@
+
+  {
+    "response": {
+      "actioncount": {
+        "details": {
+          "pendingRequestCount": "5",
+          "@requestNeedingApprovalCount ": "0 ",
+          "@recordsNeedingApprovalCount ": "0 ",
+          "@pendingDocumentDraftCount ": "7 ",
+          "@pendingRecordRequestCount ": "1 ",
+          "@draftsNeedToViewCount ": "7 ",
+          "@documentNeedingRevisionCount ": "0 ",
+          "@assignAuthorCount ": "0 ",
+          "@documentsDueForReviewCount ": "15 ",
+          "@documentsReviewCount ": "0 ",
+          "@pendingjobmanagerreqCount ": "0 ",
+          "@resubmitRejectedRequestCount ": "0 ",
+          "@RevertBackWithCommentsCount ": "3 ",
+          "@HODNoChangeRequiredApprovalsCount ": "0 ",
+          "@MRONoChangeRequiredApprovalsCount ": "0 "
+        }
+      },
+      "status ": {
+        "@type ": "ok ",
+        "methname ": " ",
+        "number ": "0 ",
+        "message ": " "
+      }
+    }
+  }
+  
