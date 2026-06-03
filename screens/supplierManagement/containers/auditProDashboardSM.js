@@ -1082,9 +1082,9 @@ class AuditProDashboard extends Component {
       console.log('updating dynamicCount');
       this.props.updateDynamicAuditCount(this.state.noaudits);
     }
-    this.props.navigation.navigate(ROUTES.AUDIT_NOTIFICATIONS, {
-      notifications: this.state.notifybadge,
-    });
+    // this.props.navigation.navigate(ROUTES.AUDIT_NOTIFICATIONS, {
+    //   notifications: this.state.notifybadge,
+    // });
   }
 
   render() {

@@ -23,7 +23,7 @@ import constant from '../../auditPro/constants/AppConstants';
 // import { NavigationEvents } from 'react-navigation';
 import CryptoJS from 'react-native-crypto-js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { COLORS, SPACING } from 'constants/theme-constants';
+import { COLORS } from 'constants/theme-constants';
 import DeviceInfo from 'react-native-device-info';
 import { ROUTES } from 'constants/app-constant';
 import ToastNew, { ErrorToast } from 'react-native-toast-message';
@@ -802,11 +802,6 @@ class AuditDashboardListing extends Component {
         const totalAuditsCount = statsSum > 0 ? statsSum : this.state.auditListAll?.length || this.state.auditList?.length || 0;
         return (
             <View style={styles.wrapper}>
-                {Platform.OS === 'ios' ? (
-                    <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }} />
-                ) : (
-                    <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }} />
-                )}
                 <OfflineNotice />
                 <GlobalHeader
                     title={

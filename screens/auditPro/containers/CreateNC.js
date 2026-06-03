@@ -3704,7 +3704,7 @@ class CreateNC extends Component {
                                                 <View
                                                     style={this.state.RouteParam == 'OFI' || this.state.isLPA ? styles.hidden : styles.check}></View>
                                                 <View style={styles.columnPadLeft}>
-                                                    <Text ref="dummyFocus" style={styles.processLabel}>
+                                                    <Text style={styles.processLabel}>
                                                         {strings.ProcessAll}
                                                     </Text>
                                                     <RadioForm

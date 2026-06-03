@@ -72,9 +72,10 @@ index 82e53c5..0a0a772 100644
  const DefaultTabBar = require('./DefaultTabBar');
  const ScrollableTabBar = require('./ScrollableTabBar');
  
- const AnimatedViewPagerAndroid = Platform.OS === 'android' ?
+-const AnimatedViewPagerAndroid = Platform.OS === 'android' ?
 -  Animated.createAnimatedComponent(ViewPager) :
-+  Animated.createAnimatedComponent(PagerView) :
++const ViewPagerAndroid = Platform.OS === 'android' ?
++  PagerView :
    undefined;
  
  const ScrollableTabView = createReactClass({
@@ -96,6 +97,38 @@ index 82e53c5..0a0a772 100644
          }
        }
      }
+@@ -253,28 +256,28 @@ const ScrollableTabView = createReactClass({
+     } else {
+       const scenes = this._composeScenes();
+-      return <AnimatedViewPagerAndroid
++      return <ViewPagerAndroid
+         key={this._children().length}
+         style={styles.scrollableContentAndroid}
+         initialPage={this.props.initialPage}
+         onPageSelected={this._updateSelectedPage}
+         keyboardDismissMode="on-drag"
+         scrollEnabled={!this.props.locked}
+         onPageScroll={Animated.event(
+           [{
+             nativeEvent: {
+               position: this.state.positionAndroid,
+               offset: this.state.offsetAndroid,
+             },
+           }, ],
+           {
+-            useNativeDriver: true,
++            useNativeDriver: false,
+             listener: this._onScroll,
+           },
+         )}
+         ref={(scrollView) => { this.scrollView = scrollView; }}
+         {...this.props.contentProps}
+       >
+         {scenes}
+-      </AnimatedViewPagerAndroid>;
++      </ViewPagerAndroid>;
+     }
+   },
 diff --git a/node_modules/react-native-scrollable-tab-view/Button.android.js b/node_modules/react-native-scrollable-tab-view/Button.android.js
 --- a/node_modules/react-native-scrollable-tab-view/Button.android.js
 +++ b/node_modules/react-native-scrollable-tab-view/Button.android.js

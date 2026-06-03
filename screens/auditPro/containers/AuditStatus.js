@@ -404,6 +404,31 @@ class AuditStatus extends React.Component {
     );
   };
 
+  toPickerDate(value) {
+    if (value instanceof Date && !Number.isNaN(value.getTime())) {
+      return value;
+    }
+
+    if (!value || value === '-') {
+      return null;
+    }
+
+    const momentDate = Moment(value);
+    if (momentDate.isValid()) {
+      return momentDate.toDate();
+    }
+
+    const nativeDate = new Date(value);
+    return Number.isNaN(nativeDate.getTime()) ? null : nativeDate;
+  }
+
+  getPickerDate() {
+    const selectedDate = this.state.endparam ? this.state.EndDate : this.state.StartDate;
+    const fallbackDate = this.state.endparam ? this.state.EndDateAPI : this.state.StartDateAPI;
+
+    return this.toPickerDate(selectedDate) || this.toPickerDate(fallbackDate) || new Date();
+  }
+
   getStatus() {
     if (this.props.data.audits.isOfflineMode) {
       this.setState({NetInfo: true, pageLoad: false}, () => {
@@ -803,12 +828,14 @@ class AuditStatus extends React.Component {
     console.log('dummyDropdown', dummyDropdown);
     const routesDropdown = this.state.routesList;
     const {StatusHistory} = this.state;
+    const pickerDate = this.getPickerDate();
     return (
       <KeyboardAvoidingView behavior="padding" style={styles.wrapper}>
         {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
         <OfflineNotice />
         <DateTimePicker
           mode="datetime"
+          date={pickerDate}
           isVisible={this.state.isVisible}
           onConfirm={
             this.state.endparam === false

@@ -737,9 +737,9 @@ const HomeDashboard = () => {
     };
     const navigateToNotification = () => {
         console.log('click Notification');
-        navigation.navigate(ROUTES.AUDIT_NOTIFICATIONS, {
-            notifications: notificationsList,
-        });
+        // navigation.navigate(ROUTES.AUDIT_NOTIFICATIONS, {
+        //     notifications: notificationsList,
+        // });
     };
 
     const navigateToLogout = () => {

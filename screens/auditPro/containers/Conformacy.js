@@ -188,6 +188,17 @@ class Conformacy extends React.Component {
   //   }
   // }
 
+  setStateAsync = state =>
+    new Promise(resolve => {
+      this.setState(state, resolve);
+    });
+
+  showToast = (...args) => {
+    if (this.toast && this.toast.show) {
+      this.toast.show(...args);
+    }
+  };
+
   async getAccessToken(){
     try {
       const stringifiedUserDetails = await AsyncStorage.getItem('userDetails');
@@ -196,14 +207,26 @@ class Conformacy extends React.Component {
       if (value !== null) {
         // value previously stored
         console.log('current token2--->', value.accessToken)
-        this.setState({ currentUserData: value },()=>{
-          console.log('Token set')
-        })
+        await this.setStateAsync({ currentUserData: value });
+        console.log('Token set')
+        return value;
       }
     } catch (e) {
       // error reading value
       console.log('error--->', e)
     }
+    return this.state.currentUserData || {};
+  };
+
+  resolveAuthDetails = async () => {
+    const storedUser = this.state.currentUserData?.accessToken ? this.state.currentUserData : await this.getAccessToken();
+    const auditState = this.props?.data?.audits || {};
+
+    return {
+      userData: storedUser || {},
+      token: auditState.token || storedUser?.accessToken || this.state.currentUserData?.accessToken,
+      userId: auditState.userId || storedUser?.userId || storedUser?.UserId || this.state.currentUserData?.userId,
+    };
   };
 
   handleChange = e => {
@@ -219,9 +242,9 @@ class Conformacy extends React.Component {
       loading: true,
     });
 
-    await this.getAccessToken()
+    const authDetails = await this.resolveAuthDetails();
     // const Token = this.props.data.audits.token;
-    const Token = this.state.currentUserData?.accessToken;
+    const Token = authDetails.token;
     // const AuditID = this.props.navigation.state.params.AuditID;
     // const AuditID = this.props?.route?.params?.CreateNCdataBundle?.AuditID;
     const AuditID = this.props?.data?.audits?.auditRecords?.[0]?.AuditId;
@@ -234,9 +257,19 @@ class Conformacy extends React.Component {
     //   loading: false,
     // });
     // const userID = this.props.data.audits.userId;
-    const userID = this.state.currentUserData?.userId;
+    const userID = authDetails.userId;
     console.log('CHECKUSERIID_-------------', userID);
     console.log('getAuditDetails-->Confermacy', AuditID, AuditOrderId, Token, userID)
+    if (!Token) {
+      this.setState(
+        {
+          loading: false,
+        },
+        this.getConformanceDetailsFromLocalStorage,
+      );
+      this.showToast(strings.Audit_Details_Failed, DURATION.LENGTH_LONG);
+      return;
+    }
     auth.Confermacy(AuditID, AuditOrderId, Token, userID, (resp, data) => {
       if (data.data.Data) {
         if (resp === true) {
@@ -303,19 +336,27 @@ class Conformacy extends React.Component {
     this.props.navigation.goBack();
   }
 
-  onsyncToServer() {
+  async onsyncToServer() {
     this.checkUser();
     this.setState({
       loadingSync: true,
     });
+    const authDetails = await this.resolveAuthDetails();
     // var Token = this.props.data.audits.token;
-    var Token = this.state.currentUserData?.accessToken;
+    var Token = authDetails.token;
     var auditList = this.state.auditDetailList;
     var newauditConformance = [];
     // var UserId = this.props.data.audits.userId;
-    var UserId =  this.state.currentUserData?.userId;
+    var UserId =  authDetails.userId;
     var auditnumber = this.props.data.audits.auditRecords[0].AuditNumber;
     console.log;
+    if (!Token) {
+      this.setState({
+        loadingSync: false,
+      });
+      this.showToast(strings.Conformance_failed, DURATION.LENGTH_LONG);
+      return;
+    }
     for (var y = 0; y < auditList.length; y++) {
       newauditConformance.push({
         strProcess: '',
@@ -347,7 +388,7 @@ class Conformacy extends React.Component {
           this.setState({
             loadingSync: false,
           });
-          this.refs.toast.show(
+          this.showToast(
             strings.Conformance_success,
             DURATION.LENGTH_LONG,
           );
@@ -355,7 +396,7 @@ class Conformacy extends React.Component {
           this.setState({
             loadingSync: false,
           });
-          this.refs.toast.show(
+          this.showToast(
             strings.Conformance_failed,
             DURATION.LENGTH_LONG,
           );
@@ -401,13 +442,14 @@ class Conformacy extends React.Component {
           {
             isErrorFound: false,
           },
-          () => {
+          async () => {
             var auditRecords = this.props.data.audits.auditRecords;
+            const authDetails = await this.resolveAuthDetails();
             // var Token = this.props.data.audits.token;
-            var Token = this.state.currentUserData?.accessToken;
+            var Token = authDetails.token;
             var SiteId = this.props.data.audits.siteId;
             // var UserId = this.props.data.audits.userId;
-            var UserId = this.state.currentUserData?.userId;
+            var UserId = authDetails.userId;
             var ProcessID = this.props.data.audits.ProcessID;
             var processName = this.props.data.audits.ProcessName;
             var RequestParam = [];
@@ -415,11 +457,17 @@ class Conformacy extends React.Component {
             var auditRecords = this.props.data.audits.auditRecords;
             console.log(
               'hello',
-              auditRecords[i].AuditId,
+              this.state.AuditID,
               this.state.AuditID,
               // this.props.navigation.state.params.AuditID,
               this.props?.route?.params?.CreateNCdataBundle?.AuditID,
             );
+            if (!Token) {
+              this.setState({saveLoader: false}, () => {
+                this.showToast(strings.ErrUploading, DURATION.LENGTH_LONG);
+              });
+              return;
+            }
             for (var i = 0; i < auditRecords.length; i++) {
               if (this.state.AuditID === auditRecords[i].AuditId) {
                 RequestParam.push({
@@ -801,16 +849,27 @@ class Conformacy extends React.Component {
     });
     console.log('checkingaudiitdetials---------------------');
 
+    const authDetails = await this.resolveAuthDetails();
     // const Token = this.props.data.audits.token;
-    const Token = this.state.currentUserData?.accessToken;
+    const Token = authDetails.token;
     // const AuditID = this.props.navigation.state.params.AuditID;
     // const AuditID = this.props?.route?.params?.CreateNCdataBundle?.AuditID
     const AuditID = this.props?.data?.audits?.auditRecords?.[0]?.AuditId;
     const AuditOrderId = this.props.data.audits.auditRecords[0].AuditOrderId;
     const AUDIT_NO = this.props.data.audits.auditRecords[0].AuditNumber;
     // const userID = this.props.data.audits.userId;
-    const userID = this.state.currentUserData?.userId;
+    const userID = authDetails.userId;
     console.log('getAuditDetails-->Confermacy1', AuditID, AuditOrderId, Token, userID)
+    if (!Token) {
+      this.setState(
+        {
+          loading: false,
+        },
+        this.getConformanceDetailsFromLocalStorage,
+      );
+      this.showToast(strings.Audit_Details_Failed, DURATION.LENGTH_LONG);
+      return;
+    }
     auth.Confermacy(AuditID, AuditOrderId, Token, userID, (resp, data) => {
       console.log('confermacy data', data.data.Data);
     //   console.log('noti', this.props.data.audits.token);
@@ -893,17 +952,22 @@ class Conformacy extends React.Component {
   async checkUser() {
     console.log('user id', this.props.data.audits.userId);
     console.log(this.props.data.audits.isOfflineMode,"offliene")
-    var userid = this.props.data.audits.userId;
-    var token = this.props.data.audits.token;
+    const authDetails = await this.resolveAuthDetails();
+    var userid = authDetails.userId;
+    var token = authDetails.token;
     var UserStatus = '';
     var serverUrl = this.props.data.audits.serverUrl;
-    var ID = this.props.data.audits.userId;
+    var ID = authDetails.userId;
     var type = 3;
     var path = '';
     const deviceId = await AsyncStorage.getItem('loginDeviceId');
 
     var RegisterDevice = this.props.data.audits.deviceid;
     console.log(userid, token, deviceId, RegisterDevice);
+    if (!token) {
+      console.log('Conformacy checkUser skipped: missing token');
+      return;
+    }
   
     // auth.getCheckUser(userid,RegisterDevice,token, (res, data) => {
     auth.getCheckUser(userid, deviceId, token, (res, data) => {
@@ -938,14 +1002,14 @@ class Conformacy extends React.Component {
             }
             console.log('*** path', path);
             // this.deleteUserFile(path)
-            this.refs.toast.show(
+            this.showToast(
               strings.user_disabled_text,
               DURATION.LENGTH_SHORT,
             );
             this.props.navigation.navigate(ROUTES.LAUNCH_SCREEN);
           } else if (UserStatus == 0) {
             Alert.alert("Your session has expired,Please login again.")
-            this.refs.toast.show(
+            this.showToast(
               strings.user_inactive_text,
               DURATION.LENGTH_SHORT,
             );
