@@ -81,12 +81,20 @@ export default StyleSheet.create({
 
   // Footer styles
   footer: {
+    position: 'absolute',
     bottom: 0,
+    left: 0,
+    right: 0,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     width: '100%',
     height: 70, // match footerDiv
+    backgroundColor: 'white',
+    borderTopWidth: 0.5,
+    borderTopColor: 'lightgrey',
+    zIndex: 3000,
+    elevation: 20,
   },
   footerDiv: {
     flexDirection: 'row',
@@ -163,7 +171,7 @@ paddingTop:5 },
     // padding: 5,
     backgroundColor: 'white',
     justifyContent: 'flex-start',
-    paddingBottom: 0,
+    paddingBottom: 80,
     marginBottom: 0,
    // alignSelf: 'stretch',
    alignContent:'center',
@@ -402,7 +410,7 @@ marginTop: 5, },
   floatingDiv: {
     position: 'absolute',
     right: 20,
-    bottom: 90,
+    bottom: 100,
     zIndex: 1000,
     justifyContent: 'center',
     alignItems: 'center',

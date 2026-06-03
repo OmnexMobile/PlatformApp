@@ -408,8 +408,40 @@ alignContent:'center',    borderWidth: 1,
 
   // Card view styles
   scrollViewBody: {
-    height:'100%', 
-    backgroundColor: 'transparent' 
+    flex: 1,
+    backgroundColor: 'transparent',
+  },
+  simpleTabContainer: {
+    flex: 1,
+    backgroundColor: 'white',
+  },
+  simpleTabBar: {
+    height: 48,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'white',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E2E7F0',
+  },
+  simpleTabButton: {
+    flex: 1,
+    height: 48,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderBottomWidth: 3,
+    borderBottomColor: 'transparent',
+  },
+  simpleTabButtonActive: {
+    borderBottomColor: '#123C95',
+  },
+  simpleTabText: {
+    color: '#747474',
+    fontSize: Fonts.size.regular,
+    fontFamily: 'OpenSans-Regular',
+  },
+  simpleTabTextActive: {
+    color: '#123C95',
+    fontFamily: 'OpenSans-SemiBold',
   },
   cardBox:{
     backgroundColor:'white',
@@ -656,7 +688,8 @@ alignContent:'center',    borderWidth: 1,
 
   // Lists and empty states
   listMarginLarge: {
-    marginTop: 60,
+    marginTop: 12,
+    paddingBottom: 90,
   },
   formNameContainer: {
     width: '95%',

@@ -208,6 +208,12 @@ class CheckPointDemo extends Component {
         }
     };
 
+    showToast = (...args) => {
+        if (this.toast && this.toast.show) {
+            this.toast.show(...args);
+        }
+    };
+
     summarizeNcRecords = records => {
         if (!Array.isArray(records)) {
             return { totalRecords: 0, uploadedItems: 0, pendingItems: 0 };
@@ -2720,7 +2726,7 @@ class CheckPointDemo extends Component {
 
     // Displays current displayData via toast
     ShowToast = () => {
-        this.refs.toast.show(this.state.displayData, 6000);
+        this.showToast(this.state.displayData, 6000);
     };
 
     // Validates checkpoint completion thresholds and triggers save/update flows
@@ -2838,7 +2844,7 @@ class CheckPointDemo extends Component {
                             ActiveId: index,
                         },
                         () => {
-                            this.refs.toast.show(strings.InvalidScore, DURATION.LENGTH_LONG);
+                            this.showToast(strings.InvalidScore, DURATION.LENGTH_LONG);
                         },
                     );
                 } else {
@@ -3264,7 +3270,7 @@ class CheckPointDemo extends Component {
                             this.props.changeAuditState(true);
                             this.props.navigation.setParams({ auditUpdated: true });
 
-                            this.refs.toast.show(strings.CheckpointSave, 7000);
+                            this.showToast(strings.CheckpointSave, 7000);
 
                             setTimeout(() => {
                                 this.props.changeAuditState(false);
@@ -3286,7 +3292,7 @@ class CheckPointDemo extends Component {
                                     },
                                     () => {
                                         this.captureNcofiBaseline().catch(error => console.log('capture baseline error', error));
-                                        // this.refs.toast.show(strings.CheckpointSave, 5000);
+                                        // this.showToast(strings.CheckpointSave, 5000);
                                         if (this.state.go_home) {
                                             this.props.changeAuditState(false); // 🔴 Reset red dot flag on save
 
@@ -3501,7 +3507,7 @@ class CheckPointDemo extends Component {
                                 },
                                 () => {
                                     console.log('one:Attachment: delete attachment checkpoint--->', this.state.checkPointsDetails);
-                                    this.refs.toast.show('Attachment deleted successfully.', 100);
+                                    this.showToast('Attachment deleted successfully.', 100);
                                     this.countStatistics(this.state.checkPointsDetails);
                                     this.props.storeCameraCapture([]);
                                     this.renderAttachment(0);
@@ -3510,7 +3516,7 @@ class CheckPointDemo extends Component {
                             );
                         })
                         .catch(err => {
-                            //this.refs.toast.show('Attachment deleted successgully.', DURATION.LENGTH_LONG);
+                            //this.showToast('Attachment deleted successgully.', DURATION.LENGTH_LONG);
                             //console.log('one:Attachment:Files not deleted successfully--->');
                         });
                 }
@@ -3529,7 +3535,7 @@ class CheckPointDemo extends Component {
         // Download empty attachment if any
         if (attachment.length > 0) {
             this.downloadFile(attachment[0]);
-            this.refs.toast.show('Downloading the attachments...', DURATION.LENGTH_LONG);
+            this.showToast('Downloading the attachments...', DURATION.LENGTH_LONG);
         }
 
         // Set dialog and selected item for UI
@@ -4595,7 +4601,7 @@ class CheckPointDemo extends Component {
             });
             this.ncofiBaseline = this.cloneNcofiRecords(dupNCrecords);
             //console.log(this.props.storeNCRecords, 'storeNCRecords');
-            this.refs.toast.show(strings.NCremoved, DURATION.LENGTH_LONG);
+            this.showToast(strings.NCremoved, DURATION.LENGTH_LONG);
         });
     };
 
@@ -5063,7 +5069,7 @@ class CheckPointDemo extends Component {
                 setTimeout(() => {
                     this.setState({ isSaving: false, deleteallattachment: 0 });
                 }, 200);
-                this.refs.toast.show(strings.CheckpointClear, DURATION.LENGTH_SHORT);
+                this.showToast(strings.CheckpointClear, DURATION.LENGTH_SHORT);
             },
         );
     };
@@ -5092,7 +5098,7 @@ class CheckPointDemo extends Component {
             () => {
                 if (attachment.length > 0) {
                     this.downloadFile(attachment[0]);
-                    this.refs.toast.show('Downloading the attachments...', DURATION.LENGTH_LONG);
+                    this.showToast('Downloading the attachments...', DURATION.LENGTH_LONG);
                 }
 
                 // Carousel snapping logic\
@@ -5140,7 +5146,7 @@ class CheckPointDemo extends Component {
 
                     if (attachment.length > 0) {
                         this.downloadFile(attachment[0]);
-                        this.refs.toast.show('Downloading the attachments...', DURATION.LENGTH_LONG);
+                        this.showToast('Downloading the attachments...', DURATION.LENGTH_LONG);
                     }
                     this._carousel.snapToItem(index, true);
                 },
@@ -5162,7 +5168,7 @@ class CheckPointDemo extends Component {
 
                             if (attachment.length > 0) {
                                 this.downloadFile(attachment[0]);
-                                this.refs.toast.show('Downloading the attachments...', DURATION.LENGTH_LONG);
+                                this.showToast('Downloading the attachments...', DURATION.LENGTH_LONG);
                             }
                             this._carousel.snapToItem(index, true);
                         });
@@ -5202,7 +5208,7 @@ class CheckPointDemo extends Component {
 
                         if (attachment.length > 0) {
                             this.downloadFile(attachment[0]);
-                            this.refs.toast.show('Downloading the attachments...', DURATION.LENGTH_LONG);
+                            this.showToast('Downloading the attachments...', DURATION.LENGTH_LONG);
                         }
                         this._carousel.snapToItem(index, true);
                     },
@@ -5232,7 +5238,7 @@ class CheckPointDemo extends Component {
 
                         if (attachment.length > 0) {
                             this.downloadFile(attachment[0]);
-                            this.refs.toast.show('Downloading the attachments...', DURATION.LENGTH_LONG);
+                            this.showToast('Downloading the attachments...', DURATION.LENGTH_LONG);
                         }
                         //this._carousel.snapToItem(index, true);
                         //};
@@ -5277,7 +5283,7 @@ class CheckPointDemo extends Component {
 
                         if (attachment.length > 0) {
                             this.downloadFile(attachment[0]);
-                            this.refs.toast.show('Downloading the attachments...', DURATION.LENGTH_LONG);
+                            this.showToast('Downloading the attachments...', DURATION.LENGTH_LONG);
                         }
                         this._carousel.snapToItem(index, true);
                     },
@@ -5302,7 +5308,7 @@ class CheckPointDemo extends Component {
 
                                 if (attachment.length > 0) {
                                     this.downloadFile(attachment[0]);
-                                    this.refs.toast.show('Downloading the attachments...', DURATION.LENGTH_LONG);
+                                    this.showToast('Downloading the attachments...', DURATION.LENGTH_LONG);
                                 }
                                 this._carousel.snapToItem(index, true);
                             };
@@ -5704,7 +5710,7 @@ class CheckPointDemo extends Component {
             if (data.data.Message == 'Success') {
                 this.WriteAttachments(data.data.Data.FileData, attachment);
             } else {
-                this.refs.toast.show(strings.server_error, DURATION.LENGTH_LONG);
+                this.showToast(strings.server_error, DURATION.LENGTH_LONG);
             }
         });
     }
@@ -5743,7 +5749,7 @@ class CheckPointDemo extends Component {
                             ...attachment,
                             Attachment: !error ? 'Downloaded' : 'FAILED',
                         });
-                        error && this.refs.toast.show('Download attachment Failed, Try again!!', DURATION.LENGTH_LONG);
+                        error && this.showToast('Download attachment Failed, Try again!!', DURATION.LENGTH_LONG);
                     } else {
                         AttachmentList.push(attachment);
                     }
@@ -6393,27 +6399,23 @@ class CheckPointDemo extends Component {
         const isLandscape = screenWidth > screenHeight;
         const shortestSide = Math.min(screenWidth, screenHeight);
         const isTablet = shortestSide >= 600;
-        const useStackLayout = !isLandscape;
-        const carouselLayout = useStackLayout ? 'stack' : 'default';
+        const useStackLayout = false;
+        const carouselLayout = 'default';
         const carouselItemWidth = Math.round(
             screenWidth * (isTablet ? (isLandscape ? 0.92 : 0.84) : isLandscape ? 0.94 : 0.9),
         );
         const stackCardMinHeight = Math.round(
             screenHeight * (isTablet ? (isLandscape ? 0.68 : 0.64) : isLandscape ? 0.58 : 0.62),
         );
-        const stackCardOffset = useStackLayout ? (isTablet ? 24 : 18) : 0;
-        const carouselInactiveScale = useStackLayout ? 0.93 : 1;
-        const carouselInactiveOpacity = useStackLayout ? 0.92 : 1;
+        const stackCardOffset = 0;
+        const carouselInactiveScale = 1;
+        const carouselInactiveOpacity = 1;
         const questionMetaArrowSize = isTablet ? 32 : isLandscape ? 22 : 20;
         const questionMetaTextSize = isTablet ? (isLandscape ? 24 : 26) : isLandscape ? 15 : 16;
         const serialGridMinWidth = isTablet ? (isLandscape ? 150 : 140) : SERIAL_GRID_MIN_WIDTH;
         const serialGridHeight = isTablet ? 76 : SERIAL_GRID_HEIGHT;
         const serialGridTextSize = isTablet ? 20 : 16;
         const serialMandatoryIconSize = isTablet ? 18 : 14;
-        const serialRailWidth = isTablet ? (isLandscape ? 122 : 132) : 110;
-        const serialRailItemHeight = isTablet ? (isLandscape ? 60 : 64) : 54;
-        const serialRailGap = 12;
-        const serialRailToggleWidth = 78;
         //console.log('CheckPointDemo~checkpointList:>', this.state.checkpointList);
 
         // if (this.state.failureloaded === false){
@@ -6504,7 +6506,7 @@ class CheckPointDemo extends Component {
 
                                                         if (attachment.length > 0) {
                                                             this.downloadFile(attachment[0]);
-                                                            this.refs.toast.show('Downloading the attachments...', DURATION.LENGTH_LONG);
+                                                            this.showToast('Downloading the attachments...', DURATION.LENGTH_LONG);
                                                         }
                                                     }
                                                 }
@@ -7702,7 +7704,7 @@ class CheckPointDemo extends Component {
                                                                                             isValid = true;
                                                                                         }
                                                                                         if (!isValid) {
-                                                                                            this.refs.toast.show(
+                                                                                            this.showToast(
                                                                                                 strings.Score_alert +
                                                                                                     '(' +
                                                                                                     strings.Min +
@@ -8223,7 +8225,7 @@ class CheckPointDemo extends Component {
                                                                                                 isValid = true;
                                                                                             }
                                                                                             if (!isValid) {
-                                                                                                this.refs.toast.show(
+                                                                                                this.showToast(
                                                                                                     strings.Score_alert +
                                                                                                         '(' +
                                                                                                         strings.Min +
@@ -8698,123 +8700,6 @@ class CheckPointDemo extends Component {
                                         this.render_loader(stackCardMinHeight)
                                     )}
                                 </View>
-                                <View
-                                    style={[
-                                        styles.serialRailWrapper,
-                                        {
-                                            width: this.state.serialRailExpanded ? serialRailWidth : serialRailToggleWidth,
-                                        },
-                                    ]}>
-                                    {this.state.serialRailExpanded ? (
-                                        <View style={styles.serialRailExpandedWrap}>
-                                            <FlatList
-                                                ref={ref => {
-                                                    this._serialListRef = ref;
-                                                }}
-                                                style={styles.serialRailList}
-                                                data={this.state.checkpointList}
-                                                keyExtractor={item => String(item.ActualIndex)}
-                                                showsVerticalScrollIndicator={false}
-                                                inverted
-                                                extraData={{
-                                                    revision: this.state.checkpointRevision,
-                                                    radioKey: this.state.radioResetKey,
-                                                    activeId: this.state.ActiveId,
-                                                }}
-                                                onScrollToIndexFailed={this.handleSerialScrollToIndexFailed}
-                                                contentContainerStyle={styles.serialRailContent}
-                                                getItemLayout={(data, index) => ({
-                                                    length: serialRailItemHeight + serialRailGap,
-                                                    offset: (serialRailItemHeight + serialRailGap) * index,
-                                                    index,
-                                                })}
-                                                renderItem={({ item, index }) => {
-                                                    const isActive = this.state.ActiveId == index;
-
-                                                    return (
-                                                        <TouchableOpacity
-                                                            style={[
-                                                                styles.serialRailButton,
-                                                                {
-                                                                    backgroundColor: isActive ? 'transparent' : '#FFFFFF',
-                                                                    borderColor: isActive ? '#1099BF' : '#D9DEE8',
-                                                                    width: serialRailWidth - 10,
-                                                                    height: serialRailItemHeight,
-                                                                },
-                                                            ]}
-                                                            touchSoundDisabled={false}
-                                                            onPress={() => {
-                                                                this.playSerialTouchSound();
-                                                                this.btnDatapress(index, item);
-                                                            }}>
-                                                            {isActive ? (
-                                                                <LinearGradient
-                                                                    start={{ x: 0, y: 0 }}
-                                                                    end={{ x: 1, y: 0 }}
-                                                                    colors={FOOTER_BUTTON_GRADIENT}
-                                                                    style={styles.serialRailButtonGradient}>
-                                                                    <Text
-                                                                        style={[
-                                                                            styles.serialRailText,
-                                                                            {
-                                                                                color: '#FFFFFF',
-                                                                            },
-                                                                        ]}>
-                                                                        {item.SerialNo}
-                                                                    </Text>
-                                                                </LinearGradient>
-                                                            ) : (
-                                                                <Text
-                                                                    style={[
-                                                                        styles.serialRailText,
-                                                                        {
-                                                                            color: '#10224C',
-                                                                        },
-                                                                    ]}>
-                                                                    {item.SerialNo}
-                                                                </Text>
-                                                            )}
-                                                        </TouchableOpacity>
-                                                    );
-                                                }}
-                                            />
-
-                                            <TouchableOpacity
-                                                style={[styles.serialRailToggle, styles.serialRailToggleGradientShell]}
-                                                touchSoundDisabled={false}
-                                                onPress={() => {
-                                                    this.playSerialTouchSound();
-                                                    this.toggleSerialRail();
-                                                }}>
-                                                <LinearGradient
-                                                    start={{ x: 0, y: 0 }}
-                                                    end={{ x: 1, y: 0 }}
-                                                    colors={FOOTER_BUTTON_GRADIENT}
-                                                    style={styles.serialRailToggleGradient}>
-                                                    <Text style={[styles.serialRailToggleText, styles.serialRailToggleTextLight]}>Close</Text>
-                                                    <Icon name="chevron-right" size={16} color="#FFFFFF" />
-                                                </LinearGradient>
-                                            </TouchableOpacity>
-                                        </View>
-                                    ) : (
-                                        <TouchableOpacity
-                                            style={[styles.serialRailToggle, styles.serialRailToggleGradientShell]}
-                                            touchSoundDisabled={false}
-                                            onPress={() => {
-                                                this.playSerialTouchSound();
-                                                this.toggleSerialRail();
-                                            }}>
-                                            <LinearGradient
-                                                start={{ x: 0, y: 0 }}
-                                                end={{ x: 1, y: 0 }}
-                                                colors={FOOTER_BUTTON_GRADIENT}
-                                                style={styles.serialRailToggleGradient}>
-                                                <Text style={[styles.serialRailToggleText, styles.serialRailToggleTextLight]}>S.No</Text>
-                                                <Icon name="chevron-left" size={16} color="#FFFFFF" />
-                                            </LinearGradient>
-                                        </TouchableOpacity>
-                                    )}
-                                </View>
                             </View>
                         ) : (
                             <View style={styles.noRecordsContainer}>
@@ -8837,6 +8722,68 @@ class CheckPointDemo extends Component {
                         <Text style={styles.contentLoaderSubtitle}>{strings.cp_02}</Text>
                     </View>
                 )}
+
+                {this.state.checkpointList.length > 0 && this.state.isContentLoaded == false ? (
+                    <View pointerEvents="box-none" style={styles.serialFloatingWrapper}>
+                        {this.state.serialRailExpanded ? (
+                            <View style={styles.serialFloatingPanel}>
+                                <FlatList
+                                    ref={ref => {
+                                        this._serialListRef = ref;
+                                    }}
+                                    horizontal
+                                    data={this.state.checkpointList}
+                                    keyExtractor={(item, index) => String(item.ActualIndex || item.SerialNo || index)}
+                                    showsHorizontalScrollIndicator={false}
+                                    extraData={{
+                                        revision: this.state.checkpointRevision,
+                                        radioKey: this.state.radioResetKey,
+                                        activeId: this.state.ActiveId,
+                                    }}
+                                    onScrollToIndexFailed={this.handleSerialScrollToIndexFailed}
+                                    contentContainerStyle={styles.serialFloatingListContent}
+                                    renderItem={({ item, index }) => {
+                                        const isActive = this.state.ActiveId == index;
+
+                                        return (
+                                            <TouchableOpacity
+                                                style={[styles.serialFloatingNumber, isActive ? styles.serialFloatingNumberActive : null]}
+                                                touchSoundDisabled={false}
+                                                onPress={() => {
+                                                    this.playSerialTouchSound();
+                                                    this.btnDatapress(index, item);
+                                                }}>
+                                                <Text
+                                                    style={[
+                                                        styles.serialFloatingNumberText,
+                                                        isActive ? styles.checkpointSerialTextActive : null,
+                                                    ]}>
+                                                    {item.SerialNo}
+                                                </Text>
+                                            </TouchableOpacity>
+                                        );
+                                    }}
+                                />
+                            </View>
+                        ) : null}
+                        <TouchableOpacity
+                            style={styles.serialFloatingPill}
+                            touchSoundDisabled={false}
+                            onPress={() => {
+                                this.playSerialTouchSound();
+                                this.toggleSerialRail();
+                            }}>
+                            <LinearGradient
+                                start={{ x: 0, y: 0 }}
+                                end={{ x: 1, y: 0 }}
+                                colors={FOOTER_BUTTON_GRADIENT}
+                                style={styles.serialFloatingPillGradient}>
+                                <Text style={styles.serialFloatingPillText}>S.No</Text>
+                                <Icon name={this.state.serialRailExpanded ? 'chevron-down' : 'chevron-left'} size={22} color="#FFFFFF" />
+                            </LinearGradient>
+                        </TouchableOpacity>
+                    </View>
+                ) : null}
 
                 {this.state.checkpointList.length > 0 && (
                     <View style={[styles.footer, styles.footerWhite]}>

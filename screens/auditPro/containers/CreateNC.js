@@ -230,14 +230,41 @@ class CreateNC extends Component {
             screenWidth: Window.width,
             screenHeight: Window.height,
         };
-        Voice.onSpeechStart = this.onSpeechStart;
-        Voice.onSpeechRecognized = this.onSpeechRecognized;
-        Voice.onSpeechEnd = this.onSpeechEnd;
-        Voice.onSpeechError = this.onSpeechError;
-        Voice.onSpeechResults = this.onSpeechResults;
-        Voice.onSpeechPartialResults = this.onSpeechPartialResults;
-        Voice.onSpeechVolumeChanged = this.onSpeechVolumeChanged;
+        this.ensureVoiceHandlers();
     }
+
+    isVoiceAvailable = () => {
+        return Voice && typeof Voice === 'object';
+    };
+
+    safeRemoveVoiceListeners = async () => {
+        if (!this.isVoiceAvailable() || typeof Voice.removeAllListeners !== 'function') {
+            return;
+        }
+
+        if (Platform.OS === 'android') {
+            return;
+        }
+
+        try {
+            await Voice.removeAllListeners();
+        } catch (error) {
+            console.log('Voice listener cleanup failed', error);
+        }
+    };
+
+    safeDestroyVoice = async () => {
+        if (!this.isVoiceAvailable() || typeof Voice.destroy !== 'function') {
+            return;
+        }
+
+        try {
+            await Voice.destroy();
+            await this.safeRemoveVoiceListeners();
+        } catch (error) {
+            console.log('Voice destroy failed', error);
+        }
+    };
 
     componentDidMount() {
         // InteractionManager.setDeadline(500);
@@ -253,7 +280,7 @@ class CreateNC extends Component {
         var getpreviouspage = routes[routes.length - 2]?.name;
         console.log('previous page' + getpreviouspage, 'routes', routes);
 
-        Voice.onSpeechResults = this.onSpeechResults;
+        this.ensureVoiceHandlers();
 
         // if (this.props.navigation.state.params.data != null) {
         if (this.props?.route?.params?.data != null) {
@@ -658,7 +685,7 @@ class CreateNC extends Component {
     StartVoicePress() {
         console.log('voice:StartVoicePressdebouncer activate');
         if (Platform.OS == 'ios') {
-            Voice.removeAllListeners();
+            this.safeRemoveVoiceListeners();
             this.InitVoice();
         }
         this._startRecognizing();
@@ -667,7 +694,7 @@ class CreateNC extends Component {
     StopVoicePress() {
         console.log('voice:StopVoicePressdebouncer activate');
         this._stopRecognizing();
-        Voice.removeAllListeners();
+        this.safeRemoveVoiceListeners();
         this.InitVoice();
     }
 
@@ -693,13 +720,21 @@ class CreateNC extends Component {
     }
 
     ensureVoiceHandlers = () => {
-        Voice.onSpeechStart = this.onSpeechStart;
-        Voice.onSpeechRecognized = this.onSpeechRecognized;
-        Voice.onSpeechEnd = this.onSpeechEnd;
-        Voice.onSpeechError = this.onSpeechError;
-        Voice.onSpeechResults = this.onSpeechResults;
-        Voice.onSpeechPartialResults = this.onSpeechPartialResults;
-        Voice.onSpeechVolumeChanged = this.onSpeechVolumeChanged;
+        if (!this.isVoiceAvailable()) {
+            return;
+        }
+
+        try {
+            Voice.onSpeechStart = this.onSpeechStart;
+            Voice.onSpeechRecognized = this.onSpeechRecognized;
+            Voice.onSpeechEnd = this.onSpeechEnd;
+            Voice.onSpeechError = this.onSpeechError;
+            Voice.onSpeechResults = this.onSpeechResults;
+            Voice.onSpeechPartialResults = this.onSpeechPartialResults;
+            Voice.onSpeechVolumeChanged = this.onSpeechVolumeChanged;
+        } catch (error) {
+            console.log('Voice listener setup failed', error);
+        }
     };
 
     componentWillUnmount() {
@@ -712,7 +747,7 @@ class CreateNC extends Component {
         } else if (Dimensions.removeEventListener) {
             Dimensions.removeEventListener('change', this.handleDimensionChange);
         }
-        if (Voice.isAvailable) Voice.destroy().then(Voice.removeAllListeners);
+        this.safeDestroyVoice();
         var cameraCapture = [];
         this.props.storeCameraCapture(cameraCapture);
     }
@@ -833,7 +868,7 @@ class CreateNC extends Component {
         if (Platform.OS == 'ios') {
             this._startRecognizing();
         }
-        // Voice.removeAllListeners()
+        // this.safeRemoveVoiceListeners()
         // this.InitVoice()
     };
 
@@ -893,6 +928,10 @@ class CreateNC extends Component {
     };
 
     async stopRecording() {
+        if (!this.isVoiceAvailable() || typeof Voice.stop !== 'function') {
+            return;
+        }
+
         try {
             await Voice.stop();
         } catch (e) {
@@ -910,6 +949,11 @@ class CreateNC extends Component {
 
     _startRecognizing = async () => {
         console.log('voice:_startRecognizing');
+        if (!this.isVoiceAvailable() || typeof Voice.start !== 'function') {
+            this.setState({ startVoice: false });
+            return;
+        }
+
         this.setState(
             {
                 recognized: '',
@@ -941,6 +985,10 @@ class CreateNC extends Component {
     };
 
     _stopRecognizing = async () => {
+        if (!this.isVoiceAvailable() || typeof Voice.stop !== 'function') {
+            return;
+        }
+
         try {
             console.log('voice:_stopRecognizing');
             await Voice.stop();
@@ -951,6 +999,10 @@ class CreateNC extends Component {
     };
 
     _cancelRecognizing = async () => {
+        if (!this.isVoiceAvailable() || typeof Voice.cancel !== 'function') {
+            return;
+        }
+
         try {
             console.log('voice:_cancelRecognizing');
             await Voice.cancel();
@@ -961,13 +1013,7 @@ class CreateNC extends Component {
     };
 
     _destroyRecognizer = async () => {
-        try {
-            console.log('voice:_destroyRecognizer');
-            await Voice.destroy();
-        } catch (e) {
-            //eslint-disable-next-line
-            console.error(e);
-        }
+        await this.safeDestroyVoice();
         this.setState({
             recognized: '',
             pitch: '',
@@ -1092,7 +1138,7 @@ class CreateNC extends Component {
                     this.VoiceOFIcategory = false;
                     this.docRefTxtField?.blur?.();
                     this._stopRecognizing();
-                    Voice.removeAllListeners();
+                    this.safeRemoveVoiceListeners();
                     this.InitVoice();
                 },
             );
@@ -1122,7 +1168,7 @@ class CreateNC extends Component {
                     this.VoiceResp = false;
                     this.VoiceOFIcategory = false;
                     this._stopRecognizing();
-                    Voice.removeAllListeners();
+                    this.safeRemoveVoiceListeners();
                     this.InitVoice();
                 },
             );
@@ -1148,7 +1194,7 @@ class CreateNC extends Component {
                     this.VoiceOFIcategory = false;
 
                     this._stopRecognizing();
-                    Voice.removeAllListeners();
+                    this.safeRemoveVoiceListeners();
                     this.InitVoice();
                 },
             );
@@ -1173,7 +1219,7 @@ class CreateNC extends Component {
                     this.VoiceResp = false;
                     this.VoiceOFIcategory = false;
                     this._stopRecognizing();
-                    Voice.removeAllListeners();
+                    this.safeRemoveVoiceListeners();
                     this.InitVoice();
                 },
             );
@@ -1199,7 +1245,7 @@ class CreateNC extends Component {
                     this.VoiceOFIcategory = false;
                     this.objEviTxtField?.blur?.();
                     this._stopRecognizing();
-                    Voice.removeAllListeners();
+                    this.safeRemoveVoiceListeners();
                     this.InitVoice();
                 },
             );
@@ -1224,7 +1270,7 @@ class CreateNC extends Component {
                     this.VoiceResp = false;
                     this.VoiceOFIcategory = false;
                     this._stopRecognizing();
-                    Voice.removeAllListeners();
+                    this.safeRemoveVoiceListeners();
                     this.InitVoice();
                 },
             );
@@ -1258,7 +1304,7 @@ class CreateNC extends Component {
                     this.VoiceOFIcategory = false;
                     this.categoryTxtField?.close?.();
                     this._stopRecognizing();
-                    Voice.removeAllListeners();
+                    this.safeRemoveVoiceListeners();
                     this.InitVoice();
                 },
             );
@@ -1293,7 +1339,7 @@ class CreateNC extends Component {
 
                     this.categoryTxtField?.close?.();
                     this._stopRecognizing();
-                    Voice.removeAllListeners();
+                    this.safeRemoveVoiceListeners();
                     this.InitVoice();
                 },
             );
@@ -1329,7 +1375,7 @@ class CreateNC extends Component {
                     if (this.state.departArr.length > 0) {
                         this.departmentTxtField?.close?.();
                         this._stopRecognizing();
-                        Voice.removeAllListeners();
+                        this.safeRemoveVoiceListeners();
                         this.InitVoice();
                     }
                 },
@@ -1364,7 +1410,7 @@ class CreateNC extends Component {
                     this.VoiceOFIcategory = false;
                     this.responsibleTxtField?.close?.();
                     this._stopRecognizing();
-                    Voice.removeAllListeners();
+                    this.safeRemoveVoiceListeners();
                     this.InitVoice();
                 },
             );
@@ -1398,7 +1444,7 @@ class CreateNC extends Component {
                     this.VoiceOFIcategory = false;
                     this.requestTxtField?.close?.();
                     this._stopRecognizing();
-                    Voice.removeAllListeners();
+                    this.safeRemoveVoiceListeners();
                     this.InitVoice();
                 },
             );
@@ -1419,7 +1465,7 @@ class CreateNC extends Component {
                 });
                 this.clauseListField._toggleSelector();
                 this._stopRecognizing();
-                Voice.removeAllListeners();
+                this.safeRemoveVoiceListeners();
                 this.InitVoice();
             } else if (
                 //process
@@ -1431,7 +1477,7 @@ class CreateNC extends Component {
                 });
                 this.processListField._toggleSelector();
                 this._stopRecognizing();
-                Voice.removeAllListeners();
+                this.safeRemoveVoiceListeners();
                 this.InitVoice();
             } else if (txt.toLowerCase().includes(strings.va_cmd61)) {
                 //NC
@@ -1476,7 +1522,7 @@ class CreateNC extends Component {
                 });
                 this.responsibleTxtField?.focus?.();
                 this._stopRecognizing();
-                Voice.removeAllListeners();
+                this.safeRemoveVoiceListeners();
                 this.InitVoice();
                 // setTimeout(() => {
                 //   this._startRecognizing();
@@ -1504,7 +1550,7 @@ class CreateNC extends Component {
                 });
                 this.requestTxtField?.focus?.();
                 this._stopRecognizing();
-                Voice.removeAllListeners();
+                this.safeRemoveVoiceListeners();
                 this.InitVoice();
                 // setTimeout(() => {
                 //   this._startRecognizing();
@@ -1534,7 +1580,7 @@ class CreateNC extends Component {
                 });
                 this.categoryTxtField?.focus?.();
                 this._stopRecognizing();
-                Voice.removeAllListeners();
+                this.safeRemoveVoiceListeners();
                 this.InitVoice();
                 // setTimeout(() => {
                 //   this._startRecognizing();
@@ -1562,7 +1608,7 @@ class CreateNC extends Component {
                 });
                 this.categoryTxtField?.focus?.();
                 this._stopRecognizing();
-                Voice.removeAllListeners();
+                this.safeRemoveVoiceListeners();
                 this.InitVoice();
                 // setTimeout(() => {
                 //   this._startRecognizing();
@@ -1591,7 +1637,7 @@ class CreateNC extends Component {
                     });
                     this.departmentTxtField?.focus?.();
                     this._stopRecognizing();
-                    Voice.removeAllListeners();
+                    this.safeRemoveVoiceListeners();
                     this.InitVoice();
                     //   setTimeout(() => {
                     //     this._startRecognizing();
@@ -1730,7 +1776,7 @@ class CreateNC extends Component {
                 });
 
                 this._stopRecognizing();
-                Voice.removeAllListeners();
+                this.safeRemoveVoiceListeners();
                 this.InitVoice();
                 // setTimeout(() => {
                 // console.log("open attachment");
@@ -1745,7 +1791,7 @@ class CreateNC extends Component {
                 Tts.setDucking(true).then(() => {
                     Tts.speak(strings.v_Key_Invalid_Message);
                 });
-                Voice.removeAllListeners();
+                this.safeRemoveVoiceListeners();
                 this.InitVoice();
             }
         }
@@ -2934,7 +2980,7 @@ class CreateNC extends Component {
     }
 
     goBack() {
-        Voice.removeAllListeners();
+        this.safeRemoveVoiceListeners();
         this.InitVoice();
         this.props.navigation.goBack();
     }

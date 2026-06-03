@@ -8,6 +8,7 @@ import {
   Platform,
   Alert,
   LogBox,
+  ActivityIndicator,
 } from 'react-native';
 import {connect} from 'react-redux';
 import {Camera} from 'react-native-vision-camera';
@@ -20,7 +21,6 @@ import {width, height} from 'react-native-dimension';
 import Moment from 'moment';
 import RNFS from 'react-native-fs';
 import RNFetchBlob from 'react-native-fetch-blob';
-import {Bars, Pulse} from 'react-native-loader';
 import RNPhotoEditor from 'react-native-photo-editor';
 import ImageMarker from 'react-native-image-marker';
 import { Image as compressImage, Video, getVideoMetaData} from 'react-native-compressor';
@@ -56,11 +56,57 @@ class CameraCapture extends Component {
     this.capturePhoto = this.capturePhoto.bind(this);
   }
 
+  normalizeFsPath(path) {
+    if (!path) {
+      return '';
+    }
+
+    let normalizedPath = path;
+
+    if (path.startsWith('file://')) {
+      normalizedPath = path.replace('file://', '');
+    } else if (path.startsWith('file:/')) {
+      normalizedPath = path.replace('file:/', '/');
+    }
+
+    return normalizedPath.replace(/^\/+/, '/');
+  }
+
+  getCaptureDirectory() {
+    return `${this.normalizeFsPath(RNFetchBlob.fs.dirs.DocumentDir)}/${Platform.OS == 'ios' ? 'IosFiles' : 'AuditFiles'}`;
+  }
+
+  toFileUri(path) {
+    const normalizedPath = this.normalizeFsPath(path);
+
+    if (!normalizedPath) {
+      return '';
+    }
+
+    return normalizedPath.startsWith('/')
+      ? `file://${normalizedPath}`
+      : `file:///${normalizedPath}`;
+  }
+
+  getCameraDevice() {
+    const {devices, cameraType} = this.state;
+
+    if (!Array.isArray(devices) || devices.length === 0) {
+      return null;
+    }
+
+    return (
+      devices.find(device => device?.position === cameraType) ||
+      devices.find(device => device?.position === 'back') ||
+      devices[0]
+    );
+  }
+
   componentDidMount = async () => {
     console.log('camera:capture mounted');
     LogBox.ignoreLogs(['Animated: `useNativeDriver`'])
     LogBox.ignoreLogs(['Frame Processors are disabled'])
-    let Files = '/' + RNFetchBlob.fs.dirs.DocumentDir + '/' + (Platform.OS == 'ios' ? 'IosFiles' : 'AuditFiles');
+    let Files = this.getCaptureDirectory();
     console.log('camera:Ios-Android-Path', Files);
     RNFetchBlob.fs.exists(Files).then(exist => {
       if (!exist || exist == '') {
@@ -173,26 +219,38 @@ class CameraCapture extends Component {
     // console.log('Date ==>', this.state.timestamp)
     console.log('Camera:CAptured time', this.timestamp());
     var filepath = undefined;
-    var newImgPath = '/' + RNFetchBlob.fs.dirs.DocumentDir + '/' + (Platform.OS == 'ios' ? 'IosFiles' : 'AuditFiles');
+    var newImgPath = this.getCaptureDirectory();
    {
       console.log(this.state.capturedImagePath, 'capturedilepat');
-      filepath = (Platform.OS == 'android' ? 'file:/'+this.state.capturedImagePath : this.state.capturedImagePath);
+      filepath = (Platform.OS == 'android' ? this.toFileUri(this.state.capturedImagePath) : this.state.capturedImagePath);
       console.log(filepath, 'camera:filepath');
     }
  
-    ImageMarker.markText({
-      src: filepath,
-      text: this.timestamp(),
-      position: 'bottomRight',
-      color: '#00ADD4',
-      fontName: 'Arial-BoldItalicMT',
-      fontSize: Platform.OS == 'ios' ? 50 : 38,
-      scale: 1,
+    const markerOptions = {
+      backgroundImage: {
+        src: filepath,
+        scale: 1,
+      },
+      watermarkTexts: [
+        {
+          text: this.timestamp(),
+          position: {
+            position: 'bottomRight',
+          },
+          style: {
+            color: '#00ADD4',
+            fontName: 'Arial-BoldItalicMT',
+            fontSize: Platform.OS == 'ios' ? 50 : 38,
+          },
+        },
+      ],
       quality: 90,
-      saveFormat: 'base64'
-    }).then(res => {
+      saveFormat: 'base64',
+    };
+
+    Promise.resolve().then(() => ImageMarker.markText(markerOptions)).then(res => {
       if (res.startsWith("data:")){
- 
+
         res = res.split(',')[1];
  
       }
@@ -271,7 +329,7 @@ class CameraCapture extends Component {
   }
   capturePhoto = async () => {
     var ImgPath = '';
-    var newImgPath = '/' + RNFetchBlob.fs.dirs.DocumentDir + '/' + (Platform.OS == 'ios' ? 'IosFiles' : 'AuditFiles');
+    var newImgPath = this.getCaptureDirectory();
     if (this.camera) {
       console.log('ccenter');
       const photo = await this.camera.takePhoto({
@@ -280,11 +338,11 @@ class CameraCapture extends Component {
         // enableAutoRedEyeReduction: true
       });
       console.log(photo, 'camera:photoconsole');
-      let filename = photo.path.substring(photo.path.lastIndexOf('/')+1);
+      ImgPath = this.normalizeFsPath(photo.path);
+      let filename = ImgPath.substring(ImgPath.lastIndexOf('/')+1);
       let extn = filename.substring(filename.lastIndexOf('.')+1);
       var newfileName = 'CapturedImage_' + Moment().unix() + '.' + extn;
       try {
-        ImgPath = '/' + photo.path.replace('file:/', '');
         var data = await RNFS.readFile(
           ImgPath,
           'base64',
@@ -302,16 +360,12 @@ class CameraCapture extends Component {
               captureState: 'Capturing',
               capturedImagePath: newImgPath,
               imageName: 'photo',
-            });
-            {
-            // if (Platform.OS == 'ios') {
-            //   this.storePhotoEdited();
-            // } else {
+            }, () => {
               console.log('Reach RNPhotoEditor-->')
               // this.storePhotoEdited();
               // RNPhotoEditor.open()
               RNPhotoEditor.Edit({
-                path: this.state.capturedImagePath,
+                path: newImgPath,
                 onDone: this.storePhotoEdited,
                 onCancel: this.retakePhoto,
     
@@ -333,7 +387,7 @@ class CameraCapture extends Component {
                   '#ff00ff',
                 ],
               });
-            }
+            });
           }).catch (err => console.log("camera:Error in Capture Image1:", err))
         }) .catch(err => console.log("camera:Error in Capture Image2:",err));
  
@@ -345,8 +399,9 @@ class CameraCapture extends Component {
  
   async deleteImageAfterEdit(filepath){
     console.log("Camera: Delete file path",filepath);
-  if(RNFetchBlob.fs.isDir(filepath)){
-    await RNFetchBlob.fs.unlink(filepath).then(() => {
+  const deletePath = this.normalizeFsPath(filepath);
+  if(deletePath && await RNFetchBlob.fs.exists(deletePath)){
+    await RNFetchBlob.fs.unlink(deletePath).then(() => {
       console.log('Camera:Captured old Deleted!!');
     })
     .catch ((err) => {
@@ -400,6 +455,8 @@ class CameraCapture extends Component {
   };
  
   render() {
+    const cameraDevice = this.getCameraDevice();
+    const previewUri = this.toFileUri(this.state.capturedImagePath);
     console.log(this.state.devices, 'devices');
     //console.log(this.state.devices.position,"Pose")
     console.log(this.state.captureState, 'devices');
@@ -424,14 +481,14 @@ class CameraCapture extends Component {
         <View style={styles.auditPageBody}>
           {console.log('this.state.captureState--->', this.state.captureState)}
           {this.state.captureState == 'CameraMode' &&
-          this.state.devices.length > 0 ? (
+          cameraDevice ? (
             <Camera
               ref={ref => {
                 this.camera = ref;
               }}
               photo={true}
               style={styles.detailsCard}
-              device={this.state.cameraType == 'back' ? this.state.devices[0] : this.state.devices[1]  }
+              device={cameraDevice}
               zoom={1}
               captureAudio={false}
               autoFocus="on"
@@ -464,7 +521,7 @@ class CameraCapture extends Component {
                 }}>
                 {strings.Capturing_Message}
               </Text>
-              <Bars size={20} color="#48BCF7" />
+              <ActivityIndicator size="large" color="#48BCF7" />
             </View>
           ) : (
             <View style={[styles.detailsCard, {padding: 10}]}>
@@ -479,12 +536,13 @@ class CameraCapture extends Component {
               </Text>
            
                 <Image
-                  source={{uri: 'file:/' + this.state.capturedImagePath}}
+                  source={{uri: previewUri}}
                   style={{
                     width: width(90),
                     height: height(65),
                     resizeMode: 'stretch',
                   }}
+                  onError={err => console.log('camera:preview image error', err.nativeEvent)}
                 />
             </View>
           )}
@@ -521,7 +579,7 @@ class CameraCapture extends Component {
                   </View>
                 ) : (
                   <View style={styles.footerLoader}>
-                    <Pulse size={20} color="white" />
+                    <ActivityIndicator size="small" color="white" />
                   </View>
                 )}
               </View>

@@ -21,9 +21,6 @@ import Toast, {DURATION} from 'react-native-easy-toast';
 import {Pulse} from 'react-native-loader';
 import auth from '../../../services/Auditpro-Auth';
 import OfflineNotice from '../../auditPro/components/OfflineNotice';
-import ScrollableTabView, {
-  DefaultTabBar,
-} from 'react-native-scrollable-tab-view';
 import Fonts from '../Themes/Fonts';
 import Icon from 'react-native-vector-icons/Feather';
 import {strings} from '../language/Language';
@@ -84,10 +81,10 @@ class AuditAttach extends React.Component {
       () => {
         // console.log('Bobby', this.props.navigation.state.params);
         if (this.props?.route?.params?.isDeleted == 1) {
-          this.toast.show(strings.AttachDelSuccess, DURATION.LENGTH_SHORT);
+          this.showToast(strings.AttachDelSuccess, DURATION.LENGTH_SHORT);
           this.getHistory();
         } else if (this.props?.route?.params?.isDeleted == 2) {
-          this.toast.show(strings.AttachUpload, DURATION.LENGTH_SHORT);
+          this.showToast(strings.AttachUpload, DURATION.LENGTH_SHORT);
           this.getHistory();
         } else {
           console.log('No toast');
@@ -100,8 +97,8 @@ class AuditAttach extends React.Component {
   async getAccessToken(){
     try {
       const stringifiedUserDetails = await AsyncStorage.getItem('userDetails');
-      const value = JSON.parse(stringifiedUserDetails);
-      console.log('current userdata--->', value.accessToken)
+      const value = stringifiedUserDetails ? JSON.parse(stringifiedUserDetails) : null;
+      console.log('current userdata--->', value?.accessToken)
       if (value !== null) {
         // value previously stored
         console.log('current token2--->', value)
@@ -109,9 +106,17 @@ class AuditAttach extends React.Component {
           console.log('Token set')
         })
       }
+      return value;
     } catch (e) {
       // error reading value
       console.log('error--->', e)
+      return null;
+    }
+  };
+
+  showToast = (...args) => {
+    if (this.toast && this.toast.show) {
+      this.toast.show(...args);
     }
   };
 
@@ -132,11 +137,11 @@ class AuditAttach extends React.Component {
   }
 
   async getHistory() {
-    await this.getAccessToken()
+    const storedUserData = await this.getAccessToken()
     if (this.props.data.audits.isOfflineMode) {
       this.setState({pageLoad: false, NetInfo: true}, () => {
         console.log('Page load is off');
-        this.toast.show(strings.Offline_Notice, DURATION.LENGTH_SHORT);
+        this.showToast(strings.Offline_Notice, DURATION.LENGTH_SHORT);
       });
     } else {
       NetInfo.fetch().then(isConnected => {
@@ -144,9 +149,9 @@ class AuditAttach extends React.Component {
           var auditRecords = this.props.data.audits.auditRecords;
           //   var Token = this.props.data.audits.token;
           console.log('this.state.currentUserData-->', this.state.currentUserData)
-          var Token = this.state.currentUserData?.accessToken
+          var Token = storedUserData?.accessToken || storedUserData?.token || this.state.currentUserData?.accessToken || this.props.data.audits.token
           // var SiteId = this.props.data.audits.siteId;
-          var SiteId = this.state.currentUserData?.siteId;
+          var SiteId = storedUserData?.siteId || this.state.currentUserData?.siteId || this.props.data.audits.siteId;
           var ObjectiveEvidence = this.props.data.audits;
           console.log('objEvi==>', this.props.data.audits, ObjectiveEvidence);
           var RequestParam = [];
@@ -225,19 +230,19 @@ class AuditAttach extends React.Component {
                 );
               } else {
                 this.setState({pageLoad: false}, () => {
-                  this.toast.show(strings.ErrFetch, DURATION.LENGTH_SHORT);
+                  this.showToast(strings.ErrFetch, DURATION.LENGTH_SHORT);
                 });
               }
             } else {
               this.setState({pageLoad: false}, () => {
-                this.toast.show(strings.ErrFetch, DURATION.LENGTH_SHORT);
+                this.showToast(strings.ErrFetch, DURATION.LENGTH_SHORT);
               });
             }
           });
         } else {
           this.setState({pageLoad: false, NetInfo: true}, () => {
             console.log('Page load is off');
-            this.toast.show(strings.NoInternet, DURATION.LENGTH_SHORT);
+            this.showToast(strings.NoInternet, DURATION.LENGTH_SHORT);
           });
         }
       });
@@ -273,7 +278,7 @@ class AuditAttach extends React.Component {
 
   addOfflineMode() {
     console.log('offline');
-    this.toast.show(strings.Offline_Notice, DURATION.LENGTH_SHORT);
+    this.showToast(strings.Offline_Notice, DURATION.LENGTH_SHORT);
   }
 
   initiateDownload(docid){ 
@@ -281,7 +286,7 @@ class AuditAttach extends React.Component {
       this.setState({
         isVisible : false
       }, () => {
-      this.toast.show('File is not synced with server yet, please try after sometime.', DURATION.LENGTH_LONG);
+      this.showToast('File is not synced with server yet, please try after sometime.', DURATION.LENGTH_LONG);
       });
       return false;
     }
@@ -292,7 +297,7 @@ class AuditAttach extends React.Component {
       if (data.data.Message == 'Success') {
           this.WriteAttachments(data.data.Data);    
       } else {
-        this.refs.toast.show(strings.server_error, DURATION.LENGTH_LONG);
+        this.showToast(strings.server_error, DURATION.LENGTH_LONG);
       }
     });    
   }
@@ -370,29 +375,12 @@ class AuditAttach extends React.Component {
             containerStyle={{backgroundColor: 'transparent'}}
           />
      
-        <ScrollableTabView
-          renderTabBar={() => (
-            <DefaultTabBar
-              backgroundColor="white"
-              activeTextColor="#2CB5FD"
-              inactiveTextColor="#747474"
-              underlineStyle={{
-                backgroundColor: '#2CB5FD',
-                borderBottomColor: '#2CB5FD',
-                height: Platform.select({
-                  android: 0,
-                  ios: 5
-                })
-              }}
-              textStyle={{
-                fontSize: Fonts.size.regular,
-                fontFamily: 'OpenSans-Regular',
-              }}
-            />
-          )}
-          tabBarPosition="overlayTop">
+        <View style={styles.simpleTabContainer}>
+          <View style={styles.simpleTabBar}>
+            <Text style={styles.simpleTabText}>{strings.History}</Text>
+          </View>
           {this.state.History.length > 0 ? (
-            <View tabLabel={strings.History} style={styles.scrollViewBody}>
+            <View style={styles.scrollViewBody}>
               {this.state.NetInfo === true ? (
                 <View
                   style={{
@@ -499,7 +487,7 @@ class AuditAttach extends React.Component {
               )}
             </View>
           ) : (
-            <View tabLabel={strings.History} style={styles.scrollViewBody}>
+            <View style={styles.scrollViewBody}>
               <View
                 style={{
                   flex: 1,
@@ -523,7 +511,7 @@ class AuditAttach extends React.Component {
             </View>
           )}
 
-        </ScrollableTabView>
+        </View>
         {/** Floating add button */}
         <TouchableOpacity
           onPress={

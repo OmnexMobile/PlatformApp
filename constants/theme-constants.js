@@ -9,8 +9,8 @@ const { width, height } = Dimensions.get('window');
 // COLORS
 
 export const COLORS = {
-    primaryThemeColor: '#1FBFD0',
-    primaryLightThemeColor: '#14D0AE',
+    primaryThemeColor: '#123C95',
+    primaryLightThemeColor: '#123C95',
     primaryDarkThemeColor: '#123C95',
     primaryLightTransparentThemeColor: '#0180ff1a',
     apptheme: '#123C95',

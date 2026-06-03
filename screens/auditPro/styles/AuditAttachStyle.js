@@ -109,8 +109,25 @@ export default StyleSheet.create({
         alignSelf: 'stretch',
     },
     scrollViewBody: {
-        height: '100%',
+        flex: 1,
         backgroundColor: 'transparent',
+    },
+    simpleTabContainer: {
+        flex: 1,
+        backgroundColor: 'white',
+    },
+    simpleTabBar: {
+        height: 48,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'white',
+        borderBottomWidth: 1,
+        borderBottomColor: '#E2E7F0',
+    },
+    simpleTabText: {
+        fontSize: Fonts.size.regular,
+        fontFamily: 'OpenSans-SemiBold',
+        color: '#123C95',
     },
     headerContainer: {
         backgroundColor: 'transparent',
@@ -137,7 +154,7 @@ export default StyleSheet.create({
         fontFamily: 'OpenSans-Regular',
     },
     historyContentTopMargin: {
-        marginTop: 50,
+        flex: 1,
     },
     historyLoaderContainer: {
         width: Window.width,

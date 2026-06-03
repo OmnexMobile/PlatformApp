@@ -9,7 +9,6 @@ import Toast, { DURATION } from 'react-native-easy-toast';
 import { Pulse } from 'react-native-loader';
 import auth from '../../../services/Auditpro-Auth';
 import OfflineNotice from '../../auditPro/components/OfflineNotice';
-import ScrollableTabView, { DefaultTabBar } from 'react-native-scrollable-tab-view';
 import Icon from 'react-native-vector-icons/Feather';
 import { strings } from '../../auditPro/language/Language';
 import NetInfo from '@react-native-community/netinfo';
@@ -37,6 +36,10 @@ class AuditAttach extends React.Component {
         };
     }
 
+    showToast = (...args) => {
+        this.toast?.show?.(...args);
+    };
+
     componentDidMount() {
         console.log('AuditAttachSM componentDidMount', this.props);
         if (this.props.data.audits.language === 'Chinese') {
@@ -60,10 +63,10 @@ class AuditAttach extends React.Component {
             () => {
                 console.log('Bobby', this.props.route?.params);
                 if (this.props.route?.params?.isDeleted == 1) {
-                    this.refs.toast.show(strings.AttachDelSuccess, DURATION.LENGTH_SHORT);
+                    this.showToast(strings.AttachDelSuccess, DURATION.LENGTH_SHORT);
                     this.getHistory();
                 } else if (this.props.route?.params?.isDeleted == 2) {
-                    this.refs.toast.show(strings.AttachUpload, DURATION.LENGTH_SHORT);
+                    this.showToast(strings.AttachUpload, DURATION.LENGTH_SHORT);
                     this.getHistory();
                 } else {
                     console.log('No toast');
@@ -110,7 +113,7 @@ class AuditAttach extends React.Component {
         if (this.props.data.audits.isOfflineMode) {
             this.setState({ pageLoad: false, NetInfo: true }, () => {
                 console.log('Page load is off');
-                this.refs.toast.show(strings.Offline_Notice, DURATION.LENGTH_SHORT);
+                this.showToast(strings.Offline_Notice, DURATION.LENGTH_SHORT);
             });
         } else {
             NetInfo.fetch().then(async isConnected => {
@@ -163,7 +166,7 @@ class AuditAttach extends React.Component {
                     console.log('RequestParam-->', RequestParam);
                     if (!RequestParam.length) {
                         this.setState({ pageLoad: false, History: [] }, () => {
-                            this.refs.toast.show(strings.ErrFetch, DURATION.LENGTH_SHORT);
+                            this.showToast(strings.ErrFetch, DURATION.LENGTH_SHORT);
                         });
                         return;
                     }
@@ -214,19 +217,19 @@ class AuditAttach extends React.Component {
                                 });
                             } else {
                                 this.setState({ pageLoad: false }, () => {
-                                    this.refs.toast.show(strings.ErrFetch, DURATION.LENGTH_SHORT);
+                                    this.showToast(strings.ErrFetch, DURATION.LENGTH_SHORT);
                                 });
                             }
                         } else {
                             this.setState({ pageLoad: false }, () => {
-                                this.refs.toast.show(strings.ErrFetch, DURATION.LENGTH_SHORT);
+                                this.showToast(strings.ErrFetch, DURATION.LENGTH_SHORT);
                             });
                         }
                     });
                 } else {
                     this.setState({ pageLoad: false, NetInfo: true }, () => {
                         console.log('Page load is off');
-                        this.refs.toast.show(strings.NoInternet, DURATION.LENGTH_SHORT);
+                        this.showToast(strings.NoInternet, DURATION.LENGTH_SHORT);
                     });
                 }
             });
@@ -256,7 +259,7 @@ class AuditAttach extends React.Component {
 
     addOfflineMode() {
         console.log('offline');
-        this.refs.toast.show(strings.Offline_Notice, DURATION.LENGTH_SHORT);
+        this.showToast(strings.Offline_Notice, DURATION.LENGTH_SHORT);
     }
 
     initiateDownload(docid) {
@@ -271,7 +274,7 @@ class AuditAttach extends React.Component {
                 // })
                 this.WriteAttachments(data.data.Data);
             } else {
-                this.refs.toast.show(strings.server_error, DURATION.LENGTH_LONG);
+                this.showToast(strings.server_error, DURATION.LENGTH_LONG);
             }
         });
     }
@@ -343,104 +346,95 @@ class AuditAttach extends React.Component {
                     containerStyle={styles.headerContainer}
                 />
                 {/** ---------------------- */}
-                <ScrollableTabView
-                    renderTabBar={() => (
-                        <DefaultTabBar
-                            backgroundColor="white"
-                            activeTextColor="#123C95"
-                            inactiveTextColor="#747474"
-                            underlineStyle={styles.tabUnderline}
-                            textStyle={styles.tabText}
-                        />
-                    )}
-                    tabBarPosition="overlayTop">
-                    <View tabLabel={strings.History} style={styles.scrollViewBody}>
-                        {this.state.NetInfo === true ? (
-                            <View style={styles.networkInfoContainer}>
-                                <Text style={styles.noInternetText}>{strings.NoInternet}</Text>
-                            </View>
-                        ) : (
-                            <View style={styles.historyContentTopMargin}>
-                                {this.state.pageLoad === true ? (
-                                    <View style={styles.historyLoaderContainer}>
-                                        <Pulse size={30} color={'#123C95'} />
-                                    </View>
-                                ) : History.length > 0 ? (
-                                    <FlatList
-                                        data={History}
-                                        keyExtractor={(item, index) =>
-                                            String(item.key || item.FileId || item.UncontrolledLink || index)
-                                        }
-                                        renderItem={({ item }) => (
-                                            <TouchableOpacity
-                                                onPress={() => {
-                                                    this.onPress(item);
-                                                }}
-                                                style={styles.card}>
-                                                <View style={styles.card1}>
-                                                    <View style={styles.boxCard1}>
-                                                        <Text style={styles.detailTitle}>{strings.AttachType}</Text>
-                                                        <Text style={styles.detailContent}>
-                                                            {item.Type === 'Controlled' || item.Type === 'Attachment' ? 'Attachment' : item.Type}
-                                                        </Text>
-                                                    </View>
-                                                    <View style={styles.boxCard1}>
-                                                        <Text style={styles.detailTitle}>{strings.AttachName}</Text>
-                                                        <TouchableOpacity
-                                                            onPress={() => {
-                                                                let url = item.UncontrolledLink;
-                                                                url = url.indexOf('http') !== 0 ? 'https://' + url : url;
-                                                                if (item.Type === 'Link') {
-                                                                    Linking.openURL(url);
-                                                                } else if (item.Type === 'Attachment') {
-                                                                    this.setState(
-                                                                        {
-                                                                            // isVisible : true
-                                                                        },
-                                                                        () => {
-                                                                            this.initiateDownload(item.UncontrolledLink);
-                                                                        },
-                                                                    );
-                                                                }
-                                                            }}>
-                                                            <View>
-                                                                <Text
-                                                                    style={[
-                                                                        styles.detailContent,
-                                                                        styles.attachmentLinkText,
-                                                                        item.Type === 'Link'
-                                                                            ? styles.attachmentLinkUnderline
-                                                                            : styles.attachmentLinkNoUnderline,
-                                                                    ]}
-                                                                    numberOfLines={1}>
-                                                                    {item.Type === 'UnControlled' || item.Type === 'Link'
-                                                                        ? item.UncontrolledLink
-                                                                        : item.FileName}
-                                                                </Text>
-                                                            </View>
-                                                        </TouchableOpacity>
-                                                    </View>
-                                                    <View style={styles.boxCard1}>
-                                                        <Text style={styles.detailTitle}>{strings.AttachCom}</Text>
-                                                        <Text style={styles.detailContent} numberOfLines={1}>
-                                                            {item.Comments === 'null' || item.Comments === null ? '-' : item.Comments}
-                                                        </Text>
-                                                    </View>
-                                                    <View style={styles.boxCard1}>
-                                                        <Text style={styles.detailTitle}>{strings.UploadedOn}</Text>
-                                                        <Text style={styles.detailContent}>{this.changeDateFormat(item.Uploadedon)}</Text>
-                                                    </View>
-                                                </View>
-                                            </TouchableOpacity>
-                                        )}
-                                    />
-                                ) : (
-                                    <NoRecordFound />
-                                )}
-                            </View>
-                        )}
+                <View style={styles.simpleTabContainer}>
+                    <View style={styles.simpleTabBar}>
+                        <Text style={styles.simpleTabText}>{strings.History}</Text>
                     </View>
-                </ScrollableTabView>
+                    <View style={styles.scrollViewBody}>
+                    {this.state.NetInfo === true ? (
+                        <View style={styles.networkInfoContainer}>
+                            <Text style={styles.noInternetText}>{strings.NoInternet}</Text>
+                        </View>
+                    ) : (
+                        <View style={styles.historyContentTopMargin}>
+                            {this.state.pageLoad === true ? (
+                                <View style={styles.historyLoaderContainer}>
+                                    <Pulse size={30} color={'#123C95'} />
+                                </View>
+                            ) : History.length > 0 ? (
+                                <FlatList
+                                    data={History}
+                                    keyExtractor={(item, index) => String(item.key || item.FileId || item.UncontrolledLink || index)}
+                                    renderItem={({ item }) => (
+                                        <TouchableOpacity
+                                            onPress={() => {
+                                                this.onPress(item);
+                                            }}
+                                            style={styles.card}>
+                                            <View style={styles.card1}>
+                                                <View style={styles.boxCard1}>
+                                                    <Text style={styles.detailTitle}>{strings.AttachType}</Text>
+                                                    <Text style={styles.detailContent}>
+                                                        {item.Type === 'Controlled' || item.Type === 'Attachment' ? 'Attachment' : item.Type}
+                                                    </Text>
+                                                </View>
+                                                <View style={styles.boxCard1}>
+                                                    <Text style={styles.detailTitle}>{strings.AttachName}</Text>
+                                                    <TouchableOpacity
+                                                        onPress={() => {
+                                                            let url = item.UncontrolledLink;
+                                                            url = url.indexOf('http') !== 0 ? 'https://' + url : url;
+                                                            if (item.Type === 'Link') {
+                                                                Linking.openURL(url);
+                                                            } else if (item.Type === 'Attachment') {
+                                                                this.setState(
+                                                                    {
+                                                                        // isVisible : true
+                                                                    },
+                                                                    () => {
+                                                                        this.initiateDownload(item.UncontrolledLink);
+                                                                    },
+                                                                );
+                                                            }
+                                                        }}>
+                                                        <View>
+                                                            <Text
+                                                                style={[
+                                                                    styles.detailContent,
+                                                                    styles.attachmentLinkText,
+                                                                    item.Type === 'Link'
+                                                                        ? styles.attachmentLinkUnderline
+                                                                        : styles.attachmentLinkNoUnderline,
+                                                                ]}
+                                                                numberOfLines={1}>
+                                                                {item.Type === 'UnControlled' || item.Type === 'Link'
+                                                                    ? item.UncontrolledLink
+                                                                    : item.FileName}
+                                                            </Text>
+                                                        </View>
+                                                    </TouchableOpacity>
+                                                </View>
+                                                <View style={styles.boxCard1}>
+                                                    <Text style={styles.detailTitle}>{strings.AttachCom}</Text>
+                                                    <Text style={styles.detailContent} numberOfLines={1}>
+                                                        {item.Comments === 'null' || item.Comments === null ? '-' : item.Comments}
+                                                    </Text>
+                                                </View>
+                                                <View style={styles.boxCard1}>
+                                                    <Text style={styles.detailTitle}>{strings.UploadedOn}</Text>
+                                                    <Text style={styles.detailContent}>{this.changeDateFormat(item.Uploadedon)}</Text>
+                                                </View>
+                                            </View>
+                                        </TouchableOpacity>
+                                    )}
+                                />
+                            ) : (
+                                <NoRecordFound />
+                            )}
+                        </View>
+                    )}
+                    </View>
+                </View>
                 {/** Floating add button */}
                 <TouchableOpacity
                     onPress={
@@ -458,7 +452,9 @@ class AuditAttach extends React.Component {
                     <Icon name="plus" size={25} color="white" />
                 </TouchableOpacity>
                 <Toast
-                    ref="toast"
+                    ref={toast => {
+                        this.toast = toast;
+                    }}
                     style={styles.toastContainer}
                     position="top"
                     positionValue={200}

@@ -1,0 +1,37 @@
+diff --git a/node_modules/react-native-loader/index.js b/node_modules/react-native-loader/index.js
+index 0e403f9..126317e 100644
+--- a/node_modules/react-native-loader/index.js
++++ b/node_modules/react-native-loader/index.js
+@@ -1,9 +1,24 @@
+-import BubblesComponent from './src/Bubbles';
+-import BarsComponent from './src/Bars';
+-import PulseComponent from './src/Pulse';
+-import DoubleBounceComponent from './src/DoubleBounce';
++import React from 'react';
++import {ActivityIndicator, View} from 'react-native';
+ 
+-export const Bubbles = BubblesComponent;
+-export const Bars = BarsComponent;
+-export const Pulse = PulseComponent;
+-export const DoubleBounce = DoubleBounceComponent;
++const NativeLoader = ({size = 20, color = '#999', style, ...props}) => (
++  <View
++    {...props}
++    pointerEvents="none"
++    style={[
++      {
++        width: size,
++        height: size,
++        alignItems: 'center',
++        justifyContent: 'center',
++      },
++      style,
++    ]}>
++    <ActivityIndicator size={size > 20 ? 'large' : 'small'} color={color} />
++  </View>
++);
++
++export const Bubbles = NativeLoader;
++export const Bars = NativeLoader;
++export const Pulse = NativeLoader;
++export const DoubleBounce = NativeLoader;

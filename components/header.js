@@ -14,7 +14,7 @@ const Header = ({ title, leftIcon = null, rightIcon = null, back = true, rightIc
     const navigation = useNavigation();
     const { theme } = useTheme();
     const insets = useSafeAreaInsets();
-    const topInset = Platform.OS === 'ios' ? insets.top : 0;
+    const topInset =  insets.top;
 
     const handleLeftIconClick = () => {
         console.log('clicked');

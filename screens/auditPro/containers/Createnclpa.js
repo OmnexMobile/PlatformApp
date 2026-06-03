@@ -224,17 +224,68 @@ class CreateNC extends Component {
             // };
         };
 
-        Voice.onSpeechStart = this.onSpeechStart;
-        Voice.onSpeechRecognized = this.onSpeechRecognized;
-        Voice.onSpeechEnd = this.onSpeechEnd;
-        Voice.onSpeechError = this.onSpeechError;
-        Voice.onSpeechResults = this.onSpeechResults;
-        Voice.onSpeechPartialResults = this.onSpeechPartialResults;
-        Voice.onSpeechVolumeChanged = this.onSpeechVolumeChanged;
+        this.safeBindVoiceHandlers();
     }
 
+    isVoiceAvailable = () => {
+        return Voice && typeof Voice === 'object';
+    };
+
+    safeBindVoiceHandlers = () => {
+        if (!this.isVoiceAvailable()) {
+            return;
+        }
+
+        try {
+            Voice.onSpeechStart = this.onSpeechStart;
+            Voice.onSpeechRecognized = this.onSpeechRecognized;
+            Voice.onSpeechEnd = this.onSpeechEnd;
+            Voice.onSpeechError = this.onSpeechError;
+            Voice.onSpeechResults = this.onSpeechResults;
+            Voice.onSpeechPartialResults = this.onSpeechPartialResults;
+            Voice.onSpeechVolumeChanged = this.onSpeechVolumeChanged;
+        } catch (error) {
+            console.log('Voice listener setup failed', error);
+        }
+    };
+
+    safeRemoveVoiceListeners = async () => {
+        if (!this.isVoiceAvailable() || typeof Voice.removeAllListeners !== 'function') {
+            return;
+        }
+
+        if (Platform.OS === 'android') {
+            return;
+        }
+
+        try {
+            await Voice.removeAllListeners();
+        } catch (error) {
+            console.log('Voice listener cleanup failed', error);
+        }
+    };
+
+    safeDestroyVoice = async () => {
+        if (!this.isVoiceAvailable() || typeof Voice.destroy !== 'function') {
+            return;
+        }
+
+        try {
+            await Voice.destroy();
+            await this.safeRemoveVoiceListeners();
+        } catch (error) {
+            console.log('Voice destroy failed', error);
+        }
+    };
+
+    showToast = (...args) => {
+        if (this.toast && this.toast.show) {
+            this.toast.show(...args);
+        }
+    };
+
     componentDidMount() {
-        Voice.onSpeechResults = this.onSpeechResults;
+        this.safeBindVoiceHandlers();
 
         // Prefer direct route params (React Navigation v5+), with fallbacks
         // to navigation state and the legacy `data.nav.routes` shape used
@@ -670,7 +721,7 @@ class CreateNC extends Component {
     StartVoicePress() {
         //console.log('voice:StartVoicePressdebouncer activate');
         if (Platform.OS == 'ios') {
-            Voice.removeAllListeners();
+            this.safeRemoveVoiceListeners();
             this.InitVoice();
         }
         this._startRecognizing();
@@ -679,19 +730,13 @@ class CreateNC extends Component {
     StopVoicePress() {
         //console.log('voice:StopVoicePressdebouncer activate');
         this._stopRecognizing();
-        Voice.removeAllListeners();
+        this.safeRemoveVoiceListeners();
         this.InitVoice();
     }
 
     InitVoice() {
         //console.log('voice:InitVoice');
-        Voice.onSpeechStart = this.onSpeechStart;
-        Voice.onSpeechRecognized = this.onSpeechRecognized;
-        Voice.onSpeechEnd = this.onSpeechEnd;
-        Voice.onSpeechError = this.onSpeechError;
-        Voice.onSpeechResults = this.onSpeechResults;
-        Voice.onSpeechPartialResults = this.onSpeechPartialResults;
-        Voice.onSpeechVolumeChanged = this.onSpeechVolumeChanged;
+        this.safeBindVoiceHandlers();
 
         this.setState(
             {
@@ -711,7 +756,7 @@ class CreateNC extends Component {
     }
 
     componentWillUnmount() {
-        if (Voice.isAvailable) Voice.destroy().then(Voice.removeAllListeners);
+        this.safeDestroyVoice();
         var cameraCapture = [];
         this.props.storeCameraCapture(cameraCapture);
     }
@@ -826,6 +871,10 @@ class CreateNC extends Component {
     };
 
     async stopRecording() {
+        if (!this.isVoiceAvailable() || typeof Voice.stop !== 'function') {
+            return;
+        }
+
         try {
             await Voice.stop();
         } catch (e) {
@@ -843,6 +892,11 @@ class CreateNC extends Component {
 
     _startRecognizing = async () => {
         //console.log('voice:_startRecognizing');
+        if (!this.isVoiceAvailable() || typeof Voice.start !== 'function') {
+            this.setState({ startVoice: false });
+            return;
+        }
+
         this.setState(
             {
                 recognized: '',
@@ -873,6 +927,10 @@ class CreateNC extends Component {
     };
 
     _stopRecognizing = async () => {
+        if (!this.isVoiceAvailable() || typeof Voice.stop !== 'function') {
+            return;
+        }
+
         try {
             //console.log('voice:_stopRecognizing');
             await Voice.stop();
@@ -883,6 +941,10 @@ class CreateNC extends Component {
     };
 
     _cancelRecognizing = async () => {
+        if (!this.isVoiceAvailable() || typeof Voice.cancel !== 'function') {
+            return;
+        }
+
         try {
             //console.log('voice:_cancelRecognizing');
             await Voice.cancel();
@@ -893,13 +955,7 @@ class CreateNC extends Component {
     };
 
     _destroyRecognizer = async () => {
-        try {
-            //console.log('voice:_destroyRecognizer');
-            await Voice.destroy();
-        } catch (e) {
-            //eslint-disable-next-line
-            console.error(e);
-        }
+        await this.safeDestroyVoice();
         this.setState({
             recognized: '',
             pitch: '',
@@ -1039,7 +1095,7 @@ class CreateNC extends Component {
                     this.VoiceOFIcategory = false;
                     this.refs.docRefTxtField.blur();
                     this._stopRecognizing();
-                    Voice.removeAllListeners();
+                    this.safeRemoveVoiceListeners();
                     this.InitVoice();
                 },
             );
@@ -1067,7 +1123,7 @@ class CreateNC extends Component {
                     this.VoiceResp = false;
                     this.VoiceOFIcategory = false;
                     this._stopRecognizing();
-                    Voice.removeAllListeners();
+                    this.safeRemoveVoiceListeners();
                     this.InitVoice();
                 },
             );
@@ -1092,7 +1148,7 @@ class CreateNC extends Component {
                     this.VoiceResp = false;
                     this.VoiceOFIcategory = false;
                     this._stopRecognizing();
-                    Voice.removeAllListeners();
+                    this.safeRemoveVoiceListeners();
                     this.InitVoice();
                 },
             );
@@ -1117,7 +1173,7 @@ class CreateNC extends Component {
                     this.VoiceResp = false;
                     this.VoiceOFIcategory = false;
                     this._stopRecognizing();
-                    Voice.removeAllListeners();
+                    this.safeRemoveVoiceListeners();
                     this.InitVoice();
                 },
             );
@@ -1143,7 +1199,7 @@ class CreateNC extends Component {
                     this.VoiceOFIcategory = false;
                     this.refs.objEviTxtField.blur();
                     this._stopRecognizing();
-                    Voice.removeAllListeners();
+                    this.safeRemoveVoiceListeners();
                     this.InitVoice();
                 },
             );
@@ -1168,7 +1224,7 @@ class CreateNC extends Component {
                     this.VoiceResp = false;
                     this.VoiceOFIcategory = false;
                     this._stopRecognizing();
-                    Voice.removeAllListeners();
+                    this.safeRemoveVoiceListeners();
                     this.InitVoice();
                 },
             );
@@ -1202,7 +1258,7 @@ class CreateNC extends Component {
                     this.VoiceOFIcategory = false;
                     this.refs.categoryTxtField.blur();
                     this._stopRecognizing();
-                    Voice.removeAllListeners();
+                    this.safeRemoveVoiceListeners();
                     this.InitVoice();
                 },
             );
@@ -1236,7 +1292,7 @@ class CreateNC extends Component {
                     this.VoiceOFIcategory = false;
                     this.refs.categoryTxtField.blur();
                     this._stopRecognizing();
-                    Voice.removeAllListeners();
+                    this.safeRemoveVoiceListeners();
                     this.InitVoice();
                 },
             );
@@ -1271,7 +1327,7 @@ class CreateNC extends Component {
                     if (this.state.departArr.length > 0) {
                         this.refs.departmentTxtField.blur();
                         this._stopRecognizing();
-                        Voice.removeAllListeners();
+                        this.safeRemoveVoiceListeners();
                         this.InitVoice();
                     }
                 },
@@ -1306,7 +1362,7 @@ class CreateNC extends Component {
                     this.VoiceOFIcategory = false;
                     this.refs.responsibleTxtField.blur();
                     this._stopRecognizing();
-                    Voice.removeAllListeners();
+                    this.safeRemoveVoiceListeners();
                     this.InitVoice();
                 },
             );
@@ -1340,7 +1396,7 @@ class CreateNC extends Component {
                     this.VoiceOFIcategory = false;
                     this.refs.requestTxtField.blur();
                     this._stopRecognizing();
-                    Voice.removeAllListeners();
+                    this.safeRemoveVoiceListeners();
                     this.InitVoice();
                 },
             );
@@ -1361,7 +1417,7 @@ class CreateNC extends Component {
                 });
                 this.clauseListField._toggleSelector();
                 this._stopRecognizing();
-                Voice.removeAllListeners();
+                this.safeRemoveVoiceListeners();
                 this.InitVoice();
             } else if (
                 //process
@@ -1373,7 +1429,7 @@ class CreateNC extends Component {
                 });
                 this.processListField._toggleSelector();
                 this._stopRecognizing();
-                Voice.removeAllListeners();
+                this.safeRemoveVoiceListeners();
                 this.InitVoice();
             } else if (txt.toLowerCase().includes(strings.va_cmd61)) {
                 //NC
@@ -1416,7 +1472,7 @@ class CreateNC extends Component {
                 });
                 this.refs.responsibleTxtField.focus();
                 this._stopRecognizing();
-                Voice.removeAllListeners();
+                this.safeRemoveVoiceListeners();
                 this.InitVoice();
             } else if (
                 //Requested by
@@ -1440,7 +1496,7 @@ class CreateNC extends Component {
                 });
                 this.refs.requestTxtField.focus();
                 this._stopRecognizing();
-                Voice.removeAllListeners();
+                this.safeRemoveVoiceListeners();
                 this.InitVoice();
             } else if (
                 //NC Category
@@ -1466,7 +1522,7 @@ class CreateNC extends Component {
                 });
                 this.refs.categoryTxtField.focus();
                 this._stopRecognizing();
-                Voice.removeAllListeners();
+                this.safeRemoveVoiceListeners();
                 this.InitVoice();
             } else if (
                 //ofi Category
@@ -1491,7 +1547,7 @@ class CreateNC extends Component {
                 });
                 this.refs.categoryTxtField.focus();
                 this._stopRecognizing();
-                Voice.removeAllListeners();
+                this.safeRemoveVoiceListeners();
                 this.InitVoice();
             } else if (
                 txt.toLowerCase().includes('failure category') ||
@@ -1516,7 +1572,7 @@ class CreateNC extends Component {
                     });
                     this.refs.departmentTxtField.focus();
                     this._stopRecognizing();
-                    Voice.removeAllListeners();
+                    this.safeRemoveVoiceListeners();
                     this.InitVoice();
                 } else {
                     Tts.setDucking(true).then(() => {
@@ -1649,7 +1705,7 @@ class CreateNC extends Component {
                 });
 
                 this._stopRecognizing();
-                Voice.removeAllListeners();
+                this.safeRemoveVoiceListeners();
                 this.InitVoice();
             } else if (txt.toLowerCase().includes(strings.va_cmd802)) {
                 Tts.setDucking(true).then(() => {
@@ -1660,7 +1716,7 @@ class CreateNC extends Component {
                 Tts.setDucking(true).then(() => {
                     Tts.speak(strings.v_Key_Invalid_Message);
                 });
-                Voice.removeAllListeners();
+                this.safeRemoveVoiceListeners();
                 this.InitVoice();
             }
         }
@@ -2163,7 +2219,7 @@ class CreateNC extends Component {
             () => {
                 //console.log('checklistamevalue4', this.state.nonconfirmityText);
 
-                this.refs.toast.show(strings.FormVal, 5000);
+                this.showToast(strings.FormVal, 5000);
             },
         );
     };
@@ -2188,7 +2244,7 @@ class CreateNC extends Component {
                     // //console.log('Loader off')
                     console.log(this.state.selectedItemsProcess.length, 'hellothreefour2');
                     this.updateAuditStatus(this.state.AuditID);
-                    this.refs.toast.show(strings.Save_Message, DURATION.LENGTH_LONG);
+                    this.showToast(strings.Save_Message, DURATION.LENGTH_LONG);
                     setTimeout(() => {
                         // //console.log('AuditDashBody Props After Props Changing...', this.props)
                         this.props.storeNCRecords(dupNCrecords);
@@ -2390,7 +2446,7 @@ class CreateNC extends Component {
                         () => {
                             console.log(this.state.selectedItemsProcess.length, 'hellothreefour1');
                             this.updateAuditStatus(this.state.AuditID);
-                            this.refs.toast.show(strings.Save_Message, DURATION.LENGTH_LONG);
+                            this.showToast(strings.Save_Message, DURATION.LENGTH_LONG);
                             setTimeout(() => {
                                 this.props.storeNCRecords(dupNCrecords);
                                 var cameraCapture = [];
@@ -2662,7 +2718,7 @@ class CreateNC extends Component {
                             //console.log('Loader off');
                             console.log(this.state.selectedItemsProcess.length, 'hellothreefour1');
                             this.updateAuditStatus(this.state.AuditID);
-                            this.refs.toast.show(strings.Save_Message, DURATION.LENGTH_LONG);
+                            this.showToast(strings.Save_Message, DURATION.LENGTH_LONG);
                             setTimeout(() => {
                                 // //console.log('AuditDashBody Props After Props Changing...', this.props)
                                 this.props.storeNCRecords(dupNCrecords);
@@ -2687,7 +2743,7 @@ class CreateNC extends Component {
                                 },
                                 () => {
                                     // //console.log('this.state.MarkReq',this.state.MarkReq)
-                                    // this.refs.toast.show(strings.Responsibility,DURATION.LENGTH_LONG)
+                                    // this.showToast(strings.Responsibility,DURATION.LENGTH_LONG)
                                 },
                             );
                         } else {
@@ -2707,7 +2763,7 @@ class CreateNC extends Component {
                                 },
                                 () => {
                                     // //console.log('this.state.MarkUser',this.state.MarkUser)
-                                    // ---> this.refs.toast.show(strings.Requested,DURATION.LENGTH_LONG)
+                                    // ---> this.showToast(strings.Requested,DURATION.LENGTH_LONG)
                                 },
                             );
                         } else {
@@ -2755,7 +2811,7 @@ class CreateNC extends Component {
                         if (this.state.ofitext === undefined) {
                             //console.log('ofiundefined');
                             this.setState({ underline1: true }, () => {
-                                // --->  this.refs.toast.show(strings.OFIfill,DURATION.LENGTH_LONG)
+                                // --->  this.showToast(strings.OFIfill,DURATION.LENGTH_LONG)
                             });
                         } else {
                             this.setState(
@@ -2784,7 +2840,7 @@ class CreateNC extends Component {
     }
 
     goBack() {
-        Voice.removeAllListeners();
+        this.safeRemoveVoiceListeners();
         this.InitVoice();
         this.props.navigation.goBack();
     }
@@ -3561,7 +3617,6 @@ class CreateNC extends Component {
                                                 </View> */}
                                                 <View style={{ paddingLeft: 10, flexDirection: 'column' }}>
                                                     <Text
-                                                        ref="dummyFocus"
                                                         style={{
                                                             paddingBottom: 5,
                                                             margin: 0,

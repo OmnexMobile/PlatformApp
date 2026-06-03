@@ -193,6 +193,41 @@ class NCOFIPage extends Component {
         );
     }
 
+    setStateAsync = state =>
+        new Promise(resolve => {
+            this.setState(state, resolve);
+        });
+
+    getCreateNCBundle = () =>
+        this.props?.route?.params?.CreateNCdataBundle || this.props?.navigation?.state?.params?.CreateNCdataBundle || {};
+
+    resolveAuthDetails = async () => {
+        const storedUser = this.state.currentUserData?.accessToken ? this.state.currentUserData : await this.getAccessToken();
+        const auditState = this.props?.data?.audits || {};
+        const createNCBundle = this.getCreateNCBundle();
+
+        return {
+            userData: storedUser || {},
+            token: auditState.token || storedUser?.accessToken || this.state.token,
+            siteId:
+                auditState.siteId ||
+                storedUser?.siteId ||
+                storedUser?.SiteId ||
+                storedUser?.Siteid ||
+                createNCBundle?.SiteID ||
+                createNCBundle?.SiteId ||
+                createNCBundle?.Siteid ||
+                this.state.SITEID,
+            userId: auditState.userId || storedUser?.userId || storedUser?.UserId,
+        };
+    };
+
+    showToast = (...args) => {
+        if (this.toast && this.toast.show) {
+            this.toast.show(...args);
+        }
+    };
+
     async getAccessToken() {
         try {
             const stringifiedUserDetails = await AsyncStorage.getItem('userDetails');
@@ -201,14 +236,15 @@ class NCOFIPage extends Component {
             if (value !== null) {
                 // value previously stored
                 console.log('current token2--->', value.accessToken);
-                this.setState({ currentUserData: value }, () => {
-                    console.log('Token set');
-                });
+                await this.setStateAsync({ currentUserData: value });
+                console.log('Token set');
+                return value;
             }
         } catch (e) {
             // error reading value
             console.log('error--->', e);
         }
+        return this.state.currentUserData || {};
     }
 
     componentWillReceiveProps() {
@@ -478,10 +514,19 @@ class NCOFIPage extends Component {
         );
     };
 
-    fetchNCdetails() {
-        var token = this.state.currentUserData?.accessToken;
-        var Data = this.props.data.audits.auditRecords;
+    async fetchNCdetails() {
+        const authDetails = await this.resolveAuthDetails();
+        var token = authDetails.token;
+        var Data = this.props.data.audits.auditRecords || [];
         console.log('forming sds:fetchnc', token, this.state.AUDIT_ID, Data);
+
+        if (!token) {
+            console.log('NCOFI fetchNCdetails missing token');
+            this.setState({ loadingData: false, miniLoading: true }, () => {
+                this.showToast(strings.Audit_NCOFI_Failed, DURATION.LENGTH_LONG);
+            });
+            return;
+        }
 
         for (var i = 0; i < Data.length; i++) {
             if (this.state.AUDIT_ID == Data[i].AuditId) {
@@ -610,11 +655,15 @@ class NCOFIPage extends Component {
                         );
                     }
                 } else {
-                    this.toast.show(strings.Audit_NCOFI_Failed, DURATION.LENGTH_LONG);
+                    this.setState({ loadingData: false, miniLoading: true }, () => {
+                        this.showToast(strings.Audit_NCOFI_Failed, DURATION.LENGTH_LONG);
+                    });
                 }
             } else {
                 console.log();
-                this.toast.show(strings.Audit_NCOFI_Failed, DURATION.LENGTH_LONG);
+                this.setState({ loadingData: false, miniLoading: true }, () => {
+                    this.showToast(strings.Audit_NCOFI_Failed, DURATION.LENGTH_LONG);
+                });
             }
         });
     }
@@ -1499,17 +1548,17 @@ class NCOFIPage extends Component {
     };
 
     refreshList = async () => {
-        await this.getAccessToken();
+        const authDetails = await this.resolveAuthDetails();
         var AuditID = this.state.AUDIT_ID;
-        var Data = this.props.data.audits.auditRecords;
+        var Data = this.props.data.audits.auditRecords || [];
         var iAudProgId = undefined;
         var AuditTypeId = undefined;
 
         console.log('****', Data);
         console.log('AuditID', AuditID);
 
-        var SiteID = this.state.currentUserData?.siteId;
-        var TOKEN = this.state.currentUserData?.accessToken;
+        var SiteID = authDetails.siteId;
+        var TOKEN = authDetails.token;
 
         for (var i = 0; i < Data.length; i++) {
             if (this.state.AUDIT_ID == Data[i].AuditId) {
@@ -1518,11 +1567,28 @@ class NCOFIPage extends Component {
             }
         }
 
-        for (var j = 0; j < this.props.data.audits.auditRecords.length; j++) {
-            if (this.state.AUDIT_ID === this.props.data.audits.auditRecords[j].AuditId) {
-                var iAudTypeOrder = this.props.data.audits.auditRecords[j].AuditTypeOrder;
-                var iAudProgOrder = this.props.data.audits.auditRecords[j].AuditProgOrder;
+        for (var j = 0; j < Data.length; j++) {
+            if (this.state.AUDIT_ID === Data[j].AuditId) {
+                var iAudTypeOrder = Data[j].AuditTypeOrder;
+                var iAudProgOrder = Data[j].AuditProgOrder;
             }
+        }
+
+        if (!SiteID || !TOKEN) {
+            console.log('NCOFI refreshList missing auth details', { SiteID, TOKEN });
+            this.setState(
+                {
+                    token: TOKEN,
+                    SITEID: SiteID,
+                    isLoaderVisible: false,
+                },
+                () => {
+                    this.getDetails();
+                    this.setUpload();
+                    this.showToast(strings.Audit_NCOFI_Failed, DURATION.LENGTH_LONG);
+                },
+            );
+            return;
         }
 
         this.setState(
@@ -1555,10 +1621,12 @@ class NCOFIPage extends Component {
                         console.log('getNC data', data);
                         console.log('response', res);
 
-                        if (data.data) {
+                        if (data?.data) {
                             this.upLoadList(data.data.Data);
                         } else {
                             //this.refs.toast.show(strings.NCFAiled,DURATION.LENGTH_LONG)
+                            this.setUpload();
+                            this.showToast(strings.Audit_NCOFI_Failed, DURATION.LENGTH_LONG);
                         }
                     },
                 );

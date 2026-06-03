@@ -20,7 +20,6 @@ import auth from '../../../services/SupplierMgnt-Auth';
 import { strings } from '../../auditPro/language/Language';
 //const
 import constant from '../../../constants/SupplierMgnt/AppConstants';
-import { SPACING } from 'constants/theme-constants';
 import { ROUTES } from 'constants/app-constant';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import AuditCardSM from 'screens/auditPro/components/AuditCardSM';
@@ -131,11 +130,6 @@ class AuditDashboardListing extends Component {
         const { theme } = this.context || {};
         return (
             <View style={styles.wrapper}>
-                {Platform.OS === 'ios' ? (
-                    <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }} />
-                ) : (
-                    <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }} />
-                )}
                 {/* Offline notification */}
                 <OfflineNotice />
 

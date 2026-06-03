@@ -3418,7 +3418,7 @@ class AuditPage extends Component {
                                         </TouchableOpacity>
                                     </View>
                                     <View style={{ width: '22%' }}>
-                                        <TouchableOpacity onPress={once(this.onNavigateTo.bind(this, 3))} style={{ alignItems: 'center' }}>
+                                        <TouchableOpacity onPress={this.onNavigateTo.bind(this, 3)} style={{ alignItems: 'center' }}>
                                             {/* <ResponsiveImage source={Images.BTN5} initWidth="26" initHeight="25"/> */}
                                             <Icon name="file" size={20} color="#123C95" />
                                             <Text style={styles.footerTextContent}>{strings.NC_OFI}</Text>
@@ -3427,7 +3427,7 @@ class AuditPage extends Component {
                                     {/* ) : null} */}
                                     {this.state.AuditProp.ReportId == 3 || this.state.AuditProp.ReportId == 7 ? (
                                         <View style={{ width: '25%' }}>
-                                            <TouchableOpacity onPress={once(this.onNavigateTo.bind(this, 6))} style={{ alignItems: 'center' }}>
+                                            <TouchableOpacity onPress={this.onNavigateTo.bind(this, 6)} style={{ alignItems: 'center' }}>
                                                 {/* <ResponsiveImage source={Images.BTN5} initWidth="26" initHeight="25"/> */}
                                                 <Icon name="file" size={20} color="#123C95" />
                                                 <Text style={styles.footerTextContent}>Conformance</Text>

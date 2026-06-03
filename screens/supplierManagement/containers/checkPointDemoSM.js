@@ -32,7 +32,6 @@ import DocumentPicker from 'react-native-document-picker';
 import RNFetchBlob from 'react-native-fetch-blob';
 import { Dropdown } from 'react-native-material-dropdown';
 import Toast, { DURATION } from 'react-native-easy-toast';
-import { Bubbles, DoubleBounce, Bars, Pulse } from 'react-native-loader';
 import ResponsiveImage from 'react-native-responsive-image';
 import Modal from 'react-native-modal';
 // import {ConfirmDialog} from 'react-native-simple-dialogs';
@@ -63,9 +62,6 @@ import GlobalHeader from 'components/GlobalHeader';
 import CommonAlertModal from 'components/common_alert_modal';
 import AttachmentSelectionModal from 'components/attachment-selection-modal';
 const INITIAL_WINDOW = Dimensions.get('window');
-const SERIAL_GRID_MIN_WIDTH = 96;
-const SERIAL_GRID_HEIGHT = 62;
-const SERIAL_ACTIVE_COLOR = '#123C95';
 const ATTACHMENT_VISIBLE_ROWS = 4;
 const Colors = {
     0: 'red',
@@ -193,6 +189,107 @@ class CheckPointDemoSM extends Component {
             serialRailExpanded: false,
         };
     }
+
+    normalizeCheckPointDetail = (detail = {}, checklist = {}) => ({
+        ...detail,
+        AuditId: checklist?.AuditId || detail?.AuditId || detail?.AuditID || '',
+        ChecklistTemplateId: detail?.ChecklistTemplateId || checklist?.ChecklistTemplateId || '',
+        FormId: detail?.FormId || checklist?.FormID || checklist?.FormId || '',
+        Attachment: detail?.Attachment ?? '',
+        AttachmentList: Array.isArray(detail?.AttachmentList) ? detail.AttachmentList : [],
+        Remark: detail?.Remark ?? '',
+        RemarkforNc: detail?.RemarkforNc ?? checklist?.RemarkforNc ?? 0,
+        RemarkforOfi: detail?.RemarkforOfi ?? checklist?.RemarkforOfi ?? 0,
+        AttachforNc: detail?.AttachforNc ?? checklist?.AttachforNc ?? 0,
+        AttachforOfi: detail?.AttachforOfi ?? checklist?.AttachforOfi ?? 0,
+        IsVeto: detail?.IsVeto ?? checklist?.IsVeto ?? 0,
+        Score: detail?.Score ?? '',
+        Scoretext: detail?.Scoretext ?? '',
+        RadioValue: detail?.RadioValue ?? checklist?.RadioValue ?? '',
+        Values: detail?.Values ?? '',
+        IsCorrect: detail?.IsCorrect ?? 0,
+        IsNCAllowed: detail?.IsNCAllowed ?? 0,
+        Approach: detail?.Approach ?? '',
+        ApproachId: detail?.ApproachId ?? 0,
+        FailureCategoryId: detail?.FailureCategoryId ?? 0,
+        FailureReasonId: detail?.FailureReasonId ?? 0,
+        Correction: detail?.Correction ?? '',
+        immediateAction: detail?.immediateAction ?? 0,
+        scoreTypesData: Array.isArray(detail?.scoreTypesData) ? detail.scoreTypesData : [],
+        show_nc_ofi_status: detail?.show_nc_ofi_status ?? null,
+        ncOFIStatus: detail?.ncOFIStatus ?? null,
+        nc_available_status: detail?.nc_available_status ?? false,
+        ofi_avialable_status: detail?.ofi_avialable_status ?? false,
+        isScoreValid: detail?.isScoreValid ?? true,
+        scoreInvalidMsg: detail?.scoreInvalidMsg ?? '',
+        Modified: detail?.Modified ?? false,
+    });
+
+    normalizeCheckPointItem = (item = {}) => ({
+        ...item,
+        scoreTypesData: Array.isArray(item?.scoreTypesData) ? item.scoreTypesData : [],
+        ChecklistName: item?.ChecklistName ?? '',
+        ChecklistTemplateId: item?.ChecklistTemplateId ?? '',
+        FormID: item?.FormID ?? item?.FormId ?? '',
+        FormId: item?.FormId ?? item?.FormID ?? '',
+        IsVeto: item?.IsVeto ?? 0,
+        AttachforNc: item?.AttachforNc ?? 0,
+        AttachforOfi: item?.AttachforOfi ?? 0,
+        RemarkforNc: item?.RemarkforNc ?? 0,
+        RemarkforOfi: item?.RemarkforOfi ?? 0,
+        Status: item?.Status ?? '',
+        RadioValue: item?.RadioValue ?? '',
+        scoreType: item?.scoreType ?? 0,
+        minScore: item?.minScore ?? '',
+        maxScore: item?.maxScore ?? '',
+        correctAnswer: item?.correctAnswer ?? '',
+    });
+
+    toMutableArray = data => {
+        if (!Array.isArray(data)) {
+            return [];
+        }
+
+        if (typeof data.asMutable === 'function') {
+            return data.asMutable({ deep: true });
+        }
+
+        return data.map(item => {
+            if (item && typeof item.asMutable === 'function') {
+                return item.asMutable({ deep: true });
+            }
+
+            return item;
+        });
+    };
+
+    normalizeCheckPointDetails = (details = [], checklist = []) => {
+        const safeDetails = this.toMutableArray(details);
+        const safeChecklist = this.toMutableArray(checklist);
+        const length = Math.max(safeDetails.length, safeChecklist.length);
+
+        return Array.from({ length }, (_, index) => this.normalizeCheckPointDetail(safeDetails[index], safeChecklist[index]));
+    };
+
+    hasRenderableCheckPointDetails = (details = this.state.checkPointsDetails, checklist = this.state.checkpointList) => {
+        const safeDetails = Array.isArray(details) ? details : [];
+        const safeChecklist = Array.isArray(checklist) ? checklist : [];
+
+        return (
+            safeChecklist.length > 0 &&
+            safeDetails.length >= safeChecklist.length &&
+            safeChecklist.every((item, index) => safeDetails[index] && Array.isArray(safeDetails[index].AttachmentList))
+        );
+    };
+
+    getEmptyAttachments = index => {
+        const attachmentList = this.state.checkPointsDetails?.[index]?.AttachmentList;
+        return Array.isArray(attachmentList) ? attachmentList.filter(checks => checks.Attachment === 'EMPTY') : [];
+    };
+
+    showToast = (...args) => {
+        this.toast?.show?.(...args);
+    };
 
     componentDidMount() {
         this.dimensionSubscription = Dimensions.addEventListener('change', this.handleOrientationChange);
@@ -2198,7 +2295,8 @@ class CheckPointDemoSM extends Component {
 
                 //console.log('checkPointsDetails updated2', temppp, checkPointsDetails);
                 //console.log(checkPointList, 'checkpointslist');
-                this.countStatistics(checkPointsDetails);
+                const normalizedCheckPointsDetails = this.normalizeCheckPointDetails(checkPointsDetails, checkPointList);
+                this.countStatistics(normalizedCheckPointsDetails, checkPointList);
                 // console.log(
                 //   'checkPointsDetails updated2sadsdsdsdsdfsd',
                 //   this.props.navigation.state.params,
@@ -2218,7 +2316,7 @@ class CheckPointDemoSM extends Component {
                         auditId: this.props?.route?.params?.AuditID,
                         dropdown: dropdata,
                         checkpointList: checkPointList,
-                        checkPointsDetails: checkPointsDetails,
+                        checkPointsDetails: normalizedCheckPointsDetails,
                         isContentLoaded: false,
                         isLoaded: true,
                         isAttachmentLoaded: true,
@@ -2398,11 +2496,11 @@ class CheckPointDemoSM extends Component {
         }
     }
 
-    countStatistics = checkPointsDetails => {
+    countStatistics = (checkPointsDetails = [], checkpointList = this.state.checkpointList || []) => {
         ////console.log("reset count statistics")
         // //console.log('***',this.state.checkPointsDetails)
         //console.log('Sathish==>', checkPointsDetails);
-        var data = checkPointsDetails;
+        var data = this.normalizeCheckPointDetails(checkPointsDetails, checkpointList);
         var pendingCheck = [];
         var completed = [];
         var mandatoryCheck = 0;
@@ -2411,9 +2509,9 @@ class CheckPointDemoSM extends Component {
             if (data[i].RemarkforNc == 1 && data[i].AttachforNc == 1) {
                 //console.log('mqn1');
                 mandatoryCheck = mandatoryCheck + 1;
-                if (checkPointsDetails[i].Remark == '' && checkPointsDetails[i].Attachment == '') {
+                if (data[i].Remark == '' && data[i].Attachment == '') {
                     pendingCheck.push(data[i]);
-                } else if (checkPointsDetails[i].Remark == '' || checkPointsDetails[i].Attachment == '') {
+                } else if (data[i].Remark == '' || data[i].Attachment == '') {
                     pendingCheck.push(data[i]);
                 } else {
                     completed.push(data[i]);
@@ -2422,9 +2520,9 @@ class CheckPointDemoSM extends Component {
                 //console.log('mqn2');
 
                 mandatoryCheck = mandatoryCheck + 1;
-                if (checkPointsDetails[i].Remark === '' && checkPointsDetails[i].Attachment === '') {
+                if (data[i].Remark === '' && data[i].Attachment === '') {
                     pendingCheck.push(data[i]);
-                } else if (checkPointsDetails[i].Remark === '' || checkPointsDetails[i].Attachment === '') {
+                } else if (data[i].Remark === '' || data[i].Attachment === '') {
                     pendingCheck.push(data[i]);
                 } else {
                     completed.push(data[i]);
@@ -2433,7 +2531,7 @@ class CheckPointDemoSM extends Component {
                 //console.log('mqn3');
 
                 mandatoryCheck = mandatoryCheck + 1;
-                if (checkPointsDetails[i].Remark === '') {
+                if (data[i].Remark === '') {
                     pendingCheck.push(data[i]);
                 } else {
                     completed.push(data[i]);
@@ -2442,7 +2540,7 @@ class CheckPointDemoSM extends Component {
                 //console.log('mqn4');
 
                 mandatoryCheck = mandatoryCheck + 1;
-                if (checkPointsDetails[i].Remark == '') {
+                if (data[i].Remark == '') {
                     pendingCheck.push(data[i]);
                 } else {
                     completed.push(data[i]);
@@ -2451,7 +2549,7 @@ class CheckPointDemoSM extends Component {
                 //console.log('mqn5');
 
                 mandatoryCheck = mandatoryCheck + 1;
-                if (checkPointsDetails[i].Attachment == '') {
+                if (data[i].Attachment == '') {
                     pendingCheck.push(data[i]);
                 } else {
                     completed.push(data[i]);
@@ -2460,7 +2558,7 @@ class CheckPointDemoSM extends Component {
                 //console.log('mqn6');
 
                 mandatoryCheck = mandatoryCheck + 1;
-                if (checkPointsDetails[i].Attachment == '') {
+                if (data[i].Attachment == '') {
                     pendingCheck.push(data[i]);
                 } else {
                     completed.push(data[i]);
@@ -2469,14 +2567,13 @@ class CheckPointDemoSM extends Component {
                 //console.log('mqn7');
 
                 mandatoryCheck = mandatoryCheck + 1;
-                if (checkPointsDetails[i].Attachment == '') {
+                if (data[i].Attachment == '') {
                     pendingCheck.push(data[i]);
                 } else {
                     completed.push(data[i]);
                 }
             } else {
-                console.log('mqn8', data[i].IsVeto, mandatoryCheck, this.state.checkpointList, this.state.checkPointsDetails);
-                if (this.state.checkpointList[i]?.IsVeto == 1) {
+                if (checkpointList[i]?.IsVeto == 1) {
                     mandatoryCheck = mandatoryCheck + 1;
                 }
                 completed.push(data[i]);
@@ -2491,7 +2588,7 @@ class CheckPointDemoSM extends Component {
 
         this.setState(
             {
-                checkPointsDetails: this.state.checkPointsDetails,
+                checkPointsDetails: data,
                 mandateCheckpoints: pendingCheck.length,
                 totalfilled: completed.length,
                 optionalCheck: data.length - mandatoryCheck,
@@ -2533,7 +2630,7 @@ class CheckPointDemoSM extends Component {
     };
 
     ShowToast = () => {
-        this.refs.toast.show(this.state.displayData, 6000);
+        this.showToast(this.state.displayData, 6000);
     };
 
     markAuditEdited = async () => {
@@ -2653,7 +2750,7 @@ class CheckPointDemoSM extends Component {
                             ActiveId: index,
                         },
                         () => {
-                            this.refs.toast.show(strings.InvalidScore, DURATION.LENGTH_LONG);
+                            this.showToast(strings.InvalidScore, DURATION.LENGTH_LONG);
                         },
                     );
                 } else {
@@ -3037,7 +3134,7 @@ class CheckPointDemoSM extends Component {
 
                             var cameraCapture = [];
                             this.props.storeCameraCapture(cameraCapture);
-                            this.refs.toast.show(strings.CheckpointSave, 7000);
+                            this.showToast(strings.CheckpointSave, 7000);
 
                             setTimeout(() => {
                                 //  //console.log('AuditDashBody Props After Props Changing...', this.props)
@@ -3057,7 +3154,7 @@ class CheckPointDemoSM extends Component {
                                         isContentLoaded: false,
                                     },
                                     () => {
-                                        // this.refs.toast.show(strings.CheckpointSave, 5000);
+                                        // this.showToast(strings.CheckpointSave, 5000);
                                         if (this.state.go_home) {
                                             this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD);
                                             this.getTotalNCStatus();
@@ -3291,7 +3388,7 @@ class CheckPointDemoSM extends Component {
                                 },
                                 () => {
                                     console.log('one:Attachment: delete attachment checkpoint--->', this.state.checkPointsDetails);
-                                    this.refs.toast.show('Attachment deleted successfully.', 100);
+                                    this.showToast('Attachment deleted successfully.', 100);
                                     this.countStatistics(this.state.checkPointsDetails);
                                     this.props.storeCameraCapture([]);
                                     this.renderAttachment(0);
@@ -3300,7 +3397,7 @@ class CheckPointDemoSM extends Component {
                             );
                         })
                         .catch(err => {
-                            //this.refs.toast.show('Attachment deleted successgully.', DURATION.LENGTH_LONG);
+                            //this.showToast('Attachment deleted successgully.', DURATION.LENGTH_LONG);
                             //console.log('one:Attachment:Files not deleted successfully--->');
                         });
                 }
@@ -3310,12 +3407,11 @@ class CheckPointDemoSM extends Component {
     };
 
     chooseCameraOption = (item, index) => {
-        const checkpoint = this.state.checkPointsDetails[index];
-        const attachment = checkpoint.AttachmentList.filter(checks => checks.Attachment === 'EMPTY');
+        const attachment = this.getEmptyAttachments(index);
 
         if (attachment.length > 0) {
             this.downloadFile(attachment[0]);
-            this.refs.toast.show('Downloading the attachments...', DURATION.LENGTH_LONG);
+            this.showToast('Downloading the attachments...', DURATION.LENGTH_LONG);
         }
         this.setState(
             {
@@ -3672,7 +3768,7 @@ class CheckPointDemoSM extends Component {
             }
             this.props.storeNCRecords(dupNCrecords);
             //console.log(this.props.storeNCRecords, 'storeNCRecords');
-            this.refs.toast.show(strings.NCremoved, DURATION.LENGTH_LONG);
+            this.showToast(strings.NCremoved, DURATION.LENGTH_LONG);
         });
     };
 
@@ -4084,7 +4180,7 @@ class CheckPointDemoSM extends Component {
                         this.setState({ isSaving: false, ActiveId: index });
                         // this.countStatistics(this.state.checkPointsDetails)
                     }, 200);
-                    this.refs.toast.show(strings.CheckpointClear, DURATION.LENGTH_SHORT);
+                    this.showToast(strings.CheckpointClear, DURATION.LENGTH_SHORT);
                 },
             );
         });
@@ -4092,8 +4188,7 @@ class CheckPointDemoSM extends Component {
     btnDatapress(index, item) {
         console.log('Button pressed for index:', index);
 
-        const checkpoint = this.state.checkPointsDetails[index];
-        const attachment = checkpoint.AttachmentList.filter(checks => checks.Attachment === 'EMPTY');
+        const attachment = this.getEmptyAttachments(index);
 
         this.setState(
             {
@@ -4104,7 +4199,7 @@ class CheckPointDemoSM extends Component {
             () => {
                 if (attachment.length > 0) {
                     this.downloadFile(attachment[0]);
-                    this.refs.toast.show('Downloading the attachments...', DURATION.LENGTH_LONG);
+                    this.showToast('Downloading the attachments...', DURATION.LENGTH_LONG);
                 }
 
                 // Carousel snapping logic
@@ -4135,12 +4230,11 @@ class CheckPointDemoSM extends Component {
                 },
 
                 () => {
-                    const checkpoint = this.state.checkPointsDetails[index];
-                    const attachment = checkpoint.AttachmentList.filter(checks => checks.Attachment === 'EMPTY');
+                    const attachment = this.getEmptyAttachments(index);
 
                     if (attachment.length > 0) {
                         this.downloadFile(attachment[0]);
-                        this.refs.toast.show('Downloading the attachments...', DURATION.LENGTH_LONG);
+                        this.showToast('Downloading the attachments...', DURATION.LENGTH_LONG);
                     }
                     this._carousel.snapToItem(index, true);
                 },
@@ -4154,15 +4248,13 @@ class CheckPointDemoSM extends Component {
                 () =>
                     setTimeout(() => {
                         this.setState({ isCaroselLoaded: true }, () => {
-                            const checkpoint = this.state.checkPointsDetails[index];
-
                             // this.setOnLoadFailureReason(checkpoint);
                             // this.setOnLoadRadioValue(checkpoint,item);
-                            const attachment = checkpoint.AttachmentList.filter(checks => checks.Attachment === 'EMPTY');
+                            const attachment = this.getEmptyAttachments(index);
 
                             if (attachment.length > 0) {
                                 this.downloadFile(attachment[0]);
-                                this.refs.toast.show('Downloading the attachments...', DURATION.LENGTH_LONG);
+                                this.showToast('Downloading the attachments...', DURATION.LENGTH_LONG);
                             }
                             this._carousel.snapToItem(index, true);
                         });
@@ -4189,11 +4281,11 @@ class CheckPointDemoSM extends Component {
                         // this.setOnLoadFailureReason(checkpoint);
                         // this.setOnLoadRadioValue(checkpoint,checklist);
 
-                        const attachment = checkpoint.AttachmentList.filter(checks => checks.Attachment === 'EMPTY');
+                        const attachment = this.getEmptyAttachments(index);
 
                         if (attachment.length > 0) {
                             this.downloadFile(attachment[0]);
-                            this.refs.toast.show('Downloading the attachments...', DURATION.LENGTH_LONG);
+                            this.showToast('Downloading the attachments...', DURATION.LENGTH_LONG);
                         }
                         this._carousel.snapToItem(index, true);
                     },
@@ -4213,17 +4305,17 @@ class CheckPointDemoSM extends Component {
 
                         this.setState({ selectedindex: checkpoint });
 
-                        const FailureCategoryId = checkpoint.FailureCategoryId;
+                        const FailureCategoryId = checkpoint?.FailureCategoryId;
                         console.log('LoadCategory:Next', FailureCategoryId);
 
                         if (typeof FailureCategoryId !== 'undefined' && FailureCategoryId !== '0') {
                             this.failurereasonArray(FailureCategoryId);
                         }
-                        const attachment = checkpoint.AttachmentList.filter(checks => checks.Attachment === 'EMPTY');
+                        const attachment = this.getEmptyAttachments(index);
 
                         if (attachment.length > 0) {
                             this.downloadFile(attachment[0]);
-                            this.refs.toast.show('Downloading the attachments...', DURATION.LENGTH_LONG);
+                            this.showToast('Downloading the attachments...', DURATION.LENGTH_LONG);
                         }
                         //this._carousel.snapToItem(index, true);
                         //};
@@ -4247,12 +4339,11 @@ class CheckPointDemoSM extends Component {
                     },
 
                     () => {
-                        const checkpoint = this.state.checkPointsDetails[index];
-                        const attachment = checkpoint.AttachmentList.filter(checks => checks.Attachment === 'EMPTY');
+                        const attachment = this.getEmptyAttachments(index);
 
                         if (attachment.length > 0) {
                             this.downloadFile(attachment[0]);
-                            this.refs.toast.show('Downloading the attachments...', DURATION.LENGTH_LONG);
+                            this.showToast('Downloading the attachments...', DURATION.LENGTH_LONG);
                         }
                         this._carousel.snapToItem(index, true);
                     },
@@ -4265,12 +4356,11 @@ class CheckPointDemoSM extends Component {
                     () =>
                         setTimeout(() => {
                             () => {
-                                const checkpoint = this.state.checkPointsDetails[index];
-                                const attachment = checkpoint.AttachmentList.filter(checks => checks.Attachment === 'EMPTY');
+                                const attachment = this.getEmptyAttachments(index);
 
                                 if (attachment.length > 0) {
                                     this.downloadFile(attachment[0]);
-                                    this.refs.toast.show('Downloading the attachments...', DURATION.LENGTH_LONG);
+                                    this.showToast('Downloading the attachments...', DURATION.LENGTH_LONG);
                                 }
                                 this._carousel.snapToItem(index, true);
                             };
@@ -4357,6 +4447,13 @@ class CheckPointDemoSM extends Component {
     };
 
     componentDidUpdate(prevProps, prevState) {
+        if (!this.hasRenderableCheckPointDetails() && this.state.checkpointList.length > 0 && this.state.checkPointsDetails.length > 0) {
+            this.setState({
+                checkPointsDetails: this.normalizeCheckPointDetails(this.state.checkPointsDetails, this.state.checkpointList),
+            });
+            return;
+        }
+
         if (prevState.ActiveId === this.state.ActiveId) {
             return;
         }
@@ -4640,7 +4737,7 @@ class CheckPointDemoSM extends Component {
             if (data.data.Message == 'Success') {
                 this.WriteAttachments(data.data.Data.FileData, attachment);
             } else {
-                this.refs.toast.show(strings.server_error, DURATION.LENGTH_LONG);
+                this.showToast(strings.server_error, DURATION.LENGTH_LONG);
             }
         });
     }
@@ -4677,7 +4774,7 @@ class CheckPointDemoSM extends Component {
                             ...attachment,
                             Attachment: !error ? 'Downloaded' : 'FAILED',
                         });
-                        error && this.refs.toast.show('Download attachment Failed, Try again!!', DURATION.LENGTH_LONG);
+                        error && this.showToast('Download attachment Failed, Try again!!', DURATION.LENGTH_LONG);
                     } else {
                         AttachmentList.push(attachment);
                     }
@@ -5426,7 +5523,8 @@ class CheckPointDemoSM extends Component {
         const isCarouselReady =
             this.state.isLoaded === true &&
             this.state.checkpointList.length > 0 &&
-            this.state.checkPointsDetails.length >= this.state.checkpointList.length;
+            this.hasRenderableCheckPointDetails();
+        const carouselData = this.toMutableArray(this.state.checkpointList).map(item => this.normalizeCheckPointItem(item));
         const stateScreenWidth = this.state.screenWidth || INITIAL_WINDOW.width;
         const stateScreenHeight = this.state.screenHeight || INITIAL_WINDOW.height;
         const liveWindow = Dimensions.get('window');
@@ -5440,23 +5538,17 @@ class CheckPointDemoSM extends Component {
         const isLandscape = screenWidth > screenHeight;
         const shortestSide = Math.min(screenWidth, screenHeight);
         const isTablet = shortestSide >= 600;
-        const useStackLayout = !isLandscape;
-        const carouselLayout = useStackLayout ? 'stack' : 'default';
+        const useStackLayout = false;
+        const carouselLayout = 'default';
         const carouselItemWidth = Math.round(screenWidth * (isTablet ? (isLandscape ? 0.92 : 0.84) : isLandscape ? 0.94 : 0.9));
-        const stackCardMinHeight = Math.round(screenHeight * (isTablet ? (isLandscape ? 0.68 : 0.64) : isLandscape ? 0.58 : 0.62));
-        const stackCardOffset = useStackLayout ? (isTablet ? 24 : 18) : 0;
-        const carouselInactiveScale = useStackLayout ? 0.93 : 1;
-        const carouselInactiveOpacity = useStackLayout ? 0.92 : 1;
+        const checkpointViewportHeight = Math.max(isTablet ? 520 : 500, screenHeight - (isTablet ? 300 : 285));
+        const stackCardMinHeight = checkpointViewportHeight - 8;
+        const stackCardOffset = 0;
+        const carouselInactiveScale = 1;
+        const carouselInactiveOpacity = 1;
         const questionMetaArrowSize = isTablet ? 32 : isLandscape ? 22 : 20;
         const questionMetaTextSize = isTablet ? (isLandscape ? 24 : 26) : isLandscape ? 15 : 16;
-        const serialGridMinWidth = isTablet ? (isLandscape ? 150 : 140) : SERIAL_GRID_MIN_WIDTH;
-        const serialGridHeight = isTablet ? 76 : SERIAL_GRID_HEIGHT;
-        const serialGridTextSize = isTablet ? 20 : 16;
-        const serialMandatoryIconSize = isTablet ? 18 : 14;
-        const serialRailWidth = isTablet ? (isLandscape ? 122 : 132) : 110;
-        const serialRailItemHeight = isTablet ? (isLandscape ? 60 : 64) : 54;
-        const serialRailGap = 12;
-        const serialRailToggleWidth = 78;
+        const checkpointScrollHeight = stackCardMinHeight;
         //console.log('CheckPointDemo~checkpointList:>', this.state.checkpointList);
 
         // if (this.state.failureloaded === false){
@@ -5474,7 +5566,7 @@ class CheckPointDemoSM extends Component {
         // }
 
         return (
-            <SafeAreaView>
+            <SafeAreaView style={{ flex: 1 }}>
                 <View style={styles.mainContainer}>
                     {Platform.OS === 'ios' ? (
                         <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }} />
@@ -5496,7 +5588,7 @@ class CheckPointDemoSM extends Component {
                     />
                     {/* <View style={{flex:1}}> */}
                     {this.state.isContentLoaded == false && !this.state.isSaving ? (
-                        <View style={{ flex: 1 }}>
+                        <View style={styles.checkpointContent}>
                             {this.props.data.audits.smdata !== 2 && this.props.data.audits.smdata !== 3 ? (
                                 <View style={styles.statistics}>
                                     <View style={styles.statCard1}>
@@ -5526,8 +5618,8 @@ class CheckPointDemoSM extends Component {
                             ) : null}
 
                             {this.state.checkpointList.length ? (
-                                <View style={[styles.body, styles.bodyRightRailLayout]}>
-                                    <View style={styles.carouselBottomWrapper}>
+                                <View style={[styles.body, styles.bodyColumn]}>
+                                    <View style={[styles.carouselBottomWrapper, { height: checkpointViewportHeight }]}>
                                         {isCarouselReady ? (
                                             <Carousel
                                                 key={`checkpoint-carousel-${screenWidth}-${screenHeight}-${carouselLayout}`}
@@ -5543,27 +5635,37 @@ class CheckPointDemoSM extends Component {
                                                 activeSlideAlignment={'center'}
                                                 swipeThreshold={16}
                                                 decelerationRate={'fast'}
-                                                slideStyle={useStackLayout ? styles.carouselStackSlide : undefined}
-                                                containerCustomStyle={useStackLayout ? styles.carouselStackContainer : undefined}
-                                                contentContainerCustomStyle={useStackLayout ? styles.carouselStackContent : undefined}
-                                                data={this.state.checkpointList}
+                                                slideStyle={[
+                                                    useStackLayout ? styles.carouselStackSlide : null,
+                                                    { height: checkpointViewportHeight },
+                                                ]}
+                                                containerCustomStyle={[
+                                                    useStackLayout ? styles.carouselStackContainer : null,
+                                                    { height: checkpointViewportHeight },
+                                                ]}
+                                                contentContainerCustomStyle={[
+                                                    useStackLayout ? styles.carouselStackContent : null,
+                                                    { height: checkpointViewportHeight },
+                                                ]}
+                                                data={carouselData}
                                                 extraData={this.state}
                                                 ref={c => {
                                                     this._carousel = c;
                                                 }}
                                                 onSnapToItem={this.handleCarouselSnap}
-                                                renderItem={({ item, index }) => {
+                                                renderItem={({ item: rawItem, index }) => {
+                                                    const item = this.normalizeCheckPointItem(rawItem);
                                                     // console.log(item, 'LoadCategory:1',index);
                                                     if (Platform.OS === 'ios') {
                                                         if (index == 0) {
                                                             const checkpoint = this.state.checkPointsDetails[index];
-                                                            const attachment = checkpoint.AttachmentList.filter(
+                                                            const attachment = (checkpoint?.AttachmentList || []).filter(
                                                                 checks => checks.Attachment === 'EMPTY',
                                                             );
 
                                                             if (attachment.length > 0) {
                                                                 this.downloadFile(attachment[0]);
-                                                                this.refs.toast.show('Downloading the attachments...', DURATION.LENGTH_LONG);
+                                                                this.showToast('Downloading the attachments...', DURATION.LENGTH_LONG);
                                                             }
                                                         }
                                                     }
@@ -5574,7 +5676,12 @@ class CheckPointDemoSM extends Component {
                                                     const isM4NaActive = selectedM4Value === 11;
 
                                                     return (
-                                                        <ScrollView style={styles.checkpointScroll}>
+                                                        <ScrollView
+                                                            style={[styles.checkpointScroll, { height: checkpointScrollHeight }]}
+                                                            contentContainerStyle={styles.checkpointScrollContent}
+                                                            nestedScrollEnabled={true}
+                                                            keyboardShouldPersistTaps="handled"
+                                                            showsVerticalScrollIndicator={true}>
                                                             <View
                                                                 style={[
                                                                     styles.cart,
@@ -6876,7 +6983,7 @@ class CheckPointDemoSM extends Component {
                                                                                                 isValid = true;
                                                                                             }
                                                                                             if (!isValid) {
-                                                                                                this.refs.toast.show(
+                                                                                                this.showToast(
                                                                                                     strings.Score_alert +
                                                                                                         '(' +
                                                                                                         strings.Min +
@@ -7503,7 +7610,7 @@ class CheckPointDemoSM extends Component {
                                                                                                     isValid = true;
                                                                                                 }
                                                                                                 if (!isValid) {
-                                                                                                    this.refs.toast.show(
+                                                                                                    this.showToast(
                                                                                                         strings.Score_alert +
                                                                                                             '(' +
                                                                                                             strings.Min +
@@ -8020,119 +8127,6 @@ class CheckPointDemoSM extends Component {
                                             this.render_loader(stackCardMinHeight)
                                         )}
                                     </View>
-                                    <View
-                                        style={[
-                                            styles.serialRailWrapper,
-                                            {
-                                                width: this.state.serialRailExpanded ? serialRailWidth : serialRailToggleWidth,
-                                            },
-                                        ]}>
-                                        {this.state.serialRailExpanded ? (
-                                            <View style={styles.serialRailExpandedWrap}>
-                                                <FlatList
-                                                    ref={ref => {
-                                                        this._serialListRef = ref;
-                                                    }}
-                                                    style={styles.serialRailList}
-                                                    data={this.state.checkpointList}
-                                                    keyExtractor={item => String(item.ActualIndex)}
-                                                    showsVerticalScrollIndicator={false}
-                                                    inverted
-                                                    extraData={this.state.ActiveId}
-                                                    onScrollToIndexFailed={this.handleSerialScrollToIndexFailed}
-                                                    contentContainerStyle={styles.serialRailContent}
-                                                    getItemLayout={(data, index) => ({
-                                                        length: serialRailItemHeight + serialRailGap,
-                                                        offset: (serialRailItemHeight + serialRailGap) * index,
-                                                        index,
-                                                    })}
-                                                    renderItem={({ item, index }) => {
-                                                        const isActive = this.state.ActiveId == index;
-
-                                                        return (
-                                                            <TouchableOpacity
-                                                                style={[
-                                                                    styles.serialRailButton,
-                                                                    {
-                                                                        backgroundColor: isActive ? 'transparent' : '#FFFFFF',
-                                                                        borderColor: isActive ? '#1099BF' : '#D9DEE8',
-                                                                        width: serialRailWidth - 10,
-                                                                        height: serialRailItemHeight,
-                                                                    },
-                                                                ]}
-                                                                touchSoundDisabled={false}
-                                                                onPress={() => {
-                                                                    this.playSerialTouchSound();
-                                                                    this.btnDatapress(index, item);
-                                                                }}>
-                                                                {isActive ? (
-                                                                    <LinearGradient
-                                                                        start={{ x: 0, y: 0 }}
-                                                                        end={{ x: 1, y: 0 }}
-                                                                        colors={FOOTER_BUTTON_GRADIENT}
-                                                                        style={styles.serialRailButtonGradient}>
-                                                                        <Text
-                                                                            style={[
-                                                                                styles.serialRailText,
-                                                                                {
-                                                                                    color: '#FFFFFF',
-                                                                                },
-                                                                            ]}>
-                                                                            {item.SerialNo}
-                                                                        </Text>
-                                                                    </LinearGradient>
-                                                                ) : (
-                                                                    <Text
-                                                                        style={[
-                                                                            styles.serialRailText,
-                                                                            {
-                                                                                color: '#10224C',
-                                                                            },
-                                                                        ]}>
-                                                                        {item.SerialNo}
-                                                                    </Text>
-                                                                )}
-                                                            </TouchableOpacity>
-                                                        );
-                                                    }}
-                                                />
-
-                                                <TouchableOpacity
-                                                    style={[styles.serialRailToggle, styles.serialRailToggleGradientShell]}
-                                                    touchSoundDisabled={false}
-                                                    onPress={() => {
-                                                        this.playSerialTouchSound();
-                                                        this.toggleSerialRail();
-                                                    }}>
-                                                    <LinearGradient
-                                                        start={{ x: 0, y: 0 }}
-                                                        end={{ x: 1, y: 0 }}
-                                                        colors={FOOTER_BUTTON_GRADIENT}
-                                                        style={styles.serialRailToggleGradient}>
-                                                        <Text style={[styles.serialRailToggleText, styles.serialRailToggleTextLight]}>Close</Text>
-                                                        <Icon name="chevron-right" size={16} color="#FFFFFF" />
-                                                    </LinearGradient>
-                                                </TouchableOpacity>
-                                            </View>
-                                        ) : (
-                                            <TouchableOpacity
-                                                style={[styles.serialRailToggle, styles.serialRailToggleGradientShell]}
-                                                touchSoundDisabled={false}
-                                                onPress={() => {
-                                                    this.playSerialTouchSound();
-                                                    this.toggleSerialRail();
-                                                }}>
-                                                <LinearGradient
-                                                    start={{ x: 0, y: 0 }}
-                                                    end={{ x: 1, y: 0 }}
-                                                    colors={FOOTER_BUTTON_GRADIENT}
-                                                    style={styles.serialRailToggleGradient}>
-                                                    <Text style={[styles.serialRailToggleText, styles.serialRailToggleTextLight]}>S.No</Text>
-                                                    <Icon name="chevron-left" size={16} color="#FFFFFF" />
-                                                </LinearGradient>
-                                            </TouchableOpacity>
-                                        )}
-                                    </View>
                                 </View>
                             ) : (
                                 <View style={{ marginTop: 55 }}>
@@ -8149,7 +8143,6 @@ class CheckPointDemoSM extends Component {
                                 width: '100%',
                                 height: '100%',
                             }}>
-                            {/* <Bars size={20} color='#48BCF7'/> */}
                             <ResponsiveImage source={Images.ContentLoader} initHeight={100} initWidth={100} />
                             <Text
                                 style={{
@@ -8169,6 +8162,64 @@ class CheckPointDemoSM extends Component {
                             </Text>
                         </View>
                     )}
+
+                    {this.state.checkpointList.length > 0 && this.state.isContentLoaded == false ? (
+                        <View pointerEvents="box-none" style={styles.serialFloatingWrapper}>
+                            {this.state.serialRailExpanded ? (
+                                <View style={styles.serialFloatingPanel}>
+                                    <FlatList
+                                        ref={ref => {
+                                            this._serialListRef = ref;
+                                        }}
+                                        horizontal
+                                        data={carouselData}
+                                        keyExtractor={(item, index) => String(item.ActualIndex || item.SerialNo || index)}
+                                        showsHorizontalScrollIndicator={false}
+                                        extraData={this.state.ActiveId}
+                                        onScrollToIndexFailed={this.handleSerialScrollToIndexFailed}
+                                        contentContainerStyle={styles.serialFloatingListContent}
+                                        renderItem={({ item, index }) => {
+                                            const isActive = this.state.ActiveId == index;
+
+                                            return (
+                                                <TouchableOpacity
+                                                    style={[styles.serialFloatingNumber, isActive ? styles.serialFloatingNumberActive : null]}
+                                                    touchSoundDisabled={false}
+                                                    onPress={() => {
+                                                        this.playSerialTouchSound();
+                                                        this.btnDatapress(index, item);
+                                                    }}>
+                                                    <Text
+                                                        style={[
+                                                            styles.serialFloatingNumberText,
+                                                            isActive ? styles.checkpointSerialTextActive : null,
+                                                        ]}>
+                                                        {item.SerialNo}
+                                                    </Text>
+                                                </TouchableOpacity>
+                                            );
+                                        }}
+                                    />
+                                </View>
+                            ) : null}
+                            <TouchableOpacity
+                                style={styles.serialFloatingPill}
+                                touchSoundDisabled={false}
+                                onPress={() => {
+                                    this.playSerialTouchSound();
+                                    this.toggleSerialRail();
+                                }}>
+                                <LinearGradient
+                                    start={{ x: 0, y: 0 }}
+                                    end={{ x: 1, y: 0 }}
+                                    colors={FOOTER_BUTTON_GRADIENT}
+                                    style={styles.serialFloatingPillGradient}>
+                                    <Text style={styles.serialFloatingPillText}>S.No</Text>
+                                    <Icon name={this.state.serialRailExpanded ? 'chevron-down' : 'chevron-left'} size={22} color="#FFFFFF" />
+                                </LinearGradient>
+                            </TouchableOpacity>
+                        </View>
+                    ) : null}
 
                     {this.state.checkpointList.length > 0 ? (
                         <View style={[styles.footer, styles.footerWhite]}>
@@ -8207,7 +8258,7 @@ class CheckPointDemoSM extends Component {
                                 </View>
                             ) : (
                                 <View style={{ right: 70, position: 'absolute' }}>
-                                    <Pulse size={20} color="#00BAC8" />
+                                    <ActivityIndicator size="small" color="#00BAC8" />
                                 </View>
                             )}
                         </View>
@@ -8380,8 +8431,8 @@ class CheckPointDemoSM extends Component {
 
                     <Toast
                         ref={toast => {
-            this.toast = toast;
-          }}
+                            this.toast = toast;
+                        }}
                         style={{ backgroundColor: 'black', margin: 20 }}
                         position="top"
                         positionValue={200}

@@ -24,10 +24,8 @@ import CryptoJS from 'crypto-js';
 
 import { connect } from 'react-redux';
 import Toast, { DURATION } from 'react-native-easy-toast';
-import { Bubbles, DoubleBounce, Bars, Pulse } from 'react-native-loader';
 import auth from '../../../services/Auditpro-Auth';
 import OfflineNotice from '../components/OfflineNotice';
-import ScrollableTabView, { DefaultTabBar } from 'react-native-scrollable-tab-view';
 import DocumentPicker from 'react-native-document-picker';
 import RNFetchBlob from 'react-native-fetch-blob';
 import ResponsiveImage from 'react-native-responsive-image';
@@ -48,7 +46,7 @@ import Moment from 'moment';
 import constants from '../constants/AppConstants';
 import { ROUTES, ICON_TYPE } from 'constants/app-constant';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { COLORS, SPACING } from 'constants/theme-constants';
+import { SPACING } from 'constants/theme-constants';
 import SQLite from 'react-native-sqlite-storage';
 import GlobalHeader from 'components/GlobalHeader';
 import FAB from 'components/fab';
@@ -136,6 +134,12 @@ class AuditForm extends Component {
             uploadSpeed: null,
         };
     }
+
+    showToast = (...args) => {
+        if (this.toast && this.toast.show) {
+            this.toast.show(...args);
+        }
+    };
 
     componentDidMount() {
         const AuditID = this.props?.route?.params?.AuditID || this.props?.route?.params?.CreateNCdataBundle?.AuditID;
@@ -663,7 +667,7 @@ class AuditForm extends Component {
     onCheckPress(item) {
         console.log('Checklist pressed');
         if (this.state.CheckListbtn === false) {
-            this.refs.toast.show(strings.No_checkpoint, DURATION.LENGTH_LONG);
+            this.showToast(strings.No_checkpoint, DURATION.LENGTH_LONG);
         }
         if (this.state.CheckListbtn === true) {
             console.log('===>btnclick', item);
@@ -691,7 +695,7 @@ class AuditForm extends Component {
                         isLoaderVisible: false,
                     },
                     () => {
-                        this.toast.show(strings.Offline_Notice, DURATION.LENGTH_LONG);
+                        this.showToast(strings.Offline_Notice, DURATION.LENGTH_LONG);
                     },
                 );
             } else {
@@ -717,7 +721,7 @@ class AuditForm extends Component {
                                 isLoaderVisible: false,
                             },
                             () => {
-                                this.toast.show(strings.No_sync, DURATION.LENGTH_LONG);
+                                this.showToast(strings.No_sync, DURATION.LENGTH_LONG);
                             },
                         );
                     }
@@ -999,7 +1003,7 @@ class AuditForm extends Component {
                                     this.resetModifiedFlag();
 
                                     this.setState({ isSyncing: false, isLoaderVisible: false }, () => {
-                                        this.refs.toast.show(strings.AuditClosedOut, DURATION.LENGTH_LONG);
+                                        this.showToast(strings.AuditClosedOut, DURATION.LENGTH_LONG);
                                     });
                                 }
                             }
@@ -1567,7 +1571,7 @@ class AuditForm extends Component {
         try {
             const fileExists = await this.checkFileExist(attachment.path);
             if (!fileExists) {
-                this.refs.toast.show('File not found');
+                this.showToast('File not found');
                 return;
             }
             const response = await auth.getdocProAttachment([attachment], token);
@@ -1606,7 +1610,7 @@ class AuditForm extends Component {
                             syncStatusLabel: 'Sync to Server Completed with failed Attachment(s)',
                         },
                         () => {
-                            this.refs.toast.show(strings.AuditFail, DURATION.LENGTH_LONG);
+                            this.showToast(strings.AuditFail, DURATION.LENGTH_LONG);
                         },
                     );
                 }
@@ -1620,7 +1624,7 @@ class AuditForm extends Component {
                         syncStatusLabel: 'Sync to Server Completed with failed Attachment(s)',
                     },
                     () => {
-                        this.refs.toast.show(strings.AuditFail, DURATION.LENGTH_LONG);
+                        this.showToast(strings.AuditFail, DURATION.LENGTH_LONG);
                     },
                 );
             }
@@ -1689,7 +1693,7 @@ class AuditForm extends Component {
                         style={styles.uploadItemRow}
                         onPress={() => {
                             if (item.exist === undefined || item.exist === false) {
-                                this.refs.toast.show('File not downloaded', DURATION.LENGTH_LONG);
+                                this.showToast('File not downloaded', DURATION.LENGTH_LONG);
                             } else {
                                 this.OpenFile(item.path);
                             }
@@ -1714,7 +1718,7 @@ class AuditForm extends Component {
                                     return <Icon name="warning" size={18} color="red" />;
                                 }
                                 if (item.status === null) {
-                                    return <Bars size={5} color="#1CB8CA" />;
+                                    return <ActivityIndicator size="small" color="#1CB8CA" />;
                                 }
                                 if (item.status === true) {
                                     return <Icon name="check-circle" size={20} color="green" />;
@@ -2596,14 +2600,14 @@ class AuditForm extends Component {
                             this.setState({ isLoaderVisible: false }, () => {
                                 console.log('syncAuditFormsToServer Failed! 1');
                                 console.log('auditlog4');
-                                this.refs.toast.show(strings.AuditFail, DURATION.LENGTH_LONG);
+                                this.showToast(strings.AuditFail, DURATION.LENGTH_LONG);
                             });
                         }
                     } else {
                         this.setState({ isLoaderVisible: false }, () => {
                             console.log('syncAuditFormsToServer Failure! 2');
                             console.log('auditlog5');
-                            this.refs.toast.show(strings.AuditFail, DURATION.LENGTH_LONG);
+                            this.showToast(strings.AuditFail, DURATION.LENGTH_LONG);
                         });
                     }
                 });
@@ -2840,7 +2844,7 @@ class AuditForm extends Component {
                                 // isDownloaded : false
                             });
                         } else if (!this.isDocsAvail) {
-                            this.refs.toast.show(strings.AuditSync, DURATION.LENGTH_LONG);
+                            this.showToast(strings.AuditSync, DURATION.LENGTH_LONG);
                             setTimeout(() => {
                                 const navParams = {
                                     isSubmitted: true,
@@ -2853,7 +2857,7 @@ class AuditForm extends Component {
                             }, 1000);
                         } else {
                             this.isDocsAvail = false;
-                            this.refs.toast.show(strings.AuditSync, DURATION.LENGTH_LONG);
+                            this.showToast(strings.AuditSync, DURATION.LENGTH_LONG);
                             const navParams = {
                                 AuditID: this.state.AuditID,
                                 breadCrumb: this.state.breadCrumbText,
@@ -2866,7 +2870,7 @@ class AuditForm extends Component {
                 } else {
                     console.log('auditlog1');
                     this.setState({ isLoaderVisible: false }, () => {
-                        this.refs.toast.show(strings.AuditFail, DURATION.LENGTH_LONG);
+                        this.showToast(strings.AuditFail, DURATION.LENGTH_LONG);
                     });
                 }
             },
@@ -2988,9 +2992,9 @@ class AuditForm extends Component {
                             var fileData = data.data.Data.FileData;
                             var fileName = data.data.Data.FileName;
                             this.viewDocument(fileData, fileName);
-                            this.refs.toast.show(strings.downloading, DURATION.LENGTH_SHORT);
+                            this.showToast(strings.downloading, DURATION.LENGTH_SHORT);
                         } else {
-                            this.refs.toast.show(strings.server_error, DURATION.LENGTH_LONG);
+                            this.showToast(strings.server_error, DURATION.LENGTH_LONG);
                         }
                     });
                 } else {
@@ -2999,7 +3003,7 @@ class AuditForm extends Component {
                         var fileName = item.DocName;
                         this.viewDocument(fileData, fileName);
                     } else {
-                        this.refs.toast.show(strings.No_documents_attached, DURATION.LENGTH_SHORT);
+                        this.showToast(strings.No_documents_attached, DURATION.LENGTH_SHORT);
                     }
                 }
             } else {
@@ -3099,10 +3103,10 @@ class AuditForm extends Component {
                     }
                     console.log('*** path', path);
                     // this.deleteUserFile(path)
-                    this.refs.toast.show(strings.user_disabled_text, DURATION.LENGTH_SHORT);
+                    this.showToast(strings.user_disabled_text, DURATION.LENGTH_SHORT);
                     this.props.navigation.navigate('LoginUIScreen');
                 } else if (UserStatus == 0) {
-                    this.refs.toast.show(strings.user_inactive_text, DURATION.LENGTH_SHORT);
+                    this.showToast(strings.user_inactive_text, DURATION.LENGTH_SHORT);
                     this.props.navigation.navigate('LoginUIScreen');
                 }
             }
@@ -3261,7 +3265,7 @@ class AuditForm extends Component {
                                                 this.props.storeServerUrl(serURL);
                                                 console.log('FILE DELETED!');
                                                 this.props.navigation.navigate('LoginUIScreen');
-                                                this.refs.toast.show(strings.user_disabled_text, DURATION.LENGTH_SHORT);
+                                                this.showToast(strings.user_disabled_text, DURATION.LENGTH_SHORT);
                                                 console.log('Check server url', this.props.data);
                                             }, 600);
                                         },
@@ -3425,7 +3429,7 @@ class AuditForm extends Component {
 
     checkoffline() {
         if (this.props.data.audits.isOfflineMode) {
-            this.refs.toast.show(strings.Offline_Notice, DURATION.LENGTH_LONG);
+            this.showToast(strings.Offline_Notice, DURATION.LENGTH_LONG);
         } else {
             this.setState({ dialogVisible: true });
         }
@@ -3477,7 +3481,7 @@ class AuditForm extends Component {
                                         pwdentry: undefined,
                                     },
                                     () => {
-                                        this.refs.toast.show('No Forms found to sync', DURATION.LENGTH_SHORT);
+                                        this.showToast('No Forms found to sync', DURATION.LENGTH_SHORT);
                                     },
                                 );
                             } else {
@@ -3504,7 +3508,7 @@ class AuditForm extends Component {
                         }
                     });
                 } else {
-                    this.refs.toast.show(strings.No_sync, DURATION.LENGTH_LONG);
+                    this.showToast(strings.No_sync, DURATION.LENGTH_LONG);
                 }
             });
         }
@@ -3562,29 +3566,28 @@ class AuditForm extends Component {
                 {this.state.isLoaderVisible === false ? (
                     <View style={styles.auditPageBody}>
                         {/* Tab View */}
-                        <ScrollableTabView
-                            initialPage={this.state.ActiveTab}
-                            renderTabBar={() => (
-                                <DefaultTabBar
-                                    backgroundColor="white"
-                                    activeTextColor={COLORS.primaryDarkThemeColor}
-                                    inactiveTextColor="#747474"
-                                    underlineStyle={{
-                                        backgroundColor: COLORS.primaryDarkThemeColor,
-                                        borderBottomColor: COLORS.primaryDarkThemeColor,
-                                        height: Platform.select({
-                                            android: 0,
-                                            ios: 5,
-                                        }),
-                                    }}
-                                    textStyle={{
-                                        fontSize: Fonts.size.regular,
-                                        fontFamily: 'OpenSans-Regular',
-                                    }}
-                                />
-                            )}
-                            tabBarPosition="overlayTop">
-                            <ScrollView tabLabel={strings.Online} style={styles.scrollViewBody}>
+                        <View style={styles.simpleTabContainer}>
+                            <View style={styles.simpleTabBar}>
+                                {[strings.Online, strings.Templates, strings.References].map((label, index) => (
+                                    <TouchableOpacity
+                                        key={label}
+                                        style={[
+                                            styles.simpleTabButton,
+                                            this.state.ActiveTab === index && styles.simpleTabButtonActive,
+                                        ]}
+                                        onPress={() => this.setState({ActiveTab: index})}>
+                                        <Text
+                                            style={[
+                                                styles.simpleTabText,
+                                                this.state.ActiveTab === index && styles.simpleTabTextActive,
+                                            ]}>
+                                            {label}
+                                        </Text>
+                                    </TouchableOpacity>
+                                ))}
+                            </View>
+                            {this.state.ActiveTab === 0 ? (
+                            <ScrollView style={styles.scrollViewBody}>
                                 {this.state.OnlineList.length > 0 ? (
                                     <View style={styles.listMarginLarge}>
                                         {this.state.OnlineList.map((item, key) => (
@@ -3617,7 +3620,9 @@ class AuditForm extends Component {
                                     this.renderEmptyState(strings.No_online_form_found)
                                 )}
                             </ScrollView>
-                            <ScrollView tabLabel={strings.Templates} style={styles.scrollViewBody}>
+                            ) : null}
+                            {this.state.ActiveTab === 1 ? (
+                            <ScrollView style={styles.scrollViewBody}>
                                 {this.state.TempList.length > 0 ? (
                                     <View style={styles.listMarginLarge}>
                                         {this.state.TempList.map((item, key) => (
@@ -3953,8 +3958,10 @@ class AuditForm extends Component {
                                     this.renderEmptyState(strings.No_templates_found)
                                 )}
                             </ScrollView>
+                            ) : null}
 
-                            <ScrollView tabLabel={strings.References} style={styles.scrollViewBody}>
+                            {this.state.ActiveTab === 2 ? (
+                            <ScrollView style={styles.scrollViewBody}>
                                 {this.state.RefList.length > 0 ? (
                                     <View style={styles.listMarginLarge}>
                                         {this.state.RefList.map((item, key) => (
@@ -4270,7 +4277,8 @@ class AuditForm extends Component {
                                     this.renderEmptyState(strings.No_references_found)
                                 )}
                             </ScrollView>
-                        </ScrollableTabView>
+                            ) : null}
+                        </View>
                         <View style={styles.floatingDiv}>
                             <FAB
                                 iconType={ICON_TYPE.Feather}
@@ -4300,7 +4308,7 @@ class AuditForm extends Component {
                             {this.state.syncMode === 2 ? (
                                 <Icon name="check-circle" color="red" size={50} />
                             ) : this.state.syncMode === 0 || this.state.syncMode === 1 ? (
-                                <Bars size={20} color="#1CB8CA" />
+                                <ActivityIndicator size="large" color="#1CB8CA" />
                             ) : this.state.syncMode === 4 ? (
                                 <Icon name="check-circle" color="green" size={50} />
                             ) : null}

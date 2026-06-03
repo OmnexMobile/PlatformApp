@@ -3487,7 +3487,7 @@ class CreateNC extends Component {
                                         <View style={styles.inputhigh}>
                                             <View>
                                                 <View style={styles.columnPadLeft}>
-                                                    <Text ref="dummyFocus" style={styles.processLabel}>
+                                                    <Text style={styles.processLabel}>
                                                         {strings.ProcessAll}
                                                     </Text>
 

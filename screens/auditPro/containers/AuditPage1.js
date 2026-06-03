@@ -137,14 +137,56 @@ class AuditPage extends Component {
       screenWidth: Dimensions.get('window').width,
     };
 
-    Voice.onSpeechStart = this.onSpeechStart;
-    Voice.onSpeechRecognized = this.onSpeechRecognized;
-    Voice.onSpeechEnd = this.onSpeechEnd;
-    Voice.onSpeechError = this.onSpeechError;
-    Voice.onSpeechResults = this.onSpeechResults;
-    Voice.onSpeechPartialResults = this.onSpeechPartialResults;
-    Voice.onSpeechVolumeChanged = this.onSpeechVolumeChanged;
+    this.safeBindVoiceHandlers();
   }
+
+  isVoiceAvailable = () => {
+    return Voice && typeof Voice === 'object';
+  };
+
+  safeBindVoiceHandlers = () => {
+    if (!this.isVoiceAvailable()) {
+      return;
+    }
+
+    try {
+      Voice.onSpeechStart = this.onSpeechStart;
+      Voice.onSpeechRecognized = this.onSpeechRecognized;
+      Voice.onSpeechEnd = this.onSpeechEnd;
+      Voice.onSpeechError = this.onSpeechError;
+      Voice.onSpeechResults = this.onSpeechResults;
+      Voice.onSpeechPartialResults = this.onSpeechPartialResults;
+      Voice.onSpeechVolumeChanged = this.onSpeechVolumeChanged;
+    } catch (error) {
+      console.log('Voice listener setup failed', error);
+    }
+  };
+
+  safeRemoveVoiceListeners = async () => {
+    if (!this.isVoiceAvailable() || typeof Voice.removeAllListeners !== 'function') {
+      return;
+    }
+    if (Platform.OS === 'android') {
+      return;
+    }
+    try {
+      await this.safeRemoveVoiceListeners();
+    } catch (error) {
+      console.log('Voice listener cleanup failed', error);
+    }
+  };
+
+  safeDestroyVoice = async () => {
+    if (!this.isVoiceAvailable() || typeof Voice.destroy !== 'function') {
+      return;
+    }
+    try {
+      await Voice.destroy();
+      await this.safeRemoveVoiceListeners();
+    } catch (error) {
+      console.log('Voice destroy failed', error);
+    }
+  };
   componentWillMount() {
     console.log('cStatusfff', this.props?.route?.params?.datapass);
 
@@ -284,29 +326,56 @@ class AuditPage extends Component {
     this.checkUser();
   }
 
+  getAuthToken = userData => {
+    if (typeof userData === 'string') {
+      return userData;
+    }
+
+    const currentUserData = userData || this.state.currentUserData;
+    return (
+      currentUserData?.accessToken ||
+      currentUserData?.token ||
+      this.state.token ||
+      this.props?.data?.audits?.token
+    );
+  };
+
   async getAccessToken(){
     try {
       const stringifiedUserDetails = await AsyncStorage.getItem('userDetails');
-      const value = JSON.parse(stringifiedUserDetails);
+      const value = stringifiedUserDetails ? JSON.parse(stringifiedUserDetails) : null;
       console.log('current userdata--->', value)
       if (value !== null) {
         // value previously stored
-        console.log('current token2--->', value.accessToken)
-        this.setState({ currentUserData: value },()=>{
+        const accessToken = value.accessToken || value.token || this.state.token;
+        console.log('current token2--->', accessToken)
+        this.setState({ currentUserData: value, token: accessToken },()=>{
           console.log('Token set')
         })
       }
+      return value;
     } catch (e) {
       // error reading value
       console.log('error--->', e)
+      return null;
     }
   };
 
+  ensureAuthToken = async () => {
+    const token = this.getAuthToken();
+    if (token) {
+      return token;
+    }
+
+    const storedUserData = await this.getAccessToken();
+    return this.getAuthToken(storedUserData);
+  };
+
   async checkDocPro(id) {
-    await this.getAccessToken()
+    const storedUserData = await this.getAccessToken()
     // var token = this.props.data.audits.token;
     console.log('this.state.currentUserData?.accessToken', this.state.currentUserData)
-    var token = this.state.currentUserData?.accessToken
+    var token = this.getAuthToken(storedUserData)
     var ActualAuditId =
       this.props?.route?.params?.datapass?.ActualAuditId;
     var auditRecords = this.props.data.audits.auditRecords;
@@ -454,13 +523,7 @@ console.log('checktheaudits---Auditpage----Auditppro',recentAudits);
   }
 
   InitVoice() {
-    Voice.onSpeechStart = this.onSpeechStart;
-    Voice.onSpeechRecognized = this.onSpeechRecognized;
-    Voice.onSpeechEnd = this.onSpeechEnd;
-    Voice.onSpeechError = this.onSpeechError;
-    Voice.onSpeechResults = this.onSpeechResults;
-    Voice.onSpeechPartialResults = this.onSpeechPartialResults;
-    Voice.onSpeechVolumeChanged = this.onSpeechVolumeChanged;
+    this.safeBindVoiceHandlers();
 
     this.setState(
       {
@@ -483,7 +546,7 @@ console.log('checktheaudits---Auditpage----Auditppro',recentAudits);
   }
 
   componentWillUnmount() {
-    if (Voice.isAvailable) Voice.destroy().then(Voice.removeAllListeners);
+    this.safeDestroyVoice();
   }
 
   componentWillReceiveProps(props) {
@@ -625,6 +688,10 @@ console.log('checktheaudits---Auditpage----Auditppro',recentAudits);
   };
 
   async stopRecording() {
+    if (!this.isVoiceAvailable() || typeof Voice.stop !== 'function') {
+      return;
+    }
+
     try {
       await Voice.stop();
     } catch (e) {
@@ -657,7 +724,7 @@ console.log('checktheaudits---Auditpage----Auditppro',recentAudits);
             });
           });
           this._stopRecognizing();
-          Voice.removeAllListeners();
+          this.safeRemoveVoiceListeners();
           this.InitVoice();
           this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD);
         } else {
@@ -667,7 +734,7 @@ console.log('checktheaudits---Auditpage----Auditppro',recentAudits);
             });
           });
           this._stopRecognizing();
-          Voice.removeAllListeners();
+          this.safeRemoveVoiceListeners();
           this.InitVoice();
           this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD);
         }
@@ -685,7 +752,7 @@ console.log('checktheaudits---Auditpage----Auditppro',recentAudits);
         });
         setTimeout(() => {
           // this._stopRecognizing()
-          // Voice.removeAllListeners();
+          // this.safeRemoveVoiceListeners();
           // this.InitVoice();
           this._destroyRecognizer();
           this.props.navigation.navigate(ROUTES.CREATE_NC, {
@@ -768,7 +835,7 @@ console.log('checktheaudits---Auditpage----Auditppro',recentAudits);
         });
         setTimeout(() => {
           this._stopRecognizing();
-          Voice.removeAllListeners();
+          this.safeRemoveVoiceListeners();
           this.InitVoice();
           if(CurrentApp === 'Audit Pro') {
             this.props.navigation.navigate(ROUTES.AUDIT_FORM, {
@@ -828,7 +895,7 @@ console.log('checktheaudits---Auditpage----Auditppro',recentAudits);
         });
         setTimeout(() => {
           this._stopRecognizing();
-          Voice.removeAllListeners();
+          this.safeRemoveVoiceListeners();
           this.InitVoice();
           if(CurrentApp === 'Audit Pro') {
             this.props.navigation.navigate(ROUTES.AUDIT_FORM, {
@@ -879,7 +946,7 @@ console.log('checktheaudits---Auditpage----Auditppro',recentAudits);
       } else if (txt.toLowerCase().includes(strings.va_cmd26)) {
         setTimeout(() => {
           this._stopRecognizing();
-          Voice.removeAllListeners();
+          this.safeRemoveVoiceListeners();
           this.InitVoice();
           if(CurrentApp === 'Audit Pro') {
             this.props.navigation.navigate(ROUTES.AUDIT_FORM, {
@@ -1215,6 +1282,11 @@ console.log('checktheaudits---Auditpage----Auditppro',recentAudits);
 
   _startRecognizing = async () => {
     console.log('pressed');
+    if (!this.isVoiceAvailable() || typeof Voice.start !== 'function') {
+      this.setState({startVoice: false, isVisible: false});
+      return;
+    }
+
     this.setState({
       recognized: '',
       pitch: '',
@@ -1243,6 +1315,10 @@ console.log('checktheaudits---Auditpage----Auditppro',recentAudits);
   };
 
   _stopRecognizing = async () => {
+    if (!this.isVoiceAvailable() || typeof Voice.stop !== 'function') {
+      return;
+    }
+
     try {
       await Voice.stop();
     } catch (e) {
@@ -1252,6 +1328,10 @@ console.log('checktheaudits---Auditpage----Auditppro',recentAudits);
   };
 
   _cancelRecognizing = async () => {
+    if (!this.isVoiceAvailable() || typeof Voice.cancel !== 'function') {
+      return;
+    }
+
     try {
       await Voice.cancel();
     } catch (e) {
@@ -1261,12 +1341,7 @@ console.log('checktheaudits---Auditpage----Auditppro',recentAudits);
   };
 
   _destroyRecognizer = async () => {
-    try {
-      await Voice.destroy();
-    } catch (e) {
-      //eslint-disable-next-line
-      console.error(e);
-    }
+    await this.safeDestroyVoice();
     this.setState({
       recognized: '',
       pitch: '',
@@ -1457,7 +1532,7 @@ console.log('checktheaudits---Auditpage----Auditppro',recentAudits);
   getSessionValues = isDownloaded => {
     try {
       //   const TOKEN = this.props.data.audits.token;
-      var TOKEN = this.state.currentUserData?.accessToken
+      var TOKEN = this.getAuthToken()
       const USER_ID = this.props.data.audits.userId;
 
       this.setState({token: TOKEN, userId: USER_ID}, () => {
@@ -1559,8 +1634,8 @@ console.log('checktheaudits---Auditpage----Auditppro',recentAudits);
   };
 
   async getAuditDetails() {
-    await this.getAccessToken()
-    var Token = this.state.currentUserData?.accessToken || this.state.token;
+    const storedUserData = await this.getAccessToken()
+    var Token = this.getAuthToken(storedUserData);
 
     auth.getAuditReportDetails(
       this.state.AuditProp,
@@ -1801,8 +1876,8 @@ console.log('checktheaudits---Auditpage----Auditppro',recentAudits);
     }
   };
 
-  auditResultCall() {
-    const TOKEN = this.state.currentUserData?.accessToken || this.state.token;
+  async auditResultCall() {
+    const TOKEN = await this.ensureAuthToken();
     const SiteID = this.state.SITEID;
     const strSortBy = 'order by FormName asc';
     const iAuditId = this.state.AUDIT_ID;
@@ -1811,6 +1886,12 @@ console.log('checktheaudits---Auditpage----Auditppro',recentAudits);
     const iAudTypeOrder = this.state.AUDITYPE_ORDER;
     const iAudTypeId = this.state.AUDITYPE_ID;
     const strFunction = 'AuditResult';
+
+    if (!TOKEN) {
+      console.log('auditResultCall skipped: missing token');
+      this.setState({isDownloading: false, isLoading: false});
+      return;
+    }
 
     auth.getauditResult(
       SiteID,
@@ -1827,20 +1908,20 @@ console.log('checktheaudits---Auditpage----Auditppro',recentAudits);
         if (data.data) {
           if (data.data.Message === 'Success') {
             this.setState({AuditResults: data.data.Data}, () => {
-              this.auditProcessList(iAuditId, iAudProgId);
+              this.auditProcessList(iAuditId, iAudProgId, TOKEN);
             });
           } else {
-            this.auditProcessList(iAuditId, iAudProgId);
+            this.auditProcessList(iAuditId, iAudProgId, TOKEN);
           }
         } else {
-          this.auditProcessList(iAuditId, iAudProgId);
+          this.auditProcessList(iAuditId, iAudProgId, TOKEN);
         }
       },
     );
   }
 
-  auditProcessList(iAuditId, iAudProgId) {
-    const TOKEN = this.state.currentUserData?.accessToken || this.state.token;
+  auditProcessList(iAuditId, iAudProgId, tokenOverride) {
+    const TOKEN = tokenOverride || this.getAuthToken();
     const SiteID = this.state.SITEID;
     const UserId = this.state.userId;
     const SearchCondition =
@@ -1874,7 +1955,7 @@ console.log('checktheaudits---Auditpage----Auditppro',recentAudits);
   }
 
   auditFormCall() {
-    const TOKEN = this.state.currentUserData?.accessToken || this.state.token;
+    const TOKEN = this.getAuthToken();
     const SiteID = this.state.SITEID;
     var strSortBy = 'order by FormName asc';
     if (this.state.AUDITPROG_ID == -1) {
@@ -1964,7 +2045,7 @@ console.log('checktheaudits---Auditpage----Auditppro',recentAudits);
     const IAuditProgramID = this.state.AUDITPROG_ID;
     const IAuditTypeID = this.state.AUDITYPE_ID;
     const IAuditOrderID = this.state.AUDITPROGORDER;
-    const TOKEN = this.state.currentUserData?.accessToken || this.state.token;
+    const TOKEN = this.getAuthToken();
 
     auth.getChecklist(
       ISiteID,
@@ -2072,7 +2153,7 @@ console.log('checktheaudits---Auditpage----Auditppro',recentAudits);
     const IAuditOrderID = this.state.AUDITPROGORDER;
     const iParentId = parentID;
     const ISiteID = this.state.SITEID;
-    const TOKEN = this.state.currentUserData?.accessToken || this.state.token;
+    const TOKEN = this.getAuthToken();
     const SM = this.props.data.audits.smdata;
     console.log('download:sm==>', this.props.data.audits.smdata);
     auth.getCheckRadio(
@@ -2159,7 +2240,7 @@ console.log('checktheaudits---Auditpage----Auditppro',recentAudits);
     //const AuditOrderId ="1"
     const ActualAuditId = this.ActualAudit === true ? 1 : 0;
     //const ActualAuditId = ""
-    const token = this.state.currentUserData?.accessToken || this.state.token;
+    const token = this.getAuthToken();
 
     auth.getncofiDropdown(
       AuditId,
@@ -2196,7 +2277,7 @@ console.log('checktheaudits---Auditpage----Auditppro',recentAudits);
     const iAudTypeOrder = this.state.AUDITYPE_ORDER;
     const iAudTypeId = this.state.AUDITYPE_ID;
     const strFunction = 'AuditNCOFI';
-    const TOKEN = this.state.currentUserData?.accessToken || this.state.token;
+    const TOKEN = this.getAuthToken();
     console.log(this.state.AUDITYPE_ORDER, 'venkat/nc');
 
     auth.getNCdetails(
@@ -2798,6 +2879,8 @@ console.log('checktheaudits---Auditpage----Auditppro',recentAudits);
     this.setState(
       {
         isDownloading: false,
+        isDownloaded: true,
+        isLoading: false,
       },
       () => {
         console.log('Audit form downloaded successfully.');
@@ -3745,7 +3828,7 @@ console.log('checktheaudits---Auditpage----Auditppro',recentAudits);
           </View>
         )}
 
-        {this.state.isDownloaded ? (
+        {this.state.isDownloaded && this.state.auditDetailList ? (
           <View style={styles.footer}>
             <View style={styles.footerDiv}>
               <View
@@ -3757,7 +3840,7 @@ console.log('checktheaudits---Auditpage----Auditppro',recentAudits);
                 {this.state.auditDetailList.AuditProgramName !== 'LPA' ? (
                   <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
                     <TouchableOpacity
-                      onPress={once(this.onNavigateTo.bind(this, 4))}>
+                      onPress={this.onNavigateTo.bind(this, 4)}>
                       <Icon
                         name="paperclip"
                         size={20}
@@ -3775,7 +3858,7 @@ console.log('checktheaudits---Auditpage----Auditppro',recentAudits);
 
                 <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
                   <TouchableOpacity
-                    onPress={once(this.onNavigateTo.bind(this, 2))}>
+                    onPress={this.onNavigateTo.bind(this, 2)}>
                     <Icon
                       name="list"
                       size={20}
@@ -3798,7 +3881,7 @@ console.log('checktheaudits---Auditpage----Auditppro',recentAudits);
                 this.state.AuditProp.ReportId == 13 ? (
                   <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
                     <TouchableOpacity
-                      onPress={once(this.onNavigateTo.bind(this, 3))}>
+                      onPress={this.onNavigateTo.bind(this, 3)}>
                       <Icon
                         name="file"
                         size={20}
@@ -3818,7 +3901,7 @@ console.log('checktheaudits---Auditpage----Auditppro',recentAudits);
                 this.state.AuditProp.ReportId == 7 ? (
                   <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
                     <TouchableOpacity
-                      onPress={once(this.onNavigateTo.bind(this, 6))}>
+                      onPress={this.onNavigateTo.bind(this, 6)}>
                       <Icon
                         name="file"
                         size={20}

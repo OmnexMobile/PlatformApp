@@ -1,0 +1,23 @@
+diff --git a/node_modules/seamless-immutable/src/seamless-immutable.js b/node_modules/seamless-immutable/src/seamless-immutable.js
+index f9ead88..75aa83b 100644
+--- a/node_modules/seamless-immutable/src/seamless-immutable.js
++++ b/node_modules/seamless-immutable/src/seamless-immutable.js
+@@ -5,6 +5,7 @@ function immutableInit(config) {
+ 
+   // https://github.com/facebook/react/blob/v15.0.1/src/isomorphic/classic/element/ReactElement.js#L21
+   var REACT_ELEMENT_TYPE = typeof Symbol === 'function' && Symbol.for && Symbol.for('react.element');
++  var REACT_TRANSITIONAL_ELEMENT_TYPE = typeof Symbol === 'function' && Symbol.for && Symbol.for('react.transitional.element');
+   var REACT_ELEMENT_TYPE_FALLBACK = 0xeac7;
+ 
+   var globalConfig = {
+@@ -604,7 +605,9 @@ function immutableInit(config) {
+   function isReactElement(obj) {
+     return typeof obj === 'object' &&
+            obj !== null &&
+-           (obj.$$typeof === REACT_ELEMENT_TYPE_FALLBACK || obj.$$typeof === REACT_ELEMENT_TYPE);
++           (obj.$$typeof === REACT_ELEMENT_TYPE_FALLBACK ||
++            obj.$$typeof === REACT_ELEMENT_TYPE ||
++            obj.$$typeof === REACT_TRANSITIONAL_ELEMENT_TYPE);
+   }
+ 
+   function isFileObject(obj) {

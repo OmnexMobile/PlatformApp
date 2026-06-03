@@ -213,6 +213,36 @@ export default StyleSheet.create({
     tabContentTopMargin: {
         marginTop: 55,
     },
+    simpleTabContainer: {
+        flex: 1,
+        backgroundColor: 'white',
+    },
+    simpleTabBar: {
+        height: 48,
+        flexDirection: 'row',
+        backgroundColor: 'white',
+        borderBottomWidth: 1,
+        borderBottomColor: '#E2E7F0',
+    },
+    simpleTabButton: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderBottomWidth: 3,
+        borderBottomColor: 'transparent',
+    },
+    simpleTabButtonActive: {
+        borderBottomColor: '#123C95',
+    },
+    simpleTabText: {
+        fontSize: Fonts.size.h5,
+        fontFamily: 'OpenSans-Regular',
+        color: '#747474',
+    },
+    simpleTabTextActive: {
+        color: '#123C95',
+        fontFamily: 'OpenSans-SemiBold',
+    },
     cardsGridContainer: {
         flexDirection: 'row',
         flexWrap: 'wrap',

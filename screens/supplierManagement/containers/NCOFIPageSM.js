@@ -19,7 +19,6 @@ import styles from '../../supplierManagement/containers/NCOFIPageStyle_SM';
 import { connect } from 'react-redux';
 import Modal from 'react-native-modal';
 // import FooterButton from '../Components/Shared/FooterButton';
-import ScrollableTabView, { DefaultTabBar } from 'react-native-scrollable-tab-view';
 import auth from '../../../services/Auditpro-Auth';
 import Toast, { DURATION } from 'react-native-easy-toast';
 import { Bubbles, DoubleBounce, Bars, Pulse } from 'react-native-loader';
@@ -152,6 +151,7 @@ class NCOFIPage extends Component {
             CorrectiveId: null,
             screenWidth: Window.width,
             screenHeight: Window.height,
+            activeNcofiTab: 'pending',
         };
     }
 
@@ -198,7 +198,7 @@ class NCOFIPage extends Component {
                 console.log('AuditOrder', this.state.AuditOrder);
                 console.log('Mohan---->', this.state.NCdetails);
                 this.getDetails();
-                // this.setUpload()
+                this.setUpload();
                 this.refreshList();
             },
         );
@@ -216,9 +216,11 @@ class NCOFIPage extends Component {
                     console.log('Token set');
                 });
             }
+            return value;
         } catch (e) {
             // error reading value
             console.log('error--->', e);
+            return null;
         }
     }
 
@@ -287,6 +289,10 @@ class NCOFIPage extends Component {
         }, 140);
     };
 
+    showToast = (...args) => {
+        this.toast?.show?.(...args);
+    };
+
     getLayoutProfile = () => {
         const { screenWidth, screenHeight } = this.state;
         const liveWindow = Dimensions.get('window');
@@ -315,7 +321,7 @@ class NCOFIPage extends Component {
     getDetails = () => {
         setTimeout(() => {
             var compArr = [];
-            var Data = this.props.data.audits.ncofiRecords;
+            var Data = Array.isArray(this.props.data.audits.ncofiRecords) ? this.props.data.audits.ncofiRecords : [];
             console.log('NC Data', Data);
 
             for (var i = 0; i < Data.length; i++) {
@@ -413,7 +419,7 @@ class NCOFIPage extends Component {
     setUpload = () => {
         console.log('this.props.data.audits.ncofiRecords', this.props.data.audits.ncofiRecords);
         setTimeout(() => {
-            var Data = this.props.data.audits.ncofiRecords;
+            var Data = Array.isArray(this.props.data.audits.ncofiRecords) ? this.props.data.audits.ncofiRecords : [];
             console.log('NC Data', Data);
             var compArr2 = [];
 
@@ -819,13 +825,13 @@ class NCOFIPage extends Component {
                     }
                     console.log('*** path', path);
                     // this.deleteUserFile(path)
-                    this.refs.toast.show(strings.user_disabled_text, DURATION.LENGTH_SHORT);
+                    this.showToast(strings.user_disabled_text, DURATION.LENGTH_SHORT);
                     // this.props.navigation.navigate('LoginUIScreen');
                     this.props.navigation.navigate(ROUTES.GLOBAL_LOGIN);
                 } else if (UserStatus == 0) {
                     Alert.alert('Your session has expired,Please login again.');
 
-                    this.refs.toast.show(strings.user_inactive_text, DURATION.LENGTH_SHORT);
+                    this.showToast(strings.user_inactive_text, DURATION.LENGTH_SHORT);
                     // this.props.navigation.navigate(ROUTES.AUDIT_PAGE);
                     // this.props.navigation.navigate('LoginUIScreen');
                     this.props.navigation.navigate(ROUTES.GLOBAL_LOGIN);
@@ -964,7 +970,7 @@ class NCOFIPage extends Component {
                                             setTimeout(() => {
                                                 this.props.storeServerUrl(serURL);
                                                 console.log('FILE DELETED!');
-                                                this.refs.toast.show(strings.user_disabled_text, DURATION.LENGTH_SHORT);
+                                                this.showToast(strings.user_disabled_text, DURATION.LENGTH_SHORT);
                                                 this.props.navigation.navigate(ROUTES.GLOBAL_LOGIN);
                                                 console.log('Check server url', this.props.data);
                                             }, 600);
@@ -995,7 +1001,7 @@ class NCOFIPage extends Component {
                     dialogVisible: false,
                     syncMode: 0,
                 });
-                this.refs.toast.show(strings.Offline_Notice, DURATION.LENGTH_LONG);
+                this.showToast(strings.Offline_Notice, DURATION.LENGTH_LONG);
             } else {
                 NetInfo.fetch().then(isConnected => {
                     if (isConnected.isConnected) {
@@ -1149,7 +1155,7 @@ class NCOFIPage extends Component {
                         }
                     } else {
                         this.setState({ isLoaderVisible: false, dialogVisible: false });
-                        this.refs.toast.show(strings.No_sync, DURATION.LENGTH_LONG);
+                        this.showToast(strings.No_sync, DURATION.LENGTH_LONG);
                     }
                 });
             }
@@ -1172,7 +1178,7 @@ class NCOFIPage extends Component {
             if (data.data) {
                 if (data.data.Message === 'Success') {
                     // this.setState({ isLoaderVisible: false }, function () {
-                    //this.refs.toast.show(strings.NCSuccess, DURATION.LENGTH_LONG);
+                    //this.showToast(strings.NCSuccess, DURATION.LENGTH_LONG);
                     var responseData = data.data.Data;
                     this.checkFindingAttachment(responseData);
                     //this.AfterSyncdone();
@@ -1180,12 +1186,12 @@ class NCOFIPage extends Component {
                     // })
                 } else {
                     this.setState({ isLoaderVisible: false, syncMode: 0, syncStatusLabel: '' }, function () {
-                        this.refs.toast.show(strings.NCFAiled, DURATION.LENGTH_LONG);
+                        this.showToast(strings.NCFAiled, DURATION.LENGTH_LONG);
                     });
                 }
             } else {
                 this.setState({ isLoaderVisible: false, syncMode: 0, syncStatusLabel: '' }, function () {
-                    this.refs.toast.show(strings.NCFAiled, DURATION.LENGTH_LONG);
+                    this.showToast(strings.NCFAiled, DURATION.LENGTH_LONG);
                 });
             }
         });
@@ -1622,80 +1628,90 @@ class NCOFIPage extends Component {
     };
 
     refreshList = async () => {
-        await this.getAccessToken();
-        var AuditID = this.state.AUDIT_ID;
-        var Data = this.props.data.audits.auditRecords;
-        var iAudProgId = undefined;
-        var AuditTypeId = undefined;
+        try {
+            const storedUserData = await this.getAccessToken();
+            var AuditID = this.state.AUDIT_ID;
+            var Data = Array.isArray(this.props.data.audits.auditRecords) ? this.props.data.audits.auditRecords : [];
+            var iAudProgId = undefined;
+            var AuditTypeId = undefined;
 
-        console.log('****', Data);
-        console.log('AuditID', AuditID);
+            console.log('****', Data);
+            console.log('AuditID', AuditID);
 
-        var SiteID = this.state.currentUserData?.siteId || this.props.data.audits.siteId;
-        var TOKEN = this.state.currentUserData?.accessToken || this.props.data.audits.token;
-        let progID = await AsyncStorage.getItem('AUDITPROG_ID');
-        console.log('checkDetailsss--------', progID);
+            var SiteID =
+                storedUserData?.siteId ||
+                storedUserData?.SiteID ||
+                this.state.SITEID ||
+                this?.props?.route?.params?.CreateNCdataBundle?.SiteID ||
+                this.props.data.audits.siteId;
+            var TOKEN = storedUserData?.accessToken || storedUserData?.token || this.state.token || this.props.data.audits.token;
+            let progID = await AsyncStorage.getItem('AUDITPROG_ID');
+            console.log('checkDetailsss--------', progID);
 
-        for (var i = 0; i < Data.length; i++) {
-            if (this.state.AUDIT_ID == Data[i].AuditId) {
-                if (this.props.data.audits.smdata == 2) {
-                    console.log('innsideifprogid', Data[i]);
-                    iAudProgId = -2;
-                } else {
-                    console.log('innsideelseprogid', Data[i].AuditTemplateId);
-                    iAudProgId = progID;
+            for (var i = 0; i < Data.length; i++) {
+                if (this.state.AUDIT_ID == Data[i].AuditId) {
+                    if (this.props.data.audits.smdata == 2) {
+                        console.log('innsideifprogid', Data[i]);
+                        iAudProgId = -2;
+                    } else {
+                        console.log('innsideelseprogid', Data[i].AuditTemplateId);
+                        iAudProgId = progID;
+                    }
+                    AuditTypeId = Data[i].AuditTypeId;
                 }
-                AuditTypeId = Data[i].AuditTypeId;
             }
-        }
 
-        for (var j = 0; j < this.props.data.audits.auditRecords.length; j++) {
-            if (this.state.AUDIT_ID === this.props.data.audits.auditRecords[j].AuditId) {
-                var iAudTypeOrder = this.props.data.audits.auditRecords[j].AuditTypeOrder;
-                var iAudProgOrder = this.props.data.audits.auditRecords[j].AuditProgOrder;
+            for (var j = 0; j < Data.length; j++) {
+                if (this.state.AUDIT_ID === Data[j].AuditId) {
+                    var iAudTypeOrder = Data[j].AuditTypeOrder;
+                    var iAudProgOrder = Data[j].AuditProgOrder;
+                }
             }
+            console.log('heckdata--------,', this.props);
+
+            this.setState(
+                {
+                    token: TOKEN,
+                    AUDITPROG_ID: iAudProgId,
+                    AUDITYPE_ORDER: iAudTypeOrder,
+                    AUDITYPE_ID: AuditTypeId,
+                    SITEID: SiteID,
+                    AUDITPROGORDER: iAudTypeOrder,
+                },
+                () => {
+                    const strSortBy = 'order by Title asc';
+                    const strFunction = 'AuditNCOFI';
+
+                    console.log('Site ID ==>', this.state.SITEID,TOKEN);
+                    console.log('AUDITPROG_ID,AUDITYPE_ID', this.state.AUDITPROG_ID, this.state.AUDITYPE_ID);
+
+                    auth.getNCdetails(
+                        this.state.SITEID,
+                        strSortBy,
+                        this.state.AUDIT_ID,
+                        this.state.AUDITPROG_ID,
+                        this.state.AUDITPROGORDER,
+                        this.state.AUDITYPE_ORDER,
+                        this.state.AUDITYPE_ID,
+                        strFunction,
+                        TOKEN,
+                        (res, data) => {
+                            console.log('getNC data', data);
+                            console.log('response', res);
+
+                            if (data?.data) {
+                                this.upLoadList(data.data.Data);
+                            } else {
+                                this.setUpload();
+                            }
+                        },
+                    );
+                },
+            );
+        } catch (error) {
+            console.log('refreshList failed', error);
+            this.setUpload();
         }
-        console.log('heckdata--------,', this.props);
-
-        this.setState(
-            {
-                token: TOKEN,
-                AUDITPROG_ID: iAudProgId,
-                AUDITYPE_ORDER: iAudTypeOrder,
-                AUDITYPE_ID: AuditTypeId,
-                SITEID: SiteID,
-                AUDITPROGORDER: iAudTypeOrder,
-            },
-            () => {
-                const strSortBy = 'order by Title asc';
-                const strFunction = 'AuditNCOFI';
-
-                console.log('Site ID ==>', this.state.SITEID);
-                console.log('AUDITPROG_ID,AUDITYPE_ID', this.state.AUDITPROG_ID, this.state.AUDITYPE_ID);
-
-                auth.getNCdetails(
-                    this.state.SITEID,
-                    strSortBy,
-                    this.state.AUDIT_ID,
-                    this.state.AUDITPROG_ID,
-                    this.state.AUDITPROGORDER,
-                    this.state.AUDITYPE_ORDER,
-                    this.state.AUDITYPE_ID,
-                    strFunction,
-                    TOKEN,
-                    (res, data) => {
-                        console.log('getNC data', data);
-                        console.log('response', res);
-
-                        if (data.data) {
-                            this.upLoadList(data.data.Data);
-                        } else {
-                            //this.refs.toast.show(strings.NCFAiled,DURATION.LENGTH_LONG)
-                        }
-                    },
-                );
-            },
-        );
     };
 
     AfterSyncdone() {
@@ -1825,7 +1841,7 @@ class NCOFIPage extends Component {
 
     checkOffline() {
         if (this.props.data.audits.isOfflineMode) {
-            this.refs.toast.show(strings.Offline_Notice, DURATION.LENGTH_LONG);
+            this.showToast(strings.Offline_Notice, DURATION.LENGTH_LONG);
         } else {
             // this.setState({dialogVisible: true});
             // confirmpwd;
@@ -1840,7 +1856,7 @@ class NCOFIPage extends Component {
                     isEmptyPwd: strings.enter_password,
                 },
                 () => {
-                    // this.refs.toast.show('Empty password attempt', DURATION.LENGTH_SHORT)
+                    // this.showToast('Empty password attempt', DURATION.LENGTH_SHORT)
                 },
             );
         } else {
@@ -1910,7 +1926,7 @@ class NCOFIPage extends Component {
                         }
                     });
                 } else {
-                    this.refs.toast.show(strings.No_sync, DURATION.LENGTH_LONG);
+                    this.showToast(strings.No_sync, DURATION.LENGTH_LONG);
                 }
             });
         }
@@ -2236,7 +2252,7 @@ class NCOFIPage extends Component {
                 },
             );
         } else {
-            this.refs.toast.show('Attachment retry attempt failed!.', DURATION.LENGTH_LONG);
+            this.showToast('Attachment retry attempt failed!.', DURATION.LENGTH_LONG);
         }
     };
 
@@ -2264,7 +2280,7 @@ class NCOFIPage extends Component {
                         syncStatusLabel: 'Sync to Server Completed with failed Attachment(s)',
                     },
                     () => {
-                        this.refs.toast.show(strings.AuditFail, DURATION.LENGTH_LONG);
+                        this.showToast(strings.AuditFail, DURATION.LENGTH_LONG);
                     },
                 );
             }
@@ -2450,119 +2466,134 @@ class NCOFIPage extends Component {
                 />
                 <View style={bodyResponsiveStyle}>
                     {this.state.isLoaderVisible === false ? (
-                        <ScrollableTabView
-                            renderTabBar={() => (
-                                <DefaultTabBar
-                                    backgroundColor="white"
-                                    activeTextColor="#123C95"
-                                    inactiveTextColor="#747474"
-                                    underlineStyle={styles.tabUnderline}
-                                    textStyle={styles.tabText}
-                                />
+                        <View style={styles.simpleTabContainer}>
+                            <View style={styles.simpleTabBar}>
+                                <TouchableOpacity
+                                    style={[styles.simpleTabButton, this.state.activeNcofiTab === 'pending' ? styles.simpleTabButtonActive : null]}
+                                    onPress={() => this.setState({ activeNcofiTab: 'pending' })}>
+                                    <Text
+                                        style={[
+                                            styles.simpleTabText,
+                                            this.state.activeNcofiTab === 'pending' ? styles.simpleTabTextActive : null,
+                                        ]}>
+                                        {strings.Pending}
+                                    </Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    style={[styles.simpleTabButton, this.state.activeNcofiTab === 'uploaded' ? styles.simpleTabButtonActive : null]}
+                                    onPress={() => this.setState({ activeNcofiTab: 'uploaded' })}>
+                                    <Text
+                                        style={[
+                                            styles.simpleTabText,
+                                            this.state.activeNcofiTab === 'uploaded' ? styles.simpleTabTextActive : null,
+                                        ]}>
+                                        {strings.Uploaded}
+                                    </Text>
+                                </TouchableOpacity>
+                            </View>
+
+                            {this.state.activeNcofiTab === 'pending' ? (
+                                <ScrollView style={styles.scrollViewBody}>
+                                    {this.state.NCdisplay.length > 0 ? (
+                                        <View style={cardsGridStyle}>
+                                            {this.state.NCdisplay.map((item, key) => (
+                                                <View key={item.uniqueNCkey || key} style={cardWrapperStyle}>
+                                                    <TouchableOpacity onPress={this.openEditBox.bind(this, item)} style={cardBoxResponsiveStyle}>
+                                                        <View style={styles.sectionTop}>
+                                                            <View style={styles.cardTopActionRow}>
+                                                                <TouchableOpacity
+                                                                    onPress={() => {
+                                                                        this.setState(
+                                                                            {
+                                                                                deleteDialogVisible: true,
+                                                                                deleteNCkey: item.uniqueNCkey,
+                                                                            },
+                                                                            () => {
+                                                                                console.log('delete dialog opened', this.state.deleteNCkey);
+                                                                            },
+                                                                        );
+                                                                    }}>
+                                                                    <Icon name="trash" size={25} color="red" />
+                                                                </TouchableOpacity>
+                                                            </View>
+                                                            <View style={styles.sectionContent}>
+                                                                <Text numberOfLines={1} style={styles.boxHeader}>
+                                                                    Findings {strings.Number}
+                                                                </Text>
+                                                            </View>
+
+                                                            <View style={styles.sectionContent}>
+                                                                <Text numberOfLines={1} style={styles.boxContent}>
+                                                                    {item.NCNumber}
+                                                                </Text>
+                                                            </View>
+                                                        </View>
+
+                                                        <View style={styles.sectionBottom}>
+                                                            <View style={styles.sectionContent}>
+                                                                <Text numberOfLines={1} style={styles.boxHeader}>
+                                                                    {strings.Non_confirmityL}
+                                                                </Text>
+                                                            </View>
+                                                            <View style={styles.sectionContent}>
+                                                                <Text numberOfLines={1} style={styles.boxContent}>
+                                                                    {item.data[0]}
+                                                                </Text>
+                                                            </View>
+                                                        </View>
+                                                    </TouchableOpacity>
+                                                </View>
+                                            ))}
+                                        </View>
+                                    ) : (
+                                        <View style={styles.tabContentTopMargin}>
+                                            <NoRecordFound />
+                                        </View>
+                                    )}
+                                </ScrollView>
+                            ) : (
+                                <ScrollView style={styles.scrollViewBody}>
+                                    {this.state.NCUpload.length > 0 ? (
+                                        <View style={cardsGridStyle}>
+                                            {this.state.NCUpload.map((item, key) => (
+                                                <View key={item.uniqueNCkey || item.title || key} style={cardWrapperStyle}>
+                                                    <TouchableOpacity onPress={this.getSectionListItem.bind(this, item)} style={cardBoxResponsiveStyle}>
+                                                        <View style={styles.sectionTop}>
+                                                            <View style={styles.sectionContent}>
+                                                                <Text numberOfLines={1} style={styles.boxHeader}>
+                                                                    Findings {strings.Number}
+                                                                </Text>
+                                                            </View>
+                                                            <View style={styles.sectionContent}>
+                                                                <Text numberOfLines={1} style={styles.boxContent}>
+                                                                    {item.title}
+                                                                </Text>
+                                                            </View>
+                                                        </View>
+                                                        <View style={styles.sectionBottom}>
+                                                            <View style={styles.sectionContent}>
+                                                                <Text numberOfLines={1} style={styles.boxHeader}>
+                                                                    {item.CheckNC === 0 ? 'Non conformity' : 'OFI'}
+                                                                </Text>
+                                                            </View>
+                                                            <View style={styles.sectionContent}>
+                                                                <Text numberOfLines={1} style={styles.boxContent}>
+                                                                    {item.data[0]}
+                                                                </Text>
+                                                            </View>
+                                                        </View>
+                                                    </TouchableOpacity>
+                                                </View>
+                                            ))}
+                                        </View>
+                                    ) : (
+                                        <View style={styles.tabContentTopMargin}>
+                                            <NoRecordFound />
+                                        </View>
+                                    )}
+                                </ScrollView>
                             )}
-                            tabBarPosition="overlayTop">
-                            <ScrollView tabLabel={strings.Pending} style={styles.scrollViewBody}>
-                                {this.state.NCdisplay.length > 0 ? (
-                                    <View style={cardsGridStyle}>
-                                        {this.state.NCdisplay.map((item, key) => (
-                                            <View key={item.uniqueNCkey || key} style={cardWrapperStyle}>
-                                                <TouchableOpacity onPress={this.openEditBox.bind(this, item)} style={cardBoxResponsiveStyle}>
-                                                    <View style={styles.sectionTop}>
-                                                        <View style={styles.cardTopActionRow}>
-                                                            <TouchableOpacity
-                                                                onPress={() => {
-                                                                    this.setState(
-                                                                        {
-                                                                            deleteDialogVisible: true,
-                                                                            deleteNCkey: item.uniqueNCkey,
-                                                                        },
-                                                                        () => {
-                                                                            console.log('delete dialog opened', this.state.deleteNCkey);
-                                                                        },
-                                                                    );
-                                                                }}>
-                                                                <Icon name="trash" size={25} color="red" />
-                                                            </TouchableOpacity>
-                                                        </View>
-                                                        <View style={styles.sectionContent}>
-                                                            <Text numberOfLines={1} style={styles.boxHeader}>
-                                                                Findings {strings.Number}
-                                                            </Text>
-                                                        </View>
-
-                                                        <View style={styles.sectionContent}>
-                                                            <Text numberOfLines={1} style={styles.boxContent}>
-                                                                {item.NCNumber}
-                                                            </Text>
-                                                        </View>
-                                                    </View>
-
-                                                    <View style={styles.sectionBottom}>
-                                                        <View style={styles.sectionContent}>
-                                                            <Text numberOfLines={1} style={styles.boxHeader}>
-                                                                {strings.Non_confirmityL}
-                                                            </Text>
-                                                        </View>
-                                                        <View style={styles.sectionContent}>
-                                                            <Text numberOfLines={1} style={styles.boxContent}>
-                                                                {item.data[0]}
-                                                            </Text>
-                                                        </View>
-                                                    </View>
-                                                </TouchableOpacity>
-                                            </View>
-                                        ))}
-                                    </View>
-                                ) : (
-                                    // {/* ui check */}
-                                    <View style={styles.tabContentTopMargin}>
-                                        <NoRecordFound />
-                                    </View>
-                                )}
-                            </ScrollView>
-
-                            <ScrollView tabLabel={strings.Uploaded} style={styles.scrollViewBody}>
-                                {this.state.NCUpload.length > 0 ? (
-                                    <View style={cardsGridStyle}>
-                                        {this.state.NCUpload.map((item, key) => (
-                                            <View key={item.uniqueNCkey || item.title || key} style={cardWrapperStyle}>
-                                                <TouchableOpacity onPress={this.getSectionListItem.bind(this, item)} style={cardBoxResponsiveStyle}>
-                                                    <View style={styles.sectionTop}>
-                                                        <View style={styles.sectionContent}>
-                                                            <Text numberOfLines={1} style={styles.boxHeader}>
-                                                                Findings {strings.Number}
-                                                            </Text>
-                                                        </View>
-                                                        <View style={styles.sectionContent}>
-                                                            <Text numberOfLines={1} style={styles.boxContent}>
-                                                                {item.title}
-                                                            </Text>
-                                                        </View>
-                                                    </View>
-                                                    <View style={styles.sectionBottom}>
-                                                        <View style={styles.sectionContent}>
-                                                            <Text numberOfLines={1} style={styles.boxHeader}>
-                                                                {/* {strings.Non_confirmityL} */}
-                                                                {item.CheckNC === 0 ? 'Non conformity' : 'OFI'}
-                                                            </Text>
-                                                        </View>
-                                                        <View style={styles.sectionContent}>
-                                                            <Text numberOfLines={1} style={styles.boxContent}>
-                                                                {item.data[0]}
-                                                            </Text>
-                                                        </View>
-                                                    </View>
-                                                </TouchableOpacity>
-                                            </View>
-                                        ))}
-                                    </View>
-                                ) : (
-                                    <View style={styles.tabContentTopMargin}>
-                                        <NoRecordFound />
-                                    </View>
-                                )}
-                            </ScrollView>
-                        </ScrollableTabView>
+                        </View>
                     ) : (
                         <View>
                             <View style={[styles.syncModeStatusContainer, { marginTop: middle }]}>

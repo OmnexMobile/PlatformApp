@@ -1,3 +1,16 @@
+diff --git a/node_modules/react-native-vision-camera/android/src/main/java/com/mrousavy/camera/CameraView+RecordVideo.kt b/node_modules/react-native-vision-camera/android/src/main/java/com/mrousavy/camera/CameraView+RecordVideo.kt
+index 14ee747..eee1405 100644
+--- a/node_modules/react-native-vision-camera/android/src/main/java/com/mrousavy/camera/CameraView+RecordVideo.kt
++++ b/node_modules/react-native-vision-camera/android/src/main/java/com/mrousavy/camera/CameraView+RecordVideo.kt
+@@ -50,7 +50,7 @@ fun CameraView.startRecording(options: ReadableMap, onRecordCallback: Callback)
+   }
+ 
+   activeVideoRecording = recording.start(ContextCompat.getMainExecutor(context), object : Consumer<VideoRecordEvent> {
+-    override fun accept(event: VideoRecordEvent?) {
++    override fun accept(event: VideoRecordEvent) {
+       if (event is VideoRecordEvent.Finalize) {
+         if (event.hasError()) {
+           // error occured!
 diff --git a/node_modules/react-native-vision-camera/android/src/main/java/com/mrousavy/camera/CameraView.kt b/node_modules/react-native-vision-camera/android/src/main/java/com/mrousavy/camera/CameraView.kt
 index 3a5abae..b48c7be 100644
 --- a/node_modules/react-native-vision-camera/android/src/main/java/com/mrousavy/camera/CameraView.kt
