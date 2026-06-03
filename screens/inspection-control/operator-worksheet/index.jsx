@@ -7,7 +7,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { PLACEHOLDERS, ROUTES } from 'constants/app-constant';
 import { Divider, Modal } from 'react-native-paper';
-import { RFPercentage, showErrorMessage } from 'helpers/utils';
+import { RFPercentage, showErrorMessage, successMessage } from 'helpers/utils';
 import DeleteModal from '../Components/DeleteModal';
 import NoDataFound from '../Components/NoDataFound';
 import { useDispatch, useSelector } from 'react-redux';
@@ -29,6 +29,14 @@ const OperatorWorksheet = () => {
     const [selectedValue, setSelectedValue] = useState(null);
     const [showReportModal, setShowReportModal] = useState(false);
     const [downTimeData, setDownTimeData] = useState([]);
+    const [reportFormData, setReportFormData] = useState({
+        downtimeres: '',
+        comment: '',
+    });
+    const [formError, setFormError] = useState({
+        downtimeres: false,
+        comment: false,
+    });
     const isFocused = useIsFocused();
     const dispatch = useDispatch();
 
@@ -160,6 +168,61 @@ const OperatorWorksheet = () => {
 
         setShowReportModal(true);
     }
+    const handleCloseReport = () => {
+        setReportFormData({
+            downtimeres: '',
+            comment: '',
+        });
+        setFormError({
+            downtimeres: false,
+            comment: false,
+        });
+        setShowReportModal(false);
+    }
+    const validateReportForm = () => {
+        let isValid = false;
+        let errors = {
+            downtimeres: false,
+            comment: false,
+        };
+
+        if (reportFormData.downtimeres == '') {
+            errors.downtimeres = true;
+            isValid = true;
+        } else {
+            errors.downtimeres = false;
+            isValid = false;
+        }
+        // Add more validation rules as needed
+
+        setFormError(errors);
+        return isValid;
+    }
+    const handleSubmitReport = async () => {
+        console.log('Report Form Data:', selectedValue, reportFormData);
+        const isValid = validateReportForm();
+        if (isValid) {
+            return;
+        } else {
+            const payload = {
+                downtimeReasonId: reportFormData?.downtimeres?.id,
+                lotNumber: selectedValue?.strLotNo || '',
+                operationName: selectedValue?.strOperationName || '',
+                message: reportFormData?.comment,
+                reportedBy: icUserData?.userData?.UserId
+            }
+
+            const response = await postAPI(ApiUrl.IC_REPORTDOWNTIME, payload);
+            console.log('Downtime Report Response:', response);
+            if (response?.success) {
+                successMessage('Downtime reported successfully');
+                handleCloseReport();
+            } else {
+                showErrorMessage('Error reporting downtime');
+            }
+        }
+
+    }
     const renderItem = ({ item }) => {
         const { status, colorCode } = rendetBtnText(item);
         return (
@@ -249,7 +312,17 @@ const OperatorWorksheet = () => {
                     // setShowDelete(false);
                 }}
             />
-            <ReportShutdownModal data={selectedValue} visible={showReportModal} handleClose={() => setShowReportModal(false)} dropDownList={downTimeData}/>
+            <ReportShutdownModal
+                data={selectedValue}
+                visible={showReportModal}
+                handleClose={() => setShowReportModal(false)}
+                dropDownList={downTimeData}
+                setReportFormData={setReportFormData}
+                reportFormData={reportFormData}
+                handleCloseReport={handleCloseReport}
+                handleSubmitReport={handleSubmitReport}
+                formError={formError}
+            />
         </CustomHeader>
     );
 };

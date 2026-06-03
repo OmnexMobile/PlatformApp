@@ -5,8 +5,8 @@ import { View, Text, StyleSheet, Modal, TouchableOpacity, TextInput } from 'reac
 import Icon from 'react-native-vector-icons/Ionicons';
 import SingleDropDown from './SingleDropDown';
 
-export default function ReportShutdownModal({ visible, data = null, handleClose = () => { }, dropDownList = [] }) {
-    console.log('ReportShutdownModal data:', data?.strOperationName);
+export default function ReportShutdownModal({ visible, data = null, handleClose = () => { }, dropDownList = [], setReportFormData = () => { },
+    reportFormData = null, handleSubmitReport = () => { }, handleCloseReport = () => { }, formError = {} }) {
     return (
         <Modal transparent visible={visible} animationType="fade" onRequestClose={() => handleClose()}>
             <View style={styles.overlay}>
@@ -16,21 +16,31 @@ export default function ReportShutdownModal({ visible, data = null, handleClose 
                     <Text style={[styles.message]}>Lot Number: {data?.strLotNo ? data.strLotNo : '-'}</Text>
                     <View style={{ width: '100%', borderTopWidth: 1, borderTopColor: COLORS.grey, marginVertical: 15 }}>
                         <Text style={[styles.message, { textAlign: 'left', marginTop: 10 }]}>Reason for Downtime</Text>
-                        <SingleDropDown  data={dropDownList}/>
+                        <SingleDropDown
+                            data={dropDownList}
+                            onChange={(value) => setReportFormData({ ...reportFormData, downtimeres: value })}
+                            value={reportFormData?.downtimeres}
+                        />
+                        {Boolean(formError.downtimeres) && <Text style={{ color: COLORS.error, alignSelf: 'flex-start', marginTop: 5 ,fontSize:12}}>
+                            Please select a downtime reason
+                        </Text>}
                         <TextInput
                             style={[styles.textarea, { backgroundColor: COLORS.inputBG }]}
                             multiline={true}
                             numberOfLines={4}
                             placeholder="Type your message..."
-                            value={''}
-                        // onChangeText={setText}
+                            value={reportFormData?.comment || ''}
+                            onChangeText={(text) => setReportFormData({ ...reportFormData, comment: text })}
                         />
                     </View>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%' }}>
-                        <TouchableOpacity style={[styles.closeBtn, { backgroundColor: COLORS.error }]} onPress={() => handleClose(false)}>
+                        <TouchableOpacity
+                            style={[styles.closeBtn, { backgroundColor: COLORS.error }]}
+                            onPress={() => handleSubmitReport()}
+                        >
                             <Text style={styles.closeText}>Report Downtime</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={[styles.closeBtn, { backgroundColor: COLORS.apptheme }]} onPress={() => handleClose(false)}>
+                        <TouchableOpacity style={[styles.closeBtn, { backgroundColor: COLORS.apptheme }]} onPress={() => handleCloseReport()}>
                             <Text style={styles.closeText}>Close</Text>
                         </TouchableOpacity>
                     </View>

@@ -155,8 +155,9 @@ const Parent = () => {
             <UpdateModal visible={showUpdateModal} onClose={() => setShowUpdateModal(false)} />
             <NotificationModal
                 visible={notificationData.showModal}
-                onClose={() => setNotificationData({ showModal: false })}
+                // onClose={() => setNotificationData({ showModal: false })}
                 data={notificationData.remoteMessage}
+                setNotificationData={setNotificationData}
             />
             {/* <TokenPopup visible={modalVisible} token={currentToken} onClose={() => setModalVisible(false)} /> */}
         </GestureHandlerRootView>
