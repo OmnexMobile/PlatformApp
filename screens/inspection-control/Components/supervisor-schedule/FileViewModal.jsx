@@ -1,7 +1,7 @@
 import { COLORS } from 'constants/theme-constants';
 import { RFPercentage, RFValue } from 'helpers/utils';
 import React, { useEffect, useState } from 'react';
-import { Alert, FlatList, StyleSheet, Text, TouchableOpacity, View, Platform, Share } from 'react-native';
+import { Alert, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Divider, Modal } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import IconF from 'react-native-vector-icons/Feather';
@@ -10,20 +10,16 @@ import RNFS from 'react-native-fs';
 import { postAPI } from 'global/api-helpers';
 import ApiUrl from 'global/ApiUrl';
 import { Bubbles } from 'react-native-loader';
-import { check, request, PERMISSIONS, RESULTS, openSettings } from 'react-native-permissions';
-import { showMessage } from 'react-native-flash-message';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { NoRecordFound } from 'components';
+import NoDataFound from '../NoDataFound';
 
-const FileViewModal = ({ visible = false, onDismiss = () => {}, selectedValue = {}, userData = {} }) => {
+const FileViewModal = ({ visible = false, onDismiss = () => {}, selectedValue = {},userData={} }) => {
     const [fileList, setFileList] = useState([]);
     const [showLoader, setShowLoader] = useState(false);
-    const insets = useSafeAreaInsets();
 
-    const handleFileViewPress = async (fileName, url, fileExtension) => {
+    const handleFileViewPress = async (fileName, url,fileExtension) => {
         try {
             // Define the file path (change extension based on file type)
-            let fileNameText = fileName.split('.');
+            let fileNameText=fileName.split('.');
             const filePath = `${RNFS.DocumentDirectoryPath}/${fileNameText[0]}.${fileExtension}`;
 
             // Write the Base64 string to a file
@@ -34,6 +30,32 @@ const FileViewModal = ({ visible = false, onDismiss = () => {}, selectedValue = 
         } catch (error) {
             Alert.alert('Error', 'Failed to open file: ' + error.message);
         }
+
+    //     let fileNameText=fileName.split('.');
+    //     console.log(fileNameText[0])
+    //     try {
+    //     // Define the local file path (change extension based on file type)
+    //     const localFilePath = `${RNFS.DocumentDirectoryPath}/${fileNameText[0]}.${fileExtension}`;
+
+    //     // Download the file
+    //     const options = {
+    //       fromUrl: url,
+    //       toFile: localFilePath,
+    //       background: true,
+    //     };
+
+    //     const downloadResult = await RNFS.downloadFile(options).promise;
+
+    //     // Check if the file downloaded successfully
+    //     if (downloadResult.statusCode === 200) {
+    //       // Open the downloaded file
+    //       await FileViewer.open(localFilePath);
+    //     } else {
+    //       throw new Error('Failed to download file');
+    //     }
+    //   } catch (error) {
+    //     Alert.alert('Error', 'Failed to open file: ' + error.message);
+    //   }
     };
     const getAllFiles = async () => {
         setShowLoader(true);
@@ -54,115 +76,6 @@ const FileViewModal = ({ visible = false, onDismiss = () => {}, selectedValue = 
             getAllFiles();
         }
     }, [selectedValue]);
-    const requestPermsion = async item => {
-        const isAndroid11OrAbove = Platform.OS === 'android' && Platform.Version >= 30;
-        const permission = Platform.select({
-            ios: PERMISSIONS.IOS.PHOTO_LIBRARY_ADD_ONLY,
-            android: isAndroid11OrAbove ? null : PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE,
-        });
-        let granted = true;
-        if (permission) {
-            let status = await check(permission);
-            if (status === RESULTS.DENIED) {
-                status = await request(permission);
-            }
-
-            if (status === RESULTS.BLOCKED) {
-                Alert.alert('Permission Blocked', 'Storage permission is blocked. Please enable it from Settings.', [
-                    { text: 'Cancel', style: 'cancel' },
-                    { text: 'Open Settings', onPress: () => openSettings() },
-                ]);
-                granted = false;
-            } else if (status !== RESULTS.GRANTED) {
-                Alert.alert('Permission Denied', 'Storage permission is required to download files.');
-                granted = false;
-            }
-        }
-
-        if (granted) {
-            await handleDownloadLocal(item?.FileName, item.FileContentBase64, item.FileExtension);
-        }
-    };
-
-    const getUniqueFilePath = async (dir, originalBaseName, extension) => {
-        let baseName = originalBaseName;
-        let fileName = `${baseName}.${extension}`;
-        let filePath = `${dir}/${fileName}`;
-        let counter = 1;
-
-        // Regex to detect "(n)" at end
-        const namePattern = /(.*)\((\d+)\)$/;
-
-        while (await RNFS.exists(filePath)) {
-            const match = baseName.match(namePattern);
-
-            if (match) {
-                // If already like "Checklist(2)" → bump number
-                baseName = `${match[1]}(${parseInt(match[2], 10) + 1})`;
-            } else {
-                // First duplicate → add "(1)"
-                baseName = `${originalBaseName}(${counter})`;
-            }
-
-            fileName = `${baseName}.${extension}`;
-            filePath = `${dir}/${fileName}`;
-            counter++;
-        }
-
-        return { fileName, filePath };
-    };
-
-    const handleDownloadLocal = async (fileNameValue, base64Data, fileExtension) => {
-        try {
-            const dir = Platform.OS === 'android' ? RNFS.DownloadDirectoryPath : RNFS.TemporaryDirectoryPath;
-
-            const fileNameText = fileNameValue?.split('.')[0] || 'File';
-            const ext = fileExtension || fileNameValue?.split('.').pop() || 'txt';
-
-            // Get unique name and path
-            const { fileName, filePath } = await getUniqueFilePath(dir, fileNameText, ext);
-
-            // Save file
-            await RNFS.writeFile(filePath, base64Data, 'base64');
-
-            if (Platform.OS === 'android') {
-                showMessage({
-                    message: 'File saved successfully',
-                    backgroundColor: COLORS.SUCCESS,
-                    color: COLORS.white,
-                    duration: 1500,
-                    statusBarHeight: 40,
-                    icon: 'success',
-                    position: 'right',
-                    style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : { paddingTop: insets.top },
-                });
-            } else {
-                const result = await Share.share({
-                    url: 'file://' + filePath,
-                    title: fileName,
-                });
-
-                if (result.action === Share.sharedAction) {
-                    showMessage({
-                        message: 'File saved successfully',
-                        backgroundColor: COLORS.SUCCESS,
-                        color: COLORS.white,
-                        duration: 1500,
-                        statusBarHeight: 40,
-                        icon: 'success',
-                        position: 'right',
-                        style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : { paddingTop: insets.top },
-                    });
-                }
-            }
-
-            return filePath;
-        } catch (error) {
-            console.error('Download error:', error);
-            Alert.alert('Error', `Failed to save file: ${error.message}`);
-        }
-    };
-
     const renderFiles = ({ item, index }) => {
         return (
             <View style={[styles.fileContainer]} key={index + 1}>
@@ -175,16 +88,9 @@ const FileViewModal = ({ visible = false, onDismiss = () => {}, selectedValue = 
                 <TouchableOpacity
                     style={{ marginLeft: 10 }}
                     onPress={() => {
-                        handleFileViewPress(item?.FileName, item.FileContentBase64, item.FileExtension);
+                        handleFileViewPress(item?.FileName, item.FileContentBase64,item.FileExtension);
                     }}>
                     <IconF name="eye" size={25} color={COLORS.grey} />
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={{ marginLeft: 10 }}
-                    onPress={async () => {
-                        await requestPermsion(item);
-                    }}>
-                    <IconF name="download" size={25} color={COLORS.grey} />
                 </TouchableOpacity>
             </View>
         );
@@ -199,13 +105,13 @@ const FileViewModal = ({ visible = false, onDismiss = () => {}, selectedValue = 
                     <View style={[styles.contentBox]}>
                         {Boolean(showLoader) ? (
                             <View style={[styles.loaderStyle]}>
-                                <Bubbles size={10} color={COLORS.apptheme} />
+                                <Bubbles size={10} color="#12C0CF" />
                             </View>
                         ) : Boolean(fileList.length) ? (
                             <FlatList data={fileList} renderItem={renderFiles} showsVerticalScrollIndicator={false} />
                         ) : (
                             <View style={{ height: 170 }}>
-                                <NoRecordFound />
+                                <NoDataFound />
                             </View>
                         )}
                     </View>
@@ -238,7 +144,7 @@ const styles = StyleSheet.create({
     },
     headerText: {
         fontFamily: 'OpenSans-SemiBold',
-        fontSize: 16,
+        fontSize: 18,
         marginBottom: 13,
         color: COLORS.ictextBlack,
     },
@@ -263,7 +169,7 @@ const styles = StyleSheet.create({
     btnStyle: {
         color: COLORS.apptheme,
         fontFamily: 'OpenSans-Bold',
-        fontSize: 16,
+        fontSize: RFPercentage(1.8),
     },
     iconConatiner: {
         backgroundColor: COLORS.apptheme,
@@ -281,7 +187,7 @@ const styles = StyleSheet.create({
     },
     fileText: {
         fontFamily: 'OpenSans-SemiBold',
-        fontSize: 14,
+        fontSize: RFPercentage(1.7),
         color: COLORS.ictextBlack,
     },
     loaderStyle: {

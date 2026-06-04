@@ -25,7 +25,7 @@ const FilterWithMenu = ({ dataList = [], type = 'IconFilter', onSelectedPress = 
                 <Text numberOfLines={1} style={[styles.textStyle]}>
                     {filterText == '' ? 'Filter' : filterText}
                 </Text>
-                <Icon name="filter" size={20} color={COLORS.moreIcon} />
+                <Icon name="filter" size={20} color={COLORS.moreIcon}/>
             </TouchableOpacity>
         );
     };
@@ -75,10 +75,7 @@ const FilterWithMenu = ({ dataList = [], type = 'IconFilter', onSelectedPress = 
             {dataList?.map((item, index) => {
                 return (
                     <TouchableOpacity
-                        onPress={() => {
-                            onMenuPress(item);
-                        }}
-                        key={index + 1}
+                        key={index+1}
                         style={{
                             flexDirection: 'row',
                             alignItems: item?.iconName ? 'center' : 'baseline',
@@ -91,7 +88,7 @@ const FilterWithMenu = ({ dataList = [], type = 'IconFilter', onSelectedPress = 
                                 onMenuPress(item);
                             }}
                             title={item?.title}
-                            titleStyle={{ color: '#fff', fontFamily: 'OpenSans-SemiBold', fontSize: 16 }}
+                            titleStyle={{ color: '#fff', fontFamily: 'OpenSans-SemiBold', fontSize: RFPercentage(1.6) }}
                         />
                     </TouchableOpacity>
                 );
@@ -109,13 +106,12 @@ const styles = StyleSheet.create({
         borderColor: COLORS.staysIcon,
         paddingVertical: 7,
         paddingHorizontal: 5,
-        backgroundColor: COLORS.white,
     },
     textStyle: {
-        fontSize: 15,
+        fontSize:15,
         fontFamily: 'OpenSans-Regular',
         flex: 1,
-        color: '#000',
+        color:'#000'
     },
     containerIconBox: {
         flexDirection: 'row',
@@ -125,7 +121,7 @@ const styles = StyleSheet.create({
         paddingVertical: 7,
         paddingHorizontal: 5,
         justifyContent: 'center',
-        backgroundColor: COLORS.white,
+        backgroundColor: COLORS.icborder,
     },
 });
 

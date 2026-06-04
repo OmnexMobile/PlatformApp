@@ -1,20 +1,20 @@
-import { ButtonComponent, NoRecordFound } from 'components';
+import { ButtonComponent } from 'components';
 import React, { useEffect, useState } from 'react';
 import CustomHeader from '../Components/CustomHeader';
 import { FlatList, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { COLORS, SPACING } from 'constants/theme-constants';
+import { COLORS } from 'constants/theme-constants';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { PLACEHOLDERS, ROUTES } from 'constants/app-constant';
 import { Divider, Modal } from 'react-native-paper';
-import { getElevation, getICList, RFPercentage, showErrorMessage } from 'helpers/utils';
+import { RFPercentage, showErrorMessage } from 'helpers/utils';
 import DeleteModal from '../Components/DeleteModal';
+import NoDataFound from '../Components/NoDataFound';
 import { useDispatch, useSelector } from 'react-redux';
 import ApiUrl from 'global/ApiUrl';
 import { postAPI } from 'global/api-helpers';
 import IcSkeleton from '../Components/IcSkeleton';
 import { deleteInspectionByUniqueId, getDatabaseSize, getInspectionDataByUserAndSite } from 'store/database/inspectStorage';
-import ICScrollTab from '../Components/ICScrollTab';
 
 const OperatorWorksheet = () => {
     const { icUserData } = useSelector(state => state.inspection);
@@ -27,26 +27,14 @@ const OperatorWorksheet = () => {
     const [selectedValue, setSelectedValue] = useState(null);
     const isFocused = useIsFocused();
     const dispatch = useDispatch();
-    const elevation = getElevation();
 
     // getting a data from SQLite
     const handleGetSQliteList = async () => {
         // await getDatabaseSize()
         const list = await getInspectionDataByUserAndSite(icUserData?.userData?.UserId, icUserData?.userData?.Siteid);
-        let filtered = [];
-        let superVisorData = [];
-        if (list?.length > 0) {
-            filtered = list
-                .filter(item => item?.userType != 'SupervisorSchedule')
-                .sort((a, b) => new Date(b.downloadedDate) - new Date(a.downloadedDate));
-            superVisorData = list
-                .filter(item => item?.userType === 'SupervisorSchedule')
-                .sort((a, b) => new Date(b.downloadedDate) - new Date(a.downloadedDate));
-        }
-        setInspectionList([...filtered, ...superVisorData]);
-        await getICList(icUserData?.userData?.UserId, icUserData?.userData?.Siteid, false);
+        setInspectionList(list);
         setShowSkeleton(false);
-    };
+    }
     const handleCIbtnpress = () => {
         navigation.navigate(ROUTES.COMPLETED_INSPECTION);
     };
@@ -61,18 +49,12 @@ const OperatorWorksheet = () => {
         navigation.navigate(ROUTES.INPROCESS_INSPECTION, { inspectData: item });
     };
     useEffect(() => {
-        icUserData.userData && getOverAllSettings();
-    }, [icUserData]);
+        getOverAllSettings();
+    }, []);
     const getOverAllSettings = async () => {
-        const formDate = new FormData();
-        formDate.append('UserID', parseInt(icUserData?.userData?.UserId));
-        formDate.append('SiteID', parseInt(icUserData?.userData?.Siteid));
-        const settingsRes = await postAPI(`${ApiUrl.IC_SETTINGS}`, formDate);
+        const settingsRes = await postAPI(`${ApiUrl.IC_SETTINGS}`);
         if (settingsRes?.Success) {
-            const settings = {
-                ...settingsRes?.Data[0],
-            };
-            dispatch({ type: 'IC_SETTINGS', icSettings: settings || {} });
+            dispatch({ type: 'IC_SETTINGS', icSettings: settingsRes?.Data[0] || {} });
         }
     };
     const handleDeletePress = item => {
@@ -85,27 +67,21 @@ const OperatorWorksheet = () => {
 
     const rendetBtnText = item => {
         const combined = [...item?.VariableCharacteristics, ...item?.AttributeCharacteristics];
-
-        if (!combined.some(c => 'status' in c)) {
+        if (!combined.some(item => 'status' in item)) {
             return {
                 status: 'launch',
                 colorCode: COLORS.apptheme,
             };
         }
-        let allCompleted = combined.every(c => c.status === 'Completed');
-
         let hasInprogress = false;
         let hasCompleted = false;
         let hasMissingStatus = false;
-        let hasLaunchStatus = false;
 
-        for (const c of combined) {
-            if ('status' in c) {
-                if (c.status === 'Launch' || c.status === undefined || c.status === 'Inspect') {
-                    hasLaunchStatus = true;
-                } else if (c.status === 'In Progress') {
+        for (const item of combined) {
+            if ('status' in item) {
+                if (item.status === 'In Progress') {
                     hasInprogress = true;
-                } else if (c.status === 'Completed') {
+                } else if (item.status === 'Completed') {
                     hasCompleted = true;
                 }
             } else {
@@ -113,24 +89,14 @@ const OperatorWorksheet = () => {
             }
         }
 
-        // 🔑 Priority Logic
-        if (hasInprogress) {
-            return { colorCode: COLORS.ipBgColor, status: 'In Progress' };
-        }
-        if (hasCompleted && hasLaunchStatus) {
-            return { colorCode: COLORS.ipBgColor, status: 'In Progress' }; // ✅ Completed + Launch = In Progress
-        }
-        if (hasCompleted && hasMissingStatus) {
-            return { colorCode: COLORS.ipBgColor, status: 'In Progress' };
-        }
-        if (hasCompleted && allCompleted) {
-            return { colorCode: COLORS.fiBgColor, status: 'Completed' };
-        }
-        if (hasLaunchStatus) {
-            return { colorCode: COLORS.apptheme, status: 'Launch' };
-        }
+        if (hasInprogress) return { colorCode: COLORS.ipBgColor, status: 'In Progress' };
+        if (hasCompleted && hasMissingStatus) return { colorCode: COLORS.ipBgColor, status: 'In Progress' };
+        if (hasCompleted && !hasMissingStatus) return { colorCode: COLORS.fiBgColor, status: 'Completed' };
 
-        return { status: 'launch', colorCode: COLORS.apptheme };
+        return {
+            status: 'launch',
+            colorCode: COLORS.apptheme,
+        };
     };
     const handleSingleDeletePress = async value => {
         const flag = await deleteInspectionByUniqueId(value.uniqueId);
@@ -141,22 +107,10 @@ const OperatorWorksheet = () => {
             showErrorMessage('Error deleting inspection');
         }
     };
-    
     const renderItem = ({ item }) => {
         const { status, colorCode } = rendetBtnText(item);
         return (
-            <View
-                style={[
-                    styles.recordConatiner,
-                    {
-                        borderRadius: SPACING.SMALL,
-                        marginBottom: SPACING.NORMAL,
-                        marginTop: SPACING.X_SMALL,
-                        marginHorizontal: SPACING.X_SMALL,
-                    },
-                    elevation,
-                    { backgroundColor: item?.backgroundColor ? item?.backgroundColor : '#fff' },
-                ]}>
+            <View style={[styles.recordConatiner]}>
                 <View style={[styles.iconBox, { backgroundColor: renderIconBgColor(item?.intInspectionTypeID) }]}>
                     <Icon name="layers-outline" size={25} color={COLORS.white} />
                 </View>
@@ -191,8 +145,7 @@ const OperatorWorksheet = () => {
         );
     };
     return (
-        <CustomHeader title="Operator Worksheet" activeTabId={2} showHomeIcon>
-            {/* <ICScrollTab /> */}
+        <CustomHeader title="Operator Worksheet" activeTabId={2}>
             <View style={[styles.container]}>
                 {showSkeleton ? (
                     <IcSkeleton type={PLACEHOLDERS.OPERATOR_CARD} />
@@ -205,7 +158,7 @@ const OperatorWorksheet = () => {
                         // refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
                     />
                 ) : (
-                    <NoRecordFound  />
+                    <NoDataFound />
                 )}
             </View>
             {/* <View style={[styles.btnContainer]}>
@@ -243,6 +196,7 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 15,
         flexDirection: 'row',
+        backgroundColor: '#fff',
         marginBottom: 10,
         borderRadius: 10,
     },

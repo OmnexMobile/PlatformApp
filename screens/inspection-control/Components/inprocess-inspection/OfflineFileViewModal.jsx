@@ -8,16 +8,13 @@ import IconF from 'react-native-vector-icons/Feather';
 import FileViewer from 'react-native-file-viewer';
 import RNFS from 'react-native-fs';
 import { Bubbles } from 'react-native-loader';
+import NoDataFound from '../NoDataFound';
 import { check, request, PERMISSIONS, RESULTS, openSettings } from 'react-native-permissions';
 import { showMessage } from 'react-native-flash-message';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { NoRecordFound } from 'components';
 
 const OfflineFileViewModal = ({ list = [], visible = false, onDismiss = () => {} }) => {
     const [fileList, setFileList] = useState([]);
     const [showLoader, setShowLoader] = useState(false);
-    const insets = useSafeAreaInsets();
-
     const handleFileViewPress = async (fileName, url, fileExtension) => {
         try {
             // Define the file path (change extension based on file type)
@@ -40,48 +37,14 @@ const OfflineFileViewModal = ({ list = [], visible = false, onDismiss = () => {}
             setFileList([]);
         }
     }, [list]);
-    const getUniqueFilePath = async (dir, originalBaseName, extension) => {
-        let baseName = originalBaseName;
-        let fileName = `${baseName}.${extension}`;
-        let filePath = `${dir}/${fileName}`;
-        let counter = 1;
-
-        // Regex to detect "(n)" at end
-        const namePattern = /(.*)\((\d+)\)$/;
-
-        while (await RNFS.exists(filePath)) {
-            const match = baseName.match(namePattern);
-
-            if (match) {
-                // If already like "Checklist(2)" → bump number
-                baseName = `${match[1]}(${parseInt(match[2], 10) + 1})`;
-            } else {
-                // First duplicate → add "(1)"
-                baseName = `${originalBaseName}(${counter})`;
-            }
-
-            fileName = `${baseName}.${extension}`;
-            filePath = `${dir}/${fileName}`;
-            counter++;
-        }
-
-        return { fileName, filePath };
-    };
-
-    const handleDownloadLocal = async (fileNameValue, base64Data, fileExtension) => {
+    const handleDownloadLocal = async (fileName, base64Data, fileExtension) => {
         try {
-            const dir = Platform.OS === 'android' ? RNFS.DownloadDirectoryPath : RNFS.TemporaryDirectoryPath;
-
-            const fileNameText = fileNameValue?.split('.')[0] || 'File';
-            const ext = fileExtension || fileNameValue?.split('.').pop() || 'txt';
-
-            // Get unique name and path
-            const { fileName, filePath } = await getUniqueFilePath(dir, fileNameText, ext);
-
-            // Save file
-            await RNFS.writeFile(filePath, base64Data, 'base64');
+            const fileNameText = fileName.split('.')[0];
+            const fullFileName = `${fileNameText}.${fileExtension}`;
 
             if (Platform.OS === 'android') {
+                const filePath = `${RNFS.DownloadDirectoryPath}/${fullFileName}`;
+                await RNFS.writeFile(filePath, base64Data, 'base64');
                 showMessage({
                     message: 'File saved successfully',
                     backgroundColor: COLORS.SUCCESS,
@@ -90,14 +53,18 @@ const OfflineFileViewModal = ({ list = [], visible = false, onDismiss = () => {}
                     statusBarHeight: 40,
                     icon: 'success',
                     position: 'right',
-                    style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : { paddingTop: insets.top },
+                     style: { height: 150, alignItems: 'flex-end' },
                 });
+                return filePath;
             } else {
+                const filePath = `${RNFS.TemporaryDirectoryPath}/${fullFileName}`;
+                await RNFS.writeFile(filePath, base64Data, 'base64');
+
                 const result = await Share.share({
                     url: 'file://' + filePath,
-                    title: fileName,
+                    message: `Download ${fullFileName}`,
+                    title: fullFileName,
                 });
-
                 if (result.action === Share.sharedAction) {
                     showMessage({
                         message: 'File saved successfully',
@@ -107,12 +74,12 @@ const OfflineFileViewModal = ({ list = [], visible = false, onDismiss = () => {}
                         statusBarHeight: 40,
                         icon: 'success',
                         position: 'right',
-                        style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : { paddingTop: insets.top },
+                         style: { height: 150, alignItems: 'flex-end' },
                     });
                 }
-            }
 
-            return filePath;
+                return filePath;
+            }
         } catch (error) {
             console.error('Download error:', error);
             Alert.alert('Error', `Failed to save file: ${error.message}`);
@@ -164,13 +131,13 @@ const OfflineFileViewModal = ({ list = [], visible = false, onDismiss = () => {}
                     }}>
                     <IconF name="eye" size={25} color={COLORS.grey} />
                 </TouchableOpacity>
-                <TouchableOpacity
+                {/* <TouchableOpacity
                     style={{ marginLeft: 10 }}
                     onPress={async () => {
                         await requestPermsion(item);
                     }}>
                     <IconF name="download" size={25} color={COLORS.grey} />
-                </TouchableOpacity>
+                </TouchableOpacity> */}
             </View>
         );
     };
@@ -184,13 +151,13 @@ const OfflineFileViewModal = ({ list = [], visible = false, onDismiss = () => {}
                     <View style={[styles.contentBox]}>
                         {Boolean(showLoader) ? (
                             <View style={[styles.loaderStyle]}>
-                                <Bubbles size={10} color={COLORS.apptheme} />
+                                <Bubbles size={10} color="#12C0CF" />
                             </View>
                         ) : Boolean(fileList.length) ? (
                             <FlatList data={fileList} renderItem={renderFiles} showsVerticalScrollIndicator={false} />
                         ) : (
                             <View style={{ height: 170 }}>
-                                <NoRecordFound />
+                                <NoDataFound />
                             </View>
                         )}
                     </View>
@@ -248,7 +215,7 @@ const styles = StyleSheet.create({
     btnStyle: {
         color: COLORS.apptheme,
         fontFamily: 'OpenSans-Bold',
-        fontSize: 18,
+        fontSize: RFPercentage(1.8),
     },
     iconConatiner: {
         backgroundColor: COLORS.apptheme,
@@ -266,7 +233,7 @@ const styles = StyleSheet.create({
     },
     fileText: {
         fontFamily: 'OpenSans-SemiBold',
-        fontSize: 16,
+        fontSize: RFPercentage(1.7),
         color: COLORS.ictextBlack,
     },
     loaderStyle: {

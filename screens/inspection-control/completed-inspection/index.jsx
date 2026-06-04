@@ -1,8 +1,8 @@
-import { ButtonComponent, CheckBox, NoRecordFound, RadioButton, TextComponent } from 'components';
+import { ButtonComponent, CheckBox, RadioButton, TextComponent } from 'components';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import CustomHeader from '../Components/CustomHeader';
 import { FlatList, Platform, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { COLORS, SPACING } from 'constants/theme-constants';
+import { COLORS } from 'constants/theme-constants';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import IconA from 'react-native-vector-icons/AntDesign';
 import IconO from 'react-native-vector-icons/Octicons';
@@ -14,17 +14,16 @@ import RadioButtonComponent from '../Components/RadioButtonComponent';
 import ICCheckBox from '../Components/ICCheckBox';
 import DeleteModal from '../Components/DeleteModal';
 import IcSkeleton from '../Components/IcSkeleton';
+import NoDataFound from '../Components/NoDataFound';
 import { useSelector } from 'react-redux';
 import moment from 'moment';
 import ApiUrl from 'global/ApiUrl';
 import { postAPI } from 'global/api-helpers';
 import { Bubbles } from 'react-native-loader';
 import { showMessage } from 'react-native-flash-message';
-import { deleteInspectionByUniqueId, deleteInspectionsByUniqueIds, getInspectionDataByUserAndSite } from 'store/database/inspectStorage';
+import { deleteInspectionByUniqueId, getInspectionDataByUserAndSite } from 'store/database/inspectStorage';
 import { isArray } from 'underscore';
-import { getElevation, getICList, showErrorMessage } from 'helpers/utils';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import useTheme from 'theme/useTheme';
+import { showErrorMessage } from 'helpers/utils';
 
 const optionsList = [
     {
@@ -60,9 +59,6 @@ const optionsList = [
 ];
 
 const CompletedInspection = () => {
-    const insets = useSafeAreaInsets();
-    const elevation = getElevation();
-    const { theme } = useTheme();
     const { icUserData } = useSelector(state => state.inspection);
     const [syncModal, setSyncModal] = useState(false);
     const [syncList, setSyncList] = useState([...optionsList]);
@@ -80,26 +76,15 @@ const CompletedInspection = () => {
     const [refreshing, setRefreshing] = useState(false);
     const [selectedValue, setSelectedValue] = useState({});
     const [disableBtn, setDisableBtn] = useState(false);
-    const [isBulkSync, setIsBulkSync] = useState(false);
 
     const isFocused = useIsFocused();
 
     const getAllCompletedData = async (showSkt = true) => {
         showSkt && setShowSkeleton(true);
         const inspectList = await getInspectionDataByUserAndSite(icUserData?.userData?.UserId, icUserData?.userData?.Siteid);
-        const list = inspectList?.filter(item => item?.status === 'Completed' || item?.status === 'In Progress');
-        let filtered = [];
-        let superVisorData = [];
-        if (list?.length > 0) {
-            filtered = list
-                .filter(item => item?.userType != 'SupervisorSchedule')
-                .sort((a, b) => new Date(b.downloadedDate) - new Date(a.downloadedDate));
-            superVisorData = list
-                .filter(item => item?.userType === 'SupervisorSchedule')
-                .sort((a, b) => new Date(b.downloadedDate) - new Date(a.downloadedDate));
-        }
-        setMasterData([...filtered, ...superVisorData]);
-        await getICList(icUserData?.userData?.UserId, icUserData?.userData?.Siteid, false);
+        const completedList = inspectList?.filter(item => item?.status === 'Completed');
+        // const completedList = inspectList?.filter(item => item?.status === 'Completed' || item?.status === 'In Progress');
+        setMasterData(completedList?.length ? completedList : []);
         setShowSkeleton(false);
         setRefreshing(false);
     };
@@ -114,12 +99,14 @@ const CompletedInspection = () => {
         }
     }, [icUserData, isFocused]);
 
+    const handleISbtnpress = () => {
+        navigation.navigate(ROUTES.INSPECTION_SCHEDULE);
+    };
     const handleSyncPress = item => {
         setSyncModal(true);
         setSelectedValue(item);
     };
     const hideModal = () => {
-        setIsBulkSync(false);
         if (!disableBtn) {
             setSelectedRadio({
                 id: 1,
@@ -143,19 +130,7 @@ const CompletedInspection = () => {
     };
     const renderItem = ({ item, index }) => {
         return (
-            <View
-                style={[
-                    styles.recordConatiner,
-                    {
-                        borderRadius: SPACING.SMALL,
-                        marginBottom: SPACING.NORMAL,
-                        marginTop: SPACING.X_SMALL,
-                        marginHorizontal: SPACING.X_SMALL,
-                    },
-                    elevation,
-                    { backgroundColor: item?.backgroundColor ? item?.backgroundColor : theme.mode.backgroundColor },
-                ]}
-                key={index + 1}>
+            <View style={[styles.recordConatiner]} key={index + 1}>
                 <View style={[styles.iconBox, { backgroundColor: renderIconBgColor(item?.intInspectionTypeID) }]}>
                     <Icon name="layers-outline" size={25} color={COLORS.white} />
                 </View>
@@ -222,50 +197,6 @@ const CompletedInspection = () => {
     };
     const convertSampleList = (templist, type = 'number') => {
         let characteristicDetails = templist.map(item => {
-            // let charInfoObj = {};
-            // if (item.charInfo) {
-            //     // charInfoObj = item.charInfo.reduce((acc, curr) => {
-            //     //     acc[curr.PropertyName] = curr.Value;
-            //     //     return acc;
-            //     // }, {});
-            //     item.charInfo.map(item => {
-            //         if (item.ReferenceName != null) {
-            //             charInfoObj[item.ReferenceName] = item?.Value?.value ? item.Value.value : item.Value;
-            //         } else if (item.ReferenceName == null && item.PropertyName) {
-            //             charInfoObj[item.PropertyName] = item?.Value?.value ? item.Value.value : item.Value;
-            //         }
-            //     });
-            // }
-            const array = item.charInfo;
-
-            // find the index of the target object
-            const index = array.findIndex(x => x.RefData === '##DROPDOWN:DefectPhenomenon##');
-
-            if (index !== -1) {
-                let defectObj = array[index]; // reference to the original object
-
-                if (typeof defectObj.Value === 'string' && defectObj.Value !== '') {
-                    const temp = defectObj.List.find(x => x.value === defectObj.Value);
-                    defectObj = { ...defectObj, Value: temp || '' }; // replace with new object
-                } else if (typeof defectObj.Value === 'object' && defectObj.Value !== null) {
-                    defectObj = { ...defectObj, Value: defectObj.Value };
-                } else {
-                    defectObj = { ...defectObj, Value: '' };
-                }
-
-                // replace in the array
-                array[index] = defectObj;
-            }
-            const charInfoObj = array.reduce((acc, item) => {
-                const key = item.ReferenceName ?? item.PropertyName;
-                acc[key] = item.RefData === '##DROPDOWN:DefectPhenomenon##' ? item.Value : item?.Value?.value ? item.Value.value : item.Value;
-                return acc;
-            }, {});
-
-            Object.entries(charInfoObj).forEach(([key, value]) => {
-                item[key] = value; // update if exists, add if not
-            });
-
             const samples = item.Samples || [];
             let actualValue = null;
             if (type === 'number') {
@@ -293,17 +224,15 @@ const CompletedInspection = () => {
             return {
                 ...item,
                 Samples: undefined,
-                charInfo: undefined,
                 ActualValue: actualValue !== Infinity ? String(actualValue) : '',
                 ID: String(item.ID || ''),
-                ...(item?.DefectPhenomenon &&
-                    Object.keys(item?.DefectPhenomenon)?.length && {
+                ...(item?.DefectsValue &&
+                    Object.keys(item?.DefectsValue)?.length && {
                         Case: 'DEFECTPHENOMENON',
-                        StrID: item?.DefectPhenomenon?.ID,
+                        StrID: item?.DefectsValue.ID,
                         Name: type === 'number' ? 'CustomInspectionCharacteristicsV' : 'CustomInspectionCharacteristics',
                         Topic: 'DefectPhenomenon',
                     }),
-                DefectPhenomenon: item?.DefectPhenomenon ? item?.DefectPhenomenon?.value : undefined,
                 samples: samples.map(sample => ({
                     sampleName: String(sample.sampleName || ''),
                     data: {
@@ -333,7 +262,7 @@ const CompletedInspection = () => {
             ...convertSampleList(selectedValue.AttributeCharacteristics, 'char'),
         ];
         const updatedGeneralInfo = selectedValue.GeneralInfo.map(item => {
-            if ((item.DisplayName === 'Supervisor' || item.StaticText === 'Approver') && typeof item.Value === 'object' && item.Value !== null) {
+            if (item.DisplayName === 'Approver' && typeof item.Value === 'object' && item.Value !== null) {
                 return {
                     ...item,
                     Value: item.Value.value,
@@ -341,16 +270,6 @@ const CompletedInspection = () => {
                     StrID: item.Value.ID,
                     Name: 'CustomInspection',
                     Topic: 'Supervisor',
-                };
-            } else if (
-                item.DisplayName !== 'Supervisor' &&
-                item.DisplayName !== 'Approver' &&
-                typeof item.Value === 'object' &&
-                item.Value === null
-            ) {
-                return {
-                    ...item,
-                    Value: item.Value.value,
                 };
             }
             return item;
@@ -374,18 +293,18 @@ const CompletedInspection = () => {
             ],
         };
         const response = await postAPI(selectedValue.intInspectionTypeID == '2' ? ApiUrl.IC_INPROCESS_SINGLE_SYNC : ApiUrl.IC_SINGLE_SYNC, payLoad);
-        if (response?.insertedSamples) {
+        if (response?.insertedCount) {
             setSyncModal(false);
             const flag = await deleteInspectionByUniqueId(selectedValue.uniqueId);
             showMessage({
-                message: 'Inspection synced successfully',
+                message:'Inspection synced successfully',
                 backgroundColor: COLORS.SUCCESS,
                 color: COLORS.white,
                 duration: 1500,
                 statusBarHeight: 40,
                 icon: 'success',
                 position: 'right',
-                style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : { paddingTop: insets.top },
+                 style: { height: 150, alignItems: 'flex-end' },
             });
             if (flag) {
                 getAllCompletedData(true);
@@ -399,7 +318,7 @@ const CompletedInspection = () => {
                 statusBarHeight: 40,
                 icon: 'warning',
                 position: 'right',
-                style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : { paddingTop: insets.top },
+                 style: { height: 150, alignItems: 'flex-end' },
             });
         }
         setDisableBtn(false);
@@ -413,110 +332,8 @@ const CompletedInspection = () => {
             showErrorMessage('Error deleting inspection');
         }
     };
-    const handleBulkSyncPress = () => {
-        setIsBulkSync(true);
-        const allStatus = masterData?.map(item => item?.status);
-        const isAllCompleted = allStatus?.every(item => item === 'Completed');
-        console.log('isAllCompleted', isAllCompleted);
-        if (!isAllCompleted) {
-            setSyncList([...optionsList.slice(0, 1)]);
-        } else {
-            setSyncList([...optionsList]);
-        }
-        setSyncModal(true);
-    };
-    const handleBulkFormSync = async () => {
-        setDisableBtn(true);
-        const allInspectionEntryDetailsID = masterData?.map(item => item?.InspectionEntryDetailsID.toString()).join(',');
-        const allInspectionID = masterData?.map(item => item?.InspectionID.toString()).join(',');
-        const temp = [];
-        masterData?.forEach(value => {
-            const templist = [
-                ...convertSampleList(value.VariableCharacteristics, 'number'),
-                ...convertSampleList(value.AttributeCharacteristics, 'char'),
-            ];
-            const updatedGeneralInfo = value.GeneralInfo.map(item => {
-                if ((item.DisplayName === 'Supervisor' || item.StaticText === 'Approver') && typeof item.Value === 'object' && item.Value !== null) {
-                    return {
-                        ...item,
-                        Value: item.Value.value,
-                        Case: 'SUPERVISOR',
-                        StrID: item.Value.ID,
-                        Name: 'CustomInspection',
-                        Topic: 'Supervisor',
-                    };
-                } else if (
-                    item.DisplayName !== 'Supervisor' &&
-                    item.DisplayName !== 'Approver' &&
-                    typeof item.Value === 'object' &&
-                    item.Value === null
-                ) {
-                    return {
-                        ...item,
-                        Value: item.Value.value,
-                    };
-                }
-                return item;
-            });
-            temp.push({
-                characteristicDetails: templist,
-                GeneralInfo: updatedGeneralInfo,
-            });
-        });
-        const payLoad = {
-            EnteredBy: icUserData?.userData?.UserId,
-            InspectedDate: moment(new Date()).format('MM/DD/YYYY hh:mm:ss A'),
-            InspectionData: [...temp],
-            SiteId: icUserData?.userData?.Siteid,
-            Status: [
-                {
-                    UserId: icUserData?.userData?.UserId,
-                    InspectionID: allInspectionID,
-                    SupervisorID: checkBox ? icUserData?.userData?.UserId : '',
-                    InspectionEntryDetailsID: allInspectionEntryDetailsID,
-                    Mode: selectedRadio.Mode,
-                    SupervisorApproved: checkBox ? 1 : 0,
-                    // IsProcess: selectedValue.intInspectionTypeID == '2' ? 1 : 0,
-                    // IsProcess: 0,
-                },
-            ],
-        };
-        const response = await postAPI(ApiUrl.IC_BULK_SYNC, payLoad);
-        if (response?.results) {
-            const uniqueIds = masterData?.map(item => item?.uniqueId);
-            console.log('uniqueIds', uniqueIds);
-            setSyncModal(false);
-            // const flag = await deleteInspectionByUniqueId(selectedValue.uniqueId);
-            const flag = await deleteInspectionsByUniqueIds(uniqueIds);
-            showMessage({
-                message: 'Inspection synced successfully',
-                backgroundColor: COLORS.SUCCESS,
-                color: COLORS.white,
-                duration: 1500,
-                statusBarHeight: 40,
-                icon: 'success',
-                position: 'right',
-                style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : { paddingTop: insets.top },
-            });
-            if (flag) {
-                getAllCompletedData(true);
-            }
-        } else {
-            showMessage({
-                message: 'Something went wrong',
-                backgroundColor: COLORS.ERROR,
-                color: COLORS.white,
-                duration: 1500,
-                statusBarHeight: 40,
-                icon: 'warning',
-                position: 'right',
-                style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : { paddingTop: insets.top },
-            });
-        }
-        setDisableBtn(false);
-    };
     return (
-        <CustomHeader title="Completed Inspection" activeTabId={3} handleSyncPress={handleBulkSyncPress} showHomeIcon>
+        <CustomHeader title="Completed Inspection" activeTabId={3} handleSyncPress={handleSyncPress}>
             <View style={[styles.container]}>
                 {Boolean(showSkeleton) ? (
                     <IcSkeleton type={PLACEHOLDERS.INSPECTION_CARD} />
@@ -529,15 +346,25 @@ const CompletedInspection = () => {
                         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
                     />
                 ) : (
-                    <NoRecordFound />
+                    <NoDataFound />
                 )}
             </View>
+            {/* <View style={[styles.btnContainer]}>
+                <ButtonComponent
+                    style={{ height: 40 }}
+                    onPress={() => {
+                        handleISbtnpress();
+                    }}
+                    textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}>
+                    Inspection Schedule
+                </ButtonComponent>
+            </View> */}
             {Boolean(syncModal) && (
                 <Modal visible={syncModal} onDismiss={hideModal} contentContainerStyle={{ flexDirection: 'row', justifyContent: 'center' }}>
                     <View style={[styles.modalContainer]}>
                         {disableBtn ? (
                             <View style={[styles.bubbleBox]}>
-                                <Bubbles size={10} color={COLORS.apptheme}/>
+                                <Bubbles size={10} color="#12C0CF" />
                             </View>
                         ) : (
                             <View style={[styles.containerOne]}>
@@ -581,12 +408,7 @@ const CompletedInspection = () => {
                                 <TouchableOpacity
                                     style={styles.cancelConatiner}
                                     onPress={() => {
-                                        if (isBulkSync) {
-                                            handleBulkFormSync();
-                                        } else {
-                                            setIsBulkSync(false);
-                                            handleSingleFormSync();
-                                        }
+                                        handleSingleFormSync();
                                     }}
                                     disabled={disableBtn}>
                                     <Text style={styles.btnStyle}>SUBMIT</Text>
@@ -616,6 +438,7 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 15,
         flexDirection: 'row',
+        backgroundColor: '#fff',
         marginBottom: 10,
         borderRadius: 10,
     },
@@ -669,7 +492,7 @@ const styles = StyleSheet.create({
     },
     headertext: {
         fontFamily: 'OpenSans-SemiBold',
-        fontSize: 22,
+        fontSize: RFPercentage(2.2),
         paddingBottom: 12,
         color: COLORS.ictextBlack,
     },
@@ -687,7 +510,7 @@ const styles = StyleSheet.create({
     btnStyle: {
         color: COLORS.apptheme,
         fontFamily: 'OpenSans-SemiBold',
-        fontSize: 18,
+        fontSize: RFPercentage(1.8),
     },
     bubbleBox: {
         minHeight: 300,

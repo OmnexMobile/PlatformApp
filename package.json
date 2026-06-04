@@ -67,6 +67,7 @@
         "react-native-compressor": "^1.16.0",
         "react-native-crypto-js": "^1.0.0",
         "react-native-dashed-line": "^1.1.0",
+        "react-native-date-picker": "^5.0.13",
         "react-native-device-info": "^10.11.0",
         "react-native-dimension": "^1.0.6",
         "react-native-document-picker": "^8.1.3",

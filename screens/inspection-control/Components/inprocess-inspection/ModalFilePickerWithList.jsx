@@ -1,4 +1,4 @@
-import { ButtonComponent,NoRecordFound } from 'components';
+import { ButtonComponent } from 'components';
 import { COLORS } from 'constants/theme-constants';
 import { RFPercentage } from 'helpers/utils';
 import React, { useEffect, useState } from 'react';
@@ -10,6 +10,7 @@ import DocumentPicker from 'react-native-document-picker';
 import uuid from 'react-native-uuid';
 import RNFS from 'react-native-fs';
 import FileViewer from 'react-native-file-viewer';
+import NoDataFound from '../NoDataFound';
 import { showMessage } from 'react-native-flash-message';
 import CameraScreen from './CameraScreen';
 
@@ -45,9 +46,8 @@ const ModalFilePickerWithList = ({
                 const file = {
                     ...response[0],
                     id: uuid.v4(),
-                    Base64: base64,
-                    FileType: fileExtension,
-                    FileName: response[0]?.name,
+                    base64Url: base64,
+                    fileExtension: fileExtension,
                 };
                 setFileList([...fileList, file]);
                 // setSelectedData({ ...selectedData, fileList: [...fileList, file] });
@@ -60,7 +60,7 @@ const ModalFilePickerWithList = ({
                     statusBarHeight: 40,
                     icon: 'danger',
                     position: 'right',
-                    style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+                     style: { height: 150, alignItems: 'flex-end' },
                 });
             }
         } catch (err) {
@@ -72,7 +72,7 @@ const ModalFilePickerWithList = ({
                 statusBarHeight: 40,
                 icon: 'danger',
                 position: 'right',
-                style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+                 style: { height: 150, alignItems: 'flex-end' },
             });
         }
     };
@@ -128,7 +128,7 @@ const ModalFilePickerWithList = ({
                     <TouchableOpacity
                         style={[styles.iconBoxStyle]}
                         onPress={() => {
-                            openBase64File(item.Base64, item.FileType, item?.FileName);
+                            openBase64File(item.base64Url, item.fileExtension, item?.name);
                         }}>
                         <IconI name="eye-outline" size={22} color={COLORS.grey} />
                     </TouchableOpacity>
@@ -165,7 +165,7 @@ const ModalFilePickerWithList = ({
                                 showsVerticalScrollIndicator={false}
                             />
                         ) : (
-                            <NoRecordFound />
+                            <NoDataFound />
                         )}
                         <View style={[styles.btnContainer]}>
                             <View style={[styles.btnBox]}>

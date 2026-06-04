@@ -675,11 +675,11 @@ export const AppStackData = [
         getComponent: () => require('../screens/inspection-control/icSettings').default,
         cardStyleInterpolator: CardStyleInterpolators.forFadeFromCenter,
     },
-    {
-        name: ROUTES.SEARCH_INSPECTION,
-        getComponent: () => require('../screens/inspection-control/search-inspection').default,
-        cardStyleInterpolator: CardStyleInterpolators.forFadeFromCenter,
-    },
+    // {
+    //     name: ROUTES.SEARCH_INSPECTION,
+    //     getComponent: () => require('../screens/inspection-control/search-inspection').default,
+    //     cardStyleInterpolator: CardStyleInterpolators.forFadeFromCenter,
+    // },
 ];
 
 export const ProjectData = [

@@ -29,24 +29,24 @@ const IcSkeleton = ({ type, noPadding = false }) => {
                                             borderBottomWidth: StyleSheet.hairlineWidth,
                                             borderBottomColor: COLORS.icborder,
                                         }}>
-                                        <SkeletonPlaceholder>
+                                        <View>
                                             <View style={{ flexDirection: 'row' }}>
-                                                <View style={{ width: 40, height: 40, borderRadius: 100, marginRight: 10 }} />
+                                                <View style={{ width: 40, height: 40, borderRadius: 100, marginRight: 10, backgroundColor: COLORS.icBottomBox }} />
                                                 <View style={{ flex: 3 }}>
-                                                    <View style={{ width: '100%', height: 8, borderRadius: 4 }} />
-                                                    <View style={{ width: '100%', height: 8, borderRadius: 4, marginTop: SPACING.SMALL }} />
-                                                    <View style={{ width: '100%', height: 8, borderRadius: 4, marginTop: SPACING.SMALL }} />
-                                                    <View style={{ width: '100%', height: 8, borderRadius: 4, marginTop: SPACING.SMALL }} />
+                                                    <View style={{ width: '100%', height: 8, borderRadius: 4, backgroundColor: COLORS.icBottomBox }} />
+                                                    <View style={{ width: '100%', height: 8, borderRadius: 4, marginTop: SPACING.SMALL, backgroundColor: COLORS.icBottomBox }} />
+                                                    <View style={{ width: '100%', height: 8, borderRadius: 4, marginTop: SPACING.SMALL, backgroundColor: COLORS.icBottomBox }} />
+                                                    <View style={{ width: '100%', height: 8, borderRadius: 4, marginTop: SPACING.SMALL, backgroundColor: COLORS.icBottomBox }} />
                                                 </View>
                                                 <View style={{ flex: 1.2, marginLeft: 20, flexDirection: 'column', justifyContent: 'space-between' }}>
-                                                    <View style={{ width: '100%', height: 8, borderRadius: 4 }} />
+                                                    <View style={{ width: '100%', height: 8, borderRadius: 4, backgroundColor: COLORS.icBottomBox }} />
                                                     <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
-                                                        <View style={{ width: 20, height: 20, borderRadius: 4, marginRight: 10 }} />
-                                                        <View style={{ width: 20, height: 20, borderRadius: 4 }} />
+                                                        <View style={{ width: 20, height: 20, borderRadius: 4, marginRight: 10, backgroundColor: COLORS.icBottomBox }} />
+                                                        <View style={{ width: 20, height: 20, borderRadius: 4, backgroundColor: COLORS.icBottomBox }} />
                                                     </View>
                                                 </View>
                                             </View>
-                                        </SkeletonPlaceholder>
+                                        </View>
                                     </View>
                                 </View>
                             ))}
@@ -68,25 +68,25 @@ const IcSkeleton = ({ type, noPadding = false }) => {
                                     key={index}
                                     style={{ paddingHorizontal: 5, paddingVertical: 20, backgroundColor: '#fff', marginBottom: 10, borderRadius: 5 }}>
                                     <View style={{}}>
-                                        <SkeletonPlaceholder>
+                                        <View>
                                             <View style={{ flexDirection: 'row' }}>
-                                                <View style={{ width: 40, height: 40, borderRadius: 100, marginRight: 10 }} />
+                                                <View style={{ width: 40, height: 40, borderRadius: 100, marginRight: 10 ,backgroundColor: COLORS.icBottomBox }} />
                                                 <View style={{ flex: 3 }}>
-                                                    <View style={{ width: '100%', height: 8, borderRadius: 4 }} />
-                                                    <View style={{ width: '100%', height: 8, borderRadius: 4, marginTop: SPACING.SMALL }} />
-                                                    <View style={{ width: '100%', height: 8, borderRadius: 4, marginTop: SPACING.SMALL }} />
-                                                    <View style={{ width: '100%', height: 8, borderRadius: 4, marginTop: SPACING.SMALL }} />
+                                                    <View style={{ width: '100%', height: 8, borderRadius: 4 ,backgroundColor: COLORS.icBottomBox }} />
+                                                    <View style={{ width: '100%', height: 8, borderRadius: 4, marginTop: SPACING.SMALL ,backgroundColor: COLORS.icBottomBox }} />
+                                                    <View style={{ width: '100%', height: 8, borderRadius: 4, marginTop: SPACING.SMALL ,backgroundColor: COLORS.icBottomBox }} />
+                                                    <View style={{ width: '100%', height: 8, borderRadius: 4, marginTop: SPACING.SMALL ,backgroundColor: COLORS.icBottomBox }} />
                                                 </View>
                                                 <View style={{ flex: 1.2, marginLeft: 20, flexDirection: 'column', justifyContent: 'space-between' }}>
-                                                    <View style={{ width: '100%', height: 8, borderRadius: 4 }} />
+                                                    <View style={{ width: '100%', height: 8, borderRadius: 4 ,backgroundColor: COLORS.icBottomBox }} />
                                                     <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
-                                                        <View style={{ width: 20, height: 20, borderRadius: 4, marginRight: 10 }} />
-                                                        <View style={{ width: 20, height: 20, borderRadius: 4, marginRight: 10 }} />
-                                                        <View style={{ width: 20, height: 20, borderRadius: 4 }} />
+                                                        <View style={{ width: 20, height: 20, borderRadius: 4, marginRight: 10 ,backgroundColor: COLORS.icBottomBox }} />
+                                                        <View style={{ width: 20, height: 20, borderRadius: 4, marginRight: 10 ,backgroundColor: COLORS.icBottomBox }} />
+                                                        <View style={{ width: 20, height: 20, borderRadius: 4 ,backgroundColor: COLORS.icBottomBox }} />
                                                     </View>
                                                 </View>
                                             </View>
-                                        </SkeletonPlaceholder>
+                                        </View>
                                     </View>
                                 </View>
                             ))}
@@ -109,23 +109,23 @@ const IcSkeleton = ({ type, noPadding = false }) => {
                                             borderBottomWidth: StyleSheet.hairlineWidth,
                                             borderBottomColor: COLORS.icborder,
                                         }}>
-                                        <SkeletonPlaceholder>
+                                        <View>
                                             <View style={{ flexDirection: 'row' }}>
-                                                <View style={{ width: 40, height: 40, borderRadius: 100, marginRight: 10 }} />
+                                                <View style={{ width: 40, height: 40, borderRadius: 100, marginRight: 10 ,backgroundColor: COLORS.icBottomBox }} />
                                                 <View style={{ flex: 3 }}>
-                                                    <View style={{ width: '100%', height: 8, borderRadius: 4 }} />
-                                                    <View style={{ width: '100%', height: 8, borderRadius: 4, marginTop: SPACING.SMALL }} />
-                                                    <View style={{ width: '100%', height: 8, borderRadius: 4, marginTop: SPACING.SMALL }} />
-                                                    <View style={{ width: '100%', height: 8, borderRadius: 4, marginTop: SPACING.SMALL }} />
+                                                    <View style={{ width: '100%', height: 8, borderRadius: 4 ,backgroundColor: COLORS.icBottomBox }} />
+                                                    <View style={{ width: '100%', height: 8, borderRadius: 4, marginTop: SPACING.SMALL ,backgroundColor: COLORS.icBottomBox }} />
+                                                    <View style={{ width: '100%', height: 8, borderRadius: 4, marginTop: SPACING.SMALL ,backgroundColor: COLORS.icBottomBox }} />
+                                                    <View style={{ width: '100%', height: 8, borderRadius: 4, marginTop: SPACING.SMALL ,backgroundColor: COLORS.icBottomBox }} />
                                                 </View>
                                                 <View style={{ flex: 1.2, marginLeft: 20, flexDirection: 'column', justifyContent: 'space-between' }}>
-                                                    <View style={{ width: '100%', height: 8, borderRadius: 4 }} />
+                                                    <View style={{ width: '100%', height: 8, borderRadius: 4 ,backgroundColor: COLORS.icBottomBox }} />
                                                     <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
-                                                        <View style={{ width: 20, height: 20, borderRadius: 4, marginRight: 10 }} />
+                                                        <View style={{ width: 20, height: 20, borderRadius: 4, marginRight: 10 ,backgroundColor: COLORS.icBottomBox }} />
                                                     </View>
                                                 </View>
                                             </View>
-                                        </SkeletonPlaceholder>
+                                        </View>
                                     </View>
                                 </View>
                             ))}

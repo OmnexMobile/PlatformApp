@@ -1,8 +1,9 @@
 import { RadioButton } from 'components';
 import { COLORS } from 'constants/theme-constants';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Divider, HelperText, Modal } from 'react-native-paper';
+import { RFPercentage } from 'react-native-responsive-fontsize';
 import SingleDropDown from '../SingleDropDown';
 import DynamicDropDown from '../DynamicDropDown';
 import { useSelector } from 'react-redux';
@@ -13,10 +14,8 @@ import ApiUrl from 'global/ApiUrl';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import moment from 'moment';
 import uuid from 'react-native-uuid';
+import { isArray } from 'underscore';
 import { addInspectionData } from 'store/database/inspectStorage';
-import Icon from 'react-native-vector-icons/AntDesign';
-import SamplingModal from './SamplingModal';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const errorObj = {
     shift: false,
@@ -24,7 +23,6 @@ const errorObj = {
     lotQty: false,
     receiptNumber: false,
     frequency: false,
-    // operation: false,
 };
 
 const InputDataModal = ({
@@ -36,9 +34,6 @@ const InputDataModal = ({
     handleSubmitPress = () => {},
     selectedSite = {},
 }) => {
-    const insets = useSafeAreaInsets();
-    const { width } = useWindowDimensions();
-    const isTablet = width >= 768;
     const { icSettings } = useSelector(state => state.inspection);
     const [formFields, setFormFields] = useState({
         shift: null,
@@ -47,21 +42,14 @@ const InputDataModal = ({
         frequency: null,
         responsible: [],
         receiptNumber: '',
-        // operation: [],
     });
     const [frqList, setFrqList] = useState([]);
-    const [operationList, setOperationList] = useState([]);
     const [resList, setResList] = useState([]);
     const [errorList, setErrorList] = useState(errorObj);
     const [showLoader, setShowLoader] = useState(true);
     const [isEditableField, setIsEditableField] = useState({
         lotNo: true,
     });
-    const [btndisabled, setBtnDisabled] = useState(false);
-    console.log(formFields.shift, 'ecev');
-    // this State is for the Sampling pages fields
-    const [showSamplingModal, setShowSamplingModal] = useState(false);
-
     useEffect(() => {
         const currentShift = getCurrentShift(shiftData);
         if (currentShift) {
@@ -84,28 +72,6 @@ const InputDataModal = ({
         });
     };
 
-    const getOperationList = async () => {
-        const formData = new FormData();
-        formData.append('ProductionItemId', selectedValue?.ProductionItemId);
-        const response = await postAPI(`${ApiUrl.IC_OPERATION_LIST}`, formData);
-        console.log(response, 'getOperationList');
-        if (response?.length) {
-            let temp = [];
-            response?.forEach(item => {
-                temp.push({
-                    label: item?.OperationName,
-                    value: item?.OperationId,
-                    isChecked: false,
-                    ...item,
-                });
-            });
-            setOperationList(temp || []);
-        } else {
-            setOperationList([]);
-        }
-        return true;
-    };
-
     const getFrequencyList = async () => {
         // let strType = selectedValue?.TypeOfInspection == '2' ? 'Aqua' : 'Custom';
         const formData = new FormData();
@@ -116,7 +82,6 @@ const InputDataModal = ({
         formData.append('SiteId', userData?.Siteid);
         const response = await postAPI(`${ApiUrl.IC_FRQ_FORM}`, formData);
         if (response.Success) {
-            console.log(response?.Data, 'response?.Data');
             if (response?.Data?.length) {
                 let temp = [];
                 response?.Data.forEach(item => {
@@ -136,7 +101,6 @@ const InputDataModal = ({
         return true;
     };
     const getResponsibleList = async freq => {
-        setBtnDisabled(true);
         const formData = new FormData();
         formData.append('strUserID', userData?.UserId);
         formData.append('strOperationID', selectedValue?.OperationID);
@@ -172,12 +136,10 @@ const InputDataModal = ({
         } else {
             setResList([]);
         }
-        setBtnDisabled(false);
         return true;
     };
     const getPageApi = async () => {
         await getFrequencyList();
-        await getOperationList();
         // await getResponsibleList();
         setShowLoader(false);
     };
@@ -195,6 +157,7 @@ const InputDataModal = ({
         }
     }, [selectedValue, userData]);
     const handleInputChange = (key, value) => {
+        console.log('called');
         setFormFields(pre => ({ ...pre, [key]: value }));
     };
     const handleValidation = () => {
@@ -205,7 +168,6 @@ const InputDataModal = ({
             lotQty: false,
             frequency: false,
             receiptNumber: false,
-            // operation: false,
         };
         if (shift == null) {
             errorobj.shift = true;
@@ -216,9 +178,6 @@ const InputDataModal = ({
         if (lotQty == '') {
             errorobj.lotQty = true;
         }
-        // if (operation.length == 0) {
-        //     errorobj.operation = true;
-        // }
         if (frequency == null && selectedValue.TypeOfInspection == 2) {
             errorobj.frequency = true;
         }
@@ -239,15 +198,6 @@ const InputDataModal = ({
             return [];
         }
     };
-    const handlePopupNeed = data => {
-        return data.map(item => {
-            const hasActualValue = Array.isArray(item.charInfo) && item.charInfo.some(c => c.PropertyName === 'ActualValue');
-            return {
-                ...item,
-                isSamplePopup: hasActualValue,
-            };
-        });
-    };
     const handleSubmitBtnPress = async () => {
         const result = handleValidation();
         if (result) {
@@ -266,12 +216,8 @@ const InputDataModal = ({
             formData.append('ProductionItemName', selectedValue?.ProductionItem || '');
             formData.append('Description', selectedValue?.Description || '');
             formData.append('PIDHierarchy', selectedValue?.PIHierarchy || '');
-
             formData.append('OperationIds', selectedValue?.OperationID || '');
             formData.append('OperationName', selectedValue?.OperationName || '');
-            // formData.append('OperationName', formFields.operation.length > 0 ? formFields.operation.map(item => item.OperationName).join(';') : '');
-            // formData.append('OperationIds', formFields.operation.length > 0 ? formFields.operation.map(item => item.OperationId).join(';') : '');
-
             formData.append('OperationHierarchy', selectedValue?.OperationHierarchy || '');
             formData.append('SupplierId', selectedValue.SupplierId || '');
             if (selectedValue.TypeOfInspection == '1') {
@@ -342,8 +288,6 @@ const InputDataModal = ({
                 } else if (response.AttributeCharacteristics.length > 0) {
                     InspectionID = response.AttributeCharacteristics[0].InspectionID;
                 }
-                const updatedVar = handlePopupNeed(response.VariableCharacteristics);
-                const updatedAtt = handlePopupNeed(response.AttributeCharacteristics);
                 let inspectObj = {
                     uniqueId: uuid.v4(),
                     FormId: selectedValue?.FormId,
@@ -360,8 +304,8 @@ const InputDataModal = ({
                     intInspectionID: selectedValue?.ProductionItemId,
                     receiptNumber: receiptNumber,
                     GeneralInfo: response.GeneralInfo,
-                    VariableCharacteristics: updatedVar,
-                    AttributeCharacteristics: updatedAtt,
+                    VariableCharacteristics: response.VariableCharacteristics,
+                    AttributeCharacteristics: response.AttributeCharacteristics,
                     OrderDetailsId: selectedValue?.OrderDetailsId,
                     InspectionEntryDetailsID: response?.Data || '',
                     InspectionID: InspectionID,
@@ -369,8 +313,6 @@ const InputDataModal = ({
                     attachments: attachments,
                     userId: selectedSite?.UserId,
                     siteId: selectedSite?.Siteid,
-                    backgroundColor:'#fff',
-                    downloadedDate: new Date().toISOString(),
                 };
                 await addInspectionData(selectedSite?.UserId, selectedSite?.Siteid, inspectObj.uniqueId, inspectObj);
                 showMessage({
@@ -381,7 +323,7 @@ const InputDataModal = ({
                     statusBarHeight: 40,
                     icon: 'success',
                     position: 'right',
-                    style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : { paddingTop: insets.top },
+                     style: { height: 150, alignItems: 'flex-end' },
                 });
                 handleSubmitPress(selectedValue);
                 hideModal();
@@ -394,7 +336,7 @@ const InputDataModal = ({
                     statusBarHeight: 40,
                     icon: 'warning',
                     position: 'right',
-                    style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : { paddingTop: insets.top },
+                     style: { height: 150, alignItems: 'flex-end' },
                 });
             }
         }
@@ -416,7 +358,7 @@ const InputDataModal = ({
                         flex: 1,
                         height: '100%',
                     }}>
-                    <Bubbles size={10} color={COLORS.apptheme} />
+                    <Bubbles size={10} color="#12C0CF" />
                 </Modal>
             ) : (
                 <Modal
@@ -433,33 +375,8 @@ const InputDataModal = ({
                     <Text style={styles.headertext}>Form Input Data</Text>
                     <Divider />
                     <ScrollView style={[styles.container]} nestedScrollEnabled showsVerticalScrollIndicator={false}>
-                        <View
-                            style={{
-                                flexDirection: isTablet ? 'row' : 'column',
-                                flexWrap: 'wrap', // important for tablet
-                                justifyContent: 'space-between',
-                            }}>
-                            {/* <View style={[styles.inputContainer, { width: isTablet ? '48%' : '100%' }]}>
-                                <Text style={styles.inputText}>
-                                    Operation <Text style={[styles.rquired]}>*</Text>
-                                </Text>
-                                <DynamicDropDown
-                                    showSelectAll={true}
-                                    anchorPosition={'bottom'}
-                                    isMultiSelect={true}
-                                    list={operationList || []}
-                                    handleSelectedList={value => {
-                                        console.log('value', value);
-                                        handleInputChange('operation', value);
-                                    }}
-                                />
-                                {Boolean(errorList.operation) && (
-                                    <HelperText type="error" visible={errorList.operation} padding={'none'} style={styles.errorStyle}>
-                                        This field is required
-                                    </HelperText>
-                                )}
-                            </View> */}
-                            <View style={[styles.inputContainer, { width: isTablet ? '48%' : '100%' }]}>
+                        <View style={[]}>
+                            <View style={[styles.inputContainer]}>
                                 <Text style={styles.inputText}>
                                     Shift <Text style={[styles.rquired]}>*</Text>
                                 </Text>
@@ -484,7 +401,7 @@ const InputDataModal = ({
                                     </HelperText>
                                 )}
                             </View>
-                            <View style={[styles.inputContainer, { width: isTablet ? '48%' : '100%' }]}>
+                            <View style={[styles.inputContainer]}>
                                 <Text style={styles.inputText}>
                                     Lot Number <Text style={[styles.rquired]}>*</Text>
                                 </Text>
@@ -502,7 +419,7 @@ const InputDataModal = ({
                                     </HelperText>
                                 )}
                             </View>
-                            <View style={[styles.inputContainer, { width: isTablet ? '48%' : '100%' }]}>
+                            <View style={[styles.inputContainer]}>
                                 <Text style={styles.inputText}>
                                     Lot Size <Text style={[styles.rquired]}>*</Text>
                                 </Text>
@@ -521,7 +438,7 @@ const InputDataModal = ({
                                 )}
                             </View>
                             {Boolean(icSettings?.IsRefNo) && (
-                                <View style={[styles.inputContainer, { width: isTablet ? '48%' : '100%' }]}>
+                                <View style={[styles.inputContainer]}>
                                     <Text style={styles.inputText}>Serial Number</Text>
                                     <TextInput
                                         style={[styles.inputBox, { backgroundColor: COLORS.icborder }]}
@@ -531,7 +448,7 @@ const InputDataModal = ({
                                 </View>
                             )}
                             {Boolean(selectedValue.TypeOfInspection == 1) && (
-                                <View style={[styles.inputContainer, { width: isTablet ? '48%' : '100%' }]}>
+                                <View style={[styles.inputContainer]}>
                                     <Text style={styles.inputText}>
                                         Receipt Number <Text style={[styles.rquired]}>*</Text>
                                     </Text>
@@ -549,7 +466,7 @@ const InputDataModal = ({
                                     )}
                                 </View>
                             )}
-                            <View style={[styles.inputContainer, { width: isTablet ? '48%' : '100%' }]}>
+                            <View style={[styles.inputContainer]}>
                                 <Text style={styles.inputText}>
                                     Choose Frequency {Boolean(selectedValue.TypeOfInspection == 2) && <Text style={[styles.rquired]}>*</Text>}
                                 </Text>
@@ -577,11 +494,8 @@ const InputDataModal = ({
                                 )}
                             </View>
                             {Boolean(selectedValue.TypeOfInspection == 2) && (
-                                <View style={[styles.inputContainer, { width: isTablet ? '48%' : '100%' }]}>
-                                    <View style={{ flexDirection: 'row' }}>
-                                        <Text style={styles.inputText}>Responsible Person</Text>
-                                        {Boolean(btndisabled) && <ActivityIndicator style={{ marginLeft: 5 }} size="small" color={COLORS.apptheme} />}
-                                    </View>
+                                <View style={[styles.inputContainer]}>
+                                    <Text style={styles.inputText}>Responsible Person</Text>
                                     <DynamicDropDown
                                         isMultiSelect={icSettings?.IsRespPartyMultiSelect}
                                         list={resList || []}
@@ -592,24 +506,14 @@ const InputDataModal = ({
                                     />
                                 </View>
                             )}
-                            {/* <View style={[styles.inputContainer, { width: isTablet ? '48%' : '100%' }]}>
-                                <View style={[styles.row]}>
-                                    <Text style={styles.inputText}>Inspection Mode</Text>
-                                    <TouchableOpacity style={{ paddingHorizontal: 10 }} onPress={() => setShowSamplingModal(true)}>
-                                        <Icon name="edit" size={20} color={COLORS.apptheme} />
-                                    </TouchableOpacity>
-                                </View>
-                                <TextInput style={[styles.inputBox]} value={'Normal'} editable={false} />
-                            </View> */}
                         </View>
                     </ScrollView>
                     <Divider />
                     <View style={styles.btnConatiner}>
-                        <TouchableOpacity disabled={btndisabled} style={styles.cancelConatiner} onPress={hideModal}>
+                        <TouchableOpacity style={styles.cancelConatiner} onPress={hideModal}>
                             <Text style={styles.btnStyle}>CANCEL</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
-                            disabled={btndisabled}
                             style={styles.cancelConatiner}
                             onPress={() => {
                                 handleSubmitBtnPress();
@@ -619,7 +523,6 @@ const InputDataModal = ({
                     </View>
                 </Modal>
             )}
-            {Boolean(showSamplingModal) && <SamplingModal visible={showSamplingModal} handleClose={() => setShowSamplingModal(false)} />}
         </>
     );
 };
@@ -630,7 +533,7 @@ const styles = StyleSheet.create({
     },
     headertext: {
         fontFamily: 'OpenSans-SemiBold',
-        fontSize: 20,
+        fontSize: RFPercentage(2),
         paddingBottom: 12,
         color: '#000',
     },
@@ -657,7 +560,7 @@ const styles = StyleSheet.create({
     btnStyle: {
         color: COLORS.apptheme,
         fontFamily: 'OpenSans-Bold',
-        fontSize: 16,
+        fontSize: RFPercentage(1.8),
     },
     rquired: {
         color: COLORS.ERROR,
@@ -669,10 +572,6 @@ const styles = StyleSheet.create({
     errorStyle: {
         color: COLORS.ERROR,
         marginBottom: -5,
-    },
-    row: {
-        flexDirection: 'row',
-        alignItems: 'center',
     },
 });
 

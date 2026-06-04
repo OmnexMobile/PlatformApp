@@ -1,12 +1,10 @@
 import { COLORS } from 'constants/theme-constants';
 import React, { useEffect, useState } from 'react';
-import { Button, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/Entypo';
 import IconE from 'react-native-vector-icons/Fontisto';
-// import DateTimePicker from '@react-native-community/datetimepicker';
-import DateTimePicker from 'react-native-modal-datetime-picker';
+import DatePicker from 'react-native-date-picker';
 import moment from 'moment';
-import { useSelector } from 'react-redux';
 
 const DataPickerWithIcon = ({
     placeHolder = 'Start Date',
@@ -22,104 +20,73 @@ const DataPickerWithIcon = ({
     value = null,
     editable = true,
 }) => {
-    const { dateFormat} = useSelector(state => state.inspection);
-    const uiDateFormat = dateFormat || 'DD/MM/YYYY';
-    const [date, setDate] = useState(null);
-    const [tempDate, setTempDate] = useState(new Date());
+    const [date, setDate] = useState(new Date());
     const [showPicker, setShowPicker] = useState(false);
 
     useEffect(() => {
         if (value !== null) {
-            setDate(value);
-            setTempDate(value);
+            setDate(value instanceof Date ? value : new Date(value));
         }
     }, [value]);
 
-    const onChange = (event, selectedDate) => {
-        if (selectedDate) {
-            setTempDate(selectedDate);
-        }
-    };
-
-    const showDatePicker = () => {
-        setShowPicker(true);
-    };
-
-    const handleDone = () => {
-        setDate(tempDate);
-        onSelectedDate(tempDate);
+    const handleConfirm = (selectedDate) => {
         setShowPicker(false);
+        setDate(selectedDate);
+        onSelectedDate(selectedDate);
     };
 
     const handleCancel = () => {
         setShowPicker(false);
     };
 
+    const displayValue = value !== null || date;
+
     return (
         <>
-            {showHeader && <Text style={[styles.headerText]}>{title}</Text>}
+            {showHeader && <Text style={styles.headerText}>{title}</Text>}
+
             <TouchableOpacity
                 style={[
                     styles.container,
-                    { borderRadius: borderRadius, backgroundColor: backgroundColor, borderWidth, paddingVertical, borderColor: borderColor },
+                    {
+                        borderRadius,
+                        backgroundColor,
+                        borderWidth,
+                        paddingVertical,
+                        borderColor,
+                    },
                 ]}
-                onPress={() => {
-                    if (editable) {
-                        showDatePicker();
-                    }
-                }}
-                activeOpacity={editable ? 0.5 : 1}>
-                <Text numberOfLines={1} style={[styles.textStyle]}>
-                    {date !== null ? (type == 'date' ? moment(date).format(uiDateFormat) : moment(date).format('hh:mm A')) : placeHolder}
+                onPress={() => editable && setShowPicker(true)}
+                activeOpacity={editable ? 0.5 : 1}
+            >
+                <Text numberOfLines={1} style={styles.textStyle}>
+                    {displayValue
+                        ? (type === 'date'
+                            ? moment(date).format('DD/MM/YYYY')
+                            : moment(date).format('hh:mm A'))
+                        : placeHolder}
                 </Text>
-                {type == 'date' ? (
+                {type === 'date' ? (
                     <Icon name="calendar" size={20} color={COLORS.moreIcon} />
                 ) : (
                     <IconE name="clock" size={19} color={COLORS.moreIcon} />
                 )}
             </TouchableOpacity>
-            {/* {editable && showPicker && Platform.OS === 'ios' && (
-                <Modal transparent={true} animationType="slide" onRequestClose={handleCancel}>
-                    <View
-                        style={{
-                            flex: 1,
-                            justifyContent: 'flex-end',
-                            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                        }}>
-                        <View
-                            style={{
-                                backgroundColor: '#fff',
-                                padding: 20,
-                                borderTopLeftRadius: 10,
-                                borderTopRightRadius: 10,
-                            }}>
-                            <DateTimePicker value={tempDate} mode={type} display="spinner" onChange={onChange} />
-                            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                                <Button title="Cancel" onPress={handleCancel} />
-                                <Button title="Done" onPress={handleDone} />
-                            </View>
-                        </View>
-                    </View>
-                </Modal>
-            )}
 
-            {editable && showPicker && Platform.OS === 'android' && ( */}
             {editable && (
-                <DateTimePicker
-                    isVisible={showPicker}
-                    mode="date"
-                    onCancel={() => setShowPicker(false)}
-                    onConfirm={selectedDate => {
-                        setShowPicker(false);
-                        if (selectedDate) {
-                            onSelectedDate(selectedDate);
-                        }
-                    }}
+                <DatePicker
+                    modal
+                    open={showPicker}
+                    date={date}
+                    mode={type === 'date' ? 'date' : 'time'}
+                    onConfirm={handleConfirm}
+                    onCancel={handleCancel}
                 />
             )}
         </>
     );
 };
+
 const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
