@@ -767,8 +767,7 @@ const SearchInspection = () => {
                     </View>
                 </View>
                 {showSkeleton ? (
-                    // <IcSkeleton type={PLACEHOLDERS.INSPECTION_CARD} />
-                    null
+                    <IcSkeleton type={PLACEHOLDERS.INSPECTION_CARD} />
                 ) : Boolean(masterData?.length) ? (
                     <FlatList
                         data={masterData}
