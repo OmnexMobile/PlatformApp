@@ -15,7 +15,6 @@ const DynamicDropDown = ({
     handleSelectedList = () => {},
     isMultiSelect = true,
     isDisable = false,
-    showSelectAll = false,
 }) => {
     const width = useWindowDimensions().width;
     const [multiValue, setMultiValue] = useState([]);
@@ -77,14 +76,6 @@ const DynamicDropDown = ({
         setMultiValue([]);
         handleSelectedList([]);
     };
-    const handleSelectAllPress=()=>{
-        let temp = JSON.parse(JSON.stringify(listData));
-        const updatedData = temp.map(item => ({ ...item, isChecked:true }));
-        const filterList = updatedData.filter(item => item.isChecked);
-        handleSelectedList(filterList);
-        setMultiValue(filterList);
-        setListData([...updatedData]);
-    }
     return (
         <Menu
             visible={visible}
@@ -130,15 +121,6 @@ const DynamicDropDown = ({
             }}
             anchorPosition={anchorPosition}>
             <ScrollView>
-                {showSelectAll && (
-                    <TouchableOpacity
-                        style={[styles.containerIconBox]}
-                        onPress={() => {
-                            handleSelectAllPress();
-                        }}>
-                            <Text style={[styles.listText,{paddingVertical:10,fontSize:16}]}>Select All</Text>
-                    </TouchableOpacity>
-                )}
                 {Boolean(listData.length) &&
                     listData.map((item, index) => {
                         return (

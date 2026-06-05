@@ -7,16 +7,14 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { PLACEHOLDERS, ROUTES } from 'constants/app-constant';
 import { Divider, Modal } from 'react-native-paper';
-import { RFPercentage, showErrorMessage, successMessage } from 'helpers/utils';
+import { RFPercentage, showErrorMessage } from 'helpers/utils';
 import DeleteModal from '../Components/DeleteModal';
 import NoDataFound from '../Components/NoDataFound';
 import { useDispatch, useSelector } from 'react-redux';
 import ApiUrl from 'global/ApiUrl';
-import { getAPI, getAPICall, postAPI } from 'global/api-helpers';
+import { postAPI } from 'global/api-helpers';
 import IcSkeleton from '../Components/IcSkeleton';
 import { deleteInspectionByUniqueId, getDatabaseSize, getInspectionDataByUserAndSite } from 'store/database/inspectStorage';
-import ICScrollTab from '../Components/ICScrollTab';
-import ReportShutdownModal from '../Components/ReportShutdownModal';
 
 const OperatorWorksheet = () => {
     const { icUserData } = useSelector(state => state.inspection);
@@ -27,16 +25,6 @@ const OperatorWorksheet = () => {
     const [showSkeleton, setShowSkeleton] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
     const [selectedValue, setSelectedValue] = useState(null);
-    const [showReportModal, setShowReportModal] = useState(false);
-    const [downTimeData, setDownTimeData] = useState([]);
-    const [reportFormData, setReportFormData] = useState({
-        downtimeres: '',
-        comment: '',
-    });
-    const [formError, setFormError] = useState({
-        downtimeres: false,
-        comment: false,
-    });
     const isFocused = useIsFocused();
     const dispatch = useDispatch();
 
@@ -44,19 +32,9 @@ const OperatorWorksheet = () => {
     const handleGetSQliteList = async () => {
         // await getDatabaseSize()
         const list = await getInspectionDataByUserAndSite(icUserData?.userData?.UserId, icUserData?.userData?.Siteid);
-        let filtered = [];
-        let superVisorData = [];
-        if (list?.length > 0) {
-            filtered = list
-                .filter(item => item?.userType != 'SupervisorSchedule')
-                .sort((a, b) => new Date(b.downloadedDate) - new Date(a.downloadedDate));
-            superVisorData = list
-                .filter(item => item?.userType === 'SupervisorSchedule')
-                .sort((a, b) => new Date(b.downloadedDate) - new Date(a.downloadedDate));
-        }
-        setInspectionList([...filtered, ...superVisorData]);
+        setInspectionList(list);
         setShowSkeleton(false);
-    };
+    }
     const handleCIbtnpress = () => {
         navigation.navigate(ROUTES.COMPLETED_INSPECTION);
     };
@@ -71,18 +49,12 @@ const OperatorWorksheet = () => {
         navigation.navigate(ROUTES.INPROCESS_INSPECTION, { inspectData: item });
     };
     useEffect(() => {
-        icUserData.userData && getOverAllSettings();
-    }, [icUserData]);
+        getOverAllSettings();
+    }, []);
     const getOverAllSettings = async () => {
-        const formDate = new FormData();
-        formDate.append('UserID', parseInt(icUserData?.userData?.UserId));
-        formDate.append('SiteID', parseInt(icUserData?.userData?.Siteid));
-        const settingsRes = await postAPI(`${ApiUrl.IC_SETTINGS}`, formDate);
+        const settingsRes = await postAPI(`${ApiUrl.IC_SETTINGS}`);
         if (settingsRes?.Success) {
-            const settings = {
-                ...settingsRes?.Data[0],
-            };
-            dispatch({ type: 'IC_SETTINGS', icSettings: settings || {} });
+            dispatch({ type: 'IC_SETTINGS', icSettings: settingsRes?.Data[0] || {} });
         }
     };
     const handleDeletePress = item => {
@@ -95,27 +67,21 @@ const OperatorWorksheet = () => {
 
     const rendetBtnText = item => {
         const combined = [...item?.VariableCharacteristics, ...item?.AttributeCharacteristics];
-
-        if (!combined.some(c => 'status' in c)) {
+        if (!combined.some(item => 'status' in item)) {
             return {
                 status: 'launch',
                 colorCode: COLORS.apptheme,
             };
         }
-        let allCompleted = combined.every(c => c.status === 'Completed');
-
         let hasInprogress = false;
         let hasCompleted = false;
         let hasMissingStatus = false;
-        let hasLaunchStatus = false;
 
-        for (const c of combined) {
-            if ('status' in c) {
-                if (c.status === 'Launch' || c.status === undefined || c.status === 'Inspect') {
-                    hasLaunchStatus = true;
-                } else if (c.status === 'In Progress') {
+        for (const item of combined) {
+            if ('status' in item) {
+                if (item.status === 'In Progress') {
                     hasInprogress = true;
-                } else if (c.status === 'Completed') {
+                } else if (item.status === 'Completed') {
                     hasCompleted = true;
                 }
             } else {
@@ -123,24 +89,14 @@ const OperatorWorksheet = () => {
             }
         }
 
-        // 🔑 Priority Logic
-        if (hasInprogress) {
-            return { colorCode: COLORS.ipBgColor, status: 'In Progress' };
-        }
-        if (hasCompleted && hasLaunchStatus) {
-            return { colorCode: COLORS.ipBgColor, status: 'In Progress' }; // ✅ Completed + Launch = In Progress
-        }
-        if (hasCompleted && hasMissingStatus) {
-            return { colorCode: COLORS.ipBgColor, status: 'In Progress' };
-        }
-        if (hasCompleted && allCompleted) {
-            return { colorCode: COLORS.fiBgColor, status: 'Completed' };
-        }
-        if (hasLaunchStatus) {
-            return { colorCode: COLORS.apptheme, status: 'Launch' };
-        }
+        if (hasInprogress) return { colorCode: COLORS.ipBgColor, status: 'In Progress' };
+        if (hasCompleted && hasMissingStatus) return { colorCode: COLORS.ipBgColor, status: 'In Progress' };
+        if (hasCompleted && !hasMissingStatus) return { colorCode: COLORS.fiBgColor, status: 'Completed' };
 
-        return { status: 'launch', colorCode: COLORS.apptheme };
+        return {
+            status: 'launch',
+            colorCode: COLORS.apptheme,
+        };
     };
     const handleSingleDeletePress = async value => {
         const flag = await deleteInspectionByUniqueId(value.uniqueId);
@@ -151,82 +107,10 @@ const OperatorWorksheet = () => {
             showErrorMessage('Error deleting inspection');
         }
     };
-    const handleReportPress = async item => {
-        setSelectedValue(item);
-        const response = await getAPICall(`${ApiUrl.IC_GETDOWNTIME}`);
-        if (response.length > 0) {
-            let downTimeData = [];
-            downTimeData = response.map(item => ({
-                label: item.description,
-                value: item.description,
-                ...item,
-            }))
-            setDownTimeData(downTimeData);
-        } else {
-            setDownTimeData([]);
-        }
-
-        setShowReportModal(true);
-    }
-    const handleCloseReport = () => {
-        setReportFormData({
-            downtimeres: '',
-            comment: '',
-        });
-        setFormError({
-            downtimeres: false,
-            comment: false,
-        });
-        setShowReportModal(false);
-    }
-    const validateReportForm = () => {
-        let isValid = false;
-        let errors = {
-            downtimeres: false,
-            comment: false,
-        };
-
-        if (reportFormData.downtimeres == '') {
-            errors.downtimeres = true;
-            isValid = true;
-        } else {
-            errors.downtimeres = false;
-            isValid = false;
-        }
-        // Add more validation rules as needed
-
-        setFormError(errors);
-        return isValid;
-    }
-    const handleSubmitReport = async () => {
-        console.log('Report Form Data:', selectedValue, reportFormData);
-        const isValid = validateReportForm();
-        if (isValid) {
-            return;
-        } else {
-            const payload = {
-                downtimeReasonId: reportFormData?.downtimeres?.id,
-                lotNumber: selectedValue?.strLotNo || '',
-                operationName: selectedValue?.strOperationName || '',
-                message: reportFormData?.comment,
-                reportedBy: icUserData?.userData?.UserId
-            }
-
-            const response = await postAPI(ApiUrl.IC_REPORTDOWNTIME, payload);
-            console.log('Downtime Report Response:', response);
-            if (response?.success) {
-                successMessage('Downtime reported successfully');
-                handleCloseReport();
-            } else {
-                showErrorMessage('Error reporting downtime');
-            }
-        }
-
-    }
     const renderItem = ({ item }) => {
         const { status, colorCode } = rendetBtnText(item);
         return (
-            <View style={[styles.recordConatiner, { backgroundColor: item?.backgroundColor ? item?.backgroundColor : '#fff' }]}>
+            <View style={[styles.recordConatiner]}>
                 <View style={[styles.iconBox, { backgroundColor: renderIconBgColor(item?.intInspectionTypeID) }]}>
                     <Icon name="layers-outline" size={25} color={COLORS.white} />
                 </View>
@@ -243,23 +127,13 @@ const OperatorWorksheet = () => {
                     </Text>
                 </View>
                 <View style={[styles.lastBox]}>
-                    <View>
-                        <TouchableOpacity
-                            style={[styles.launchCard, { backgroundColor: colorCode }]}
-                            onPress={() => {
-                                handleLaunchPress(item);
-                            }}>
-                            <Text style={[styles.launchText]}>{status}</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={[styles.launchCard, { backgroundColor: COLORS.apptheme, marginTop: 10 }]}
-                            onPress={() => {
-                                handleReportPress(item);
-                            }}>
-                            <Text style={[styles.launchText]}>Report</Text>
-                        </TouchableOpacity>
-                    </View>
-
+                    <TouchableOpacity
+                        style={[styles.launchCard, { backgroundColor: colorCode }]}
+                        onPress={() => {
+                            handleLaunchPress(item);
+                        }}>
+                        <Text style={[styles.launchText]}>{status}</Text>
+                    </TouchableOpacity>
                     <TouchableOpacity
                         onPress={() => {
                             handleDeletePress(item);
@@ -272,7 +146,6 @@ const OperatorWorksheet = () => {
     };
     return (
         <CustomHeader title="Operator Worksheet" activeTabId={2}>
-            {/* <ICScrollTab /> */}
             <View style={[styles.container]}>
                 {showSkeleton ? (
                     <IcSkeleton type={PLACEHOLDERS.OPERATOR_CARD} />
@@ -282,7 +155,7 @@ const OperatorWorksheet = () => {
                         renderItem={renderItem}
                         keyExtractor={(item, index) => index + 1}
                         showsVerticalScrollIndicator={false}
-                    // refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+                        // refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
                     />
                 ) : (
                     <NoDataFound />
@@ -312,17 +185,6 @@ const OperatorWorksheet = () => {
                     // setShowDelete(false);
                 }}
             />
-            <ReportShutdownModal
-                data={selectedValue}
-                visible={showReportModal}
-                handleClose={() => setShowReportModal(false)}
-                dropDownList={downTimeData}
-                setReportFormData={setReportFormData}
-                reportFormData={reportFormData}
-                handleCloseReport={handleCloseReport}
-                handleSubmitReport={handleSubmitReport}
-                formError={formError}
-            />
         </CustomHeader>
     );
 };
@@ -334,6 +196,7 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 15,
         flexDirection: 'row',
+        backgroundColor: '#fff',
         marginBottom: 10,
         borderRadius: 10,
     },
@@ -365,7 +228,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 13,
         paddingVertical: 4,
         borderRadius: 5,
-        alignItems: 'center',
     },
     launchText: {
         color: '#fff',

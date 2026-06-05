@@ -10,7 +10,7 @@ const StatusBarAndroidIOS = ({ backgroundColor = null, animated = true }) => {
     const statusBarHeight = insets.top;
 
     return (
-        <View style={[Platform.OS === 'ios' ? { height: statusBarHeight }:{paddingTop: insets.top}]}>
+        <View style={[Platform.OS === 'ios' ? { height: statusBarHeight }:{paddingTop: 0}]}>
             <StatusBar
                 backgroundColor={backgroundColor || theme.mode.backgroundColor}
                 barStyle={theme.selectedMode === Modes.light ?'dark-content': 'light-content' }

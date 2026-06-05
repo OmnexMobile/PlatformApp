@@ -11,7 +11,6 @@ import {
   Platform,
 } from 'react-native';
 import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
-// import { RNCamera } from 'react-native-camera';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { COLORS } from 'constants/theme-constants';
 

@@ -1,5 +1,5 @@
 import { COLORS } from 'constants/theme-constants';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
     BackHandler,
     FlatList,
@@ -7,18 +7,15 @@ import {
     Keyboard,
     KeyboardAvoidingView,
     Platform,
-    SafeAreaView,
     ScrollView,
     StyleSheet,
     Text,
     TextInput,
     TouchableOpacity,
     View,
-    Modal,
 } from 'react-native';
 import IconF from 'react-native-vector-icons/Feather';
 import IconM from 'react-native-vector-icons/MaterialCommunityIcons';
-import IconMM from 'react-native-vector-icons/MaterialIcons';
 import FilterWithMenu from '../FilterWithMenu';
 import { ButtonComponent } from 'components';
 import { RFPercentage } from 'helpers/utils';
@@ -29,11 +26,6 @@ import moment from 'moment';
 import DeleteModal from '../DeleteModal';
 import ConfirmationModal from './ConfirmationModal';
 import { showMessage } from 'react-native-flash-message';
-import CapabilityCard from '../CapabilityCard';
-import ImageView from "react-native-image-viewing";
-import ZoomableImage from '../ZoomableImage';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import CaptureDefect from './CaptureDefect';
 const moreList = [
     {
         id: 1,
@@ -48,14 +40,6 @@ const moreList = [
         iconFrom: 'AntDesign',
     },
 ];
-const suzlonMoreList = [
-    {
-        id: 1,
-        title: 'Next Sample',
-        iconName: 'play-skip-forward-outline',
-        iconFrom: 'Ionicons',
-    },
-];
 
 const BorderContent = ({ title = 'Title', count = 0, color = '#000' }) => {
     return (
@@ -68,55 +52,28 @@ const BorderContent = ({ title = 'Title', count = 0, color = '#000' }) => {
         </View>
     );
 };
-
-const imageExtensions = [
-    'jpg',
-    'jpeg',
-    'png',
-    'gif',
-    'webp',
-    'bmp',
-    'svg',
-];
 const CharacteristicsInfo = ({
     selectedData = {},
     type = '',
-    setShowChar = () => { },
+    setShowChar = () => {},
     masterData,
-    setMasterData = () => { },
-    setValueUpadted = () => { },
-    handleSavePress = () => { },
-    handleNextSamplePress = () => { },
+    setMasterData = () => {},
+    setValueUpadted = () => {},
+    handleSavePress = () => {},
+    handleNextSamplePress = () => {},
     icSettings = {},
     inspectionType = '',
     showCharInfo = false,
-    setSelectedData = () => { },
-    setShowConfirmModal = () => { },
+    setSelectedData = () => {},
+    setShowConfirmModal = () => {},
     showConfirmModal = false,
-    setTimer = () => { },
+    setTimer = () => {},
     timer = null,
     userUpdateValue,
-    setUserUpdateValue = () => { },
-    setTypeOfModal = () => { },
+    setUserUpdateValue = () => {},
+    setTypeOfModal = () => {},
     flatListRef = null,
-    FileList = []
 }) => {
-    const [showCPKModal, setShowCPKModal] = useState(false);
-    const [showImageWithSample, setShowImageWithSample] = useState(false);
-    const [showCaptureDefect, setShowCaptureDefect] = useState(false);
-    const imageFiles = useMemo(() => {
-        return FileList
-            .filter(file =>
-                imageExtensions.includes(
-                    file.FileExtension?.toLowerCase()
-                )
-            )
-            .map(file => ({
-                uri: `data:image/${file.FileExtension};base64,${file.FileContentBase64}`,
-            }));
-    }, [FileList]);
-
-    console.log('imageFiles', imageFiles.length);
     useEffect(() => {
         const backAction = () => {
             setShowChar(false);
@@ -127,276 +84,273 @@ const CharacteristicsInfo = ({
     }, []);
     const inputsRef = useRef([]);
     const navigation = useNavigation();
-    console.log('FileList', FileList.length);
     useEffect(() => {
         getOverAllData();
-    }, [type, selectedData]);
+    }, [selectedData, type]);
     const getOverAllData = () => {
-        if (selectedData?.isSamplePopup) {
-            if (type == 'number') {
-                let valueSampleSize = selectedData?.Samples?.length && selectedData?.Samples.filter(x => x?.value != '')?.length;
-                let sampleEnterdSize = masterData.filter(x => x?.value != '')?.length;
-                if (Object.keys(selectedData).length && !selectedData?.Samples?.length && sampleEnterdSize == 0) {
-                    console.log('********************step1');
-                    let sampleSize = selectedData.CSampleSize;
-                    const temp = Array.from({ length: sampleSize }, (_, index) => ({
-                        id: index + 1,
-                        count: index + 1,
-                        value: '',
-                        lowValue: selectedData.CLowValue,
-                        highValue: selectedData.CHighValue,
-                        tolerance: inspectionType == 2 ? selectedData?.CTolerance || 0 : 0,
-                        // newly add based on syn api
-                        sampleName: index + 1,
-                        SerialNo: index + 1,
-                        status: 1,
-                        fontColor: '#000000',
-                        IsApproved: 0,
-                        IsNumericSample: '1',
-                        Comments: '',
-                        FuncDetailsId: selectedData?.FuncDetailsId,
-                        FunctionValue: '',
-                        backColor: '',
-                        EnteredDate: '',
-                        IsRejected: 1,
-                    }));
-                    setMasterData([...temp]);
-                    setValueUpadted([...temp]);
-                } else if (selectedData?.Samples?.length > 0 && selectedData?.Samples?.length === selectedData?.CSampleSize) {
-                    console.log('********************step2');
-                    let updatedSample = selectedData?.Samples.map(item => ({
+        if (type == 'number') {
+            let valueSampleSize = selectedData?.Samples?.length && selectedData?.Samples.filter(x => x?.value != '')?.length;
+            let sampleEnterdSize = masterData.filter(x => x?.value != '')?.length;
+            if (Object.keys(selectedData).length && !selectedData?.Samples?.length && sampleEnterdSize == 0) {
+                console.log('********************step1');
+                let sampleSize = selectedData.CSampleSize;
+                const temp = Array.from({ length: sampleSize }, (_, index) => ({
+                    id: index + 1,
+                    count: index + 1,
+                    value: '',
+                    lowValue: selectedData.CLowValue,
+                    highValue: selectedData.CHighValue,
+                    tolerance: inspectionType == 2 ? selectedData?.CTolerance || 0 : 0,
+                    // newly add based on syn api
+                    sampleName: index + 1,
+                    SerialNo: index + 1,
+                    status: 1,
+                    fontColor: '#000000',
+                    IsApproved: 0,
+                    IsNumericSample: '1',
+                    Comments: '',
+                    FuncDetailsId: selectedData?.FuncDetailsId,
+                    FunctionValue: '',
+                    backColor: '',
+                    EnteredDate: '',
+                    IsRejected: 1,
+                }));
+                setMasterData([...temp]);
+                setValueUpadted([...temp]);
+            } else if (selectedData?.Samples?.length > 0 && selectedData?.Samples?.length === selectedData?.CSampleSize) {
+                console.log('********************step2');
+                let updatedSample = selectedData?.Samples.map(item => ({
+                    ...item,
+                    lowValue: selectedData.CLowValue,
+                    highValue: selectedData.CHighValue,
+                    tolerance: inspectionType == 2 ? selectedData?.CTolerance || 0 : 0,
+                }));
+                setMasterData([...updatedSample]);
+                setValueUpadted([...updatedSample]);
+            } else if (valueSampleSize == 0 && selectedData?.CSampleSize > 0 && sampleEnterdSize == 0) {
+                console.log(valueSampleSize, masterData.filter(x => x?.value != '').length, '********************step3');
+                let sampleSize = selectedData.CSampleSize;
+                const temp = Array.from({ length: sampleSize }, (_, index) => ({
+                    id: index + 1,
+                    count: index + 1,
+                    value: '',
+                    lowValue: selectedData.CLowValue,
+                    highValue: selectedData.CHighValue,
+                    tolerance: inspectionType == 2 ? selectedData?.CTolerance || 0 : 0,
+                    // newly add based on syn api
+                    sampleName: index + 1,
+                    SerialNo: index + 1,
+                    status: 1,
+                    fontColor: '#000000',
+                    IsApproved: 0,
+                    IsNumericSample: '1',
+                    Comments: '',
+                    FuncDetailsId: selectedData?.FuncDetailsId,
+                    FunctionValue: '',
+                    backColor: '',
+                    EnteredDate: '',
+                    IsRejected: 1,
+                }));
+                setMasterData([...temp]);
+                setValueUpadted([...temp]);
+            } else if (sampleEnterdSize != 0 && selectedData?.CSampleSize >= sampleEnterdSize) {
+                console.log(sampleEnterdSize, selectedData?.CSampleSize, '********************step4');
+                let filterMasterData = masterData
+                    .filter(x => x?.value != '')
+                    .map((item, index) => ({
                         ...item,
-                        lowValue: selectedData.CLowValue,
-                        highValue: selectedData.CHighValue,
-                        tolerance: inspectionType == 2 ? selectedData?.CTolerance || 0 : 0,
-                    }));
-                    setMasterData([...updatedSample]);
-                    setValueUpadted([...updatedSample]);
-                } else if (valueSampleSize == 0 && selectedData?.CSampleSize > 0 && sampleEnterdSize == 0) {
-                    console.log(valueSampleSize, masterData.filter(x => x?.value != '').length, '********************step3');
-                    let sampleSize = selectedData.CSampleSize;
-                    const temp = Array.from({ length: sampleSize }, (_, index) => ({
                         id: index + 1,
                         count: index + 1,
-                        value: '',
-                        lowValue: selectedData.CLowValue,
-                        highValue: selectedData.CHighValue,
-                        tolerance: inspectionType == 2 ? selectedData?.CTolerance || 0 : 0,
-                        // newly add based on syn api
                         sampleName: index + 1,
                         SerialNo: index + 1,
-                        status: 1,
-                        fontColor: '#000000',
-                        IsApproved: 0,
-                        IsNumericSample: '1',
-                        Comments: '',
-                        FuncDetailsId: selectedData?.FuncDetailsId,
-                        FunctionValue: '',
-                        backColor: '',
-                        EnteredDate: '',
-                        IsRejected: 1,
-                    }));
-                    setMasterData([...temp]);
-                    setValueUpadted([...temp]);
-                } else if (sampleEnterdSize != 0 && selectedData?.CSampleSize >= sampleEnterdSize) {
-                    console.log(sampleEnterdSize, selectedData?.CSampleSize, '********************step4');
-                    let filterMasterData = masterData
-                        .filter(x => x?.value != '')
-                        .map((item, index) => ({
-                            ...item,
-                            id: index + 1,
-                            count: index + 1,
-                            sampleName: index + 1,
-                            SerialNo: index + 1,
-                            lowValue: selectedData.CLowValue,
-                            highValue: selectedData.CHighValue,
-                            tolerance: inspectionType == 2 ? selectedData?.CTolerance || 0 : 0,
-                        }));
-                    let finalSampleSize = Number(selectedData?.CSampleSize) - Number(filterMasterData.length);
-                    const temp = Array.from({ length: finalSampleSize }, (_, index) => ({
-                        id: filterMasterData.length + index + 1,
-                        count: filterMasterData.length + index + 1,
-                        value: '',
                         lowValue: selectedData.CLowValue,
                         highValue: selectedData.CHighValue,
                         tolerance: inspectionType == 2 ? selectedData?.CTolerance || 0 : 0,
-                        // newly add based on syn api
-                        sampleName: filterMasterData.length + index + 1,
-                        SerialNo: filterMasterData.length + index + 1,
-                        status: 1,
-                        fontColor: '#000000',
-                        IsApproved: 0,
-                        IsNumericSample: '1',
-                        Comments: '',
-                        FuncDetailsId: selectedData?.FuncDetailsId,
-                        FunctionValue: '',
-                        backColor: '',
-                        EnteredDate: '',
-                        IsRejected: 1,
                     }));
-                    setMasterData([...filterMasterData, ...temp]);
+                let finalSampleSize = Number(selectedData?.CSampleSize) - Number(filterMasterData.length);
+                const temp = Array.from({ length: finalSampleSize }, (_, index) => ({
+                    id: filterMasterData.length + index + 1,
+                    count: filterMasterData.length + index + 1,
+                    value: '',
+                    lowValue: selectedData.CLowValue,
+                    highValue: selectedData.CHighValue,
+                    tolerance: inspectionType == 2 ? selectedData?.CTolerance || 0 : 0,
+                    // newly add based on syn api
+                    sampleName: filterMasterData.length + index + 1,
+                    SerialNo: filterMasterData.length + index + 1,
+                    status: 1,
+                    fontColor: '#000000',
+                    IsApproved: 0,
+                    IsNumericSample: '1',
+                    Comments: '',
+                    FuncDetailsId: selectedData?.FuncDetailsId,
+                    FunctionValue: '',
+                    backColor: '',
+                    EnteredDate: '',
+                    IsRejected: 1,
+                }));
+                setMasterData([...filterMasterData, ...temp]);
+                setValueUpadted([...filterMasterData, ...temp]);
+            } else if (selectedData.CSampleSize <= sampleEnterdSize) {
+                console.log('********************step5');
+                let temp = JSON.parse(JSON.stringify(masterData)); // Deep copy
+                let slicedList = temp.slice(0, Number(selectedData.CSampleSize ));
+                console.log(slicedList.length,'slicedList')
+                setMasterData([...slicedList]);
+                setValueUpadted([...slicedList]);
+                // showMessage({
+                //     message: 'Something went wrong',
+                //     backgroundColor: COLORS.ERROR,
+                //     color: COLORS.white,
+                //     duration: 1500,
+                //     statusBarHeight: 40,
+                //     icon: 'warning',
+                //     position: 'right',
+                //      style: { height: 150, alignItems: 'flex-end' },
+                // });
+            } else {
+                console.log('********************step6');
+                setMasterData([...selectedData?.Samples]);
+                setValueUpadted([...selectedData?.Samples]);
+            }
+        } else if (type == 'char') {
+            let valueSampleSize = selectedData?.Samples?.length && selectedData?.Samples.filter(x => x?.value != '')?.length;
+            let sampleEnterdSize = masterData.filter(x => x?.value != '')?.length;
+            if (Object.keys(selectedData).length && !selectedData?.Samples?.length && sampleEnterdSize == 0) {
+                console.log('********************step1');
+                let sampleSize = selectedData.CSampleSize;
+                const temp = Array.from({ length: sampleSize }, (_, index) => ({
+                    id: index + 1,
+                    count: index + 1,
+                    value: icSettings?.DefaultAllOK ? 'OK' : '',
+                    // newly add based on syn api
+                    sampleName: index + 1,
+                    SerialNo: index + 1,
+                    FunctionValue: icSettings?.DefaultAllOK ? 'OK' : '',
+                    status: 0,
+                    backColor: icSettings?.DefaultAllOK ? '#00FF00' : '',
+                    fontColor: '#000000',
+                    EnteredDate: moment(new Date()).format('MM/DD/YYYY h:mm:ss A '),
+                    IsApproved: 0,
+                    IsNumericSample: '0',
+                    IsRejected: 0,
+                    Comments: '',
+                    FuncDetailsId: selectedData?.FuncDetailsId,
+                }));
+                // if you want alert to ask enable temp1 and stroe in valueUpadted
+                const temp1 = temp.map(item => ({
+                    ...item,
+                    value: '',
+                    FunctionValue: '',
+                }));
+                setMasterData([...temp]);
+                if (icSettings?.DefaultAllOK) {
+                    setValueUpadted([...temp1]);
+                } else {
+                    setValueUpadted([...temp]);
+                }
+                return null;
+            } else if (selectedData?.Samples?.length > 0 && selectedData?.Samples?.length === selectedData?.CSampleSize) {
+                console.log('********************step2');
+                setMasterData([...selectedData?.Samples]);
+                setValueUpadted([...selectedData?.Samples]);
+            } else if (valueSampleSize == 0 && selectedData?.CSampleSize > 0 && sampleEnterdSize == 0) {
+                console.log(valueSampleSize, masterData.filter(x => x?.value != '').length, '********************step3');
+                let sampleSize = selectedData.CSampleSize;
+                const temp = Array.from({ length: sampleSize }, (_, index) => ({
+                    id: index + 1,
+                    count: index + 1,
+                    value: icSettings?.DefaultAllOK ? 'OK' : '',
+                    // newly add based on syn api
+                    sampleName: index + 1,
+                    SerialNo: index + 1,
+                    FunctionValue: icSettings?.DefaultAllOK ? 'OK' : '',
+                    status: 0,
+                    backColor: icSettings?.DefaultAllOK ? '#00FF00' : '',
+                    fontColor: '#000000',
+                    EnteredDate: moment(new Date()).format('MM/DD/YYYY h:mm:ss A '),
+                    IsApproved: 0,
+                    IsNumericSample: '0',
+                    IsRejected: 0,
+                    Comments: '',
+                    FuncDetailsId: selectedData?.FuncDetailsId,
+                }));
+                // if you want alert to ask enable temp1 and stroe in valueUpadted
+                const temp1 = temp.map(item => ({
+                    ...item,
+                    value: '',
+                    FunctionValue: '',
+                }));
+                setMasterData([...temp]);
+                if (icSettings?.DefaultAllOK) {
+                    setValueUpadted([...temp1]);
+                } else {
+                    setValueUpadted([...temp]);
+                }
+            } else if (sampleEnterdSize != 0 && selectedData?.CSampleSize >= sampleEnterdSize) {
+                console.log(sampleEnterdSize, selectedData?.CSampleSize, '1111********************step4');
+                let filterMasterData = masterData
+                    .filter(x => x?.value != '')
+                    .map((item, index) => ({
+                        ...item,
+                        id: index + 1,
+                        count: index + 1,
+                        sampleName: index + 1,
+                        SerialNo: index + 1,
+                    }));
+                let finalSampleSize = Number(selectedData?.CSampleSize) - Number(filterMasterData.length);
+                const temp = Array.from({ length: finalSampleSize }, (_, index) => ({
+                    id: filterMasterData.length + index + 1,
+                    count: filterMasterData.length + index + 1,
+                    tolerance: inspectionType == 2 ? selectedData?.CTolerance || 0 : 0,
+                    // newly add based on syn api
+                    sampleName: filterMasterData.length + index + 1,
+                    SerialNo: filterMasterData.length + index + 1,
+                    value: icSettings?.DefaultAllOK ? 'OK' : '',
+                    // newly add based on syn api
+                    FunctionValue: icSettings?.DefaultAllOK ? 'OK' : '',
+                    status: 0,
+                    backColor: icSettings?.DefaultAllOK ? '#00FF00' : '',
+                    fontColor: '#000000',
+                    EnteredDate: moment(new Date()).format('MM/DD/YYYY h:mm:ss A '),
+                    IsApproved: 0,
+                    IsNumericSample: '0',
+                    IsRejected: 0,
+                    Comments: '',
+                    FuncDetailsId: selectedData?.FuncDetailsId,
+                }));
+                setMasterData([...filterMasterData, ...temp]);
+                const temp1 = temp.map(item => ({
+                    ...item,
+                    value: '',
+                    FunctionValue: '',
+                }));
+                if (icSettings?.DefaultAllOK) {
+                    setValueUpadted([...filterMasterData, ...temp1]);
+                } else {
                     setValueUpadted([...filterMasterData, ...temp]);
-                } else if (selectedData.CSampleSize <= sampleEnterdSize) {
-                    console.log('********************step5');
-                    let temp = JSON.parse(JSON.stringify(masterData)); // Deep copy
-                    let slicedList = temp.slice(0, Number(selectedData.CSampleSize));
-                    console.log(slicedList.length, 'slicedList');
-                    setMasterData([...slicedList]);
-                    setValueUpadted([...slicedList]);
-                    // showMessage({
-                    //     message: 'Something went wrong',
-                    //     backgroundColor: COLORS.ERROR,
-                    //     color: COLORS.white,
-                    //     duration: 1500,
-                    //     statusBarHeight: 40,
-                    //     icon: 'warning',
-                    //     position: 'right',
-                    //     style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
-                    // });
-                } else {
-                    console.log('********************step6');
-                    setMasterData([...selectedData?.Samples]);
-                    setValueUpadted([...selectedData?.Samples]);
                 }
-            } else if (type == 'char') {
-                let valueSampleSize = selectedData?.Samples?.length && selectedData?.Samples.filter(x => x?.value != '')?.length;
-                let sampleEnterdSize = masterData.filter(x => x?.value != '')?.length;
-                if (Object.keys(selectedData).length && !selectedData?.Samples?.length && sampleEnterdSize == 0) {
-                    console.log('********************step1');
-                    let sampleSize = selectedData.CSampleSize;
-                    const temp = Array.from({ length: sampleSize }, (_, index) => ({
-                        id: index + 1,
-                        count: index + 1,
-                        value: icSettings?.DefaultAllOK ? 'OK' : '',
-                        // newly add based on syn api
-                        sampleName: index + 1,
-                        SerialNo: index + 1,
-                        FunctionValue: icSettings?.DefaultAllOK ? 'OK' : '',
-                        status: 0,
-                        backColor: icSettings?.DefaultAllOK ? '#00FF00' : '',
-                        fontColor: '#000000',
-                        EnteredDate: moment(new Date()).format('MM/DD/YYYY h:mm:ss A '),
-                        IsApproved: 0,
-                        IsNumericSample: '0',
-                        IsRejected: 0,
-                        Comments: '',
-                        FuncDetailsId: selectedData?.FuncDetailsId,
-                    }));
-                    // if you want alert to ask enable temp1 and stroe in valueUpadted
-                    const temp1 = temp.map(item => ({
-                        ...item,
-                        value: '',
-                        FunctionValue: '',
-                    }));
-                    setMasterData([...temp]);
-                    if (icSettings?.DefaultAllOK) {
-                        setValueUpadted([...temp1]);
-                    } else {
-                        setValueUpadted([...temp]);
-                    }
-                    return null;
-                } else if (selectedData?.Samples?.length > 0 && selectedData?.Samples?.length === selectedData?.CSampleSize) {
-                    console.log('********************step2');
-                    setMasterData([...selectedData?.Samples]);
-                    setValueUpadted([...selectedData?.Samples]);
-                } else if (valueSampleSize == 0 && selectedData?.CSampleSize > 0 && sampleEnterdSize == 0) {
-                    console.log(valueSampleSize, masterData.filter(x => x?.value != '').length, '********************step3');
-                    let sampleSize = selectedData.CSampleSize;
-                    const temp = Array.from({ length: sampleSize }, (_, index) => ({
-                        id: index + 1,
-                        count: index + 1,
-                        value: icSettings?.DefaultAllOK ? 'OK' : '',
-                        // newly add based on syn api
-                        sampleName: index + 1,
-                        SerialNo: index + 1,
-                        FunctionValue: icSettings?.DefaultAllOK ? 'OK' : '',
-                        status: 0,
-                        backColor: icSettings?.DefaultAllOK ? '#00FF00' : '',
-                        fontColor: '#000000',
-                        EnteredDate: moment(new Date()).format('MM/DD/YYYY h:mm:ss A '),
-                        IsApproved: 0,
-                        IsNumericSample: '0',
-                        IsRejected: 0,
-                        Comments: '',
-                        FuncDetailsId: selectedData?.FuncDetailsId,
-                    }));
-                    // if you want alert to ask enable temp1 and stroe in valueUpadted
-                    const temp1 = temp.map(item => ({
-                        ...item,
-                        value: '',
-                        FunctionValue: '',
-                    }));
-                    setMasterData([...temp]);
-                    if (icSettings?.DefaultAllOK) {
-                        setValueUpadted([...temp1]);
-                    } else {
-                        setValueUpadted([...temp]);
-                    }
-                } else if (sampleEnterdSize != 0 && selectedData?.CSampleSize >= sampleEnterdSize) {
-                    console.log(sampleEnterdSize, selectedData?.CSampleSize, '1111********************step4');
-                    let filterMasterData = masterData
-                        .filter(x => x?.value != '')
-                        .map((item, index) => ({
-                            ...item,
-                            id: index + 1,
-                            count: index + 1,
-                            sampleName: index + 1,
-                            SerialNo: index + 1,
-                        }));
-                    let finalSampleSize = Number(selectedData?.CSampleSize) - Number(filterMasterData.length);
-                    const temp = Array.from({ length: finalSampleSize }, (_, index) => ({
-                        id: filterMasterData.length + index + 1,
-                        count: filterMasterData.length + index + 1,
-                        tolerance: inspectionType == 2 ? selectedData?.CTolerance || 0 : 0,
-                        // newly add based on syn api
-                        sampleName: filterMasterData.length + index + 1,
-                        SerialNo: filterMasterData.length + index + 1,
-                        value: icSettings?.DefaultAllOK ? 'OK' : '',
-                        // newly add based on syn api
-                        FunctionValue: icSettings?.DefaultAllOK ? 'OK' : '',
-                        status: 0,
-                        backColor: icSettings?.DefaultAllOK ? '#00FF00' : '',
-                        fontColor: '#000000',
-                        EnteredDate: moment(new Date()).format('MM/DD/YYYY h:mm:ss A '),
-                        IsApproved: 0,
-                        IsNumericSample: '0',
-                        IsRejected: 0,
-                        Comments: '',
-                        FuncDetailsId: selectedData?.FuncDetailsId,
-                    }));
-                    setMasterData([...filterMasterData, ...temp]);
-                    const temp1 = temp.map(item => ({
-                        ...item,
-                        value: '',
-                        FunctionValue: '',
-                    }));
-                    if (icSettings?.DefaultAllOK) {
-                        setValueUpadted([...filterMasterData, ...temp1]);
-                    } else {
-                        setValueUpadted([...filterMasterData, ...temp]);
-                    }
-                } else if (selectedData.CSampleSize <= sampleEnterdSize) {
-                    console.log('********************step5 ');
-                    let temp = JSON.parse(JSON.stringify(masterData)); // Deep copy
-                    let slicedList = temp.slice(0, Number(selectedData.CSampleSize));
-                    setMasterData([...slicedList]);
-                    setValueUpadted([...slicedList]);
-                    // showMessage({
-                    //     message: 'Something went wrong',
-                    //     backgroundColor: COLORS.ERROR,
-                    //     color: COLORS.white,
-                    //     duration: 1500,
-                    //     statusBarHeight: 40,
-                    //     icon: 'warning',
-                    //     position: 'right',
-                    //     style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
-                    // });
-                } else {
-                    console.log('1111********************step6');
-                    setMasterData([...selectedData?.Samples]);
-                    setValueUpadted([...selectedData?.Samples]);
-                    return null;
-                }
+            } else if (selectedData.CSampleSize <= sampleEnterdSize) {
+                console.log('********************step5 ');
+                let temp = JSON.parse(JSON.stringify(masterData)); // Deep copy
+                let slicedList = temp.slice(0, Number(selectedData.CSampleSize ));
+                setMasterData([...slicedList]);
+                setValueUpadted([...slicedList]);
+                // showMessage({
+                //     message: 'Something went wrong',
+                //     backgroundColor: COLORS.ERROR,
+                //     color: COLORS.white,
+                //     duration: 1500,
+                //     statusBarHeight: 40,
+                //     icon: 'warning',
+                //     position: 'right',
+                //      style: { height: 150, alignItems: 'flex-end' },
+                // });
+            } else {
+                console.log('1111********************step6');
+                setMasterData([...selectedData?.Samples]);
+                setValueUpadted([...selectedData?.Samples]);
+                return null;
             }
         }
     };
@@ -416,13 +370,13 @@ const CharacteristicsInfo = ({
         const updatedData = masterData.map(item =>
             item.id === id
                 ? {
-                    ...item,
-                    value: val,
-                    FunctionValue: val,
-                    EnteredDate: moment(new Date()).format('MM/DD/YYYY h:mm:ss A '),
-                    backColor: getBackColorValue,
-                    IsRejected: getBackColorValue == '#00FF00' ? 0 : 1,
-                }
+                      ...item,
+                      value: val,
+                      FunctionValue: val,
+                      EnteredDate: moment(new Date()).format('MM/DD/YYYY h:mm:ss A '),
+                      backColor: getBackColorValue,
+                      IsRejected: getBackColorValue == '#00FF00' ? 0 : 1,
+                  }
                 : item,
         );
         setMasterData(updatedData);
@@ -432,12 +386,12 @@ const CharacteristicsInfo = ({
         const updatedData = masterData.map(item =>
             item.id === value.id
                 ? {
-                    ...value,
-                    FunctionValue: value.value,
-                    EnteredDate: moment(new Date()).format('MM/DD/YYYY h:mm:ss A '),
-                    backColor: getBackColorValue,
-                    IsRejected: getBackColorValue == '#00FF00' ? 0 : 1,
-                }
+                      ...value,
+                      FunctionValue: value.value,
+                      EnteredDate: moment(new Date()).format('MM/DD/YYYY h:mm:ss A '),
+                      backColor: getBackColorValue,
+                      IsRejected: getBackColorValue == '#00FF00' ? 0 : 1,
+                  }
                 : item,
         );
         setMasterData(updatedData);
@@ -490,7 +444,6 @@ const CharacteristicsInfo = ({
             return value.toLowerCase() === 'ok' ? COLORS.SUCCESS : COLORS.ERROR;
         };
         const renderIcon = (value, type, list) => {
-            let itsHaveData = list?.some(item => item?.ContainmentValue !== '');
             if (value === '') {
                 return false;
             }
@@ -498,10 +451,10 @@ const CharacteristicsInfo = ({
                 let lowValue = inspectionType == 2 ? Number(item?.tolerance) - Number(item?.lowValue) : item?.lowValue;
                 let highValue = inspectionType == 2 ? Number(item?.tolerance) + Number(item?.highValue) : item?.highValue;
                 let flag = Number(value) >= Number(lowValue) && Number(value) <= Number(highValue);
-                return flag ? (itsHaveData ? true : false) : true;
+                return flag ? (list > 0 ? true : false) : true;
             }
             let flagOk = value.toLowerCase() === 'ok';
-            return flagOk ? (itsHaveData ? true : false) : true;
+            return flagOk ? (list > 0 ? true : false) : true;
         };
         return (
             <View style={[styles.contentBox]}>
@@ -515,7 +468,7 @@ const CharacteristicsInfo = ({
                         marginRight: 5,
                     }}>
                     <Text style={[styles.headerText]}>{item.count}</Text>
-                    {renderIcon(item.value, type, item?.ContainmentActions) && Boolean(icSettings?.ISContainmentAction) && (
+                    {renderIcon(item.value, type, item?.ContainmentActions?.length) && Boolean(icSettings?.ISContainmentAction) && (
                         <TouchableOpacity
                             style={[styles.iconContainer]}
                             onPress={() => {
@@ -624,15 +577,15 @@ const CharacteristicsInfo = ({
         let temp =
             type == 'number'
                 ? value?.filter(
-                    x =>
-                        x?.value != '' &&
-                        (inspectionType == 2
-                            ? Number(x?.value) >= Number(x?.tolerance) - Number(x?.lowValue)
-                            : Number(x?.value) >= Number(x?.lowValue)) &&
-                        (inspectionType == 2
-                            ? Number(x?.value) <= Number(x?.tolerance) + Number(x?.highValue)
-                            : Number(x?.value) <= Number(x?.highValue)),
-                )
+                      x =>
+                          x?.value != '' &&
+                          (inspectionType == 2
+                              ? Number(x?.value) >= Number(x?.tolerance) - Number(x?.lowValue)
+                              : Number(x?.value) >= Number(x?.lowValue)) &&
+                          (inspectionType == 2
+                              ? Number(x?.value) <= Number(x?.tolerance) + Number(x?.highValue)
+                              : Number(x?.value) <= Number(x?.highValue)),
+                  )
                 : value.filter(x => x?.value?.toLowerCase() == 'ok' && x?.value !== '');
         return temp.length || 0;
     };
@@ -640,113 +593,20 @@ const CharacteristicsInfo = ({
         let temp =
             type == 'number'
                 ? value.filter(
-                    x =>
-                        x?.value != '' &&
-                        !(
-                            (inspectionType == 2
-                                ? Number(x?.value) >= Number(x?.tolerance) - Number(x?.lowValue)
-                                : Number(x?.value) >= Number(x?.lowValue)) &&
-                            (inspectionType == 2
-                                ? Number(x?.value) <= Number(x?.tolerance) + Number(x?.highValue)
-                                : Number(x?.value) <= Number(x?.highValue))
-                        ),
-                )
+                      x =>
+                          x?.value != '' &&
+                          !(
+                              (inspectionType == 2
+                                  ? Number(x?.value) >= Number(x?.tolerance) - Number(x?.lowValue)
+                                  : Number(x?.value) >= Number(x?.lowValue)) &&
+                              (inspectionType == 2
+                                  ? Number(x?.value) <= Number(x?.tolerance) + Number(x?.highValue)
+                                  : Number(x?.value) <= Number(x?.highValue))
+                          ),
+                  )
                 : value.filter(x => x?.value?.toLowerCase() != 'ok' && x?.value !== '');
         return temp?.length || 0;
     };
-    const handleCloseCPKModal = () => {
-        setShowCPKModal(false);
-        handleSavePress(true, 'saveBtn')
-    }
-    const handleViewPhotoWithSample = (item, index) => {
-        setShowImageWithSample(true);
-    }
-    const renderFaltList = (showHeader = true) => {
-        return (
-            <View style={{}}>
-                <FlatList
-                    keyboardShouldPersistTaps="handled"
-                    ref={flatListRef}
-                    data={masterData}
-                    keyExtractor={(item, index) => index.toString()}
-                    renderItem={({ item, index }) => {
-                        return <View style={[styles.tableBox]}>{renderItem(item, index)}</View>;
-                    }}
-                    showsVerticalScrollIndicator={false}
-                    contentContainerStyle={{ paddingBottom: 100 }}
-                    // contentContainerStyle={[styles.tableBox]}
-
-                    ListHeaderComponent={
-                        <View>
-                            {showCharInfo && showHeader && (
-                                <SampleCharInfo
-                                    selectedData={selectedData}
-                                    setSelectedData={setSelectedData}
-                                    masterData={masterData}
-                                    setMasterData={setMasterData}
-                                    setValueUpadted={setValueUpadted}
-                                    showConfirmModal={showConfirmModal}
-                                    setShowConfirmModal={setShowConfirmModal}
-                                    setTimer={setTimer}
-                                    timer={timer}
-                                    userUpdateValue={userUpdateValue}
-                                    setUserUpdateValue={setUserUpdateValue}
-                                    setTypeOfModal={setTypeOfModal}
-                                    charType={type}
-                                    inspectionType={inspectionType}
-                                />
-                            )}
-                            <View style={{flexDirection: 'row', alignItems: 'center', paddingHorizontal: 15, marginBottom: 10}}>
-                                <View style={{flex: 1}}>
-                                    <TouchableOpacity
-                                        style={{ flexDirection: 'row', alignItems: 'center' }}
-                                        onPress={() => {
-                                            setShowCaptureDefect(true);
-                                        }}>
-                                        <IconM name="camera" size={20} color={COLORS.apptheme} />
-                                    </TouchableOpacity>
-                                </View>
-                                <View style={{flex: 1}}>
-                                    <Text style={[styles.headerText, {marginLeft: 5}]}>Sample Size: {masterData?.length || 0}</Text>
-                                </View>
-                            </View>
-                            {Boolean(selectedData?.isSamplePopup) && (
-                                <View style={[styles.headerBox]}>
-                                    <View style={{ flex: 1 }}>
-                                        <Text style={[styles.headerText, { marginLeft: 15 }]}>No</Text>
-                                    </View>
-                                    <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center' }}>
-                                        <Text style={[styles.headerText]}>Actual Value</Text>
-                                        {showHeader && <TouchableOpacity
-                                            style={[styles.deleteIcon]}
-                                            onPress={() => {
-                                                handleViewPhotoWithSample();
-                                            }}>
-                                            <IconMM name="file-present" size={25} color={COLORS.apptheme} />
-                                        </TouchableOpacity>}
-                                    </View>
-
-                                </View>
-                            )}
-                        </View>
-                    }
-                    ListFooterComponent={
-                        Boolean(selectedData?.isSamplePopup) ? (
-                            <View>
-                                <BorderContent title="Total Samples Tested" color={COLORS.apptheme} count={masterData?.length} />
-                                <BorderContent title="Sample(s) OK " color={COLORS.SUCCESS} count={renderOkCount(masterData)} />
-                                <BorderContent title="Sample(s) Not OK " color={COLORS.ERROR} count={renderNotOkCount(masterData)} />
-                            </View>
-                        ) : null
-                    }
-                />
-                {/* {Boolean(masterData?.length) &&
-                            masterData.map((item, index) => {
-                                return renderItem(item, index);
-                            })} */}
-            </View>
-        )
-    }
     return (
         <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -755,22 +615,74 @@ const CharacteristicsInfo = ({
             <View style={[styles.container]}>
                 <View style={[styles.overallBox]}>
                     {/* need to chage the infodata as selectedData and setSelectedData */}
-                    {renderFaltList(true)}
+                    <View style={{}}>
+                        <FlatList
+                            keyboardShouldPersistTaps="handled"
+                            ref={flatListRef}
+                            data={masterData}
+                            keyExtractor={(item, index) => index.toString()}
+                            renderItem={({ item, index }) => {
+                                return <View style={[styles.tableBox]}>{renderItem(item, index)}</View>;
+                            }}
+                            showsVerticalScrollIndicator={false}
+                            contentContainerStyle={{ paddingBottom: 100 }}
+                            // contentContainerStyle={[styles.tableBox]}
+                            ListHeaderComponent={
+                                <View>
+                                    {showCharInfo && (
+                                        <SampleCharInfo
+                                            selectedData={selectedData}
+                                            setSelectedData={setSelectedData}
+                                            masterData={masterData}
+                                            setMasterData={setMasterData}
+                                            setValueUpadted={setValueUpadted}
+                                            showConfirmModal={showConfirmModal}
+                                            setShowConfirmModal={setShowConfirmModal}
+                                            setTimer={setTimer}
+                                            timer={timer}
+                                            userUpdateValue={userUpdateValue}
+                                            setUserUpdateValue={setUserUpdateValue}
+                                            setTypeOfModal={setTypeOfModal}
+                                            charType={type}
+                                            inspectionType={inspectionType}
+                                        />
+                                    )}
+                                    <View style={[styles.headerBox]}>
+                                        <View style={{ flex: 1 }}>
+                                            <Text style={[styles.headerText, { marginLeft: 15 }]}>No</Text>
+                                        </View>
+                                        <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center' }}>
+                                            <Text style={[styles.headerText]}>Actual Value</Text>
+                                        </View>
+                                    </View>
+                                </View>
+                            }
+                            ListFooterComponent={
+                                <View>
+                                    <BorderContent title="Total Samples Tested" color={COLORS.apptheme} count={masterData?.length} />
+                                    <BorderContent title="Sample(s) OK " color={COLORS.SUCCESS} count={renderOkCount(masterData)} />
+                                    <BorderContent title="Sample(s) Not OK " color={COLORS.ERROR} count={renderNotOkCount(masterData)} />
+                                </View>
+                            }
+                        />
+                        {/* {Boolean(masterData?.length) &&
+                            masterData.map((item, index) => {
+                                return renderItem(item, index);
+                            })} */}
+                    </View>
                 </View>
                 <View style={[styles.btnContainer]}>
                     <ButtonComponent
                         textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}
                         style={{ height: 40, width: '89%' }}
                         onPress={() => {
-                            setShowCPKModal(true);
-                            // handleSavePress(true, 'saveBtn');
-
+                            handleSavePress(true, 'saveBtn');
                         }}>
                         Save
                     </ButtonComponent>
                     <View style={[styles.iconFilter]}>
                         <FilterWithMenu
-                            dataList={selectedData?.isSamplePopup ? moreList : suzlonMoreList}
+                            dataList={moreList}
                             type="IconFilter"
                             onSelectedPress={value => {
                                 handleMenuPress(value);
@@ -780,49 +692,6 @@ const CharacteristicsInfo = ({
                     </View>
                 </View>
             </View>
-            <CapabilityCard
-                visible={showCPKModal}
-                // setVisible={setShowCPKModal}
-                handleClose={handleCloseCPKModal}
-                data={{
-                    pp: 2.5,
-                    ppk: 2.1,
-                    cp: 0.78,
-                    cpk: -0.22,
-                }}
-            />
-            <Modal
-                visible={showImageWithSample}
-                animationType="slide"
-                transparent={false}
-                onRequestClose={() => setShowImageWithSample(false)}
-            >
-                <GestureHandlerRootView style={{ flex: 1 }}>
-                    <SafeAreaView style={styles.modalContainer}>
-                        <View style={styles.header}>
-                            <Text style={styles.title}>View Image Attachment with Sample</Text>
-                            <TouchableOpacity
-                                style={[styles.deleteIcon]}
-                                onPress={() => {
-                                    setShowImageWithSample(false);
-                                }}>
-                                <IconMM name="close" size={25} color={COLORS.apptheme} />
-                            </TouchableOpacity>
-                        </View>
-                        <View style={styles.content}>
-                            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', }}>
-                                <ZoomableImage fileList={FileList} />
-                            </View>
-                            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 10 }}>
-                                <View style={{ flex: 1, width: '100%' }}>
-                                    {renderFaltList(false)}
-                                </View>
-                            </View>
-                        </View>
-                    </SafeAreaView>
-                </GestureHandlerRootView>
-            </Modal>
-            <CaptureDefect visible={showCaptureDefect} onRequestClose={() => setShowCaptureDefect(false)} />
         </KeyboardAvoidingView>
     );
 };
@@ -912,33 +781,6 @@ const styles = StyleSheet.create({
     deleteIcon: {
         marginLeft: 10,
         alignSelf: 'center',
-    },
-    modalContainer: {
-        flex: 1,
-        backgroundColor: '#fff',
-    },
-
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        padding: 10,
-        borderBottomWidth: 1,
-        borderBottomColor: '#ddd',
-    },
-
-    title: {
-        fontSize: 16,
-        fontFamily: 'OpenSans-Bold',
-        color: '#000',
-    },
-
-    close: {
-        color: 'red',
-        fontSize: 16,
-    },
-
-    content: {
-        flex: 1,
     },
 });
 

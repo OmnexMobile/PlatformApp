@@ -39,3 +39,9 @@ npx react-native generate-bootsplash assets/bootsplash_logo.png \
   --logo-width=100 \
   --assets-output=assets \
   --flavor=main
+
+  npx react-native-bootsplash generate assets/images/bootsplash_logo.png \
+  --platforms=android \
+  --logo-width=100 \
+  --background=#FFFFFF
+  

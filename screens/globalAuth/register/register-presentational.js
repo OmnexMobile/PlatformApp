@@ -8,11 +8,12 @@ import { ICON_TYPE, OPACITY_ANIMATION, OPACITY_TRANSLATE_Y_ANIMATION } from 'con
 import { COLORS, FONT_SIZE, SPACING } from 'constants/theme-constants';
 import useTheme from 'theme/useTheme';
 import LoginInput from 'screens/auth/login/components/login-input';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const RegisterPresentational = ({ navigation, handleChange, state, handleRegister, isRegistered, handleUnRegister, loading, getDeviceStatus }) => {
     const { theme } = useTheme();
     return (
-        <View style={{ flex: 1, backgroundColor: COLORS.white }}>
+        <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.white }}>
             {/* need image with transparent background */}
             <ImageComponent style={{ width: '100%', height: '100%', position: 'absolute', zIndex: 0 }} source={IMAGES.loginBack} />
             <KeyboardAwareScrollViewComponent style={{ flex: 1, backgroundColor: COLORS.transparent }}>
@@ -39,7 +40,7 @@ const RegisterPresentational = ({ navigation, handleChange, state, handleRegiste
                     </GradientButton>
                 </AnimatableView>
             </KeyboardAwareScrollViewComponent>
-        </View>
+        </SafeAreaView>
     );
 };
 

@@ -91,7 +91,7 @@ import SupervisorSchedule from 'screens/inspection-control/supervisor-schedule';
 import InprocessInspection from 'screens/inspection-control/inprocess-inspection';
 import ContainmentActions from 'screens/inspection-control/containmentActions';
 import IcSettings from 'screens/inspection-control/icSettings';
-import SearchInspection from 'screens/inspection-control/search-inspection';
+// import SearchInspection from 'screens/inspection-control/search-inspection';
 const Stack = createNativeStackNavigator();
 
 export const AppStackData = [
@@ -493,11 +493,11 @@ export const AppStackData = [
         component: ContainmentActions,
         
     },
-    {
-        name: ROUTES.SEARCH_INSPECTION,
-        component: SearchInspection,
+    // {
+    //     name: ROUTES.SEARCH_INSPECTION,
+    //     component: SearchInspection,
         
-    }
+    // }
     // ...HomeStackData,
 ];
 // export const ProfileData = [

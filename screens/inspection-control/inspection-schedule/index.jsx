@@ -24,7 +24,6 @@ import { postAPI } from 'global/api-helpers';
 import ApiUrl from 'global/ApiUrl';
 import { deleteAllInspectionData, getInspectionDataByUserAndSite } from 'store/database/inspectStorage';
 import { Modal } from 'react-native-paper';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const filterList = [
     {
@@ -59,10 +58,8 @@ const moreList = [
     },
 ];
 const InspectionSchedule = () => {
-    const insets = useSafeAreaInsets();
     const { height } = useWindowDimensions();
-    const { icUserData,icSettings, dateFormat } = useSelector(state => state.inspection);
-    const uiDateFormat = dateFormat || 'DD/MM/YYYY';
+    const { icUserData } = useSelector(state => state.inspection);
     const dispatch = useDispatch();
     const isFocused = useIsFocused();
     const {
@@ -107,17 +104,10 @@ const InspectionSchedule = () => {
     //     console.log(list, '*********************************************list.length');
     // };
     const getOverAllSettings = async () => {
-        const formDate=new FormData();
-        formDate.append('UserID', parseInt(icUserData?.userData?.UserId));
-        formDate.append('SiteID', parseInt(icUserData?.userData?.Siteid));
-        const settingsRes = await postAPI(`${ApiUrl.IC_SETTINGS}`,formDate);
+        const settingsRes = await postAPI(`${ApiUrl.IC_SETTINGS}`);
         if (settingsRes.Success) {
-            const settings = {
-                ...settingsRes?.Data[0],
-            };
-            dispatch({ type: 'IC_SETTINGS', icSettings: settings || {} });
+            dispatch({ type: 'IC_SETTINGS', icSettings: settingsRes?.Data[0] || {} });
         }
-        return settingsRes;
     };
     const handleListFetch = async (inspect = null, showSktn = true, filterType = '') => {
         // await deleteAllInspectionData();
@@ -127,16 +117,18 @@ const InspectionSchedule = () => {
         let dateFlag = startDate !== '' && endDate !== '';
         const formData = new FormData();
         formData.append('UserID', icUserData?.userData?.UserId);
+        // formData.append('UserID', 7);
         formData.append('SiteID', parseInt(icUserData?.userData?.Siteid));
         formData.append('LanguageID', 1);
         formData.append('StartDate', dateFlag ? moment(startDate).format('MM/DD/YYYY') : '');
         formData.append('EndDate', dateFlag ? moment(endDate).format('MM/DD/YYYY') : '');
+        // formData.append('InspectionType', inspect !== null ? inspect : type);
         const response = await postAPI(`${ApiUrl.IC_GET_IS}`, formData);
         await getOverAllSettings();
         let retunListData = [];
         if (response.Success) {
             let temp = response?.Data?.InspectionSchedules || [];
-            let updatedArray = temp.map(item => {
+            const updatedArray = temp.map(item => {
                 const match = inspectList.some(
                     compareItem =>
                         compareItem.intProductionItemID === item.ProductionItemId &&
@@ -148,13 +140,6 @@ const InspectionSchedule = () => {
                     isDownloaded: match,
                 };
             });
-
-            const allowedTypes = [];
-            if (icSettings.TabReceivingLotScheduleNeeded) allowedTypes.push('1');
-            if (icSettings.TabInprocessLotScheduleNeeded) allowedTypes.push('2');
-            if (icSettings.TabFinalLotScheduleNeeded) allowedTypes.push('3');
-            updatedArray = allowedTypes.length === 0 ? [] : updatedArray.filter(item => allowedTypes.includes(item.TypeOfInspection));
-
             const sortedSchedules = updatedArray.sort((a, b) => {
                 return new Date(b.ProductionStartDate) - new Date(a.ProductionStartDate);
             });
@@ -200,7 +185,8 @@ const InspectionSchedule = () => {
     };
 
     useEffect(() => {
-        if (icUserData.userData && isFocused) {
+        if (icUserData && isFocused) {
+            console.log('icUserData', icUserData);
             handleListFetch(null, true, filterData.type);
         }
         return () => {
@@ -235,7 +221,7 @@ const InspectionSchedule = () => {
     //                 statusBarHeight: 40,
     //                 icon: 'danger',
     //                 position: 'right',
-    //                 style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+    //                  style: { height: 150, alignItems: 'flex-end' },
     //             });
     //         }
     //     }
@@ -255,7 +241,7 @@ const InspectionSchedule = () => {
                 statusBarHeight: 40,
                 icon: 'danger',
                 position: 'right',
-                style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : { paddingTop: insets.top },
+                style: { height: 150, alignItems: 'flex-end' },
             });
         }
     };
@@ -278,7 +264,7 @@ const InspectionSchedule = () => {
                     </Text>
                 </View>
                 <View style={[styles.lastBox]}>
-                    <Text style={[styles.secondText]}>{moment(new Date(item.ProductionStartDate)).format(uiDateFormat)}</Text>
+                    <Text style={[styles.secondText]}>{moment(item.ProductionStartDate,"MM/DD/YYYY").format('DD/MM/YYYY')}</Text>
                     <View style={[styles.iconlist]}>
                         <TouchableOpacity
                             style={{ marginLeft: 15 }}
@@ -367,6 +353,7 @@ const InspectionSchedule = () => {
         setMasterData(updatedArray);
         setShowBubble(false);
     };
+    console.log(masterData.length, 'masterData');
     return (
         <CustomHeader
             title="Inspection Schedule"
@@ -514,7 +501,7 @@ const InspectionSchedule = () => {
                         flex: 1,
                         height: '100%',
                     }}>
-                    <ActivityIndicator size="large" color="#12C0CF" />
+                   <ActivityIndicator size="large" color="#12C0CF" />
                 </Modal>
             )}
         </CustomHeader>

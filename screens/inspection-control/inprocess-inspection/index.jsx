@@ -21,7 +21,6 @@ import NoDataFound from '../Components/NoDataFound';
 import ConfirmationModal from '../Components/inprocess-inspection/ConfirmationModal';
 import { getInspectionDataByUserAndSite, updateInspectionByUniqueId } from 'store/database/inspectStorage';
 import OfflineFileViewModal from '../Components/inprocess-inspection/OfflineFileViewModal';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 const moreList = [
     {
         id: 1,
@@ -38,7 +37,6 @@ const moreList = [
 ];
 
 const InprocessInspection = ({ route }) => {
-    const insets = useSafeAreaInsets();
     const { inspectData } = route.params;
     const { icUserData, icSettings } = useSelector(state => state.inspection);
     const [inspectList, setInspectList] = useState([]);
@@ -69,13 +67,13 @@ const InprocessInspection = ({ route }) => {
         CLowValue: '',
         CSampleSize: '',
         CTolerance: '',
-        charInfo: [],
     });
     const [finalConfirmation, setFinalConfirmation] = useState(false);
     const [showFileModal, setShowFileModal] = useState(false);
     const flatListRef = useRef(null);
     const navigation = useNavigation();
     const dispatch = useDispatch();
+
     useLayoutEffect(() => {
         setInfoData(inspectData);
     }, [inspectData]);
@@ -100,37 +98,25 @@ const InprocessInspection = ({ route }) => {
         setShowSignModal(true);
     };
     const renderBtnText = (item, type) => {
+        const list = item?.Samples || [];
         let iconFlag = false;
-        let status = 'Inspect';
-        if (item.isSamplePopup) {
-            const list = item?.Samples || [];
-            iconFlag = false;
-            const allValues = list.length > 0 && list.every(({ value }) => value.trim() !== '');
-            const someValues = list.some(({ value }) => value.trim() !== '');
-            let tempAllValue = item?.charInfo.filter(x => x?.Value != '')?.length;
-            let tempstatus = allValues ? 'Completed' : someValues ? 'In Progress' : 'Inspect';
-            status = item?.status || tempstatus;
-            if (allValues) {
-                let temp =
-                    type == 'number'
-                        ? list.filter(x =>
-                              x?.value != '' && inspectData?.intInspectionTypeID == 2
-                                  ? !(
-                                        Number(x?.value) >= Number(inspectData?.intInspectionTypeID == 2 ? x?.tolerance : 0) - Number(x?.lowValue) &&
-                                        Number(x?.value) <= Number(x?.highValue) + Number(inspectData.intInspectionTypeID == 2 ? x?.tolerance : 0)
-                                    )
-                                  : !(Number(x?.value) >= Number(x?.lowValue) && Number(x?.value) <= Number(x?.highValue)),
-                          )
-                        : list.filter(x => x?.value?.toLowerCase() != 'ok' && x?.value !== '');
-                iconFlag = temp?.length ? true : false;
-            }
-        } else {
-            let temp = item?.charInfo.filter(x => x?.Required && x?.Value == '')?.length;
-            let tempAllValue = item?.charInfo.filter(x => x.RefData == '##StaticSample##' && x?.Value != '')?.length;
-            let tempstatus = temp == 0 ? 'Completed' : tempAllValue != 0 ? 'In Progress' : 'Inspect';
-            status = item?.status || tempstatus;
+        const allValues = list.length > 0 && list.every(({ value }) => value.trim() !== '');
+        const someValues = list.some(({ value }) => value.trim() !== '');
+        let status = allValues ? 'Completed' : someValues ? 'In Progress' : 'Inspect';
+        if (allValues) {
+            let temp =
+                type == 'number'
+                    ? list.filter(x =>
+                          x?.value != '' && inspectData?.intInspectionTypeID == 2
+                              ? !(
+                                    Number(x?.value) >= Number(inspectData?.intInspectionTypeID == 2 ? x?.tolerance : 0) - Number(x?.lowValue) &&
+                                    Number(x?.value) <= Number(x?.highValue) + Number(inspectData.intInspectionTypeID == 2 ? x?.tolerance : 0)
+                                )
+                              : !(Number(x?.value) >= Number(x?.lowValue) && Number(x?.value) <= Number(x?.highValue)),
+                      )
+                    : list.filter(x => x?.value?.toLowerCase() != 'ok' && x?.value !== '');
+            iconFlag = temp?.length ? true : false;
         }
-
         let colorCode = COLORS.apptheme;
         if (status === 'Completed') colorCode = COLORS.fiBgColor;
         else if (status === 'In Progress') colorCode = COLORS.ipBgColor;
@@ -166,76 +152,34 @@ const InprocessInspection = ({ route }) => {
     const renderHeader = value => {
         return value == '1' ? 'Receiving Inspection' : value == '2' ? 'Inprocess Inspection' : 'Final Inspection';
     };
+
     const MyHeader = ({ title }) => (
         <View style={[styles.flatHeaderContainer]}>
             <Text style={[styles.flatHeader]}>Sample Information - {title}</Text>
         </View>
     );
     const handleValidation = data => {
-        let list = [...data.GeneralInfo].filter(x => x.StaticText == 'Approver');
+        let list = [...data.GeneralInfo].filter(x => x?.DisplayName == 'Approver' || x?.DisplayName == 'Supervisor');
         return inspectData.intInspectionTypeID !== 2 ? (list?.length ? list[0].Value !== '' : true) : true;
         // return list.length ? list[0].Value !== '':true;
     };
-    // const rendetBtnText = item => {
-    //     const combined = [...item?.VariableCharacteristics, ...item?.AttributeCharacteristics];
-    //     if (!combined.some(item => 'status' in item)) {
-    //         return {
-    //             status: 'launch',
-    //             colorCode: COLORS.apptheme,
-    //         };
-    //     }
-    //     let hasInprogress = false;
-    //     let hasCompleted = false;
-    //     let hasMissingStatus = false;
-    //     let hasLaunchStatus = false;
-
-    //     for (const item of combined) {
-    //         console.log(item.status,'ddfd')
-    //         if ('status' in item) {
-    //             if (item.status === 'Launch') {
-    //                 hasLaunchStatus = true;
-    //             } else if (item.status === 'In Progress') {
-    //                 hasInprogress = true;
-    //             } else if (item.status === 'Completed') {
-    //                 hasCompleted = true;
-    //             }
-    //         } else {
-    //             hasMissingStatus = true;
-    //         }
-    //     }
-    //     if (hasInprogress) return { colorCode: COLORS.ipBgColor, status: 'In Progress' };
-    //     if (hasCompleted && hasMissingStatus) return { colorCode: COLORS.ipBgColor, status: 'In Progress' };
-    //     if (hasCompleted && !hasMissingStatus) return { colorCode: COLORS.fiBgColor, status: 'Completed' };
-    //     if (hasLaunchStatus && hasCompleted && !hasMissingStatus) return { colorCode: COLORS.apptheme, status: 'In Progress' };
-
-    //     return {
-    //         status: 'launch',
-    //         colorCode: COLORS.apptheme,
-    //     };
-    // };
     const rendetBtnText = item => {
         const combined = [...item?.VariableCharacteristics, ...item?.AttributeCharacteristics];
-
-        if (!combined.some(c => 'status' in c)) {
+        if (!combined.some(item => 'status' in item)) {
             return {
                 status: 'launch',
                 colorCode: COLORS.apptheme,
             };
         }
-        let allCompleted = combined.every(c => c.status === 'Completed');
-
         let hasInprogress = false;
         let hasCompleted = false;
         let hasMissingStatus = false;
-        let hasLaunchStatus = false;
 
-        for (const c of combined) {
-            if ('status' in c) {
-                if (c.status === 'Launch' || c.status === undefined || c.status === 'Inspect') {
-                    hasLaunchStatus = true;
-                } else if (c.status === 'In Progress') {
+        for (const item of combined) {
+            if ('status' in item) {
+                if (item.status === 'In Progress') {
                     hasInprogress = true;
-                } else if (c.status === 'Completed') {
+                } else if (item.status === 'Completed') {
                     hasCompleted = true;
                 }
             } else {
@@ -243,31 +187,20 @@ const InprocessInspection = ({ route }) => {
             }
         }
 
-        // 🔑 Priority Logic
-        if (hasInprogress) {
-            return { colorCode: COLORS.ipBgColor, status: 'In Progress' };
-        }
-        if (hasCompleted && hasLaunchStatus) {
-            return { colorCode: COLORS.ipBgColor, status: 'In Progress' }; // ✅ Completed + Launch = In Progress
-        }
-        if (hasCompleted && hasMissingStatus) {
-            return { colorCode: COLORS.ipBgColor, status: 'In Progress' };
-        }
-        if (hasCompleted && allCompleted) {
-            return { colorCode: COLORS.fiBgColor, status: 'Completed' };
-        }
-        if (hasLaunchStatus) {
-            return { colorCode: COLORS.apptheme, status: 'Launch' };
-        }
+        if (hasInprogress) return { colorCode: COLORS.ipBgColor, status: 'In Progress' };
+        if (hasCompleted && hasMissingStatus) return { colorCode: COLORS.ipBgColor, status: 'In Progress' };
+        if (hasCompleted && !hasMissingStatus) return { colorCode: COLORS.fiBgColor, status: 'Completed' };
 
-        return { status: 'launch', colorCode: COLORS.apptheme };
+        return {
+            status: 'launch',
+            colorCode: COLORS.apptheme,
+        };
     };
-
     const handleFinalSavePress = async (flag = false) => {
         const result = handleValidation(infoData);
         if (result) {
             const getStatus = rendetBtnText(infoData);
-            console.log(getStatus, '******************getStatus');
+            console.log(getStatus, 'getStatus');
             const sqlitFlag = await updateInspectionByUniqueId(infoData.uniqueId, {
                 ...infoData,
                 status: getStatus?.status,
@@ -294,7 +227,7 @@ const InprocessInspection = ({ route }) => {
                     statusBarHeight: 40,
                     icon: 'warning',
                     position: 'right',
-                    style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : { paddingTop: insets.top },
+                     style: { height: 150, alignItems: 'flex-end' },
                 });
             }
         } else {
@@ -307,7 +240,7 @@ const InprocessInspection = ({ route }) => {
                 statusBarHeight: 40,
                 icon: 'warning',
                 position: 'right',
-                style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : { paddingTop: insets.top },
+                 style: { height: 150, alignItems: 'flex-end' },
             });
         }
     };
@@ -351,7 +284,7 @@ const InprocessInspection = ({ route }) => {
         setShowAlart(false);
     };
     const handleSaveAlert = useCallback(
-        (movenext = '', typeid = '', userFormType = '') => {
+        (movenext = '', typeid = '') => {
             let isChanged = false;
             const filterdData = inspectList.filter(
                 item =>
@@ -375,14 +308,14 @@ const InprocessInspection = ({ route }) => {
                     if (selectedData?.Samples?.length !== undefined && selectedData?.Samples?.length !== masterData?.length) {
                         isChanged = true;
                     }
-                    let arrayList = [...finalData?.VariableCharacteristics, ...finalData?.AttributeCharacteristics];
+                    let arrayList = [...finalData.VariableCharacteristics, ...finalData.AttributeCharacteristics];
                     let selectedFinal = arrayList.filter(item => item?.CCharacteristicsId == selectedData?.CCharacteristicsId);
-                    const hasChanges = selectedFinal.length ? JSON.stringify(selectedFinal[0]?.charInfo) != JSON.stringify(selectedData?.charInfo) : false;
+                    const hasChanges = selectedFinal.length ? JSON.stringify(selectedFinal[0]) !== JSON.stringify(selectedData) : false;
                     if (isChanged || hasChanges) {
                         setShowAlart(true);
                     } else {
                         if (movenext == 'nextSample') {
-                            handleNextItem(typeid, userFormType);
+                            handleNextItem(typeid);
                         } else {
                             handleBackPress();
                         }
@@ -412,31 +345,19 @@ const InprocessInspection = ({ route }) => {
     }, [handleSaveAlert]);
     const handleSavePress = async (close = true, btnText = 'noBtn') => {
         if (showChar) {
-            const { VariableCharacteristics, AttributeCharacteristics } = infoData;
-            const characteristicsList = formType === 'number' ? VariableCharacteristics : AttributeCharacteristics;
-            let status = 'Launch';
-            if (selectedData?.isSamplePopup) {
-                const list = masterData || [];
-                const allValues = list.length > 0 && list.every(({ value }) => value.trim() !== '');
-                const someValues = list.some(({ value }) => value.trim() !== '');
-                let tempAllValue = selectedData?.charInfo.filter(x => x?.Value != '')?.length;
-                status = allValues ? 'Completed' : someValues || tempAllValue != 0 ? 'In Progress' : 'Inspect';
-            } else {
-                let temp = selectedData?.charInfo.filter(x => x?.Required && x?.Value == '')?.length;
-                let tempReq = selectedData?.charInfo.filter(x => x?.Required)?.length;
-                let tempAllValue = selectedData?.charInfo.filter(x => x?.Required && x?.Value != '')?.length;
-                status = temp == 0 ? 'Completed' : tempAllValue != 0 && tempReq > tempAllValue ? 'In Progress' : 'Inspect';
-            }
+            const list = masterData || [];
+            const allValues = list.length > 0 && list.every(({ value }) => value.trim() !== '');
+            const someValues = list.some(({ value }) => value.trim() !== '');
+            let status = allValues ? 'Completed' : someValues ? 'In Progress' : 'Launch';
             const updatedObj = {
                 ...selectedData,
-                Samples: selectedData?.isSamplePopup ? masterData : [],
+                Samples: masterData,
                 status: status,
             };
+            const { VariableCharacteristics, AttributeCharacteristics } = infoData;
+            const characteristicsList = formType === 'number' ? VariableCharacteristics : AttributeCharacteristics;
             const index = characteristicsList.findIndex(
-                obj =>
-                    obj?.CCharacteristicsId === selectedData?.CCharacteristicsId &&
-                    obj.FuncDetailsId == selectedData?.FuncDetailsId &&
-                    obj.ID == selectedData?.ID,
+                obj => obj?.CCharacteristicsId === selectedData?.CCharacteristicsId && obj.FuncDetailsId == selectedData?.FuncDetailsId,
             );
             const newCharacteristicsList = [...characteristicsList];
             if (index !== -1) {
@@ -449,6 +370,7 @@ const InprocessInspection = ({ route }) => {
             }));
             setMasterData([]);
             setValueUpadted([]);
+            console.log(updatedObj, '**************************************inside1');
         } else {
             handleFinalSavePress();
 
@@ -468,139 +390,57 @@ const InprocessInspection = ({ route }) => {
             let tempData = formType == 'number' ? infoData?.VariableCharacteristics : infoData.AttributeCharacteristics;
             if (currentIndex.index < tempData?.length - 1) {
                 setNextSave(false);
-                handleSaveAlert('nextSample', '', infoData.userType);
+                handleSaveAlert('nextSample');
                 Keyboard.dismiss();
                 // setShowCharInfo(false);
             } else {
+                console.log(formType == 'number', 'formType');
                 Alert.alert(`End of ${formType == 'number' ? 'variable' : 'attribute'} sample list`, 'You have reached the last sample.');
             }
         } else {
-            //    let tempData = formType == 'number' ? infoData?.VariableCharacteristics : infoData.AttributeCharacteristics;
-            //     console.log(currentIndex, tempData?.length - 1, 'tempData?.length - 1');
-            let tempData = [
-                ...(infoData?.VariableCharacteristics?.map((item, index) => ({
-                    ...item,
-                    type: 'number',
-                    key: `variable-${index}`,
-                })) || []),
-                ...(infoData?.AttributeCharacteristics?.map((item, index) => ({
-                    ...item,
-                    type: 'char',
-                    key: `attribute-${index}`,
-                })) || []),
-            ].sort((a, b) => Number(b.OperationID || 0) - Number(a.OperationID || 0));
-            let currentFormType = tempData[currentIndex.index + 1]?.type;
-
+            let tempData = formType == 'number' ? infoData?.VariableCharacteristics : infoData.AttributeCharacteristics;
+            console.log(currentIndex, tempData?.length - 1, 'tempData?.length - 1');
             if (currentIndex.index < tempData?.length - 1) {
+                console.log('error1');
                 setNextSave(false);
-                if (currentFormType == 'char') {
-                    setMixedList('2');
-                    handleSaveAlert('nextSample', infoData.intInspectionTypeID,infoData.userType);
-                } else {
-                    handleSaveAlert('nextSample','',infoData.userType);
-                }
+                handleSaveAlert('nextSample');
                 Keyboard.dismiss();
-            } else if (currentIndex.index == tempData?.length - 1) {
+                // setShowCharInfo(false);
+            } else if (currentIndex.index == tempData?.length - 1 && formType == 'number' && infoData.AttributeCharacteristics?.length !== 0) {
+                setMixedList('2');
+                setNextSave(false);
+                handleSaveAlert('nextSample', infoData.intInspectionTypeID);
+                Keyboard.dismiss();
+                console.log('error2');
+                // setShowCharInfo(false);
+            } else {
                 Alert.alert(`End of Sample List`, 'You have reached the last sample.');
             }
         }
     };
-    const handleNextItem = async (id = mixedList, userFormType = '') => {
-        if (infoData.intInspectionTypeID == 2) {
-            if (id == '' || id == undefined) {
-                let tempData = [];
-                if (infoData.intInspectionTypeID == 2) {
-                    tempData = [
-                        ...(infoData?.VariableCharacteristics?.map((item, index) => ({
-                            ...item,
-                            type: 'number',
-                            key: `variable-${index}`,
-                        })) || []),
-                        ...(infoData?.AttributeCharacteristics?.map((item, index) => ({
-                            ...item,
-                            type: 'char',
-                            key: `attribute-${index}`,
-                        })) || []),
-                    ].sort((a, b) => Number(b.OperationID || 0) - Number(a.OperationID || 0));
-                } else {
-                    tempData = formType == 'number' ? infoData?.VariableCharacteristics : infoData.AttributeCharacteristics;
-                }
-                if (userFormType == 'SupervisorSchedule') {
-                    await handleSavePress(false);
-                }
-                const nextIndex = currentIndex.index + 1;
-                setFormType(tempData[nextIndex]?.type);
-                setCurrentIndex({ index: nextIndex, type: infoData.intInspectionTypeID == 2 ? tempData[nextIndex]?.type : formType });
-                setMasterData([]);
-                setValueUpadted([]);
-                setSelectedData(tempData[nextIndex]);
-            } else {
-                let tempData = [];
-                let tempSele = {};
-                let tempCurrentIndex = {};
-                setMasterData([]);
-                setValueUpadted([]);
-                if (infoData.intInspectionTypeID == 2) {
-                    const nextIndex = currentIndex.index + 1;
-                    tempCurrentIndex = {
-                        index: nextIndex,
-                        type: infoData.intInspectionTypeID == 2 ? tempData[nextIndex]?.type : formType,
-                    };
-                    tempData = [
-                        ...(infoData?.VariableCharacteristics?.map((item, index) => ({
-                            ...item,
-                            type: 'number',
-                            key: `variable-${index}`,
-                        })) || []),
-                        ...(infoData?.AttributeCharacteristics?.map((item, index) => ({
-                            ...item,
-                            type: 'char',
-                            key: `attribute-${index}`,
-                        })) || []),
-                    ].sort((a, b) => Number(b.OperationID || 0) - Number(a.OperationID || 0));
-                    tempSele = tempData[nextIndex];
-                } else {
-                    tempData = infoData.AttributeCharacteristics;
-                    tempSele = tempData[0];
-                    tempCurrentIndex = { index: 0, type: 'char' };
-                }
-                if (userFormType == 'SupervisorSchedule') {
-                    await handleSavePress(false);
-                }
-                setFormType(tempSele?.type);
-                setSelectedData(tempSele);
-                setCurrentIndex(tempCurrentIndex);
-            }
-            setShowAlart(false);
-            setNextSave(true);
-            setMixedList('');
-            flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
+
+    const handleNextItem = (id = mixedList) => {
+        if (id == '' || id == undefined) {
+            let tempData = formType == 'number' ? infoData?.VariableCharacteristics : infoData.AttributeCharacteristics;
+            const nextIndex = currentIndex.index + 1;
+            setCurrentIndex({ index: nextIndex, type: formType });
+            setMasterData([]);
+            setValueUpadted([]);
+            setSelectedData(tempData[nextIndex]);
+            console.log('inside5');
         } else {
-            if (id == '' || id == undefined) {
-                let tempData = formType == 'number' ? infoData?.VariableCharacteristics : infoData.AttributeCharacteristics;
-                if (userFormType == 'SupervisorSchedule') {
-                    await handleSavePress(false);
-                }
-                const nextIndex = currentIndex.index + 1;
-                setCurrentIndex({ index: nextIndex, type: formType });
-                setMasterData([]);
-                setValueUpadted([]);
-                setSelectedData(tempData[nextIndex]);
-                console.log('inside5');
-            } else {
-                setMasterData([]);
-                setValueUpadted([]);
-                let tempData = infoData.AttributeCharacteristics;
-                setFormType('char');
-                setSelectedData(tempData[0]);
-                setCurrentIndex({ index: 0, type: 'char' });
-                console.log('inside6');
-            }
-            setShowAlart(false);
-            setNextSave(true);
-            setMixedList('');
-            flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
+            setMasterData([]);
+            setValueUpadted([]);
+            let tempData = infoData.AttributeCharacteristics;
+            setSelectedData(tempData[0]);
+            setCurrentIndex({ index: 0, type: 'char' });
+            setFormType('char');
+            console.log('inside6');
         }
+        setShowAlart(false);
+        setNextSave(true);
+        setMixedList('');
+        flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
     };
     const handleShowCharInfo = () => {
         setShowCharInfo(!showCharInfo);
@@ -626,13 +466,11 @@ const InprocessInspection = ({ route }) => {
                 //     statusBarHeight: 40,
                 //     icon: 'warning',
                 //     position: 'right',
-                //     style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+                //      style: { height: 150, alignItems: 'flex-end' },
                 // });
                 // setUserUpdateValue(pre => ({ ...pre, CSampleSize: selectedData.CSampleSize.toString() }));
             } else {
-                let temp = JSON.parse(JSON.stringify(userUpdateValue.charInfo));
-                let updatedtemp = temp.map(item => (item.PropertyName === 'CSampleSize' ? { ...item, Value: userUpdateValue.CSampleSize } : item));
-                setSelectedData(pre => ({ ...pre, CSampleSize: userUpdateValue.CSampleSize, charInfo: updatedtemp }));
+                setSelectedData(pre => ({ ...pre, CSampleSize: userUpdateValue.CSampleSize }));
                 setShowConfirmModal(false);
                 setTypeOfModal('');
             }
@@ -648,25 +486,17 @@ const InprocessInspection = ({ route }) => {
                     statusBarHeight: 40,
                     icon: 'warning',
                     position: 'right',
-                    style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : { paddingTop: insets.top },
+                     style: { height: 150, alignItems: 'flex-end' },
                 });
-                let temp = JSON.parse(JSON.stringify(userUpdateValue.charInfo));
-                let updatedtemp = temp.map(item =>
-                    item.PropertyName === 'CHighValue' ? { ...item, Value: selectedData.CHighValue.toString() } : item,
-                );
-                setUserUpdateValue(pre => ({ ...pre, CHighValue: selectedData.CHighValue.toString(), charInfo: updatedtemp }));
+                setUserUpdateValue(pre => ({ ...pre, CHighValue: selectedData.CHighValue.toString() }));
             } else {
-                let temp = JSON.parse(JSON.stringify(userUpdateValue.charInfo));
-                let updatedtemp = temp.map(item => (item.PropertyName === 'CHighValue' ? { ...item, Value: userUpdateValue.CHighValue } : item));
-                setSelectedData(pre => ({ ...pre, CHighValue: userUpdateValue.CHighValue, charInfo: updatedtemp }));
+                setSelectedData(pre => ({ ...pre, CHighValue: userUpdateValue.CHighValue }));
                 setShowConfirmModal(false);
                 setTypeOfModal('');
             }
         } else if (typeOfModal == 'lowvalue') {
             if (Number(selectedData.CHighValue) >= Number(userUpdateValue.CLowValue)) {
-                let temp = JSON.parse(JSON.stringify(userUpdateValue.charInfo));
-                let updatedtemp = temp.map(item => (item.PropertyName === 'CLowValue' ? { ...item, Value: userUpdateValue.CLowValue } : item));
-                setSelectedData(pre => ({ ...pre, CLowValue: userUpdateValue.CLowValue, charInfo: updatedtemp }));
+                setSelectedData(pre => ({ ...pre, CLowValue: userUpdateValue.CLowValue }));
                 setShowConfirmModal(false);
                 setTypeOfModal('');
             } else {
@@ -680,29 +510,23 @@ const InprocessInspection = ({ route }) => {
                     statusBarHeight: 40,
                     icon: 'warning',
                     position: 'right',
-                    style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : { paddingTop: insets.top },
+                     style: { height: 150, alignItems: 'flex-end' },
                 });
-                let temp = JSON.parse(JSON.stringify(userUpdateValue.charInfo));
-                let updatedtemp = temp.map(item =>
-                    item.PropertyName === 'CLowValue' ? { ...item, Value: selectedData.CLowValue.toString() } : item,
-                );
-                setUserUpdateValue(pre => ({ ...pre, CLowValue: selectedData.CLowValue.toString(), charInfo: updatedtemp }));
+                setUserUpdateValue(pre => ({ ...pre, CLowValue: selectedData.CLowValue.toString() }));
             }
         } else if (typeOfModal == 'spec') {
-            let temp = JSON.parse(JSON.stringify(userUpdateValue.charInfo));
-            let updatedtemp = temp.map(item => (item.PropertyName === 'CTolerance' ? { ...item, Value: userUpdateValue.CTolerance } : item));
-            setSelectedData(pre => ({ ...pre, CTolerance: userUpdateValue.CTolerance, charInfo: updatedtemp }));
+            setSelectedData(pre => ({ ...pre, CTolerance: userUpdateValue.CTolerance }));
             setShowConfirmModal(false);
             setTypeOfModal('');
         }
     };
+    console.log(masterData.filter(x => x?.value != '')?.length, 'masterData');
     return (
         <CustomHeader
             title={renderHeader(inspectData.intInspectionTypeID)}
             activeTabId={2}
             showIcons={false}
             showFileIcon={true}
-            showCharCameraIcon={showChar}
             handleFileIconPress={() => {
                 // setShowFilePage(true);
                 setShowFileModal(true);
@@ -737,46 +561,24 @@ const InprocessInspection = ({ route }) => {
                         </View>
                     ) : (
                         <View style={[styles.centerBox]}>
-                            {Boolean(inspectData.intInspectionTypeID == 2) ? (
-                                <ScrollView showsVerticalScrollIndicator={false}>
-                                    {[
-                                        ...(infoData?.VariableCharacteristics?.map((item, index) => ({
-                                            ...item,
-                                            type: 'number',
-                                            key: `variable-${index}`,
-                                        })) || []),
-                                        ...(infoData?.AttributeCharacteristics?.map((item, index) => ({
-                                            ...item,
-                                            type: 'char',
-                                            key: `attribute-${index}`,
-                                        })) || []),
-                                    ]
-                                        // ✅ Sort globally by OperationID
-                                        .sort((a, b) => Number(b.OperationID || 0) - Number(a.OperationID || 0))
-                                        .map((item, index) => (
-                                            <React.Fragment key={item.key}>{renderItem({ item, index, type: item.type })}</React.Fragment>
-                                        ))}
-                                </ScrollView>
-                            ) : (
-                                <ScrollView showsVerticalScrollIndicator={false}>
-                                    {Boolean(infoData?.VariableCharacteristics?.length) && (
-                                        <View>
-                                            {Boolean(inspectData.intInspectionTypeID != 2) && <MyHeader title={'VARIABLE'} />}
-                                            {infoData?.VariableCharacteristics.map((item, index) => {
-                                                return renderItem({ item, index, type: 'number' });
-                                            })}
-                                        </View>
-                                    )}
-                                    {Boolean(infoData?.AttributeCharacteristics?.length) && (
-                                        <View style={{ marginVertical: 10 }}>
-                                            {Boolean(inspectData.intInspectionTypeID != 2) && <MyHeader title={'ATTRIBUTE'} />}
-                                            {infoData?.AttributeCharacteristics.map((item, index) => {
-                                                return renderItem({ item, index, type: 'char' });
-                                            })}
-                                        </View>
-                                    )}
-                                </ScrollView>
-                            )}
+                            <ScrollView showsVerticalScrollIndicator={false}>
+                                {Boolean(infoData?.VariableCharacteristics?.length) && (
+                                    <View>
+                                        {Boolean(inspectData.intInspectionTypeID != 2) && <MyHeader title={'VARIABLE'} />}
+                                        {infoData?.VariableCharacteristics.map((item, index) => {
+                                            return renderItem({ item, index, type: 'number' });
+                                        })}
+                                    </View>
+                                )}
+                                {Boolean(infoData?.AttributeCharacteristics?.length) && (
+                                    <View style={{ marginVertical: 10 }}>
+                                        {Boolean(inspectData.intInspectionTypeID != 2) && <MyHeader title={'ATTRIBUTE'} />}
+                                        {infoData?.AttributeCharacteristics.map((item, index) => {
+                                            return renderItem({ item, index, type: 'char' });
+                                        })}
+                                    </View>
+                                )}
+                            </ScrollView>
                             <View style={[styles.btnContainer]}>
                                 <ButtonComponent
                                     textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}
@@ -813,18 +615,13 @@ const InprocessInspection = ({ route }) => {
                                 //         color: COLORS.white,
                                 //         duration: 1500,
                                 //         statusBarHeight: 40,
-                                //         // style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
+                                //         //  style: { height: 150, alignItems: 'flex-end' },
                                 //         position: 'bottom',
                                 //     });
                                 // }
                             }}>
                             <Text style={[styles.headerText]}>Characteristics Info</Text>
-                            <TouchableOpacity
-                                onPress={() => {
-                                    if (selectedData?.isSamplePopup) {
-                                        handleShowCharInfo();
-                                    }
-                                }}>
+                            <TouchableOpacity onPress={handleShowCharInfo}>
                                 <Icon name={showCharInfo ? 'down' : 'right'} size={20} color={COLORS.moreIcon} />
                             </TouchableOpacity>
                         </View>
@@ -852,7 +649,6 @@ const InprocessInspection = ({ route }) => {
                                 setUserUpdateValue={setUserUpdateValue}
                                 setTypeOfModal={setTypeOfModal}
                                 flatListRef={flatListRef}
-                                FileList={inspectData?.attachments || []}
                             />
                         </View>
                     </View>
@@ -903,7 +699,6 @@ const InprocessInspection = ({ route }) => {
                                 danger={true}
                                 style={{ height: 30, width: 100, marginRight: 20 }}
                                 onPress={() => {
-                                    console.log('nextSave', nextSave);
                                     nextSave ? handleBackPress() : handleNextItem();
                                 }}
                                 textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}>
@@ -953,11 +748,9 @@ const InprocessInspection = ({ route }) => {
                             CHighValue: selectedData.CHighValue,
                             CLowValue: selectedData.CLowValue,
                             CTolerance: selectedData.CTolerance,
-                            charInfo: selectedData.charInfo,
                         }));
                         setShowConfirmModal(false);
                         setTypeOfModal('');
-                        // setSelectedData((pre) => ({ ...pre, CSampleSize: userUpdateValue.CSampleSize }));
                     }}
                     handleYesPress={() => {
                         handleConfirmYesPress();
@@ -984,7 +777,6 @@ const InprocessInspection = ({ route }) => {
                             CHighValue: selectedData.CHighValue,
                             CLowValue: selectedData.CLowValue,
                             CTolerance: selectedData.CTolerance,
-                            charInfo: selectedData.charInfo,
                         }));
                         setFinalConfirmation(false);
                         setTypeOfModal('');
@@ -1018,7 +810,6 @@ const InprocessInspection = ({ route }) => {
                             CHighValue: selectedData.CHighValue,
                             CLowValue: selectedData.CLowValue,
                             CTolerance: selectedData.CTolerance,
-                            charInfo: selectedData.charInfo,
                         }));
                         setFinalConfirmation(false);
                         setTypeOfModal('');
@@ -1177,4 +968,3 @@ const styles = StyleSheet.create({
 });
 
 export default InprocessInspection;
-
