@@ -13,6 +13,9 @@ const DatePickerComponent = ({ name, label, required, value, onChange, editable 
     const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
     const { theme } = useTheme();
     const { timeSettings } = useAppContext();
+    const parsedValue = value ? moment(value) : null;
+    const hasValidValue = !!parsedValue && parsedValue.isValid();
+    const pickerDate = hasValidValue ? parsedValue.toDate() : new Date();
     const showDatePicker = name => {
         setActivePicker(name);
         setDatePickerVisibility(true);
@@ -63,11 +66,12 @@ const DatePickerComponent = ({ name, label, required, value, onChange, editable 
                         paddingVertical: SPACING.SMALL,
                         color: !value ? COLORS.searchText : theme?.mode.textColor,
                     }}>
-                    {value ? moment(value).format(DATE_FORMAT[timeSettings || "DD_MM_YYYY"]) : 'Select Date'}
+                    {hasValidValue ? parsedValue.format(DATE_FORMAT[timeSettings || 'DD_MM_YYYY']) : 'Select Date'}
                 </TextComponent>
             </TouchableOpacity>
             <DateTimePickerModal
                 isVisible={isDatePickerVisible}
+                date={pickerDate}
                 mode="date"
                 onConfirm={data => handleConfirm(data, activePicker)}
                 // onConfirm={data => handleConfirm(data, activePicker)}

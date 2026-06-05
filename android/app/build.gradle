@@ -264,6 +264,18 @@ task copyDownloadableDepsToLibs(type: Copy) {
 // autolinking handled by new Gradle plugin
 apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
 
+afterEvaluate {
+    def vectorIconFontCopyTask = tasks.findByName("copyReactNativeVectorIconFonts")
+    if (vectorIconFontCopyTask != null) {
+        tasks.matching { task ->
+            task.name.startsWith("lintVital") ||
+                    (task.name.startsWith("generate") && task.name.endsWith("LintVitalReportModel"))
+        }.configureEach {
+            dependsOn(vectorIconFontCopyTask)
+        }
+    }
+}
+
 def isNewArchitectureEnabled() {
     // To opt-in for the New Architecture, you can either:
     // - Set `newArchEnabled` to true inside the `gradle.properties` file
