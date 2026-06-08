@@ -47,6 +47,7 @@ import Video from 'react-native-video';
 import FileViewer from 'react-native-file-viewer';
 import { Image as compressImage, Video as compressVideo, getVideoMetaData } from 'react-native-compressor';
 import NetInfo from '@react-native-community/netinfo';
+import { syncRecentAuditsFromLocalAudits } from 'helpers/audit-status';
 // import finalPropsSelectorFactory from 'react-redux/es/connect/selectorFactory';
 import auth from '../../../services/Auditpro-Auth';
 import { ROUTES } from 'constants/app-constant';
@@ -2729,64 +2730,66 @@ class CheckPointDemo extends Component {
         this.showToast(this.state.displayData, 6000);
     };
 
+    handleSavePress = () => {
+        if (this.state.isSaving) {
+            return;
+        }
+
+        this.setState({ isSaving: true }, () => {
+            InteractionManager.runAfterInteractions(() => {
+                this.updateCheckPointsValues();
+            });
+        });
+    };
+
     // Validates checkpoint completion thresholds and triggers save/update flows
     updateCheckPointsValues = async () => {
-        await AsyncStorage.setItem('redDotActive', 'true');
-        if (typeof this.markAuditEdited === 'function') {
-            await this.markAuditEdited();
-        }
+        try {
+            await AsyncStorage.setItem('redDotActive', 'true');
+            if (typeof this.markAuditEdited === 'function') {
+                await this.markAuditEdited();
+            }
 
-        // Mark this specific audit as edited (per-audit flag)
-        if (typeof this.markAuditEdited === 'function') {
-            await this.markAuditEdited();
-        }
-        //console.log('updateCheckPointsValues executed');
-        let bcontinue = false;
-        //  this.updatecheckpointvalues_new();
-        var notifyRed = this.props?.route?.params?.notifyRed;
-        // if (this.state.TemplateID == 5) {
-        // if (this.state.isUnsavedData == true) {
-        const allowedMinimum = 2 / 3;
-        const totalCheckPoint = this.state.totalCheck || this.state.checkPointsDetails.length;
-        const filledData = this.state.checkPointsDetails.filter(checkPoint => checkPoint.Score !== '-2');
+            let bcontinue = false;
+            const allowedMinimum = 2 / 3;
+            const totalCheckPoint = this.state.totalCheck || this.state.checkPointsDetails.length;
+            const filledData = this.state.checkPointsDetails.filter(checkPoint => checkPoint.Score !== '-2');
 
-        const filledCount =
-            this.state.totalfilled !== undefined && this.state.totalfilled !== null
-                ? this.state.totalfilled
-                : Math.min(filledData.length, totalCheckPoint);
-        const filledPercentage = totalCheckPoint > 0 ? parseFloat(((filledCount / totalCheckPoint) * 100).toFixed(2) || '0') : 0;
-        console.log('filledCount', filledCount);
-        console.log(filledData, 'filledData');
-        console.log(totalCheckPoint, 'filledtotalCheckPoint');
-        console.log('filledPercentage:', filledPercentage + '%');
+            const filledCount =
+                this.state.totalfilled !== undefined && this.state.totalfilled !== null
+                    ? this.state.totalfilled
+                    : Math.min(filledData.length, totalCheckPoint);
+            const filledPercentage = totalCheckPoint > 0 ? parseFloat(((filledCount / totalCheckPoint) * 100).toFixed(2) || '0') : 0;
 
-        if (filledPercentage >= 50) {
-            bcontinue = true;
-        }
-        console.log('Can continue:', bcontinue);
-
-        if (filledCount > 0 && totalCheckPoint > 0) {
-            const filledMin = filledCount / totalCheckPoint;
-            if (filledMin >= allowedMinimum) {
+            if (filledPercentage >= 50) {
                 bcontinue = true;
             }
-        }
-        if (this.state.ischeckLPA !== 'true') {
-            if ((!bcontinue && this.state.ReportId == 5) || (!bcontinue && this.state.ReportId == 11)) {
-                ToastNew.show({
-                    type: 'error',
-                    text1: 'Minimum number of Questions is not answered',
-                });
-            } else {
-                //return;
-                //this.updatecheckpointvalues_new();
-            } //else {
-            console.log('[CheckPointDemo] User made changes — setting isAuditing true');
-            this.props.changeAuditState(true);
 
-            this.updatecheckpointvalues_new();
+            if (filledCount > 0 && totalCheckPoint > 0) {
+                const filledMin = filledCount / totalCheckPoint;
+                if (filledMin >= allowedMinimum) {
+                    bcontinue = true;
+                }
+            }
+
+            if (this.state.ischeckLPA !== 'true') {
+                if ((!bcontinue && this.state.ReportId == 5) || (!bcontinue && this.state.ReportId == 11)) {
+                    ToastNew.show({
+                        type: 'error',
+                        text1: 'Minimum number of Questions is not answered',
+                    });
+                }
+
+                console.log('[CheckPointDemo] User made changes — setting isAuditing true');
+                this.props.changeAuditState(true);
+                this.updatecheckpointvalues_new();
+            } else {
+                this.setState({ isSaving: false });
+            }
+        } catch (error) {
+            console.log('Save failed', error);
+            this.setState({ isSaving: false });
         }
-        //}
     };
 
     // Revalidates checkpoints and updates counts/state after edits
@@ -2820,7 +2823,6 @@ class CheckPointDemo extends Component {
 
         this.setState(
             {
-                isContentLoaded: true,
                 dialogVisible: false,
             },
             () => {
@@ -2842,6 +2844,7 @@ class CheckPointDemo extends Component {
                         {
                             isContentLoaded: false,
                             ActiveId: index,
+                            isSaving: false,
                         },
                         () => {
                             this.showToast(strings.InvalidScore, DURATION.LENGTH_LONG);
@@ -3186,14 +3189,14 @@ class CheckPointDemo extends Component {
                             this.props.changeAuditState(true);
 
                             // Update audit status in the audit list
-                            var auditListOrg = this.props.data.audits.auditRecords;
+                            var auditListOrg = this.props.data.audits.audits;
                             var auditList = [];
 
                             for (var i = 0; i < auditListOrg.length; i++) {
                                 var auditStatus = auditListOrg[i].cStatus;
                                 var auditColor = auditListOrg[i].color;
 
-                                if (parseInt(auditListOrg[i].AuditId) == parseInt(this.state.auditId)) {
+                                if (parseInt(auditListOrg[i].ActualAuditId) == parseInt(this.state.auditId)) {
                                     if (auditListOrg[i].AuditStatus != 3) {
                                         auditStatus = constant.StatusNotSynced;
                                     }
@@ -3264,6 +3267,13 @@ class CheckPointDemo extends Component {
 
                             this.props.storeAudits(auditList);
 
+                            const recentAudits = this.props.data.audits.recentAudits;
+                            if (recentAudits?.length) {
+                                this.props.updateRecentAuditList(
+                                    syncRecentAuditsFromLocalAudits(recentAudits, auditList),
+                                );
+                            }
+
                             var cameraCapture = [];
                             this.props.storeCameraCapture(cameraCapture);
                             console.log('[CheckPointDemo] Save successful — setting isAuditing true');
@@ -3309,11 +3319,6 @@ class CheckPointDemo extends Component {
                                 //console.log('enteringtoast');
                                 // alert('saved');
                             }, 200);
-                            // this.props.changeAuditState(false);
-
-                            this.setState({ isSaving: false }, () => {
-                                //console.log('Loader off');
-                            });
                         },
                     );
                 }
@@ -5767,6 +5772,60 @@ class CheckPointDemo extends Component {
         });
     }
 
+    shouldShowNcOfiAction = index => {
+        const checkpoint = this.state.checkPointsDetails?.[index];
+        if (!checkpoint) {
+            return false;
+        }
+
+        const dropdownVal = this.state.dropdownnotokvalue;
+        if (this.state.ncofiEnabled && (dropdownVal === 15 || dropdownVal === 11 || dropdownVal === 10)) {
+            return true;
+        }
+
+        if (
+            checkpoint.IsNCAllowed != 2 &&
+            checkpoint.IsNCAllowed != 0 &&
+            this.state.TemplateID !== 5 &&
+            this.state.ischeckLPA !== true
+        ) {
+            return true;
+        }
+
+        if (this.state.ncofiEnabled && this.state.TemplateID !== 5 && this.state.TemplateID < 8) {
+            return true;
+        }
+
+        return false;
+    };
+
+    renderQuestionTopActions = (item, index, isAttachmentRequired) => {
+        const showNcOfi = this.shouldShowNcOfiAction(index);
+
+        return (
+            <View style={styles.questionTopActionsRow}>
+                <View style={styles.questionTopActionsRight}>
+                    <TouchableOpacity
+                        style={styles.attachIconButton}
+                        onPress={this.chooseCameraOption.bind(this, item, index)}
+                        accessibilityLabel="Attach evidence">
+                        <Icon name="paperclip" size={22} color="#123C95" />
+                        {isAttachmentRequired ? (
+                            <Icon name="star" size={7} color="red" style={styles.attachIconRequired} />
+                        ) : null}
+                    </TouchableOpacity>
+                    {showNcOfi ? (
+                        <TouchableOpacity
+                            style={styles.ncofiCompactButton}
+                            onPress={this.popupModal.bind(this, this.state.checkPointsDetails[index])}>
+                            <Text style={styles.ncofiCompactLabel}>NC/OFI</Text>
+                        </TouchableOpacity>
+                    ) : null}
+                </View>
+            </View>
+        );
+    };
+
     // Renders attachment grid for a checkpoint
     renderAttachment(index) {
         const checkpoint = this.state.checkPointsDetails?.[index];
@@ -6402,16 +6461,14 @@ class CheckPointDemo extends Component {
         const useStackLayout = false;
         const carouselLayout = 'default';
         const carouselItemWidth = Math.round(
-            screenWidth * (isTablet ? (isLandscape ? 0.92 : 0.84) : isLandscape ? 0.94 : 0.9),
+            screenWidth * (isTablet ? (isLandscape ? 0.94 : 0.9) : isLandscape ? 0.98 : 0.96),
         );
-        const stackCardMinHeight = Math.round(
-            screenHeight * (isTablet ? (isLandscape ? 0.68 : 0.64) : isLandscape ? 0.58 : 0.62),
-        );
+        const stackCardMinHeight = Math.round(screenHeight * 0.35);
         const stackCardOffset = 0;
         const carouselInactiveScale = 1;
         const carouselInactiveOpacity = 1;
         const questionMetaArrowSize = isTablet ? 32 : isLandscape ? 22 : 20;
-        const questionMetaTextSize = isTablet ? (isLandscape ? 24 : 26) : isLandscape ? 15 : 16;
+        const questionMetaTextSize = isTablet ? (isLandscape ? 24 : 26) : isLandscape ? 17 : 18;
         const serialGridMinWidth = isTablet ? (isLandscape ? 150 : 140) : SERIAL_GRID_MIN_WIDTH;
         const serialGridHeight = isTablet ? 76 : SERIAL_GRID_HEIGHT;
         const serialGridTextSize = isTablet ? 20 : 16;
@@ -6446,7 +6503,7 @@ class CheckPointDemo extends Component {
                     hideLeft={this.state.isSaving}
                     onRightPress={() => this.goHome()}
                 />
-                {this.state.isContentLoaded == false && !this.state.isSaving ? (
+                {this.state.isContentLoaded == false ? (
                     <View style={styles.flexOne}>
                         {this.props.data.audits.smdata !== 2 && this.props.data.audits.smdata !== 3 ? (
                             <View style={styles.statistics}>
@@ -6470,7 +6527,7 @@ class CheckPointDemo extends Component {
                         ) : null}
 
                         {this.state.checkpointList.length ? (
-                            <View style={[styles.body, styles.bodyRightRailLayout]}>
+                            <View style={[styles.body, styles.checkpointBody]}>
                                 <View style={styles.carouselBottomWrapper}>
                                     {isCarouselReady ? (
                                         <Carousel
@@ -6485,10 +6542,11 @@ class CheckPointDemo extends Component {
                                             inactiveSlideScale={carouselInactiveScale}
                                             inactiveSlideOpacity={carouselInactiveOpacity}
                                             inactiveSlideShift={0}
-                                            activeSlideAlignment={'center'}
+                                            activeSlideAlignment={'start'}
+                                            containerCustomStyle={styles.carouselContainer}
                                             swipeThreshold={16}
                                             decelerationRate={'fast'}
-                                            slideStyle={useStackLayout ? styles.carouselStackSlide : undefined}
+                                            slideStyle={useStackLayout ? styles.carouselStackSlide : styles.carouselSlide}
                                             containerCustomStyle={useStackLayout ? styles.carouselStackContainer : undefined}
                                             contentContainerCustomStyle={useStackLayout ? styles.carouselStackContent : undefined}
                                             data={this.state.checkpointList}
@@ -6523,15 +6581,14 @@ class CheckPointDemo extends Component {
                                                 return (
                                                     <ScrollView
                                                         style={styles.checkpointScroll}
+                                                        contentContainerStyle={styles.checkpointScrollContent}
                                                         nestedScrollEnabled={true}
                                                         keyboardShouldPersistTaps="handled"
                                                         showsVerticalScrollIndicator={true}>
                                                         <View
                                                             style={[
-                                                                styles.cart,
                                                                 styles.cartBottomLayout,
                                                                 styles.carouselStackCard,
-                                                                { minHeight: stackCardMinHeight },
                                                             ]}>
                                                             <View style={styles.questionMetaRow}>
                                                                 <TouchableOpacity
@@ -6630,6 +6687,7 @@ class CheckPointDemo extends Component {
                                                                     ) : null}
                                                                 </View>
                                                             </View>
+                                                            {this.renderQuestionTopActions(item, index, isAttachmentRequired)}
                                                             <View style={[styles.checkpointContentColumn, { flex: 1 }]}>
                                                                 {item.ansType == 'M1' && item.scoreType !== 3 ? ( //Radio button
                                                                     <View style={styles.boxsecRadio}>
@@ -6831,28 +6889,9 @@ class CheckPointDemo extends Component {
                                                                             }}
                                                                             formHorizontal={true}
                                                                             labelHorizontal={true}
-                                                                            buttonSize={15}
-                                                                            labelStyle={{
-                                                                                color: 'black',
-                                                                                paddingRight: 12,
-                                                                            }}
+                                                                            buttonSize={16}
+                                                                            labelStyle={styles.radioLabelStyle}
                                                                         />
-
-                                                                        {this.state.checkPointsDetails[index].IsNCAllowed != 2 &&
-                                                                        this.state.checkPointsDetails[index].IsNCAllowed != 0 &&
-                                                                        this.state.TemplateID !== 5 &&
-                                                                        this.state.ischeckLPA !== true &&
-                                                                        this.state.ncofiEnabled &&
-                                                                        this.state.dropdownnotokvalue === 15 ? (
-                                                                            <TouchableOpacity
-                                                                                onPress={this.popupModal.bind(
-                                                                                    this,
-                                                                                    this.state.checkPointsDetails[index],
-                                                                                )}
-                                                                                style={styles.ncofi}>
-                                                                                <Text style={styles.ncofiLabel}>NC/OFI</Text>
-                                                                            </TouchableOpacity>
-                                                                        ) : null}
                                                                     </View>
                                                                 ) : item.ansType == 'M2' && item.scoreType !== 3 ? (
                                                                     <View style={styles.boxsecRadio}>
@@ -7058,35 +7097,9 @@ class CheckPointDemo extends Component {
                                                                             }}
                                                                             formHorizontal={true}
                                                                             labelHorizontal={true}
-                                                                            buttonSize={15}
-                                                                            labelStyle={{
-                                                                                color: 'black',
-                                                                                paddingRight: 12,
-                                                                            }}
+                                                                            buttonSize={16}
+                                                                            labelStyle={styles.radioLabelStyle}
                                                                         />
-                                                                        {this.state.ncofiEnabled && this.state.dropdownnotokvalue === 11 && (
-                                                                            <TouchableOpacity
-                                                                                onPress={this.popupModal.bind(
-                                                                                    this,
-                                                                                    this.state.checkPointsDetails[index],
-                                                                                )}
-                                                                                style={styles.ncofi}>
-                                                                                <Text style={styles.ncofiLabel}>NC/OFI</Text>
-                                                                            </TouchableOpacity>
-                                                                        )}
-                                                                        {this.state.checkPointsDetails[index].IsNCAllowed != 2 &&
-                                                                        this.state.checkPointsDetails[index].IsNCAllowed != 0 &&
-                                                                        this.state.TemplateID !== 5 &&
-                                                                        this.state.ischeckLPA !== true ? (
-                                                                            <TouchableOpacity
-                                                                                onPress={this.popupModal.bind(
-                                                                                    this,
-                                                                                    this.state.checkPointsDetails[index],
-                                                                                )}
-                                                                                style={styles.ncofi}>
-                                                                                <Text style={styles.ncofiLabel}>4</Text>
-                                                                            </TouchableOpacity>
-                                                                        ) : null}
                                                                     </View>
                                                                 ) : item.ansType == 'M3' && item.scoreType !== 3 ? (
                                                                     <View style={styles.boxsecRadio}>
@@ -7318,35 +7331,9 @@ class CheckPointDemo extends Component {
                                                                             }}
                                                                             formHorizontal={true}
                                                                             labelHorizontal={true}
-                                                                            buttonSize={15}
-                                                                            labelStyle={{
-                                                                                color: 'black',
-                                                                                paddingRight: 12,
-                                                                            }}
+                                                                            buttonSize={16}
+                                                                            labelStyle={styles.radioLabelStyle}
                                                                         />
-                                                                        {this.state.ncofiEnabled && this.state.dropdownnotokvalue === 10 && (
-                                                                            <TouchableOpacity
-                                                                                onPress={this.popupModal.bind(
-                                                                                    this,
-                                                                                    this.state.checkPointsDetails[index],
-                                                                                )}
-                                                                                style={styles.ncofi}>
-                                                                                <Text style={styles.ncofiLabel}>NC/OFI</Text>
-                                                                            </TouchableOpacity>
-                                                                        )}
-                                                                        {this.state.checkPointsDetails[index].IsNCAllowed != 2 &&
-                                                                        this.state.checkPointsDetails[index].IsNCAllowed != 0 &&
-                                                                        this.state.TemplateID !== 5 &&
-                                                                        this.state.ischeckLPA !== true ? (
-                                                                            <TouchableOpacity
-                                                                                onPress={this.popupModal.bind(
-                                                                                    this,
-                                                                                    this.state.checkPointsDetails[index],
-                                                                                )}
-                                                                                style={styles.ncofi}>
-                                                                                <Text style={styles.ncofiLabel}>NC/OFI</Text>
-                                                                            </TouchableOpacity>
-                                                                        ) : null}
                                                                     </View>
                                                                 ) : item.ansType == 'M4' && item.scoreType !== 3 ? (
                                                                     <View style={styles.boxsecRadio}>
@@ -7574,11 +7561,8 @@ class CheckPointDemo extends Component {
                                                                             }}
                                                                             formHorizontal={true}
                                                                             labelHorizontal={true}
-                                                                            buttonSize={15}
-                                                                            labelStyle={{
-                                                                                color: 'black',
-                                                                                paddingRight: 12,
-                                                                            }}
+                                                                            buttonSize={16}
+                                                                            labelStyle={styles.radioLabelStyle}
                                                                         />
                                                                     </View>
                                                                 ) : null}
@@ -7592,59 +7576,6 @@ class CheckPointDemo extends Component {
                                                                 ) : (
                                                                     <></>
                                                                 )}
-                                                                <View style={styles.attachmentActionRow}>
-                                                                    <TouchableOpacity
-                                                                        style={styles.attachmentActionButton}
-                                                                        onPress={this.chooseCameraOption.bind(this, item, index)}>
-                                                                        <Icon
-                                                                            name="paperclip"
-                                                                            size={20}
-                                                                            color="#123C95"
-                                                                            style={styles.attachmentActionIcon}
-                                                                        />
-                                                                        <Text style={styles.attachmentActionLabel}>Add Attachment</Text>
-                                                                        {isAttachmentRequired ? (
-                                                                            <Icon
-                                                                                name="star"
-                                                                                size={8}
-                                                                                color="red"
-                                                                                style={styles.attachmentActionRequired}
-                                                                            />
-                                                                        ) : null}
-                                                                    </TouchableOpacity>
-                                                                </View>
-
-                                                                {this.state.ncofiEnabled && this.state.dropdownnotokvalue === 15 && (
-                                                                    <View style={{ width: '100%', height: 40 }}>
-                                                                        <TouchableOpacity
-                                                                            onPress={this.popupModal.bind(this, this.state.checkPointsDetails[index])}
-                                                                            style={styles.ncofi}>
-                                                                            <Text style={styles.ncofiLabel}>NC/OFI</Text>
-                                                                        </TouchableOpacity>
-                                                                    </View>
-                                                                )}
-                                                                {this.state.checkPointsDetails[index].IsNCAllowed != 2 &&
-                                                                this.state.checkPointsDetails[index].IsNCAllowed != 0 &&
-                                                                this.state.TemplateID !== 5 &&
-                                                                this.state.ischeckLPA !== true &&
-                                                                this.state.ReportId === 11 ? (
-                                                                    <View style={{ width: '100%', height: 40 }}>
-                                                                        <TouchableOpacity
-                                                                            onPress={this.popupModal.bind(this, this.state.checkPointsDetails[index])}
-                                                                            style={styles.ncofi}>
-                                                                            <Text style={styles.ncofiLabel}>NC/OFI</Text>
-                                                                        </TouchableOpacity>
-                                                                    </View>
-                                                                ) : null}
-                                                                {this.state.ncofiEnabled && this.state.TemplateID !== 5 && this.state.TemplateID < 8 ? (
-                                                                    <View style={{ width: '100%', height: 40 }}>
-                                                                        <TouchableOpacity
-                                                                            onPress={this.popupModal.bind(this, this.state.checkPointsDetails[index])}
-                                                                            style={styles.ncofi}>
-                                                                            <Text style={styles.ncofiLabel}>NC/OFI</Text>
-                                                                        </TouchableOpacity>
-                                                                    </View>
-                                                                ) : null}
 
                                                                 <View
                                                                     style={
@@ -8647,11 +8578,10 @@ class CheckPointDemo extends Component {
                                                                         <TextInput
                                                                             style={styles.remarkTextArea}
                                                                             placeholderTextColor={
-                                                                                isRemarkRequired && !isRemarkFilled ? 'red' : '#A9A9A9'
+                                                                                isRemarkRequired && !isRemarkFilled ? '#D32F2F' : '#5C5C5C'
                                                                             }
                                                                             multiline={true}
                                                                             textAlignVertical="top"
-                                                                            textColor="#747474"
                                                                             value={
                                                                                 this.state.checkPointsDetails
                                                                                     ? this.state.checkPointsDetails[index].Remark
@@ -8724,9 +8654,27 @@ class CheckPointDemo extends Component {
                 )}
 
                 {this.state.checkpointList.length > 0 && this.state.isContentLoaded == false ? (
-                    <View pointerEvents="box-none" style={styles.serialFloatingWrapper}>
+                    <View style={styles.serialDockContainer}>
+                        <TouchableOpacity
+                            style={styles.serialDockToggle}
+                            touchSoundDisabled={false}
+                            onPress={() => {
+                                this.playSerialTouchSound();
+                                this.toggleSerialRail();
+                            }}>
+                            <Text style={styles.serialDockToggleText}>
+                                S.No{' '}
+                                {this.state.checkpointList[this.state.ActiveId]?.SerialNo ??
+                                    (this.state.ActiveId != null ? this.state.ActiveId + 1 : 1)}
+                            </Text>
+                            <Icon
+                                name={this.state.serialRailExpanded ? 'chevron-down' : 'chevron-up'}
+                                size={18}
+                                color="#FFFFFF"
+                            />
+                        </TouchableOpacity>
                         {this.state.serialRailExpanded ? (
-                            <View style={styles.serialFloatingPanel}>
+                            <View style={styles.serialDockList}>
                                 <FlatList
                                     ref={ref => {
                                         this._serialListRef = ref;
@@ -8766,22 +8714,6 @@ class CheckPointDemo extends Component {
                                 />
                             </View>
                         ) : null}
-                        <TouchableOpacity
-                            style={styles.serialFloatingPill}
-                            touchSoundDisabled={false}
-                            onPress={() => {
-                                this.playSerialTouchSound();
-                                this.toggleSerialRail();
-                            }}>
-                            <LinearGradient
-                                start={{ x: 0, y: 0 }}
-                                end={{ x: 1, y: 0 }}
-                                colors={FOOTER_BUTTON_GRADIENT}
-                                style={styles.serialFloatingPillGradient}>
-                                <Text style={styles.serialFloatingPillText}>S.No</Text>
-                                <Icon name={this.state.serialRailExpanded ? 'chevron-down' : 'chevron-left'} size={22} color="#FFFFFF" />
-                            </LinearGradient>
-                        </TouchableOpacity>
                     </View>
                 ) : null}
 
@@ -8791,7 +8723,8 @@ class CheckPointDemo extends Component {
                             <View style={styles.footerActionRow}>
                                 <TouchableOpacity
                                     style={[styles.footerActionButton, styles.footerActionButtonLeft]}
-                                    onPress={() => this.setState({ dialogVisibleReset: true })}>
+                                    onPress={() => this.setState({ dialogVisibleReset: true })}
+                                    disabled={this.state.isSaving}>
                                     <LinearGradient
                                         start={{ x: 0, y: 0 }}
                                         end={{ x: 1, y: 0 }}
@@ -8806,7 +8739,7 @@ class CheckPointDemo extends Component {
 
                                 <TouchableOpacity
                                     style={[styles.footerActionButton, styles.footerActionButtonRight]}
-                                    onPress={debounce(this.updateCheckPointsValues.bind(this), 1500)}
+                                    onPress={this.handleSavePress}
                                     disabled={this.state.isSaving}>
                                     <LinearGradient
                                         start={{ x: 0, y: 0 }}
@@ -8912,7 +8845,7 @@ class CheckPointDemo extends Component {
                                 </View>
                             </View>
 
-                            <TouchableOpacity onPress={this.updateCheckPointsValues.bind(this)}>
+                            <TouchableOpacity onPress={this.handleSavePress}>
                                 <View style={styles.sectionBtn}>
                                     <Text style={styles.boxContent}>{strings.yes}</Text>
                                 </View>
@@ -9068,6 +9001,15 @@ class CheckPointDemo extends Component {
                     textStyle={styles.toastText}
                 />
                 <ToastNew config={toastConfig} />
+
+                {this.state.isSaving ? (
+                    <View style={styles.savingOverlay}>
+                        <View style={styles.savingOverlayCard}>
+                            <ActivityIndicator size="large" color="#123C95" />
+                            <Text style={styles.savingOverlayText}>Saving...</Text>
+                        </View>
+                    </View>
+                ) : null}
             </View>
         );
     }
@@ -9082,6 +9024,7 @@ const mapDispatchToProps = dispatch => {
         storeAuditRecords: auditRecords => dispatch({ type: 'STORE_AUDIT_RECORDS', auditRecords }),
         changeAuditState: isAuditing => dispatch({ type: 'CHANGE_AUDIT_STATE', isAuditing }),
         storeAudits: audits => dispatch({ type: 'STORE_AUDITS', audits }),
+        updateRecentAuditList: recentAudits => dispatch({ type: 'UPDATE_RECENT_AUDIT_LIST', recentAudits }),
         storeCameraCapture: cameraCapture => dispatch({ type: 'STORE_CAMERA_CAPTURE', cameraCapture }),
         storeNCRecords: ncofiRecords => dispatch({ type: 'STORE_NCOFI_RECORDS', ncofiRecords }),
         saveNavigationParams: navigationParams => dispatch({ type: 'SAVE_NAVIGATION_PARAMS', navigationParams }),

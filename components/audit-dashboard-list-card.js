@@ -1,70 +1,48 @@
 import React from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import Ripple from 'react-native-material-ripple';
-import { useNavigation } from '@react-navigation/native';
 import { COLORS, SPACING } from 'constants/theme-constants';
-import { useSelector } from 'react-redux';
-import { ROUTES, USER_TYPE } from 'constants/app-constant';
+import { USER_TYPE } from 'constants/app-constant';
 import { getElevation, RFPercentage } from 'helpers/utils';
 import { useAppContext } from 'contexts/app-context';
 import { IMAGES } from 'assets/images';
 import ImageComponent from './image-component';
 import AuditActivityCardContent from './audit-activity-card-content';
-import { enrichAuditItem } from 'helpers/audit-status';
 
-const EMPTY_AUDITS = [];
-
-const RecentActivityCardSM = ({ item = {} }) => {
+const AuditDashboardListCard = ({
+    item = {},
+    localAudits = [],
+    onPress,
+    logo = IMAGES.auditpro_logo,
+}) => {
     const { sites } = useAppContext();
     const elevation = getElevation();
-    const navigation = useNavigation();
-    const localAudits = useSelector(state => state?.audits?.audits) || EMPTY_AUDITS;
-
-    const handleClickCard = selectedItem => {
-        const enrichedItem = enrichAuditItem(selectedItem, localAudits);
-
-        if (selectedItem?.recent_Module === 'AUDIT_PAGE_SM') {
-            navigation.navigate(ROUTES.AUDIT_PAGE_SM, {
-                screenFrom: 'Dashboard',
-                datapass: enrichedItem,
-            });
-        } else {
-            navigation.navigate(ROUTES.AUDIT_PAGE, {
-                screenFrom: 'Dashboard',
-                datapass: enrichedItem,
-            });
-        }
-    };
-
-    const isSupplierModule = item?.recent_Module === 'AUDIT_PAGE_SM';
 
     return (
-        <View style={{ paddingHorizontal: SPACING.NORMAL }}>
-            <TouchableOpacity
-                activeOpacity={0.85}
-                onPress={() => handleClickCard?.(item)}
-                style={[styles.card, elevation]}>
-                {sites?.selectedSite?.UserType !== USER_TYPE.SUPPLIER && (
+        <View style={styles.wrapper}>
+            <TouchableOpacity activeOpacity={0.85} onPress={onPress} style={[styles.card, elevation]}>
+                {logo && sites?.selectedSite?.UserType !== USER_TYPE.SUPPLIER && (
                     <Ripple rippleContainerBorderRadius={SPACING.SMALL} activeOpacity={1} style={styles.moduleLogo}>
-                        <ImageComponent
-                            resizeMode="contain"
-                            source={isSupplierModule ? IMAGES.supplier_logo : IMAGES.auditpro_logo}
-                        />
+                        <ImageComponent resizeMode="contain" source={logo} />
                     </Ripple>
                 )}
                 <AuditActivityCardContent
                     item={item}
-                    title={sites?.selectedSite?.SiteName || item?.SiteName || ''}
+                    title={item?.Auditee || item?.SiteName || ''}
                     localAudits={localAudits}
+                    hideAuditeeInMeta
                 />
             </TouchableOpacity>
         </View>
     );
 };
 
-export default RecentActivityCardSM;
+export default AuditDashboardListCard;
 
 const styles = StyleSheet.create({
+    wrapper: {
+        paddingHorizontal: SPACING.NORMAL,
+    },
     card: {
         paddingVertical: SPACING.SMALL,
         paddingHorizontal: SPACING.SMALL,

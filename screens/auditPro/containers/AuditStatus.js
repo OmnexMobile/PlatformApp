@@ -97,6 +97,17 @@ class AuditStatus extends React.Component {
     };
     this.onStartDateChange = this.onStartDateChange.bind(this);
     this.onEndDateChange = this.onEndDateChange.bind(this);
+    this.handleSaveOrRefreshPress = debounce(() => {
+      if (this.state.pageLoad) {
+        console.log('please wait');
+        return;
+      }
+      if (this.state.disableBtn === false) {
+        this.setState({dialogVisible: true});
+      } else {
+        this.Refresh();
+      }
+    }, 1000);
   }
 
   componentDidMount() {
@@ -874,14 +885,11 @@ class AuditStatus extends React.Component {
               <DefaultTabBar
                 backgroundColor="white"
                 activeTextColor={COLORS.primaryDarkThemeColor}
-                inactiveTextColor={COLORS.primaryDarkThemeColor}
+                inactiveTextColor="#8A94A6"
                 underlineStyle={{
                   backgroundColor: COLORS.primaryDarkThemeColor,
-                  borderBottomColor: COLORS.primaryDarkThemeColor,
-                  // height: Platform.select({
-                  //   android: 0,
-                  //   ios: 5,
-                  // }),
+                  height: 3,
+                  borderRadius: 2,
                 }}
                 textStyle={{
                   fontSize: Fonts.size.regular,
@@ -1373,16 +1381,7 @@ class AuditStatus extends React.Component {
         {/** footer */}
         <View style={styles.footer}>
           <TouchableOpacity
-            onPress={debounce(
-              this.state.pageLoad === true
-                ? console.log('please wait')
-                : () => {
-                    this.state.disableBtn === false
-                      ? this.setState({dialogVisible: true})
-                      : this.Refresh();
-                  },
-              1000,
-            )}
+            onPress={this.handleSaveOrRefreshPress}
             style={styles.footer}>
             {/*Genereate report related code commented below.. */}
             {/*
@@ -1503,12 +1502,7 @@ class AuditStatus extends React.Component {
                 </View>
               ) : (
                 <TouchableOpacity
-                  onPress={debounce(
-                    this.state.disableBtn === false
-                      ? () => this.setState({dialogVisible: true})
-                      : () => this.Refresh(),
-                    1000,
-                  )}
+                  onPress={this.handleSaveOrRefreshPress}
                   style={styles.floatinBtn}>
                   {this.state.disableBtn === false ? (
                     <Icon name="save" size={24} color="white" />

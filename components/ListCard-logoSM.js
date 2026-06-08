@@ -2,172 +2,90 @@ import React from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import Ripple from 'react-native-material-ripple';
 import { useNavigation } from '@react-navigation/native';
-import { useDispatch } from 'react-redux';
-import moment from 'moment';
+import { useDispatch, useSelector } from 'react-redux';
 import { COLORS, FONT_SIZE, SPACING } from 'constants/theme-constants';
-import { DATE_FORMAT, FONT_TYPE, ICON_TYPE, ROUTES, STATUS, STATUS_CODES, USER_TYPE } from 'constants/app-constant';
+import { ROUTES, STATUS, STATUS_CODES, USER_TYPE } from 'constants/app-constant';
 import { getElevation, RFPercentage } from 'helpers/utils';
 import { useAppContext } from 'contexts/app-context';
-import useTheme from 'theme/useTheme';
-import IconComponent from './icon-component';
-import TextComponent from './text';
 import { IMAGES } from 'assets/images';
-import ImageComponent from './image-component';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-// import Tag from './tag';
+import ImageComponent from './image-component';
+import AuditActivityCardContent from './audit-activity-card-content';
+import { enrichAuditItem } from 'helpers/audit-status';
+
+const EMPTY_AUDITS = [];
 
 const ListCardLogoSM = ({ item = {} }) => {
-    const { sites, handleRecentActivity, timeSettings } = useAppContext();
-    const { theme } = useTheme();
+    const { sites } = useAppContext();
     const elevation = getElevation();
     const navigation = useNavigation();
     const dispatch = useDispatch();
-    console.log('ListCardLogoSMitem in list card logo------->>>', item);
+    const localAudits = useSelector(state => state?.audits?.audits) || EMPTY_AUDITS;
 
     const getSupplierIndex = moduleName => {
         if (moduleName === 'Supplier Initial Assessment') {
             return 2;
         }
-
         if (moduleName === 'Supplier Routine Audit') {
             return 3;
         }
-
         return 1;
     };
 
     const handleClickCard = async selectedItem => {
-        console.log('checckitemmmmm', selectedItem);
-        console.log('checkinngloggggg--------', selectedItem?.Module_name);
+        const enrichedItem = enrichAuditItem(selectedItem, localAudits);
 
         if (selectedItem?.Module_name === 'Supplier Initial Assessment' || selectedItem?.Module_name === 'Supplier Routine Audit') {
-            console.log('checkinngloggggg--------SupplierManagement......');
-
             const smData = getSupplierIndex(selectedItem?.Module_name);
-            const auditStatusPass = selectedItem?.cStatus ?? selectedItem?.AuditStatus;
+            const auditStatusPass = enrichedItem?.cStatus ?? selectedItem?.AuditStatus;
 
             dispatch({ type: 'STORE_SUPPLIER_DATA', smdata: smData });
             await AsyncStorage.setItem('supplierIndex', JSON.stringify(smData));
 
             navigation.navigate(ROUTES.AUDIT_PAGE_SM, {
                 screenFrom: 'Dashboard',
-                datapass: { ...selectedItem, smData, cStatus: auditStatusPass },
+                datapass: { ...enrichedItem, smData, cStatus: auditStatusPass },
                 auditStatusPass,
                 smData,
             });
         } else if (selectedItem?.Module_name === 'AuditPro') {
-            console.log('checkinngloggggg--------Auditpro......');
-
             navigation.navigate(ROUTES.AUDIT_PAGE, {
                 screenFrom: 'Dashboard',
-                datapass: selectedItem,
+                datapass: enrichedItem,
             });
         } else {
             navigation.navigate(selectedItem?.Status === STATUS.CREATED ? ROUTES.CONCERN_INITIAL_EVALUATION : ROUTES.VIEW_CONCERN_PS, {
                 ConcernID: selectedItem?.ConcernID,
                 ...(selectedItem?.StatusID === STATUS_CODES.IN_PROGRESS.toString() && { FormTypeID: 3 }),
             });
-            handleRecentActivity?.(selectedItem);
         }
     };
+
+    const isSupplierModule =
+        item?.Module_name === 'Supplier Initial Assessment' || item?.Module_name === 'Supplier Routine Audit';
+
     return (
         <View style={{ paddingHorizontal: SPACING.NORMAL }}>
             <TouchableOpacity
-                activeOpacity={1}
+                activeOpacity={0.85}
                 onPress={() => handleClickCard?.(item)}
-                style={[
-                    {
-                        padding: SPACING.NORMAL,
-                        borderRadius: SPACING.SMALL,
-                        marginBottom: SPACING.NORMAL,
-                        marginTop: SPACING.X_SMALL,
-                    },
-                    elevation,
-                ]}>
+                style={[styles.card, elevation]}>
                 {sites?.selectedSite?.UserType !== USER_TYPE.SUPPLIER && (
-                    <>
-                        <Ripple
-                            rippleContainerBorderRadius={SPACING.SMALL}
-                            activeOpacity={1}
-                            style={{
-                                position: 'absolute',
-                                right: SPACING.X_SMALL,
-                                top: SPACING.SMALL,
-                                width: RFPercentage(6),
-                                height: RFPercentage(6),
-                                backgroundColor: 'transparent',
-                                borderRadius: SPACING.SMALL,
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                zIndex: 100,
-                            }}>
-                            {item?.Module_name === 'Supplier Initial Assessment' || item?.Module_name === 'Supplier Routine Audit' ? (
-                                <ImageComponent resizeMode="contain" source={IMAGES.supplier_logo} />
-                            ) : (
-                                <ImageComponent resizeMode="contain" source={IMAGES.auditpro_logo} />
-                            )}
-                        </Ripple>
-                    </>
+                    <Ripple
+                        rippleContainerBorderRadius={SPACING.SMALL}
+                        activeOpacity={1}
+                        style={styles.moduleLogo}>
+                        <ImageComponent
+                            resizeMode="contain"
+                            source={isSupplierModule ? IMAGES.supplier_logo : IMAGES.auditpro_logo}
+                        />
+                    </Ripple>
                 )}
-                <View style={[styles.cardOuterView]}>
-                    <View style={styles.projectBoxContent}>
-                        <View style={{ flexDirection: 'row', paddingBottom: SPACING.SMALL, flex: 1 }}>
-                            <View style={{ width: '100%', paddingRight: RFPercentage(5.5) }}>
-                                <TextComponent
-                                    numberOfLines={2}
-                                    fontSize={FONT_SIZE.LARGE}
-                                    style={{
-                                        color: theme.colors.primaryThemeColor,
-                                    }}>
-                                    {item?.SiteName}
-                                </TextComponent>
-                            </View>
-                        </View>
-                        {item?.Type ? (
-                            <View style={{ width: '100%', paddingBottom: SPACING.SMALL }}>
-                                <TextComponent numberOfLines={1}>Type: {item?.Type}</TextComponent>
-                            </View>
-                        ) : null}
-                        <View style={{ width: '100%', paddingBottom: SPACING.SMALL }}>
-                            <TextComponent numberOfLines={1}> {item?.AuditTypeName}</TextComponent>
-                        </View>
-                        <View style={{ flexDirection: 'row', paddingBottom: SPACING.SMALL }}>
-                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                <View
-                                    style={{
-                                        width: RFPercentage(2.5),
-                                        height: RFPercentage(2.5),
-                                        backgroundColor: COLORS.WARNING,
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        borderRadius: SPACING.X_SMALL,
-                                        marginRight: SPACING.X_SMALL,
-                                    }}>
-                                    <IconComponent name="calendar" color={COLORS.white} type={ICON_TYPE.AntDesign} size={FONT_SIZE.X_SMALL} />
-                                </View>
-                                <TextComponent type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.SMALL}>
-                                    {moment(item?.StartDate).format(DATE_FORMAT[timeSettings || 'DD_MM_YYYY'])} -{' '}
-                                </TextComponent>
-                            </View>
-                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                <TextComponent type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.SMALL}>
-                                    {moment(item?.EndDate).format(DATE_FORMAT[timeSettings || 'DD_MM_YYYY'])}
-                                </TextComponent>
-                            </View>
-                        </View>
-                        <TextComponent style={{ paddingLeft: SPACING.X_SMALL }} numberOfLines={1}>
-                            {' '}
-                            <TextComponent type={FONT_TYPE.BOLD}>{item?.AuditNumber}</TextComponent>
-                        </TextComponent>
-                        {item?.lastOpened ? (
-                            <View style={{ paddingTop: SPACING.SMALL, paddingLeft: SPACING.X_SMALL }}>
-                                <TextComponent type={FONT_TYPE.BOLD} style={{ color: COLORS.green, fontSize: FONT_SIZE.X_SMALL }}>
-                                    Last opened: {moment(item?.lastOpened).fromNow()}
-                                </TextComponent>
-                            </View>
-                        ) : null}
-                    </View>
-                </View>
+                <AuditActivityCardContent
+                    item={item}
+                    title={item?.SiteName || sites?.selectedSite?.SiteName || ''}
+                    localAudits={localAudits}
+                />
             </TouchableOpacity>
         </View>
     );
@@ -176,35 +94,29 @@ const ListCardLogoSM = ({ item = {} }) => {
 export default ListCardLogoSM;
 
 const styles = StyleSheet.create({
-    cardOuterView: {
-        flexDirection: 'row',
+    card: {
+        paddingVertical: SPACING.SMALL,
+        paddingHorizontal: SPACING.SMALL,
+        borderRadius: 12,
+        marginBottom: SPACING.SMALL,
+        marginTop: SPACING.X_SMALL,
+        backgroundColor: COLORS.white,
+        borderWidth: 1,
+        borderColor: '#E8EDF3',
+        overflow: 'hidden',
     },
-    borderEnabled: {
-        borderBottomWidth: 0.5,
-        borderBottomColor: 'lightgrey',
-    },
-    detailsView: {
-        flex: 3,
-        borderLeftWidth: 4,
-        paddingLeft: 8,
-    },
-    progressRound: {
-        width: 60,
-        height: 60,
-        borderRadius: 30,
-        borderColor: 'lightgrey',
-        borderWidth: 4,
-    },
-    floatingDiv: {
+    moduleLogo: {
         position: 'absolute',
-        right: 20,
-        bottom: 120,
-        zIndex: 1000,
-        justifyContent: 'center',
+        right: SPACING.SMALL,
+        top: SPACING.SMALL,
+        width: RFPercentage(5.5),
+        height: RFPercentage(5.5),
+        backgroundColor: COLORS.white,
+        borderRadius: RFPercentage(2.75),
+        borderWidth: 1,
+        borderColor: '#E8EDF3',
         alignItems: 'center',
-    },
-    apqpTypeIcon: {
-        width: 30,
-        height: 17,
+        justifyContent: 'center',
+        zIndex: 100,
     },
 });

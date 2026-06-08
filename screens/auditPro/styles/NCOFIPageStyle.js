@@ -76,8 +76,6 @@ export default StyleSheet.create({
         alignItems: 'center',
         width: '100%',
         backgroundColor: '#FFFFFF',
-        paddingVertical: 8,
-        paddingHorizontal: 10,
     },
     footerDiv: {
         flexDirection: 'row',
@@ -97,11 +95,7 @@ export default StyleSheet.create({
     },
     footerTextContent: {
         color: '#ffffff',
-        fontSize: 14,
         fontFamily: 'OpenSans-SemiBold',
-        paddingTop: 6,
-        lineHeight: 18,
-        minHeight: 42,
         textAlign: 'center',
         textAlignVertical: 'center',
         width: '100%',
@@ -109,10 +103,7 @@ export default StyleSheet.create({
     footerShadowButton: {
         alignItems: 'center',
         justifyContent: 'center',
-        minHeight: 84,
-        paddingVertical: 12,
-        paddingHorizontal: 10,
-        borderRadius: 10,
+        borderRadius: 8,
         backgroundColor: COLORS.primaryDarkThemeColor,
         shadowColor: '#000',
         shadowOpacity: 0.18,
@@ -128,15 +119,14 @@ export default StyleSheet.create({
     },
     footerButtonsRow: {
         flexDirection: 'row',
-        alignItems: 'stretch',
+        alignItems: 'center',
         justifyContent: 'space-between',
         width: '100%',
-        paddingHorizontal: 6,
     },
     footerButtonWrapper: {
         flex: 1,
         minWidth: 0,
-        marginHorizontal: 4,
+        marginHorizontal: 3,
         justifyContent: 'center',
     },
 
@@ -166,8 +156,19 @@ export default StyleSheet.create({
 
     // Card view styles
     scrollViewBody: {
-        height: '100%',
+        flex: 1,
         backgroundColor: 'transparent',
+    },
+    ncTabList: {
+        flex: 1,
+        backgroundColor: 'transparent',
+    },
+    ncTabListContent: {
+        paddingTop: 8,
+        paddingBottom: 120,
+    },
+    ncTabListContentEmpty: {
+        flexGrow: 1,
     },
     cardBox: {
         backgroundColor: 'white',
@@ -608,7 +609,7 @@ export default StyleSheet.create({
         paddingTop: 10,
     },
     listMarginTop: {
-        marginTop: 55,
+        marginTop: 8,
     },
     row: {
         flexDirection: 'row',
@@ -767,10 +768,7 @@ export default StyleSheet.create({
         width: '100%',
         alignItems: 'center',
         justifyContent: 'center',
-        minHeight: 84,
-        paddingVertical: 12,
-        paddingHorizontal: 10,
-        borderRadius: 10,
+        borderRadius: 8,
         backgroundColor: COLORS.primaryDarkThemeColor,
         shadowColor: '#000',
         shadowOpacity: 0.18,
@@ -780,10 +778,6 @@ export default StyleSheet.create({
     },
     proceedText: {
         color: '#ffffff',
-        fontSize: 14,
-        marginTop: 6,
-        lineHeight: 18,
-        minHeight: 42,
         textAlign: 'center',
         textAlignVertical: 'center',
         fontFamily: 'OpenSans-SemiBold',
@@ -791,10 +785,7 @@ export default StyleSheet.create({
     },
     activityWrapper: {
         width: '100%',
-        minHeight: 84,
-        paddingVertical: 12,
-        paddingHorizontal: 10,
-        borderRadius: 10,
+        borderRadius: 8,
         backgroundColor: COLORS.primaryDarkThemeColor,
         justifyContent: 'center',
         alignItems: 'center',
@@ -955,6 +946,40 @@ export default StyleSheet.create({
     },
 
     // Tabs
+    ncTabContainer: {
+        flex: 1,
+        alignSelf: 'stretch',
+        justifyContent: 'flex-start',
+    },
+    ncTabBar: {
+        height: 50,
+        flexDirection: 'row',
+        backgroundColor: 'white',
+        borderBottomWidth: 1,
+        borderBottomColor: '#ccc',
+    },
+    ncTabButton: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingBottom: 10,
+    },
+    ncTabTextActive: {
+        color: COLORS.primaryDarkThemeColor,
+        fontWeight: 'bold',
+    },
+    ncTabTextInactive: {
+        color: '#747474',
+        fontWeight: 'normal',
+    },
+    ncTabUnderline: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        height: 4,
+        backgroundColor: COLORS.primaryDarkThemeColor,
+    },
     tabUnderline: {
         backgroundColor: COLORS.primaryDarkThemeColor,
         borderBottomColor: COLORS.primaryDarkThemeColor,

@@ -151,10 +151,10 @@ export default StyleSheet.create({
     standardRequirementText: {
         padding: 0,
         margin: 0,
-        color: '#A6A6A6',
-        width: '80%',
-        fontSize: Fonts.size.regular,
-        fontFamily: 'OpenSans-Regular',
+        color: '#1A1A1A',
+        width: '100%',
+        fontSize: Fonts.size.medium,
+        fontFamily: 'OpenSans-SemiBold',
     },
     inputAttach: {
         flexDirection: 'row',
@@ -288,6 +288,44 @@ export default StyleSheet.create({
         paddingHorizontal: 0,
         marginBottom: 0,
     },
+    formField: {
+        width: '100%',
+        marginBottom: 4,
+    },
+    formInputContainer: {
+        marginLeft: 0,
+        marginBottom: 14,
+        width: '100%',
+        paddingHorizontal: 0,
+    },
+    formInputText: {
+        fontSize: Fonts.size.input,
+        color: '#1A1A1A',
+        paddingHorizontal: 0,
+        paddingVertical: 10,
+        lineHeight: 24,
+        fontFamily: 'OpenSans-Regular',
+    },
+    formLabelText: {
+        fontSize: Fonts.size.medium,
+        color: '#1A1A1A',
+    },
+    formDropdownContainer: {
+        padding: 0,
+        paddingBottom: 8,
+        marginBottom: 14,
+        width: '100%',
+    },
+    formDropdownValue: {
+        fontSize: Fonts.size.input,
+        color: '#1A1A1A',
+        fontFamily: 'OpenSans-Regular',
+    },
+    formDropdownPlaceholder: {
+        fontSize: Fonts.size.medium,
+        color: '#5C5C5C',
+        fontFamily: 'OpenSans-Regular',
+    },
     body: {
         position: 'absolute',
         width: Window.width,
@@ -327,6 +365,9 @@ export default StyleSheet.create({
     },
     multiSelectChipText: {
         maxWidth: Dimensions.get('screen').width - 90,
+        fontSize: Fonts.size.input,
+        color: '#1A1A1A',
+        fontFamily: 'OpenSans-Regular',
     },
 
     attachmentListItem: {
@@ -348,8 +389,9 @@ export default StyleSheet.create({
         flexDirection: 'column',
     },
     columnPadLeft: {
-        paddingLeft: 10,
+        paddingLeft: 0,
         flexDirection: 'column',
+        width: '100%',
     },
     filenameText: {
         fontFamily: 'OpenSans-Regular',
@@ -386,24 +428,26 @@ export default StyleSheet.create({
     processLabel: {
         paddingBottom: 5,
         margin: 0,
-        marginTop: 20,
+        marginTop: 12,
         fontSize: Fonts.size.medium,
-        color: '#A6A6A6',
-        fontFamily: 'OpenSans-Regular',
+        color: '#1A1A1A',
+        fontFamily: 'OpenSans-SemiBold',
     },
     selectedIconStyle: {
         color: '#4caf50',
         paddingLeft: 10,
     },
     eyeRow: {
-        position: 'relative',
-        minHeight: 40,
+        flexDirection: 'row',
+        alignItems: 'flex-end',
+        width: '100%',
+    },
+    eyeRowField: {
+        flex: 1,
     },
     eyeIcon: {
-        position: 'absolute',
-        right: -10,
-        top: 20,
-        padding: 5,
+        padding: 8,
+        marginBottom: 10,
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -534,35 +578,21 @@ export default StyleSheet.create({
         // marginTop:20
     },
     div01: {
-        width: Window.width,
-        // height:height(10),
+        width: '100%',
         backgroundColor: 'transparent',
-        // marginTop:10,
-        // alignItems:'center',
-        // justifyContent:'center',
-        flexDirection: 'row',
-        paddingTop: 5,
+        flexDirection: 'column',
+        marginBottom: 8,
     },
     div1: {
         width: '100%',
-        //height:height(10),
         backgroundColor: 'transparent',
-        marginTop: 20,
-        // alignItems:'center',
-        // justifyContent:'center',
-        flexDirection: 'row',
-        // backgroundColor:'yellow'
+        marginTop: 0,
+        flexDirection: 'column',
     },
     div2: {
         width: '100%',
-        // height:height(10),
         backgroundColor: 'transparent',
-        // marginTop:10,
-        // alignItems:'center',
-        // justifyContent:'center',
-        flexDirection: 'row',
-        //marginBottom:30
-        //backgroundColor:'red'
+        flexDirection: 'column',
     },
 
     check: {
@@ -595,8 +625,7 @@ export default StyleSheet.create({
     },
     input002: {
         backgroundColor: 'transparent',
-        width: '90%',
-        height: '90%',
+        width: '100%',
     },
     placeholderT: {
         fontSize: Fonts.size.regular,
@@ -604,26 +633,22 @@ export default StyleSheet.create({
     },
     input02: {
         backgroundColor: 'transparent',
-        width: '90%',
-
-        paddingVertical: Platform.OS === 'ios' ? 10 : null,
+        width: '100%',
+        paddingVertical: Platform.OS === 'ios' ? 4 : 0,
     },
     input03: {
         backgroundColor: 'transparent',
         width: '100%',
-        height: '80%',
         paddingLeft: 0,
     },
     input04: {
         backgroundColor: 'transparent',
         width: '100%',
-        height: '80%',
         paddingLeft: 0,
     },
     input05: {
         backgroundColor: 'transparent',
         width: '100%',
-        height: '80%',
         paddingLeft: 0,
     },
     input06: {
@@ -635,7 +660,6 @@ export default StyleSheet.create({
     input07: {
         backgroundColor: 'transparent',
         width: '100%',
-        height: '80%',
         paddingLeft: 0,
     },
     uploadButton: {
@@ -655,7 +679,7 @@ export default StyleSheet.create({
         paddingHorizontal: 16,
         paddingVertical: 8,
         backgroundColor: 'white',
-        justifyContent: 'center',
+        justifyContent: 'flex-start',
         paddingBottom: 0,
         marginBottom: 0,
         alignSelf: 'stretch',
@@ -666,18 +690,28 @@ export default StyleSheet.create({
     },
     formSection: {
         width: '100%',
-        marginBottom: 5,
+        marginBottom: 12,
     },
     formSection1: {
         width: '100%',
-        marginBottom: 16,
+        marginBottom: 12,
     },
     fieldLabel: {
-        fontSize: Fonts.size.regular,
+        fontSize: Fonts.size.medium,
         fontFamily: 'OpenSans-SemiBold',
-        color: '#4A4A4A',
-        marginBottom: 6,
+        color: '#1A1A1A',
+        marginBottom: 8,
         marginLeft: 0,
+    },
+    multiSelectToggleText: {
+        fontSize: Fonts.size.input,
+        color: '#1A1A1A',
+        fontFamily: 'OpenSans-Regular',
+    },
+    multiSelectItemText: {
+        fontSize: Fonts.size.medium,
+        color: '#1A1A1A',
+        fontFamily: 'OpenSans-Regular',
     },
     floatingDiv: {
         position: 'absolute',

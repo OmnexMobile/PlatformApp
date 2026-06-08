@@ -3279,6 +3279,28 @@ class CreateNC extends Component {
             layoutProfile.isLandscape ? styles.ModalBoxLandscape : null,
         ];
         const keyboardExtraHeight = layoutProfile.isLandscape ? 90 : 125;
+        const formInputProps = {
+            containerStyle: [styles.inputContainerNoPad, styles.formInputContainer],
+            inputStyle: styles.formInputText,
+            labelStyle: styles.formLabelText,
+            placeholderTextColor: '#5C5C5C',
+        };
+        const formDropdownProps = {
+            containerStyle: [styles.inputContainerNoPad, styles.formDropdownContainer],
+            labelStyle: styles.formLabelText,
+            selectedTextStyle: styles.formDropdownValue,
+            placeholderStyle: styles.formDropdownPlaceholder,
+        };
+        const multiSelectColors = {
+            text: '#1A1A1A',
+            subText: '#323232',
+            selectToggleTextColor: '#1A1A1A',
+        };
+        const multiSelectStyles = {
+            chipText: styles.multiSelectChipText,
+            selectToggleText: styles.multiSelectToggleText,
+            itemText: styles.multiSelectItemText,
+        };
 
         console.log('one:Navigation,PARAMS', this.props?.route?.params?.data);
 
@@ -3372,7 +3394,7 @@ class CreateNC extends Component {
                                                     numberOfLines={3}
                                                     autoCapitalize="sentences"
                                                     inputRef={ref => (this.ncTxtField = ref)}
-                                                    containerStyle={styles.inputContainerNoPad}
+                                                    {...formInputProps}
                                                     onChangeText={(field, value) => {
                                                         this.setState({ nonconfirmityText: value }, () => {
                                                             this.isCheck5 = true;
@@ -3393,7 +3415,7 @@ class CreateNC extends Component {
                                                         numberOfLines={3}
                                                         autoCapitalize="sentences"
                                                         inputRef={ref => (this.ofiTxtField = ref)}
-                                                        containerStyle={styles.inputContainerNoPad}
+                                                        {...formInputProps}
                                                         onChangeText={(field, value) => {
                                                             this.setState({ ofitext: value }, () => {
                                                                 this.isCheck3 = true;
@@ -3418,7 +3440,7 @@ class CreateNC extends Component {
                                                     numberOfLines={3}
                                                     autoCapitalize="sentences"
                                                     inputRef={ref => (this.objEviTxtField = ref)}
-                                                    containerStyle={styles.inputContainerNoPad}
+                                                    {...formInputProps}
                                                     onChangeText={(field, value) => {
                                                         this.setState({ objEvidence: value }, () => {
                                                             this.isCheck5 = true;
@@ -3438,7 +3460,7 @@ class CreateNC extends Component {
                                                     numberOfLines={3}
                                                     autoCapitalize="sentences"
                                                     inputRef={ref => (this.objEviTxtField = ref)}
-                                                    containerStyle={styles.inputContainerNoPad}
+                                                    {...formInputProps}
                                                     onChangeText={(field, value) => {
                                                         this.setState({ objEvidence: value }, () => {
                                                             this.isCheck5 = true;
@@ -3453,12 +3475,12 @@ class CreateNC extends Component {
                                             style={[
                                                 styles.fieldLabel,
                                                 this.state.clauseMandatory === 1 && this.state.RouteParam === 'NC' && this.state.MarkClause == false
-                                                    ? { color: '#A6A6A6' }
+                                                    ? { color: 'red' }
                                                     : null,
                                             ]}>
                                             {strings.ClausesL}
                                         </Text>
-                                        <View style={[styles.div2, { marginTop: 4 }]}>
+                                        <View style={styles.div2}>
                                             <View style={styles.inputhigh}>
                                                 <SectionedMultiSelect
                                                     IconRenderer={this.icon}
@@ -3468,34 +3490,28 @@ class CreateNC extends Component {
                                                     subKey="children"
                                                     single
                                                     selectText={strings.SelectClauses}
-                                                    baseColor={this.state.MarkClause == false ? '#A6A6A6' : 'red'}
-                                                    textColor={this.state.MarkClause == false ? '#A6A6A6' : 'red'}
+                                                    baseColor={this.state.MarkClause == false ? '#1A1A1A' : 'red'}
+                                                    textColor={this.state.MarkClause == false ? '#1A1A1A' : 'red'}
                                                     showDropDowns={true}
                                                     readOnlyHeadings={true}
                                                     onSelectedItemsChange={this.onSelectedItemsChange}
                                                     selectedItems={Array.isArray(this.state.selectedItems) ? this.state.selectedItems : []}
                                                     expandDropDowns={true}
-                                                    placeholderTextColor="#A6A6A6"
+                                                    placeholderTextColor="#5C5C5C"
                                                     itemNumberOfLines={3}
                                                     selectLabelNumberOfLines={3}
-                                                    styles={{
-                                                        chipText: styles.multiSelectChipText,
-                                                    }}
+                                                    styles={multiSelectStyles}
                                                     colors={{
-                                                        text: '#A6A6A6',
-                                                        subText: '#A6A6A6',
-                                                        selectToggleTextColor: this.state.MarkClause == false ? '#A6A6A6' : 'red',
+                                                        ...multiSelectColors,
+                                                        selectToggleTextColor: this.state.MarkClause == false ? '#1A1A1A' : 'red',
                                                     }}
                                                 />
                                             </View>
                                         </View>
                                     </View>
-                                    <View style={styles.div01}>
-                                        <View style={[styles.input002]}>
-                                            {this.state.displayData ? (
-                                                <Text style={styles.standardRequirementText}>{strings.StandardRequirementsL}</Text>
-                                            ) : null}
-                                            <View style={styles.eyeRow}>
+                                    <View style={styles.formSection}>
+                                        <View style={styles.eyeRow}>
+                                            <View style={styles.eyeRowField}>
                                                 <InputComponent
                                                     label={strings.StandardRequirementsL}
                                                     name="standardRequirements"
@@ -3510,17 +3526,16 @@ class CreateNC extends Component {
                                                     editable={false}
                                                     multiline
                                                     numberOfLines={1}
-                                                    containerStyle={styles.inputContainerNoPad}
+                                                    {...formInputProps}
                                                     onTouchStart={() => this.setState({ isVisible: true })}
                                                 />
-                                                <TouchableOpacity
-                                                    onPress={() => this.setState({ NCtxtFlag: false, isVisible: true })}
-                                                    style={styles.eyeIcon}>
-                                                    <Icon name={'eye'} size={20} color="black" />
-                                                </TouchableOpacity>
                                             </View>
+                                            <TouchableOpacity
+                                                onPress={() => this.setState({ NCtxtFlag: false, isVisible: true })}
+                                                style={styles.eyeIcon}>
+                                                <Icon name={'eye'} size={22} color="#1A1A1A" />
+                                            </TouchableOpacity>
                                         </View>
-                                        <View style={this.state.RouteParam == 'OFI' || this.state.isLPA ? styles.hidden : styles.check}></View>
                                     </View>
                                     <View style={styles.div1}>
                                         <View style={styles.input03}>
@@ -3533,7 +3548,7 @@ class CreateNC extends Component {
                                                 required
                                                 editable={this.state.isContainValue1}
                                                 dropdownRef={ref => (this.categoryTxtField = ref)}
-                                                containerStyle={styles.inputContainerNoPad}
+                                                {...formDropdownProps}
                                                 onChange={value => {
                                                     console.log('*****', value);
                                                     const CategoryID = this.state.categoryArr.find(item => item.value === value);
@@ -3556,7 +3571,7 @@ class CreateNC extends Component {
                                                 required
                                                 editable={this.state.isContainValue4}
                                                 dropdownRef={ref => (this.responsibleTxtField = ref)}
-                                                containerStyle={styles.inputContainerNoPad}
+                                                {...formDropdownProps}
                                                 onChange={value => {
                                                     let RequestID = this.state.UserArr.find(item => item.value === value);
                                                     if (RequestID == null) {
@@ -3586,7 +3601,7 @@ class CreateNC extends Component {
                                                 required
                                                 editable={this.state.isContainValue3}
                                                 dropdownRef={ref => (this.requestTxtField = ref)}
-                                                containerStyle={styles.inputContainerNoPad}
+                                                {...formDropdownProps}
                                                 onChange={value => {
                                                     let UserID =
                                                         this.state.UserArr.find(item => item.value === value) ||
@@ -3628,7 +3643,7 @@ class CreateNC extends Component {
                                                         required
                                                         editable={this.state.isContainValue4}
                                                         dropdownRef={ref => (this.departmentTxtField = ref)}
-                                                        containerStyle={styles.inputContainerNoPad}
+                                                        {...formDropdownProps}
                                                         onChange={value => {
                                                             let FailureID = array.find(item => item.value === value);
                                                             if (FailureID == null) {
@@ -3649,7 +3664,7 @@ class CreateNC extends Component {
                                                         required
                                                         editable={this.state.isContainValue4}
                                                         dropdownRef={ref => (this.departmentTxtField = ref)}
-                                                        containerStyle={styles.inputContainerNoPad}
+                                                        {...formDropdownProps}
                                                         onChange={value => {
                                                             let FailureID = this.state.FailureCategory.find(item => item.value === value);
                                                             if (FailureID == null) {
@@ -3677,8 +3692,8 @@ class CreateNC extends Component {
                                                         subKey="children"
                                                         selectText={this.state.processdata.length > 0 ? strings.ProcessL : 'No process(s) found'}
                                                         renderSelectText={() => strings.ProcessL}
-                                                        baseColor={this.state.MarkProcess == false ? '#A6A6A6' : 'red'}
-                                                        textColor={this.state.MarkProcess == false ? '#A6A6A6' : 'red'}
+                                                        baseColor={this.state.MarkProcess == false ? '#1A1A1A' : 'red'}
+                                                        textColor={this.state.MarkProcess == false ? '#1A1A1A' : 'red'}
                                                         showDropDowns={true}
                                                         readOnlyHeadings={true}
                                                         selectedIconComponent={<Icon name="check" size={18} style={styles.selectedIconStyle} />}
@@ -3687,16 +3702,13 @@ class CreateNC extends Component {
                                                             Array.isArray(this.state.selectedItemsProcess) ? this.state.selectedItemsProcess : []
                                                         }
                                                         expandDropDowns={true}
-                                                        placeholderTextColor="#A6A6A6"
+                                                        placeholderTextColor="#5C5C5C"
                                                         itemNumberOfLines={3}
                                                         selectLabelNumberOfLines={3}
-                                                        styles={{
-                                                            chipText: styles.multiSelectChipText,
-                                                        }}
+                                                        styles={multiSelectStyles}
                                                         colors={{
-                                                            text: '#A6A6A6',
-                                                            subText: '#A6A6A6',
-                                                            selectToggleTextColor: this.state.MarkProcess == false ? '#A6A6A6' : 'red',
+                                                            ...multiSelectColors,
+                                                            selectToggleTextColor: this.state.MarkProcess == false ? '#1A1A1A' : 'red',
                                                         }}
                                                     />
                                                 ) : null}
@@ -3725,7 +3737,12 @@ class CreateNC extends Component {
                                                         formHorizontal={true}
                                                         labelHorizontal={true}
                                                         buttonSize={15}
-                                                        labelStyle={{ color: 'black', paddingRight: 12 }}
+                                                        labelStyle={{
+                                                            color: '#1A1A1A',
+                                                            paddingRight: 12,
+                                                            fontSize: Fonts.size.medium,
+                                                            fontFamily: 'OpenSans-Regular',
+                                                        }}
                                                     />
                                                 </View>
                                             </View>
@@ -3738,7 +3755,7 @@ class CreateNC extends Component {
                                                 label={strings.Auditee_Approach}
                                                 value={''}
                                                 editable={false}
-                                                containerStyle={styles.inputContainerNoPad}
+                                                {...formDropdownProps}
                                             />
                                         </View>
                                     </View>
@@ -3755,7 +3772,7 @@ class CreateNC extends Component {
                                                     numberOfLines={3}
                                                     autoCapitalize="sentences"
                                                     inputRef={ref => (this.docRefTxtField = ref)}
-                                                    containerStyle={styles.inputContainerNoPad}
+                                                    {...formInputProps}
                                                     onChangeText={(field, value) => {
                                                         this.setState({ documentRef: value }, () => {
                                                             this.isCheck5 = true;
@@ -3774,7 +3791,7 @@ class CreateNC extends Component {
                                                     numberOfLines={3}
                                                     autoCapitalize="sentences"
                                                     inputRef={ref => (this.docRefTxtField = ref)}
-                                                    containerStyle={styles.inputContainerNoPad}
+                                                    {...formInputProps}
                                                     onChangeText={(field, value) => {
                                                         this.setState({ documentRef: value }, () => {});
                                                     }}

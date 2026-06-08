@@ -87,8 +87,8 @@ index 52c1868..bddb6a6 100644
  
 -    containerStyle: (ViewPropTypes || View.propTypes).style,
 -    inputContainerStyle: (ViewPropTypes || View.propTypes).style,
-+    containerStyle: (ViewPropTypes || View.propTypes || {}).style,
-+    inputContainerStyle: (ViewPropTypes || View.propTypes || {}).style,
++    containerStyle: ViewPropTypes.style,
++    inputContainerStyle: ViewPropTypes.style,
    };
  
    constructor(props) {

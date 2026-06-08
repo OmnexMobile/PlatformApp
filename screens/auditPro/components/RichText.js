@@ -15,8 +15,8 @@ const RichText = ({ content }) => {
 
   const tagsStyles = useMemo(
     () => ({
-      body: { fontSize: 14,fontcolor: '#000' },
-      p: { marginTop: 0, marginBottom: 8 },
+      body: { fontSize: 18, color: '#1A1A1A', lineHeight: 26 },
+      p: { marginTop: 0, marginBottom: 8, color: '#1A1A1A' },
       ul: { marginTop: 4, marginBottom: 8, paddingLeft: 18 },
       li: { marginBottom: 6 },
       strong: { fontWeight: '700' },

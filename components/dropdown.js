@@ -15,6 +15,10 @@ const DropdownComponent = ({
     required = false,
     error = false,
     containerStyle = {},
+    labelStyle = {},
+    selectedTextStyle = {},
+    placeholderStyle = {},
+    dropdownContainerStyle = {},
     editable = true,
     search = false,
     dropdownRef,
@@ -33,7 +37,10 @@ const DropdownComponent = ({
                 containerStyle,
             ]}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <TextComponent style={{ fontSize: FONT_SIZE.SMALL }} type={FONT_TYPE.BOLD} color={error ? COLORS.ERROR : null}>
+                <TextComponent
+                    style={[{ fontSize: FONT_SIZE.NORMAL }, labelStyle]}
+                    type={FONT_TYPE.BOLD}
+                    color={error ? COLORS.ERROR : COLORS.themeBlack}>
                     {label}
                 </TextComponent>
                 {required && (
@@ -45,8 +52,8 @@ const DropdownComponent = ({
             <Dropdown
                 ref={dropdownRef}
                 style={[styles.dropdown, error ? styles.dropdownError : null]}
-                placeholderStyle={styles.placeholderStyle}
-                selectedTextStyle={[styles.selectedTextStyle, { color: theme.mode.textColor }]}
+                placeholderStyle={[styles.placeholderStyle, placeholderStyle]}
+                selectedTextStyle={[styles.selectedTextStyle, { color: COLORS.themeBlack }, selectedTextStyle]}
                 inputSearchStyle={styles.inputSearchStyle}
                 iconStyle={styles.iconStyle}
                 data={data}
@@ -63,8 +70,9 @@ const DropdownComponent = ({
                 }}
                 containerStyle={{
                     zIndex: 1000,
-                    elevation: 10, // Android
-                    marginTop: Platform.OS === 'android' ? -45 : 0,
+                    elevation: 10,
+                    marginTop: Platform.OS === 'android' ? 4 : 0,
+                    ...dropdownContainerStyle,
                 }}
                 selectedTextProps={{ numberOfLines: 1 }}
                 //  backgroundColor={COLORS.primaryLightTransparentThemeColor}
@@ -78,6 +86,8 @@ const DropdownComponent = ({
                             alignItems: 'center',
                         }}>
                         <TextComponent
+                            style={{ fontSize: FONT_SIZE.NORMAL }}
+                            color={COLORS.themeBlack}
                             {...{
                                 ...(selected && { type: FONT_TYPE.BOLD }),
                             }}>
@@ -108,14 +118,14 @@ const styles = StyleSheet.create({
         // marginRight: 5,
     },
     placeholderStyle: {
-        fontSize: FONT_SIZE.SMALL,
+        fontSize: FONT_SIZE.NORMAL,
         fontFamily: 'OpenSans-Regular',
-        color: COLORS.searchText,
+        color: '#5C5C5C',
     },
     selectedTextStyle: {
-        fontSize: FONT_SIZE.SMALL,
+        fontSize: FONT_SIZE.NORMAL,
         fontFamily: 'OpenSans-Regular',
-        // color: COLORS.themeBlack,
+        color: COLORS.themeBlack,
     },
     iconStyle: {
         width: 20,

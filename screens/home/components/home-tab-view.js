@@ -66,13 +66,14 @@ const TabsView = ({ countDetails, currentName }) => {
 
   return (
     (isValue === 1) && (
-      <View style={{ flex: 1, backgroundColor: COLORS.white }}>
+      <View style={{ flex: 1, backgroundColor: '#F4F6FA' }}>
         <View
           style={{
             flexDirection: 'row',
             backgroundColor: COLORS.white,
-            borderBottomColor: COLORS.dividerColor,
+            borderBottomColor: '#E8EDF5',
             borderBottomWidth: 1,
+            paddingHorizontal: SPACING.SMALL,
           }}
         >
           {routes.map((route, routeIndex) => {
@@ -85,17 +86,17 @@ const TabsView = ({ countDetails, currentName }) => {
                 style={{
                   flex: 1,
                   alignItems: 'center',
-                  paddingVertical: SPACING.SMALL,
+                  paddingVertical: SPACING.NORMAL,
                   borderBottomWidth: 3,
                   borderBottomColor: focused ? COLORS.primaryThemeColor : 'transparent',
                 }}
                 onPress={() => setIndex(routeIndex)}
               >
                 <TextComponent
-                  type={FONT_TYPE.REGULAR}
+                  type={focused ? FONT_TYPE.BOLD : FONT_TYPE.REGULAR}
                   style={{
                     fontSize: FONT_SIZE.LARGE,
-                    color: focused ? '#000' : COLORS.grey,
+                    color: focused ? COLORS.primaryThemeColor : '#94A3B8',
                     textAlign: 'center',
                   }}
                 >

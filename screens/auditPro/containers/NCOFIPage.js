@@ -19,7 +19,6 @@ import styles from '../styles/NCOFIPageStyle';
 import { connect } from 'react-redux';
 import Modal from 'react-native-modal';
 // import FooterButton from '../Components/Shared/FooterButton';
-import ScrollableTabView, { DefaultTabBar } from 'react-native-scrollable-tab-view';
 import auth from '../../../services/Auditpro-Auth';
 import Toast, { DURATION } from 'react-native-easy-toast';
 import { Bubbles, DoubleBounce, Bars, Pulse } from 'react-native-loader';
@@ -40,8 +39,8 @@ import FileViewer from 'react-native-file-viewer';
 import { ROUTES } from 'constants/app-constant';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import GlobalHeader from 'components/GlobalHeader';
-import { COLORS } from 'constants/theme-constants';
 import AnimatedLottieView from 'lottie-react-native';
+import { initialWindowMetrics } from 'react-native-safe-area-context';
 var RNFS = require('react-native-fs');
 
 let Window = Dimensions.get('window');
@@ -67,6 +66,7 @@ class NCOFIPage extends Component {
     count = [];
     brokenPath = undefined;
     pathDetails = [];
+    ncofiFetchRequestId = 0;
 
     constructor(props) {
         super(props);
@@ -89,6 +89,7 @@ class NCOFIPage extends Component {
             NCmodalheader: '',
             isMounted: false,
             NCUpload: [],
+            activeNCTab: 0,
             isLoaderVisible: true,
             isLoaderUploader: false,
             dialogVisible: false,
@@ -260,7 +261,6 @@ class NCOFIPage extends Component {
                     () => {
                         console.log('NCdetails', this.state.NCdetails);
                         this.getDetails();
-                        this.setUpload();
                     },
                 );
             }
@@ -332,83 +332,511 @@ class NCOFIPage extends Component {
         };
     };
 
+    getFooterButtonStyles = () => {
+        const { width, height, isTablet, isLandscape } = this.getLayoutProfile();
+        const shortEdge = Math.min(width, height);
+        const buttonWidth = width / 3 - (isTablet ? 16 : 12);
+        const buttonHeight = Math.round(Math.max(48, Math.min(isTablet ? 58 : 54, shortEdge * (isLandscape ? 0.09 : 0.072))));
+        const iconSize = shortEdge < 340 ? 15 : isTablet ? 20 : 17;
+        const fontSize = shortEdge < 340 ? 10 : isTablet ? 12 : 11;
+        const lineHeight = fontSize + 3;
+        const bottomInset = initialWindowMetrics?.insets?.bottom ?? (Platform.OS === 'android' ? 6 : 0);
+        const sharedButtonStyle = {
+            minHeight: buttonHeight,
+            maxHeight: buttonHeight,
+            paddingVertical: 6,
+            paddingHorizontal: isTablet ? 8 : 4,
+        };
+        const sharedTextStyle = {
+            fontSize,
+            lineHeight,
+            paddingTop: 3,
+            minHeight: 0,
+        };
+
+        return {
+            bottomInset,
+            iconSize,
+            footer: {
+                paddingTop: 6,
+                paddingBottom: Math.max(6, bottomInset),
+                paddingHorizontal: isTablet ? 12 : 8,
+            },
+            footerShadowButton: sharedButtonStyle,
+            proceedButton: sharedButtonStyle,
+            activityWrapper: sharedButtonStyle,
+            footerTextContent: sharedTextStyle,
+            proceedText: sharedTextStyle,
+            footerButtonWrapper: {
+                maxWidth: buttonWidth,
+            },
+        };
+    };
+
+    matchesAuditId = (left, right) => String(left) === String(right);
+
+    toPlainValue = value => {
+        if (value == null) {
+            return value;
+        }
+        if (typeof value.asMutable === 'function') {
+            return value.asMutable({ deep: true });
+        }
+        return value;
+    };
+
+    mapUploadedApiItem = item => {
+        const record = this.toPlainValue(item) || {};
+        const identifier = String(
+            record.NCNumber ||
+                record.NcNumber ||
+                record.NC_Number ||
+                record.M_Number ||
+                record.Title ||
+                record.NcNo ||
+                '',
+        );
+        const identifierUpper = identifier.toUpperCase();
+        const checkNcRaw = record.CheckNC ?? record.checkNC;
+        const isOfi =
+            checkNcRaw === 1 ||
+            checkNcRaw === '1' ||
+            String(record.Category || '').toUpperCase() === 'OFI' ||
+            identifierUpper.includes('-OFI') ||
+            identifierUpper.endsWith('OFI');
+
+        return {
+            ...record,
+            NCNumber: identifier,
+            CorrectiveOrder:
+                record.CorrectiveOrder ??
+                record.CorrectiveId ??
+                record.CorrectiveID ??
+                record.CheckId ??
+                record.NcOrder,
+            CheckNC: isOfi ? 1 : 0,
+            NonConfirmity:
+                record.NonConfirmity ??
+                record.NonConformity ??
+                record.Nonconformity ??
+                record.Description ??
+                record.NcText ??
+                record.NcDetails ??
+                record.Finding ??
+                record.ObjectiveEvidence ??
+                record.ProcessName ??
+                record.Category ??
+                '',
+            OFI:
+                record.OFI ??
+                record.Ofi ??
+                record.ofitext ??
+                record.OpportunityForImprovement ??
+                record.ProcessName ??
+                '',
+        };
+    };
+
+    isLocalPendingRecord = item => {
+        const record = this.toPlainValue(item) || {};
+        if (record.uniqueNCkey != null && record.uniqueNCkey !== '') {
+            return true;
+        }
+        if (record.categoryDrop != null || record.failureDrop != null || record.userDrop != null) {
+            return true;
+        }
+        if (record.requiretext != null || record.filename != null || record.filedata != null) {
+            return true;
+        }
+        return false;
+    };
+
+    coerceToArray = value => {
+        const plain = this.toPlainValue(value);
+        if (!plain) {
+            return [];
+        }
+        if (Array.isArray(plain)) {
+            return plain;
+        }
+        if (typeof plain === 'object') {
+            const numericKeys = Object.keys(plain).filter(key => /^\d+$/.test(key));
+            if (numericKeys.length > 0) {
+                return numericKeys.sort((left, right) => Number(left) - Number(right)).map(key => plain[key]);
+            }
+        }
+        return [];
+    };
+
+    extractUploadedListFromApi = responseWrapper => {
+        const body = this.toPlainValue(responseWrapper);
+        if (!body) {
+            return [];
+        }
+
+        if (Array.isArray(body)) {
+            return body;
+        }
+
+        const fromData = this.coerceToArray(body.data);
+        const fromUpperData = this.coerceToArray(body.Data);
+        const combined = [...fromData, ...fromUpperData];
+
+        if (combined.length > 0) {
+            const seen = new Set();
+            return combined.filter(item => {
+                const record = this.toPlainValue(item) || {};
+                const key = String(record.NcNumber || record.NCNumber || record.M_Number || record.Title || record.CheckId || '');
+                if (!key) {
+                    return true;
+                }
+                if (seen.has(key)) {
+                    return false;
+                }
+                seen.add(key);
+                return true;
+            });
+        }
+
+        if (Array.isArray(body.Uploaded)) {
+            return body.Uploaded;
+        }
+
+        return [];
+    };
+
+    onNCTabChange = tabIndex => {
+        this.setState({ activeNCTab: tabIndex }, () => {
+            if (tabIndex === 0) {
+                this.getDetails();
+            }
+        });
+    };
+
+    renderNCTabBar = () => {
+        const tabs = [strings.Pending, strings.Uploaded];
+
+        return (
+            <View style={styles.ncTabBar}>
+                {tabs.map((label, index) => {
+                    const isActive = this.state.activeNCTab === index;
+                    return (
+                        <TouchableOpacity
+                            key={label}
+                            style={styles.ncTabButton}
+                            onPress={() => this.onNCTabChange(index)}
+                            accessibilityRole="tab"
+                            accessibilityState={{ selected: isActive }}>
+                            <Text style={[styles.tabText, isActive ? styles.ncTabTextActive : styles.ncTabTextInactive]}>{label}</Text>
+                            {isActive ? <View style={styles.ncTabUnderline} /> : null}
+                        </TouchableOpacity>
+                    );
+                })}
+            </View>
+        );
+    };
+
+    renderEmptyListState = () => (
+        <View style={styles.emptyStateWrapper}>
+            <AnimatedLottieView
+                source={require('../../../assets/lottie/norecords.json')}
+                autoPlay
+                loop
+                renderMode="SOFTWARE"
+                resizeMode="contain"
+                style={styles.emptyStateLottie}
+            />
+            <Text style={styles.norecordefound}>{strings.No_records_found}</Text>
+        </View>
+    );
+
+    renderPendingTabContent = () => (
+        <ScrollView style={styles.ncTabList} contentContainerStyle={styles.ncTabListContent}>
+            {this.state.NCdisplay.length > 0 ? (
+                <View style={styles.listMarginTop}>
+                    {this.state.NCdisplay.map((item, key) => (
+                        <View style={styles.row} key={key}>
+                            <TouchableOpacity onPress={this.openEditBox.bind(this, item)} style={styles.cardBox}>
+                                <View style={styles.sectionTop}>
+                                    <View style={styles.deleteIconContainer}>
+                                        <TouchableOpacity
+                                            onPress={() => {
+                                                this.setState(
+                                                    {
+                                                        deleteDialogVisible: true,
+                                                        deleteNCkey: item.uniqueNCkey,
+                                                    },
+                                                    () => {
+                                                        console.log('delete dialog opened', this.state.deleteNCkey);
+                                                    },
+                                                );
+                                            }}>
+                                            <Icon name="trash" size={20} color="red" />
+                                        </TouchableOpacity>
+                                    </View>
+                                    <View style={styles.sectionContent}>
+                                        <Text numberOfLines={1} style={styles.boxHeader}>
+                                            Findings {strings.Number}
+                                        </Text>
+                                    </View>
+                                    <View style={styles.sectionContent}>
+                                        <Text numberOfLines={1} style={styles.boxContent}>
+                                            {item.NCNumber}
+                                        </Text>
+                                    </View>
+                                </View>
+                                <View style={styles.sectionBottom}>
+                                    <View style={styles.sectionContent}>
+                                        <Text numberOfLines={1} style={styles.boxHeader}>
+                                            {strings.Non_confirmityL}
+                                        </Text>
+                                    </View>
+                                    <View style={styles.sectionContent}>
+                                        <Text numberOfLines={1} style={styles.boxContent}>
+                                            {item.data[0]}
+                                        </Text>
+                                    </View>
+                                </View>
+                            </TouchableOpacity>
+                        </View>
+                    ))}
+                </View>
+            ) : (
+                this.renderEmptyListState()
+            )}
+        </ScrollView>
+    );
+
+    renderUploadedListItem = ({ item }) => (
+        <TouchableOpacity onPress={this.getSectionListItem.bind(this, item)} style={styles.cardBox}>
+            <View style={styles.sectionTop}>
+                <View style={styles.sectionContent}>
+                    <Text numberOfLines={1} style={styles.boxHeader}>
+                        Findings {strings.Number}
+                    </Text>
+                </View>
+                <View style={styles.sectionContent}>
+                    <Text numberOfLines={1} style={styles.boxContent}>
+                        {item.title}
+                    </Text>
+                </View>
+            </View>
+            <View style={styles.sectionBottom}>
+                <View style={styles.sectionContent}>
+                    <Text numberOfLines={1} style={styles.boxHeader}>
+                        {item.CheckNC === 0 ? 'Non conformity' : 'OFI'}
+                    </Text>
+                </View>
+                <View style={styles.sectionContent}>
+                    <Text numberOfLines={1} style={styles.boxContent}>
+                        {item.data[0]}
+                    </Text>
+                </View>
+            </View>
+        </TouchableOpacity>
+    );
+
+    renderUploadedTabContent = () => (
+        <FlatList
+            style={styles.ncTabList}
+            contentContainerStyle={[
+                styles.ncTabListContent,
+                this.state.NCUpload.length === 0 ? styles.ncTabListContentEmpty : null,
+            ]}
+            data={this.state.NCUpload}
+            keyExtractor={(item, index) => String(item.NCNumber || item.title || index)}
+            renderItem={this.renderUploadedListItem}
+            ListEmptyComponent={this.renderEmptyListState}
+            showsVerticalScrollIndicator
+        />
+    );
+
+    handleNcofiApiResponse = (res, response) => {
+        const apiWrapper = response?.data ?? (res && typeof res === 'object' ? res.data : null);
+        console.log('NCOFI API wrapper', apiWrapper);
+
+        if (!apiWrapper) {
+            this.setState({ isLoaderVisible: false });
+            this.showToast(strings.Audit_NCOFI_Failed, DURATION.LENGTH_LONG);
+            return;
+        }
+
+        const apiSucceeded =
+            apiWrapper.Message === 'Success' || apiWrapper.Success === true || apiWrapper.success === true;
+        const rawList = this.extractUploadedListFromApi(apiWrapper).filter(item => !this.isLocalPendingRecord(item));
+        console.log('NCOFI raw uploaded list count', rawList.length);
+
+        if (rawList.length > 0) {
+            this.upLoadList(rawList);
+            return;
+        }
+
+        this.setState({ isLoaderVisible: false });
+
+        if (!apiSucceeded) {
+            this.showToast(strings.Audit_NCOFI_Failed, DURATION.LENGTH_LONG);
+        }
+    };
+
+    persistUploadedRecords = uploadedItems => {
+        const Uploaded = uploadedItems.map(entry => this.mapUploadedApiItem(entry));
+        const NCrecords = Array.isArray(this.props.data.audits.ncofiRecords)
+            ? this.props.data.audits.ncofiRecords.map(record => this.toPlainValue(record))
+            : [];
+        const auditId = this.state.AUDIT_ID;
+        let foundAuditRecord = false;
+
+        const dupNCrecords = NCrecords.map(record => {
+            const pendingList = Array.isArray(record.Pending) ? record.Pending : [];
+            if (this.matchesAuditId(auditId, record.AuditID)) {
+                foundAuditRecord = true;
+                return {
+                    AuditID: record.AuditID,
+                    Uploaded,
+                    Pending: pendingList,
+                };
+            }
+
+            return {
+                AuditID: record.AuditID,
+                Uploaded: Array.isArray(record.Uploaded) ? record.Uploaded : [],
+                Pending: pendingList,
+            };
+        });
+
+        if (!foundAuditRecord) {
+            dupNCrecords.push({
+                AuditID: auditId,
+                Uploaded,
+                Pending: [],
+            });
+        }
+
+        this.props.storeNCRecords(dupNCrecords);
+    };
+
+    buildUploadDisplayList = (uploadedItems = []) => {
+        if (!Array.isArray(uploadedItems)) {
+            return [];
+        }
+
+        return uploadedItems.map(item => {
+            const mappedItem = this.mapUploadedApiItem(item);
+            const isOfi = mappedItem.CheckNC === 1;
+            const displayText = isOfi
+                ? mappedItem.OFI || mappedItem.NonConfirmity || 'N/a'
+                : mappedItem.NonConfirmity || mappedItem.OFI || 'N/a';
+
+            return {
+                ...mappedItem,
+                title: mappedItem.NCNumber,
+                CorrectiveOrder: mappedItem.CorrectiveOrder,
+                CheckNC: mappedItem.CheckNC,
+                data: [displayText === undefined || displayText === null || displayText === '' ? 'N/a' : displayText],
+            };
+        });
+    };
+
+    applyUploadList = (uploadedItems = []) => {
+        const NCUpload = this.buildUploadDisplayList(uploadedItems);
+        this.setState({ NCUpload, isMounted: true, isLoaderVisible: false }, () => {
+            console.log('this.state.NCUpload', this.state.NCUpload);
+        });
+    };
+
+    getUploadedItemsForAudit = (ncofiRecords = this.props.data.audits.ncofiRecords, auditId = this.state.AUDIT_ID) => {
+        const records = Array.isArray(ncofiRecords) ? ncofiRecords : [];
+        for (let i = 0; i < records.length; i++) {
+            const record = this.toPlainValue(records[i]) || {};
+            if (this.matchesAuditId(auditId, record.AuditID)) {
+                const uploaded = Array.isArray(record.Uploaded) ? record.Uploaded : [];
+                return uploaded
+                    .filter(entry => !this.isLocalPendingRecord(entry))
+                    .map(entry => this.mapUploadedApiItem(entry));
+            }
+        }
+        return [];
+    };
+
     getDetails = () => {
         setTimeout(() => {
             var compArr = [];
-            var Data = this.props.data.audits.ncofiRecords;
+            var Data = Array.isArray(this.props.data.audits.ncofiRecords) ? this.props.data.audits.ncofiRecords : [];
             console.log('NC Data', Data);
 
             for (var i = 0; i < Data.length; i++) {
-                if (this.state.AUDIT_ID === Data[i].AuditID) {
-                    for (var j = 0; j < Data[i].Pending.length; j++) {
-                        if (Data[i].Pending[j].ChecklistTemplateId == 0) {
-                            if (Data[i].Pending[j].Category === 'NC') {
-                                console.log(Data[i].Pending[j], 'OFI===>');
+                if (this.matchesAuditId(this.state.AUDIT_ID, Data[i].AuditID)) {
+                    const pendingItems = Array.isArray(Data[i].Pending) ? Data[i].Pending : [];
+                    for (var j = 0; j < pendingItems.length; j++) {
+                        const pendingItem = pendingItems[j];
+                        if (pendingItem.ChecklistTemplateId == 0) {
+                            if (pendingItem.Category === 'NC') {
+                                console.log(pendingItem, 'OFI===>');
                                 compArr.push({
-                                    AuditID: Data[i].Pending[j].AuditID,
-                                    AuditOrder: Data[i].Pending[j].AuditOrder,
-                                    ChecklistID: Data[i].Pending[j].ChecklistID,
-                                    Formid: Data[i].Pending[j].Formid,
-                                    SiteID: Data[i].Pending[j].SiteID,
-                                    title: Data[i].Pending[j].NCNumber,
-                                    failureDrop: Data[i].Pending[j].failureDrop,
-                                    requiretext: Data[i].Pending[j].requiretext,
-                                    OFI: Data[i].Pending[j].ofitext || Data[i].Pending[j].OFI,
-                                    categoryDrop: Data[i].Pending[j].categoryDrop,
-                                    userDrop: Data[i].Pending[j].userDrop,
-                                    requestDrop: Data[i].Pending[j].requestDrop,
-                                    deptDrop: Data[i].Pending[j].deptDrop,
-                                    NCNumber: Data[i].Pending[j].NCNumber + '-' + 'NC',
-                                    Category: Data[i].Pending[j].Category,
-                                    filename: Data[i].Pending[j].filename,
-                                    filedata: Data[i].Pending[j].filedata,
-                                    auditstatus: Data[i].Pending[j].auditstatus,
-                                    NonConfirmity: Data[i].Pending[j].NonConfirmity,
-                                    uniqueNCkey: Data[i].Pending[j].uniqueNCkey,
-                                    selectedItems: Data[i].Pending[j].selectedItems,
-                                    selectedItemsProcess: Data[i].Pending[j].selectedItemsProcess,
-                                    ChecklistTemplateId: Data[i].Pending[j].ChecklistTemplateId,
-                                    ncIdentifier: Data[i].Pending[j].ncIdentifier,
-                                    objEvidence: Data[i].Pending[j].objEvidence,
-                                    recommAction: Data[i].Pending[j].recommAction,
-                                    documentRef: Data[i].Pending[j].documentRef,
+                                    AuditID: pendingItem.AuditID,
+                                    AuditOrder: pendingItem.AuditOrder,
+                                    ChecklistID: pendingItem.ChecklistID,
+                                    Formid: pendingItem.Formid,
+                                    SiteID: pendingItem.SiteID,
+                                    title: pendingItem.NCNumber,
+                                    failureDrop: pendingItem.failureDrop,
+                                    requiretext: pendingItem.requiretext,
+                                    OFI: pendingItem.ofitext || pendingItem.OFI,
+                                    categoryDrop: pendingItem.categoryDrop,
+                                    userDrop: pendingItem.userDrop,
+                                    requestDrop: pendingItem.requestDrop,
+                                    deptDrop: pendingItem.deptDrop,
+                                    NCNumber: pendingItem.NCNumber + '-' + 'NC',
+                                    Category: pendingItem.Category,
+                                    filename: pendingItem.filename,
+                                    filedata: pendingItem.filedata,
+                                    auditstatus: pendingItem.auditstatus,
+                                    NonConfirmity: pendingItem.NonConfirmity,
+                                    uniqueNCkey: pendingItem.uniqueNCkey,
+                                    selectedItems: pendingItem.selectedItems,
+                                    selectedItemsProcess: pendingItem.selectedItemsProcess,
+                                    ChecklistTemplateId: pendingItem.ChecklistTemplateId,
+                                    ncIdentifier: pendingItem.ncIdentifier,
+                                    objEvidence: pendingItem.objEvidence,
+                                    recommAction: pendingItem.recommAction,
+                                    documentRef: pendingItem.documentRef,
                                     Conformance: this?.props?.route?.params?.CreateNCdataBundle?.Conformance,
                                     ProcessID: this?.props?.route?.params?.CreateNCdataBundle?.ProcessID,
-                                    data: [Data[i].Pending[j].NonConfirmity === undefined ? 'N/a' : Data[i].Pending[j].NonConfirmity],
+                                    data: [pendingItem.NonConfirmity === undefined ? 'N/a' : pendingItem.NonConfirmity],
                                 });
-                            } else if (Data[i].Pending[j].Category === 'OFI') {
-                                console.log(Data[i].Pending[j], 'OFI===>');
+                            } else if (pendingItem.Category === 'OFI') {
+                                console.log(pendingItem, 'OFI===>');
                                 compArr.push({
-                                    AuditID: Data[i].Pending[j].AuditID,
-                                    AuditOrder: Data[i].Pending[j].AuditOrder,
-                                    Category: Data[i].Pending[j].Category,
-                                    ChecklistID: Data[i].Pending[j].ChecklistID,
-                                    Formid: Data[i].Pending[j].Formid,
-                                    NCNumber: Data[i].Pending[j].NCNumber + '-' + 'OFI',
-                                    NonConfirmity: Data[i].Pending[j].NonConfirmity,
-                                    failureDrop: Data[i].Pending[j].failureDrop,
-                                    OFI: Data[i].Pending[j].ofitext || Data[i].Pending[j].OFI,
-                                    SiteID: Data[i].Pending[j].SiteID,
-                                    auditstatus: Data[i].Pending[j].auditstatus,
-                                    categoryDrop: Data[i].Pending[j].categoryDrop,
-                                    deptDrop: Data[i].Pending[j].deptDrop,
-                                    filedata: Data[i].Pending[j].filedata,
-                                    filename: Data[i].Pending[j].filename,
-                                    requestDrop: Data[i].Pending[j].requestDrop,
-                                    requiretext: Data[i].Pending[j].requiretext,
-                                    title: Data[i].Pending[j].NCNumber,
-                                    uniqueNCkey: Data[i].Pending[j].uniqueNCkey,
-                                    userDrop: Data[i].Pending[j].userDrop,
-                                    selectedItems: Data[i].Pending[j].selectedItems,
-                                    selectedItemsProcess: Data[i].Pending[j].selectedItemsProcess,
-                                    ChecklistTemplateId: Data[i].Pending[j].ChecklistTemplateId,
-                                    ncIdentifier: Data[i].Pending[j].ncIdentifier,
-                                    objEvidence: Data[i].Pending[j].objEvidence,
-                                    recommAction: Data[i].Pending[j].recommAction,
-                                    documentRef: Data[i].Pending[j].documentRef,
+                                    AuditID: pendingItem.AuditID,
+                                    AuditOrder: pendingItem.AuditOrder,
+                                    Category: pendingItem.Category,
+                                    ChecklistID: pendingItem.ChecklistID,
+                                    Formid: pendingItem.Formid,
+                                    NCNumber: pendingItem.NCNumber + '-' + 'OFI',
+                                    NonConfirmity: pendingItem.NonConfirmity,
+                                    failureDrop: pendingItem.failureDrop,
+                                    OFI: pendingItem.ofitext || pendingItem.OFI,
+                                    SiteID: pendingItem.SiteID,
+                                    auditstatus: pendingItem.auditstatus,
+                                    categoryDrop: pendingItem.categoryDrop,
+                                    deptDrop: pendingItem.deptDrop,
+                                    filedata: pendingItem.filedata,
+                                    filename: pendingItem.filename,
+                                    requestDrop: pendingItem.requestDrop,
+                                    requiretext: pendingItem.requiretext,
+                                    title: pendingItem.NCNumber,
+                                    uniqueNCkey: pendingItem.uniqueNCkey,
+                                    userDrop: pendingItem.userDrop,
+                                    selectedItems: pendingItem.selectedItems,
+                                    selectedItemsProcess: pendingItem.selectedItemsProcess,
+                                    ChecklistTemplateId: pendingItem.ChecklistTemplateId,
+                                    ncIdentifier: pendingItem.ncIdentifier,
+                                    objEvidence: pendingItem.objEvidence,
+                                    recommAction: pendingItem.recommAction,
+                                    documentRef: pendingItem.documentRef,
                                     Conformance: this?.props?.navigation?.state?.params?.CreateNCdataBundle?.Conformance,
                                     ProcessID: this?.props?.navigation?.state?.params?.CreateNCdataBundle?.ProcessID,
-                                    data: [Data[i].Pending[j].OFI === undefined ? 'N/a' : Data[i].Pending[j].OFI],
+                                    data: [pendingItem.OFI === undefined ? 'N/a' : pendingItem.OFI],
                                 });
                             }
                         }
@@ -430,28 +858,12 @@ class NCOFIPage extends Component {
 
     setUpload = () => {
         console.log('this.props.data.audits.ncofiRecords', this.props.data.audits.ncofiRecords);
-        setTimeout(() => {
-            var Data = this.props.data.audits.ncofiRecords;
-            console.log('NC Data', Data);
-            var compArr2 = [];
-
-            for (var i = 0; i < Data.length; i++) {
-                if (this.state.AUDIT_ID === Data[i].AuditID) {
-                    for (var j = 0; j < Data[i].Uploaded.length; j++) {
-                        compArr2.push({
-                            title: Data[i].Uploaded[j].NCNumber,
-                            CorrectiveOrder: Data[i].Uploaded[j].CorrectiveOrder,
-                            CheckNC: Data[i].Uploaded[j].CheckNC,
-                            data: [Data[i].Uploaded[j].NonConfirmity === undefined ? 'N/a' : Data[i].Uploaded[j].NonConfirmity],
-                        });
-                    }
-                }
-            }
-            console.log('compArr2', compArr2);
-            this.setState({ NCUpload: compArr2, isMounted: true, isLoaderVisible: false }, () => {
-                console.log('this.state.NCUpload', this.state.NCUpload);
-            });
-        }, 500);
+        const uploadedItems = this.getUploadedItemsForAudit();
+        if (uploadedItems.length > 0) {
+            this.applyUploadList(uploadedItems);
+        } else {
+            this.setState({ isLoaderVisible: false });
+        }
     };
 
     openEditBox = item => {
@@ -1607,6 +2019,8 @@ class NCOFIPage extends Component {
                 console.log('Site ID ==>', this.state.SITEID);
                 console.log('AUDITPROG_ID,AUDITYPE_ID', this.state.AUDITPROG_ID, this.state.AUDITYPE_ID);
 
+                const requestId = ++this.ncofiFetchRequestId;
+
                 auth.getNCdetails(
                     this.state.SITEID,
                     strSortBy,
@@ -1618,16 +2032,13 @@ class NCOFIPage extends Component {
                     strFunction,
                     TOKEN,
                     (res, data) => {
+                        if (requestId !== this.ncofiFetchRequestId) {
+                            console.log('Ignoring stale NCOFI response', requestId, this.ncofiFetchRequestId);
+                            return;
+                        }
                         console.log('getNC data', data);
                         console.log('response', res);
-
-                        if (data?.data) {
-                            this.upLoadList(data.data.Data);
-                        } else {
-                            //this.refs.toast.show(strings.NCFAiled,DURATION.LENGTH_LONG)
-                            this.setUpload();
-                            this.showToast(strings.Audit_NCOFI_Failed, DURATION.LENGTH_LONG);
-                        }
+                        this.handleNcofiApiResponse(res, data);
                     },
                 );
             },
@@ -1661,35 +2072,18 @@ class NCOFIPage extends Component {
     }
 
     upLoadList(list) {
-        var Uploaded = list;
-        console.log('getting props details...', this.props.data.audits);
-        var dupNCrecords = [];
-        var NCrecords = this.props.data.audits.ncofiRecords;
-        for (var i = 0; i < NCrecords.length; i++) {
-            var pendingList = [];
-            for (var j = 0; j < NCrecords[i].Pending.length; j++) {
-                if (this.state.AUDIT_ID === NCrecords[i].AuditID) {
-                    pendingList.push(NCrecords[i].Pending[j]);
-                }
-            }
-            if (this.state.AUDIT_ID === NCrecords[i].AuditID) {
-                dupNCrecords.push({
-                    AuditID: NCrecords[i].AuditID,
-                    Uploaded: Uploaded ? Uploaded : [],
-                    Pending: pendingList,
-                });
-            } else {
-                dupNCrecords.push({
-                    AuditID: NCrecords[i].AuditID,
-                    Uploaded: NCrecords[i].Uploaded,
-                    Pending: NCrecords[i].Pending ? NCrecords[i].Pending : [],
-                });
-            }
-        }
-        this.props.storeNCRecords(dupNCrecords);
+        const rawList = this.coerceToArray(list).filter(item => !this.isLocalPendingRecord(item));
+        console.log('upLoadList raw count', rawList.length);
 
+        if (rawList.length === 0) {
+            this.setState({ isLoaderVisible: false });
+            return;
+        }
+
+        const uploadedItems = rawList.map(entry => this.mapUploadedApiItem(entry));
+        this.applyUploadList(uploadedItems);
+        this.persistUploadedRecords(uploadedItems);
         this.getDetails();
-        this.setUpload();
     }
 
     changeDateFormatCard = inDate => {
@@ -2317,8 +2711,9 @@ class NCOFIPage extends Component {
             styles.auditPageBodyPadded,
             styles.auditPageBodyResponsive,
             contentWidthStyle,
-            { paddingHorizontal: layoutProfile.horizontalPadding },
+            { paddingHorizontal: layoutProfile.horizontalPadding, justifyContent: 'flex-start' },
         ];
+        const footerStyles = this.getFooterButtonStyles();
         const footerContainerStyle = [styles.footerDiv, styles.footerResponsiveWrap];
 
         console.log('offf', this.props.data.audits.isOfflineMode);
@@ -2355,132 +2750,10 @@ class NCOFIPage extends Component {
                 />
                 <View style={bodyResponsiveStyle}>
                     {this.state.isLoaderVisible === false ? (
-                        <ScrollableTabView
-                            renderTabBar={() => (
-                                <DefaultTabBar
-                                    backgroundColor="white"
-                                    activeTextColor={COLORS.primaryDarkThemeColor}
-                                    inactiveTextColor="#747474"
-                                    underlineStyle={styles.tabUnderline}
-                                    textStyle={styles.tabText}
-                                />
-                            )}
-                            tabBarPosition="overlayTop">
-                            <ScrollView tabLabel={strings.Pending} style={styles.scrollViewBody}>
-                                {this.state.NCdisplay.length > 0 ? (
-                                    <View style={styles.listMarginTop}>
-                                        {this.state.NCdisplay.map((item, key) => (
-                                            <View style={styles.row}>
-                                                <TouchableOpacity onPress={this.openEditBox.bind(this, item)} key={key} style={styles.cardBox}>
-                                                    <View style={styles.sectionTop}>
-                                                        <View style={styles.deleteIconContainer}>
-                                                            <TouchableOpacity
-                                                                onPress={() => {
-                                                                    this.setState(
-                                                                        {
-                                                                            deleteDialogVisible: true,
-                                                                            deleteNCkey: item.uniqueNCkey,
-                                                                        },
-                                                                        () => {
-                                                                            console.log('delete dialog opened', this.state.deleteNCkey);
-                                                                        },
-                                                                    );
-                                                                }}>
-                                                                <Icon name="trash" size={20} color="red" />
-                                                            </TouchableOpacity>
-                                                        </View>
-                                                        <View style={styles.sectionContent}>
-                                                            <Text numberOfLines={1} style={styles.boxHeader}>
-                                                                Findings {strings.Number}
-                                                            </Text>
-                                                        </View>
-
-                                                        <View style={styles.sectionContent}>
-                                                            <Text numberOfLines={1} style={styles.boxContent}>
-                                                                {item.NCNumber}
-                                                            </Text>
-                                                        </View>
-                                                    </View>
-
-                                                    <View style={styles.sectionBottom}>
-                                                        <View style={styles.sectionContent}>
-                                                            <Text numberOfLines={1} style={styles.boxHeader}>
-                                                                {strings.Non_confirmityL}
-                                                            </Text>
-                                                        </View>
-                                                        <View style={styles.sectionContent}>
-                                                            <Text numberOfLines={1} style={styles.boxContent}>
-                                                                {item.data[0]}
-                                                            </Text>
-                                                        </View>
-                                                    </View>
-                                                </TouchableOpacity>
-                                            </View>
-                                        ))}
-                                    </View>
-                                ) : (
-                                    <View style={styles.emptyStateWrapper}>
-                                        <AnimatedLottieView
-                                            source={require('../../../assets/lottie/norecords.json')}
-                                            autoPlay
-                                            loop
-                                            renderMode="SOFTWARE"
-                                            resizeMode="contain"
-                                            style={styles.emptyStateLottie}
-                                        />
-                                        <Text style={styles.norecordefound}>{strings.No_records_found}</Text>
-                                    </View>
-                                )}
-                            </ScrollView>
-
-                            <ScrollView tabLabel={strings.Uploaded} style={styles.scrollViewBody}>
-                                {this.state.NCUpload.length > 0 ? (
-                                    <View style={styles.listMarginTop}>
-                                        {this.state.NCUpload.map((item, key) => (
-                                            <TouchableOpacity onPress={this.getSectionListItem.bind(this, item)} key={key} style={styles.cardBox}>
-                                                <View style={styles.sectionTop}>
-                                                    <View style={styles.sectionContent}>
-                                                        <Text numberOfLines={1} style={styles.boxHeader}>
-                                                            Findings {strings.Number}
-                                                        </Text>
-                                                    </View>
-                                                    <View style={styles.sectionContent}>
-                                                        <Text numberOfLines={1} style={styles.boxContent}>
-                                                            {item.title}
-                                                        </Text>
-                                                    </View>
-                                                </View>
-                                                <View style={styles.sectionBottom}>
-                                                    <View style={styles.sectionContent}>
-                                                        <Text numberOfLines={1} style={styles.boxHeader}>
-                                                            {/* {strings.Non_confirmityL} */}
-                                                            {item.CheckNC === 0 ? 'Non conformity' : 'OFI'}
-                                                        </Text>
-                                                    </View>
-                                                    <View style={styles.sectionContent}>
-                                                        <Text numberOfLines={1} style={styles.boxContent}>
-                                                            {item.data[0]}
-                                                        </Text>
-                                                    </View>
-                                                </View>
-                                            </TouchableOpacity>
-                                        ))}
-                                    </View>
-                                ) : (
-                                    <View style={styles.emptyStateWrapper}>
-                                        <AnimatedLottieView
-                                            source={require('../../../assets/lottie/norecords.json')}
-                                            autoPlay
-                                            loop
-                                            renderMode="SOFTWARE"
-                                            resizeMode="contain"
-                                            style={styles.emptyStateLottie}
-                                        />
-                                        <Text style={styles.norecordefound}>{strings.No_records_found}</Text>
-                                    </View>
-                                )}
-                            </ScrollView>
-                        </ScrollableTabView>
+                        <View style={styles.ncTabContainer}>
+                            {this.renderNCTabBar()}
+                            {this.state.activeNCTab === 0 ? this.renderPendingTabContent() : this.renderUploadedTabContent()}
+                        </View>
                     ) : (
                         <View>
                             <View style={[styles.loaderContainer, { marginTop: middle }]}>
@@ -2506,14 +2779,16 @@ class NCOFIPage extends Component {
                     )}
                 </View>
 
-                <View style={styles.footer}>
+                <View style={[styles.footer, footerStyles.footer]}>
                     <View style={footerContainerStyle}>
                         <View style={styles.footerButtonsRow}>
-                            <View style={styles.footerButtonWrapper}>
+                            <View style={[styles.footerButtonWrapper, footerStyles.footerButtonWrapper]}>
                                 {this.state.syncMode === 0 && (
-                                    <TouchableOpacity onPress={once(this.onNavigaTo.bind(this, 1))} style={styles.footerShadowButton}>
-                                        <Icon name={'upload-cloud'} size={20} color="#fff" />
-                                        <Text numberOfLines={2} style={styles.footerTextContent}>
+                                    <TouchableOpacity
+                                        onPress={once(this.onNavigaTo.bind(this, 1))}
+                                        style={[styles.footerShadowButton, footerStyles.footerShadowButton]}>
+                                        <Icon name={'upload-cloud'} size={footerStyles.iconSize} color="#fff" />
+                                        <Text numberOfLines={2} style={[styles.footerTextContent, footerStyles.footerTextContent]}>
                                             {strings.Create_NC}
                                         </Text>
                                     </TouchableOpacity>
@@ -2521,7 +2796,7 @@ class NCOFIPage extends Component {
                             </View>
                             {/* Sync */}
                             {this.state.syncMode === 0 ? (
-                                <View style={styles.footerButtonWrapper}>
+                                <View style={[styles.footerButtonWrapper, footerStyles.footerButtonWrapper]}>
                                     <TouchableOpacity
                                         onPress={() => {
                                             this.setState(
@@ -2533,37 +2808,41 @@ class NCOFIPage extends Component {
                                                 },
                                             );
                                         }}
-                                        style={styles.footerShadowButton}>
-                                        <Icon name={'refresh-ccw'} size={20} color="#ffffff" />
-                                        <Text numberOfLines={2} style={styles.footerTextContent}>
+                                        style={[styles.footerShadowButton, footerStyles.footerShadowButton]}>
+                                        <Icon name={'refresh-ccw'} size={footerStyles.iconSize} color="#ffffff" />
+                                        <Text numberOfLines={2} style={[styles.footerTextContent, footerStyles.footerTextContent]}>
                                             {strings.Upload_to_server}
                                         </Text>
                                     </TouchableOpacity>
                                 </View>
                             ) : this.state.syncMode === 2 || this.state.syncMode === 4 ? (
-                                <View style={styles.footerButtonWrapper}>
+                                <View style={[styles.footerButtonWrapper, footerStyles.footerButtonWrapper]}>
                                     <View style={styles.proceedWrapper}>
-                                        <TouchableOpacity style={styles.proceedButton} onPress={this.CheckSync.bind(this)}>
-                                            <Icon name="check-square" size={20} color="#ffffff" />
-                                            <Text numberOfLines={2} style={styles.proceedText}>
+                                        <TouchableOpacity
+                                            style={[styles.proceedButton, footerStyles.proceedButton]}
+                                            onPress={this.CheckSync.bind(this)}>
+                                            <Icon name="check-square" size={footerStyles.iconSize} color="#ffffff" />
+                                            <Text numberOfLines={2} style={[styles.proceedText, footerStyles.proceedText]}>
                                                 {'Proceed'}
                                             </Text>
                                         </TouchableOpacity>
                                     </View>
                                 </View>
                             ) : (
-                                <View style={styles.footerButtonWrapper}>
-                                    <View style={styles.activityWrapper}>
-                                        <ActivityIndicator size={20} color="#ffffff" />
+                                <View style={[styles.footerButtonWrapper, footerStyles.footerButtonWrapper]}>
+                                    <View style={[styles.activityWrapper, footerStyles.activityWrapper]}>
+                                        <ActivityIndicator size={footerStyles.iconSize} color="#ffffff" />
                                     </View>
                                 </View>
                             )}
                             {/* End Sync */}
-                            <View style={styles.footerButtonWrapper}>
+                            <View style={[styles.footerButtonWrapper, footerStyles.footerButtonWrapper]}>
                                 {this.state.syncMode === 0 && (
-                                    <TouchableOpacity onPress={once(this.onNavigaTo.bind(this, 2))} style={styles.footerShadowButton}>
-                                        <Icon name={'upload-cloud'} size={20} color="#ffffff" />
-                                        <Text numberOfLines={2} style={styles.footerTextContent}>
+                                    <TouchableOpacity
+                                        onPress={once(this.onNavigaTo.bind(this, 2))}
+                                        style={[styles.footerShadowButton, footerStyles.footerShadowButton]}>
+                                        <Icon name={'upload-cloud'} size={footerStyles.iconSize} color="#ffffff" />
+                                        <Text numberOfLines={2} style={[styles.footerTextContent, footerStyles.footerTextContent]}>
                                             {strings.Create_OFI}
                                         </Text>
                                     </TouchableOpacity>

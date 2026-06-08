@@ -44,9 +44,49 @@ import LinearGradient from 'react-native-linear-gradient';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 const screenWidth = Dimensions.get('window').width;
-const SECTION_HORIZONTAL_PADDING = 16;
-const CARD_GAP = 12;
-const CARD_WIDTH = (screenWidth - SECTION_HORIZONTAL_PADDING * 2 - CARD_GAP * 2) / 3;
+const SECTION_HORIZONTAL_PADDING = 20;
+const SECTION_INNER_PADDING = SPACING.NORMAL;
+const CARD_GAP = 10;
+const GRID_COLUMNS = 3;
+const CARD_AREA_WIDTH = screenWidth - SECTION_HORIZONTAL_PADDING * 2 - SECTION_INNER_PADDING * 2;
+const CARD_WIDTH = (CARD_AREA_WIDTH - CARD_GAP * (GRID_COLUMNS - 1)) / GRID_COLUMNS;
+
+const chunkIntoRows = (items, columns = GRID_COLUMNS) => {
+    const rows = [];
+    for (let i = 0; i < items.length; i += columns) {
+        rows.push(items.slice(i, i + columns));
+    }
+    return rows;
+};
+
+const getMetricAccent = (category = '') => {
+    const key = category.toLowerCase();
+    if (key.includes('scheduled')) {
+        return { accent: '#2563EB', iconBg: ['#EFF6FF', '#DBEAFE'] };
+    }
+    if (key.includes('completed')) {
+        return { accent: '#059669', iconBg: ['#ECFDF5', '#D1FAE5'] };
+    }
+    if (key.includes('deadline') || key.includes('violated')) {
+        return { accent: '#DC2626', iconBg: ['#FEF2F2', '#FEE2E2'] };
+    }
+    if (key.includes('closed')) {
+        return { accent: '#7C3AED', iconBg: ['#F5F3FF', '#EDE9FE'] };
+    }
+    if (key.includes('open')) {
+        return { accent: '#0891B2', iconBg: ['#ECFEFF', '#CFFAFE'] };
+    }
+    if (key.includes('progress')) {
+        return { accent: '#D97706', iconBg: ['#FFFBEB', '#FEF3C7'] };
+    }
+    if (key.includes('concern')) {
+        return { accent: COLORS.primaryThemeColor, iconBg: ['#E8EEF8', '#D4DFF5'] };
+    }
+    if (key.includes('inspection') || key.includes('operator') || key.includes('worksheet')) {
+        return { accent: '#0E7490', iconBg: ['#ECFEFF', '#CFFAFE'] };
+    }
+    return { accent: COLORS.primaryThemeColor, iconBg: ['#E8EEF8', '#D4DFF5'] };
+};
 
 const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
     // console.log('tabIndex--------', tabIndex, '--', currentUser, '--', isSupplier)
@@ -999,19 +1039,52 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
     //     setLoading(false);
     // };
 
+    const renderMetricCard = (cardItem, index, sectionTitle, onPress) => {
+        const accent = getMetricAccent(cardItem?.category);
+        return (
+            <TouchableOpacity
+                activeOpacity={0.88}
+                style={[styles.cardContent, { borderTopColor: accent.accent }]}
+                key={`${sectionTitle}-${index}`}
+                onPress={onPress}>
+                {!!cardItem.images && (
+                    <LinearGradient
+                        colors={cardItem.iconColors || accent.iconBg}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                        style={styles.iconWrapper}>
+                        <ImageComponent style={styles.imageView} source={cardItem.images} resizeMode={FastImage.resizeMode.contain} />
+                    </LinearGradient>
+                )}
+                <TextComponent style={styles.cardTitle} numberOfLines={2}>
+                    {cardItem.category}
+                </TextComponent>
+                <View style={styles.countContainer}>
+                    {cardItem?.status === undefined || cardItem?.status === null ? (
+                        <ActivityIndicator size="small" color={accent.accent} />
+                    ) : (
+                        <TextComponent type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.X_LARGE} style={[styles.countText, { color: accent.accent }]}>
+                            {cardItem?.status}
+                        </TextComponent>
+                    )}
+                </View>
+            </TouchableOpacity>
+        );
+    };
+
     const Item = ({ title, detail }) => (
-        <ScrollView style={styles.sectionWrapper}>
-            <Text style={styles.sectionTitle}>{title}</Text>
+        <View style={styles.sectionWrapper}>
+            <View style={styles.sectionHeader}>
+                <View style={styles.sectionAccentBar} />
+                <Text style={styles.sectionTitle}>{title}</Text>
+            </View>
             {/* Normal sections */}
             {title !== strings.supplierMgnt && (
                 <View style={styles.cardContainer}>
-                    {detail.map((items, index) =>
-                        items.category?.length ? (
-                            <TouchableOpacity
-                                activeOpacity={0.85}
-                                style={[styles.cardContent, { marginBottom: CARD_GAP }]}
-                                key={`${title}-${index}`}
-                                onPress={() =>
+                    {chunkIntoRows(detail.filter(items => items.category?.length)).map((row, rowIndex) => (
+                        <View key={`${title}-row-${rowIndex}`} style={styles.cardRow}>
+                            {row.map((items, index) =>
+                                renderMetricCard(items, rowIndex * GRID_COLUMNS + index, title, () =>
                                     handleNavigation(
                                         title,
                                         items?.navStatus ?? items?.status,
@@ -1021,30 +1094,15 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
                                         undefined,
                                         undefined,
                                         items?.status,
-                                    )
-                                }>
-                                {!!items.images && (
-                                    <LinearGradient
-                                        colors={items.iconColors || ['#E9F6FF', '#D9EEFF']}
-                                        start={{ x: 0, y: 0 }}
-                                        end={{ x: 1, y: 1 }}
-                                        style={styles.iconWrapper}>
-                                        <ImageComponent style={styles.imageView} source={items.images} resizeMode={FastImage.resizeMode.contain} />
-                                    </LinearGradient>
-                                )}
-                                <TextComponent style={styles.cardTitle}>{items.category}</TextComponent>
-                                <View style={styles.countContainer}>
-                                    {items?.status === undefined || items?.status === null ? (
-                                        <ActivityIndicator size="small" color={COLORS.primaryThemeColor} />
-                                    ) : (
-                                        <TextComponent type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.X_LARGE} style={styles.countText}>
-                                            {items?.status}
-                                        </TextComponent>
-                                    )}
-                                </View>
-                            </TouchableOpacity>
-                        ) : null,
-                    )}
+                                    ),
+                                ),
+                            )}
+                            {row.length < GRID_COLUMNS &&
+                                Array.from({ length: GRID_COLUMNS - row.length }).map((_, spacerIndex) => (
+                                    <View key={`${title}-spacer-${spacerIndex}`} style={styles.cardSpacer} />
+                                ))}
+                        </View>
+                    ))}
                 </View>
             )}
 
@@ -1070,50 +1128,34 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
                                 {console.log('UI 2 detail--->', group, 'groupTitle--->', group.groupTitle, 'audits--->', group.audits)}
 
                                 {group.groupTitle && (
-                                    <Text style={[styles.headerTitleGroup, { marginLeft: 0, marginBottom: 6 }]} numberOfLines={1}>
-                                        {group.groupTitle.replace(/\n/g, ' ')}
-                                    </Text>
+                                    <View style={[styles.sectionHeader, { marginBottom: 10 }]}>
+                                        <View style={styles.sectionAccentBar} />
+                                        <Text style={styles.headerTitleGroup} numberOfLines={1}>
+                                            {group.groupTitle.replace(/\n/g, ' ')}
+                                        </Text>
+                                    </View>
                                 )}
                                 <View style={styles.cardContainer}>
-                                    {(group.audits || []).map((audit, index) => (
-                                        <TouchableOpacity
-                                            activeOpacity={0.85}
-                                            style={[styles.cardContent, { marginBottom: CARD_GAP }]}
-                                            key={`${title}-${index}`}
-                                            onPress={() =>
-                                                handleNavigation(
-                                                    title,
-                                                    audit?.status,
-                                                    audit?.category,
-                                                    audit?.auditTitle,
-                                                    audit?.routeName,
-                                                    index,
-                                                    group?.groupTitle,
-                                                )
-                                            }>
-                                            <LinearGradient
-                                                colors={audit.iconColors || ['#E9F6FF', '#D9EEFF']}
-                                                start={{ x: 0, y: 0 }}
-                                                end={{ x: 1, y: 1 }}
-                                                style={styles.iconWrapper}>
-                                                <ImageComponent
-                                                    style={styles.imageView}
-                                                    source={audit.images}
-                                                    resizeMode={FastImage.resizeMode.contain}
-                                                />
-                                            </LinearGradient>
-
-                                            <TextComponent style={styles.cardTitle}>{audit.category}</TextComponent>
-                                            <View style={styles.countContainer}>
-                                                {audit?.status === undefined || audit?.status === null ? (
-                                                    <ActivityIndicator size="small" color={COLORS.primaryThemeColor} />
-                                                ) : (
-                                                    <TextComponent type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.X_LARGE} style={styles.countText}>
-                                                        {audit?.status}
-                                                    </TextComponent>
-                                                )}
-                                            </View>
-                                        </TouchableOpacity>
+                                    {chunkIntoRows(group.audits || []).map((row, rowIndex) => (
+                                        <View key={`${title}-${idx}-row-${rowIndex}`} style={styles.cardRow}>
+                                            {row.map((audit, index) =>
+                                                renderMetricCard(audit, rowIndex * GRID_COLUMNS + index, `${title}-${idx}`, () =>
+                                                    handleNavigation(
+                                                        title,
+                                                        audit?.status,
+                                                        audit?.category,
+                                                        audit?.auditTitle,
+                                                        audit?.routeName,
+                                                        rowIndex * GRID_COLUMNS + index,
+                                                        group?.groupTitle,
+                                                    ),
+                                                ),
+                                            )}
+                                            {row.length < GRID_COLUMNS &&
+                                                Array.from({ length: GRID_COLUMNS - row.length }).map((_, spacerIndex) => (
+                                                    <View key={`${title}-${idx}-spacer-${spacerIndex}`} style={styles.cardSpacer} />
+                                                ))}
+                                        </View>
                                     ))}
                                 </View>
                             </View>
@@ -1121,7 +1163,7 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
                     })()}
                 </View>
             )}
-        </ScrollView>
+        </View>
     );
 
     return (
@@ -1141,28 +1183,26 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
             ) : null}
 
             <View style={styles.filterRow}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
-                    {/* <TouchableOpacity style={styles.filterIcon} onPress={handleCalendarPress}>
-                        <IconComponent type={ICON_TYPE.FontAwesome} name="calendar" size={18} color={COLORS.themeBlack} />
-                    </TouchableOpacity> */}
+                <View style={styles.filterInputWrapper}>
                     <TouchableOpacity
-                        style={styles.filterIcon}
-                        onPress={() => {
-                            // focus handled by next frame
-                            filterInputRef?.current?.focus?.();
-                        }}>
-                        <IconComponent type={ICON_TYPE.FontAwesome} name="filter" size={18} color={COLORS.themeBlack} />
+                        style={styles.filterIconInside}
+                        onPress={() => filterInputRef?.current?.focus?.()}>
+                        <IconComponent type={ICON_TYPE.FontAwesome} name="search" size={15} color={COLORS.primaryThemeColor} />
                     </TouchableOpacity>
                     <TextInput
                         ref={filterInputRef}
                         value={filterText}
                         onChangeText={setFilterText}
-                        placeholder="Filter modules (e.g., concern)"
+                        placeholder="Search modules (e.g., audit, concern)"
                         style={styles.filterInput}
                         placeholderTextColor={COLORS.searchText}
                     />
+                    {filterText.length > 0 && (
+                        <TouchableOpacity style={styles.filterClearBtn} onPress={() => setFilterText('')}>
+                            <IconComponent type={ICON_TYPE.FontAwesome} name="times-circle" size={16} color={COLORS.searchText} />
+                        </TouchableOpacity>
+                    )}
                 </View>
-                {/* Calendar icon hidden as requested */}
             </View>
 
             <Modal visible={rangeModalVisible} transparent animationType="fade" onRequestClose={() => setRangeModalVisible(false)}>
@@ -1275,66 +1315,98 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
 const styles = StyleSheet.create({
     safeArea: {
         flex: 1,
-        backgroundColor: COLORS.white,
+        backgroundColor: '#F4F6FA',
     },
     sectionWrapper: {
         marginHorizontal: SECTION_HORIZONTAL_PADDING,
+        marginBottom: SPACING.LARGE,
+        backgroundColor: COLORS.white,
+        borderRadius: 20,
+        padding: SPACING.NORMAL,
+        shadowColor: '#123C95',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.06,
+        shadowRadius: 12,
+        elevation: 3,
+    },
+    sectionHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
         marginBottom: SPACING.NORMAL,
+    },
+    sectionAccentBar: {
+        width: 4,
+        height: 22,
+        borderRadius: 4,
+        backgroundColor: COLORS.primaryThemeColor,
+        marginRight: SPACING.SMALL,
     },
     sectionTitle: {
         fontFamily: 'ProximaNova-Bold',
-        fontSize: FONT_SIZE.X_LARGE,
-        color: COLORS.black,
-        marginBottom: SPACING.SMALL,
+        fontSize: FONT_SIZE.LARGE,
+        color: '#1E293B',
+        flex: 1,
     },
     headerTitleGroup: {
         fontFamily: 'ProximaNova-Bold',
         fontSize: FONT_SIZE.NORMAL,
-        color: COLORS.black,
-        paddingVertical: SPACING.SMALL,
-        // marginHorizontal: 16,
-        marginBottom: 0,
-        width: '90%',
+        color: '#334155',
+        flex: 1,
     },
     cardContainer: {
+        width: '100%',
+    },
+    cardRow: {
         flexDirection: 'row',
-        flexWrap: 'wrap',
         justifyContent: 'space-between',
-        alignItems: 'flex-start',
+        alignItems: 'stretch',
+        marginBottom: CARD_GAP,
+        width: '100%',
+    },
+    cardSpacer: {
+        width: CARD_WIDTH,
     },
     cardContent: {
         alignItems: 'center',
-        justifyContent: 'space-between',
-        backgroundColor: '#F0FAF8',
+        justifyContent: 'center',
+        backgroundColor: COLORS.white,
         width: CARD_WIDTH,
-        minHeight: 150,
-        paddingVertical: SPACING.NORMAL,
-        paddingHorizontal: SPACING.SMALL,
-        borderRadius: 18,
-        shadowColor: '#11111133',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.15,
-        shadowRadius: 6,
-        elevation: 4,
+        flexGrow: 0,
+        flexShrink: 0,
+        minHeight: 118,
+        paddingVertical: SPACING.SMALL,
+        paddingHorizontal: SPACING.X_SMALL,
+        borderRadius: 16,
+        borderWidth: 1,
+        borderColor: '#E8EDF5',
+        borderTopWidth: 3,
+        shadowColor: '#0F172A',
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.08,
+        shadowRadius: 8,
+        elevation: 3,
     },
     cardTitle: {
-        fontSize: FONT_SIZE.SMALL,
-        fontWeight: 'bold',
+        fontSize: FONT_SIZE.X_SMALL,
+        fontFamily: 'OpenSans-SemiBold',
         textAlign: 'center',
-        color: COLORS.black,
-        marginTop: SPACING.SMALL,
+        color: '#475569',
+        marginTop: SPACING.X_SMALL,
+        lineHeight: 14,
+        minHeight: 28,
     },
     countContainer: {
-        marginTop: SPACING.SMALL,
+        marginTop: 4,
         alignItems: 'center',
         justifyContent: 'center',
+        minHeight: 26,
     },
     countText: {
-        color: COLORS.black,
+        letterSpacing: -0.5,
     },
     imageView: {
-        height: 24,
-        width: 24,
+        height: 20,
+        width: 20,
     },
     modalBackground: {
         flex: 1,
@@ -1344,37 +1416,54 @@ const styles = StyleSheet.create({
         height: '50%',
     },
     iconWrapper: {
-        width: 48,
-        height: 48,
-        borderRadius: 16,
+        width: 40,
+        height: 40,
+        borderRadius: 20,
         alignItems: 'center',
         justifyContent: 'center',
     },
     listContentContainer: {
         paddingTop: SPACING.SMALL,
         paddingBottom: SPACING.X_LARGE,
+        paddingHorizontal: 0,
     },
     filterRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: SPACING.NORMAL,
-        marginTop: SPACING.SMALL,
-        marginBottom: SPACING.SMALL,
+        paddingHorizontal: SECTION_HORIZONTAL_PADDING,
+        marginTop: SPACING.NORMAL,
+        marginBottom: SPACING.NORMAL,
     },
-    filterIcon: {
-        padding: SPACING.SMALL,
+    filterInputWrapper: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: COLORS.white,
+        borderRadius: 14,
+        borderWidth: 1,
+        borderColor: '#E2E8F0',
+        paddingHorizontal: SPACING.SMALL,
+        shadowColor: '#123C95',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 6,
+        elevation: 2,
+    },
+    filterIconInside: {
+        paddingHorizontal: 6,
+        paddingVertical: SPACING.SMALL,
     },
     filterInput: {
         flex: 1,
-        height: 40,
-        borderWidth: 1,
-        borderColor: COLORS.whiteGrey,
-        borderRadius: 10,
-        paddingHorizontal: SPACING.NORMAL,
+        height: 44,
         fontFamily: 'OpenSans-Regular',
         fontSize: FONT_SIZE.SMALL,
         color: COLORS.themeBlack,
-        backgroundColor: COLORS.white,
+        backgroundColor: 'transparent',
+        paddingHorizontal: 4,
+    },
+    filterClearBtn: {
+        padding: SPACING.SMALL,
     },
     calendarIcon: {
         padding: SPACING.SMALL,

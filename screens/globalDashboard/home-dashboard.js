@@ -27,8 +27,12 @@ import { HomeListComponentApqp } from './home-list-apqp';
 import { getInspectionDataByUserAndSite } from 'store/database/inspectStorage';
 import { useModuleLicenses } from 'hooks/useModuleLicenses';
 import { formReq, getAvatarInitials, getICList, RFPercentage, getICSettingsData } from 'helpers/utils';
+import { syncAuditItemsFromLocalAudits } from 'helpers/audit-status';
 import { APQP_URL, AUDITPRO_URL, PROBLEMSOLVING_URL, ensureTrailingSlash } from 'screens/globalConstant/globalURL';
 import constants from '../../constants/SupplierMgnt/AppConstants';
+
+const EMPTY_AUDIT_LIST = [];
+
 const HomeDashboard = () => {
     const { theme } = useTheme();
     const navigation = useNavigation();
@@ -49,18 +53,12 @@ const HomeDashboard = () => {
     const [auditList, setauditList] = useState([]);
     const [userDetailsAudit, setuserDetailsAudit] = useState([]);
     const [todaysActivitySM, settodaysActivitySM] = useState([]);
-    const [todaysActivity, settodaysActivity] = useState([]);
-    const [recentActivity, setRecentActivity] = useState([]);
     const [currentUserData, setCurrentUserData] = useState([]);
     const [appLicenses, setAppLicenses] = useState([]);
     const [notificationsList, setNotificationsList] = useState([]);
 
-    // const [recentActivitySM, setRecentActivitySM] = useState([]);
-    // const [recentSM, setRecentSM] = useState([]);
-    const Reducers_RecentActivity = useSelector(state => state);
-    console.log('Full Redux State:', Reducers_RecentActivity);
-    const recentActivitySM = Reducers_RecentActivity?.audits?.recentAudits?.slice(-3) ?? [];
-    console.log('Reversed Recent Audits:', recentActivitySM);
+    const localAuditList = useSelector(state => state?.audits?.audits ?? EMPTY_AUDIT_LIST);
+    const recentAuditsRaw = useSelector(state => state?.audits?.recentAudits ?? EMPTY_AUDIT_LIST);
 
     const {
         todayList,
@@ -68,14 +66,13 @@ const HomeDashboard = () => {
         pendingList,
         countDetails = {},
         loading: countDetailsLoading,
-    } = useSelector(
-        ({
-            homeRedux: {
-                dashboardConcernList: { todayList, upcomingList, pendingList },
-                dashboardConcernCounts: { countDetails, loading },
-            },
-        }) => ({ todayList, upcomingList, pendingList, countDetails, loading }),
-    );
+    } = useSelector(state => ({
+        todayList: state?.homeRedux?.dashboardConcernList?.todayList,
+        upcomingList: state?.homeRedux?.dashboardConcernList?.upcomingList,
+        pendingList: state?.homeRedux?.dashboardConcernList?.pendingList,
+        countDetails: state?.homeRedux?.dashboardConcernCounts?.countDetails ?? {},
+        loading: state?.homeRedux?.dashboardConcernCounts?.loading,
+    }));
     // const [, set] = useState("");aa1eeeeer
     const isFocused = useIsFocused();
     const auditProUrl = ensureTrailingSlash(globalDeviceDetails?.deviceDetails?.AuditProURL || AUDITPRO_URL);
@@ -86,7 +83,8 @@ const HomeDashboard = () => {
         }
     }, [auditProUrl]);
 
-    const data = useSelector(state => state?.projects?.recentActivity?.flat() ?? []);
+    const recentActivityRaw = useSelector(state => state?.projects?.recentActivity);
+    const data = Array.isArray(recentActivityRaw) ? recentActivityRaw.flat() : [];
     const recentActivityAPQP = data.length > 0 ? [...data].reverse() : [];
     console.log('111 Recent Activity:', recentActivityAPQP);
     console.log('111 todaysActivityAPQP', todaysActivityAPQP);
@@ -226,40 +224,29 @@ const HomeDashboard = () => {
     }, [accessToken, siteId, userId, isFocused]);
 
     useEffect(() => {
-        console.log('todaysActivitySM---->', todaysActivitySM);
-        console.log('todaysActivityAPQP---->', todaysActivityAPQP);
-        console.log('todaysActivityPS---->', todaysActivityPS);
-
         setTodaysActivityPS(todayList?.data || []);
-        if (todaysActivitySM.length > 0 || todaysActivityAPQP.length > 0 || todaysActivityPS.length > 0) {
-            const mergedActivity = [...todaysActivitySM, ...todaysActivityPS, ...todaysActivityAPQP];
-            settodaysActivity(mergedActivity);
-            console.log('Final today activity------->123', mergedActivity);
-        } else {
-            //update to handle empty states
-            const mergedActivity = [...todaysActivitySM, ...todaysActivityPS, ...todaysActivityAPQP];
-            settodaysActivity(mergedActivity);
-            console.log('Final today activity 2------->123', mergedActivity);
-        }
+    }, [todayList]);
 
-        // Normalize each input to an array
-        const rSM = Array.isArray(recentActivitySM) ? recentActivitySM : recentActivitySM ? [recentActivitySM] : [];
+    const enrichedTodaySM = React.useMemo(
+        () => syncAuditItemsFromLocalAudits(todaysActivitySM, localAuditList),
+        [todaysActivitySM, localAuditList],
+    );
+
+    const todaysActivity = React.useMemo(
+        () => [...enrichedTodaySM, ...todaysActivityPS, ...todaysActivityAPQP],
+        [enrichedTodaySM, todaysActivityPS, todaysActivityAPQP],
+    );
+
+    const enrichedRecentSM = React.useMemo(() => {
+        const recentSlice = Array.isArray(recentAuditsRaw) ? recentAuditsRaw.slice(-3) : [];
+        return syncAuditItemsFromLocalAudits(recentSlice, localAuditList);
+    }, [recentAuditsRaw, localAuditList]);
+
+    const recentActivity = React.useMemo(() => {
         const rAPQP = Array.isArray(recentActivityAPQP) ? recentActivityAPQP : recentActivityAPQP ? [recentActivityAPQP] : [];
         const rPS = Array.isArray(recentActivityPS) ? recentActivityPS : recentActivityPS ? [recentActivityPS] : [];
-
-        console.log('Final recent activity rSM:', rSM);
-        // console.log('Final recent activity rAPQP:', rAPQP);
-        console.log('Final recent activity rPS:', rPS);
-
-        if (rSM.length > 0 || rAPQP.length > 0 || rPS.length > 0) {
-            // if (rSM.length > 0  || rPS.length > 0) {
-            const mergedRecentActivity = [...rSM, ...rAPQP, ...rPS];
-            // const mergedRecentActivity = [...rSM, ...rPS];
-            setRecentActivity(mergedRecentActivity);
-            console.log('Final merged recent activity:', mergedRecentActivity);
-        }
-    }, [todaysActivitySM, todaysActivityAPQP, todaysActivityPS]);
-    console.log('Final array of today and Recent activity------->', todaysActivity, '------', recentActivity);
+        return [...enrichedRecentSM, ...rAPQP, ...rPS];
+    }, [enrichedRecentSM, recentActivityAPQP, recentActivityPS]);
 
     const hasAPQPToday = Array.isArray(todaysActivity) && todaysActivity.some(item => item?.ProjectId != null || item?.TaskId != null);
     console.log('final hasAPQPToday------->', hasAPQPToday);
@@ -272,7 +259,7 @@ const HomeDashboard = () => {
         Array.isArray(todaysActivity) && todaysActivity.some(item => SUPPLIER_MODULES.includes(item?.Module_name) || item?.ActualAuditId != null);
     console.log('final hasSMToday------->', hasSMToday);
 
-    console.log('HomeListRecentActivity SM------->', recentActivitySM, recentActivityPS, recentActivityAPQP);
+    console.log('HomeListRecentActivity SM------->', enrichedRecentSM, recentActivityPS, recentActivityAPQP);
     console.log('final PS todaysActivityPS------->', todaysActivityPS);
 
     // useEffect(() => {
@@ -561,16 +548,19 @@ const HomeDashboard = () => {
                         const todayKey = formatDateYmd(new Date());
                         console.log('checksites----->', sites?.selectedSite);
 
-                        const filteredAuditList = combinedData
-                            .filter(audit => {
-                                const isValidStatus = audit.AuditStatus === 2 || audit.AuditStatus === 4;
-                                const isToday = getStartDateKey(audit?.StartDate) === todayKey;
-                                return isToday && isValidStatus;
-                            })
-                            .map(audit => ({
-                                ...audit,
-                                SiteName: sites?.selectedSite?.SiteName, // 👈 Add SiteName here
-                            }));
+                        const filteredAuditList = syncAuditItemsFromLocalAudits(
+                            combinedData
+                                .filter(audit => {
+                                    const isValidStatus = audit.AuditStatus === 2 || audit.AuditStatus === 4;
+                                    const isToday = getStartDateKey(audit?.StartDate) === todayKey;
+                                    return isToday && isValidStatus;
+                                })
+                                .map(audit => ({
+                                    ...audit,
+                                    SiteName: sites?.selectedSite?.SiteName,
+                                })),
+                            localAuditList,
+                        );
 
                         console.log('✅ Final Filtered AuditList:', filteredAuditList);
                         settodaysActivitySM(filteredAuditList);

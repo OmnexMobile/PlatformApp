@@ -1,5 +1,6 @@
 import {createReducer, createActions} from 'reduxsauce';
 import Immutable from 'seamless-immutable';
+import {syncRecentAuditsFromLocalAudits} from '../../helpers/audit-status';
 
 function ensureImmutable(state) {
   return Immutable.isImmutable(state) ? state : Immutable(state);
@@ -90,9 +91,17 @@ export const INITIAL_STATE = Immutable({
 
 
 export const storeAudits = (state, {audits}) => {
-   console.log('reducer storeAudits',audits)
+  console.log('reducer storeAudits', audits);
   state = ensureImmutable(state);
-  return state.merge({audits: audits});
+
+  const nextAudits = audits || [];
+  const currentRecent = state.recentAudits || [];
+  const syncedRecentAudits = syncRecentAuditsFromLocalAudits(currentRecent, nextAudits);
+
+  return state.merge({
+    audits: nextAudits,
+    recentAudits: syncedRecentAudits,
+  });
 };
 
 export const storeAuditRecords = (state, {auditRecords}) => {

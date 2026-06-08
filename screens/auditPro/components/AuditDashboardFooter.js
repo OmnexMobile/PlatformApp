@@ -33,6 +33,7 @@ import DeviceInfo from 'react-native-device-info';
 var RNFS = require('react-native-fs');
 import RNFetchBlob from 'react-native-fetch-blob';
 import constants from '../constants/AppConstants';
+import { syncRecentAuditsFromLocalAudits } from 'helpers/audit-status';
 import ActionSheet from 'react-native-actionsheet';
 import {
   Dialog,
@@ -1237,15 +1238,27 @@ class AuditDashboardFooter extends Component {
                 var auditStatus = auditListOrg[i].cStatus;
                 var auditColor = auditListOrg[i].color;
 
+                let hasNotSyncedRecord = false;
+                let hasSyncedRecord = false;
                 for (var j = 0; j < auditRecords.length; j++) {
                   if (
                     parseInt(auditListOrg[i].ActualAuditId) ==
                     parseInt(auditRecords[j].AuditId)
                   ) {
-                    if (auditListOrg[i].AuditStatus != 3) {
-                      auditStatus = constants.StatusSynced;
-                      break;
+                    if (auditRecords[j].AuditRecordStatus === constants.StatusNotSynced) {
+                      hasNotSyncedRecord = true;
                     }
+                    if (auditRecords[j].AuditRecordStatus === constants.StatusSynced) {
+                      hasSyncedRecord = true;
+                    }
+                  }
+                }
+
+                if (auditListOrg[i].AuditStatus != 3) {
+                  if (hasNotSyncedRecord) {
+                    auditStatus = constants.StatusNotSynced;
+                  } else if (hasSyncedRecord) {
+                    auditStatus = constants.StatusSynced;
                   }
                 }
 
@@ -1311,6 +1324,14 @@ class AuditDashboardFooter extends Component {
             }
 
             this.props.storeAudits(auditList);
+
+            const recentAudits = this.props.data.audits.recentAudits;
+            if (recentAudits?.length) {
+              this.props.updateRecentAuditList(
+                syncRecentAuditsFromLocalAudits(recentAudits, auditList),
+              );
+            }
+
             this.props.changeAuditState(false);
 
             // Sync NC/OFIs to server

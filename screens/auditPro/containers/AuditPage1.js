@@ -44,6 +44,7 @@ import ToastNew, {ErrorToast} from 'react-native-toast-message';
 import { LogBox } from 'react-native';
 import GlobalHeader from 'components/GlobalHeader';
 import FAB from 'components/fab';
+import { resolveAuditCStatus } from 'helpers/audit-status';
 let Window = Dimensions.get('window');
 const window_width = Dimensions.get('window').width;
 let timer = null;
@@ -324,6 +325,43 @@ class AuditPage extends Component {
       },
     );
     this.checkUser();
+    this.focusListener = this.props.navigation.addListener('focus', this.refreshAuditStatusFromStore);
+  }
+
+  refreshAuditStatusFromStore = () => {
+    const resolvedStatus = this.getResolvedAuditStatus();
+    if (!resolvedStatus) {
+      return;
+    }
+
+    this.setState(prevState => ({
+      AuditProp: {
+        ...prevState.AuditProp,
+        cStatus: resolvedStatus,
+      },
+    }));
+    this.updateRecentAuditList(undefined, resolvedStatus);
+  };
+
+  componentDidUpdate(prevProps) {
+    const prevAudits = prevProps.data?.audits?.audits;
+    const nextAudits = this.props.data?.audits?.audits;
+    if (prevAudits === nextAudits) {
+      return;
+    }
+
+    const resolvedStatus = this.getResolvedAuditStatus(nextAudits);
+    if (!resolvedStatus || resolvedStatus === this.state.AuditProp?.cStatus) {
+      return;
+    }
+
+    this.setState(prevState => ({
+      AuditProp: {
+        ...prevState.AuditProp,
+        cStatus: resolvedStatus,
+      },
+    }));
+    this.updateRecentAuditList(undefined, resolvedStatus);
   }
 
   getAuthToken = userData => {
@@ -470,6 +508,9 @@ class AuditPage extends Component {
 
   componentWillUnmount() {
     Dimensions.removeEventListener('change', this.handleDimensionChange);
+    if (this.focusListener) {
+      this.focusListener();
+    }
   }
 
   storeReportIDdetails = async (  ) => {
@@ -477,38 +518,43 @@ class AuditPage extends Component {
    await AsyncStorage.setItem('ReportID', ReportID)
   }
 
+  getResolvedAuditStatus = (audits = this.props.data.audits.audits) => {
+    const actualAuditId = this.state.AuditProp?.ActualAuditId;
+    if (!actualAuditId) {
+      return (
+        this.state.AuditProp?.cStatus ||
+        this.props?.route?.params?.datapass?.cStatus
+      );
+    }
+
+    return resolveAuditCStatus(this.state.AuditProp, audits);
+  };
+
   updateRecentAuditList(AuditId, status) {
     if (status === null || typeof status === 'undefined') {
-      status = this.state.AuditProp.cStatus;
+      status = this.getResolvedAuditStatus();
     }
-    var recentAuditListProps = this.props.data.audits.recentAudits;
-    var recentAudits = [];
-    const screenName = this.props?.route?.name || ROUTES.AUDIT_PAGE_SM;
+
+    const targetId = AuditId ?? this.state.AuditProp?.ActualAuditId;
+    const recentAuditListProps = this.props.data.audits.recentAudits || [];
+    const recentAudits = [];
+    let isAuditExistsInRecentList = false;
+    const screenName = this.props?.route?.name || ROUTES.AUDIT_PAGE;
     const recentModule = screenName;
     const auditPropWithModule = {
       ...this.state.AuditProp,
+      cStatus: status,
       recent_Module: recentModule,
     };
+
     if (recentAuditListProps.length > 0) {
-      var isAuditExistsInRecentList = false;
       for (var i = 0; i < recentAuditListProps.length; i++) {
-        let audit = recentAuditListProps[i];
-        if (audit.ActualAuditId === AuditId) {
-                  recentAudits.push({
-                    ...audit,
-                    cStatus: constant.StatusDownloaded,
-                    recent_Module: recentModule,
-                  });
-                } else if (audit.ActualAuditId === this.state.AuditProp.ActualAuditId) {
-                  recentAudits.push({...audit, recent_Module: recentModule});
-                } else {
-                  recentAudits.push(audit);
-                }
-        if (
-          recentAuditListProps[i].ActualAuditId ==
-          this.state.AuditProp.ActualAuditId
-        ) {
+        const audit = recentAuditListProps[i];
+        if (parseInt(audit.ActualAuditId, 10) === parseInt(targetId, 10)) {
+          recentAudits.push({...audit, cStatus: status, recent_Module: recentModule});
           isAuditExistsInRecentList = true;
+        } else {
+          recentAudits.push(audit);
         }
       }
       if (!isAuditExistsInRecentList) {
@@ -517,7 +563,6 @@ class AuditPage extends Component {
     } else {
       recentAudits.push(auditPropWithModule);
     }
-console.log('checktheaudits---Auditpage----Auditppro',recentAudits);
 
     this.props.updateRecentAuditList(recentAudits, screenName);
   }
@@ -587,6 +632,7 @@ console.log('checktheaudits---Auditpage----Auditppro',recentAudits);
 
       this.InitVoice();
       var Data = props.data.audits.audits;
+      const resolvedStatus = this.getResolvedAuditStatus(Data);
       for (var i = 0; i < Data.length; i++) {
         if (this.state.AUDIT_ID === Data[i].ActualAuditId) {
           if (Data[i].cStatus === constant.StatusSynced) {
@@ -616,6 +662,10 @@ console.log('checktheaudits---Auditpage----Auditppro',recentAudits);
           voicePopUp: false,
           isVisible: false,
           suggestionText: '',
+          AuditProp: {
+            ...this.state.AuditProp,
+            cStatus: resolvedStatus,
+          },
         },
         () => {
           console.log('setSTate called');
@@ -3457,7 +3507,7 @@ console.log('checktheaudits---Auditpage----Auditppro',recentAudits);
     ];
 
     const Audit_Status = this.displayStatusNew(
-      this.props?.route?.params?.datapass?.cStatus,
+      this.getResolvedAuditStatus(),
     );
 
     const canShowHeaderActions =
@@ -3617,7 +3667,7 @@ console.log('checktheaudits---Auditpage----Auditppro',recentAudits);
                     </View>
                     <View style={styles.boxCard2}>
                       {this.displayStatusNew(
-                        this.props?.route?.params?.datapass?.cStatus,
+                        this.getResolvedAuditStatus(),
                       )}
                     </View>
                   </View>

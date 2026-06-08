@@ -280,6 +280,43 @@ class AuditPage extends Component {
       },
     );
     this.checkUser();
+    this.focusListener = this.props.navigation.addListener('focus', this.refreshAuditStatusFromStore);
+  }
+
+  refreshAuditStatusFromStore = () => {
+    const resolvedStatus = this.getResolvedAuditStatus();
+    if (!resolvedStatus) {
+      return;
+    }
+
+    this.setState(prevState => ({
+      AuditProp: {
+        ...prevState.AuditProp,
+        cStatus: resolvedStatus,
+      },
+    }));
+    this.updateRecentAuditList(undefined, resolvedStatus);
+  };
+
+  componentDidUpdate(prevProps) {
+    const prevAudits = prevProps.data?.audits?.audits;
+    const nextAudits = this.props.data?.audits?.audits;
+    if (prevAudits === nextAudits) {
+      return;
+    }
+
+    const resolvedStatus = this.getResolvedAuditStatus(nextAudits);
+    if (!resolvedStatus || resolvedStatus === this.state.AuditProp?.cStatus) {
+      return;
+    }
+
+    this.setState(prevState => ({
+      AuditProp: {
+        ...prevState.AuditProp,
+        cStatus: resolvedStatus,
+      },
+    }));
+    this.updateRecentAuditList(undefined, resolvedStatus);
   }
 
   async getAccessToken(){
@@ -399,6 +436,9 @@ class AuditPage extends Component {
 
   componentWillUnmount() {
     Dimensions.removeEventListener('change', this.handleDimensionChange);
+    if (this.focusListener) {
+      this.focusListener();
+    }
   }
 
   storeReportIDdetails = async (  ) => {
@@ -406,34 +446,51 @@ class AuditPage extends Component {
    await AsyncStorage.setItem('ReportID', ReportID)
   }
 
+  getResolvedAuditStatus = (audits = this.props.data.audits.audits) => {
+    const actualAuditId = this.state.AuditProp?.ActualAuditId;
+    if (!actualAuditId) {
+      return (
+        this.state.AuditProp?.cStatus ||
+        this.props?.route?.params?.datapass?.cStatus
+      );
+    }
+
+    const match = (audits || []).find(
+      item => parseInt(item.ActualAuditId, 10) === parseInt(actualAuditId, 10),
+    );
+
+    return (
+      match?.cStatus ||
+      this.state.AuditProp?.cStatus ||
+      this.props?.route?.params?.datapass?.cStatus
+    );
+  };
+
   updateRecentAuditList(AuditId, status) {
     if (status === null || typeof status === 'undefined') {
-      status = this.state.AuditProp.cStatus;
+      status = this.getResolvedAuditStatus();
     }
-    var recentAuditListProps = this.props.data.audits.recentAudits;
-    var recentAudits = [];
+
+    const targetId = AuditId ?? this.state.AuditProp?.ActualAuditId;
+    const recentAuditListProps = this.props.data.audits.recentAudits || [];
+    const recentAudits = [];
+    let isAuditExistsInRecentList = false;
 
     if (recentAuditListProps.length > 0) {
-      var isAuditExistsInRecentList = false;
       for (var i = 0; i < recentAuditListProps.length; i++) {
-        let audit = recentAuditListProps[i];
-        if (audit.ActualAuditId === AuditId)
-          recentAudits.push({...audit, cStatus: constant.StatusDownloaded});
-        else {
-          recentAudits.push(audit);
-        }
-        if (
-          recentAuditListProps[i].ActualAuditId ==
-          this.state.AuditProp.ActualAuditId
-        ) {
+        const audit = recentAuditListProps[i];
+        if (parseInt(audit.ActualAuditId, 10) === parseInt(targetId, 10)) {
+          recentAudits.push({...audit, cStatus: status});
           isAuditExistsInRecentList = true;
+        } else {
+          recentAudits.push(audit);
         }
       }
       if (!isAuditExistsInRecentList) {
-        recentAudits.push(this.state.AuditProp);
+        recentAudits.push({...this.state.AuditProp, cStatus: status});
       }
     } else {
-      recentAudits.push(this.state.AuditProp);
+      recentAudits.push({...this.state.AuditProp, cStatus: status});
     }
 
     this.props.updateRecentAuditList(recentAudits);
@@ -510,6 +567,7 @@ class AuditPage extends Component {
 
       this.InitVoice();
       var Data = props.data.audits.audits;
+      const resolvedStatus = this.getResolvedAuditStatus(Data);
       for (var i = 0; i < Data.length; i++) {
         if (this.state.AUDIT_ID === Data[i].ActualAuditId) {
           if (Data[i].cStatus === constant.StatusSynced) {
@@ -539,6 +597,10 @@ class AuditPage extends Component {
           voicePopUp: false,
           isVisible: false,
           suggestionText: '',
+          AuditProp: {
+            ...this.state.AuditProp,
+            cStatus: resolvedStatus,
+          },
         },
         () => {
           console.log('setSTate called');
@@ -3361,9 +3423,7 @@ class AuditPage extends Component {
       // {id: strings.sugesstion7},
     ];
 
-    const Audit_Status = this.displayStatusNew(
-      this.props?.route?.params?.datapass?.cStatus,
-    );
+    const Audit_Status = this.displayStatusNew(this.getResolvedAuditStatus());
 
     return (
       <View style={styles.wrapper}>
@@ -3553,9 +3613,7 @@ class AuditPage extends Component {
                       </Text>
                     </View>
                     <View style={styles.boxCard2}>
-                      {this.displayStatusNew(
-                        this.props?.route?.params?.datapass?.cStatus,
-                      )}
+                      {this.displayStatusNew(this.getResolvedAuditStatus())}
                     </View>
                   </View>
 
