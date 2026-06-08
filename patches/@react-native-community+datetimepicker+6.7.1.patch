@@ -1,5 +1,5 @@
 diff --git a/node_modules/@react-native-community/datetimepicker/RNDateTimePicker.podspec b/node_modules/@react-native-community/datetimepicker/RNDateTimePicker.podspec
-index 46c2a32..274614e 100644
+index 46c2a32..d843b47 100644
 --- a/node_modules/@react-native-community/datetimepicker/RNDateTimePicker.podspec
 +++ b/node_modules/@react-native-community/datetimepicker/RNDateTimePicker.podspec
 @@ -18,21 +18,25 @@ Pod::Spec.new do |s|
@@ -21,14 +21,14 @@ index 46c2a32..274614e 100644
 -    s.dependency "RCTRequired"
 -    s.dependency "RCTTypeSafety"
 -    s.dependency "ReactCommon/turbomodule/core"
-+    if defined?(install_modules_dependencies)
++    if respond_to?(:install_modules_dependencies, true)
 +      install_modules_dependencies(s)
 +    else
-+      folly_compiler_flags = '-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32'
++      folly_compiler_flags = '-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_CFG_NO_COROUTINES=1 -Wno-comma -Wno-shorten-64-to-32'
 +
 +      s.compiler_flags = folly_compiler_flags + " -DRCT_NEW_ARCH_ENABLED=1"
 +      s.pod_target_xcconfig = {
-+        'HEADER_SEARCH_PATHS' => '"$(PODS_ROOT)/boost" "$(PODS_ROOT)/boost-for-react-native" "$(PODS_ROOT)/RCT-Folly"',
++        'HEADER_SEARCH_PATHS' => '"$(PODS_ROOT)/boost" "$(PODS_ROOT)/boost-for-react-native" "$(PODS_ROOT)/RCT-Folly" "$(PODS_ROOT)/Headers/Public/ReactCodegen" "$(PODS_ROOT)/Headers/Private/ReactCodegen" "$(PODS_ROOT)/../../node_modules/react-native/ReactCommon/yoga"',
 +        "CLANG_CXX_LANGUAGE_STANDARD" => "c++17"
 +      }
 +
@@ -47,7 +47,7 @@ diff --git a/node_modules/@react-native-community/datetimepicker/ios/RNDateTimeP
 index ba0273b..f5b091c 100644
 --- a/node_modules/@react-native-community/datetimepicker/ios/RNDateTimePickerShadowView.m
 +++ b/node_modules/@react-native-community/datetimepicker/ios/RNDateTimePickerShadowView.m
-@@ -31,7 +31,7 @@ - (void)setDisplayIOS:(UIDatePickerStyle)displayIOS {
+@@ -31,7 +31,7 @@
    YGNodeMarkDirty(self.yogaNode);
  }
  
@@ -57,7 +57,7 @@ index ba0273b..f5b091c 100644
    RNDateTimePickerShadowView *shadowPickerView = (__bridge RNDateTimePickerShadowView *)YGNodeGetContext(node);
  
 diff --git a/node_modules/@react-native-community/datetimepicker/ios/fabric/cpp/react/renderer/components/RNDateTimePicker/ComponentDescriptors.h b/node_modules/@react-native-community/datetimepicker/ios/fabric/cpp/react/renderer/components/RNDateTimePicker/ComponentDescriptors.h
-index 4a1a8e2..7cc41c2 100644
+index 4a1a8e2..b55394e 100644
 --- a/node_modules/@react-native-community/datetimepicker/ios/fabric/cpp/react/renderer/components/RNDateTimePicker/ComponentDescriptors.h
 +++ b/node_modules/@react-native-community/datetimepicker/ios/fabric/cpp/react/renderer/components/RNDateTimePicker/ComponentDescriptors.h
 @@ -18,20 +18,20 @@ class RNDateTimePickerComponentDescriptor final : public ConcreteComponentDescri
@@ -80,7 +80,7 @@ index 4a1a8e2..7cc41c2 100644
 +        static_cast<YogaLayoutableShadowNode &>(pickerShadowNode);
  
 -      auto state = std::static_pointer_cast<const RNDateTimePickerShadowNode::ConcreteState>(shadowNode->getState());
-+      auto state = std::static_pointer_cast<const RNDateTimePickerShadowNode::ConcreteState>(shadowNode.getState());
++      auto state = std::static_pointer_cast<const RNDateTimePickerShadowNode::ConcreteState>(pickerShadowNode.getState());
        auto stateData = state->getData();
          
        if(stateData.frameSize.width != 0 && stateData.frameSize.height != 0) {

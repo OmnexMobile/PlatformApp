@@ -732,7 +732,12 @@ class AttachAdditionalDocScreen extends Component {
           </View>
         ) : (
           <ScrollView
-            style={styles.formScroll}
+            style={[
+              styles.formScroll,
+              Platform.OS === "ios"
+                ? styles.formScrollIos
+                : styles.formScrollAndroid,
+            ]}
             contentContainerStyle={styles.formContentContainer}
             showsVerticalScrollIndicator={false}
           >

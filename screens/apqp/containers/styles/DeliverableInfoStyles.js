@@ -16,7 +16,7 @@ export default StyleSheet.create({
     height: "100%",
   },
   topSpacerIos: {
-    padding: SPACING.MEDIUM,
+    padding: 0,
     flexDirection: "row",
   },
   topSpacerAndroid: {

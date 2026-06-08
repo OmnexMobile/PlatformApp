@@ -669,7 +669,7 @@ export default StyleSheet.create({
     borderLeftColor: "white",
   },
   topSpacerIos: {
-    padding: SPACING.MEDIUM,
+    padding: 0,
     flexDirection: "row",
   },
   topSpacerAndroid: {

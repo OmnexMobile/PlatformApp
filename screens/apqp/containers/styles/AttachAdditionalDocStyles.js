@@ -1,4 +1,4 @@
-import { StyleSheet, Dimensions } from "react-native";
+import { StyleSheet, Dimensions, Platform, StatusBar } from "react-native";
 import { Metrics, ApplicationStyles } from "../../themes";
 import Fonts from "../../themes/Fonts";
 import { width, height } from "react-native-dimension";
@@ -6,6 +6,7 @@ import { SPACING } from "constants/theme-constants";
 // import { android15FooterPadding } from "../../../auditPro/Themes/AndroidInsets";
 
 let Window = Dimensions.get("window");
+const ANDROID_HEADER_OFFSET = StatusBar.currentHeight || 0;
 
 export default StyleSheet.create({
   ...ApplicationStyles.screen,
@@ -19,7 +20,7 @@ export default StyleSheet.create({
     backgroundColor: "#F5F8FA",
   },
   topSpacerIos: {
-    padding: SPACING.MEDIUM,
+    padding: 0,
     flexDirection: "row",
   },
   topSpacerAndroid: {
@@ -342,6 +343,12 @@ export default StyleSheet.create({
   },
   formScroll: {
     flex: 1,
+  },
+  formScrollAndroid: {
+    marginTop: Platform.OS === "android" ? ANDROID_HEADER_OFFSET : 0,
+  },
+  formScrollIos: {
+    marginTop: 62,
   },
   formContentContainer: {
     paddingBottom: 86,

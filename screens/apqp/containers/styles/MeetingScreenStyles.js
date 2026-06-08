@@ -9,7 +9,7 @@ let Window = Dimensions.get("window");
 export default StyleSheet.create({
   ...ApplicationStyles.screen,
   topSpacerIos: {
-    padding: SPACING.MEDIUM,
+    padding: 0,
     flexDirection: "row",
   },
   topSpacerAndroid: {

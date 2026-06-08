@@ -604,7 +604,7 @@ export default StyleSheet.create({
     margin: 5,
   },
   topSpacerIos: {
-    padding: SPACING.MEDIUM,
+    padding: 0,
     flexDirection: "row",
   },
   topSpacerAndroid: {

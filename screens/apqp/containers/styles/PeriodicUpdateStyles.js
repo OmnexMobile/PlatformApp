@@ -448,7 +448,7 @@ export default StyleSheet.create({
     fontFamily: "OpenSans-Regular",
   },
   topSpacerIos: {
-    padding: SPACING.MEDIUM,
+    padding: 0,
     flexDirection: "row",
   },
   topSpacerAndroid: {
