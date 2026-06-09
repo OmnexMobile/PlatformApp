@@ -250,18 +250,20 @@ class CheckPointDemo extends Component {
     async getAccessToken() {
         try {
             const stringifiedUserDetails = await AsyncStorage.getItem('userDetails');
-            const value = JSON.parse(stringifiedUserDetails);
+            const value = stringifiedUserDetails ? JSON.parse(stringifiedUserDetails) : null;
             console.log('current userdata--->', value);
             if (value !== null) {
                 // value previously stored
                 console.log('current token2--->', value.accessToken);
-                this.setState({ currentUserData: value }, () => {
+                this.setState({ currentUserData: value, token: value.accessToken || this.state.token }, () => {
                     console.log('Token set');
                 });
             }
+            return value;
         } catch (e) {
             // error reading value
             console.log('error--->', e);
+            return null;
         }
     }
 
@@ -4634,12 +4636,24 @@ class CheckPointDemo extends Component {
     }
     async initiateDownload(attachment) {
         var userDetails = await this.getAccessToken();
-        var Token = userDetails?.accessToken || this.state.currentUserData?.accessToken || this.props.data.audits.token;
+        var Token = [
+            userDetails?.accessToken,
+            this.state.currentUserData?.accessToken,
+            this.state.token,
+            this.props?.data?.audits?.token,
+        ].find(token => token && token !== 'null' && token !== 'undefined');
+
+        if (!Token) {
+            this.updateCheckPoints(attachment, true);
+            return;
+        }
+
         auth.downloadFile(attachment.Docid, Token, (res, data) => {
             //console.log('getFiles File download response', data);
-            if (data.data.Message == 'Success') {
+            if (data?.data?.Message == 'Success') {
                 this.WriteAttachments(data.data.Data.FileData, attachment);
             } else {
+                this.updateCheckPoints(attachment, true);
                 this.refs.toast.show(strings.server_error, DURATION.LENGTH_LONG);
             }
         });
