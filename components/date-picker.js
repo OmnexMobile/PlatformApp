@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { TouchableOpacity, View } from 'react-native';
-import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import DatePicker from 'react-native-date-picker';
 import moment from 'moment';
 import { COLORS, FONT_SIZE, SPACING } from 'constants/theme-constants';
 import { DATE_FORMAT, FONT_TYPE } from 'constants/app-constant';
@@ -9,27 +9,21 @@ import { useAppContext } from 'contexts/app-context';
 import TextComponent from './text';
 
 const DatePickerComponent = ({ name, label, required, value, onChange, editable = true, containerStyle = {} }) => {
-    const [activePicker, setActivePicker] = useState(null);
     const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
     const { theme } = useTheme();
     const { timeSettings } = useAppContext();
     const parsedValue = value ? moment(value) : null;
     const hasValidValue = !!parsedValue && parsedValue.isValid();
     const pickerDate = hasValidValue ? parsedValue.toDate() : new Date();
-    const showDatePicker = name => {
-        setActivePicker(name);
-        setDatePickerVisibility(true);
-    };
 
+    const showDatePicker = () => setDatePickerVisibility(true);
     const hideDatePicker = () => setDatePickerVisibility(false);
 
     const handleConfirm = date => {
         onChange(name, moment(date).format(DATE_FORMAT['YYYY-MM-DD']));
-        setTimeout(() => {
-            setActivePicker(null);
-        }, 100);
         hideDatePicker();
     };
+
     return (
         <View
             style={[
@@ -53,7 +47,7 @@ const DatePickerComponent = ({ name, label, required, value, onChange, editable 
             </View>
             <TouchableOpacity
                 disabled={!editable}
-                onPress={() => editable && showDatePicker(name)}
+                onPress={showDatePicker}
                 activeOpacity={0.8}
                 style={{
                     borderBottomWidth: 1,
@@ -69,12 +63,12 @@ const DatePickerComponent = ({ name, label, required, value, onChange, editable 
                     {hasValidValue ? parsedValue.format(DATE_FORMAT[timeSettings || 'DD_MM_YYYY']) : 'Select Date'}
                 </TextComponent>
             </TouchableOpacity>
-            <DateTimePickerModal
-                isVisible={isDatePickerVisible}
+            <DatePicker
+                modal
+                open={isDatePickerVisible}
                 date={pickerDate}
                 mode="date"
-                onConfirm={data => handleConfirm(data, activePicker)}
-                // onConfirm={data => handleConfirm(data, activePicker)}
+                onConfirm={handleConfirm}
                 onCancel={hideDatePicker}
             />
         </View>

@@ -2,7 +2,7 @@ import React from 'react';
 import { View } from 'react-native';
 import { RFPercentage } from 'react-native-responsive-fontsize';
 import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
-import { SPACING } from 'constants/theme-constants';
+import { COLORS, SPACING } from 'constants/theme-constants';
 import { PLACEHOLDERS } from 'constants/app-constant';
 import useTheme from 'theme/useTheme';
 import { getElevation } from 'helpers/utils';
@@ -35,7 +35,7 @@ const PlaceHolders = ({ type, noPadding = false }) => {
                                             },
                                             elevation,
                                         ]}>
-                                        <SkeletonPlaceholder highlightColor={theme.mode.backgroundColor} backgroundColor={theme.mode.borderColor}>
+                                        <View >
                                             <View style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
                                                 {/* <View
                                                         style={{
@@ -44,10 +44,10 @@ const PlaceHolders = ({ type, noPadding = false }) => {
                                                             borderRadius: SPACING.X_SMALL,
                                                         }}
                                                     /> */}
-                                                <View style={{ width: 200, height: 8, borderRadius: 4 }} />
-                                                <View style={{ width: 200, height: 8, borderRadius: 4, marginTop: SPACING.SMALL }} />
-                                                <View style={{ width: 150, height: 8, borderRadius: 4, marginTop: SPACING.SMALL }} />
-                                                <View style={{ width: 150, height: 8, borderRadius: 4, marginTop: SPACING.SMALL }} />
+                                                <View style={{ width: 200, height: 8, borderRadius: 4 ,backgroundColor: COLORS.icBottomBox}} />
+                                                <View style={{ width: 200, height: 8, borderRadius: 4, marginTop: SPACING.SMALL,backgroundColor: COLORS.icBottomBox }} />
+                                                <View style={{ width: 150, height: 8, borderRadius: 4, marginTop: SPACING.SMALL,backgroundColor: COLORS.icBottomBox }} />
+                                                <View style={{ width: 150, height: 8, borderRadius: 4, marginTop: SPACING.SMALL,backgroundColor: COLORS.icBottomBox }} />
                                             </View>
                                             <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: SPACING.SMALL }}>
                                                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -56,9 +56,10 @@ const PlaceHolders = ({ type, noPadding = false }) => {
                                                             width: RFPercentage(3),
                                                             height: RFPercentage(3),
                                                             borderRadius: SPACING.SMALL,
+                                                            backgroundColor: COLORS.icBottomBox
                                                         }}
                                                     />
-                                                    <View style={{ width: 50, height: 10, borderRadius: 4, marginLeft: SPACING.SMALL }} />
+                                                    <View style={{ width: 50, height: 10, borderRadius: 4, marginLeft: SPACING.SMALL, backgroundColor: COLORS.icBottomBox }} />
                                                 </View>
                                                 <View
                                                     style={{
@@ -71,13 +72,14 @@ const PlaceHolders = ({ type, noPadding = false }) => {
                                                             width: RFPercentage(3),
                                                             height: RFPercentage(3),
                                                             borderRadius: SPACING.SMALL,
+                                                            backgroundColor: COLORS.icBottomBox
                                                         }}
                                                     />
-                                                    <View style={{ width: 50, height: 8, borderRadius: 4, marginLeft: SPACING.SMALL }} />
+                                                    <View style={{ width: 50, height: 8, borderRadius: 4, marginLeft: SPACING.SMALL ,backgroundColor: COLORS.icBottomBox}} />
                                                 </View>
                                             </View>
-                                            <View style={{ width: 200, height: 8, borderRadius: 4, marginTop: SPACING.SMALL }} />
-                                        </SkeletonPlaceholder>
+                                            <View style={{ width: 200, height: 8, borderRadius: 4, marginTop: SPACING.SMALL, backgroundColor: COLORS.icBottomBox }} />
+                                        </View>
                                     </View>
                                 </View>
                             ))}
@@ -93,7 +95,7 @@ const PlaceHolders = ({ type, noPadding = false }) => {
                             .fill('')
                             .map((data, index) => (
                                 <View key={index}>
-                                    <SkeletonPlaceholder highlightColor={theme.mode.backgroundColor} backgroundColor={theme.mode.borderColor}>
+                                    <View>
                                         <View style={{ flexDirection: 'row', alignItems: 'center', padding: SPACING.NORMAL }}>
                                             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                                 <View
@@ -101,13 +103,14 @@ const PlaceHolders = ({ type, noPadding = false }) => {
                                                         width: RFPercentage(2.5),
                                                         height: RFPercentage(2.5),
                                                         borderRadius: 4,
+                                                        backgroundColor: COLORS.icBottomBox
                                                     }}
                                                 />
-                                                <View style={{ width: 100, height: 10, borderRadius: 4, marginLeft: SPACING.NORMAL }} />
+                                                <View style={{ width: 100, height: 10, borderRadius: 4, marginLeft: SPACING.NORMAL, backgroundColor: COLORS.icBottomBox }} />
                                             </View>
                                         </View>
-                                        <View style={{ width: '100%', height: 1, borderRadius: 4 }} />
-                                    </SkeletonPlaceholder>
+                                        <View style={{ width: '100%', height: 1, borderRadius: 4, backgroundColor: COLORS.icBottomBox }} />
+                                    </View>
                                 </View>
                             ))}
                     </View>
