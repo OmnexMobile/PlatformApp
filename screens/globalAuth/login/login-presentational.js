@@ -48,7 +48,7 @@ const LoginPresentational = ({
                     )} */}
                     <ImageComponent source={IMAGES.EQMS_Logo} resizeMode="contain" style={{ height: RFPercentage(10), width: '100%' }} />
                 </AnimatableView>
-                <AnimatableView animationConfig={OPACITY_TRANSLATE_Y_ANIMATION} delay={500} style={{ flex: 6 }}>
+                <AnimatableView animationConfig={OPACITY_TRANSLATE_Y_ANIMATION} delay={500} style={styles.formSection}>
                     <LoginInput {...{ placeholder: strings.Username, name: 'username', onChangeText: handleInputChange }} />
                     <LoginInput
                         {...{
@@ -119,6 +119,13 @@ const styles = StyleSheet.create({
     },
     icon: { flex: 1, alignItems: 'center', justifyContent: 'center' },
     topArea: { flex: 4, alignItems: 'center', justifyContent: 'center' },
+    formSection: {
+        flex: 6,
+        width: '100%',
+        alignSelf: 'center',
+        maxWidth: 520,
+        paddingHorizontal: SPACING.NORMAL,
+    },
     image: {
         width: 200,
         height: 200,

@@ -49,15 +49,15 @@ const RegisterPresentational = ({ navigation, handleChange, handleRegister, stat
                 <AnimatableView animationConfig={OPACITY_TRANSLATE_Y_ANIMATION} style={styles.topArea}>
                     <ImageComponent source={IMAGES.EQMS_Logo} resizeMode="contain" style={{ height: RFPercentage(10), width: '100%' }} />
                 </AnimatableView>
-                <AnimatableView animationConfig={OPACITY_TRANSLATE_Y_ANIMATION} delay={500} style={{ flex: 6 }}>
+                <AnimatableView animationConfig={OPACITY_TRANSLATE_Y_ANIMATION} delay={500} style={styles.formSection}>
                     <LoginInput
                         {...{
                             value: currentURL,
                             label: strings.Server_Url,
                             name: 'serverUrl',
                             onChangeText: handleChange,
-                            placeholder: 'Enter API URL',
-                            editable: true,
+                            placeholder: 'https://your-server.com/platformapi/api/',
+                            editable: !isRegistered,
                         }}
                     />
                     <GradientButton
@@ -87,4 +87,11 @@ const styles = StyleSheet.create({
     },
     icon: { flex: 1, alignItems: 'center', justifyContent: 'center' },
     topArea: { flex: 4, alignItems: 'center', justifyContent: 'center' },
+    formSection: {
+        flex: 6,
+        width: '100%',
+        alignSelf: 'center',
+        maxWidth: 520,
+        paddingHorizontal: SPACING.NORMAL,
+    },
 });
