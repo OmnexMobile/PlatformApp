@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/Entypo';
 import IconE from 'react-native-vector-icons/Fontisto';
-import DatePicker from 'react-native-date-picker';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import moment from 'moment';
 
 const DataPickerWithIcon = ({
@@ -74,9 +74,8 @@ const DataPickerWithIcon = ({
             </TouchableOpacity>
 
             {editable && (
-                <DatePicker
-                    modal
-                    open={showPicker}
+                <DateTimePickerModal
+                    isVisible={showPicker}
                     date={date}
                     mode={type === 'date' ? 'date' : 'time'}
                     onConfirm={handleConfirm}
