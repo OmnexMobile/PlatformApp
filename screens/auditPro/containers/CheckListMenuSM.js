@@ -22,7 +22,6 @@ import {debounce, once} from 'underscore';
 import LinearGradient from 'react-native-linear-gradient';
 import { stat } from 'react-native-fs';
 import { ROUTES } from 'constants/app-constant';
-import { SPACING } from 'constants/theme-constants';
 import localStorage from 'global/localStorage';
 import GlobalHeader from 'components/GlobalHeader';
 
@@ -372,7 +371,6 @@ return(
 
     return (
       <View style={styles.wrapper}>
-        {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
         <OfflineNotice />
         
           <GlobalHeader

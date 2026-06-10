@@ -1,7 +1,6 @@
 import { StyleSheet, Dimensions, Platform } from 'react-native';
 import Fonts from '../../auditPro/Themes/Fonts';
 import { width, height } from 'react-native-dimension';
-import { SPACING } from 'constants/theme-constants';
 
 let Window = Dimensions.get('window');
 
@@ -186,14 +185,6 @@ export default StyleSheet.create({
         fontSize: Fonts.size.medium,
         fontFamily: 'OpenSans-SemiBold',
         marginTop: 6,
-    },
-    iosTopSpacer: {
-        padding: SPACING.MEDIUM,
-        flexDirection: 'row',
-    },
-    androidTopSpacer: {
-        padding: SPACING.NORMAL,
-        flexDirection: 'row',
     },
     auditPageBodyTopPadding: {
         paddingTop: 10,

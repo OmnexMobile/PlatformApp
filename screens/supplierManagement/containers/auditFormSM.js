@@ -171,6 +171,10 @@ class AuditForm extends Component {
         };
     };
 
+    showToast = (...args) => {
+        this.toast?.show?.(...args);
+    };
+
     componentDidMount() {
         console.log('dhfjdhfksfksfksfjsn dfnsd f', this.props);
         this.initializeFromRoute();
@@ -554,7 +558,7 @@ class AuditForm extends Component {
     onCheckPress(item) {
         console.log('Checklist pressed');
         if (this.state.CheckListbtn === false) {
-            this.refs.toast.show(strings.No_checkpoint, DURATION.LENGTH_LONG);
+            this.showToast(strings.No_checkpoint, DURATION.LENGTH_LONG);
         }
         if (this.state.CheckListbtn === true) {
             console.log('===>btnclick', item);
@@ -585,7 +589,7 @@ class AuditForm extends Component {
                         isLoaderVisible: false,
                     },
                     () => {
-                        this.toast.show(strings.Offline_Notice, DURATION.LENGTH_LONG);
+                        this.showToast(strings.Offline_Notice, DURATION.LENGTH_LONG);
                     },
                 );
             } else {
@@ -611,7 +615,7 @@ class AuditForm extends Component {
                                 isLoaderVisible: false,
                             },
                             () => {
-                                this.toast.show(strings.No_sync, DURATION.LENGTH_LONG);
+                                this.showToast(strings.No_sync, DURATION.LENGTH_LONG);
                             },
                         );
                     }
@@ -885,7 +889,7 @@ class AuditForm extends Component {
                                     this.resetModifiedFlag();
 
                                     this.setState({ isSyncing: false, isLoaderVisible: false }, () => {
-                                        this.refs.toast.show(strings.AuditClosedOut, DURATION.LENGTH_LONG);
+                                        this.showToast(strings.AuditClosedOut, DURATION.LENGTH_LONG);
                                     });
                                 }
                             }
@@ -908,7 +912,7 @@ class AuditForm extends Component {
                 this.syncStatus = 1;
                 console.log('syncAuditsToServer Skipped!');
                 // Sync audit templates and references to server
-                // this.refs.toast.show(strings.Nothing_is_modified,DURATION.LENGTH_LONG)
+                // this.showToast(strings.Nothing_is_modified,DURATION.LENGTH_LONG)
                 this.resetModifiedFlag();
                 // Sync NC/OFIs to server
                 this.handleNCOFIConnection();
@@ -917,7 +921,7 @@ class AuditForm extends Component {
             this.syncStatus = 1;
             console.log('syncAuditsToServer Skipped!');
             // Sync audit templates and references to server
-            // this.refs.toast.show(strings.Nothing_is_modified,DURATION.LENGTH_LONG)
+            // this.showToast(strings.Nothing_is_modified,DURATION.LENGTH_LONG)
             this.resetModifiedFlag();
             // Sync NC/OFIs to server
             this.handleNCOFIConnection();
@@ -1021,7 +1025,6 @@ class AuditForm extends Component {
             const combinedArray = newArray.concat(this.checkListObjects);
             console.log('filteredNCArray---------combinedArray', combinedArray);
             console.log('this.checkListObjects---------combinedArray', this.checkListObjects);
-
 
             for (var i = 0; i < this.auditAttachments.length; i++) {
                 var formRequestObj = '';
@@ -1144,7 +1147,7 @@ class AuditForm extends Component {
         if (!token) {
             console.log('attachmentFileApiCall skipped: missing token');
             this.setState({ isLoaderVisible: false }, () => {
-                this.refs.toast.show(strings.AuditFail, DURATION.LENGTH_LONG);
+                this.showToast(strings.AuditFail, DURATION.LENGTH_LONG);
             });
             return;
         }
@@ -1458,7 +1461,7 @@ class AuditForm extends Component {
         try {
             const fileExists = await this.checkFileExist(attachment.path);
             if (!fileExists) {
-                this.refs.toast.show('File not found');
+                this.showToast('File not found');
                 return;
             }
             const response = await auth.getdocProAttachment([attachment], token);
@@ -1496,7 +1499,7 @@ class AuditForm extends Component {
                             syncStatusLabel: 'Sync to Server Completed with failed Attachment(s)',
                         },
                         () => {
-                            this.refs.toast.show(strings.AuditFail, DURATION.LENGTH_LONG);
+                            this.showToast(strings.AuditFail, DURATION.LENGTH_LONG);
                         },
                     );
                 }
@@ -1510,7 +1513,7 @@ class AuditForm extends Component {
                         syncStatusLabel: 'Sync to Server Completed with failed Attachment(s)',
                     },
                     () => {
-                        this.refs.toast.show(strings.AuditFail, DURATION.LENGTH_LONG);
+                        this.showToast(strings.AuditFail, DURATION.LENGTH_LONG);
                     },
                 );
             }
@@ -1588,7 +1591,7 @@ class AuditForm extends Component {
                         }}
                         onPress={() => {
                             if (item.exist === undefined || item.exist === false) {
-                                this.refs.toast.show('File not downloaded', DURATION.LENGTH_LONG);
+                                this.showToast('File not downloaded', DURATION.LENGTH_LONG);
                             } else {
                                 this.OpenFile(item.path);
                             }
@@ -1823,7 +1826,7 @@ class AuditForm extends Component {
                 if (!token) {
                     console.log('syncNCOFIToServer skipped: missing token');
                     this.setState({ isLoaderVisible: false }, () => {
-                        this.refs.toast.show(strings.AuditFail, DURATION.LENGTH_LONG);
+                        this.showToast(strings.AuditFail, DURATION.LENGTH_LONG);
                     });
                     return;
                 }
@@ -1952,7 +1955,7 @@ class AuditForm extends Component {
 
             if (auditRecordsOrg[p].AuditId == this.state.Checkpointpass.AuditID) {
                 if (auditRecordsOrg[p].Formdata) {
-                    for (q = 0; q < auditRecordsOrg[p].Formdata.length; q++) {
+                    for (var q = 0; q < auditRecordsOrg[p].Formdata.length; q++) {
                         for (var i = 0; i < this.state.formDetails.length; i++) {
                             if (auditRecordsOrg[p].Formdata[q].FormId == this.state.formDetails[i].FormId) {
                                 formDataArr.push({
@@ -1971,7 +1974,7 @@ class AuditForm extends Component {
                 }
             } else {
                 if (auditRecordsOrg[p].Formdata) {
-                    for (q = 0; q < auditRecordsOrg[p].Formdata.length; q++) {
+                    for (var q = 0; q < auditRecordsOrg[p].Formdata.length; q++) {
                         formDataArr.push({
                             Attachmenttype: auditRecordsOrg[p].Formdata[q].Attachmenttype,
                             FormId: auditRecordsOrg[p].Formdata[q].FormId,
@@ -2428,7 +2431,7 @@ class AuditForm extends Component {
                 if (!TOKEN) {
                     console.log('syncAuditFormsToServer skipped: missing token');
                     this.setState({ isLoaderVisible: false }, () => {
-                        this.refs.toast.show(strings.AuditFail, DURATION.LENGTH_LONG);
+                        this.showToast(strings.AuditFail, DURATION.LENGTH_LONG);
                     });
                     return;
                 }
@@ -2504,14 +2507,14 @@ class AuditForm extends Component {
                             this.setState({ isLoaderVisible: false }, () => {
                                 console.log('syncAuditFormsToServer Failed! 1');
                                 console.log('auditlog4');
-                                this.refs.toast.show(strings.AuditFail, DURATION.LENGTH_LONG);
+                                this.showToast(strings.AuditFail, DURATION.LENGTH_LONG);
                             });
                         }
                     } else {
                         this.setState({ isLoaderVisible: false }, () => {
                             console.log('syncAuditFormsToServer Failure! 2');
                             console.log('auditlog5');
-                            this.refs.toast.show(strings.AuditFail, DURATION.LENGTH_LONG);
+                            this.showToast(strings.AuditFail, DURATION.LENGTH_LONG);
                         });
                     }
                 });
@@ -2753,7 +2756,7 @@ class AuditForm extends Component {
                                 ...(this.props.route?.params?.datapassParam || {}),
                                 cStatus: constants.StatusSynced,
                             };
-                            this.refs.toast.show(strings.AuditSync, syncToastDuration);
+                            this.showToast(strings.AuditSync, syncToastDuration);
                             setTimeout(() => {
                                 this.props.navigation.navigate(ROUTES.AUDIT_PAGE_SM, {
                                     isSubmitted: this.state.notifyRed,
@@ -2761,7 +2764,7 @@ class AuditForm extends Component {
                                 });
                             }, syncToastDuration);
                         } else if (!this.isDocsAvail) {
-                            this.refs.toast.show(strings.AuditSync, syncToastDuration);
+                            this.showToast(strings.AuditSync, syncToastDuration);
                             setTimeout(() => {
                                 this.props.navigation.navigate(ROUTES.AUDIT_STATUS, {
                                     isSubmitted: true,
@@ -2772,7 +2775,7 @@ class AuditForm extends Component {
                             }, syncToastDuration);
                         } else {
                             this.isDocsAvail = false;
-                            this.refs.toast.show(strings.AuditSync, syncToastDuration);
+                            this.showToast(strings.AuditSync, syncToastDuration);
                             setTimeout(() => {
                                 this.props.navigation.navigate(ROUTES.AUDIT_STATUS, {
                                     AuditID: this.state.AuditID,
@@ -2785,7 +2788,7 @@ class AuditForm extends Component {
                 } else {
                     console.log('auditlog1');
                     this.setState({ isLoaderVisible: false }, () => {
-                        this.refs.toast.show(strings.AuditFail, DURATION.LENGTH_LONG);
+                        this.showToast(strings.AuditFail, DURATION.LENGTH_LONG);
                     });
                 }
             },
@@ -2795,17 +2798,18 @@ class AuditForm extends Component {
     deleteNCOFIAfterSync() {
         // Update NC/OFI records in redux store
         var dupNCrecords = [];
-        var NCrecords = this.props.data.audits.ncofiRecords;
+        var NCrecords = this.props?.data?.audits?.ncofiRecords || [];
         for (var i = 0; i < NCrecords.length; i++) {
             var pendingList = [];
-            for (var j = 0; j < NCrecords[i].Pending.length; j++) {
+            var pendingRecords = NCrecords[i]?.Pending || [];
+            for (var j = 0; j < pendingRecords.length; j++) {
                 if (this.state.AuditID !== NCrecords[i].AuditID) {
-                    pendingList.push(NCrecords[i].Pending[j]);
+                    pendingList.push(pendingRecords[j]);
                 }
             }
             dupNCrecords.push({
                 AuditID: NCrecords[i].AuditID,
-                Uploaded: NCrecords[i].Uploaded,
+                Uploaded: NCrecords[i].Uploaded || [],
                 Pending: pendingList,
             });
         }
@@ -2907,9 +2911,9 @@ class AuditForm extends Component {
                             var fileData = data.data.Data.FileData;
                             var fileName = data.data.Data.FileName;
                             this.viewDocument(fileData, fileName);
-                            this.refs.toast.show(strings.downloading, DURATION.LENGTH_SHORT);
+                            this.showToast(strings.downloading, DURATION.LENGTH_SHORT);
                         } else {
-                            this.refs.toast.show(strings.server_error, DURATION.LENGTH_LONG);
+                            this.showToast(strings.server_error, DURATION.LENGTH_LONG);
                         }
                     });
                 } else {
@@ -2918,13 +2922,13 @@ class AuditForm extends Component {
                         var fileName = item.DocName;
                         this.viewDocument(fileData, fileName);
                     } else {
-                        this.refs.toast.show(strings.No_documents_attached, DURATION.LENGTH_SHORT);
+                        this.showToast(strings.No_documents_attached, DURATION.LENGTH_SHORT);
                     }
                 }
             } else {
                 FileViewer.open(filepath, { showOpenWithDialog: true })
                     .then(() => {
-                        console.log(success);
+                        console.log('File opened successfully');
                     })
                     .catch(error => {
                         alert(strings.Filenotfound);
@@ -3018,10 +3022,10 @@ class AuditForm extends Component {
                     }
                     console.log('*** path', path);
                     // this.deleteUserFile(path)
-                    this.refs.toast.show(strings.user_disabled_text, DURATION.LENGTH_SHORT);
+                    this.showToast(strings.user_disabled_text, DURATION.LENGTH_SHORT);
                     this.props.navigation.navigate(ROUTES.GLOBAL_LOGIN);
                 } else if (UserStatus == 0) {
-                    this.refs.toast.show(strings.user_inactive_text, DURATION.LENGTH_SHORT);
+                    this.showToast(strings.user_inactive_text, DURATION.LENGTH_SHORT);
                     this.props.navigation.navigate(ROUTES.GLOBAL_LOGIN);
                 }
             }
@@ -3180,7 +3184,7 @@ class AuditForm extends Component {
                                                 this.props.storeServerUrl(serURL);
                                                 console.log('FILE DELETED!');
                                                 this.props.navigation.navigate(ROUTES.GLOBAL_LOGIN);
-                                                this.refs.toast.show(strings.user_disabled_text, DURATION.LENGTH_SHORT);
+                                                this.showToast(strings.user_disabled_text, DURATION.LENGTH_SHORT);
                                                 console.log('Check server url', this.props.data);
                                             }, 600);
                                         },
@@ -3344,7 +3348,7 @@ class AuditForm extends Component {
 
     checkoffline() {
         if (this.props.data.audits.isOfflineMode) {
-            this.refs.toast.show(strings.Offline_Notice, DURATION.LENGTH_LONG);
+            this.showToast(strings.Offline_Notice, DURATION.LENGTH_LONG);
         } else {
             this.setState({ dialogVisible: true });
         }
@@ -3357,7 +3361,7 @@ class AuditForm extends Component {
                     isEmptyPwd: strings.enter_password,
                 },
                 () => {
-                    // this.refs.toast.show('Empty password attempt', DURATION.LENGTH_SHORT)
+                    // this.showToast('Empty password attempt', DURATION.LENGTH_SHORT)
                 },
             );
         } else {
@@ -3398,7 +3402,7 @@ class AuditForm extends Component {
                                         pwdentry: undefined,
                                     },
                                     () => {
-                                        this.refs.toast.show('No Forms found to sync', DURATION.LENGTH_SHORT);
+                                        this.showToast('No Forms found to sync', DURATION.LENGTH_SHORT);
                                     },
                                 );
                             } else {
@@ -3425,7 +3429,7 @@ class AuditForm extends Component {
                         }
                     });
                 } else {
-                    this.refs.toast.show(strings.No_sync, DURATION.LENGTH_LONG);
+                    this.showToast(strings.No_sync, DURATION.LENGTH_LONG);
                 }
             });
         }

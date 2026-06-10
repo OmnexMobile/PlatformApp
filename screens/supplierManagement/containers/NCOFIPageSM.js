@@ -2451,7 +2451,6 @@ class NCOFIPage extends Component {
         const encodedBase64 = this.state.fileData;
         return (
             <View style={styles.wrapper}>
-                {Platform.OS === 'ios' ? <View style={styles.iosTopSpacer} /> : <View style={styles.androidTopSpacer} />}
                 <OfflineNotice />
                 <GlobalHeader
                     title={`${strings.NC}/${strings.OFI}`}
