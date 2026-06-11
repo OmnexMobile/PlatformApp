@@ -433,3 +433,191 @@ diff --git a/node_modules/@react-native-community/voice/android/build/tmp/compil
 new file mode 100644
 index 0000000..a248abd
 Binary files /dev/null and b/node_modules/@react-native-community/voice/android/build/tmp/compileDebugJavaWithJavac/previous-compilation-data.bin differ
+diff --git a/node_modules/@react-native-community/voice/dist/index.js b/node_modules/@react-native-community/voice/dist/index.js
+index 2b4985e..a46f12d 100644
+--- a/node_modules/@react-native-community/voice/dist/index.js
++++ b/node_modules/@react-native-community/voice/dist/index.js
+@@ -5,9 +5,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
+ Object.defineProperty(exports, "__esModule", { value: true });
+ const react_native_1 = require("react-native");
+ const invariant_1 = __importDefault(require("invariant"));
+ const Voice = react_native_1.NativeModules.Voice;
++const missingVoiceModuleMessage = 'Voice native module is not available. Make sure @react-native-community/voice is linked correctly.';
+ // NativeEventEmitter is only availabe on React Native platforms, so this conditional is used to avoid import conflicts in the browser/server
+-const voiceEmitter = react_native_1.Platform.OS !== 'web' ? new react_native_1.NativeEventEmitter(Voice) : null;
++const voiceEmitter = react_native_1.Platform.OS !== 'web' && Voice ? new react_native_1.NativeEventEmitter(Voice) : null;
+ class RCTVoice {
+     constructor() {
+         this._loaded = false;
+@@ -24,6 +25,9 @@ class RCTVoice {
+         };
+     }
+     removeAllListeners() {
++        if (!Voice) {
++            return;
++        }
+         Voice.onSpeechStart = undefined;
+         Voice.onSpeechRecognized = undefined;
+         Voice.onSpeechEnd = undefined;
+@@ -34,7 +38,7 @@ class RCTVoice {
+         Voice.onSpeechVolumeChanged = undefined;
+     }
+     destroy() {
+-        if (!this._loaded && !this._listeners) {
++        if (!Voice || (!this._loaded && !this._listeners)) {
+             return Promise.resolve();
+         }
+         return new Promise((resolve, reject) => {
+@@ -54,6 +58,9 @@ class RCTVoice {
+         });
+     }
+     start(locale, options = {}) {
++        if (!Voice) {
++            return Promise.reject(new Error(missingVoiceModuleMessage));
++        }
+         if (!this._loaded && !this._listeners && voiceEmitter !== null) {
+             this._listeners = Object.keys(this._events).map((key) => voiceEmitter.addListener(key, this._events[key]));
+         }
+@@ -83,7 +90,7 @@ class RCTVoice {
+         });
+     }
+     stop() {
+-        if (!this._loaded && !this._listeners) {
++        if (!Voice || (!this._loaded && !this._listeners)) {
+             return Promise.resolve();
+         }
+         return new Promise((resolve, reject) => {
+@@ -100,7 +107,7 @@ class RCTVoice {
+         });
+     }
+     cancel() {
+-        if (!this._loaded && !this._listeners) {
++        if (!Voice || (!this._loaded && !this._listeners)) {
+             return Promise.resolve();
+         }
+         return new Promise((resolve, reject) => {
+@@ -117,6 +124,9 @@ class RCTVoice {
+         });
+     }
+     isAvailable() {
++        if (!Voice) {
++            return Promise.resolve(0);
++        }
+         return new Promise((resolve, reject) => {
+             Voice.isSpeechAvailable((isAvailable, error) => {
+                 if (error) {
+@@ -139,9 +149,15 @@ class RCTVoice {
+             invariant_1.default(Voice, 'Speech recognition services can be queried for only on Android');
+             return;
+         }
++        if (!Voice) {
++            return [];
++        }
+         return Voice.getSpeechRecognitionServices();
+     }
+     isRecognizing() {
++        if (!Voice) {
++            return Promise.resolve(0);
++        }
+         return new Promise(resolve => {
+             Voice.isRecognizing((isRecognizing) => resolve(isRecognizing));
+         });
+diff --git a/node_modules/@react-native-community/voice/src/index.ts b/node_modules/@react-native-community/voice/src/index.ts
+index df877d4..8f8d6bf 100644
+--- a/node_modules/@react-native-community/voice/src/index.ts
++++ b/node_modules/@react-native-community/voice/src/index.ts
+@@ -10,12 +10,14 @@ import {
+   SpeechVolumeChangeEvent,
+ } from './VoiceModuleTypes';
+ 
+-const Voice = NativeModules.Voice as VoiceModule;
++const Voice = NativeModules.Voice as VoiceModule | undefined;
++const missingVoiceModuleMessage =
++  'Voice native module is not available. Make sure @react-native-community/voice is linked correctly.';
+ 
+ // NativeEventEmitter is only availabe on React Native platforms, so this conditional is used to avoid import conflicts in the browser/server
+ const voiceEmitter =
+-  Platform.OS !== 'web' ? new NativeEventEmitter(Voice) : null;
++  Platform.OS !== 'web' && Voice ? new NativeEventEmitter(Voice) : null;
+ type SpeechEvent = keyof SpeechEvents;
+ 
+ class RCTVoice {
+@@ -35,6 +37,10 @@ class RCTVoice {
+   }
+ 
+   removeAllListeners() {
++    if (!Voice) {
++      return;
++    }
++
+     Voice.onSpeechStart = undefined;
+     Voice.onSpeechRecognized = undefined;
+     Voice.onSpeechEnd = undefined;
+@@ -46,7 +52,7 @@ class RCTVoice {
+   }
+ 
+   destroy() {
+-    if (!this._loaded && !this._listeners) {
++    if (!Voice || (!this._loaded && !this._listeners)) {
+       return Promise.resolve();
+     }
+     return new Promise((resolve, reject) => {
+@@ -67,6 +73,10 @@ class RCTVoice {
+   }
+ 
+   start(locale: any, options = {}) {
++    if (!Voice) {
++      return Promise.reject(new Error(missingVoiceModuleMessage));
++    }
++
+     if (!this._loaded && !this._listeners && voiceEmitter !== null) {
+       this._listeners = (Object.keys(this._events) as SpeechEvent[]).map(
+         (key: SpeechEvent) => voiceEmitter.addListener(key, this._events[key]),
+@@ -104,7 +114,7 @@ class RCTVoice {
+     });
+   }
+   stop() {
+-    if (!this._loaded && !this._listeners) {
++    if (!Voice || (!this._loaded && !this._listeners)) {
+       return Promise.resolve();
+     }
+     return new Promise((resolve, reject) => {
+@@ -121,7 +131,7 @@ class RCTVoice {
+     });
+   }
+   cancel() {
+-    if (!this._loaded && !this._listeners) {
++    if (!Voice || (!this._loaded && !this._listeners)) {
+       return Promise.resolve();
+     }
+     return new Promise((resolve, reject) => {
+@@ -138,6 +148,10 @@ class RCTVoice {
+     });
+   }
+   isAvailable(): Promise<0 | 1> {
++    if (!Voice) {
++      return Promise.resolve(0);
++    }
++
+     return new Promise((resolve, reject) => {
+       Voice.isSpeechAvailable((isAvailable: 0 | 1, error: string) => {
+         if (error) {
+@@ -166,10 +180,18 @@ class RCTVoice {
+       return;
+     }
+ 
++    if (!Voice) {
++      return [];
++    }
++
+     return Voice.getSpeechRecognitionServices();
+   }
+ 
+   isRecognizing(): Promise<0 | 1> {
++    if (!Voice) {
++      return Promise.resolve(0);
++    }
++
+     return new Promise(resolve => {
+       Voice.isRecognizing((isRecognizing: 0 | 1) => resolve(isRecognizing));
+     });

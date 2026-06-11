@@ -238,13 +238,13 @@ class CreateNC extends Component {
             screenWidth: Window.width,
             screenHeight: Window.height,
         };
-        Voice.onSpeechStart = this.onSpeechStart;
-        Voice.onSpeechRecognized = this.onSpeechRecognized;
-        Voice.onSpeechEnd = this.onSpeechEnd;
-        Voice.onSpeechError = this.onSpeechError;
-        Voice.onSpeechResults = this.onSpeechResults;
-        Voice.onSpeechPartialResults = this.onSpeechPartialResults;
-        Voice.onSpeechVolumeChanged = this.onSpeechVolumeChanged;
+        // Voice.onSpeechStart = this.onSpeechStart;
+        // Voice.onSpeechRecognized = this.onSpeechRecognized;
+        // Voice.onSpeechEnd = this.onSpeechEnd;
+        // Voice.onSpeechError = this.onSpeechError;
+        // Voice.onSpeechResults = this.onSpeechResults;
+        // Voice.onSpeechPartialResults = this.onSpeechPartialResults;
+        // Voice.onSpeechVolumeChanged = this.onSpeechVolumeChanged;
     }
 
     componentDidMount() {
@@ -256,7 +256,7 @@ class CreateNC extends Component {
         this.syncSupplierIndex();
         this.dimensionSubscription = Dimensions.addEventListener('change', this.handleDimensionChange);
         this.syncWindowDimensions();
-        Voice.onSpeechResults = this.onSpeechResults;
+        // Voice.onSpeechResults = this.onSpeechResults;
 
         console.log('checksthispropsdata***************', this.props?.route?.params);
 
@@ -732,13 +732,13 @@ class CreateNC extends Component {
 
     InitVoice() {
         console.log('voice:InitVoice');
-        Voice.onSpeechStart = this.onSpeechStart;
-        Voice.onSpeechRecognized = this.onSpeechRecognized;
-        Voice.onSpeechEnd = this.onSpeechEnd;
-        Voice.onSpeechError = this.onSpeechError;
-        Voice.onSpeechResults = this.onSpeechResults;
-        Voice.onSpeechPartialResults = this.onSpeechPartialResults;
-        Voice.onSpeechVolumeChanged = this.onSpeechVolumeChanged;
+        // Voice.onSpeechStart = this.onSpeechStart;
+        // Voice.onSpeechRecognized = this.onSpeechRecognized;
+        // Voice.onSpeechEnd = this.onSpeechEnd;
+        // Voice.onSpeechError = this.onSpeechError;
+        // Voice.onSpeechResults = this.onSpeechResults;
+        // Voice.onSpeechPartialResults = this.onSpeechPartialResults;
+        // Voice.onSpeechVolumeChanged = this.onSpeechVolumeChanged;
 
         this.setState(
             {
@@ -863,75 +863,75 @@ class CreateNC extends Component {
         }
     }
 
-    onSpeechError = e => {
-        // eslint-disable-next-line
-        console.log('voice:onSpeechError: ', e);
-        this.setState({
-            error: JSON.stringify(e.error),
-            startVoice: false,
-            // isVisible:false
-        });
-        if (Platform.OS == 'ios') {
-            this._startRecognizing();
-        }
-        // Voice.removeAllListeners()
-        // this.InitVoice()
-    };
+    // onSpeechError = e => {
+    //     // eslint-disable-next-line
+    //     console.log('voice:onSpeechError: ', e);
+    //     this.setState({
+    //         error: JSON.stringify(e.error),
+    //         startVoice: false,
+    //         // isVisible:false
+    //     });
+    //     if (Platform.OS == 'ios') {
+    //         this._startRecognizing();
+    //     }
+    //     // Voice.removeAllListeners()
+    //     // this.InitVoice()
+    // };
 
-    onSpeechResults = e => {
-        // eslint-disable-next-line
-        console.log('voice:onSpeechResults: ', e);
-        if (Platform.OS == 'android') {
-            this.setState(
-                {
-                    results: e.value[0],
-                },
-                () => {
-                    this.VoiceLogic();
-                },
-            );
-        } else {
-            this.setState({ results: e.value });
-            if (timer !== null) {
-                clearTimeout(timer);
-            }
-            timer = setTimeout(() => {
-                this.stopRecording();
-            }, 2000);
-        }
-    };
+    // onSpeechResults = e => {
+    //     // eslint-disable-next-line
+    //     console.log('voice:onSpeechResults: ', e);
+    //     if (Platform.OS == 'android') {
+    //         this.setState(
+    //             {
+    //                 results: e.value[0],
+    //             },
+    //             () => {
+    //                 this.VoiceLogic();
+    //             },
+    //         );
+    //     } else {
+    //         this.setState({ results: e.value });
+    //         if (timer !== null) {
+    //             clearTimeout(timer);
+    //         }
+    //         timer = setTimeout(() => {
+    //             this.stopRecording();
+    //         }, 2000);
+    //     }
+    // };
 
-    onSpeechPartialResults = e => {
-        // eslint-disable-next-line
-        console.log('voice:onSpeechPartialResults: ', e);
-        this.setState(
-            {
-                partialResults: e.value,
-            },
-            () => {
-                console.log('_----_', this.state.partialResults);
-            },
-        );
-    };
+    // onSpeechPartialResults = e => {
+    //     // eslint-disable-next-line
+    //     console.log('voice:onSpeechPartialResults: ', e);
+    //     this.setState(
+    //         {
+    //             partialResults: e.value,
+    //         },
+    //         () => {
+    //             console.log('_----_', this.state.partialResults);
+    //         },
+    //     );
+    // };
 
-    onSpeechEnd = e => {
-        // eslint-disable-next-line
-        console.log('voice:onSpeechEnd: ', e);
-        if (Platform.OS === 'ios') {
-            timer = null;
-            this.setState({ listening: false });
-            if (this.state.results != null && this.state.results != '') {
-                console.log('--------------------');
-                this.VoiceLogic();
-            }
-        } else {
-            console.log('onSpeechEnd: ', e);
-            this.setState({
-                end: '√',
-                started: '',
-            });
-        }
-    };
+    // onSpeechEnd = e => {
+    //     // eslint-disable-next-line
+    //     console.log('voice:onSpeechEnd: ', e);
+    //     if (Platform.OS === 'ios') {
+    //         timer = null;
+    //         this.setState({ listening: false });
+    //         if (this.state.results != null && this.state.results != '') {
+    //             console.log('--------------------');
+    //             this.VoiceLogic();
+    //         }
+    //     } else {
+    //         console.log('onSpeechEnd: ', e);
+    //         this.setState({
+    //             end: '√',
+    //             started: '',
+    //         });
+    //     }
+    // };
 
     async stopRecording() {
         try {
@@ -941,13 +941,13 @@ class CreateNC extends Component {
         }
     }
 
-    onSpeechVolumeChanged = e => {
-        // eslint-disable-next-line
-        console.log('voice:onSpeechVolumeChanged: ', e);
-        this.setState({
-            pitch: e.value,
-        });
-    };
+    // onSpeechVolumeChanged = e => {
+    //     // eslint-disable-next-line
+    //     console.log('voice:onSpeechVolumeChanged: ', e);
+    //     this.setState({
+    //         pitch: e.value,
+    //     });
+    // };
 
     _startRecognizing = async () => {
         console.log('voice:_startRecognizing');
@@ -1411,8 +1411,8 @@ class CreateNC extends Component {
                 });
                 this.clauseListField._toggleSelector();
                 this._stopRecognizing();
-                Voice.removeAllListeners();
-                this.InitVoice();
+                // Voice.removeAllListeners();
+                // this.InitVoice();
             } else if (
                 //process
                 txt.toLowerCase().includes(strings.va_cmd51) ||
@@ -1423,8 +1423,8 @@ class CreateNC extends Component {
                 });
                 this.processListField._toggleSelector();
                 this._stopRecognizing();
-                Voice.removeAllListeners();
-                this.InitVoice();
+                // Voice.removeAllListeners();
+                // this.InitVoice();
             } else if (txt.toLowerCase().includes(strings.va_cmd61)) {
                 //NC
                 this.VoiceFill = true;
@@ -3155,7 +3155,7 @@ class CreateNC extends Component {
                                                 />
                                             </View>
                                         ) : (
-                                            <View style={styles.div1}>
+                                            <View style={[styles.div1, styles.firstInputRow]}>
                                                 <View style={styles.input02}>
                                                     <InputComponent
                                                         {...createNcInputThemeProps}
@@ -3290,6 +3290,7 @@ class CreateNC extends Component {
                                                     editable={false}
                                                     multiline
                                                     numberOfLines={1}
+                                                    inputStyle={[styles.inputNoHorizontalPadding, styles.standardRequirementInputText]}
                                                     containerStyle={styles.inputContainerNoPad}
                                                     onTouchStart={() => this.setState({ isVisible: true })}
                                                 />
@@ -3487,9 +3488,7 @@ class CreateNC extends Component {
                                         <View style={styles.inputhigh}>
                                             <View>
                                                 <View style={styles.columnPadLeft}>
-                                                    <Text style={styles.processLabel}>
-                                                        {strings.ProcessAll}
-                                                    </Text>
+                                                    <Text style={styles.processLabel}>{strings.ProcessAll}</Text>
 
                                                     <RadioGroup
                                                         data={this.state.radio_values}
@@ -3671,9 +3670,13 @@ class CreateNC extends Component {
                     )}
                 </View>
 
-                <Toast ref={toast => {
-            this.toast = toast;
-          }} position="top" opacity={1} />
+                <Toast
+                    ref={toast => {
+                        this.toast = toast;
+                    }}
+                    position="top"
+                    opacity={1}
+                />
                 <CommonAlertModal
                     visible={this.state.commonAlertVisible}
                     title={this.state.commonAlertTitle}

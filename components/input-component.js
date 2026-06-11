@@ -41,7 +41,7 @@ const InputComponent = ({
                 containerStyle,
             ]}>
             <View style={{ flex: 1 }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: SPACING.X_SMALL }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: SPACING.SMALL }}>
                     <TextComponent style={[{ fontSize: FONT_SIZE.SMALL }, labelStyle]} type={FONT_TYPE.BOLD} color={error ? COLORS.ERROR : null}>
                         {label}
                     </TextComponent>

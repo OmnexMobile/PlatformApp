@@ -825,7 +825,7 @@ const HomeDashboard = () => {
                         />
                     </TouchableOpacity>
                 </View>
-                <View style={{ alignItems: 'flex-end', justifyContent: 'center', marginLeft: SPACING.SMALL }}>
+                {/* <View style={{ alignItems: 'flex-end', justifyContent: 'center', marginLeft: SPACING.SMALL }}>
                     <TouchableOpacity
                         activeOpacity={0.8}
                         onPress={() => navigateToNotification()}
@@ -841,7 +841,7 @@ const HomeDashboard = () => {
                         }}>
                         <IconComponent type={ICON_TYPE.FontAwesome} name="bell-o" size={18} color={'#fff'} />
                     </TouchableOpacity>
-                </View>
+                </View> */}
                 <View style={{ alignItems: 'flex-end', justifyContent: 'center', marginLeft: SPACING.SMALL }}>
                     <TouchableOpacity
                         activeOpacity={0.8}

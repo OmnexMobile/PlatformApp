@@ -1459,28 +1459,6 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - react-native-date-picker (5.0.13):
-    - hermes-engine
-    - RCTRequired
-    - RCTTypeSafety
-    - React-Core
-    - React-Core-prebuilt
-    - React-debug
-    - React-Fabric
-    - React-featureflags
-    - React-graphics
-    - React-ImageManager
-    - React-jsi
-    - React-NativeModulesApple
-    - React-RCTFabric
-    - React-renderercss
-    - React-rendererdebug
-    - React-utils
-    - ReactCodegen
-    - ReactCommon/turbomodule/bridging
-    - ReactCommon/turbomodule/core
-    - ReactNativeDependencies
-    - Yoga
   - react-native-document-picker (8.2.2):
     - React-Core
   - react-native-fetch-blob (0.10.6):
@@ -2076,28 +2054,8 @@ PODS:
   - ReactNativeDependencies (0.84.0)
   - ReactNativeLocalization (2.3.1):
     - React-Core
-  - RNBootSplash (4.7.5):
-    - hermes-engine
-    - RCTRequired
-    - RCTTypeSafety
+  - RNBootSplash (4.3.2):
     - React-Core
-    - React-Core-prebuilt
-    - React-debug
-    - React-Fabric
-    - React-featureflags
-    - React-graphics
-    - React-ImageManager
-    - React-jsi
-    - React-NativeModulesApple
-    - React-RCTFabric
-    - React-renderercss
-    - React-rendererdebug
-    - React-utils
-    - ReactCodegen
-    - ReactCommon/turbomodule/bridging
-    - ReactCommon/turbomodule/core
-    - ReactNativeDependencies
-    - Yoga
   - RNCAsyncStorage (1.24.0):
     - hermes-engine
     - RCTRequired
@@ -2146,7 +2104,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - RNDateTimePicker (6.7.5):
+  - RNDateTimePicker (6.7.1):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2576,7 +2534,6 @@ DEPENDENCIES:
   - react-native-app-auth (from `../node_modules/react-native-app-auth`)
   - react-native-camera (from `../node_modules/react-native-camera`)
   - react-native-compressor (from `../node_modules/react-native-compressor`)
-  - react-native-date-picker (from `../node_modules/react-native-date-picker`)
   - react-native-document-picker (from `../node_modules/react-native-document-picker`)
   - react-native-fetch-blob (from `../node_modules/react-native-fetch-blob`)
   - react-native-geocoder (from `../node_modules/react-native-geocoder`)
@@ -2755,8 +2712,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-camera"
   react-native-compressor:
     :path: "../node_modules/react-native-compressor"
-  react-native-date-picker:
-    :path: "../node_modules/react-native-date-picker"
   react-native-document-picker:
     :path: "../node_modules/react-native-document-picker"
   react-native-fetch-blob:
@@ -2912,7 +2867,7 @@ SPEC CHECKSUMS:
   AppAuth: d4f13a8fe0baf391b2108511793e4b479691fb73
   BVLinearGradient: 7815a70ab485b7b155186dd0cc836363e0288cad
   FBLazyVector: c12d2108050e27952983d565a232f6f7b1ad5e69
-  hermes-engine: db7d6788aa326a029bbf0ffa6f4f67167109199b
+  hermes-engine: a6d31fecd625a85f04fbcb007e2fcfa109b1b61d
   jail-monkey: 1846061ac12e861ac5a8ec7197b0daa775b83733
   libwebp: 02b23773aedb6ff1fd38cec7a77b81414c6842a8
   lottie-ios: 69495122151a378fdc7d1bb4c5930347e37baf1f
@@ -2925,7 +2880,7 @@ SPEC CHECKSUMS:
   React: 7ef36630d07638043a134a7dd2ec17e0be10fc3c
   React-callinvoker: af4e8fe1d60ab63dd8d74c2a68988064c2848954
   React-Core: c609976c034ba9556bef9850a571a71bd458d73f
-  React-Core-prebuilt: 8f65d6826b74165897a28d4207879d328a2f3ec6
+  React-Core-prebuilt: 07f61699f0b5eb251e48d95220d01597fd3959dd
   React-CoreModules: 0ea85f3b3f4b8cbfb3afacd2ed85458fb878517a
   React-cxxreact: 6752bab77c0599d6136e2b8b9b64b4a7d316d401
   React-debug: 38389b86e3570558ec73dd4cbc0cd2f2eec47a51
@@ -2956,11 +2911,10 @@ SPEC CHECKSUMS:
   react-native-app-auth: 8e81f790abfcd07d0f3fe144c318b2c89814d6ad
   react-native-camera: 079d80421f0572d6b4e836908114d614d0adb553
   react-native-compressor: 6d46b3c1b9ea47104652821f722b2baaf49f0761
-  react-native-date-picker: 72dddb0a4b6019b11af8bf0ceefe636685921a79
   react-native-document-picker: a338165804b1a14c8e408448115dc0edfd7b73ca
   react-native-fetch-blob: 77898160945cb307c0b855e686910b3ab73c5270
   react-native-geocoder: bc977303c9c53cce36bcdb3c6f17e6832f86beb6
-  react-native-image-marker: be3339ef6669d94cb02c41171d1e284a780099ef
+  react-native-image-marker: 660a5c66af3b929ff87b0893f329cce333b2959e
   react-native-image-picker: 9cc620a366422349445e009fb83682e920e02610
   react-native-netinfo: 17063d97f52803d5b38048b6425ba670c1e50dca
   react-native-pager-view: 10d0f13689f8ba17233e6d8d7286baf8771e36ce
@@ -3008,14 +2962,14 @@ SPEC CHECKSUMS:
   ReactCodegen: c5e5343f6691b0cd76913b9be5e89e5a83ff3315
   ReactCommon: 92b53b0bd7f7d86154dc9f512c1ea5dee717cc72
   ReactNativeART: b0ebceda8689ce026fff56b2f820664029480a4e
-  ReactNativeDependencies: e6c0283d5c49c153578dace9b3c956337b1b4c39
+  ReactNativeDependencies: 9de9f3f00c3a6cc44cf194dd84c70dad39197bdb
   ReactNativeLocalization: e9e44abc2bb8a9ca880d6710ae39ed10d80c0b0a
-  RNBootSplash: faf812ba9c39318e92b9655925971b369b1cb57e
+  RNBootSplash: 03e9280627cd8414a946de031178b37f16779c58
   RNCAsyncStorage: 7a5a6094f9f6b9158e72f1855cd86e769413d851
   RNCMaskedView: 4326a4b674e2178239c4a13e76eeff5b992385d2
   RNColorMatrixImageFilters: 8c135f40100b0fba20bb7fe9ac78f8f5cf56dcc0
   RNCPicker: c8a3584b74133464ee926224463fcc54dfdaebca
-  RNDateTimePicker: c4867e8c78c44c77a8be6543c0b7b5b41c1cc9de
+  RNDateTimePicker: 36d1ca5e57cd238eaa96db89593b42d8ecd12321
   RNDeviceInfo: addb9b427c2822a2d8e94c87a136a224e0af738c
   RNFastImage: e300c8ee2f6b5f0ca1c4e82a9b8ddb9e2f6c72bc
   RNFileViewer: 4b5d83358214347e4ab2d4ca8d5c1c90d869e251

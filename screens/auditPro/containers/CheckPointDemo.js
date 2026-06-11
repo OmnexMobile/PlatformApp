@@ -8581,6 +8581,7 @@ class CheckPointDemo extends Component {
                                                                                 isRemarkRequired && !isRemarkFilled ? '#D32F2F' : '#5C5C5C'
                                                                             }
                                                                             multiline={true}
+                                                                            scrollEnabled={false}
                                                                             textAlignVertical="top"
                                                                             value={
                                                                                 this.state.checkPointsDetails

@@ -53,7 +53,7 @@ index 82e53c5..e8a4f12 100644
  const createReactClass = require('create-react-class');
  const PropTypes = require('prop-types');
  const {
-@@ -13,16 +14,14 @@ const {
+@@ -13,16 +14,15 @@ const {
    InteractionManager,
  } = ReactNative;
  
@@ -73,7 +73,7 @@ index 82e53c5..e8a4f12 100644
    undefined;
  
  const ScrollableTabView = createReactClass({
-@@ -137,14 +136,20 @@ const ScrollableTabView = createReactClass({
+@@ -137,16 +136,22 @@ const ScrollableTabView = createReactClass({
      if (Platform.OS === 'ios') {
        const offset = pageNumber * this.state.containerWidth;
        if (this.scrollView) {
@@ -108,7 +108,7 @@ index 82e53c5..e8a4f12 100644
          key={this._children().length}
          style={styles.scrollableContentAndroid}
          initialPage={this.props.initialPage}
-@@ -268,18 +273,7 @@ const ScrollableTabView = createReactClass({
+@@ -268,22 +273,11 @@ const ScrollableTabView = createReactClass({
          onPageSelected={this._updateSelectedPage}
          keyboardDismissMode="on-drag"
          scrollEnabled={!this.props.locked}

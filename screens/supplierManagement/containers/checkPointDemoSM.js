@@ -7,6 +7,7 @@ import {
     InteractionManager,
     TouchableOpacity,
     Dimensions,
+    Animated,
     PanResponder,
     ScrollView,
     TextInput,
@@ -47,7 +48,7 @@ import ToastNew, { ErrorToast } from 'react-native-toast-message';
 // import moment from 'moment';
 import Video from 'react-native-video';
 import FileViewer from 'react-native-file-viewer';
-import RichText from '../../auditPro/containers/RichText';
+import RichText from '../../auditPro/components/RichText';
 import LinearGradient from 'react-native-linear-gradient';
 import { Image as compressImage, Video as compressVideo, getVideoMetaData } from 'react-native-compressor';
 import NetInfo from '@react-native-community/netinfo';
@@ -64,7 +65,8 @@ const SERIAL_ACTIVE_COLOR = '#123C95';
 const ATTACHMENT_VISIBLE_ROWS = 4;
 const CHECKPOINT_SWIPE_DISTANCE = 48;
 const CHECKPOINT_SWIPE_VELOCITY = 0.35;
-const REMARK_TEXT_AREA_COMPACT_STYLE = { height: 150 };
+const CHECKPOINT_SWIPE_VISUAL_RATIO = 0.46;
+const REMARK_TEXT_AREA_COMPACT_STYLE = { minHeight: 150 };
 const Colors = {
     0: 'red',
     4: 'red',
@@ -193,11 +195,17 @@ class CheckPointDemo extends Component {
             snapToItem: () => {},
             triggerRenderingHack: () => {},
         };
+        this.checkpointSwipeX = new Animated.Value(0);
+        this.isCheckpointDeckAnimating = false;
+        this.isCheckpointStepLocked = false;
         this.isInteractingWithHorizontalControl = false;
         this.checkpointSwipeResponder = PanResponder.create({
             onMoveShouldSetPanResponder: (_, gestureState) => this.shouldHandleCheckpointSwipe(gestureState),
             onMoveShouldSetPanResponderCapture: (_, gestureState) => this.shouldHandleCheckpointSwipe(gestureState),
+            onPanResponderGrant: this.handleCheckpointSwipeStart,
+            onPanResponderMove: (_, gestureState) => this.handleCheckpointSwipeMove(gestureState),
             onPanResponderRelease: (_, gestureState) => this.handleCheckpointSwipeRelease(gestureState),
+            onPanResponderTerminate: this.resetCheckpointSwipe,
         });
     }
 
@@ -4292,9 +4300,75 @@ class CheckPointDemo extends Component {
             }
         }
     }
+    getCheckpointSwipeLimit = () => {
+        const screenWidth = this.state.screenWidth || INITIAL_WINDOW.width;
+        return Math.max(120, Math.round(screenWidth * CHECKPOINT_SWIPE_VISUAL_RATIO));
+    };
+
+    handleCheckpointSwipeStart = () => {
+        if (this.isCheckpointDeckAnimating || this.isCheckpointStepLocked) {
+            return;
+        }
+
+        this.checkpointSwipeX.stopAnimation();
+        this.checkpointSwipeX.setValue(0);
+    };
+
+    handleCheckpointSwipeMove = gestureState => {
+        if (this.isCheckpointDeckAnimating || this.isCheckpointStepLocked) {
+            return;
+        }
+
+        const dx = gestureState?.dx || 0;
+        const swipeLimit = this.getCheckpointSwipeLimit();
+        const clampedDx = Math.max(-swipeLimit, Math.min(swipeLimit, dx));
+        this.checkpointSwipeX.setValue(clampedDx);
+    };
+
+    resetCheckpointSwipe = () => {
+        if (!this.checkpointSwipeX) {
+            return;
+        }
+
+        Animated.spring(this.checkpointSwipeX, {
+            toValue: 0,
+            tension: 90,
+            friction: 12,
+            useNativeDriver: true,
+        }).start(() => {
+            this.isCheckpointDeckAnimating = false;
+            this.isCheckpointStepLocked = false;
+        });
+    };
+
+    completeCheckpointSwipe = (direction, onComplete) => {
+        if (this.isCheckpointDeckAnimating || this.isCheckpointStepLocked) {
+            return;
+        }
+
+        const swipeLimit = this.getCheckpointSwipeLimit();
+        const toValue = direction === 'next' ? -swipeLimit : swipeLimit;
+        this.isCheckpointDeckAnimating = true;
+        this.isCheckpointStepLocked = true;
+
+        Animated.timing(this.checkpointSwipeX, {
+            toValue,
+            duration: 180,
+            useNativeDriver: true,
+        }).start(() => {
+            this.checkpointSwipeX.setValue(0);
+            this.isCheckpointDeckAnimating = false;
+            if (typeof onComplete === 'function') {
+                onComplete();
+            }
+        });
+    };
+
     shouldHandleCheckpointSwipe = gestureState => {
         if (
             this.isInteractingWithHorizontalControl ||
+            this.isCheckpointDeckAnimating ||
+            this.isCheckpointStepLocked ||
             this.state.isSaving ||
             this.state.isContentLoaded ||
             this.state.dialogVisible ||
@@ -4322,6 +4396,7 @@ class CheckPointDemo extends Component {
             Math.abs(dx) > Math.abs(dy) * 1.35 && (Math.abs(dx) >= CHECKPOINT_SWIPE_DISTANCE || Math.abs(vx) >= CHECKPOINT_SWIPE_VELOCITY);
 
         if (!isHorizontalSwipe || !this.state.checkpointList.length) {
+            this.resetCheckpointSwipe();
             return;
         }
 
@@ -4332,9 +4407,11 @@ class CheckPointDemo extends Component {
         const activeItem = this.state.checkpointList[activeIndex];
 
         if (dx < 0 && activeIndex < this.state.checkpointList.length - 1) {
-            this.onNext(activeIndex, activeItem);
+            this.completeCheckpointSwipe('next', () => this.onNext(activeIndex, activeItem));
         } else if (dx > 0 && activeIndex > 0) {
-            this.onBack(activeIndex);
+            this.completeCheckpointSwipe('previous', () => this.onBack(activeIndex));
+        } else {
+            this.resetCheckpointSwipe();
         }
     };
 
@@ -4415,7 +4492,12 @@ class CheckPointDemo extends Component {
 
     scrollCheckpointContentToTop = () => {
         requestAnimationFrame(() => {
-            this.checkpointScrollRef?.scrollTo?.({ y: 0, animated: false });
+            if (this.checkpointScrollRef?.scrollTo) {
+                this.checkpointScrollRef.scrollTo({ y: 0, animated: false });
+                return;
+            }
+
+            this.checkpointScrollRef?.getNode?.()?.scrollTo?.({ y: 0, animated: false });
         });
     };
 
@@ -4424,6 +4506,9 @@ class CheckPointDemo extends Component {
             return;
         }
 
+        this.checkpointSwipeX.setValue(0);
+        this.isCheckpointDeckAnimating = false;
+        this.isCheckpointStepLocked = false;
         this.playSerialTouchSound();
         this.scrollCheckpointContentToTop();
 
@@ -4948,6 +5033,74 @@ class CheckPointDemo extends Component {
             }
         }
         return Moment().format('DD MMM YYYY');
+    };
+
+    getCheckpointPreviewTitle = item => {
+        const rawTitle = item?.ChecklistName || '';
+        return String(rawTitle)
+            .replace(/<[^>]*>/g, ' ')
+            .replace(/&nbsp;/gi, ' ')
+            .replace(/&amp;/gi, '&')
+            .replace(/\s+/g, ' ')
+            .trim();
+    };
+
+    renderCheckpointPreviewCard = (item, index, direction, minHeight, cardWidth, positionStyle, animatedStyle) => {
+        if (!item || index < 0) {
+            return null;
+        }
+
+        const isPrevious = direction === 'previous';
+        const checkpointState = this.state.checkPointsDetails?.[index] || {};
+        const previewTitle = this.getCheckpointPreviewTitle(item) || `Question ${index + 1}`;
+        const rawScore = checkpointState.Score;
+        const scoreValue =
+            checkpointState.Scoretext ||
+            (rawScore !== undefined && rawScore !== null && rawScore !== '' && rawScore !== '-2' && rawScore !== -2
+                ? String(rawScore)
+                : 'Please Select');
+
+        return (
+            <Animated.View
+                pointerEvents="none"
+                style={[
+                    styles.checkpointPreviewCard,
+                    isPrevious ? styles.checkpointPreviewCardPrevious : styles.checkpointPreviewCardNext,
+                    { minHeight, width: cardWidth },
+                    positionStyle,
+                    animatedStyle,
+                ]}>
+                <View style={styles.checkpointPreviewHeader}>
+                    <Icon name={isPrevious ? 'arrow-left' : 'arrow-right'} size={18} color="#123C95" />
+                    <Text numberOfLines={1} style={styles.checkpointPreviewSerial}>{`Question ${index + 1} of ${this.state.checkpointList.length}`}</Text>
+                    <Icon name={isPrevious ? 'arrow-left' : 'arrow-right'} size={16} color="#738197" />
+                </View>
+                <View style={styles.checkpointPreviewDivider} />
+                <Text numberOfLines={4} ellipsizeMode="tail" style={styles.checkpointPreviewTitle}>
+                    {previewTitle}
+                </Text>
+                <View style={styles.checkpointPreviewAttachmentButton}>
+                    <Icon name="paperclip" size={20} color="#123C95" />
+                    <Text numberOfLines={1} style={styles.checkpointPreviewAttachmentText}>
+                        Add Attachment
+                    </Text>
+                </View>
+                <View style={styles.checkpointPreviewDivider} />
+                <View style={styles.checkpointPreviewField}>
+                    <Text style={styles.checkpointPreviewFieldLabel}>Score</Text>
+                    <Text numberOfLines={1} style={styles.checkpointPreviewFieldValue}>
+                        {scoreValue}
+                    </Text>
+                </View>
+                <View style={styles.checkpointPreviewDivider} />
+                <View style={styles.checkpointPreviewField}>
+                    <Text style={styles.checkpointPreviewFieldLabel}>Remark</Text>
+                    <View style={styles.checkpointPreviewRemarkBox}>
+                        <Text style={styles.checkpointPreviewRemarkPlaceholder}>Type here...</Text>
+                    </View>
+                </View>
+            </Animated.View>
+        );
     };
 
     render_loader(minHeight = 220) {
@@ -5512,6 +5665,80 @@ class CheckPointDemo extends Component {
             : 0;
         const activeCheckpointItem = this.state.checkpointList[activeCheckpointIndex];
         const activeSerialNo = activeCheckpointItem?.SerialNo ?? activeCheckpointIndex + 1;
+        const previousCheckpointIndex = activeCheckpointIndex > 0 ? activeCheckpointIndex - 1 : -1;
+        const nextCheckpointIndex =
+            activeCheckpointIndex < this.state.checkpointList.length - 1 ? activeCheckpointIndex + 1 : -1;
+        const previousCheckpointItem = previousCheckpointIndex >= 0 ? this.state.checkpointList[previousCheckpointIndex] : null;
+        const nextCheckpointItem = nextCheckpointIndex >= 0 ? this.state.checkpointList[nextCheckpointIndex] : null;
+        const checkpointDeckCardRatio = isTablet ? (isLandscape ? 0.82 : 0.88) : isLandscape ? 0.86 : 0.9;
+        const checkpointDeckCardWidth = Math.round(screenWidth * checkpointDeckCardRatio);
+        const checkpointDeckActiveInset = Math.max(16, Math.round((screenWidth - checkpointDeckCardWidth) / 2));
+        const checkpointPreviewPeek = isTablet ? (isLandscape ? 34 : 30) : 24;
+        const checkpointPreviewHiddenOffset = Math.max(0, checkpointDeckCardWidth - checkpointPreviewPeek);
+        const previousCheckpointPositionStyle = { left: -checkpointPreviewHiddenOffset };
+        const nextCheckpointPositionStyle = { right: -checkpointPreviewHiddenOffset };
+        const checkpointPreviewMinHeight = Math.max(stackCardMinHeight - 28, 220);
+        const checkpointSwipeLimit = Math.max(120, Math.round(screenWidth * CHECKPOINT_SWIPE_VISUAL_RATIO));
+        const activeCheckpointTravel = Math.max(8, Math.min(14, checkpointDeckActiveInset - 4));
+        const previewCheckpointTravel = Math.max(64, Math.min(118, Math.round(checkpointDeckCardWidth * 0.22)));
+        const checkpointSwipeRange = [-checkpointSwipeLimit, 0, checkpointSwipeLimit];
+        const activeCheckpointAnimatedStyle = {
+            transform: [
+                {
+                    translateX: this.checkpointSwipeX.interpolate({
+                        inputRange: checkpointSwipeRange,
+                        outputRange: [-activeCheckpointTravel, 0, activeCheckpointTravel],
+                        extrapolate: 'clamp',
+                    }),
+                },
+            ],
+        };
+        const previousCheckpointAnimatedStyle = {
+            opacity: this.checkpointSwipeX.interpolate({
+                inputRange: checkpointSwipeRange,
+                outputRange: [0, 0.34, 0.92],
+                extrapolate: 'clamp',
+            }),
+            transform: [
+                {
+                    translateX: this.checkpointSwipeX.interpolate({
+                        inputRange: checkpointSwipeRange,
+                        outputRange: [-previewCheckpointTravel, -previewCheckpointTravel, 0],
+                        extrapolate: 'clamp',
+                    }),
+                },
+                {
+                    scale: this.checkpointSwipeX.interpolate({
+                        inputRange: [0, checkpointSwipeLimit],
+                        outputRange: [0.96, 0.99],
+                        extrapolate: 'clamp',
+                    }),
+                },
+            ],
+        };
+        const nextCheckpointAnimatedStyle = {
+            opacity: this.checkpointSwipeX.interpolate({
+                inputRange: checkpointSwipeRange,
+                outputRange: [0.92, 0, 0],
+                extrapolate: 'clamp',
+            }),
+            transform: [
+                {
+                    translateX: this.checkpointSwipeX.interpolate({
+                        inputRange: checkpointSwipeRange,
+                        outputRange: [-previewCheckpointTravel, 0, 16],
+                        extrapolate: 'clamp',
+                    }),
+                },
+                {
+                    scale: this.checkpointSwipeX.interpolate({
+                        inputRange: [-checkpointSwipeLimit, 0],
+                        outputRange: [0.99, 0.96],
+                        extrapolate: 'clamp',
+                    }),
+                },
+            ],
+        };
         //console.log('CheckPointDemo~checkpointList:>', this.state.checkpointList);
 
         // if (this.state.failureloaded === false){
@@ -5577,20 +5804,41 @@ class CheckPointDemo extends Component {
 
                             {this.state.checkpointList.length ? (
                                 <View style={styles.checkpointBody}>
-                                    <View style={styles.carouselBottomWrapper} {...this.checkpointSwipeResponder.panHandlers}>
+                                    <View
+                                        style={[styles.carouselBottomWrapper, styles.checkpointDeckViewport]}
+                                        {...this.checkpointSwipeResponder.panHandlers}>
                                         {isCarouselReady ? (
-                                            <ScrollView
-                                                ref={ref => {
-                                                    this.checkpointScrollRef = ref;
-                                                }}
-                                                style={styles.carouselContainer}
-                                                contentContainerStyle={styles.checkpointScrollContent}
-                                                keyboardShouldPersistTaps="handled"
-                                                nestedScrollEnabled={true}
-                                                contentInsetAdjustmentBehavior="never"
-                                                showsVerticalScrollIndicator={true}
-                                                scrollEventThrottle={16}>
-                                                {(() => {
+                                            <>
+                                                {this.renderCheckpointPreviewCard(
+                                                    previousCheckpointItem,
+                                                    previousCheckpointIndex,
+                                                    'previous',
+                                                    checkpointPreviewMinHeight,
+                                                    checkpointDeckCardWidth,
+                                                    previousCheckpointPositionStyle,
+                                                    previousCheckpointAnimatedStyle,
+                                                )}
+                                                {this.renderCheckpointPreviewCard(
+                                                    nextCheckpointItem,
+                                                    nextCheckpointIndex,
+                                                    'next',
+                                                    checkpointPreviewMinHeight,
+                                                    checkpointDeckCardWidth,
+                                                    nextCheckpointPositionStyle,
+                                                    nextCheckpointAnimatedStyle,
+                                                )}
+                                                <Animated.ScrollView
+                                                    ref={ref => {
+                                                        this.checkpointScrollRef = ref;
+                                                    }}
+                                                    style={[styles.carouselContainer, styles.checkpointDeckActiveScroll, activeCheckpointAnimatedStyle]}
+                                                    contentContainerStyle={styles.checkpointScrollContent}
+                                                    keyboardShouldPersistTaps="handled"
+                                                    nestedScrollEnabled={true}
+                                                    contentInsetAdjustmentBehavior="never"
+                                                    showsVerticalScrollIndicator={true}
+                                                    scrollEventThrottle={16}>
+                                                    {(() => {
                                                     const item = activeCheckpointItem;
                                                     const index = activeCheckpointIndex;
                                                     if (!item) {
@@ -5617,13 +5865,18 @@ class CheckPointDemo extends Component {
                                                     const isM4NaActive = selectedM4Value === 11;
 
                                                     return (
-                                                        <View style={styles.checkpointScroll}>
+                                                        <View style={styles.checkpointScrollItem}>
                                                             <View
                                                                 style={[
                                                                     styles.cart,
                                                                     styles.cartBottomLayout,
                                                                     styles.carouselStackCard,
-                                                                    { minHeight: stackCardMinHeight },
+                                                                    styles.checkpointDeckActiveCard,
+                                                                    {
+                                                                        minHeight: stackCardMinHeight,
+                                                                        width: checkpointDeckCardWidth,
+                                                                        marginLeft: checkpointDeckActiveInset,
+                                                                    },
                                                                 ]}>
                                                                 <View style={styles.questionMetaRow}>
                                                                     <TouchableOpacity
@@ -5670,7 +5923,7 @@ class CheckPointDemo extends Component {
 
                                                                 <View style={styles.questionBlockRow}>
                                                                     <View style={styles.questionBlockTextCol}>
-                                                                        <View style={styles.questionTitleRow}>
+                                                                        <View style={styles.checkpointTitleRow}>
                                                                             <RichText content={item.ChecklistName} height={124} />
                                                                             {this.state.checkPointsDetails[index].nc_available_status ? (
                                                                                 <View
@@ -5764,7 +6017,7 @@ class CheckPointDemo extends Component {
                                                                         }
                                                                     </View>
                                                                 </View>
-                                                                <View style={{ flexDirection: 'column', flex: 1 }}>
+                                                                <View style={styles.checkpointFormSections}>
                                                                     {item.ansType == 'M1' && item.scoreType !== 3 ? ( //Radio button
                                                                         <View style={styles.boxsecRadio}>
                                                                             <RadioForm
@@ -8017,7 +8270,7 @@ class CheckPointDemo extends Component {
                                                                                         : '#A9A9A9'
                                                                                 }
                                                                                 multiline={true}
-                                                                                scrollEnabled={true}
+                                                                                scrollEnabled={false}
                                                                                 textAlignVertical="top"
                                                                                 textColor="#747474"
                                                                                 value={
@@ -8063,8 +8316,35 @@ class CheckPointDemo extends Component {
                                                             {/* <View style={{ width: '100%', height: 80 }} /> */}
                                                         </View>
                                                     );
-                                                })()}
-                                            </ScrollView>
+                                                    })()}
+                                                </Animated.ScrollView>
+                                                <View pointerEvents="box-none" style={styles.checkpointDeckSideHitLayer}>
+                                                    {previousCheckpointItem ? (
+                                                        <TouchableOpacity
+                                                            activeOpacity={0.78}
+                                                            style={[styles.checkpointDeckSideHit, styles.checkpointDeckSideHitLeft]}
+                                                            onPress={() =>
+                                                                this.completeCheckpointSwipe('previous', () => this.onBack(activeCheckpointIndex))
+                                                            }
+                                                        />
+                                                    ) : (
+                                                        <View pointerEvents="none" style={styles.checkpointDeckSideHit} />
+                                                    )}
+                                                    {nextCheckpointItem ? (
+                                                        <TouchableOpacity
+                                                            activeOpacity={0.78}
+                                                            style={[styles.checkpointDeckSideHit, styles.checkpointDeckSideHitRight]}
+                                                            onPress={() =>
+                                                                this.completeCheckpointSwipe('next', () =>
+                                                                    this.onNext(activeCheckpointIndex, activeCheckpointItem),
+                                                                )
+                                                            }
+                                                        />
+                                                    ) : (
+                                                        <View pointerEvents="none" style={styles.checkpointDeckSideHit} />
+                                                    )}
+                                                </View>
+                                            </>
                                         ) : (
                                             this.render_loader(stackCardMinHeight)
                                         )}

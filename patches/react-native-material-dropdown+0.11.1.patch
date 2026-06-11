@@ -2,7 +2,7 @@ diff --git a/node_modules/react-native-material-dropdown/src/components/dropdown
 index b1e65a1..c4d8e12 100644
 --- a/node_modules/react-native-material-dropdown/src/components/dropdown/index.js
 +++ b/node_modules/react-native-material-dropdown/src/components/dropdown/index.js
-@@ -9,14 +9,13 @@ import {
+@@ -9,15 +9,14 @@ import {
    TouchableWithoutFeedback,
    Dimensions,
    Platform,

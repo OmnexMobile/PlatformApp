@@ -39,7 +39,7 @@ const NumberInputWithLabel = ({
                 padding: SPACING.NORMAL,
                 backgroundColor: theme.mode.backgroundColor,
                 paddingBottom: SPACING.SMALL,
-                marginBottom: SPACING.X_SMALL,
+                marginBottom: SPACING.SMALL,
                 ...(!editable && { backgroundColor: theme.mode.disabledBackgroundColor }),
                 ...(noPadding && { padding: 0 }),
             }}>
@@ -57,6 +57,7 @@ const NumberInputWithLabel = ({
                 style={{
                     borderBottomWidth: 1,
                     borderColor: COLORS.whiteGrey,
+                    marginTop: SPACING.X_SMALL,
                 }}>
                 <TextInput
                     {...{

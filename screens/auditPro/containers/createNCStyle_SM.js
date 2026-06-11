@@ -9,6 +9,13 @@ export const clauseMultiSelectStyles = {
     chipText: {
         maxWidth: Dimensions.get('screen').width - 90,
     },
+    selectToggle: {
+        paddingLeft: 0,
+        paddingRight: 0,
+    },
+    selectToggleText: {
+        marginLeft: 0,
+    },
 };
 
 export const processMultiSelectStyles = {
@@ -114,10 +121,11 @@ export default StyleSheet.create({
     eyeRow: {
         position: 'relative',
         minHeight: 40,
+        width: '100%',
     },
     eyeIcon: {
         position: 'absolute',
-        right: -10,
+        right: 0,
         top: 20,
         padding: 5,
         justifyContent: 'center',
@@ -502,7 +510,7 @@ export default StyleSheet.create({
         // marginTop:20
     },
     div01: {
-        width: Window.width,
+        width: '100%',
         // height:height(10),
         backgroundColor: 'transparent',
         // marginTop:10,
@@ -520,6 +528,9 @@ export default StyleSheet.create({
         // justifyContent:'center',
         flexDirection: 'row',
         // backgroundColor:'yellow'
+    },
+    firstInputRow: {
+        marginTop: 0,
     },
     div2: {
         width: '100%',
@@ -554,7 +565,7 @@ export default StyleSheet.create({
     },
     input002: {
         backgroundColor: 'transparent',
-        width: '90%',
+        width: '100%',
         height: '90%',
     },
     placeholderT: {
@@ -563,9 +574,12 @@ export default StyleSheet.create({
     },
     input02: {
         backgroundColor: 'transparent',
-        width: '90%',
-
+        width: '100%',
+        marginTop: 10,
         paddingVertical: Platform.OS === 'ios' ? 10 : null,
+    },
+    standardRequirementInputText: {
+        paddingRight: 42,
     },
     input03: {
         backgroundColor: 'transparent',
