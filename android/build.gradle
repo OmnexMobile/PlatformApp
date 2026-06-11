@@ -13,12 +13,12 @@ buildscript {
         google()
         mavenCentral()
     }
-    // React Native's included Gradle plugin requests AGP 8.12.0; keep Android Studio on the supported AGP.
+    // Keep the app and ReactAndroid source-build on the same AGP version.
     configurations.classpath {
-        resolutionStrategy.force("com.android.tools.build:gradle:8.11.1")
+        resolutionStrategy.force("com.android.tools.build:gradle:8.12.0")
     }
     dependencies {
-        classpath("com.android.tools.build:gradle:8.11.1")
+        classpath("com.android.tools.build:gradle:8.12.0")
         classpath("com.facebook.react:react-native-gradle-plugin")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
     }
