@@ -134,13 +134,13 @@ class AuditPage extends Component {
             smData: null,
         };
 
-        Voice.onSpeechStart = this.onSpeechStart;
-        Voice.onSpeechRecognized = this.onSpeechRecognized;
-        Voice.onSpeechEnd = this.onSpeechEnd;
-        Voice.onSpeechError = this.onSpeechError;
-        Voice.onSpeechResults = this.onSpeechResults;
-        Voice.onSpeechPartialResults = this.onSpeechPartialResults;
-        Voice.onSpeechVolumeChanged = this.onSpeechVolumeChanged;
+        // Voice.onSpeechStart = this.onSpeechStart;
+        // Voice.onSpeechRecognized = this.onSpeechRecognized;
+        // Voice.onSpeechEnd = this.onSpeechEnd;
+        // Voice.onSpeechError = this.onSpeechError;
+        // Voice.onSpeechResults = this.onSpeechResults;
+        // Voice.onSpeechPartialResults = this.onSpeechPartialResults;
+        // Voice.onSpeechVolumeChanged = this.onSpeechVolumeChanged;
     }
     componentWillMount() {
         console.log('cStatusfff', this.props?.route?.params?.datapass);
@@ -511,13 +511,13 @@ class AuditPage extends Component {
     }
 
     InitVoice() {
-        Voice.onSpeechStart = this.onSpeechStart;
-        Voice.onSpeechRecognized = this.onSpeechRecognized;
-        Voice.onSpeechEnd = this.onSpeechEnd;
-        Voice.onSpeechError = this.onSpeechError;
-        Voice.onSpeechResults = this.onSpeechResults;
-        Voice.onSpeechPartialResults = this.onSpeechPartialResults;
-        Voice.onSpeechVolumeChanged = this.onSpeechVolumeChanged;
+        // Voice.onSpeechStart = this.onSpeechStart;
+        // Voice.onSpeechRecognized = this.onSpeechRecognized;
+        // Voice.onSpeechEnd = this.onSpeechEnd;
+        // Voice.onSpeechError = this.onSpeechError;
+        // Voice.onSpeechResults = this.onSpeechResults;
+        // Voice.onSpeechPartialResults = this.onSpeechPartialResults;
+        // Voice.onSpeechVolumeChanged = this.onSpeechVolumeChanged;
 
         this.setState(
             {

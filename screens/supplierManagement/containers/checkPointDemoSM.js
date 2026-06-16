@@ -77,6 +77,7 @@ const Colors = {
     '-2': '#fff',
 };
 const FOOTER_BUTTON_GRADIENT = ['#123C95', '#1B5FDB', '#6A35D8'];
+const toMutable = value => (value && typeof value.asMutable === 'function' ? value.asMutable({ deep: true }) : value);
 
 const toastConfig = {
     error: props => (
@@ -92,7 +93,7 @@ const toastConfig = {
 class CheckPointDemo extends Component {
     constructor(props) {
         super(props);
-        console.log('get this.props--->', props);
+        console.log('get CheckPointDemo params--->', props?.route?.params);
         this.state = {
             radiovalue: [],
             checkpointList: [],
@@ -180,7 +181,6 @@ class CheckPointDemo extends Component {
             checkpointdetails: [],
             checklistName: '',
             selectedChecklistName: '',
-            data: this.props?.data?.audits?.auditRecords[0]?.CheckListPropData,
             selectedindex: '',
             selectedItem: '',
             failureloaded: false,
@@ -8674,7 +8674,9 @@ const mapStateToProps = state => {
     //console.log(state, 'propsdataincoming1');
 
     return {
-        data: state,
+        data: {
+            audits: toMutable(state.audits),
+        },
     };
 };
 const mapDispatchToProps = dispatch => {

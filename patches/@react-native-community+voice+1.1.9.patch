@@ -30,14 +30,15 @@ index 091c5ae..e5fc5f9 100644
  }
  
 diff --git a/node_modules/@react-native-community/voice/dist/index.js b/node_modules/@react-native-community/voice/dist/index.js
-index 2b4985e..a46f12d 100644
+index a10af13..fd7f1af 100644
 --- a/node_modules/@react-native-community/voice/dist/index.js
 +++ b/node_modules/@react-native-community/voice/dist/index.js
 @@ -5,9 +5,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
  Object.defineProperty(exports, "__esModule", { value: true });
  const react_native_1 = require("react-native");
  const invariant_1 = __importDefault(require("invariant"));
- const Voice = react_native_1.NativeModules.Voice;
+-const Voice = react_native_1.NativeModules.Voice;
++const Voice = react_native_1.NativeModules.Voice || react_native_1.NativeModules.RCTVoice;
 +const missingVoiceModuleMessage = 'Voice native module is not available. Make sure @react-native-community/voice is linked correctly.';
  // NativeEventEmitter is only availabe on React Native platforms, so this conditional is used to avoid import conflicts in the browser/server
 -const voiceEmitter = react_native_1.Platform.OS !== 'web' ? new react_native_1.NativeEventEmitter(Voice) : null;
@@ -45,7 +46,7 @@ index 2b4985e..a46f12d 100644
  class RCTVoice {
      constructor() {
          this._loaded = false;
-@@ -24,6 +25,9 @@ class RCTVoice {
+@@ -23,6 +24,9 @@ class RCTVoice {
          };
      }
      removeAllListeners() {
@@ -55,7 +56,7 @@ index 2b4985e..a46f12d 100644
          Voice.onSpeechStart = undefined;
          Voice.onSpeechRecognized = undefined;
          Voice.onSpeechEnd = undefined;
-@@ -34,7 +38,7 @@ class RCTVoice {
+@@ -32,7 +36,7 @@ class RCTVoice {
          Voice.onSpeechVolumeChanged = undefined;
      }
      destroy() {
@@ -64,7 +65,7 @@ index 2b4985e..a46f12d 100644
              return Promise.resolve();
          }
          return new Promise((resolve, reject) => {
-@@ -54,6 +58,9 @@ class RCTVoice {
+@@ -51,6 +55,9 @@ class RCTVoice {
          });
      }
      start(locale, options = {}) {
@@ -74,7 +75,7 @@ index 2b4985e..a46f12d 100644
          if (!this._loaded && !this._listeners && voiceEmitter !== null) {
              this._listeners = Object.keys(this._events).map((key) => voiceEmitter.addListener(key, this._events[key]));
          }
-@@ -83,7 +90,7 @@ class RCTVoice {
+@@ -77,7 +84,7 @@ class RCTVoice {
          });
      }
      stop() {
@@ -83,7 +84,7 @@ index 2b4985e..a46f12d 100644
              return Promise.resolve();
          }
          return new Promise((resolve, reject) => {
-@@ -100,7 +107,7 @@ class RCTVoice {
+@@ -92,7 +99,7 @@ class RCTVoice {
          });
      }
      cancel() {
@@ -92,7 +93,7 @@ index 2b4985e..a46f12d 100644
              return Promise.resolve();
          }
          return new Promise((resolve, reject) => {
-@@ -117,6 +124,9 @@ class RCTVoice {
+@@ -107,6 +114,9 @@ class RCTVoice {
          });
      }
      isAvailable() {
@@ -102,7 +103,7 @@ index 2b4985e..a46f12d 100644
          return new Promise((resolve, reject) => {
              Voice.isSpeechAvailable((isAvailable, error) => {
                  if (error) {
-@@ -139,9 +149,15 @@ class RCTVoice {
+@@ -126,9 +136,15 @@ class RCTVoice {
              invariant_1.default(Voice, 'Speech recognition services can be queried for only on Android');
              return;
          }
@@ -119,16 +120,17 @@ index 2b4985e..a46f12d 100644
              Voice.isRecognizing((isRecognizing) => resolve(isRecognizing));
          });
 diff --git a/node_modules/@react-native-community/voice/src/index.ts b/node_modules/@react-native-community/voice/src/index.ts
-index df877d4..8f8d6bf 100644
+index 8b51121..6eb43a9 100644
 --- a/node_modules/@react-native-community/voice/src/index.ts
 +++ b/node_modules/@react-native-community/voice/src/index.ts
-@@ -10,12 +10,14 @@ import {
-   SpeechEndEvent,
+@@ -11,11 +11,15 @@ import {
    SpeechVolumeChangeEvent,
  } from './VoiceModuleTypes';
  
 -const Voice = NativeModules.Voice as VoiceModule;
-+const Voice = NativeModules.Voice as VoiceModule | undefined;
++const Voice = (NativeModules.Voice || NativeModules.RCTVoice) as
++  | VoiceModule
++  | undefined;
 +const missingVoiceModuleMessage =
 +  'Voice native module is not available. Make sure @react-native-community/voice is linked correctly.';
  
@@ -139,7 +141,7 @@ index df877d4..8f8d6bf 100644
  type SpeechEvent = keyof SpeechEvents;
  
  class RCTVoice {
-@@ -35,6 +37,10 @@ class RCTVoice {
+@@ -38,6 +42,10 @@ class RCTVoice {
    }
  
    removeAllListeners() {
@@ -150,7 +152,7 @@ index df877d4..8f8d6bf 100644
      Voice.onSpeechStart = undefined;
      Voice.onSpeechRecognized = undefined;
      Voice.onSpeechEnd = undefined;
-@@ -46,7 +52,7 @@ class RCTVoice {
+@@ -48,7 +56,7 @@ class RCTVoice {
    }
  
    destroy() {
@@ -159,7 +161,7 @@ index df877d4..8f8d6bf 100644
        return Promise.resolve();
      }
      return new Promise((resolve, reject) => {
-@@ -67,6 +73,10 @@ class RCTVoice {
+@@ -67,6 +75,10 @@ class RCTVoice {
    }
  
    start(locale: any, options = {}) {
@@ -170,7 +172,7 @@ index df877d4..8f8d6bf 100644
      if (!this._loaded && !this._listeners && voiceEmitter !== null) {
        this._listeners = (Object.keys(this._events) as SpeechEvent[]).map(
          (key: SpeechEvent) => voiceEmitter.addListener(key, this._events[key]),
-@@ -104,7 +114,7 @@ class RCTVoice {
+@@ -101,7 +113,7 @@ class RCTVoice {
      });
    }
    stop() {
@@ -179,7 +181,7 @@ index df877d4..8f8d6bf 100644
        return Promise.resolve();
      }
      return new Promise((resolve, reject) => {
-@@ -121,7 +131,7 @@ class RCTVoice {
+@@ -115,7 +127,7 @@ class RCTVoice {
      });
    }
    cancel() {
@@ -188,7 +190,7 @@ index df877d4..8f8d6bf 100644
        return Promise.resolve();
      }
      return new Promise((resolve, reject) => {
-@@ -138,6 +148,10 @@ class RCTVoice {
+@@ -129,6 +141,10 @@ class RCTVoice {
      });
    }
    isAvailable(): Promise<0 | 1> {
@@ -199,7 +201,7 @@ index df877d4..8f8d6bf 100644
      return new Promise((resolve, reject) => {
        Voice.isSpeechAvailable((isAvailable: 0 | 1, error: string) => {
          if (error) {
-@@ -166,10 +180,18 @@ class RCTVoice {
+@@ -152,10 +168,18 @@ class RCTVoice {
        return;
      }
  
