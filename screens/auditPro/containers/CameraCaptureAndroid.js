@@ -9,9 +9,10 @@ import {
   Alert,
   LogBox,
   ActivityIndicator,
+  PermissionsAndroid,
 } from 'react-native';
 import {connect} from 'react-redux';
-import {Camera} from 'react-native-vision-camera';
+import {launchCamera} from 'react-native-image-picker';
 import {Images} from '../Themes/index';
 import OfflineNotice from '../components/OfflineNotice';
 import Fonts from '../Themes/Fonts';
@@ -50,7 +51,8 @@ class CameraCapture extends Component {
       timestamp: new Date(),
       devices: [],
       cameraType: 'back',
-      mirrorMode: false
+      mirrorMode: false,
+      isCameraLaunching: false,
     };
     this.camera = createRef();
     this.capturePhoto = this.capturePhoto.bind(this);
@@ -125,20 +127,39 @@ class CameraCapture extends Component {
       }
     });
  
-    const newCameraPermission = await Camera.requestCameraPermission();
-    const cameraPermission = await Camera.getCameraPermissionStatus();
-    console.log(cameraPermission, 'camerapermission');
-    if (cameraPermission !== 'authorized') {
+    const hasCameraPermission = await this.requestCameraPermission();
+    if (!hasCameraPermission) {
       Alert.alert(
         'Permission denied',
         'Please grant access to camera to capture and upload',
       );
     } else {
-      const devices = await Camera.getAvailableCameraDevices();
-      console.log(devices, 'camerapermission');
-      this.setState({
-        devices,
+      this.capturePhoto();
+    }
+  };
+
+  requestCameraPermission = async () => {
+    if (Platform.OS !== 'android') {
+      return true;
+    }
+
+    try {
+      const hasPermission = await PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.CAMERA);
+      if (hasPermission) {
+        return true;
+      }
+
+      const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.CAMERA, {
+        title: 'App Camera Permission',
+        message: 'App needs access to your camera',
+        buttonNeutral: 'Ask Me Later',
+        buttonNegative: 'Cancel',
+        buttonPositive: 'OK',
       });
+      return granted === PermissionsAndroid.RESULTS.GRANTED;
+    } catch (err) {
+      console.log('camera: permission error', err);
+      return false;
     }
   };
  
@@ -328,72 +349,93 @@ class CameraCapture extends Component {
     }
   }
   capturePhoto = async () => {
-    var ImgPath = '';
+    if (this.state.isCameraLaunching) {
+      return;
+    }
+
+    this.setState({isCameraLaunching: true});
+
     var newImgPath = this.getCaptureDirectory();
-    if (this.camera) {
-      console.log('ccenter');
-      const photo = await this.camera.takePhoto({
-        qualityPrioritization: 'speed',
-        flash: 'auto',
-        // enableAutoRedEyeReduction: true
+    try {
+      const response = await new Promise(resolve => {
+        launchCamera(
+          {
+            mediaType: 'photo',
+            cameraType: this.state.cameraType,
+            includeBase64: true,
+            saveToPhotos: false,
+            quality: 0.9,
+          },
+          resolve,
+        );
       });
-      console.log(photo, 'camera:photoconsole');
-      ImgPath = this.normalizeFsPath(photo.path);
-      let filename = ImgPath.substring(ImgPath.lastIndexOf('/')+1);
-      let extn = filename.substring(filename.lastIndexOf('.')+1);
-      var newfileName = 'CapturedImage_' + Moment().unix() + '.' + extn;
-      try {
-        var data = await RNFS.readFile(
-          ImgPath,
-          'base64',
-        ).then(res => {
-          console.log('camera: ImgPath res', ImgPath, res)
-          newImgPath = newImgPath + '/' + newfileName;
-          console.log('camera:New ImgPath', newImgPath)
-          RNFetchBlob.fs.writeFile(
-          newImgPath,
-          res,
-          'base64',
-        ).then(res => {
-            console.log('camera: New ImgPath', newImgPath,res)
-            this.setState({
-              captureState: 'Capturing',
-              capturedImagePath: newImgPath,
-              imageName: 'photo',
-            }, () => {
-              console.log('Reach RNPhotoEditor-->')
-              // this.storePhotoEdited();
-              // RNPhotoEditor.open()
-              RNPhotoEditor.Edit({
-                path: newImgPath,
-                onDone: this.storePhotoEdited,
-                onCancel: this.retakePhoto,
-    
-                //onClear: this.retakePhoto,
-                hiddenControls: ['save'],
-                colors: [
-                  '#ff0000',
-                  '#000000',
-                  '#808080',
-                  '#a9a9a9',
-                  '#FFFFFF',
-                  '#0000ff',
-                  '#00ff00',
-                  '#ffff00',
-                  '#ffa500',
-                  '#800080',
-                  '#00ffff',
-                  '#a52a2a',
-                  '#ff00ff',
-                ],
-              });
-            });
-          }).catch (err => console.log("camera:Error in Capture Image1:", err))
-        }) .catch(err => console.log("camera:Error in Capture Image2:",err));
- 
-      } catch (err) {
-          console.log("camera:Error in Capture Image3:",err);
+
+      if (response?.didCancel) {
+        this.setState({isCameraLaunching: false});
+        return;
       }
+
+      if (response?.errorCode || response?.errorMessage) {
+        console.log('camera: launch error', response?.errorCode, response?.errorMessage);
+        Alert.alert('Camera error', response?.errorMessage || 'Unable to open camera.');
+        this.setState({isCameraLaunching: false});
+        return;
+      }
+
+      const asset = response?.assets?.[0];
+      const ImgPath = this.normalizeFsPath(asset?.uri);
+      if (!ImgPath) {
+        Alert.alert('Camera error', 'Unable to read captured image.');
+        this.setState({isCameraLaunching: false});
+        return;
+      }
+
+      let filename = asset?.fileName || ImgPath.substring(ImgPath.lastIndexOf('/')+1);
+      let extn = filename.substring(filename.lastIndexOf('.')+1);
+      if (!extn || extn === filename) {
+        extn = 'jpg';
+      }
+      var newfileName = 'CapturedImage_' + Moment().unix() + '.' + extn;
+
+      const data = asset?.base64 || await RNFS.readFile(ImgPath, 'base64');
+      console.log('camera: ImgPath res', ImgPath);
+      newImgPath = newImgPath + '/' + newfileName;
+      console.log('camera:New ImgPath', newImgPath)
+      await RNFetchBlob.fs.writeFile(newImgPath, data, 'base64');
+      console.log('camera: New ImgPath', newImgPath)
+      this.setState({
+        captureState: 'Capturing',
+        capturedImagePath: newImgPath,
+        imageName: 'photo',
+        isCameraLaunching: false,
+      }, () => {
+        console.log('Reach RNPhotoEditor-->')
+        RNPhotoEditor.Edit({
+          path: newImgPath,
+          onDone: this.storePhotoEdited,
+          onCancel: this.retakePhoto,
+          hiddenControls: ['save'],
+          colors: [
+            '#ff0000',
+            '#000000',
+            '#808080',
+            '#a9a9a9',
+            '#FFFFFF',
+            '#0000ff',
+            '#00ff00',
+            '#ffff00',
+            '#ffa500',
+            '#800080',
+            '#00ffff',
+            '#a52a2a',
+            '#ff00ff',
+          ],
+        });
+      });
+    } catch (err) {
+      console.log("camera:Error in Capture Image:",err);
+      Alert.alert('Camera error', 'Unable to save captured image.');
+      this.setState({isCameraLaunching: false, captureState: 'CameraMode'});
     }
   };
  
@@ -417,6 +459,7 @@ class CameraCapture extends Component {
       imageName: '',
       imageType: 'image/jpg',
       capturedImagePath: '',
+      isCameraLaunching: false,
     });
   };
  
@@ -455,7 +498,6 @@ class CameraCapture extends Component {
   };
  
   render() {
-    const cameraDevice = this.getCameraDevice();
     const previewUri = this.toFileUri(this.state.capturedImagePath);
     console.log(this.state.devices, 'devices');
     //console.log(this.state.devices.position,"Pose")
@@ -480,30 +522,7 @@ class CameraCapture extends Component {
  
         <View style={styles.auditPageBody}>
           {console.log('this.state.captureState--->', this.state.captureState)}
-          {this.state.captureState == 'CameraMode' &&
-          cameraDevice ? (
-            <Camera
-              ref={ref => {
-                this.camera = ref;
-              }}
-              photo={true}
-              style={styles.detailsCard}
-              device={cameraDevice}
-              zoom={1}
-              captureAudio={false}
-              autoFocus="on"
-              isActive={true}
-              type={this.state.cameraType}
-              mirrorImage={this.state.mirrorMode}
-              // type={RNCamera.Constants.Type.back}
-              // flashMode={RNCamera.Constants.FlashMode.on}
-              // permissionDialogTitle={strings.Camera_Permission_Head}
-              // permissionDialogMessage={strings.Camera_Permission_Content}
-              // onGoogleVisionBarcodesDetected={({ barcodes }) => {
-              //   console.log(barcodes);
-              // }}
-            />
-          ) : this.state.captureState == 'Capturing' ? (
+          {this.state.captureState == 'Capturing' || this.state.isCameraLaunching ? (
             <View
               style={{
                 flexDirection: 'column',
