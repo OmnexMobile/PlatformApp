@@ -1040,6 +1040,34 @@ class CreateNC extends Component {
             });
     };
 
+    getAttachmentPreviewUri = fileData => {
+        if (fileData == null || typeof fileData == 'undefined' || fileData === '') {
+            return '';
+        }
+
+        const rawUri = String(fileData);
+        if (
+            rawUri.startsWith('data:') ||
+            rawUri.startsWith('http://') ||
+            rawUri.startsWith('https://') ||
+            rawUri.startsWith('content://') ||
+            rawUri.startsWith('ph://') ||
+            rawUri.startsWith('assets-library://')
+        ) {
+            return rawUri;
+        }
+
+        if (rawUri.startsWith('file:///')) {
+            return rawUri;
+        }
+
+        if (rawUri.startsWith('file:/')) {
+            return `file://${rawUri.replace(/^file:\/*/, '/')}`;
+        }
+
+        return rawUri.startsWith('/') ? `file://${rawUri}` : `file:///${rawUri}`;
+    };
+
     getFileIcon(filename, fileData) {
         console.log('XXXXXXXXXXXX-------', fileData, filename);
         let icon = 'file';
@@ -1088,7 +1116,7 @@ class CreateNC extends Component {
         return icon === 'image' ? (
             <Image
                 source={{
-                    uri: 'file:/' + fileData,
+                    uri: this.getAttachmentPreviewUri(fileData),
                 }}
                 style={styles.attachmentImageLarge}
             />
@@ -3043,6 +3071,12 @@ class CreateNC extends Component {
             selectionColor: CREATE_NC_INPUT_COLOR,
             cursorColor: CREATE_NC_INPUT_COLOR,
         };
+        const createNcDropdownProps = {
+            containerStyle: [styles.inputContainerNoPad, styles.createNcDropdownContainer],
+            dropdownContainerStyle: styles.createNcDropdownMenu,
+            selectedTextStyle: styles.createNcDropdownValue,
+            placeholderStyle: styles.createNcDropdownPlaceholder,
+        };
         const keyboardExtraHeight = layoutProfile.isLandscape ? 90 : 125;
         const standardRequirementModalStyle = [
             styles.ModalBox,
@@ -3231,7 +3265,7 @@ class CreateNC extends Component {
 
                                         <View style={styles.hidden} />
                                     </View>
-                                    <View style={styles.input02}>
+                                    <View style={styles.clauseInput}>
                                         <Text style={styles.placeholderTextMuted}>{strings.ClausesL}</Text>
                                     </View>
                                     <View style={styles.div2}>
@@ -3315,7 +3349,7 @@ class CreateNC extends Component {
                                                 error={this.state.MarkCat}
                                                 editable={this.state.isContainValue1}
                                                 dropdownRef={ref => (this.categoryTxtField = ref)}
-                                                containerStyle={styles.inputContainerNoPad}
+                                                {...createNcDropdownProps}
                                                 onChange={value => {
                                                     console.log('*****', value);
                                                     var CategoryID = null;
@@ -3349,7 +3383,7 @@ class CreateNC extends Component {
                                                 error={this.state.MarkReq}
                                                 editable={this.state.isContainValue4}
                                                 dropdownRef={ref => (this.responsibleTxtField = ref)}
-                                                containerStyle={styles.inputContainerNoPad}
+                                                {...createNcDropdownProps}
                                                 onChange={value => {
                                                     // console.log('*****',value)
                                                     var RequestID = null;
@@ -3385,7 +3419,7 @@ class CreateNC extends Component {
                                                 error={this.state.MarkUser}
                                                 editable={this.state.isContainValue3}
                                                 dropdownRef={ref => (this.requestTxtField = ref)}
-                                                containerStyle={styles.inputContainerNoPad}
+                                                {...createNcDropdownProps}
                                                 onChange={value => {
                                                     // console.log('*****',value)
                                                     var UserID = null;
@@ -3445,7 +3479,7 @@ class CreateNC extends Component {
                                                             required
                                                             editable={this.state.isContainValue4}
                                                             dropdownRef={ref => (this.departmentTxtField = ref)}
-                                                            containerStyle={styles.inputContainerNoPad}
+                                                            {...createNcDropdownProps}
                                                             onChange={value => {
                                                                 let FailureID = array.find(item => item.value === value);
                                                                 if (FailureID == null) {
@@ -3466,7 +3500,7 @@ class CreateNC extends Component {
                                                             required
                                                             editable={this.state.isContainValue4}
                                                             dropdownRef={ref => (this.departmentTxtField = ref)}
-                                                            containerStyle={styles.inputContainerNoPad}
+                                                            {...createNcDropdownProps}
                                                             onChange={value => {
                                                                 let FailureID = FailureCategory.find(item => item.value === value);
                                                                 if (FailureID == null) {
@@ -3549,7 +3583,7 @@ class CreateNC extends Component {
                                                 label={strings.Auditee_Approach}
                                                 value={''}
                                                 editable={false}
-                                                containerStyle={styles.inputContainerNoPad}
+                                                {...createNcDropdownProps}
                                             />
                                         </View>
                                     </View>
@@ -3597,7 +3631,7 @@ class CreateNC extends Component {
                                             </View>
                                         )}
                                     </View>
-                                    <View style={styles.div1}>
+                                    <View style={styles.attachevidence}>
                                         <Text style={styles.fieldLabel}>{strings.Attach_EvidenceL}</Text>
                                         <TouchableOpacity
                                             onPress={() =>

@@ -27,13 +27,22 @@ extensions.configure(com.facebook.react.ReactSettingsExtension) { ex ->
 rootProject.name = "IntegratedApp"
 include(":app")
 includeBuild("../node_modules/@react-native/gradle-plugin")
-includeBuild("../node_modules/react-native") {
-    dependencySubstitution {
-        substitute module("com.facebook.react:react-android") using project(":packages:react-native:ReactAndroid")
-        substitute module("com.facebook.react:react-native") using project(":packages:react-native:ReactAndroid")
-        substitute module("com.facebook.react:hermes-android") using project(":packages:react-native:ReactAndroid:hermes-engine")
-        substitute module("com.facebook.react:hermes-engine") using project(":packages:react-native:ReactAndroid:hermes-engine")
-        substitute module("com.facebook.hermes:hermes-android") using project(":packages:react-native:ReactAndroid:hermes-engine")
+
+def reactNativeBuildFromSourceOverride = providers.gradleProperty("reactNativeBuildFromSource").orNull
+def isAndroidStudioSync = System.getProperty("idea.sync.active") == "true"
+def buildReactNativeFromSource = reactNativeBuildFromSourceOverride != null
+        ? reactNativeBuildFromSourceOverride.toBoolean()
+        : !isAndroidStudioSync
+
+if (buildReactNativeFromSource) {
+    includeBuild("../node_modules/react-native") {
+        dependencySubstitution {
+            substitute module("com.facebook.react:react-android") using project(":packages:react-native:ReactAndroid")
+            substitute module("com.facebook.react:react-native") using project(":packages:react-native:ReactAndroid")
+            substitute module("com.facebook.react:hermes-android") using project(":packages:react-native:ReactAndroid:hermes-engine")
+            substitute module("com.facebook.react:hermes-engine") using project(":packages:react-native:ReactAndroid:hermes-engine")
+            substitute module("com.facebook.hermes:hermes-android") using project(":packages:react-native:ReactAndroid:hermes-engine")
+        }
     }
 }
 include(":react-native-community_slider")

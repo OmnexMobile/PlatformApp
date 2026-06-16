@@ -54,6 +54,7 @@ export default StyleSheet.create({
         marginTop: 10,
     },
     inputNoHorizontalPadding: {
+        marginTop: 10,
         paddingHorizontal: 0,
         color: '#123C95',
     },
@@ -523,7 +524,17 @@ export default StyleSheet.create({
         width: '100%',
         //height:height(10),
         backgroundColor: 'transparent',
-        marginTop: 20,
+        marginTop: 5,
+        // alignItems:'center',
+        // justifyContent:'center',
+        flexDirection: 'row',
+        // backgroundColor:'yellow'
+    },
+     attachevidence: {
+        width: '100%',
+        //height:height(10),
+        backgroundColor: 'transparent',
+        marginTop: 10,
         // alignItems:'center',
         // justifyContent:'center',
         flexDirection: 'row',
@@ -578,8 +589,33 @@ export default StyleSheet.create({
         marginTop: 10,
         paddingVertical: Platform.OS === 'ios' ? 10 : null,
     },
+    clauseInput: {
+        backgroundColor: 'transparent',
+        width: '100%',
+        marginTop: 10,
+        paddingVertical: Platform.OS === 'ios' ? 10 : null,
+    },
     standardRequirementInputText: {
         paddingRight: 42,
+    },
+    createNcDropdownContainer: {
+        padding: 0,
+        paddingBottom: 8,
+        marginBottom: 12,
+        width: '100%',
+    },
+    createNcDropdownMenu: {
+        marginTop: Platform.OS === 'ios' ? -SPACING.X_LARGE : -SPACING.LARGE,
+    },
+    createNcDropdownValue: {
+        fontSize: Fonts.size.input,
+        color: COLORS.themeBlack,
+        fontFamily: 'OpenSans-Regular',
+    },
+    createNcDropdownPlaceholder: {
+        fontSize: Fonts.size.regular,
+        color: '#A6A6A6',
+        fontFamily: 'OpenSans-Regular',
     },
     input03: {
         backgroundColor: 'transparent',
