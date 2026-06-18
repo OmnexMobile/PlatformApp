@@ -6,24 +6,20 @@ import {
     FlatList,
     StyleSheet,
     Text,
-    Linking,
-    Dimensions,
-    Pressable,
     LogBox,
     Modal,
-    ScrollView,
     ActivityIndicator,
     TextInput,
 } from 'react-native';
 // import { Card, IconButton } from 'react-native-paper';
 import { COLORS, FONT_SIZE, SPACING } from 'constants/theme-constants';
 import strings from 'config/localization';
-import { ImageComponent, TextComponent } from 'components';
+import { ImageComponent, NoRecordFound } from 'components';
 import IconComponent from 'components/icon-component';
 import { IMAGES } from 'assets/images';
 import FastImage from 'react-native-fast-image';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
-import { FONT_TYPE, LOCAL_STORAGE_VARIABLES, ROUTES, APP_VARIABLES, STATUS_CODES, ICON_TYPE } from 'constants/app-constant';
+import { LOCAL_STORAGE_VARIABLES, ROUTES, APP_VARIABLES, STATUS_CODES, ICON_TYPE } from 'constants/app-constant';
 import { RFPercentage } from 'helpers/utils';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from 'react-native-simple-toast';
@@ -40,16 +36,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import { showMessage } from 'react-native-flash-message';
 import { Images } from 'theme/Apqp';
 import { APQP_URL, AUDITPRO_URL, GLOBAL_BASE_URL, PROBLEMSOLVING_URL, IC_URL, ensureTrailingSlash } from 'screens/globalConstant/globalURL';
-import LinearGradient from 'react-native-linear-gradient';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { AuditColors, AuditLayout, AuditShadows, AuditTypography, getAuditMetricTheme, InterFont } from 'constants/audit-hub-design';
 
-const screenWidth = Dimensions.get('window').width;
-const SECTION_HORIZONTAL_PADDING = 20;
-const SECTION_INNER_PADDING = SPACING.NORMAL;
-const CARD_GAP = 10;
-const GRID_COLUMNS = 3;
-const CARD_AREA_WIDTH = screenWidth - SECTION_HORIZONTAL_PADDING * 2 - SECTION_INNER_PADDING * 2;
-const CARD_WIDTH = (CARD_AREA_WIDTH - CARD_GAP * (GRID_COLUMNS - 1)) / GRID_COLUMNS;
+const GRID_COLUMNS = 2;
 
 const chunkIntoRows = (items, columns = GRID_COLUMNS) => {
     const rows = [];
@@ -59,39 +49,53 @@ const chunkIntoRows = (items, columns = GRID_COLUMNS) => {
     return rows;
 };
 
-const getMetricAccent = (category = '') => {
-    const key = category.toLowerCase();
-    if (key.includes('scheduled')) {
-        return { accent: '#2563EB', iconBg: ['#EFF6FF', '#DBEAFE'] };
-    }
-    if (key.includes('completed')) {
-        return { accent: '#059669', iconBg: ['#ECFDF5', '#D1FAE5'] };
-    }
-    if (key.includes('deadline') || key.includes('violated')) {
-        return { accent: '#DC2626', iconBg: ['#FEF2F2', '#FEE2E2'] };
-    }
-    if (key.includes('closed')) {
-        return { accent: '#7C3AED', iconBg: ['#F5F3FF', '#EDE9FE'] };
-    }
-    if (key.includes('open')) {
-        return { accent: '#0891B2', iconBg: ['#ECFEFF', '#CFFAFE'] };
-    }
-    if (key.includes('progress')) {
-        return { accent: '#D97706', iconBg: ['#FFFBEB', '#FEF3C7'] };
-    }
-    if (key.includes('concern')) {
-        return { accent: COLORS.primaryThemeColor, iconBg: ['#E8EEF8', '#D4DFF5'] };
-    }
-    if (key.includes('inspection') || key.includes('operator') || key.includes('worksheet')) {
-        return { accent: '#0E7490', iconBg: ['#ECFEFF', '#CFFAFE'] };
-    }
-    return { accent: COLORS.primaryThemeColor, iconBg: ['#E8EEF8', '#D4DFF5'] };
+const getMetricSubtitle = (category = '') => {
+    const key = category.toLowerCase().replace(/\n/g, ' ');
+    if (key.includes('scheduled')) return 'Upcoming';
+    if (key.includes('completed') && !key.includes('deadline')) return 'Successfully completed';
+    if (key.includes('deadline') && key.includes('violated') && !key.includes('closed')) return 'Require attention';
+    if (key.includes('closed')) return 'Audits closed';
+    if (key.includes('open')) return 'Awaiting action';
+    if (key.includes('progress')) return 'In progress';
+    if (key.includes('concern')) return 'Total concerns';
+    if (key.includes('reject')) return 'Rejected items';
+    if (key.includes('draft')) return 'Draft items';
+    if (key.includes('rework')) return 'Rework items';
+    if (key.includes('cancel')) return 'Cancelled items';
+    if (key.includes('inspection')) return 'Scheduled items';
+    if (key.includes('operator')) return 'Active worksheets';
+    if (key.includes('project') || key.includes('apqp') || key.includes('ppap')) return 'Active items';
+    if (key.includes('risk')) return 'Open risks';
+    if (key.includes('meeting')) return 'Scheduled meetings';
+    if (key.includes('action')) return 'Pending actions';
+    return 'View details';
 };
 
+const getModuleIcon = (title = '') => {
+    const key = title.toLowerCase();
+    if (key.includes('audit')) return IMAGES.scheduledAudit;
+    if (key.includes('supplier')) return IMAGES.completedAudit;
+    if (key.includes('problem') || key.includes('concern')) return IMAGES.concerns;
+    if (key.includes('inspection')) return IMAGES.ICIS;
+    if (key.includes('apqp') || key.includes('ppap') || key.includes('project')) return IMAGES.projects;
+    return IMAGES.scheduledAudit;
+};
+
+const getTotalBadgeLabel = (title = '', total = 0) => {
+    const key = title.toLowerCase();
+    if (key.includes('problem') || key.includes('concern')) return `${total} Total Concerns`;
+    if (key.includes('inspection')) return `${total} Total Items`;
+    if (key.includes('apqp') || key.includes('ppap') || key.includes('project')) return `${total} Total Items`;
+    return `${total} Total Audits`;
+};
+
+const sumMetricTotal = items =>
+    (items || []).reduce((total, item) => {
+        const value = Number(item?.status);
+        return total + (Number.isFinite(value) ? value : 0);
+    }, 0);
+
 const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
-    // console.log('tabIndex--------', tabIndex, '--', currentUser, '--', isSupplier)
-    // console.log('CURRENT_PAGE---->', 'home-tab-card')
-    // console.log('countDetails home-tab-card---->', countDetails)
     const navigations = useNavigation();
     const [currentUserData, setCurrentUserData] = useState([]);
     // This hook returns `true` if the screen is focused, `false` otherwise
@@ -118,7 +122,14 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
     const [tempEndDate, setTempEndDate] = useState(new Date());
     const [showFromPicker, setShowFromPicker] = useState(false);
     const [showToPicker, setShowToPicker] = useState(false);
+    const [expandedSections, setExpandedSections] = useState({});
     const dispatch = useDispatch();
+
+    const toggleSection = sectionKey => {
+        setExpandedSections(prev => ({ ...prev, [sectionKey]: !prev[sectionKey] }));
+    };
+
+    const isSectionExpanded = sectionKey => expandedSections[sectionKey] === true;
 
     const openRangeModal = () => {
         setTempStartDate(startDate || new Date());
@@ -315,21 +326,25 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
                                       images: IMAGES.scheduledAudit,
                                       category: strings.scheduledAudit,
                                       status: assessmentStats ? assessmentStats?.Scheduled ?? 0 : undefined,
+                                      navStatus: 2,
                                   },
                                   {
                                       images: IMAGES.completedAudit,
                                       category: strings.completedAudit,
                                       status: assessmentStats ? assessmentStats?.Completed ?? 0 : undefined,
+                                      navStatus: 3,
                                   },
                                   {
                                       images: IMAGES.deadlineViolated,
                                       category: strings.deadlineViolated,
                                       status: assessmentStats ? assessmentStats?.DeadlineViolated ?? 0 : undefined,
+                                      navStatus: 4,
                                   },
                                   {
                                       images: IMAGES.closedOut,
                                       category: strings.closedOut,
                                       status: assessmentStats ? assessmentStats?.CompletedDeadlineViolated ?? 0 : undefined,
+                                      navStatus: 5,
                                   },
                               ],
                           },
@@ -340,21 +355,25 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
                                       images: IMAGES.scheduledAudit,
                                       category: strings.scheduledAudit,
                                       status: routineStats ? routineStats?.Scheduled ?? 0 : undefined,
+                                      navStatus: 2,
                                   },
                                   {
                                       images: IMAGES.completedAudit,
                                       category: strings.completedAudit,
                                       status: routineStats ? routineStats?.Completed ?? 0 : undefined,
+                                      navStatus: 3,
                                   },
                                   {
                                       images: IMAGES.deadlineViolated,
                                       category: strings.deadlineViolated,
                                       status: routineStats ? routineStats?.DeadlineViolated ?? 0 : undefined,
+                                      navStatus: 4,
                                   },
                                   {
                                       images: IMAGES.closedOut,
                                       category: strings.closedOut,
                                       status: routineStats ? routineStats?.CompletedDeadlineViolated ?? 0 : undefined,
+                                      navStatus: 5,
                                   },
                               ],
                           },
@@ -1040,131 +1059,146 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
     // };
 
     const renderMetricCard = (cardItem, index, sectionTitle, onPress) => {
-        const accent = getMetricAccent(cardItem?.category);
+        const theme = getAuditMetricTheme(cardItem?.category);
+        const subtitle = getMetricSubtitle(cardItem?.category);
+
         return (
             <TouchableOpacity
-                activeOpacity={0.88}
-                style={[styles.cardContent, { borderTopColor: accent.accent }]}
+                activeOpacity={0.9}
                 key={`${sectionTitle}-${index}`}
-                onPress={onPress}>
-                {!!cardItem.images && (
-                    <LinearGradient
-                        colors={cardItem.iconColors || accent.iconBg}
-                        start={{ x: 0, y: 0 }}
-                        end={{ x: 1, y: 1 }}
-                        style={styles.iconWrapper}>
-                        <ImageComponent style={styles.imageView} source={cardItem.images} resizeMode={FastImage.resizeMode.contain} />
-                    </LinearGradient>
-                )}
-                <TextComponent style={styles.cardTitle} numberOfLines={2}>
-                    {cardItem.category}
-                </TextComponent>
-                <View style={styles.countContainer}>
+                onPress={onPress}
+                style={[styles.metricCard, AuditShadows.metric]}>
+                <View style={styles.metricCardBody}>
+                    <View style={styles.metricTopRow}>
+                        {!!cardItem.images && (
+                            <View style={[styles.iconContainer, { backgroundColor: theme.iconBg }]}>
+                                <ImageComponent
+                                    style={styles.metricIconImage}
+                                    source={cardItem.images}
+                                    resizeMode={FastImage.resizeMode.contain}
+                                />
+                            </View>
+                        )}
+                        <Text numberOfLines={1} style={styles.metricTitle}>
+                            {cardItem.category?.replace(/\n/g, ' ')}
+                        </Text>
+                    </View>
+
                     {cardItem?.status === undefined || cardItem?.status === null ? (
-                        <ActivityIndicator size="small" color={accent.accent} />
+                        <ActivityIndicator size="small" color={theme.accent} style={styles.metricLoader} />
                     ) : (
-                        <TextComponent type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.X_LARGE} style={[styles.countText, { color: accent.accent }]}>
+                        <Text numberOfLines={1} style={[styles.metricValue, { color: theme.accent }]}>
                             {cardItem?.status}
-                        </TextComponent>
+                        </Text>
                     )}
+
+                    <Text numberOfLines={1} style={styles.metricSubtitle}>
+                        {subtitle}
+                    </Text>
                 </View>
+
+                <View style={[styles.metricAccentBar, { backgroundColor: theme.borderColor }]} />
             </TouchableOpacity>
         );
     };
 
-    const Item = ({ title, detail }) => (
-        <View style={styles.sectionWrapper}>
-            <View style={styles.sectionHeader}>
-                <View style={styles.sectionAccentBar} />
-                <Text style={styles.sectionTitle}>{title}</Text>
-            </View>
-            {/* Normal sections */}
-            {title !== strings.supplierMgnt && (
-                <View style={styles.cardContainer}>
-                    {chunkIntoRows(detail.filter(items => items.category?.length)).map((row, rowIndex) => (
-                        <View key={`${title}-row-${rowIndex}`} style={styles.cardRow}>
-                            {row.map((items, index) =>
-                                renderMetricCard(items, rowIndex * GRID_COLUMNS + index, title, () =>
-                                    handleNavigation(
-                                        title,
-                                        items?.navStatus ?? items?.status,
-                                        items?.category,
-                                        items?.auditTitle,
-                                        items?.routeName,
-                                        undefined,
-                                        undefined,
-                                        items?.status,
+    const renderModuleSection = ({ sectionKey, title, items, onMetricPress }) => {
+        const visibleItems = (items || []).filter(item => item?.category?.length);
+        if (!visibleItems.length) return null;
+
+        const expanded = isSectionExpanded(sectionKey);
+        const total = sumMetricTotal(visibleItems);
+
+        return (
+            <View key={sectionKey} style={[styles.moduleCard, AuditShadows.card]}>
+                <TouchableOpacity activeOpacity={0.85} style={styles.moduleCardHeader} onPress={() => toggleSection(sectionKey)}>
+                    <View style={styles.moduleIconCircle}>
+                        <ImageComponent
+                            style={styles.moduleIconImage}
+                            source={getModuleIcon(title)}
+                            resizeMode={FastImage.resizeMode.contain}
+                        />
+                    </View>
+                    <View style={styles.moduleHeaderText}>
+                        <Text numberOfLines={2} style={styles.moduleTitle}>
+                            {title?.replace(/\n/g, ' ')}
+                        </Text>
+                        <Text style={styles.totalBadgeText}>{getTotalBadgeLabel(title, total)}</Text>
+                    </View>
+                    <IconComponent
+                        name={expanded ? 'down' : 'right'}
+                        type={ICON_TYPE.AntDesign}
+                        size={RFPercentage(2.2)}
+                        color={AuditColors.textSecondary}
+                    />
+                </TouchableOpacity>
+
+                {expanded ? (
+                    <View style={styles.statsGrid}>
+                        {chunkIntoRows(visibleItems, GRID_COLUMNS).map((row, rowIndex) => (
+                            <View
+                                key={`${sectionKey}-row-${rowIndex}`}
+                                style={[styles.metricsRow, rowIndex > 0 && styles.metricsRowSpacing]}>
+                                {row.map((item, index) =>
+                                    renderMetricCard(item, rowIndex * GRID_COLUMNS + index, sectionKey, () =>
+                                        onMetricPress(item, rowIndex * GRID_COLUMNS + index),
                                     ),
-                                ),
-                            )}
-                            {row.length < GRID_COLUMNS &&
-                                Array.from({ length: GRID_COLUMNS - row.length }).map((_, spacerIndex) => (
-                                    <View key={`${title}-spacer-${spacerIndex}`} style={styles.cardSpacer} />
-                                ))}
-                        </View>
-                    ))}
-                </View>
-            )}
-
-            {title === strings.supplierMgnt && (
-                <View style={styles.cardContainer}>
-                    {(() => {
-                        console.log('🔍 Full detail:', detail);
-
-                        const filtered = detail?.filter(group => {
-                            const cleanTitle = group.groupTitle?.replace(/\n/g, ' ').trim();
-                            return ['Supplier Initial Assessment', 'Supplier Routine Audit'].includes(cleanTitle);
-                        });
-
-                        console.log('✅ Filtered list:', filtered);
-
-                        if (!filtered || filtered.length === 0) {
-                            console.log('❌ No matching groups found');
-                            return null;
-                        }
-
-                        return filtered.map((group, idx) => (
-                            <View key={idx} style={{ width: '100%', marginTop: 12 }}>
-                                {console.log('UI 2 detail--->', group, 'groupTitle--->', group.groupTitle, 'audits--->', group.audits)}
-
-                                {group.groupTitle && (
-                                    <View style={[styles.sectionHeader, { marginBottom: 10 }]}>
-                                        <View style={styles.sectionAccentBar} />
-                                        <Text style={styles.headerTitleGroup} numberOfLines={1}>
-                                            {group.groupTitle.replace(/\n/g, ' ')}
-                                        </Text>
-                                    </View>
                                 )}
-                                <View style={styles.cardContainer}>
-                                    {chunkIntoRows(group.audits || []).map((row, rowIndex) => (
-                                        <View key={`${title}-${idx}-row-${rowIndex}`} style={styles.cardRow}>
-                                            {row.map((audit, index) =>
-                                                renderMetricCard(audit, rowIndex * GRID_COLUMNS + index, `${title}-${idx}`, () =>
-                                                    handleNavigation(
-                                                        title,
-                                                        audit?.status,
-                                                        audit?.category,
-                                                        audit?.auditTitle,
-                                                        audit?.routeName,
-                                                        rowIndex * GRID_COLUMNS + index,
-                                                        group?.groupTitle,
-                                                    ),
-                                                ),
-                                            )}
-                                            {row.length < GRID_COLUMNS &&
-                                                Array.from({ length: GRID_COLUMNS - row.length }).map((_, spacerIndex) => (
-                                                    <View key={`${title}-${idx}-spacer-${spacerIndex}`} style={styles.cardSpacer} />
-                                                ))}
-                                        </View>
-                                    ))}
-                                </View>
                             </View>
-                        ));
-                    })()}
+                        ))}
+                    </View>
+                ) : null}
+            </View>
+        );
+    };
+
+    const Item = ({ title, detail }) => {
+        if (title === strings.supplierMgnt) {
+            const filtered = detail?.filter(group => {
+                const cleanTitle = group.groupTitle?.replace(/\n/g, ' ').trim();
+                return ['Supplier Initial Assessment', 'Supplier Routine Audit'].includes(cleanTitle);
+            });
+
+            return (
+                <View>
+                    {filtered?.map((group, idx) =>
+                        renderModuleSection({
+                            sectionKey: `${title}-${idx}`,
+                            title: group.groupTitle,
+                            items: group.audits,
+                            onMetricPress: audit =>
+                                handleNavigation(
+                                    title,
+                                    audit?.navStatus ?? audit?.status,
+                                    audit?.category,
+                                    audit?.auditTitle,
+                                    audit?.routeName,
+                                    undefined,
+                                    group?.groupTitle,
+                                ),
+                        }),
+                    )}
                 </View>
-            )}
-        </View>
-    );
+            );
+        }
+
+        return renderModuleSection({
+            sectionKey: title,
+            title,
+            items: detail,
+            onMetricPress: items =>
+                handleNavigation(
+                    title,
+                    items?.navStatus ?? items?.status,
+                    items?.category,
+                    items?.auditTitle,
+                    items?.routeName,
+                    undefined,
+                    undefined,
+                    items?.status,
+                ),
+        });
+    };
 
     return (
         <SafeAreaView style={styles.safeArea}>
@@ -1182,27 +1216,23 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
                 </Modal>
             ) : null}
 
-            <View style={styles.filterRow}>
-                <View style={styles.filterInputWrapper}>
-                    <TouchableOpacity
-                        style={styles.filterIconInside}
-                        onPress={() => filterInputRef?.current?.focus?.()}>
-                        <IconComponent type={ICON_TYPE.FontAwesome} name="search" size={15} color={COLORS.primaryThemeColor} />
+            <View style={[styles.searchContainer, AuditShadows.search]}>
+                <TouchableOpacity style={styles.filterIconInside} onPress={() => filterInputRef?.current?.focus?.()}>
+                    <IconComponent type={ICON_TYPE.FontAwesome} name="search" size={RFPercentage(1.8)} color={AuditColors.textSecondary} />
+                </TouchableOpacity>
+                <TextInput
+                    ref={filterInputRef}
+                    value={filterText}
+                    onChangeText={setFilterText}
+                    placeholder="Search modules (e.g., audit, concern)"
+                    style={styles.filterInput}
+                    placeholderTextColor={AuditColors.textSecondary}
+                />
+                {filterText.length > 0 && (
+                    <TouchableOpacity style={styles.filterClearBtn} onPress={() => setFilterText('')}>
+                        <IconComponent type={ICON_TYPE.FontAwesome} name="times-circle" size={RFPercentage(1.9)} color={AuditColors.textSecondary} />
                     </TouchableOpacity>
-                    <TextInput
-                        ref={filterInputRef}
-                        value={filterText}
-                        onChangeText={setFilterText}
-                        placeholder="Search modules (e.g., audit, concern)"
-                        style={styles.filterInput}
-                        placeholderTextColor={COLORS.searchText}
-                    />
-                    {filterText.length > 0 && (
-                        <TouchableOpacity style={styles.filterClearBtn} onPress={() => setFilterText('')}>
-                            <IconComponent type={ICON_TYPE.FontAwesome} name="times-circle" size={16} color={COLORS.searchText} />
-                        </TouchableOpacity>
-                    )}
-                </View>
+                )}
             </View>
 
             <Modal visible={rangeModalVisible} transparent animationType="fade" onRequestClose={() => setRangeModalVisible(false)}>
@@ -1300,13 +1330,16 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
                 </View>
             </Modal>
 
-            {filteredDataSet?.length > 0 && (
+            {filteredDataSet?.length > 0 ? (
                 <FlatList
                     data={filteredDataSet}
                     renderItem={({ item }) => (item?.title === null ? null : <Item detail={item?.detail} title={item?.title} />)}
                     keyExtractor={item => String(item?.id)}
                     contentContainerStyle={styles.listContentContainer}
+                    showsVerticalScrollIndicator={false}
                 />
+            ) : (
+                <NoRecordFound />
             )}
         </SafeAreaView>
     );
@@ -1315,98 +1348,118 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
 const styles = StyleSheet.create({
     safeArea: {
         flex: 1,
-        backgroundColor: '#F4F6FA',
+        backgroundColor: AuditColors.background,
     },
-    sectionWrapper: {
-        marginHorizontal: SECTION_HORIZONTAL_PADDING,
-        marginBottom: SPACING.LARGE,
-        backgroundColor: COLORS.white,
-        borderRadius: 20,
-        padding: SPACING.NORMAL,
-        shadowColor: '#123C95',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.06,
-        shadowRadius: 12,
-        elevation: 3,
+    moduleCard: {
+        backgroundColor: AuditColors.white,
+        borderRadius: AuditLayout.moduleCardRadius,
+        padding: AuditLayout.moduleCardPadding,
+        marginHorizontal: AuditLayout.screenHorizontal,
+        marginTop: AuditLayout.sectionGap,
     },
-    sectionHeader: {
+    moduleCardHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: SPACING.NORMAL,
     },
-    sectionAccentBar: {
-        width: 4,
-        height: 22,
-        borderRadius: 4,
-        backgroundColor: COLORS.primaryThemeColor,
-        marginRight: SPACING.SMALL,
-    },
-    sectionTitle: {
-        fontFamily: 'ProximaNova-Bold',
-        fontSize: FONT_SIZE.LARGE,
-        color: '#1E293B',
-        flex: 1,
-    },
-    headerTitleGroup: {
-        fontFamily: 'ProximaNova-Bold',
-        fontSize: FONT_SIZE.NORMAL,
-        color: '#334155',
-        flex: 1,
-    },
-    cardContainer: {
-        width: '100%',
-    },
-    cardRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'stretch',
-        marginBottom: CARD_GAP,
-        width: '100%',
-    },
-    cardSpacer: {
-        width: CARD_WIDTH,
-    },
-    cardContent: {
+    moduleIconCircle: {
+        width: 48,
+        height: 48,
+        borderRadius: 24,
+        backgroundColor: '#EFF6FF',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: COLORS.white,
-        width: CARD_WIDTH,
-        flexGrow: 0,
-        flexShrink: 0,
-        minHeight: 118,
-        paddingVertical: SPACING.SMALL,
-        paddingHorizontal: SPACING.X_SMALL,
-        borderRadius: 16,
-        borderWidth: 1,
-        borderColor: '#E8EDF5',
-        borderTopWidth: 3,
-        shadowColor: '#0F172A',
-        shadowOffset: { width: 0, height: 3 },
-        shadowOpacity: 0.08,
-        shadowRadius: 8,
-        elevation: 3,
+        marginRight: 14,
     },
-    cardTitle: {
-        fontSize: FONT_SIZE.X_SMALL,
-        fontFamily: 'OpenSans-SemiBold',
-        textAlign: 'center',
-        color: '#475569',
-        marginTop: SPACING.X_SMALL,
-        lineHeight: 14,
-        minHeight: 28,
+    moduleIconImage: {
+        width: 24,
+        height: 24,
     },
-    countContainer: {
+    moduleHeaderText: {
+        flex: 1,
+        paddingRight: 12,
+    },
+    moduleTitle: {
+        ...AuditTypography.title,
+        color: AuditColors.textPrimary,
+    },
+    totalBadgeText: {
         marginTop: 4,
+        fontSize: 13,
+        fontFamily: InterFont.medium,
+        color: AuditColors.scheduled,
+    },
+    statsGrid: {
+        marginTop: 20,
+    },
+    metricsRow: {
+        flexDirection: 'row',
+        gap: AuditLayout.cardGap,
+    },
+    metricsRowSpacing: {
+        marginTop: AuditLayout.cardGap,
+    },
+    metricCard: {
+        flex: 1,
+        flexBasis: 0,
+        backgroundColor: AuditColors.white,
+        borderRadius: AuditLayout.metricCardRadius,
+        minHeight: AuditLayout.metricCardMinHeight,
+        overflow: 'hidden',
+        borderWidth: StyleSheet.hairlineWidth,
+        borderColor: AuditColors.border,
+    },
+    metricCardBody: {
+        flex: 1,
+        padding: AuditLayout.metricCardPadding,
+        paddingBottom: 10,
+    },
+    metricTopRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        minHeight: AuditLayout.metricIconCircle,
+    },
+    metricAccentBar: {
+        width: '100%',
+        height: AuditLayout.metricCardBottomBorder,
+    },
+    iconContainer: {
+        width: AuditLayout.metricIconCircle,
+        height: AuditLayout.metricIconCircle,
+        borderRadius: AuditLayout.metricIconCircle / 2,
         alignItems: 'center',
         justifyContent: 'center',
-        minHeight: 26,
+        marginRight: 8,
+        flexShrink: 0,
     },
-    countText: {
-        letterSpacing: -0.5,
+    metricIconImage: {
+        width: 16,
+        height: 16,
     },
-    imageView: {
-        height: 20,
-        width: 20,
+    metricTitle: {
+        ...AuditTypography.metricTitle,
+        color: AuditColors.textPrimary,
+        flex: 1,
+        minWidth: 0,
+        textAlign: 'left',
+    },
+    metricLoader: {
+        alignSelf: 'flex-start',
+        marginTop: 10,
+    },
+    metricValue: {
+        ...AuditTypography.metricValue,
+        marginTop: 8,
+        textAlign: 'left',
+        alignSelf: 'flex-start',
+        includeFontPadding: false,
+    },
+    metricSubtitle: {
+        ...AuditTypography.metricSubtitle,
+        color: AuditColors.textSecondary,
+        marginTop: 4,
+        textAlign: 'left',
+        alignSelf: 'flex-start',
+        includeFontPadding: false,
     },
     modalBackground: {
         flex: 1,
@@ -1415,59 +1468,31 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(0,0,0,0.7)',
         height: '50%',
     },
-    iconWrapper: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
     listContentContainer: {
-        paddingTop: SPACING.SMALL,
-        paddingBottom: SPACING.X_LARGE,
-        paddingHorizontal: 0,
+        paddingBottom: SPACING.XX_LARGE,
     },
-    filterRow: {
+    searchContainer: {
+        height: AuditLayout.searchHeight,
+        borderRadius: AuditLayout.searchRadius,
+        backgroundColor: AuditColors.white,
+        marginHorizontal: AuditLayout.screenHorizontal,
+        marginTop: AuditLayout.sectionGap,
+        paddingHorizontal: 16,
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: SECTION_HORIZONTAL_PADDING,
-        marginTop: SPACING.NORMAL,
-        marginBottom: SPACING.NORMAL,
-    },
-    filterInputWrapper: {
-        flex: 1,
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: COLORS.white,
-        borderRadius: 14,
-        borderWidth: 1,
-        borderColor: '#E2E8F0',
-        paddingHorizontal: SPACING.SMALL,
-        shadowColor: '#123C95',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 6,
-        elevation: 2,
     },
     filterIconInside: {
-        paddingHorizontal: 6,
-        paddingVertical: SPACING.SMALL,
+        marginRight: 8,
     },
     filterInput: {
         flex: 1,
-        height: 44,
-        fontFamily: 'OpenSans-Regular',
-        fontSize: FONT_SIZE.SMALL,
-        color: COLORS.themeBlack,
+        height: AuditLayout.searchHeight,
+        ...AuditTypography.caption,
+        color: AuditColors.textPrimary,
         backgroundColor: 'transparent',
-        paddingHorizontal: 4,
     },
     filterClearBtn: {
         padding: SPACING.SMALL,
-    },
-    calendarIcon: {
-        padding: SPACING.SMALL,
-        marginLeft: SPACING.SMALL,
     },
     rangeModalBackdrop: {
         flex: 1,

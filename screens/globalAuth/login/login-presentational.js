@@ -85,10 +85,10 @@ const LoginPresentational = ({
                         <IconComponent color={COLORS.white} name="infocirlceo" type={ICON_TYPE.AntDesign} />
                     </View>
                     <View>
-                        <TextComponent color={COLORS.white} type={FONT_TYPE.BOLD}>
+                        <TextComponent color={COLORS.white} type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.XX_SMALL}>
                             Please Register API URL to Login.
                         </TextComponent>
-                        <TextComponent color={COLORS.white} fontSize={FONT_SIZE.SMALL}>
+                        <TextComponent color={COLORS.white} fontSize={FONT_SIZE.XX_SMALL}>
                             Click here to Register.
                         </TextComponent>
                     </View>

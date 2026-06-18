@@ -1,118 +1,115 @@
-import { TextComponent } from 'components';
 import strings from 'config/localization';
-import { COLORS, FONT_SIZE, SPACING } from 'constants/theme-constants';
 import * as React from 'react';
-import { TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import TabsCard from './home-tab-card';
-import { FONT_TYPE } from 'constants/app-constant';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import { AuditColors, AuditLayout, AuditShadows, AuditTypography, InterFont } from 'constants/audit-hub-design';
 
 const TabsView = ({ countDetails, currentName }) => {
-  console.log('CURRENT_PAGE---->', 'home-tab-view')
-  const [index, setIndex] = React.useState(0);
-  console.log('index---->', index)
-  // const [isFocus, setIsFocus] = React.useState(false);
-  const [isSupplier, setSupplier] = React.useState(false);
-  const [isValue, setIsValue] = React.useState(0);
-  const [routes, setRoutes] = React.useState([]);
+    const [index, setIndex] = React.useState(0);
+    const [isSupplier, setSupplier] = React.useState(false);
+    const [isValue, setIsValue] = React.useState(0);
+    const [routes, setRoutes] = React.useState([]);
 
-  const loadTabRoutes = React.useCallback(async () => {
-      setIsValue(0);
-      const stringifiedUserDetails = await AsyncStorage.getItem('userDetails');
-      const value = stringifiedUserDetails ? JSON.parse(stringifiedUserDetails) : null;
-      console.log('SM_ACESS--->', value?.smAccess, '---', value)
-      setSupplier(value?.smAccess || "false")
-      if(value?.smAccess == "true") {
-        setRoutes([
-          { key: 'first', title: strings.internal },
-          { key: 'second', title: strings.supplier }
-        ]);
-      } else {
-        setRoutes([
-          { key: 'first', title: strings.internal }
-        ]);
-        setIndex(0);
-        if (value?.smAccess !== "false") {
-          console.log('else userdata--->',  value?.smAccess)
+    const loadTabRoutes = React.useCallback(async () => {
+        setIsValue(0);
+        const stringifiedUserDetails = await AsyncStorage.getItem('userDetails');
+        const value = stringifiedUserDetails ? JSON.parse(stringifiedUserDetails) : null;
+        setSupplier(value?.smAccess || 'false');
+        if (value?.smAccess == 'true') {
+            setRoutes([
+                { key: 'first', title: strings.internal },
+                { key: 'second', title: strings.supplier },
+            ]);
+        } else {
+            setRoutes([{ key: 'first', title: strings.internal }]);
+            setIndex(0);
         }
-      }
-      setIsValue(1)
-      console.log('current userdata--->',  value?.smAccess)
-  }, []);
+        setIsValue(1);
+    }, []);
 
-  React.useEffect(() => {
-    loadTabRoutes();
-  }, [loadTabRoutes]);
+    React.useEffect(() => {
+        loadTabRoutes();
+    }, [loadTabRoutes]);
 
-  useFocusEffect(
-    React.useCallback(() => {
-      loadTabRoutes();
-    }, [loadTabRoutes]),
-  );
+    useFocusEffect(
+        React.useCallback(() => {
+            loadTabRoutes();
+        }, [loadTabRoutes]),
+    );
 
-  const InternalTabRoute = () => (
-    <View style={{ flex: 1 }} >
-      <TabsCard {...{ countDetails }} tabIndex={0} currentUser={currentName} isSupplier={isSupplier} />
-    </View>
-  );
-  
-  const SupplierTabRoute = () => (
-    <View style={{ flex: 1 }}>
-      <TabsCard {...{ countDetails }} tabIndex={1} currentUser={currentName} isSupplier={isSupplier} />
-    </View>
-  );
+    if (isValue !== 1) {
+        return null;
+    }
 
-  return (
-    (isValue === 1) && (
-      <View style={{ flex: 1, backgroundColor: '#F4F6FA' }}>
-        <View
-          style={{
-            flexDirection: 'row',
-            backgroundColor: COLORS.white,
-            borderBottomColor: '#E8EDF5',
-            borderBottomWidth: 1,
-            paddingHorizontal: SPACING.SMALL,
-          }}
-        >
-          {routes.map((route, routeIndex) => {
-            const focused = routeIndex === index;
+    return (
+        <View style={styles.container}>
+            {routes.length > 1 ? (
+                <View style={styles.tabsContainer}>
+                    {routes.map((route, routeIndex) => {
+                        const focused = routeIndex === index;
+                        return (
+                            <TouchableOpacity
+                                key={route.key}
+                                activeOpacity={0.85}
+                                style={focused ? styles.activeTab : styles.inactiveTab}
+                                onPress={() => setIndex(routeIndex)}>
+                                <Text style={focused ? styles.activeTabText : styles.inactiveTabText}>{route.title}</Text>
+                            </TouchableOpacity>
+                        );
+                    })}
+                </View>
+            ) : null}
 
-            return (
-              <TouchableOpacity
-                key={route.key}
-                activeOpacity={0.8}
-                style={{
-                  flex: 1,
-                  alignItems: 'center',
-                  paddingVertical: SPACING.NORMAL,
-                  borderBottomWidth: 3,
-                  borderBottomColor: focused ? COLORS.primaryThemeColor : 'transparent',
-                }}
-                onPress={() => setIndex(routeIndex)}
-              >
-                <TextComponent
-                  type={focused ? FONT_TYPE.BOLD : FONT_TYPE.REGULAR}
-                  style={{
-                    fontSize: FONT_SIZE.LARGE,
-                    color: focused ? COLORS.primaryThemeColor : '#94A3B8',
-                    textAlign: 'center',
-                  }}
-                >
-                  {route.title}
-                </TextComponent>
-              </TouchableOpacity>
-            );
-          })}
+            <View style={styles.content}>
+                <TabsCard {...{ countDetails }} tabIndex={index} currentUser={currentName} isSupplier={isSupplier} />
+            </View>
         </View>
+    );
+};
 
-        <View style={{ flex: 1 }}>
-          {index === 0 ? <InternalTabRoute /> : <SupplierTabRoute />}
-        </View>
-      </View>
-    )
-  );
-}
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: AuditColors.background,
+    },
+    tabsContainer: {
+        flexDirection: 'row',
+        backgroundColor: AuditColors.white,
+        borderRadius: AuditLayout.tabContainerRadius,
+        padding: 4,
+        marginHorizontal: AuditLayout.screenHorizontal,
+        marginTop: AuditLayout.sectionGap,
+        ...AuditShadows.search,
+    },
+    activeTab: {
+        flex: 1,
+        backgroundColor: AuditColors.primary,
+        borderRadius: AuditLayout.tabActiveRadius,
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: AuditLayout.tabHeight,
+    },
+    inactiveTab: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: AuditLayout.tabHeight,
+    },
+    activeTabText: {
+        color: AuditColors.white,
+        ...AuditTypography.caption,
+        fontFamily: InterFont.semiBold,
+    },
+    inactiveTabText: {
+        color: AuditColors.textSecondary,
+        ...AuditTypography.caption,
+        fontFamily: InterFont.medium,
+    },
+    content: {
+        flex: 1,
+    },
+});
 
 export default TabsView;

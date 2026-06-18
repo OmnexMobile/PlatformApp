@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
     },
     input: {
         fontFamily: 'OpenSans-Regular',
-        fontSize: 20,
+        fontSize: FONT_SIZE.NORMAL,
         flex: 1,
         color: COLORS.black,
         fontWeight: '400',

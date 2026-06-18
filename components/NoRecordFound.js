@@ -1,23 +1,19 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import { View, useWindowDimensions } from 'react-native';
-import AnimatedLottieView from 'lottie-react-native';
+import LottieView from 'lottie-react-native';
 import { FONT_SIZE, SPACING } from 'constants/theme-constants';
 import TextComponent from './text';
 import { FONT_TYPE } from 'constants/app-constant';
 
 const NoRecordFound = () => {
     const lottieRef = useRef(null);
-    const [isLayoutReady, setIsLayoutReady] = useState(false);
     const { width } = useWindowDimensions();
-    const size = width * 0.44;
+    const size = Math.min(width * 0.44, 280);
 
-    // Triggered when the View container is physically rendered
     const handleLayout = () => {
-        setIsLayoutReady(true);
-        // Smallest possible delay to ensure the ref is attached
         setTimeout(() => {
             lottieRef.current?.play();
-        }, 50); 
+        }, 50);
     };
 
     return (
@@ -27,20 +23,21 @@ const NoRecordFound = () => {
                 padding: SPACING.NORMAL,
                 alignItems: 'center',
                 justifyContent: 'center',
-                flex: 1,
+                width: '100%',
+                minHeight: size + SPACING.LARGE * 2,
             }}>
             <View style={{ width: size, height: size }}>
-                    <AnimatedLottieView
-                        ref={lottieRef}
-                        source={require('../assets/lottie/norecords.json')}
-                        loop
-                        autoPlay={false} // We control it manually
-                        cacheComposition={false}
-                        cacheStrategy="none"
-                        renderMode="SOFTWARE"
-                        resizeMode="contain"
-                        style={{ width: '100%', height: '100%' }}
-                    />
+                <LottieView
+                    ref={lottieRef}
+                    source={require('../assets/lottie/norecords.json')}
+                    loop
+                    autoPlay={false}
+                    cacheComposition={false}
+                    cacheStrategy="none"
+                    renderMode="SOFTWARE"
+                    resizeMode="contain"
+                    style={{ width: '100%', height: '100%' }}
+                />
             </View>
             <TextComponent type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.LARGE}>
                 No Records Found
