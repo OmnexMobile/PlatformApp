@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
     TouchableOpacity,
-    SafeAreaView,
     View,
     FlatList,
     StyleSheet,
@@ -37,7 +36,7 @@ import { showMessage } from 'react-native-flash-message';
 import { Images } from 'theme/Apqp';
 import { APQP_URL, AUDITPRO_URL, GLOBAL_BASE_URL, PROBLEMSOLVING_URL, IC_URL, ensureTrailingSlash } from 'screens/globalConstant/globalURL';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { AuditColors, AuditLayout, AuditShadows, AuditTypography, getAuditMetricTheme, InterFont } from 'constants/audit-hub-design';
+import { AuditColors, AuditLayout, AuditShadows, AuditTypography, getAuditMetricTheme, InterFont, interText } from 'constants/audit-hub-design';
 
 const GRID_COLUMNS = 2;
 
@@ -1201,7 +1200,7 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
     };
 
     return (
-        <SafeAreaView style={styles.safeArea}>
+        <View style={styles.safeArea}>
             {loading ? (
                 <Modal
                     transparent={true}
@@ -1216,23 +1215,25 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
                 </Modal>
             ) : null}
 
-            <View style={[styles.searchContainer, AuditShadows.search]}>
-                <TouchableOpacity style={styles.filterIconInside} onPress={() => filterInputRef?.current?.focus?.()}>
-                    <IconComponent type={ICON_TYPE.FontAwesome} name="search" size={RFPercentage(1.8)} color={AuditColors.textSecondary} />
-                </TouchableOpacity>
-                <TextInput
-                    ref={filterInputRef}
-                    value={filterText}
-                    onChangeText={setFilterText}
-                    placeholder="Search modules (e.g., audit, concern)"
-                    style={styles.filterInput}
-                    placeholderTextColor={AuditColors.textSecondary}
-                />
-                {filterText.length > 0 && (
-                    <TouchableOpacity style={styles.filterClearBtn} onPress={() => setFilterText('')}>
-                        <IconComponent type={ICON_TYPE.FontAwesome} name="times-circle" size={RFPercentage(1.9)} color={AuditColors.textSecondary} />
+            <View style={styles.searchSticky}>
+                <View style={[styles.searchContainer, AuditShadows.search]}>
+                    <TouchableOpacity style={styles.filterIconInside} onPress={() => filterInputRef?.current?.focus?.()}>
+                        <IconComponent type={ICON_TYPE.FontAwesome} name="search" size={RFPercentage(1.8)} color={AuditColors.textSecondary} />
                     </TouchableOpacity>
-                )}
+                    <TextInput
+                        ref={filterInputRef}
+                        value={filterText}
+                        onChangeText={setFilterText}
+                        placeholder="Search modules (e.g., audit, concern)"
+                        style={styles.filterInput}
+                        placeholderTextColor={AuditColors.textSecondary}
+                    />
+                    {filterText.length > 0 && (
+                        <TouchableOpacity style={styles.filterClearBtn} onPress={() => setFilterText('')}>
+                            <IconComponent type={ICON_TYPE.FontAwesome} name="times-circle" size={RFPercentage(1.9)} color={AuditColors.textSecondary} />
+                        </TouchableOpacity>
+                    )}
+                </View>
             </View>
 
             <Modal visible={rangeModalVisible} transparent animationType="fade" onRequestClose={() => setRangeModalVisible(false)}>
@@ -1332,6 +1333,7 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
 
             {filteredDataSet?.length > 0 ? (
                 <FlatList
+                    style={styles.list}
                     data={filteredDataSet}
                     renderItem={({ item }) => (item?.title === null ? null : <Item detail={item?.detail} title={item?.title} />)}
                     keyExtractor={item => String(item?.id)}
@@ -1339,9 +1341,11 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
                     showsVerticalScrollIndicator={false}
                 />
             ) : (
-                <NoRecordFound />
+                <View style={styles.list}>
+                    <NoRecordFound />
+                </View>
             )}
-        </SafeAreaView>
+        </View>
     );
 };
 
@@ -1349,6 +1353,14 @@ const styles = StyleSheet.create({
     safeArea: {
         flex: 1,
         backgroundColor: AuditColors.background,
+    },
+    searchSticky: {
+        zIndex: 10,
+        elevation: 10,
+        backgroundColor: AuditColors.background,
+    },
+    list: {
+        flex: 1,
     },
     moduleCard: {
         backgroundColor: AuditColors.white,
@@ -1382,12 +1394,11 @@ const styles = StyleSheet.create({
         ...AuditTypography.title,
         color: AuditColors.textPrimary,
     },
-    totalBadgeText: {
+    totalBadgeText: interText(InterFont.medium, {
         marginTop: 4,
         fontSize: 13,
-        fontFamily: InterFont.medium,
         color: AuditColors.scheduled,
-    },
+    }),
     statsGrid: {
         marginTop: 20,
     },
@@ -1484,13 +1495,12 @@ const styles = StyleSheet.create({
     filterIconInside: {
         marginRight: 8,
     },
-    filterInput: {
+    filterInput: interText(InterFont.regular, {
         flex: 1,
         height: AuditLayout.searchHeight,
-        ...AuditTypography.caption,
         color: AuditColors.textPrimary,
         backgroundColor: 'transparent',
-    },
+    }),
     filterClearBtn: {
         padding: SPACING.SMALL,
     },

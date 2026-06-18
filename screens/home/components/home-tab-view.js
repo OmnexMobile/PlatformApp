@@ -4,7 +4,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import TabsCard from './home-tab-card';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { AuditColors, AuditLayout, AuditShadows, AuditTypography, InterFont } from 'constants/audit-hub-design';
+import { AuditColors, AuditLayout, AuditShadows, AuditTypography, InterFont, interText } from 'constants/audit-hub-design';
 
 const TabsView = ({ countDetails, currentName }) => {
     const [index, setIndex] = React.useState(0);
@@ -97,16 +97,14 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         height: AuditLayout.tabHeight,
     },
-    activeTabText: {
+    activeTabText: interText(InterFont.semiBold, {
         color: AuditColors.white,
         ...AuditTypography.caption,
-        fontFamily: InterFont.semiBold,
-    },
-    inactiveTabText: {
+    }),
+    inactiveTabText: interText(InterFont.medium, {
         color: AuditColors.textSecondary,
         ...AuditTypography.caption,
-        fontFamily: InterFont.medium,
-    },
+    }),
     content: {
         flex: 1,
     },

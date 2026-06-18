@@ -1,34 +1,39 @@
 /**
- * Audits hub design tokens — Inter font family.
- * iOS uses PostScript names from the bundled TTF files; Android uses filenames.
+ * Audits hub design tokens — Inter 18pt static font family.
+ * iOS resolves by PostScript name; Android resolves by font filename (Inter18pt-*.ttf).
  */
 import { Platform } from 'react-native';
 
 export const InterFont = {
-    regular: Platform.select({ ios: 'Inter18pt-Regular', android: 'Inter-Regular' }),
-    medium: Platform.select({ ios: 'Inter18pt-Medium', android: 'Inter-Medium' }),
-    semiBold: Platform.select({ ios: 'Inter18pt-SemiBold', android: 'Inter-SemiBold' }),
-    bold: Platform.select({ ios: 'Inter18pt-Bold', android: 'Inter-Bold' }),
+    regular: 'Inter18pt-Regular',
+    medium: 'Inter18pt-Medium',
+    semiBold: 'Inter18pt-SemiBold',
+    bold: 'Inter18pt-Bold',
 };
 
+/** Android ignores fontWeight when a custom fontFamily is set — use the matching Inter file instead. */
+export const interText = (fontFamily, style = {}) => ({
+    ...style,
+    fontFamily,
+    ...(Platform.OS === 'android' ? { fontWeight: 'normal' } : {}),
+});
+
 export const AuditTypography = {
-    h1: { fontSize: 30, fontFamily: InterFont.bold, letterSpacing: -0.5 },
-    h2: { fontSize: 24, fontFamily: InterFont.bold },
-    title: { fontSize: 18, fontFamily: InterFont.semiBold },
-    body: { fontSize: 16, fontFamily: InterFont.regular },
-    caption: { fontSize: 14, fontFamily: InterFont.regular },
-    metricTitle: {
+    h1: interText(InterFont.bold, { fontSize: 30, letterSpacing: -0.5 }),
+    h2: interText(InterFont.bold, { fontSize: 24 }),
+    title: interText(InterFont.semiBold, { fontSize: 18 }),
+    body: interText(InterFont.regular, { fontSize: 16 }),
+    caption: interText(InterFont.regular, { fontSize: 14 }),
+    metricTitle: interText(InterFont.semiBold, {
         fontSize: 11,
-        fontFamily: InterFont.semiBold,
         lineHeight: 14,
         letterSpacing: -0.2,
-    },
-    metricValue: { fontSize: 30, fontFamily: InterFont.bold, lineHeight: 34 },
-    metricSubtitle: {
+    }),
+    metricValue: interText(InterFont.bold, { fontSize: 30, lineHeight: 34 }),
+    metricSubtitle: interText(InterFont.regular, {
         fontSize: 10,
-        fontFamily: InterFont.regular,
         lineHeight: 13,
-    },
+    }),
 };
 
 export const AuditColors = {
