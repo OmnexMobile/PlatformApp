@@ -78,6 +78,17 @@ class CameraCapture extends Component {
     return `${this.normalizeFsPath(RNFetchBlob.fs.dirs.DocumentDir)}/${Platform.OS == 'ios' ? 'IosFiles' : 'AuditFiles'}`;
   }
 
+  async ensureCaptureDirectory() {
+    const directory = this.getCaptureDirectory();
+    const exists = await RNFetchBlob.fs.exists(directory);
+
+    if (!exists) {
+      await RNFetchBlob.fs.mkdir(directory);
+    }
+
+    return directory;
+  }
+
   toFileUri(path) {
     const normalizedPath = this.normalizeFsPath(path);
 
@@ -88,6 +99,18 @@ class CameraCapture extends Component {
     return normalizedPath.startsWith('/')
       ? `file://${normalizedPath}`
       : `file:///${normalizedPath}`;
+  }
+
+  withTimeout(promise, timeoutMs, errorMessage) {
+    let timeoutId;
+
+    const timeoutPromise = new Promise((_, reject) => {
+      timeoutId = setTimeout(() => reject(new Error(errorMessage)), timeoutMs);
+    });
+
+    return Promise.race([promise, timeoutPromise]).finally(() => {
+      clearTimeout(timeoutId);
+    });
   }
 
   getCameraDevice() {
@@ -235,12 +258,20 @@ class CameraCapture extends Component {
     }
   }
  
-  storePhotoEdited = () => {
+  storePhotoEdited = async () => {
     console.log('Camera:storePhotoEdited', this.state.capturedImagePath);
     // console.log('Date ==>', this.state.timestamp)
     console.log('Camera:CAptured time', this.timestamp());
     var filepath = undefined;
-    var newImgPath = this.getCaptureDirectory();
+    var newImgPath = '';
+    try {
+      newImgPath = await this.ensureCaptureDirectory();
+    } catch (err) {
+      console.log('camera: directory error', err);
+      Alert.alert('Camera error', 'Unable to access image storage.');
+      this.setState({captureState: 'CameraMode', isCameraLaunching: false});
+      return;
+    }
    {
       console.log(this.state.capturedImagePath, 'capturedilepat');
       filepath = (Platform.OS == 'android' ? this.toFileUri(this.state.capturedImagePath) : this.state.capturedImagePath);
@@ -269,7 +300,11 @@ class CameraCapture extends Component {
       saveFormat: 'base64',
     };
 
-    Promise.resolve().then(() => ImageMarker.markText(markerOptions)).then(res => {
+    return this.withTimeout(
+      Promise.resolve().then(() => ImageMarker.markText(markerOptions)),
+      15000,
+      'Image watermark timed out',
+    ).then(res => {
       if (res.startsWith("data:")){
 
         res = res.split(',')[1];
@@ -278,13 +313,17 @@ class CameraCapture extends Component {
       console.log('Camera:theÂ pathÂ is ' + res);
           //res = Platform.OS == 'ios' ? '/'+res : res;
           console.log('Camera: modified path ' + res);
-      this.doCompressImage(res).then(data => {   
+      return this.withTimeout(
+        this.doCompressImage(res),
+        15000,
+        'Image compression timed out',
+      ).then(data => {
         let timeStamp = Moment().unix();
           console.log('Camera:fetch data', data);
           console.log('Camera:newImgPath--->', newImgPath);
           const uripath =
             newImgPath + '/' + 'CapturedImage_' + timeStamp + '.jpg';
-          RNFetchBlob.fs.writeFile(uripath, data, 'base64').then(data => {
+          return RNFetchBlob.fs.writeFile(uripath, data, 'base64').then(data => {
             console.log('Camera:File added sucessfully');
           }).then((res)=> {
             this.setState(
@@ -307,6 +346,8 @@ class CameraCapture extends Component {
         });
     }).catch(err => {
       console.log('camera: Error', err);
+      Alert.alert('Camera error', 'Unable to process captured image.');
+      this.setState({captureState: 'CameraMode', isCameraLaunching: false});
     });
   };
  
@@ -355,8 +396,9 @@ class CameraCapture extends Component {
 
     this.setState({isCameraLaunching: true});
 
-    var newImgPath = this.getCaptureDirectory();
+    var newImgPath = '';
     try {
+      newImgPath = await this.ensureCaptureDirectory();
       const response = await new Promise(resolve => {
         launchCamera(
           {
@@ -377,7 +419,13 @@ class CameraCapture extends Component {
 
       if (response?.errorCode || response?.errorMessage) {
         console.log('camera: launch error', response?.errorCode, response?.errorMessage);
-        Alert.alert('Camera error', response?.errorMessage || 'Unable to open camera.');
+        const message =
+          response?.errorCode === 'camera_unavailable'
+            ? Platform.OS === 'ios'
+              ? 'Camera is not available in the iOS Simulator. Please test camera capture on a physical iPhone.'
+              : 'Camera is not available on this device.'
+            : response?.errorMessage || 'Unable to open camera.';
+        Alert.alert('Camera error', message);
         this.setState({isCameraLaunching: false});
         return;
       }
@@ -409,6 +457,11 @@ class CameraCapture extends Component {
         imageName: 'photo',
         isCameraLaunching: false,
       }, () => {
+        if (Platform.OS === 'ios') {
+          this.storePhotoEdited();
+          return;
+        }
+
         console.log('Reach RNPhotoEditor-->')
         RNPhotoEditor.Edit({
           path: newImgPath,

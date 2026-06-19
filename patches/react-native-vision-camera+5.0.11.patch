@@ -1,0 +1,288 @@
+diff --git a/node_modules/react-native-vision-camera/ios/Extensions/CoreMedia/CMFormatDescription.MediaSubType+hidden.swift b/node_modules/react-native-vision-camera/ios/Extensions/CoreMedia/CMFormatDescription.MediaSubType+hidden.swift
+index 3b93748..9531cf3 100644
+--- a/node_modules/react-native-vision-camera/ios/Extensions/CoreMedia/CMFormatDescription.MediaSubType+hidden.swift
++++ b/node_modules/react-native-vision-camera/ios/Extensions/CoreMedia/CMFormatDescription.MediaSubType+hidden.swift
+@@ -53,7 +53,7 @@ extension CMFormatDescription.MediaSubType {
+ 
+   // Bayer/RAW
+   static let rawBayerPacked9612Bit = CMFormatDescription.MediaSubType(
+-    rawValue: kCVPixelFormatType_96VersatileBayerPacked12)
++    rawValue: 0x62703132) // 'bp12' / kCVPixelFormatType_96VersatileBayerPacked12 on newer SDKs
+   static let rawBayerUnpacked16Bit = CMFormatDescription.MediaSubType(
+     rawValue: kCVPixelFormatType_16VersatileBayer)
+ }
+diff --git a/node_modules/react-native-vision-camera/ios/Extensions/Converters/AV+ColorSpace.swift b/node_modules/react-native-vision-camera/ios/Extensions/Converters/AV+ColorSpace.swift
+index 74074d8..7c00d60 100644
+--- a/node_modules/react-native-vision-camera/ios/Extensions/Converters/AV+ColorSpace.swift
++++ b/node_modules/react-native-vision-camera/ios/Extensions/Converters/AV+ColorSpace.swift
+@@ -19,7 +19,7 @@ extension ColorSpace {
+       self = .hlgBt2020
+     case .appleLog:
+       self = .appleLog
+-    case .appleLog2:
++    case let value where value.rawValue == 4:
+       self = .appleLog2
+     @unknown default:
+       self = .unknown
+diff --git a/node_modules/react-native-vision-camera/ios/Extensions/Converters/AV+InterruptionReason.swift b/node_modules/react-native-vision-camera/ios/Extensions/Converters/AV+InterruptionReason.swift
+index 86a8f14..7f53f1a 100644
+--- a/node_modules/react-native-vision-camera/ios/Extensions/Converters/AV+InterruptionReason.swift
++++ b/node_modules/react-native-vision-camera/ios/Extensions/Converters/AV+InterruptionReason.swift
+@@ -21,7 +21,7 @@ extension InterruptionReason {
+       self = .videoDeviceNotAvailableWithMultipleForegroundApps
+     case .videoDeviceNotAvailableDueToSystemPressure:
+       self = .videoDeviceNotAvailableDueToSystemPressure
+-    case .sensitiveContentMitigationActivated:
++    case let value where value.rawValue == 6:
+       self = .sensitiveContentMitigationActivated
+     @unknown default:
+       self = .unknown
+diff --git a/node_modules/react-native-vision-camera/ios/Extensions/Converters/AV+PhotoContainerFormat.swift b/node_modules/react-native-vision-camera/ios/Extensions/Converters/AV+PhotoContainerFormat.swift
+index bdc9da2..312ff79 100644
+--- a/node_modules/react-native-vision-camera/ios/Extensions/Converters/AV+PhotoContainerFormat.swift
++++ b/node_modules/react-native-vision-camera/ios/Extensions/Converters/AV+PhotoContainerFormat.swift
+@@ -20,11 +20,10 @@ extension PhotoContainerFormat {
+     case .tif:
+       self = .tiff
+     default:
+-      if #available(iOS 26.0, *) {
+-        if avFileType == .dcm {
+-          self = .dcm
+-          return
+-        }
++      let rawValue = avFileType.rawValue.lowercased()
++      if rawValue.contains("dcm") || rawValue.contains("dicom") {
++        self = .dcm
++        return
+       }
+       logger.error("Received unknown AVFileType: \(avFileType.rawValue)")
+       self = .unknown
+diff --git a/node_modules/react-native-vision-camera/ios/Extensions/Converters/AV+TargetColorSpace.swift b/node_modules/react-native-vision-camera/ios/Extensions/Converters/AV+TargetColorSpace.swift
+index 9b1dfbb..5833ff8 100644
+--- a/node_modules/react-native-vision-camera/ios/Extensions/Converters/AV+TargetColorSpace.swift
++++ b/node_modules/react-native-vision-camera/ios/Extensions/Converters/AV+TargetColorSpace.swift
+@@ -23,9 +23,7 @@ extension TargetColorSpace {
+         return .HLG_BT2020
+       }
+     case .appleLog2:
+-      if #available(iOS 26.0, *) {
+-        return .appleLog2
+-      } else if #available(iOS 17.0, *) {
++      if #available(iOS 17.0, *) {
+         return .appleLog
+       } else {
+         return .HLG_BT2020
+diff --git a/node_modules/react-native-vision-camera/ios/Extensions/Converters/AV+ScannedObjectType.swift b/node_modules/react-native-vision-camera/ios/Extensions/Converters/AV+ScannedObjectType.swift
+index 4684047..793c82d 100644
+--- a/node_modules/react-native-vision-camera/ios/Extensions/Converters/AV+ScannedObjectType.swift
++++ b/node_modules/react-native-vision-camera/ios/Extensions/Converters/AV+ScannedObjectType.swift
+@@ -62,9 +62,9 @@ extension ScannedObjectType {
+         self = .microQr
+       } else if #available(iOS 17.0, *), type == .humanFullBody {
+         self = .humanFullBody
+-      } else if #available(iOS 26.0, *), type == .dogHead {
++      } else if type.rawValue.lowercased().contains("doghead") {
+         self = .dogHead
+-      } else if #available(iOS 26.0, *), type == .catHead {
++      } else if type.rawValue.lowercased().contains("cathead") {
+         self = .catHead
+       } else {
+         logger.error("Unknown AVMetadataObject.ObjectType: \(type.rawValue)")
+@@ -146,18 +146,10 @@ extension ScannedObjectType {
+       }
+     case .dogHead:
+-      if #available(iOS 26.0, *) {
+-        return .dogHead
+-      } else {
+-        return nil
+-      }
++      return nil
+     case .dogBody:
+       return .dogBody
+     case .catHead:
+-      if #available(iOS 26.0, *) {
+-        return .catHead
+-      } else {
+-        return nil
+-      }
++      return nil
+     case .catBody:
+       return .catBody
+     case .face:
+diff --git a/node_modules/react-native-vision-camera/ios/Extensions/Converters/AV+TargetStabilizationMode.swift b/node_modules/react-native-vision-camera/ios/Extensions/Converters/AV+TargetStabilizationMode.swift
+index 9ad82f8..bc08bdf 100644
+--- a/node_modules/react-native-vision-camera/ios/Extensions/Converters/AV+TargetStabilizationMode.swift
++++ b/node_modules/react-native-vision-camera/ios/Extensions/Converters/AV+TargetStabilizationMode.swift
+@@ -34,11 +34,7 @@ extension TargetStabilizationMode {
+         return .standard
+       }
+     case .lowLatency:
+-      if #available(iOS 26.0, *) {
+-        return .lowLatency
+-      } else {
+-        return .standard
+-      }
++      return .standard
+     }
+   }
+ }
+diff --git a/node_modules/react-native-vision-camera/ios/Extensions/Converters/AV+VideoCodec.swift b/node_modules/react-native-vision-camera/ios/Extensions/Converters/AV+VideoCodec.swift
+index b1112f6..4224756 100644
+--- a/node_modules/react-native-vision-camera/ios/Extensions/Converters/AV+VideoCodec.swift
++++ b/node_modules/react-native-vision-camera/ios/Extensions/Converters/AV+VideoCodec.swift
+@@ -36,15 +36,6 @@ extension VideoCodec {
+           return
+         }
+       }
+-      if #available(iOS 26.0, *) {
+-        if avCodec == .proResRAW {
+-          self = .proResRaw
+-          return
+-        } else if avCodec == .proResRAWHQ {
+-          self = .proResRawHq
+-          return
+-        }
+-      }
+       logger.error("Received unknown AVVideoCodecType: \(avCodec.rawValue)")
+       self = .unknown
+     }
+@@ -90,17 +82,11 @@ extension VideoCodec {
+       }
+       return .appleProRes4444XQ
+     case .proResRaw:
+-      guard #available(iOS 26.0, *) else {
+-        throw RuntimeError.error(
+-          withMessage: "VideoCodec \"pro-res-raw\" is only available on iOS 18.0 or higher!")
+-      }
+-      return .proResRAW
++      throw RuntimeError.error(
++        withMessage: "VideoCodec \"pro-res-raw\" requires an Xcode SDK that includes iOS 26 APIs!")
+     case .proResRawHq:
+-      guard #available(iOS 26.0, *) else {
+-        throw RuntimeError.error(
+-          withMessage: "VideoCodec \"pro-res-raw-hq\" is only available on iOS 18.0 or higher!")
+-      }
+-      return .proResRAWHQ
++      throw RuntimeError.error(
++        withMessage: "VideoCodec \"pro-res-raw-hq\" requires an Xcode SDK that includes iOS 26 APIs!")
+     }
+   }
+ }
+diff --git a/node_modules/react-native-vision-camera/ios/Hybrid Objects/Inputs/HybridCameraDevice.swift b/node_modules/react-native-vision-camera/ios/Hybrid Objects/Inputs/HybridCameraDevice.swift
+index b7720f7..0c22504 100644
+--- a/node_modules/react-native-vision-camera/ios/Hybrid Objects/Inputs/HybridCameraDevice.swift	
++++ b/node_modules/react-native-vision-camera/ios/Hybrid Objects/Inputs/HybridCameraDevice.swift	
+@@ -142,10 +142,7 @@ class HybridCameraDevice: HybridCameraDeviceSpec {
+   }
+ 
+   var focalLength: Double? {
+-    guard #available(iOS 26.0, *) else {
+-      return nil
+-    }
+-    return Double(device.nominalFocalLengthIn35mmFilm)
++    return nil
+   }
+ 
+   var lensAperture: Double {
+diff --git a/node_modules/react-native-vision-camera/ios/Hybrid Objects/Outputs/HybridCameraDepthFrameOutput.swift b/node_modules/react-native-vision-camera/ios/Hybrid Objects/Outputs/HybridCameraDepthFrameOutput.swift
+index 2c1548c..2608f2a 100644
+--- a/node_modules/react-native-vision-camera/ios/Hybrid Objects/Outputs/HybridCameraDepthFrameOutput.swift	
++++ b/node_modules/react-native-vision-camera/ios/Hybrid Objects/Outputs/HybridCameraDepthFrameOutput.swift	
+@@ -59,11 +59,6 @@ class HybridCameraDepthFrameOutput: HybridCameraOutput, HybridCameraDepthFrameOu
+     // Configure `videoSettings`
+     output.alwaysDiscardsLateDepthData = options.dropFramesWhileBusy
+     output.isFilteringEnabled = options.enableFiltering
+-    if #available(iOS 26.0, *), output.isDeferredStartSupported {
+-      // Deferred start allows the Session to delay this output's startup in favor
+-      // of preview-related outputs to make preview appear faster.
+-      output.isDeferredStartEnabled = options.allowDeferredStart
+-    }
+   }
+ 
+   func configure(config: CameraOutputConfiguration) {
+diff --git a/node_modules/react-native-vision-camera/ios/Hybrid Objects/Outputs/HybridCameraFrameOutput.swift b/node_modules/react-native-vision-camera/ios/Hybrid Objects/Outputs/HybridCameraFrameOutput.swift
+index 7668813..f26cfb8 100644
+--- a/node_modules/react-native-vision-camera/ios/Hybrid Objects/Outputs/HybridCameraFrameOutput.swift	
++++ b/node_modules/react-native-vision-camera/ios/Hybrid Objects/Outputs/HybridCameraFrameOutput.swift	
+@@ -61,11 +61,6 @@ class HybridCameraFrameOutput: HybridCameraOutput, HybridCameraFrameOutputSpec {
+     output.alwaysDiscardsLateVideoFrames = options.dropFramesWhileBusy
+     // JS configures the video resolution, we don't want to downscale here by default.
+     output.automaticallyConfiguresOutputBufferDimensions = false
+-    if #available(iOS 26.0, *), output.isDeferredStartSupported {
+-      // Deferred start allows the Session to delay this output's startup in favor
+-      // of preview-related outputs to make preview appear faster.
+-      output.isDeferredStartEnabled = options.allowDeferredStart
+-    }
+     // TODO: Add a flag called `allowBufferResizing` and probably get rid of `enablePreviewSizedOutputBuffers`
+     //       If `allowBufferResizing` is true, we can set `.videoSettings`/dimensions here to `options.targetResolution`
+     //       and `targetResolution` to `.any` (to not participate in resolution negotiations).
+@@ -75,10 +70,6 @@ class HybridCameraFrameOutput: HybridCameraOutput, HybridCameraFrameOutputSpec {
+     if #available(iOS 17.0, *), options.enablePreviewSizedOutputBuffers {
+       output.deliversPreviewSizedOutputBuffers = true
+     }
+-    if #available(iOS 26.0, *) {
+-      // We don't need HDR metadata, as that's only useful for encoders.
+-      output.preservesDynamicHDRMetadata = false
+-    }
+   }
+ 
+   func configure(config: CameraOutputConfiguration) {
+diff --git a/node_modules/react-native-vision-camera/ios/Hybrid Objects/Outputs/HybridCameraPhotoOutput.swift b/node_modules/react-native-vision-camera/ios/Hybrid Objects/Outputs/HybridCameraPhotoOutput.swift
+index 55dfe77..7a26784 100644
+--- a/node_modules/react-native-vision-camera/ios/Hybrid Objects/Outputs/HybridCameraPhotoOutput.swift	
++++ b/node_modules/react-native-vision-camera/ios/Hybrid Objects/Outputs/HybridCameraPhotoOutput.swift	
+@@ -62,13 +62,6 @@ class HybridCameraPhotoOutput: HybridCameraOutput, HybridCameraPhotoOutputSpec {
+       output.isAppleProRAWEnabled = output.isAppleProRAWSupported
+     }
+ 
+-    if #available(iOS 26, *),
+-      output.isCameraSensorOrientationCompensationSupported
+-    {
+-      // Don't rotate Photo buffers - we handle orientation later on in file capture or toImage().
+-      output.isCameraSensorOrientationCompensationEnabled = false
+-    }
+-
+     // Prepare the default Photo Settings to make the pipeline ready - some things (like flashMode)
+     // might change on a per-capture basis, but containerFormat and preview size is already known
+     // and can be prepared already.
+diff --git a/node_modules/react-native-vision-camera/ios/Hybrid Objects/Outputs/HybridCameraVideoFrameOutput.swift b/node_modules/react-native-vision-camera/ios/Hybrid Objects/Outputs/HybridCameraVideoFrameOutput.swift
+index 2d7d7ac..95c0d85 100644
+--- a/node_modules/react-native-vision-camera/ios/Hybrid Objects/Outputs/HybridCameraVideoFrameOutput.swift	
++++ b/node_modules/react-native-vision-camera/ios/Hybrid Objects/Outputs/HybridCameraVideoFrameOutput.swift	
+@@ -64,14 +64,6 @@ class HybridCameraVideoFrameOutput: HybridCameraOutput, HybridCameraVideoFrameOu
+     output.alwaysDiscardsLateVideoFrames = false
+     // JS configures the video resolution, we don't want to downscale here.
+     output.automaticallyConfiguresOutputBufferDimensions = false
+-    if #available(iOS 26.0, *) {
+-      // We only use this output for recording, allowing it to start deferred makes the session start faster.
+-      if output.isDeferredStartSupported {
+-        output.isDeferredStartEnabled = true
+-      }
+-      // Allow capturing HDR
+-      output.preservesDynamicHDRMetadata = true
+-    }
+     // set the delegate to append to the Recorder
+     delegate.onFrame = { [weak self] buffer, timestamp, orientation, isMirrored in
+       guard let self else { return }
+@@ -141,20 +132,7 @@ class HybridCameraVideoFrameOutput: HybridCameraOutput, HybridCameraVideoFrameOu
+       try recorder.initializeVideoTrack(withSettings: videoSettings)
+ 
+       // 3. Set video metadata
+-      if #available(iOS 26.0, *) {
+-        // 2.1.a. Set video timescale if available. This avoids audio/video sync-drift in super long videos.
+-        recorder.setTimescale(self.output.recommendedMediaTimeScaleForAssetWriter)
+-        let codec = self.getCurrentVideoCodec()
+-        if let metadata = self.output.recommendedMovieMetadata(
+-          forVideoCodecType: codec, assetWriterOutputFileType: self.fileType.toAVFileType())
+-        {
+-          // 2.2. Set metadata if available
+-          try recorder.setMetadata(metadata, settings: settings)
+-        }
+-      } else {
+-        // 2.1.b. Set metadata before iOS 26.0
+-        try recorder.setMetadata([], settings: settings)
+-      }
++      try recorder.setMetadata([], settings: settings)
+ 
+       // 4. If we enable audio, also initialize the audio track
+       if self.options.enableAudio == true {

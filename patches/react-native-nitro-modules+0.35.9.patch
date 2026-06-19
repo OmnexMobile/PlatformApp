@@ -1,0 +1,32 @@
+diff --git a/node_modules/react-native-nitro-modules/android/build.gradle b/node_modules/react-native-nitro-modules/android/build.gradle
+index 1672e54..5152dc5 100644
+--- a/node_modules/react-native-nitro-modules/android/build.gradle
++++ b/node_modules/react-native-nitro-modules/android/build.gradle
+@@ -23,9 +23,7 @@ apply plugin: "com.android.library"
+ apply plugin: 'org.jetbrains.kotlin.android'
+ apply from: "./fix-prefab.gradle"
+ 
+-if (isNewArchitectureEnabled()) {
+-  apply plugin: "com.facebook.react"
+-}
++apply plugin: "com.facebook.react"
+ 
+ def getExtOrDefault(name) {
+   return rootProject.ext.has(name) ? rootProject.ext.get(name) : project.properties["Nitro_" + name]
+@@ -149,12 +147,10 @@ dependencies {
+   implementation "com.facebook.react:react-native:+"
+ }
+ 
+-if (isNewArchitectureEnabled()) {
+-  react {
+-    jsRootDir = file("../src/")
+-    libraryName = "NitroModules"
+-    codegenJavaPackageName = "com.margelo.nitro"
+-  }
++react {
++  jsRootDir = file("../src/")
++  libraryName = "NitroModules"
++  codegenJavaPackageName = "com.margelo.nitro"
+ }
+ 
+ tasks.register('prepareHeaders', Copy) {

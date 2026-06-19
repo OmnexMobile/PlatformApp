@@ -265,6 +265,12 @@ task copyDownloadableDepsToLibs(type: Copy) {
 apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
 
 afterEvaluate {
+    tasks.matching { task ->
+        task.name.startsWith("externalNativeBuild")
+    }.configureEach {
+        dependsOn(":react-native-nitro-modules:generateCodegenArtifactsFromSchema")
+    }
+
     def vectorIconFontCopyTask = tasks.findByName("copyReactNativeVectorIconFonts")
     if (vectorIconFontCopyTask != null) {
         tasks.matching { task ->

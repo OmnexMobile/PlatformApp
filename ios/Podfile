@@ -11,7 +11,9 @@ require Pod::Executable.execute_command('node', ['-p',
     {paths: [process.argv[1]]},
   )', __dir__]).strip
 
-platform :ios, min_ios_version_supported
+ios_deployment_target = '16.0'
+
+platform :ios, ios_deployment_target
 prepare_react_native_project!
 install! 'cocoapods', :deterministic_uuids => false
 target 'IntegratedApp' do
@@ -55,7 +57,22 @@ target 'IntegratedApp' do
     installer.generated_projects.each do |project|
       project.targets.each do |target|
         target.build_configurations.each do |config|
-          config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = min_ios_version_supported
+          config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = ios_deployment_target
+          if target.name == 'VisionCamera'
+            config.build_settings['EXCLUDED_ARCHS[sdk=iphonesimulator*]'] = 'arm64'
+            
+            
+            config.build_settings['SWIFT_OPTIMIZATION_LEVEL'] = '-O' if config.name == 'Debug'
+            # config.build_settings['SWIFT_COMPILATION_MODE'] = 'singlefile'
+            # config.build_settings['SWIFT_ENABLE_BATCH_MODE'] = 'NO'
+            # config.build_settings['SWIFT_PARALLELIZE_BUILD'] = 'NO'
+            # config.build_settings['SWIFT_OPTIMIZATION_LEVEL'] = '-Onone' if config.name == 'Debug'
+            other_swift_flags = config.build_settings['OTHER_SWIFT_FLAGS'] || '$(inherited)'
+            other_swift_flags = other_swift_flags.join(' ') if other_swift_flags.is_a?(Array)
+            unless other_swift_flags.include?('-disable-reflection-metadata')
+              config.build_settings['OTHER_SWIFT_FLAGS'] = "#{other_swift_flags} -Xfrontend -disable-reflection-metadata"
+            end
+          end
           config.build_settings['OTHER_CPLUSPLUSFLAGS'] ||= '$(inherited) '
           unless config.build_settings['OTHER_CPLUSPLUSFLAGS'].include?('FOLLY_CFG_NO_COROUTINES')
             config.build_settings['OTHER_CPLUSPLUSFLAGS'] << ' -DFOLLY_CFG_NO_COROUTINES'
