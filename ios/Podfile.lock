@@ -16,8 +16,29 @@ PODS:
   - hermes-engine (250829098.0.7):
     - hermes-engine/Pre-built (= 250829098.0.7)
   - hermes-engine/Pre-built (250829098.0.7)
-  - jail-monkey (2.8.0):
+  - jail-monkey (3.0.0):
+    - hermes-engine
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Codegen
     - React-Core
+    - React-Core-prebuilt
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - ReactNativeDependencies
+    - Yoga
   - libwebp (1.5.0):
     - libwebp/demux (= 1.5.0)
     - libwebp/mux (= 1.5.0)
@@ -117,6 +138,7 @@ PODS:
     - React-RCTText (= 0.84.0)
     - React-RCTVibration (= 0.84.0)
   - React-callinvoker (0.84.0)
+  - React-Codegen (0.1.0)
   - React-Core (0.84.0):
     - hermes-engine
     - RCTDeprecation
@@ -2751,6 +2773,7 @@ SPEC REPOS:
   trunk:
     - AppAuth
     - libwebp
+    - React-Codegen
     - SDWebImage
     - SDWebImageWebPCoder
     - SwiftUIIntrospect
@@ -3028,7 +3051,7 @@ SPEC CHECKSUMS:
   fmt: a40bb5bd0294ea969aaaba240a927bd33d878cdd
   glog: e56ede4028c4b7418e6b1195a36b1656bb35e225
   hermes-engine: eb2763f596414ed4f349dd7ff1cb4b9a661927fd
-  jail-monkey: 1846061ac12e861ac5a8ec7197b0daa775b83733
+  jail-monkey: 35691f906666b7562675e24cffdb7550a01087c5
   libwebp: 02b23773aedb6ff1fd38cec7a77b81414c6842a8
   lottie-ios: 69495122151a378fdc7d1bb4c5930347e37baf1f
   lottie-react-native: 5d89c05930d4180a1e39b1757d46e6c0eec90255
@@ -3042,6 +3065,7 @@ SPEC CHECKSUMS:
   RCTTypeSafety: e9ba155357c236764934054ee2d393fd76e7b36b
   React: 7ef36630d07638043a134a7dd2ec17e0be10fc3c
   React-callinvoker: af4e8fe1d60ab63dd8d74c2a68988064c2848954
+  React-Codegen: 4b8b4817cea7a54b83851d4c1f91f79aa73de30a
   React-Core: c609976c034ba9556bef9850a571a71bd458d73f
   React-Core-prebuilt: b08db3ce8d2e1d78cac02c13dc528f764d216194
   React-CoreModules: 0ea85f3b3f4b8cbfb3afacd2ed85458fb878517a
