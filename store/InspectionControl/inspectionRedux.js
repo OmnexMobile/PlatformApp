@@ -15,6 +15,7 @@ const { Types, Creators } = createActions({
     updateInspectList: ['updateInspectList'],
     deleteAllInspectList: ['deleteAllInspectList'],
     resetToInitial: ['resetToInitial'],
+    storeNotificationData: ['storeNotificationData'],
 });
 
 export const InspectTypes = Types;
@@ -26,6 +27,7 @@ export const INITIAL_STATE = {
     inspectList: [],
     icUserData: {},
     icSettings: {},
+    notificationData: {},
 };
 
 /* ------------- Reducers ------------- */
@@ -77,6 +79,10 @@ const updateInspectList = (state, { updatedData }) => {
     });
     return { ...state, inspectList: updatedArray };
 };
+const storeNotificationData = (state, { notificationData }) => {
+    console.log('Storing notification data in Redux:', notificationData);
+    return { ...state, notificationData: notificationData };
+};
 const resetToInitial = () => {
     return INITIAL_STATE;
 }
@@ -85,6 +91,7 @@ const rawReducer = createReducer(INITIAL_STATE, {
     [Types.INSPECT_LIST]: storeInspectList,
     [Types.IC_USER_DATA]: storeIcUserData,
     [Types.IC_SETTINGS]: storeIcSettings,
+    [Types.STORE_NOTIFICATION_DATA]: storeNotificationData,
     [Types.REMOVE_INSPECT_LIST]: removeInspectList,
     [Types.UPDATE_INSPECT_LIST]: updateInspectList,
     [Types.DELETE_ALL_INSPECT_LIST]: deleteAllInspectList,

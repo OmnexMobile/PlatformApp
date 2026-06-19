@@ -527,6 +527,7 @@ const InprocessInspection = ({ route }) => {
             activeTabId={2}
             showIcons={false}
             showFileIcon={true}
+            showCharCameraIcon={showChar}
             handleFileIconPress={() => {
                 // setShowFilePage(true);
                 setShowFileModal(true);
@@ -649,6 +650,7 @@ const InprocessInspection = ({ route }) => {
                                 setUserUpdateValue={setUserUpdateValue}
                                 setTypeOfModal={setTypeOfModal}
                                 flatListRef={flatListRef}
+                                FileList={inspectData?.attachments || []}
                             />
                         </View>
                     </View>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, useWindowDimensions } from 'react-native';
 import { RFPercentage } from '../../../helpers/responsiveFont';
 import { AnimatableView, GradientButton, IconComponent, ImageComponent, KeyboardAwareScrollViewComponent } from 'components';
 import { IMAGES } from 'assets/images';
@@ -12,10 +12,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 const RegisterPresentational = ({ navigation, handleChange, state, handleRegister, isRegistered, handleUnRegister, loading, getDeviceStatus }) => {
     const { theme } = useTheme();
+    const {height} = useWindowDimensions();
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.white }}>
             {/* need image with transparent background */}
-            <ImageComponent style={{ width: '100%', height: '100%', position: 'absolute', zIndex: 0 }} source={IMAGES.loginBack} />
+            <ImageComponent style={{ width: '100%', height: height, position: 'absolute', zIndex: 0 }} source={IMAGES.loginBack} />
             <KeyboardAwareScrollViewComponent style={{ flex: 1, backgroundColor: COLORS.transparent }}>
                 <AnimatableView
                     style={[styles.translateIcon, { backgroundColor: theme.colors.primaryThemeColor }]}

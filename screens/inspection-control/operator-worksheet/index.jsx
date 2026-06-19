@@ -7,14 +7,15 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { PLACEHOLDERS, ROUTES } from 'constants/app-constant';
 import { Divider, Modal } from 'react-native-paper';
-import { RFPercentage, showErrorMessage } from 'helpers/utils';
+import { RFPercentage, showErrorMessage, successMessage } from 'helpers/utils';
 import DeleteModal from '../Components/DeleteModal';
 import NoDataFound from '../Components/NoDataFound';
 import { useDispatch, useSelector } from 'react-redux';
 import ApiUrl from 'global/ApiUrl';
-import { postAPI } from 'global/api-helpers';
+import { getAPI, getAPICall, postAPI } from 'global/api-helpers';
 import IcSkeleton from '../Components/IcSkeleton';
 import { deleteInspectionByUniqueId, getDatabaseSize, getInspectionDataByUserAndSite } from 'store/database/inspectStorage';
+import ReportShutdownModal from '../Components/ReportShutdownModal';
 
 const OperatorWorksheet = () => {
     const { icUserData } = useSelector(state => state.inspection);
@@ -25,6 +26,16 @@ const OperatorWorksheet = () => {
     const [showSkeleton, setShowSkeleton] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
     const [selectedValue, setSelectedValue] = useState(null);
+    const [showReportModal, setShowReportModal] = useState(false);
+    const [downTimeData, setDownTimeData] = useState([]);
+    const [reportFormData, setReportFormData] = useState({
+        downtimeres: '',
+        comment: '',
+    });
+    const [formError, setFormError] = useState({
+        downtimeres: false,
+        comment: false,
+    });
     const isFocused = useIsFocused();
     const dispatch = useDispatch();
 
@@ -107,6 +118,61 @@ const OperatorWorksheet = () => {
             showErrorMessage('Error deleting inspection');
         }
     };
+    const handleCloseReport = () => {
+        setReportFormData({
+            downtimeres: '',
+            comment: '',
+        });
+        setFormError({
+            downtimeres: false,
+            comment: false,
+        });
+        setShowReportModal(false);
+    }
+    const validateReportForm = () => {
+        let isValid = false;
+        let errors = {
+            downtimeres: false,
+            comment: false,
+        };
+
+        if (reportFormData.downtimeres == '') {
+            errors.downtimeres = true;
+            isValid = true;
+        } else {
+            errors.downtimeres = false;
+            isValid = false;
+        }
+        // Add more validation rules as needed
+
+        setFormError(errors);
+        return isValid;
+    }
+    const handleSubmitReport = async () => {
+        console.log('Report Form Data:', selectedValue, reportFormData);
+        const isValid = validateReportForm();
+        if (isValid) {
+            return;
+        } else {
+            const payload = {
+                downtimeReasonId: reportFormData?.downtimeres?.id,
+                lotNumber: selectedValue?.strLotNo || '',
+                operationName: selectedValue?.strOperationName || '',
+                message: reportFormData?.comment,
+                reportedBy: icUserData?.userData?.UserId
+            }
+
+            const response = await postAPI(ApiUrl.IC_REPORTDOWNTIME, payload);
+            console.log('Downtime Report Response:', response);
+            if (response?.success) {
+                successMessage('Downtime reported successfully');
+                handleCloseReport();
+            } else {
+                showErrorMessage('Error reporting downtime');
+            }
+        }
+
+    }
     const renderItem = ({ item }) => {
         const { status, colorCode } = rendetBtnText(item);
         return (
@@ -127,13 +193,22 @@ const OperatorWorksheet = () => {
                     </Text>
                 </View>
                 <View style={[styles.lastBox]}>
-                    <TouchableOpacity
-                        style={[styles.launchCard, { backgroundColor: colorCode }]}
-                        onPress={() => {
-                            handleLaunchPress(item);
-                        }}>
-                        <Text style={[styles.launchText]}>{status}</Text>
-                    </TouchableOpacity>
+                    <View>
+                        <TouchableOpacity
+                            style={[styles.launchCard, { backgroundColor: colorCode }]}
+                            onPress={() => {
+                                handleLaunchPress(item);
+                            }}>
+                            <Text style={[styles.launchText]}>{status}</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={[styles.launchCard, { backgroundColor: COLORS.apptheme, marginTop: 10 }]}
+                            onPress={() => {
+                                handleReportPress(item);
+                            }}>
+                            <Text style={[styles.launchText]}>Report</Text>
+                        </TouchableOpacity>
+                    </View>
                     <TouchableOpacity
                         onPress={() => {
                             handleDeletePress(item);
@@ -144,6 +219,23 @@ const OperatorWorksheet = () => {
             </View>
         );
     };
+    const handleReportPress = async item => {
+        setSelectedValue(item);
+        const response = await getAPICall(`${ApiUrl.IC_GETDOWNTIME}`);
+        if (response.length > 0) {
+            let downTimeData = [];
+            downTimeData = response.map(item => ({
+                label: item.description,
+                value: item.description,
+                ...item,
+            }))
+            setDownTimeData(downTimeData);
+        } else {
+            setDownTimeData([]);
+        }
+
+        setShowReportModal(true);
+    }
     return (
         <CustomHeader title="Operator Worksheet" activeTabId={2}>
             <View style={[styles.container]}>
@@ -155,7 +247,7 @@ const OperatorWorksheet = () => {
                         renderItem={renderItem}
                         keyExtractor={(item, index) => index + 1}
                         showsVerticalScrollIndicator={false}
-                        // refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+                    // refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
                     />
                 ) : (
                     <NoDataFound />
@@ -184,6 +276,17 @@ const OperatorWorksheet = () => {
                     // });
                     // setShowDelete(false);
                 }}
+            />
+            <ReportShutdownModal
+                data={selectedValue}
+                visible={showReportModal}
+                handleClose={() => setShowReportModal(false)}
+                dropDownList={downTimeData}
+                setReportFormData={setReportFormData}
+                reportFormData={reportFormData}
+                handleCloseReport={handleCloseReport}
+                handleSubmitReport={handleSubmitReport}
+                formError={formError}
             />
         </CustomHeader>
     );
@@ -228,6 +331,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 13,
         paddingVertical: 4,
         borderRadius: 5,
+        alignItems: 'center',
     },
     launchText: {
         color: '#fff',

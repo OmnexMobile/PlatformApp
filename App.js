@@ -72,11 +72,10 @@ const Parent = () => {
 
     useEffect(() => {
         setNavigationRef(navigationRef.current);
-
         const unsubscribe = setupForegroundHandler(setNotificationData);
-        setupBackgroundOpenHandler();
-        setupQuitOpenHandler();
-
+        setupBackgroundOpenHandler(setNotificationData);
+        setupQuitOpenHandler(setNotificationData);
+        console.log('Notification handlers set up');
         return unsubscribe;
     }, []);
 
@@ -128,6 +127,12 @@ const Parent = () => {
                                 <StatusBarAndroidIOS />
                                 <NavigationContainer onReady={() => RNBootSplash.hide()}>
                                     <AppStack />
+                                    <NotificationModal
+                                        visible={notificationData.showModal}
+                                        // onClose={() => setNotificationData({ showModal: false })}
+                                        data={notificationData.remoteMessage}
+                                        setNotificationData={setNotificationData}
+                                    />
                                 </NavigationContainer>
                                 {/* {warningList?.loading ? (x
                         <Loader />
@@ -153,12 +158,7 @@ const Parent = () => {
                 <FlashMessage />
             </SafeAreaView>
             <UpdateModal visible={showUpdateModal} onClose={() => setShowUpdateModal(false)} />
-            <NotificationModal
-                visible={notificationData.showModal}
-                // onClose={() => setNotificationData({ showModal: false })}
-                data={notificationData.remoteMessage}
-                setNotificationData={setNotificationData}
-            />
+
             {/* <TokenPopup visible={modalVisible} token={currentToken} onClose={() => setModalVisible(false)} /> */}
         </GestureHandlerRootView>
     );

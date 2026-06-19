@@ -6,6 +6,7 @@ import Icon from 'react-native-vector-icons/AntDesign';
 import IconF from 'react-native-vector-icons/FontAwesome';
 import IconI from 'react-native-vector-icons/Ionicons';
 import IconO from 'react-native-vector-icons/Octicons';
+import IconM from 'react-native-vector-icons/MaterialCommunityIcons';
 import InputWithSearch from './InputWithSearch';
 import InspectionInspectionSvg from '../../../assets/images/svg/inspection-scedule.svg';
 import OperatorWorksheetSvg from '../../../assets/images/svg/operator-worksheet.svg';
@@ -15,6 +16,7 @@ import { ROUTES } from 'constants/app-constant';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { IconButton, Menu, Tooltip } from 'react-native-paper';
 import { useAppContext } from 'contexts/app-context';
+import { useSelector } from 'react-redux';
 
 const footerList = [
     {
@@ -42,6 +44,7 @@ const footerList = [
     //     routeName: ROUTES.SUPERVISOR_SCHEDULE,
     // },
 ];
+const notificationCount = 3;
 
 const CustomHeader = ({
     children,
@@ -60,13 +63,14 @@ const CustomHeader = ({
     customHandleGoBack = () => {},
 }) => {
     const insets = useSafeAreaInsets();
+    const { notificationData } = useSelector(state => state.inspection);
     const { width } = useWindowDimensions();
     const navigation = useNavigation();
     const [isExpanded, setIsExpanded] = useState(false);
     const [visible, setVisible] = useState(false);
     const openMenu = () => setVisible(true);
     const closeMenu = () => setVisible(false);
-    const {  sites } = useAppContext();
+    const { sites } = useAppContext();
     const widthAnim = useRef(new Animated.Value(0)).current;
     useEffect(() => {
         if (searchValue?.length) {
@@ -78,7 +82,7 @@ const CustomHeader = ({
             }).start();
         }
     }, [searchValue]);
-
+    console.log(notificationData, 'notificationData in header');
     const toggleSearchBar = () => {
         if (isExpanded) {
             Animated.timing(widthAnim, {
@@ -137,7 +141,21 @@ const CustomHeader = ({
                 </TouchableOpacity>
                 <View style={{ flex: 1, marginLeft: 10 }}>
                     {!isExpanded ? (
-                        <Text style={[styles.headerText]} numberOfLines={1}>{title} <Text style={{fontSize:15}}>{`(${sites?.selectedSite.SiteName})`}</Text></Text>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <Text style={[styles.headerText]} numberOfLines={1}>
+                                {title} <Text style={{ fontSize: 15 }}>{`(${sites?.selectedSite.SiteName})`}</Text>
+                            </Text>
+                            <TouchableOpacity style={styles.notificationContainer} onPress={() => navigation.navigate(ROUTES.NOTIFICATION_SCREEN)}>
+                                <IconF name="bell-o" size={20} color="#fff" />
+                                {Number(notificationData?.data?.count) > 0 && (
+                                    <View style={styles.badge}>
+                                        <Text style={styles.badgeText}>
+                                            {Number(notificationData?.data?.count) > 99 ? '99+' : notificationData?.data?.count}
+                                        </Text>
+                                    </View>
+                                )}
+                            </TouchableOpacity>
+                        </View>
                     ) : (
                         <Animated.View style={[{ width: widthAnim }]}>
                             <InputWithSearch
@@ -166,14 +184,14 @@ const CustomHeader = ({
                                     <Icon name={!isExpanded ? 'search1' : 'close'} size={25} style={styles.iconButton} color={COLORS.white} />
                                 </TouchableOpacity>
                             )}
-                            {/* {activeTabId == 1 && (
+                            {activeTabId == 1 && (
                                 <TouchableOpacity
                                     onPress={() => {
                                         handleQRPress();
                                     }}>
-                                    <IconF name="qrcode" size={25} style={styles.iconButton} color={COLORS.white} />
+                                    <IconI name="barcode-sharp" size={25} style={styles.iconButton} color={COLORS.white} />
                                 </TouchableOpacity>
-                            )} */}
+                            )}
                             {/* {activeTabId == 2 && (
                                 <TouchableOpacity>
                                     <IconI name="settings-outline" size={25} style={styles.iconButton} color={COLORS.white} />
@@ -299,6 +317,28 @@ const styles = StyleSheet.create({
         color: COLORS.white,
         fontFamily: 'OpenSans-SemiBold',
         fontSize: 16,
+    },
+    notificationContainer: {
+        padding: 8,
+    },
+
+    badge: {
+        position: 'absolute',
+        top: 2,
+        right: 2,
+        minWidth: 18,
+        height: 18,
+        borderRadius: 9,
+        backgroundColor: 'red',
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingHorizontal: 4,
+    },
+
+    badgeText: {
+        color: '#fff',
+        fontSize: 10,
+        fontWeight: 'bold',
     },
 });
 export default CustomHeader;

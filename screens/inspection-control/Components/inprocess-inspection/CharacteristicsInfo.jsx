@@ -1,5 +1,5 @@
 import { COLORS } from 'constants/theme-constants';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useMemo, useState } from 'react';
 import {
     BackHandler,
     FlatList,
@@ -13,9 +13,11 @@ import {
     TextInput,
     TouchableOpacity,
     View,
+    Modal,
 } from 'react-native';
 import IconF from 'react-native-vector-icons/Feather';
 import IconM from 'react-native-vector-icons/MaterialCommunityIcons';
+import IconMM from 'react-native-vector-icons/MaterialIcons';
 import FilterWithMenu from '../FilterWithMenu';
 import { ButtonComponent } from 'components';
 import { RFPercentage } from 'helpers/utils';
@@ -26,6 +28,12 @@ import moment from 'moment';
 import DeleteModal from '../DeleteModal';
 import ConfirmationModal from './ConfirmationModal';
 import { showMessage } from 'react-native-flash-message';
+import CapabilityCard from '../CapabilityCard';
+import ImageView from 'react-native-image-viewing';
+import ZoomableImage from '../ZoomableImage';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import CaptureDefect from './CaptureDefect';
+import { SafeAreaView } from 'react-native-safe-area-context';
 const moreList = [
     {
         id: 1,
@@ -40,7 +48,7 @@ const moreList = [
         iconFrom: 'AntDesign',
     },
 ];
-
+const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'];
 const BorderContent = ({ title = 'Title', count = 0, color = '#000' }) => {
     return (
         <View style={[styles.borderContainer]}>
@@ -73,6 +81,7 @@ const CharacteristicsInfo = ({
     setUserUpdateValue = () => {},
     setTypeOfModal = () => {},
     flatListRef = null,
+    FileList = [],
 }) => {
     useEffect(() => {
         const backAction = () => {
@@ -82,6 +91,15 @@ const CharacteristicsInfo = ({
         const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
         return () => backHandler.remove();
     }, []);
+    const [showCPKModal, setShowCPKModal] = useState(false);
+    const [showImageWithSample, setShowImageWithSample] = useState(false);
+    const [showCaptureDefect, setShowCaptureDefect] = useState(false);
+    const imageFiles = useMemo(() => {
+        return FileList.filter(file => imageExtensions.includes(file.FileExtension?.toLowerCase())).map(file => ({
+            uri: `data:image/${file.FileExtension};base64,${file.FileContentBase64}`,
+        }));
+    }, [FileList]);
+
     const inputsRef = useRef([]);
     const navigation = useNavigation();
     useEffect(() => {
@@ -194,8 +212,8 @@ const CharacteristicsInfo = ({
             } else if (selectedData.CSampleSize <= sampleEnterdSize) {
                 console.log('********************step5');
                 let temp = JSON.parse(JSON.stringify(masterData)); // Deep copy
-                let slicedList = temp.slice(0, Number(selectedData.CSampleSize ));
-                console.log(slicedList.length,'slicedList')
+                let slicedList = temp.slice(0, Number(selectedData.CSampleSize));
+                console.log(slicedList.length, 'slicedList');
                 setMasterData([...slicedList]);
                 setValueUpadted([...slicedList]);
                 // showMessage({
@@ -333,7 +351,7 @@ const CharacteristicsInfo = ({
             } else if (selectedData.CSampleSize <= sampleEnterdSize) {
                 console.log('********************step5 ');
                 let temp = JSON.parse(JSON.stringify(masterData)); // Deep copy
-                let slicedList = temp.slice(0, Number(selectedData.CSampleSize ));
+                let slicedList = temp.slice(0, Number(selectedData.CSampleSize));
                 setMasterData([...slicedList]);
                 setValueUpadted([...slicedList]);
                 // showMessage({
@@ -607,76 +625,117 @@ const CharacteristicsInfo = ({
                 : value.filter(x => x?.value?.toLowerCase() != 'ok' && x?.value !== '');
         return temp?.length || 0;
     };
+    const handleCloseCPKModal = () => {
+        setShowCPKModal(false);
+        handleSavePress(true, 'saveBtn');
+    };
+    const handleViewPhotoWithSample = (item, index) => {
+        setShowImageWithSample(true);
+    };
+    const renderFaltList = (showHeader = true) => {
+        return (
+            <View style={{}}>
+                <FlatList
+                    keyboardShouldPersistTaps="handled"
+                    ref={flatListRef}
+                    data={masterData}
+                    keyExtractor={(item, index) => index.toString()}
+                    renderItem={({ item, index }) => {
+                        return <View style={[styles.tableBox]}>{renderItem(item, index)}</View>;
+                    }}
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={{ paddingBottom: 100 }}
+                    // contentContainerStyle={[styles.tableBox]}
+
+                    ListHeaderComponent={
+                        <View>
+                            {showCharInfo && showHeader && (
+                                <SampleCharInfo
+                                    selectedData={selectedData}
+                                    setSelectedData={setSelectedData}
+                                    masterData={masterData}
+                                    setMasterData={setMasterData}
+                                    setValueUpadted={setValueUpadted}
+                                    showConfirmModal={showConfirmModal}
+                                    setShowConfirmModal={setShowConfirmModal}
+                                    setTimer={setTimer}
+                                    timer={timer}
+                                    userUpdateValue={userUpdateValue}
+                                    setUserUpdateValue={setUserUpdateValue}
+                                    setTypeOfModal={setTypeOfModal}
+                                    charType={type}
+                                    inspectionType={inspectionType}
+                                />
+                            )}
+                            <View style={[styles.headerBox]}>
+                                <View style={{ flex: 1 }}>
+                                    <Text style={[styles.headerText, { marginLeft: 15 }]}>No</Text>
+                                </View>
+                                <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center' }}>
+                                    <Text style={[styles.headerText]}>Actual Value</Text>
+                                    {showHeader && (
+                                        <TouchableOpacity
+                                            style={[styles.deleteIcon]}
+                                            onPress={() => {
+                                                handleViewPhotoWithSample();
+                                            }}>
+                                            <IconMM name="file-present" size={25} color={COLORS.apptheme} />
+                                        </TouchableOpacity>
+                                    )}
+                                </View>
+                            </View>
+                        </View>
+                    }
+                    ListFooterComponent={
+                        Boolean(selectedData?.isSamplePopup) ? (
+                            <View>
+                                <BorderContent title="Total Samples Tested" color={COLORS.apptheme} count={masterData?.length} />
+                                <BorderContent title="Sample(s) OK " color={COLORS.SUCCESS} count={renderOkCount(masterData)} />
+                                <BorderContent title="Sample(s) Not OK " color={COLORS.ERROR} count={renderNotOkCount(masterData)} />
+                            </View>
+                        ) : null
+                    }
+                />
+                {/* {Boolean(masterData?.length) &&
+                            masterData.map((item, index) => {
+                                return renderItem(item, index);
+                            })} */}
+            </View>
+        );
+    };
     return (
         <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : undefined}
             style={{ flex: 1 }}
             keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 0}>
             <View style={[styles.container]}>
-                <View style={[styles.overallBox]}>
-                    {/* need to chage the infodata as selectedData and setSelectedData */}
-                    <View style={{}}>
-                        <FlatList
-                            keyboardShouldPersistTaps="handled"
-                            ref={flatListRef}
-                            data={masterData}
-                            keyExtractor={(item, index) => index.toString()}
-                            renderItem={({ item, index }) => {
-                                return <View style={[styles.tableBox]}>{renderItem(item, index)}</View>;
-                            }}
-                            showsVerticalScrollIndicator={false}
-                            contentContainerStyle={{ paddingBottom: 100 }}
-                            // contentContainerStyle={[styles.tableBox]}
-                            ListHeaderComponent={
-                                <View>
-                                    {showCharInfo && (
-                                        <SampleCharInfo
-                                            selectedData={selectedData}
-                                            setSelectedData={setSelectedData}
-                                            masterData={masterData}
-                                            setMasterData={setMasterData}
-                                            setValueUpadted={setValueUpadted}
-                                            showConfirmModal={showConfirmModal}
-                                            setShowConfirmModal={setShowConfirmModal}
-                                            setTimer={setTimer}
-                                            timer={timer}
-                                            userUpdateValue={userUpdateValue}
-                                            setUserUpdateValue={setUserUpdateValue}
-                                            setTypeOfModal={setTypeOfModal}
-                                            charType={type}
-                                            inspectionType={inspectionType}
-                                        />
-                                    )}
-                                    <View style={[styles.headerBox]}>
-                                        <View style={{ flex: 1 }}>
-                                            <Text style={[styles.headerText, { marginLeft: 15 }]}>No</Text>
-                                        </View>
-                                        <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center' }}>
-                                            <Text style={[styles.headerText]}>Actual Value</Text>
-                                        </View>
-                                    </View>
-                                </View>
-                            }
-                            ListFooterComponent={
-                                <View>
-                                    <BorderContent title="Total Samples Tested" color={COLORS.apptheme} count={masterData?.length} />
-                                    <BorderContent title="Sample(s) OK " color={COLORS.SUCCESS} count={renderOkCount(masterData)} />
-                                    <BorderContent title="Sample(s) Not OK " color={COLORS.ERROR} count={renderNotOkCount(masterData)} />
-                                </View>
-                            }
-                        />
-                        {/* {Boolean(masterData?.length) &&
-                            masterData.map((item, index) => {
-                                return renderItem(item, index);
-                            })} */}
-                    </View>
-                </View>
+                <View style={[styles.overallBox]}>{renderFaltList(true)}</View>
                 <View style={[styles.btnContainer]}>
+                    <View
+                        style={[
+                            {
+                                width: '12%',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                backgroundColor: COLORS.icborder,
+                                padding: 10,
+                                borderRadius: 50,
+                            },
+                        ]}>
+                        <TouchableOpacity
+                            style={{ flexDirection: 'row', alignItems: 'center' }}
+                            onPress={() => {
+                                setShowCaptureDefect(true);
+                            }}>
+                            <IconM name="camera" size={20} color={COLORS.apptheme} />
+                        </TouchableOpacity>
+                    </View>
                     <ButtonComponent
                         textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}
-                        style={{ height: 40, width: '89%' }}
+                        style={{ height: 40, width: '73%' }}
                         onPress={() => {
-                            handleSavePress(true, 'saveBtn');
+                            // handleSavePress(true, 'saveBtn');
+                            setShowCPKModal(true);
                         }}>
                         Save
                     </ButtonComponent>
@@ -692,6 +751,47 @@ const CharacteristicsInfo = ({
                     </View>
                 </View>
             </View>
+            <CapabilityCard
+                visible={showCPKModal}
+                // setVisible={setShowCPKModal}
+                handleClose={handleCloseCPKModal}
+                data={{
+                    pp: 2.5,
+                    ppk: 2.1,
+                    cp: 0.78,
+                    cpk: -0.22,
+                }}
+            />
+            <Modal visible={showImageWithSample} animationType="slide" transparent={false} onRequestClose={() => setShowImageWithSample(false)}>
+                <GestureHandlerRootView style={{ flex: 1 }}>
+                    <SafeAreaView style={styles.modalContainer}>
+                        <View style={styles.header}>
+                            <Text style={styles.title}>View Image Attachment with Sample</Text>
+                            <TouchableOpacity
+                                style={[styles.deleteIcon]}
+                                onPress={() => {
+                                    setShowImageWithSample(false);
+                                }}>
+                                <IconMM name="close" size={25} color={COLORS.apptheme} />
+                            </TouchableOpacity>
+                        </View>
+                        <View style={styles.content}>
+                            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                                <ZoomableImage fileList={FileList} />
+                            </View>
+                            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 10 }}>
+                                <View style={{ flex: 1, width: '100%' }}>{renderFaltList(false)}</View>
+                            </View>
+                        </View>
+                    </SafeAreaView>
+                </GestureHandlerRootView>
+            </Modal>
+            <CaptureDefect
+                visible={showCaptureDefect}
+                onRequestClose={() => setShowCaptureDefect(false)}
+                selectedData={selectedData}
+                setSelectedData={setSelectedData}
+            />
         </KeyboardAvoidingView>
     );
 };
@@ -756,7 +856,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     iconFilter: {
-        width: RFPercentage(4.5),
+        width: '12%',
     },
     mainBox: {
         flex: 1,
@@ -781,6 +881,29 @@ const styles = StyleSheet.create({
     deleteIcon: {
         marginLeft: 10,
         alignSelf: 'center',
+    },
+    modalContainer: {
+        flex: 1,
+        backgroundColor: '#fff',
+    },
+    header: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        padding: 10,
+        borderBottomWidth: 1,
+        borderBottomColor: '#ddd',
+    },
+    title: {
+        fontSize: 16,
+        fontFamily: 'OpenSans-Bold',
+        color: '#000',
+    },
+    close: {
+        color: 'red',
+        fontSize: 16,
+    },
+    content: {
+        flex: 1,
     },
 });
 

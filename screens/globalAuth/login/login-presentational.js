@@ -1,5 +1,5 @@
 import React from 'react';
-import { Image, ImageBackground, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Image, ImageBackground, StyleSheet, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import { RFPercentage } from '../../../helpers/responsiveFont';
 import { IMAGES } from 'assets/images';
 import { AnimatableView, GradientButton, IconComponent, ImageComponent, KeyboardAwareScrollViewComponent, TextComponent } from 'components';
@@ -22,10 +22,11 @@ const LoginPresentational = ({
     loginLogo,
 }) => {
     const { theme } = useTheme();
+    const {height} = useWindowDimensions();
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.white }}>
             {/* need image with transparent background */}
-            <ImageComponent style={{ width: '100%', height: '100%', position: 'absolute', zIndex: 0 }} source={IMAGES.loginBack} />
+            <ImageComponent style={{ width: '100%', height: height, position: 'absolute', zIndex: 0 }} source={IMAGES.loginBack} />
             <KeyboardAwareScrollViewComponent keyboardShouldPersistTaps="always" style={{ flex: 1, backgroundColor: COLORS.transparent }}>
                 <AnimatableView
                     style={[styles.translateIcon, { backgroundColor: theme.colors.primaryThemeColor }]}

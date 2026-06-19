@@ -186,7 +186,7 @@ const makeStyles = (SCREEN_WIDTH, SCREEN_HEIGHT) => StyleSheet.create({
   },
   image: {
     width: SCREEN_WIDTH,
-    height: SCREEN_HEIGHT * 0.38,
+    height: SCREEN_HEIGHT * 0.30,
   },
   centered: {
     flex: 1,
@@ -235,7 +235,7 @@ const makeStyles = (SCREEN_WIDTH, SCREEN_HEIGHT) => StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingTop: 10
+    paddingTop:5
   },
   counter: {
     color: '#fff',

@@ -112,4 +112,5 @@ export default {
     completedInspection:'Completed\nInspection',
     supervisorSchedule:'Supervisor\nApproval',
     searchInspection:'Search\nInspection',
+    // NotificationScreen:'Notification\nScreen',
 };

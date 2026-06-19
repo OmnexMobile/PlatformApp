@@ -5,15 +5,18 @@ import { Alert } from 'react-native';
 import { View, Text, Modal, TouchableOpacity, StyleSheet, Linking } from 'react-native';
 import VersionCheck from 'react-native-version-check';
 import IconF from 'react-native-vector-icons/Feather';
+import { useNavigation } from '@react-navigation/native';
+import { ROUTES } from 'constants/app-constant';
 
-const NotificationModal = ({ visible, data, setNotificationData = () => { } }) => {
+const NotificationModal = ({ visible, data, setNotificationData = () => {} }) => {
     console.log(data?.notification?.title, 'data in modal');
+    const navigation = useNavigation();
     const onClose = () => {
         setNotificationData({
             showModal: false,
             remoteMessage: null,
         });
-    }
+    };
     const handleSnooze = () => {
         onClose();
     };
@@ -54,7 +57,12 @@ const NotificationModal = ({ visible, data, setNotificationData = () => { } }) =
                         </View>
                     </View>
                     <View style={styles.buttons}>
-                        <TouchableOpacity style={styles.buttonUpdate}>
+                        <TouchableOpacity
+                            style={styles.buttonUpdate}
+                            onPress={() => {
+                                navigation.navigate(ROUTES.INPROCESS_INSPECTION, { inspectData: {} });
+                                onClose();
+                            }}>
                             <Text style={styles.textUpdate}>Start Inspection</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.buttonLater} onPress={handleSnooze}>
@@ -87,7 +95,7 @@ const styles = StyleSheet.create({
         fontSize: 20,
         fontWeight: '700',
         marginLeft: 10,
-        color: COLORS.black
+        color: COLORS.black,
     },
     message: {
         fontSize: 17,
@@ -114,7 +122,6 @@ const styles = StyleSheet.create({
         fontSize: 16,
         textAlign: 'center',
         color: '#504d4d',
-
     },
     buttons: {
         flexDirection: 'row',
