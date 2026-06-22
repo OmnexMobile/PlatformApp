@@ -8,7 +8,7 @@ export const ThemeContext = React.createContext();
 
 const ThemeProvider = ({ children }) => {
     const [theme, setTheme] = useState({
-        selectedColor: Themes.neon,
+        selectedColor: Themes?.neon,
         colors: colors.neon,
         selectedMode: mode.light,
         mode: Modes.light,

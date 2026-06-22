@@ -145,16 +145,6 @@ const CustomHeader = ({
                             <Text style={[styles.headerText]} numberOfLines={1}>
                                 {title} <Text style={{ fontSize: 15 }}>{`(${sites?.selectedSite.SiteName})`}</Text>
                             </Text>
-                            <TouchableOpacity style={styles.notificationContainer} onPress={() => navigation.navigate(ROUTES.NOTIFICATION_SCREEN)}>
-                                <IconF name="bell-o" size={20} color="#fff" />
-                                {Number(notificationData?.data?.count) > 0 && (
-                                    <View style={styles.badge}>
-                                        <Text style={styles.badgeText}>
-                                            {Number(notificationData?.data?.count) > 99 ? '99+' : notificationData?.data?.count}
-                                        </Text>
-                                    </View>
-                                )}
-                            </TouchableOpacity>
                         </View>
                     ) : (
                         <Animated.View style={[{ width: widthAnim }]}>
@@ -173,6 +163,16 @@ const CustomHeader = ({
                 <View style={[styles.rightIconList]}>
                     {showIcons && (
                         <>
+                            <TouchableOpacity style={styles.notificationContainer} onPress={() => navigation.navigate(ROUTES.NOTIFICATION_SCREEN)}>
+                                <IconF name="bell-o" size={20} color="#fff" />
+                                {Number(notificationData?.data?.count) > 0 && (
+                                    <View style={styles.badge}>
+                                        <Text style={styles.badgeText}>
+                                            {Number(notificationData?.data?.count) > 99 ? '99+' : notificationData?.data?.count}
+                                        </Text>
+                                    </View>
+                                )}
+                            </TouchableOpacity>
                             {(activeTabId == 1 || activeTabId == 4) && (
                                 <TouchableOpacity
                                     onPress={() => {
@@ -321,24 +321,23 @@ const styles = StyleSheet.create({
     notificationContainer: {
         padding: 8,
     },
-
     badge: {
         position: 'absolute',
         top: 2,
         right: 2,
         minWidth: 18,
         height: 18,
-        borderRadius: 9,
+        borderRadius: 18,
         backgroundColor: 'red',
         justifyContent: 'center',
         alignItems: 'center',
-        paddingHorizontal: 4,
+        paddingVertical:2,
     },
-
     badgeText: {
         color: '#fff',
         fontSize: 10,
         fontWeight: 'bold',
+        textAlign:'center',
     },
 });
 export default CustomHeader;
