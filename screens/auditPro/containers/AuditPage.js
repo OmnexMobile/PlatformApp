@@ -42,7 +42,6 @@ import { ROUTES } from 'constants/app-constant';
 import { SPACING } from 'constants/theme-constants';
 import ToastNew, {ErrorToast} from 'react-native-toast-message';
 import { LogBox } from 'react-native';
-import { initialWindowMetrics } from 'react-native-safe-area-context';
 
 let Window = Dimensions.get('window');
 const window_width = Dimensions.get('window').width;
@@ -3425,16 +3424,11 @@ class AuditPage extends Component {
     ];
 
     const Audit_Status = this.displayStatusNew(this.getResolvedAuditStatus());
-    const bottomInset =
-      initialWindowMetrics?.insets?.bottom ??
-      (Platform.OS === 'android' ? 6 : 0);
-    const footerBottomInset =
-      Platform.OS === 'android' ? Math.max(6, bottomInset) : 0;
     const footerVisible = !(
       this.state.EnableDownload == false && !this.state.isDownloaded
     );
     const scrollBottomPadding = footerVisible
-      ? (this.state.isDownloaded ? 170 : 100) + footerBottomInset
+      ? (this.state.isDownloaded ? 170 : 100)
       : 24;
 
     return (
@@ -3900,11 +3894,7 @@ class AuditPage extends Component {
         {this.state.EnableDownload == false && !this.state.isDownloaded ? (
           <View></View>
         ) : (
-          <View
-            style={[
-              styles.footer,
-              footerBottomInset > 0 && {paddingBottom: footerBottomInset},
-            ]}>
+          <View style={styles.footer}>
             <ImageBackground
               source={Images.Footer}
               style={{
@@ -4062,7 +4052,7 @@ class AuditPage extends Component {
           <View
             style={[
               styles.floatingDiv,
-              {bottom: 100 + footerBottomInset},
+              {bottom: 100},
             ]}>
             <TouchableOpacity
               onPress={() => {

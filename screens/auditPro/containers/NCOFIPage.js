@@ -40,7 +40,6 @@ import { ROUTES } from 'constants/app-constant';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import GlobalHeader from 'components/GlobalHeader';
 import AnimatedLottieView from 'lottie-react-native';
-import { initialWindowMetrics } from 'react-native-safe-area-context';
 var RNFS = require('react-native-fs');
 
 let Window = Dimensions.get('window');
@@ -340,7 +339,6 @@ class NCOFIPage extends Component {
         const iconSize = shortEdge < 340 ? 15 : isTablet ? 20 : 17;
         const fontSize = shortEdge < 340 ? 10 : isTablet ? 12 : 11;
         const lineHeight = fontSize + 3;
-        const bottomInset = initialWindowMetrics?.insets?.bottom ?? (Platform.OS === 'android' ? 6 : 0);
         const sharedButtonStyle = {
             minHeight: buttonHeight,
             maxHeight: buttonHeight,
@@ -355,11 +353,10 @@ class NCOFIPage extends Component {
         };
 
         return {
-            bottomInset,
             iconSize,
             footer: {
                 paddingTop: 6,
-                paddingBottom: Math.max(6, bottomInset),
+                paddingBottom: 6,
                 paddingHorizontal: isTablet ? 12 : 8,
             },
             footerShadowButton: sharedButtonStyle,

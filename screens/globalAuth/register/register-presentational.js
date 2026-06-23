@@ -9,12 +9,13 @@ import { COLORS, FONT_SIZE, SPACING } from 'constants/theme-constants';
 import useTheme from 'theme/useTheme';
 import LoginInput from 'screens/auth/login/components/login-input';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { getContentBottomInset } from 'helpers/safe-area';
 
 const RegisterPresentational = ({ navigation, handleChange, handleRegister, state, isRegistered, handleUnRegister, loading, getDeviceStatus }) => {
     const { theme } = useTheme();
     const insets = useSafeAreaInsets();
     const topInset = insets.top;
-    const bottomInset = insets.bottom;
+    const bottomInset = getContentBottomInset(insets);
     console.log('editable check-->', isRegistered, '--', !isRegistered, state?.globalServerURL, '---', state?.serverUrl);
     const currentURL = state?.serverUrl ? state?.serverUrl : state?.globalServerURL;
     console.log('state?.serverUrl register--->', state?.serverUrl, 'state?.globalServerURL--->', state?.globalServerURL);

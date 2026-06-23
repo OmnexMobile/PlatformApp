@@ -1,9 +1,11 @@
 import React, { Component } from 'react'
 import { View, StatusBar ,SafeAreaView,Platform} from 'react-native'
+import { SafeAreaProvider } from 'react-native-safe-area-context'
 import ReduxNavigation from '../Navigation/ReduxNavigation'
 import { connect } from 'react-redux'
 import StartupActions from '../Redux/AuditRedux'
 import ReduxPersist from '../Config/ReduxPersist'
+import AndroidBottomSafeArea from 'components/AndroidBottomSafeArea'
 
 // Styles
 import styles from './Styles/RootContainerStyles'
@@ -19,19 +21,21 @@ class RootContainer extends Component {
 
   render () {
     return (
-      <View style={{flex:1}}>
-      {Platform.OS == 'android' ?
-        <View style={styles.applicationView}>
-          <StatusBar barStyle='light-content' />
-          <ReduxNavigation />
+      <SafeAreaProvider>
+        <View style={{flex:1}}>
+        {Platform.OS == 'android' ?
+          <AndroidBottomSafeArea style={styles.applicationView}>
+            <StatusBar barStyle='light-content' />
+            <ReduxNavigation />
+          </AndroidBottomSafeArea>
+          :
+          <SafeAreaView style={styles.applicationViewIos}>
+            <StatusBar barStyle='light-content' />
+            <ReduxNavigation />
+          </SafeAreaView>
+        }
         </View>
-        :
-        <SafeAreaView style={styles.applicationViewIos}>
-          <StatusBar barStyle='light-content' />
-          <ReduxNavigation />
-        </SafeAreaView>
-      }
-      </View>
+      </SafeAreaProvider>
     )
   }
 }

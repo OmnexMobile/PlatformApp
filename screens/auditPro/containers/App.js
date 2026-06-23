@@ -7,7 +7,7 @@ import createStore from '../Redux'
 import { PersistGate } from 'redux-persist/integration/react'
 import { Bubbles, DoubleBounce, Bars, Pulse } from 'react-native-loader';
 import { View, Image, Dimensions, Alert, Platform, AppState } from 'react-native'
-import { SafeAreaProvider, initialWindowMetrics } from 'react-native-safe-area-context'
+import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { Images } from '../Themes';
 import ResponsiveImage from 'react-native-responsive-image';
 import ToastNew from 'react-native-toast-message';
@@ -21,12 +21,6 @@ const { store, persistor } = createStore()
 console.disableYellowBox = true;
 const window_width = Dimensions.get('window').width
 const window_height = Dimensions.get('window').height
-const ANDROID_15_API_LEVEL = 35
-const isAndroid15OrAbove =
-  Platform.OS === 'android' && Number(Platform.Version) >= ANDROID_15_API_LEVEL
-const android15SafeAreaStyle = isAndroid15OrAbove
-  ? { marginBottom: initialWindowMetrics?.insets.bottom ?? 0 }
-  : undefined
 
 const unauthorizedHandlers = new Set()
 const registerUnauthorizedHandler = handler => {
@@ -377,7 +371,7 @@ class App extends Component {
   
   render () {
     return (
-      <SafeAreaProvider style={android15SafeAreaStyle}>
+      <SafeAreaProvider>
         <Provider store={store}>
           <PersistGate onBeforeLift={this.onBeforeLift} persistor={persistor}>
             {(this.state.isAppLoaded) ? 

@@ -7,6 +7,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { PaperProvider } from 'react-native-paper';
 import FlashMessage from 'react-native-flash-message';
 import RNBootSplash from 'react-native-bootsplash';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { store, persistor } from './store';
 import setupInterceptors from './global/interceptor';
@@ -14,6 +15,7 @@ import ThemeProvider from 'theme/ThemeProvider';
 import useTheme from 'theme/useTheme';
 import { AppProvider } from 'contexts/app-context';
 import StatusBarAndroidIOS from 'components/status-bar';
+import AndroidBottomSafeArea from 'components/AndroidBottomSafeArea';
 import { AppStack } from 'navigations/stack';
 import UpdateModal from 'helpers/UpdateModal';
 import { createInspectTable } from 'store/database/inspectStorage';
@@ -74,31 +76,35 @@ const Parent = () => {
     }, [hideSplash]);
 
     return (
-        <GestureHandlerRootView style={{ flex: 1 }}>
-            <View style={{ flex: 1, backgroundColor: theme.mode.backgroundColor }}>
-                <Provider store={store}>
-                    <PersistGate
-                        persistor={persistor}
-                        onBeforeLift={hideSplash}
-                        loading={
-                            <View style={{ flex: 1, backgroundColor: theme.mode.backgroundColor }}>
-                                <StatusBarAndroidIOS />
-                            </View>
-                        }>
-                        <AppProvider>
-                            <PaperProvider>
-                                <StatusBarAndroidIOS />
-                                <NavigationContainer onReady={hideSplash}>
-                                    <AppStack />
-                                </NavigationContainer>
-                                <FlashMessage />
-                            </PaperProvider>
-                        </AppProvider>
-                    </PersistGate>
-                </Provider>
-            </View>
-            <UpdateModal visible={showUpdateModal} onClose={() => setShowUpdateModal(false)} />
-        </GestureHandlerRootView>
+        <SafeAreaProvider>
+            <GestureHandlerRootView style={{ flex: 1 }}>
+                <View style={{ flex: 1, backgroundColor: theme.mode.backgroundColor }}>
+                    <Provider store={store}>
+                        <PersistGate
+                            persistor={persistor}
+                            onBeforeLift={hideSplash}
+                            loading={
+                                <View style={{ flex: 1, backgroundColor: theme.mode.backgroundColor }}>
+                                    <StatusBarAndroidIOS />
+                                </View>
+                            }>
+                            <AppProvider>
+                                <PaperProvider>
+                                    <StatusBarAndroidIOS />
+                                    <NavigationContainer onReady={hideSplash}>
+                                        <AndroidBottomSafeArea>
+                                            <AppStack />
+                                        </AndroidBottomSafeArea>
+                                    </NavigationContainer>
+                                    <FlashMessage />
+                                </PaperProvider>
+                            </AppProvider>
+                        </PersistGate>
+                    </Provider>
+                </View>
+                <UpdateModal visible={showUpdateModal} onClose={() => setShowUpdateModal(false)} />
+            </GestureHandlerRootView>
+        </SafeAreaProvider>
     );
 };
 

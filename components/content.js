@@ -3,12 +3,13 @@ import { ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SPACING } from 'constants/theme-constants';
 import useTheme from 'theme/useTheme';
+import { getContentBottomInset } from 'helpers/safe-area';
 
 const Content = ({ children, noPadding = false, scroll = false, style = {}, contentContainerStyle = {}, ...rest }) => {
     const { theme } = useTheme();
     const insets = useSafeAreaInsets();
     const topInset = insets.top;
-    const bottomInset = insets.bottom;
+    const bottomInset = getContentBottomInset(insets);
     const Component = scroll ? ScrollView : View;
     return (
         <Component
