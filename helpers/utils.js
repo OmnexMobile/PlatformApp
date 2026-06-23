@@ -1,7 +1,6 @@
 import { isIphoneX } from 'react-native-iphone-x-helper';
 import { Platform, StatusBar, Dimensions, Alert, Linking, LogBox } from 'react-native';
 import FlashMessage, { showMessage } from 'react-native-flash-message';
-import JailMonkey from 'jail-monkey';
 import moment from 'moment';
 import { COLORS, SPACING } from 'constants/theme-constants';
 import useTheme from 'theme/useTheme';
@@ -28,9 +27,7 @@ export const getAvatarInitials = textString => {
 //
 // ─── JAIL MONKEY VARIABLES ──────────────────────────────────────────────────────
 //
-export const isJailBroken = JailMonkey.isJailBroken();
-export const canMockLocation = JailMonkey.canMockLocation();
-export const trustFall = JailMonkey.trustFall();
+export { deviceSecurity, isJailBroken, canMockLocation, trustFall, isDeviceSecurityCompromised } from './deviceSecurity';
 
 //
 // ─── ACTION CREATORS ────────────────────────────────────────────────────────────

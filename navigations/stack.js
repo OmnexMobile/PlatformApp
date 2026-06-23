@@ -12,6 +12,8 @@ import GlobalLogout from '../screens/globalAuth/logout';
 import GlobalSettings from '../screens/globalsettings/index';
 import GlobalSites from '../screens/globalsettings/globalSites';
 import LaunchScreen from '../screens/launch-screen';
+import JailBroken from '../components/jail-broken';
+import { isDeviceSecurityCompromised } from '../helpers/deviceSecurity';
 
 const Stack = createStackNavigator();
 
@@ -716,6 +718,11 @@ export const ProjectStack = () => (
 
 export function AppStack() {
     const { theme } = useTheme();
+
+    if (isDeviceSecurityCompromised) {
+        return <JailBroken />;
+    }
+
     return (
         <Stack.Navigator
             screenOptions={{
