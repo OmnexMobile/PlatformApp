@@ -315,6 +315,11 @@ export const AppStackData = [
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
+        name: ROUTES.DOWNLOAD_SM,
+        getComponent: () => require('../screens/supplierManagement/containers/DownloadsSM').default,
+        cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
+    },
+    {
         name: ROUTES.SYNC_DETAILS,
         getComponent: () => require('../screens/auditPro/containers/SyncDetails').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,

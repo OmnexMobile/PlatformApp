@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, ImageBackground, TouchableOpacity, Text, FlatList, Platform, ActivityIndicator, Image, LogBox } from 'react-native';
+import { View, ImageBackground, TouchableOpacity, Text, FlatList, Platform, ActivityIndicator, Image, LogBox, Modal, Pressable, StyleSheet } from 'react-native';
 //styles
 import styles from '../../auditPro/styles/AuditDashboardListingStyle';
 //components
@@ -28,6 +28,103 @@ import GlobalHeader from 'components/GlobalHeader';
 import { ThemeContext } from 'theme/ThemeProvider';
 const { whitneyBook_18 } = Fonts.style;
 const { blackGrey } = Fonts.colors;
+const ACTION_DROPDOWN_OPTIONS = [
+    // { key: 'filter', label: strings.filter || 'Filter', icon: 'filter' },
+    // { key: 'calendar', label: strings.calendar || 'Calendar', icon: 'calendar' },
+    { key: 'download', label: strings.downloads || 'Downloads', icon: 'download' },
+    { key: 'syncDetails', label: strings.Sync_Details || 'Sync Details', icon: 'refresh-cw' },
+];
+
+const actionMenuStyles = StyleSheet.create({
+    searchRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingRight: 12,
+    },
+    searchArea: {
+        flex: 1,
+    },
+    wrapper: {
+        width: 52,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    button: {
+        width: 44,
+        height: 44,
+        borderRadius: 22,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#FFFFFF',
+        borderWidth: 1,
+        borderColor: '#DFE7F3',
+    },
+    modalBackdrop: {
+        flex: 1,
+        backgroundColor: 'transparent',
+    },
+    dismissLayer: {
+        ...StyleSheet.absoluteFillObject,
+    },
+    dropdownContainer: {
+        position: 'absolute',
+        top: Platform.select({ ios: 146, android: 126, default: 126 }),
+        right: 14,
+        alignItems: 'flex-end',
+        zIndex: 41,
+        elevation: 41,
+    },
+    arrow: {
+        width: 14,
+        height: 14,
+        marginRight: 17,
+        marginBottom: -7,
+        backgroundColor: '#FFFFFF',
+        borderLeftWidth: 1,
+        borderTopWidth: 1,
+        borderColor: '#E6ECF5',
+        transform: [{ rotate: '45deg' }],
+        zIndex: 2,
+    },
+    box: {
+        width: 190,
+        backgroundColor: '#FFFFFF',
+        borderRadius: 14,
+        borderWidth: 1,
+        borderColor: '#E6ECF5',
+        paddingVertical: 6,
+        shadowColor: '#123C95',
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.12,
+        shadowRadius: 18,
+        elevation: 8,
+    },
+    item: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        minHeight: 44,
+        paddingHorizontal: 12,
+        borderBottomWidth: 1,
+        borderBottomColor: '#EEF2F8',
+    },
+    itemLast: {
+        borderBottomWidth: 0,
+    },
+    icon: {
+        width: 30,
+        height: 30,
+        borderRadius: 15,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#EEF4FF',
+        marginRight: 10,
+    },
+    label: {
+        fontSize: 14,
+        color: '#334155',
+        fontFamily: 'OpenSans-SemiBold',
+    },
+});
 
 class AuditDashboardListing extends Component {
     static contextType = ThemeContext;
@@ -50,6 +147,7 @@ class AuditDashboardListing extends Component {
             auditListAll: [],
             filterID: 0,
             SM: 0,
+            actionDropdownVisible: false,
         };
     }
 
@@ -61,8 +159,9 @@ class AuditDashboardListing extends Component {
 
         var filterIDasync = await AsyncStorage.getItem('FILTERIDLIST');
         var SMDATAraw = await AsyncStorage.getItem('supplierIndex');
-        
-        const SMDATA =  (SMDATAraw ? JSON.parse(SMDATAraw) : null);
+
+        const SMDATA = this.normalizeSupplierIndex(SMDATAraw || this.props?.route?.params?.smData || this.props?.data?.audits?.smdata);
+        await AsyncStorage.setItem('supplierIndex', JSON.stringify(SMDATA));
         console.log('checkingsmdatvalllll', SMDATA);
 
         if (this.props.data.audits.language === 'Chinese') {
@@ -101,6 +200,110 @@ class AuditDashboardListing extends Component {
             this.focusListener();
         }
     }
+
+    normalizeSupplierIndex = value => {
+        if (value === undefined || value === null || value === '') {
+            return 3;
+        }
+
+        try {
+            const parsedValue = typeof value === 'string' ? JSON.parse(value) : value;
+            const numericValue = Number(parsedValue);
+            return Number.isFinite(numericValue) && numericValue > 0 ? numericValue : 3;
+        } catch (error) {
+            const numericValue = Number(value);
+            return Number.isFinite(numericValue) && numericValue > 0 ? numericValue : 3;
+        }
+    };
+
+    getSelectedSupplierIndex = async () => {
+        const storedSupplierIndex = await AsyncStorage.getItem('supplierIndex');
+        const routeSupplierIndex = this.props?.route?.params?.smData;
+        const reduxSupplierIndex = this.props?.data?.audits?.smdata;
+        const SM = this.normalizeSupplierIndex(this.state.SM || storedSupplierIndex || routeSupplierIndex || reduxSupplierIndex);
+        await AsyncStorage.setItem('supplierIndex', JSON.stringify(SM));
+        this.setState({ SM });
+        return SM;
+    };
+
+    toggleActionDropdown = () => {
+        this.setState(prevState => ({ actionDropdownVisible: !prevState.actionDropdownVisible }));
+    };
+
+    closeActionDropdown = () => {
+        this.setState({ actionDropdownVisible: false });
+    };
+
+    openFilterScreen = async () => {
+        const SM = await this.getSelectedSupplierIndex();
+        this.props.navigation.navigate(ROUTES.FILTER_SCREEN, {
+            fromDashBoard: true,
+            smData: SM,
+            PreviousPage: ROUTES.AUDIT_DASHBOARD_LISTING_SM,
+        });
+    };
+
+    openCalendarScreen = async () => {
+        const SM = await this.getSelectedSupplierIndex();
+        this.props.navigation.navigate(ROUTES.CALENDER_LIST, {
+            fromDashBoard: true,
+            smData: SM,
+            PreviousPage: ROUTES.AUDIT_DASHBOARD_LISTING_SM,
+        });
+    };
+
+    handleActionDropdownPress = async optionKey => {
+        this.closeActionDropdown();
+
+        if (optionKey === 'filter') {
+            await this.openFilterScreen();
+            return;
+        }
+        if (optionKey === 'calendar') {
+            await this.openCalendarScreen();
+            return;
+        }
+        if (optionKey === 'download') {
+            this.props.navigation.navigate(ROUTES.DOWNLOAD_SM);
+            return;
+        }
+        if (optionKey === 'syncDetails') {
+            this.props.navigation.navigate(ROUTES.SYNC_DETAILS);
+        }
+    };
+
+    renderActionDropdown = () => (
+        <>
+            <View style={actionMenuStyles.wrapper}>
+                <TouchableOpacity activeOpacity={0.8} style={actionMenuStyles.button} onPress={this.toggleActionDropdown}>
+                    <Icon name="more-vertical" size={22} color="#123C95" />
+                </TouchableOpacity>
+            </View>
+            <Modal transparent visible={this.state.actionDropdownVisible} animationType="fade" onRequestClose={this.closeActionDropdown}>
+                <View style={actionMenuStyles.modalBackdrop}>
+                    <Pressable style={actionMenuStyles.dismissLayer} onPress={this.closeActionDropdown} />
+                    <View style={actionMenuStyles.dropdownContainer}>
+                        <View style={actionMenuStyles.arrow} />
+                        <View style={actionMenuStyles.box}>
+                            {ACTION_DROPDOWN_OPTIONS.map((option, index) => (
+                                <TouchableOpacity
+                                    key={option.key}
+                                    activeOpacity={0.75}
+                                    style={[actionMenuStyles.item, index === ACTION_DROPDOWN_OPTIONS.length - 1 && actionMenuStyles.itemLast]}
+                                    onPress={() => this.handleActionDropdownPress(option.key)}>
+                                    <View style={actionMenuStyles.icon}>
+                                        <Icon name={option.icon} size={17} color="#123C95" />
+                                    </View>
+                                    <Text style={actionMenuStyles.label}>{option.label}</Text>
+                                </TouchableOpacity>
+                            ))}
+                        </View>
+                    </View>
+                </View>
+            </Modal>
+        </>
+    );
+
     applyAuditFilter = () => {
         const { searchKey, auditListAll } = this.state;
         if (!auditListAll || auditListAll.length === 0) {
@@ -163,15 +366,20 @@ class AuditDashboardListing extends Component {
                     leftIconColor={theme?.colors?.primaryThemeColor}
                 />
                 <View style={styles.auditPageBody}>
-                    <ListSearch
-                        searchKey={this.state.searchKey}
-                        setSearchKey={searchKey =>
-                            this.setState({ searchKey, AuditSearch: searchKey }, () => {
-                                this.applyAuditFilter();
-                            })
-                        }
-                        placeholder="Search by audit no, auditee"
-                    />
+                    <View style={actionMenuStyles.searchRow}>
+                        <View style={actionMenuStyles.searchArea}>
+                            <ListSearch
+                                searchKey={this.state.searchKey}
+                                setSearchKey={searchKey =>
+                                    this.setState({ searchKey, AuditSearch: searchKey }, () => {
+                                        this.applyAuditFilter();
+                                    })
+                                }
+                                placeholder="Search by audit no, auditee"
+                            />
+                        </View>
+                        {this.renderActionDropdown()}
+                    </View>
                     {this.state.loader ? (
                         <View style={styles.loaderParent}>
                             <ActivityIndicator size={20} color={theme?.colors?.primaryThemeColor} />

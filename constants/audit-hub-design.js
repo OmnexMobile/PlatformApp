@@ -1,14 +1,14 @@
 /**
- * Audits hub design tokens — Inter 18pt static font family.
- * iOS resolves by PostScript name; Android resolves by font filename (Inter18pt-*.ttf).
+ * Audits hub design tokens — Inter static font family.
+ * iOS resolves by PostScript name; Android resolves by bundled font filename.
  */
 import { Dimensions, Platform } from 'react-native';
 
 export const InterFont = {
-    regular: 'Inter18pt-Regular',
-    medium: 'Inter18pt-Medium',
-    semiBold: 'Inter18pt-SemiBold',
-    bold: 'Inter18pt-Bold',
+    regular: Platform.select({ ios: 'Inter18pt-Regular', android: 'Inter-Regular' }),
+    medium: Platform.select({ ios: 'Inter18pt-Medium', android: 'Inter-Medium' }),
+    semiBold: Platform.select({ ios: 'Inter18pt-SemiBold', android: 'Inter-SemiBold' }),
+    bold: Platform.select({ ios: 'Inter18pt-Bold', android: 'Inter-Bold' }),
 };
 
 /** Android ignores fontWeight when a custom fontFamily is set — use the matching Inter file instead. */
@@ -27,9 +27,9 @@ export const AuditTypography = {
     tabLabel: interText(InterFont.semiBold, { fontSize: 16, lineHeight: 20 }),
     tabLabelInactive: interText(InterFont.medium, { fontSize: 16, lineHeight: 20 }),
     metricTitle: interText(InterFont.semiBold, {
-        fontSize: 13,
-        lineHeight: 17,
-        letterSpacing: -0.1,
+        fontSize: 12,
+        lineHeight: 14,
+        letterSpacing: -0.2,
     }),
     metricValue: interText(InterFont.bold, { fontSize: 30, lineHeight: 34 }),
     metricSubtitle: interText(InterFont.medium, {

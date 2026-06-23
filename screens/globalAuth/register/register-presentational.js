@@ -56,7 +56,7 @@ const RegisterPresentational = ({ navigation, handleChange, handleRegister, stat
                             label: strings.Server_Url,
                             name: 'serverUrl',
                             onChangeText: handleChange,
-                            placeholder: 'https://your-server.com/platformapi/api/',
+                            placeholder: 'https://your-server.com',
                             editable: !isRegistered,
                         }}
                     />

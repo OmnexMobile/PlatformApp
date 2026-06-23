@@ -1032,11 +1032,16 @@ console.log('formmdatastatsSM',formData ,sURL);
         });
     },
   
-    getYearAuditsapi(siteid, userid, token, cb) {
+    getYearAuditsapi(siteid, userid, token, SM, cb) {
+      if (typeof SM === 'function') {
+        cb = SM;
+        SM = 1;
+      }
       var formData = new FormData();
   
       formData.append('siteId', siteid);
       formData.append('userId', userid);
+      formData.append('SM', SM || 1);
   
       fetch(sURL + GetYearAudits, {
         method: 'POST',
