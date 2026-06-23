@@ -42,6 +42,7 @@ import { ROUTES } from 'constants/app-constant';
 import { SPACING } from 'constants/theme-constants';
 import ToastNew, {ErrorToast} from 'react-native-toast-message';
 import { LogBox } from 'react-native';
+import { initialWindowMetrics } from 'react-native-safe-area-context';
 
 let Window = Dimensions.get('window');
 const window_width = Dimensions.get('window').width;
@@ -3424,6 +3425,17 @@ class AuditPage extends Component {
     ];
 
     const Audit_Status = this.displayStatusNew(this.getResolvedAuditStatus());
+    const bottomInset =
+      initialWindowMetrics?.insets?.bottom ??
+      (Platform.OS === 'android' ? 6 : 0);
+    const footerBottomInset =
+      Platform.OS === 'android' ? Math.max(6, bottomInset) : 0;
+    const footerVisible = !(
+      this.state.EnableDownload == false && !this.state.isDownloaded
+    );
+    const scrollBottomPadding = footerVisible
+      ? (this.state.isDownloaded ? 170 : 100) + footerBottomInset
+      : 24;
 
     return (
       <View style={styles.wrapper}>
@@ -3486,7 +3498,8 @@ class AuditPage extends Component {
 
         {!this.state.isLoading ? (
           <View style={styles.auditPageBody}>
-            <ScrollView>
+            <ScrollView
+              contentContainerStyle={{paddingBottom: scrollBottomPadding}}>
               {this.state.auditDetailList ? (
                 <View style={styles.detailsCard}>
                   <View style={styles.card1}>
@@ -3887,7 +3900,11 @@ class AuditPage extends Component {
         {this.state.EnableDownload == false && !this.state.isDownloaded ? (
           <View></View>
         ) : (
-          <View style={styles.footer}>
+          <View
+            style={[
+              styles.footer,
+              footerBottomInset > 0 && {paddingBottom: footerBottomInset},
+            ]}>
             <ImageBackground
               source={Images.Footer}
               style={{
@@ -4042,7 +4059,11 @@ class AuditPage extends Component {
 
         {/** zzz voice  */}
         {!this.state.isDownloaded ? null : (
-          <View style={styles.floatingDiv}>
+          <View
+            style={[
+              styles.floatingDiv,
+              {bottom: 100 + footerBottomInset},
+            ]}>
             <TouchableOpacity
               onPress={() => {
                 this.setState({isVisible: true}, () => {

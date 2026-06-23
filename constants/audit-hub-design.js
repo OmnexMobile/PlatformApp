@@ -2,7 +2,7 @@
  * Audits hub design tokens — Inter 18pt static font family.
  * iOS resolves by PostScript name; Android resolves by font filename (Inter18pt-*.ttf).
  */
-import { Platform } from 'react-native';
+import { Dimensions, Platform } from 'react-native';
 
 export const InterFont = {
     regular: 'Inter18pt-Regular',
@@ -24,15 +24,17 @@ export const AuditTypography = {
     title: interText(InterFont.semiBold, { fontSize: 18 }),
     body: interText(InterFont.regular, { fontSize: 16 }),
     caption: interText(InterFont.regular, { fontSize: 14 }),
+    tabLabel: interText(InterFont.semiBold, { fontSize: 16, lineHeight: 20 }),
+    tabLabelInactive: interText(InterFont.medium, { fontSize: 16, lineHeight: 20 }),
     metricTitle: interText(InterFont.semiBold, {
-        fontSize: 11,
-        lineHeight: 14,
-        letterSpacing: -0.2,
+        fontSize: 13,
+        lineHeight: 17,
+        letterSpacing: -0.1,
     }),
     metricValue: interText(InterFont.bold, { fontSize: 30, lineHeight: 34 }),
-    metricSubtitle: interText(InterFont.regular, {
-        fontSize: 10,
-        lineHeight: 13,
+    metricSubtitle: interText(InterFont.medium, {
+        fontSize: 12,
+        lineHeight: 16,
     }),
 };
 
@@ -57,12 +59,12 @@ export const AuditLayout = {
     moduleCardPadding: 16,
     metricCardRadius: 20,
     metricCardPadding: 10,
-    metricCardMinHeight: 136,
+    metricCardMinHeight: 148,
     metricCardBottomBorder: 4,
     metricIconCircle: 32,
     searchHeight: 56,
     searchRadius: 16,
-    tabHeight: 44,
+    tabHeight: 48,
     tabContainerRadius: 16,
     tabActiveRadius: 12,
 };
@@ -125,3 +127,31 @@ export const getAuditMetricTheme = (category = '') => {
     }
     return { accent: AuditColors.scheduled, borderColor: AuditColors.scheduled, iconBg: '#EFF6FF' };
 };
+
+const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+
+/** Estimate metric card width and return font sizes that scale with available card space. */
+export const getAuditMetricFontSizes = (screenWidth = Dimensions.get('window').width, columns = 2) => {
+    const horizontalInset = AuditLayout.screenHorizontal * 2 + AuditLayout.moduleCardPadding * 2;
+    const gridGutter = AuditLayout.cardGap * Math.max(columns - 1, 0);
+    const cardWidth = (screenWidth - horizontalInset - gridGutter) / columns;
+    const scale = clamp(cardWidth / 165, 0.92, 1.35);
+
+    return {
+        title: {
+            fontSize: clamp(Math.round(13 * scale), 12, 16),
+            lineHeight: clamp(Math.round(17 * scale), 15, 20),
+        },
+        value: {
+            fontSize: clamp(Math.round(28 * scale), 24, 36),
+            lineHeight: clamp(Math.round(32 * scale), 28, 40),
+        },
+        subtitle: {
+            fontSize: clamp(Math.round(12 * scale), 11, 15),
+            lineHeight: clamp(Math.round(16 * scale), 14, 19),
+        },
+        iconCircle: clamp(Math.round(AuditLayout.metricIconCircle * scale), 30, 40),
+    };
+};
+
+export const getAuditGridColumns = (screenWidth = Dimensions.get('window').width) => (screenWidth < 360 ? 1 : 2);
