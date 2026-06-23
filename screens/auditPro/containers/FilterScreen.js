@@ -17,6 +17,8 @@ import NetInfo from "@react-native-community/netinfo";
 import auth from "../../../services/Auditpro-Auth";
 import { ROUTES } from 'constants/app-constant';
 import { SPACING } from 'constants/theme-constants';
+import GlobalHeader from 'components/GlobalHeader';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 class FilterScreen extends Component {
     constructor(props) {
@@ -71,11 +73,30 @@ class FilterScreen extends Component {
         //     return true;
         // });
     }
-
     componentDidMount() {
         console.log('this.props.data.audits', this.props.data.audits)
         // console.log('pageNo,token,userId,siteId,filterId,pageSize,GlobalFilter',this.state.page,this.state.token,this.state.userId,this.state.siteId,this.state.filterId,)
         // this.getAudits()
+    }
+
+    getSelectedSupplierIndex = async () => {
+        const routeSupplierIndex = this.props.route?.params?.smData;
+        const storedSupplierIndex = await AsyncStorage.getItem('supplierIndex');
+        const reduxSupplierIndex = this.props.data?.audits?.smdata;
+        const rawSupplierIndex = routeSupplierIndex || storedSupplierIndex || reduxSupplierIndex || 1;
+
+        try {
+            const parsedSupplierIndex = typeof rawSupplierIndex === 'string' ? JSON.parse(rawSupplierIndex) : rawSupplierIndex;
+            const numericSupplierIndex = Number(parsedSupplierIndex);
+            const SM = Number.isFinite(numericSupplierIndex) && numericSupplierIndex > 0 ? numericSupplierIndex : 1;
+            await AsyncStorage.setItem('supplierIndex', JSON.stringify(SM));
+            return SM;
+        } catch (error) {
+            const numericSupplierIndex = Number(rawSupplierIndex);
+            const SM = Number.isFinite(numericSupplierIndex) && numericSupplierIndex > 0 ? numericSupplierIndex : 1;
+            await AsyncStorage.setItem('supplierIndex', JSON.stringify(SM));
+            return SM;
+        }
     }
 
     // componentWillUnmount() {
@@ -84,7 +105,7 @@ class FilterScreen extends Component {
 
     onBackHandle() {
         if (this.state.fromDashBoard) {
-            this.props.navigation.navigate(ROUTES.ALLTABAUDITLIST)
+            this.props.navigation.navigate(ROUTES.ALLTABAUDITLIST_SM, { smData: this.props.route?.params?.smData })
         } else {
             this.props.navigation.goBack()
         }
@@ -117,7 +138,7 @@ class FilterScreen extends Component {
         })
 
     }
-    checkedApply() {
+    async checkedApply() {
         var allCheckBox = this.state.allCheckBox
         var scheduledBox = this.state.scheduledBox
         var completedBox = this.state.completedBox
@@ -277,11 +298,12 @@ class FilterScreen extends Component {
 
         console.log("filterArr-->", filterArr)
         if (filterArr.length > 0) {
-            this.props.navigation.navigate(ROUTES.ALLTABAUDITLIST,{ filter_Arr: filterArr })
+            const SM = await this.getSelectedSupplierIndex();
+            this.props.navigation.navigate(ROUTES.ALLTABAUDITLIST_SM,{ filter_Arr: filterArr, smData: SM })
             // this.resetAll()
         }
         else{
-            this.refs.toast.show(strings.nofilterapply, DURATION.LENGTH_LONG)
+            this.toast?.show?.(strings.nofilterapply, DURATION.LENGTH_LONG)
         }
     }
 
@@ -344,8 +366,8 @@ class FilterScreen extends Component {
         const endDate = selectedEndDate ? selectedEndDate.toString() : '';
         return (
             <View style={styles.mainContainer}>
-                {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
-                <ImageBackground source={Images.DashboardBG} style={styles.headerBgImage}>
+                {/* {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> } */}
+                {/* <ImageBackground source={Images.DashboardBG} style={styles.headerBgImage}>
                     <View style={styles.header}>
                         <TouchableOpacity onPress={() => this.onBackHandle()}>
                             <View style={styles.backlogo}>
@@ -359,8 +381,22 @@ class FilterScreen extends Component {
                                 <Icon name="home" size={30} color="white" />
                         </TouchableOpacity>
                     </View>
-                </ImageBackground>
+                </ImageBackground> */}
                 {/* Search */}
+                    <GlobalHeader
+                        title={strings.Audit_Details}
+                        subtitle={this.state.breadCrumb}
+                        onLeftPress={() => {
+                            if (!this.state.isLoading && !this.state.isDownloading) {
+                                this.props.route?.params?.PreviousPage == ROUTES.ALLTABAUDITLIST_SM
+                                    ? this.props.navigation.navigate(ROUTES.ALLTABAUDITLIST_SM, { smData: this.props.route?.params?.smData })
+                                    : this.props.navigation.goBack();
+                            } else {
+                                console.log('Component is not ready to goBack..');
+                            }
+                        }}
+                        onRightPress={() => this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)}
+                    />
                 <View style={styles.searchView}>
                     <TouchableOpacity style={{ marginLeft: 10 }}>
                         <Icon name="search" size={20} color="green" />

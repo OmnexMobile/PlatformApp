@@ -346,8 +346,12 @@ export default {
       cb(true, res);
     });
   },
-  getYearAudit(siteid, userid, token, cb) {
-    api.getYearAuditsapi(siteid, userid, token, res => {
+  getYearAudit(siteid, userid, token, SM, cb) {
+    if (typeof SM === 'function') {
+      cb = SM;
+      SM = 1;
+    }
+    api.getYearAuditsapi(siteid, userid, token, SM, res => {
       cb(true, res);
     });
   },

@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import {
     View,
     Text,
-    StyleSheet,
     ImageBackground,
     FlatList,
     TouchableOpacity,
@@ -60,6 +59,8 @@ import { ROUTES } from 'constants/app-constant';
 import { SPACING } from 'constants/theme-constants';
 import { Bubbles } from 'react-native-loader';
 import { AUDITPRO_URL } from 'screens/globalConstant/globalURL';
+import GlobalHeader from 'components/GlobalHeader';
+import { Content, Header, ListSearch, NoRecordFound } from 'components';
 
 const moment = extendMoment(Moment);
 const window_width = Dimensions.get('window').width;
@@ -198,6 +199,39 @@ class AllTabAuditList extends Component {
         });
     }
 
+    normalizeSupplierIndex = value => {
+        if (value === undefined || value === null || value === '') {
+            return 3;
+        }
+
+        try {
+            const parsedValue = typeof value === 'string' ? JSON.parse(value) : value;
+            const numericValue = Number(parsedValue);
+            return Number.isFinite(numericValue) && numericValue > 0 ? numericValue : 3;
+        } catch (error) {
+            const numericValue = Number(value);
+            return Number.isFinite(numericValue) && numericValue > 0 ? numericValue : 3;
+        }
+    };
+
+    getSelectedSupplierIndex = async () => {
+        const storedSupplierIndex = await AsyncStorage.getItem('supplierIndex');
+        const routeSupplierIndex = this.props?.route?.params?.smData;
+        const reduxSupplierIndex = this.props?.data?.audits?.smdata;
+        const SM = this.normalizeSupplierIndex(storedSupplierIndex || routeSupplierIndex || reduxSupplierIndex);
+        await AsyncStorage.setItem('supplierIndex', JSON.stringify(SM));
+        return SM;
+    };
+
+    openFilterScreen = async () => {
+        const SM = await this.getSelectedSupplierIndex();
+        this.props.navigation.navigate(ROUTES.FILTER_SCREEN, {
+            fromDashBoard: true,
+            smData: SM,
+            PreviousPage: ROUTES.ALLTABAUDITLIST_SM,
+        });
+    };
+
     async componentDidMount() {
         this.setState({ loading: true });
         this.props.storeServerUrl(API_URL_SM);
@@ -327,7 +361,7 @@ class AllTabAuditList extends Component {
     filterSection() {
         return (
             <View style={styles.filterCont}>
-                <TouchableOpacity style={styles.filterBox} onPress={() => this.props.navigation.navigate(ROUTES.FILTER_SCREEN)}>
+                <TouchableOpacity style={styles.filterBox} onPress={this.openFilterScreen}>
                     <Icon name="filter" size={20} color="#89888A" />
                     <Text
                         style={{
@@ -521,20 +555,7 @@ class AllTabAuditList extends Component {
                             </TouchableOpacity>
                         </View>
                     ) : (
-                        <Text
-                            style={{
-                                width: window_width,
-                                height: height(100) - 213,
-                                flex: 1,
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                                textAlign: 'center',
-                                fontSize: Fonts.size.h5,
-                                paddingTop: 40,
-                                fontFamily: 'OpenSans-Regular',
-                            }}>
-                            {strings.No_records_found}
-                        </Text>
+                       <NoRecordFound />
                     )
                 ) : (
                     <View
@@ -807,8 +828,8 @@ class AllTabAuditList extends Component {
 
     async getAuditLists() {
         await this.getUserDetails();
-        var smIndex = await AsyncStorage.getItem('supplierIndex');
-        console.log('smIndex getAuditLists----->', smIndex);
+        var SM = await this.getSelectedSupplierIndex();
+        console.log('SM getAuditLists----->', SM);
         var pageNo = 1;
         var token = this.props?.data?.audits?.token || this.state.currentUserData?.accessToken;
         var userId = this.props?.data?.audits?.userId || this.state.currentUserData?.userId;
@@ -820,7 +841,6 @@ class AllTabAuditList extends Component {
         var EndDate = '';
         var SortBy = '';
         var SortOrder = this.state.SortOrder;
-        var SM = smIndex || this.props?.data?.audits?.smdata;
         console.log('reach here 001', token, userId, siteId, pageNo, pageSize, filterId, GlobalFilter, StartDate, EndDate, SortBy, SortOrder, SM, 1);
         NetInfo.fetch().then(netState => {
             this.setState({
@@ -1531,16 +1551,16 @@ class AllTabAuditList extends Component {
                                     //this.props.navigation.navigate('AuditProDashboard')
                                     console.log(
                                         'checking props' +
-                                            this.props.data.audits.userFullName +
-                                            this.props.data.audits.siteId +
-                                            'user id:' +
-                                            this.props.data.audits.userId +
-                                            'token:' +
-                                            this.props.data.audits.token +
-                                            'isactive' +
-                                            this.props.data.audits.isActive +
-                                            'device registration status:' +
-                                            this.props.data.audits.isDeviceRegistered,
+                                        this.props.data.audits.userFullName +
+                                        this.props.data.audits.siteId +
+                                        'user id:' +
+                                        this.props.data.audits.userId +
+                                        'token:' +
+                                        this.props.data.audits.token +
+                                        'isactive' +
+                                        this.props.data.audits.isActive +
+                                        'device registration status:' +
+                                        this.props.data.audits.isDeviceRegistered,
                                     );
                                     console.log(this.props.data.audits.isDeviceRegistered, '********DeviceID********');
                                     // zthis.props.navigation.navigate("AllTabAuditList");z
@@ -2267,11 +2287,12 @@ class AllTabAuditList extends Component {
         const token = this.state.accessToken;
         const siteid = this.state.siteId;
         const userid = this.state.userId;
+        const SM = await this.getSelectedSupplierIndex();
         const stringifiedUserDetails = await AsyncStorage.getItem('userDetails');
         const value = stringifiedUserDetails ? JSON.parse(stringifiedUserDetails) : null;
         console.log('checkinguserSiteselectiongetYearAudits', value);
-        console.log('getYearAudits---->', value?.siteId, value?.userId, value?.accessToken);
-        auth.getYearAudit(value?.siteId, value?.userId, value?.accessToken, (res, data) => {
+        console.log('getYearAudits---->', value?.siteId, value?.userId, value?.accessToken, SM);
+        auth.getYearAudit(value?.siteId || siteid, value?.userId || userid, value?.accessToken || token, SM, (res, data) => {
             // auth.getYearAudit(siteid, userid, token, (res, data) => {
             // console.log('Calender filter api is called',data)
             if (data?.data?.Message == 'Success') {
@@ -2368,10 +2389,11 @@ class AllTabAuditList extends Component {
         const token = this.state.accessToken || this.props.data.audits.token;
         const siteId = this.state.siteId || this.props.data.audits.siteId;
         const userId = this.state.userId || this.props.data.audits.userId;
+        const SM = await this.getSelectedSupplierIndex();
         console.log(this.props.data.audits, 'SITEIDDDDD');
         NetInfo.fetch().then(netState => {
             if (netState.isConnected) {
-                auth.getYearAudit(siteId, userId, token, (response, data) => {
+                auth.getYearAudit(siteId, userId, token, SM, (response, data) => {
                     if (data.data) {
                         if (data.data.Message === 'Success') {
                             if (data.data.Data && data.data.Data.length > 0) {
@@ -2489,8 +2511,8 @@ class AllTabAuditList extends Component {
 
     async filterApplied(filter) {
         console.log('filterApplied', filter);
-        var smIndex = await AsyncStorage.getItem('supplierIndex');
-        console.log('smIndex filterApplied----->', smIndex);
+        const SM = await this.getSelectedSupplierIndex();
+        console.log('SM filterApplied----->', SM);
         var sortype = this.state.audit_sort;
         var droptext = this.state.audit_sortText;
         var FilterArray = [];
@@ -2561,8 +2583,6 @@ class AllTabAuditList extends Component {
                 var SortBy = this.state.SortBy;
                 var SortOrder = this.state.SortOrder;
                 var Default = this.state.default;
-                var SM = smIndex || this.props.data.audits.smdata;
-
                 // this.getAuditlist(filter.startDate,filter.endDate)
                 // console.log('jdata',getauditlist)
                 auth.getauditlist(
@@ -2876,8 +2896,8 @@ class AllTabAuditList extends Component {
 
     async searchResult() {
         // console.log('Audit entered',this.state.AuditSearch)
-        var smIndex = await AsyncStorage.getItem('supplierIndex');
-        console.log('smIndex searchResult----->', smIndex);
+        const SM = await this.getSelectedSupplierIndex();
+        console.log('SM searchResult----->', SM);
         var Params = [];
         var SiteID = this.props.data.audits.siteId;
         var UserID = this.props.data.audits.userId;
@@ -2888,8 +2908,6 @@ class AllTabAuditList extends Component {
         var TOKEN = this.props.data.audits.token;
         var StartDate = '';
         var EndDate = '';
-        var SM = smIndex || this.props.data.audits.smdata;
-
         Params.push({
             SiteID: SiteID,
             UserID: UserID,
@@ -2977,8 +2995,8 @@ class AllTabAuditList extends Component {
     };
 
     getRecentAuditlist = async (startDate, endDate) => {
-        var smIndex = await AsyncStorage.getItem('supplierIndex');
-        console.log('smIndex getRecentAuditlist----->', smIndex);
+        var SM = await this.getSelectedSupplierIndex();
+        console.log('SM getRecentAuditlist----->', SM);
         if (this.props.data.audits.isOfflineMode) {
             this.refs.toast.show(strings.Audit_List_Failed, DURATION.LENGTH_LONG);
             this.setState({
@@ -2994,8 +3012,8 @@ class AllTabAuditList extends Component {
         }
         NetInfo.fetch().then(netState => {
             if (netState.isConnected) {
-                console.log('getAuditlist ------>222222',this?.props?.route?.params?.filter_Arr[0]?.startDate);
-                console.log('getAuditlist ------>222222',this?.props?.route?.params?.filter_Arr[0]?.endDate);
+                console.log('getAuditlist ------>222222', this?.props?.route?.params?.filter_Arr[0]?.startDate);
+                console.log('getAuditlist ------>222222', this?.props?.route?.params?.filter_Arr[0]?.endDate);
                 var pageNo = this.state.page;
                 // var token = this.props.data.audits.token;
                 // var userId = this.props.data.audits.userId;
@@ -3012,7 +3030,6 @@ class AllTabAuditList extends Component {
                 var SortBy = '';
                 var SortOrder = this.state.SortOrder;
                 var Default = 0;
-                var SM = smIndex || this.props.data.audits.smdata;
                 console.log(
                     'api date',
                     token,
@@ -3042,7 +3059,7 @@ class AllTabAuditList extends Component {
                     EndDate,
                     SortBy,
                     SortOrder,
-                    3,
+                    SM,
                     Default,
                     (response, data) => {
                         console.log('AuditList list data', data);
@@ -3277,8 +3294,8 @@ class AllTabAuditList extends Component {
     };
 
     getAuditlist = async (startDate, endDate) => {
-        var smIndex = await AsyncStorage.getItem('supplierIndex');
-        console.log('smIndex getAuditLists----->', smIndex);
+        var SM = await this.getSelectedSupplierIndex();
+        console.log('SM getAuditLists----->', SM);
         if (this.props.data.audits.isOfflineMode) {
             this.refs.toast.show(strings.Audit_List_Failed, DURATION.LENGTH_LONG);
             this.setState({
@@ -3311,7 +3328,6 @@ class AllTabAuditList extends Component {
                 var SortBy = '';
                 var SortOrder = this.state.SortOrder;
                 var Default = 1;
-                var SM = smIndex || this.props.data.audits.smdata;
                 console.log(
                     'api date',
                     token,
@@ -3341,7 +3357,7 @@ class AllTabAuditList extends Component {
                     EndDate,
                     SortBy,
                     SortOrder,
-                    3,
+                    SM,
                     Default,
                     (response, data) => {
                         console.log('AuditList list data', data);
@@ -4030,19 +4046,18 @@ class AllTabAuditList extends Component {
         console.log('!!!!!!!!!!!!!!!!!!!!!!!!ALLTABLIST', this.props?.route?.params);
         return (
             <View style={styles.container}>
-                {Platform.OS === 'ios' ? (
-                    <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }} />
-                ) : (
-                    <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }} />
-                )}
-                {/* <NavigationEvents onDidFocus={() =>  this.handleRefresh()} /> */}
-                <OfflineNotice />
-                <View style={styles.headerCont}>
-                    <ImageBackground source={Images.DashboardBG} style={styles.bgCont}>
-                        {this.renderHeader()}
-                    </ImageBackground>
-                </View>
 
+                <OfflineNotice />
+
+                <GlobalHeader
+                    title={strings.Audit_Details}
+                    subtitle={this.state.breadCrumb}
+                    onLeftPress={() => {
+                        this.props.navigation.goBack();
+
+                    }}
+                    onRightPress={() => this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)}
+                />
                 <View style={styles.bodyCont}>
                     <ScrollableTabView
                         initialPage={this.state.activeTab}
@@ -4074,8 +4089,8 @@ class AllTabAuditList extends Component {
                 </View>
                 <Toast
                     ref={toast => {
-            this.toast = toast;
-          }}
+                        this.toast = toast;
+                    }}
                     style={{ backgroundColor: 'black', margin: 20 }}
                     position="bottom"
                     positionValue={200}

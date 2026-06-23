@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
     TouchableOpacity,
+    SafeAreaView,
     View,
     FlatList,
     StyleSheet,
@@ -11,7 +12,7 @@ import {
     TextInput,
 } from 'react-native';
 // import { Card, IconButton } from 'react-native-paper';
-import { COLORS, FONT_SIZE, SPACING } from 'constants/theme-constants';
+import { SPACING } from 'constants/theme-constants';
 import strings from 'config/localization';
 import { ImageComponent, NoRecordFound } from 'components';
 import IconComponent from 'components/icon-component';
@@ -31,11 +32,10 @@ import CryptoJS from 'react-native-crypto-js';
 import { postAPI } from 'global/api-helpers';
 import ApiUrl from 'global/ApiUrl';
 import { Bubbles } from 'react-native-loader';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { showMessage } from 'react-native-flash-message';
 import { Images } from 'theme/Apqp';
 import { APQP_URL, AUDITPRO_URL, GLOBAL_BASE_URL, PROBLEMSOLVING_URL, IC_URL, ensureTrailingSlash } from 'screens/globalConstant/globalURL';
-import DateTimePicker from '@react-native-community/datetimepicker';
 import { AuditColors, AuditLayout, AuditShadows, AuditTypography, getAuditMetricTheme, InterFont, interText } from 'constants/audit-hub-design';
 
 const GRID_COLUMNS = 2;
@@ -114,15 +114,7 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
     const [moduleLicenses, setModuleLicenses] = useState(null);
     const [filterText, setFilterText] = useState('');
     const filterInputRef = React.useRef(null);
-    const [startDate, setStartDate] = useState(null);
-    const [endDate, setEndDate] = useState(null);
-    const [rangeModalVisible, setRangeModalVisible] = useState(false);
-    const [tempStartDate, setTempStartDate] = useState(new Date());
-    const [tempEndDate, setTempEndDate] = useState(new Date());
-    const [showFromPicker, setShowFromPicker] = useState(false);
-    const [showToPicker, setShowToPicker] = useState(false);
     const [expandedSections, setExpandedSections] = useState({});
-    const dispatch = useDispatch();
 
     const toggleSection = sectionKey => {
         setExpandedSections(prev => ({ ...prev, [sectionKey]: !prev[sectionKey] }));
@@ -130,16 +122,6 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
 
     const isSectionExpanded = sectionKey => expandedSections[sectionKey] === true;
 
-    const openRangeModal = () => {
-        setTempStartDate(startDate || new Date());
-        // if no end date pick today
-        const baseEnd = endDate || new Date();
-        // ensure end is not before start
-        setTempEndDate(startDate && baseEnd < startDate ? startDate : baseEnd);
-        setShowFromPicker(false);
-        setShowToPicker(false);
-        setRangeModalVisible(true);
-    };
     const [showDatePicker, setShowDatePicker] = useState(false);
 
     const psCounts = useSelector(state => state?.homeRedux?.dashboardConcernCounts?.countDetails ?? null);
@@ -510,25 +492,13 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
             );
         };
 
-        const applyDateFilter = items => {
-            if (!startDate && !endDate) return items;
-            return items?.filter(item => {
-                if (!item?.lastUpdated) return true; // keep if no date metadata
-                const itemDate = new Date(item.lastUpdated);
-                if (startDate && itemDate < startDate) return false;
-                if (endDate && itemDate > endDate) return false;
-                return true;
-            });
-        };
-
         return dataSet
             .map(section => {
-                const afterText = applyTextFilter(section);
-                const afterDate = applyDateFilter(afterText);
-                return { ...section, detail: afterDate };
+                const filteredDetail = applyTextFilter(section);
+                return { ...section, detail: filteredDetail };
             })
             .filter(section => section.detail && section.detail.length > 0);
-    }, [dataSet, filterText, startDate, endDate]);
+    }, [dataSet, filterText]);
 
     const redirectToPage = async (title, status, category, countValue) => {
         // Reset supplier index to default whenever redirecting from this card
@@ -748,16 +718,6 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
         console.log('reach storeUrl--->', url, 'recentApp', recentApp);
         await AsyncStorage.setItem('storedserverrul', url);
         localStorage.storeData('CurrentApp', recentApp);
-    };
-
-    const handleCalendarPress = async () => {
-        const currentGlobalURL = globalDeviceDetails?.deviceDetails?.AuditProURL || AUDITPRO_URL;
-
-        auditproAuth.setServerUrl(currentGlobalURL);
-        dispatch({ type: 'STORE_SERVER_URL', serverUrl: currentGlobalURL });
-        await storeUrl(currentGlobalURL, strings.auditPro);
-        await AsyncStorage.setItem('supplierIndex', JSON.stringify(1));
-        navigations.navigate(ROUTES.CALENDER_LIST);
     };
 
     const handleNavigation = async (title, status, category, auditTitle, routeName, index, subTitle, countValue) => {
@@ -1200,7 +1160,7 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
     };
 
     return (
-        <View style={styles.safeArea}>
+        <SafeAreaView style={styles.safeArea}>
             {loading ? (
                 <Modal
                     transparent={true}
@@ -1215,125 +1175,27 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
                 </Modal>
             ) : null}
 
-            <View style={styles.searchSticky}>
-                <View style={[styles.searchContainer, AuditShadows.search]}>
-                    <TouchableOpacity style={styles.filterIconInside} onPress={() => filterInputRef?.current?.focus?.()}>
-                        <IconComponent type={ICON_TYPE.FontAwesome} name="search" size={RFPercentage(1.8)} color={AuditColors.textSecondary} />
+            <View style={[styles.searchContainer, AuditShadows.search]}>
+                <TouchableOpacity activeOpacity={0.8} style={styles.filterSearchIconButton} onPress={() => filterInputRef?.current?.focus?.()}>
+                    <IconComponent type={ICON_TYPE.FontAwesome} name="search" size={RFPercentage(2.9)} color={AuditColors.primary} />
+                </TouchableOpacity>
+                <TextInput
+                    ref={filterInputRef}
+                    value={filterText}
+                    onChangeText={setFilterText}
+                    placeholder="Search modules (e.g., audit, concern)"
+                    style={styles.filterInput}
+                    placeholderTextColor={AuditColors.textSecondary}
+                />
+                {filterText.length > 0 && (
+                    <TouchableOpacity style={styles.filterClearBtn} onPress={() => setFilterText('')}>
+                        <IconComponent type={ICON_TYPE.FontAwesome} name="times-circle" size={RFPercentage(1.9)} color={AuditColors.textSecondary} />
                     </TouchableOpacity>
-                    <TextInput
-                        ref={filterInputRef}
-                        value={filterText}
-                        onChangeText={setFilterText}
-                        placeholder="Search modules (e.g., audit, concern)"
-                        style={styles.filterInput}
-                        placeholderTextColor={AuditColors.textSecondary}
-                    />
-                    {filterText.length > 0 && (
-                        <TouchableOpacity style={styles.filterClearBtn} onPress={() => setFilterText('')}>
-                            <IconComponent type={ICON_TYPE.FontAwesome} name="times-circle" size={RFPercentage(1.9)} color={AuditColors.textSecondary} />
-                        </TouchableOpacity>
-                    )}
-                </View>
+                )}
             </View>
-
-            <Modal visible={rangeModalVisible} transparent animationType="fade" onRequestClose={() => setRangeModalVisible(false)}>
-                <View style={styles.rangeModalBackdrop}>
-                    <View style={styles.rangeModalBox}>
-                        <Text style={styles.rangeTitle}>Select date range</Text>
-
-                        <TouchableOpacity
-                            style={styles.rangeRow}
-                            onPress={() => {
-                                setShowFromPicker(true);
-                                setShowToPicker(false);
-                            }}>
-                            <Text style={styles.rangeLabel}>From</Text>
-                            <Text style={styles.rangeValue}>{tempStartDate ? tempStartDate.toDateString() : 'Pick date'}</Text>
-                        </TouchableOpacity>
-                        {showFromPicker && (
-                            <DateTimePicker
-                                value={tempStartDate || new Date()}
-                                mode="date"
-                                display="default"
-                                maximumDate={tempEndDate || undefined}
-                                onChange={(event, date) => {
-                                    setShowFromPicker(false);
-                                    if (date) setTempStartDate(date);
-                                }}
-                            />
-                        )}
-
-                        <TouchableOpacity
-                            style={styles.rangeRow}
-                            onPress={() => {
-                                setShowToPicker(true);
-                                setShowFromPicker(false);
-                            }}>
-                            <Text style={styles.rangeLabel}>To</Text>
-                            <Text style={styles.rangeValue}>{tempEndDate ? tempEndDate.toDateString() : 'Pick date'}</Text>
-                        </TouchableOpacity>
-                        {showToPicker && (
-                            <DateTimePicker
-                                value={tempEndDate || new Date()}
-                                mode="date"
-                                display="default"
-                                minimumDate={tempStartDate || undefined}
-                                onChange={(event, date) => {
-                                    setShowToPicker(false);
-                                    if (date) setTempEndDate(date);
-                                }}
-                            />
-                        )}
-
-                        <View style={styles.rangeActions}>
-                            <TouchableOpacity
-                                style={styles.rangeActionBtn}
-                                onPress={() => {
-                                    setShowFromPicker(false);
-                                    setShowToPicker(false);
-                                    setRangeModalVisible(false);
-                                }}>
-                                <Text style={styles.rangeActionText}>Cancel</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                style={styles.rangeActionBtnPrimary}
-                                onPress={() => {
-                                    setStartDate(tempStartDate);
-                                    setEndDate(tempEndDate);
-                                    setRangeModalVisible(false);
-
-                                    const filteredModules = dataSet
-                                        .map(section => {
-                                            const detail = section.detail?.filter(item => {
-                                                if (!item?.lastUpdated) return true;
-                                                const itemDate = new Date(item.lastUpdated);
-                                                if (tempStartDate && itemDate < tempStartDate) return false;
-                                                if (tempEndDate && itemDate > tempEndDate) return false;
-                                                return true;
-                                            });
-                                            return detail && detail.length > 0 ? { ...section, detail } : null;
-                                        })
-                                        .filter(Boolean);
-
-                                    requestAnimationFrame(() => {
-                                        const params = {
-                                            startDate: tempStartDate?.toISOString?.(),
-                                            endDate: tempEndDate?.toISOString?.(),
-                                            filteredModules,
-                                        };
-                                        navigations.navigate(ROUTES.FILTERED_LIST_SCREEN, params);
-                                    });
-                                }}>
-                                <Text style={styles.rangeActionTextPrimary}>Apply</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                </View>
-            </Modal>
 
             {filteredDataSet?.length > 0 ? (
                 <FlatList
-                    style={styles.list}
                     data={filteredDataSet}
                     renderItem={({ item }) => (item?.title === null ? null : <Item detail={item?.detail} title={item?.title} />)}
                     keyExtractor={item => String(item?.id)}
@@ -1341,11 +1203,9 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
                     showsVerticalScrollIndicator={false}
                 />
             ) : (
-                <View style={styles.list}>
-                    <NoRecordFound />
-                </View>
+                <NoRecordFound />
             )}
-        </View>
+        </SafeAreaView>
     );
 };
 
@@ -1353,14 +1213,7 @@ const styles = StyleSheet.create({
     safeArea: {
         flex: 1,
         backgroundColor: AuditColors.background,
-    },
-    searchSticky: {
-        zIndex: 10,
-        elevation: 10,
-        backgroundColor: AuditColors.background,
-    },
-    list: {
-        flex: 1,
+        position: 'relative',
     },
     moduleCard: {
         backgroundColor: AuditColors.white,
@@ -1394,11 +1247,13 @@ const styles = StyleSheet.create({
         ...AuditTypography.title,
         color: AuditColors.textPrimary,
     },
-    totalBadgeText: interText(InterFont.medium, {
+    totalBadgeText: {
+        ...interText(InterFont.medium),
         marginTop: 4,
-        fontSize: 13,
-        color: AuditColors.scheduled,
-    }),
+        fontSize: 15,
+        color: '#123C95',
+        fontWeight:'bold'
+    },
     statsGrid: {
         marginTop: 20,
     },
@@ -1466,7 +1321,7 @@ const styles = StyleSheet.create({
     },
     metricSubtitle: {
         ...AuditTypography.metricSubtitle,
-        color: AuditColors.textSecondary,
+        color: AuditColors.textPrimary,
         marginTop: 4,
         textAlign: 'left',
         alignSelf: 'flex-start',
@@ -1483,88 +1338,40 @@ const styles = StyleSheet.create({
         paddingBottom: SPACING.XX_LARGE,
     },
     searchContainer: {
-        height: AuditLayout.searchHeight,
-        borderRadius: AuditLayout.searchRadius,
+        minHeight: 66,
+        borderRadius: 34,
         backgroundColor: AuditColors.white,
         marginHorizontal: AuditLayout.screenHorizontal,
         marginTop: AuditLayout.sectionGap,
-        paddingHorizontal: 16,
+        paddingLeft: 10,
+        paddingRight: 8,
         flexDirection: 'row',
         alignItems: 'center',
+        borderWidth: 1,
+        borderColor: '#EEF2F8',
     },
-    filterIconInside: {
-        marginRight: 8,
-    },
-    filterInput: interText(InterFont.regular, {
-        flex: 1,
-        height: AuditLayout.searchHeight,
-        color: AuditColors.textPrimary,
-        backgroundColor: 'transparent',
-    }),
-    filterClearBtn: {
-        padding: SPACING.SMALL,
-    },
-    rangeModalBackdrop: {
-        flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.35)',
+    filterSearchIconButton: {
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+        alignItems: 'center',
         justifyContent: 'center',
-        alignItems: 'center',
+        backgroundColor: '#EEF4FF',
+        marginRight: 12,
     },
-    rangeModalBox: {
-        width: '86%',
-        backgroundColor: COLORS.white,
-        borderRadius: 12,
-        padding: SPACING.LARGE,
-        elevation: 6,
+    filterInput: {
+        ...interText(InterFont.regular),
+        flex: 1,
+        height: 58,
+        fontSize: 16,
+        color: AuditColors.textSecondary,
+        backgroundColor: 'transparent',
+        paddingHorizontal: 0,
+        paddingVertical: 0,
     },
-    rangeTitle: {
-        fontFamily: 'OpenSans-SemiBold',
-        fontSize: FONT_SIZE.MEDIUM,
-        color: COLORS.themeBlack,
-        marginBottom: SPACING.MEDIUM,
-    },
-    rangeRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
+    filterClearBtn: {
+        paddingHorizontal: 8,
         paddingVertical: SPACING.SMALL,
-    },
-    rangeLabel: {
-        fontFamily: 'OpenSans-Regular',
-        fontSize: FONT_SIZE.SMALL,
-        color: COLORS.themeBlack,
-    },
-    rangeValue: {
-        fontFamily: 'OpenSans-SemiBold',
-        fontSize: FONT_SIZE.SMALL,
-        color: COLORS.themeBlack,
-    },
-    rangeActions: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginTop: SPACING.MEDIUM,
-    },
-    rangeActionBtn: {
-        paddingVertical: SPACING.SMALL,
-        paddingHorizontal: SPACING.NORMAL,
-        alignItems: 'center',
-    },
-    rangeActionBtnPrimary: {
-        paddingVertical: SPACING.SMALL,
-        paddingHorizontal: SPACING.NORMAL,
-        backgroundColor: COLORS.primary || '#00b3d6',
-        borderRadius: 8,
-        marginLeft: SPACING.SMALL,
-        alignItems: 'center',
-        minWidth: 90,
-    },
-    rangeActionText: {
-        fontFamily: 'OpenSans-SemiBold',
-        color: COLORS.themeBlack,
-    },
-    rangeActionTextPrimary: {
-        fontFamily: 'OpenSans-SemiBold',
-        color: COLORS.white || '#fff',
     },
 });
 

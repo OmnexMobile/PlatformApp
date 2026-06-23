@@ -1,12 +1,12 @@
 diff --git a/node_modules/@react-native-community/art/android/build.gradle b/node_modules/@react-native-community/art/android/build.gradle
-index 949bc00..c4e8f21 100644
+index 82666ab..a34c5b1 100644
 --- a/node_modules/@react-native-community/art/android/build.gradle
 +++ b/node_modules/@react-native-community/art/android/build.gradle
 @@ -1,14 +1,3 @@
 -buildscript {
 -  repositories {
 -    google()
--    mavenCentral()
+-    jcenter()
 -  }
 -
 -  dependencies {
@@ -17,6 +17,28 @@ index 949bc00..c4e8f21 100644
  def getExtOrDefault(name) {
    return rootProject.ext.has(name) ? rootProject.ext.get(name) : project.properties['ReactNativeART_' + name]
  }
+@@ -31,18 +20,9 @@ android {
+ 
+ repositories {
+   google()
+-  jcenter()
+   mavenCentral()
+ }
+ 
+-allprojects {
+-    repositories {
+-        mavenLocal()
+-        google()
+-        jcenter()
+-        maven {
+-            url "$rootDir/../node_modules/react-native/android"
+-        }
+-    }
+-}
+-
+ dependencies {
+     //noinspection GradleDynamicVersion
+     api 'com.facebook.react:react-native:+'
 diff --git a/node_modules/@react-native-community/art/android/src/main/java/com/reactnativecommunity/art/ARTRenderableViewManager.java b/node_modules/@react-native-community/art/android/src/main/java/com/reactnativecommunity/art/ARTRenderableViewManager.java
 index b02f50b..2b71f0d 100644
 --- a/node_modules/@react-native-community/art/android/src/main/java/com/reactnativecommunity/art/ARTRenderableViewManager.java

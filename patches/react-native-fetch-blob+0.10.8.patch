@@ -1,3 +1,49 @@
+diff --git a/node_modules/react-native-fetch-blob/android/build.gradle b/node_modules/react-native-fetch-blob/android/build.gradle
+index e4901d6..355a4a6 100644
+--- a/node_modules/react-native-fetch-blob/android/build.gradle
++++ b/node_modules/react-native-fetch-blob/android/build.gradle
+@@ -1,26 +1,22 @@
+ apply plugin: 'com.android.library'
+ 
++def safeExtGet(prop, fallback) {
++    rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
++}
++
+ repositories {
+     mavenCentral()
+ }
+ 
+-buildscript {
+-    repositories {
+-        jcenter()
+-    }
+-    dependencies {
+-        classpath 'com.android.tools.build:gradle:2.2.3'
+-    }
+-}
+-
+ android {
+-    compileSdkVersion 23
+-    buildToolsVersion "23.0.1"
++    namespace "com.RNFetchBlob"
++    compileSdkVersion safeExtGet('compileSdkVersion', 23)
++
+     defaultConfig {
+-        minSdkVersion 16
+-        targetSdkVersion 23
++        minSdkVersion safeExtGet('minSdkVersion', 16)
++        targetSdkVersion safeExtGet('targetSdkVersion', 23)
+         versionCode 1
+         versionName "1.0"
+     }
+@@ -33,6 +29,6 @@ android {
+ }
+ 
+ dependencies {
+-    compile 'com.facebook.react:react-native:+'
++    implementation 'com.facebook.react:react-native:+'
+     //{RNFetchBlob_PRE_0.28_DEPDENDENCY}
+ }
 diff --git a/node_modules/react-native-fetch-blob/android/src/main/java/com/RNFetchBlob/RNFetchBlobReq.java b/node_modules/react-native-fetch-blob/android/src/main/java/com/RNFetchBlob/RNFetchBlobReq.java
 index 8a81a83..39a9afa 100644
 --- a/node_modules/react-native-fetch-blob/android/src/main/java/com/RNFetchBlob/RNFetchBlobReq.java
