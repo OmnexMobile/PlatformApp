@@ -17,8 +17,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { Images } from '../Themes/index';
 import styles from '../styles/CreateNCStyle';
 // import {Dropdown} from 'react-native-element-dropdown';
-import Toast, { DURATION } from 'react-native-easy-toast';
-import DocumentPicker from 'react-native-document-picker';
+import { showErrorMessage, successMessage } from 'helpers/utils';
 import RNFetchBlob from 'react-native-fetch-blob';
 import { Bubbles, DoubleBounce, Bars, Pulse } from 'react-native-loader';
 import { connect } from 'react-redux';
@@ -49,6 +48,16 @@ import GlobalHeader from 'components/GlobalHeader';
 import InputComponent from 'components/input-component';
 import DropdownComponent from 'components/dropdown';
 import AttachmentSelectionModal from 'components/attachment-selection-modal';
+import DocumentPicker from 'react-native-document-picker';
+import {
+    captureFormBaseline,
+    discardAndExit,
+    requestGoBack,
+    requestGoHome,
+    saveAndExit,
+    setupExitGuard,
+    teardownExitGuard,
+} from '../helpers/createNcExitGuard';
 
 let Window = Dimensions.get('window');
 let timer = null;
@@ -185,6 +194,8 @@ class CreateNC extends Component {
             recommAction: '',
             breadCrumbText: undefined,
             dialogVisible: false,
+            exitDialogVisible: false,
+            go_home: false,
             ProcessType: 1,
             startVoice: false,
             /** voice states */
@@ -275,12 +286,6 @@ class CreateNC extends Component {
             await this.safeRemoveVoiceListeners();
         } catch (error) {
             console.log('Voice destroy failed', error);
-        }
-    };
-
-    showToast = (...args) => {
-        if (this.toast && this.toast.show) {
-            this.toast.show(...args);
         }
     };
 
@@ -409,6 +414,7 @@ class CreateNC extends Component {
         }
         setTimeout(() => this.LongTask(), 1000);
         this.getUserDetails();
+        setupExitGuard(this);
     }
 
     // onSelectedItemsResponseChange = (selectedItems) => {
@@ -756,6 +762,7 @@ class CreateNC extends Component {
     }
 
     componentWillUnmount() {
+        teardownExitGuard(this);
         this.safeDestroyVoice();
         var cameraCapture = [];
         this.props.storeCameraCapture(cameraCapture);
@@ -1848,6 +1855,7 @@ class CreateNC extends Component {
                         () => {
                             //console.log('Prcessdta===>', this.state.processdata);
                             this.onSelectedItemsProcessChange(this.state.selectedItemsProcess);
+                            captureFormBaseline(this);
                             // if (this.state.type == 'EDIT') {
                             //   // this.state.selectedItemsProcess
                             //   // this.setEditValues()
@@ -1905,6 +1913,7 @@ class CreateNC extends Component {
                 },
                 () => {
                     this.onSelectedItemsProcessChange(this.state.selectedItemsProcess);
+                    captureFormBaseline(this);
                     // if (this.state.type == 'EDIT') {
                     //   // this.state.selectedItemsProcess
                     //   // this.setEditValues()
@@ -2218,8 +2227,8 @@ class CreateNC extends Component {
             },
             () => {
                 //console.log('checklistamevalue4', this.state.nonconfirmityText);
-
-                this.showToast(strings.FormVal, 5000);
+                captureFormBaseline(this);
+                successMessage({ message: '', description: strings.FormVal });
             },
         );
     };
@@ -2244,7 +2253,7 @@ class CreateNC extends Component {
                     // //console.log('Loader off')
                     console.log(this.state.selectedItemsProcess.length, 'hellothreefour2');
                     this.updateAuditStatus(this.state.AuditID);
-                    this.showToast(strings.Save_Message, DURATION.LENGTH_LONG);
+                    successMessage({ message: '', description: strings.Save_Message });
                     setTimeout(() => {
                         // //console.log('AuditDashBody Props After Props Changing...', this.props)
                         this.props.storeNCRecords(dupNCrecords);
@@ -2446,7 +2455,7 @@ class CreateNC extends Component {
                         () => {
                             console.log(this.state.selectedItemsProcess.length, 'hellothreefour1');
                             this.updateAuditStatus(this.state.AuditID);
-                            this.showToast(strings.Save_Message, DURATION.LENGTH_LONG);
+                            successMessage({ message: '', description: strings.Save_Message });
                             setTimeout(() => {
                                 this.props.storeNCRecords(dupNCrecords);
                                 var cameraCapture = [];
@@ -2457,7 +2466,7 @@ class CreateNC extends Component {
                     );
                 } else {
                     this.setState({ isSaved: false, PageLoader: false, isSavebtn: false }, () => {
-                        alert('Please Fill Mandatory Fields');
+                        showErrorMessage('Please fill the mandatory fields.');
                         if (this.state.NCrequestby === undefined) {
                             this.setState(
                                 {
@@ -2718,7 +2727,7 @@ class CreateNC extends Component {
                             //console.log('Loader off');
                             console.log(this.state.selectedItemsProcess.length, 'hellothreefour1');
                             this.updateAuditStatus(this.state.AuditID);
-                            this.showToast(strings.Save_Message, DURATION.LENGTH_LONG);
+                            successMessage({ message: '', description: strings.Save_Message });
                             setTimeout(() => {
                                 // //console.log('AuditDashBody Props After Props Changing...', this.props)
                                 this.props.storeNCRecords(dupNCrecords);
@@ -2734,26 +2743,21 @@ class CreateNC extends Component {
                     // //console.log('-->',this.state.NCcategoryt,this.state.NCresponsible,this.state.NCrequestby)
 
                     this.setState({ isSaved: false, PageLoader: false, isSavebtn: false }, () => {
-                        alert('Please Fill Mandatory Fields');
+                        showErrorMessage(strings.mandate_message);
 
                         if (this.state.NCrequestby === undefined) {
                             this.setState(
                                 {
                                     MarkReq: true,
                                 },
-                                () => {
-                                    // //console.log('this.state.MarkReq',this.state.MarkReq)
-                                    // this.showToast(strings.Responsibility,DURATION.LENGTH_LONG)
-                                },
+                                () => {},
                             );
                         } else {
                             this.setState(
                                 {
                                     MarkReq: false,
                                 },
-                                () => {
-                                    // //console.log('this.state.MarkReq',this.state.MarkReq)
-                                },
+                                () => {},
                             );
                         }
                         if (this.state.NCresponsible === undefined) {
@@ -2761,19 +2765,14 @@ class CreateNC extends Component {
                                 {
                                     // MarkUser: true,
                                 },
-                                () => {
-                                    // //console.log('this.state.MarkUser',this.state.MarkUser)
-                                    // ---> this.showToast(strings.Requested,DURATION.LENGTH_LONG)
-                                },
+                                () => {},
                             );
                         } else {
                             this.setState(
                                 {
                                     MarkUser: false,
                                 },
-                                () => {
-                                    // //console.log('this.state.MarkUser',this.state.MarkUser)
-                                },
+                                () => {},
                             );
                         }
                         if (this.state.NCcategoryt === undefined) {
@@ -2785,9 +2784,7 @@ class CreateNC extends Component {
                                 {
                                     MarkCat: false,
                                 },
-                                () => {
-                                    // //console.log('this.state.MarkCat',this.state.MarkCat)
-                                },
+                                () => {},
                             );
                         }
                         if (this.state.NCclause === undefined) {
@@ -2809,18 +2806,13 @@ class CreateNC extends Component {
                             });
                         }
                         if (this.state.ofitext === undefined) {
-                            //console.log('ofiundefined');
-                            this.setState({ underline1: true }, () => {
-                                // --->  this.showToast(strings.OFIfill,DURATION.LENGTH_LONG)
-                            });
+                            this.setState({ underline1: true }, () => {});
                         } else {
                             this.setState(
                                 {
                                     underline1: false,
                                 },
-                                () => {
-                                    // //console.log('this.state.underline1',this.state.underline1)
-                                },
+                                () => {},
                             );
                         }
                         if (this.state.displayData === undefined) {
@@ -2840,9 +2832,11 @@ class CreateNC extends Component {
     }
 
     goBack() {
-        this.safeRemoveVoiceListeners();
-        this.InitVoice();
-        this.props.navigation.goBack();
+        requestGoBack(this);
+    }
+
+    goHome() {
+        requestGoHome(this);
     }
 
     attachFiles() {
@@ -3260,7 +3254,7 @@ class CreateNC extends Component {
                     title={this.state.PageLoader === false ? pageTitle : ''}
                     subtitle={this.state.breadCrumbText}
                     onLeftPress={() => this.goBack()}
-                    onRightPress={() => this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)}
+                    onRightPress={() => this.goHome()}
                     containerStyle={{ backgroundColor: 'transparent', borderBottomWidth: 0 }}
                 />
                 {this.state.PageLoader === false ? (
@@ -3817,16 +3811,6 @@ class CreateNC extends Component {
                     {/* </ImageBackground> */}
                 </View>
 
-                <Toast
-                    ref={toast => {
-            this.toast = toast;
-          }}
-                    position="top"
-                    opacity={1}
-                    style={{ backgroundColor: 'black' }}
-                    textStyle={{ color: 'white' }}
-                />
-
                 <Modal isVisible={this.state.isVisible} onBackdropPress={() => this.setState({ isVisible: false })} style={styles.modalOuterBox}>
                     <View>
                         <View style={styles.ModalBox}>
@@ -3935,6 +3919,49 @@ class CreateNC extends Component {
                             </TouchableOpacity>
 
                             <TouchableOpacity onPress={() => this.setState({ dialogVisible: false })}>
+                                <View style={styles.sectionTopCancel}>
+                                    <View style={styles.sectionContent}>
+                                        <Text style={styles.boxContentClose}>{strings.no}</Text>
+                                    </View>
+                                </View>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </Modal>
+
+                <Modal
+                    isVisible={this.state.exitDialogVisible}
+                    onBackdropPress={() => this.setState({ exitDialogVisible: false, go_home: false })}
+                    backdropColor="rgba(0,0,0,0.5)"
+                    style={styles.modalOuterBox}>
+                    <View style={styles.ncModal}>
+                        <View>
+                            <View style={styles.modalheading}>
+                                <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                                    <Text
+                                        style={{
+                                            color: 'black',
+                                            fontSize: Fonts.size.regular,
+                                            fontFamily: 'OpenSans-Regular',
+                                        }}>
+                                        {strings.Confirm}
+                                    </Text>
+                                </View>
+                            </View>
+
+                            <View style={styles.sectionTop}>
+                                <View style={styles.sectionContent}>
+                                    <Text style={styles.boxContent}>{strings.Confirm_message}</Text>
+                                </View>
+                            </View>
+
+                            <TouchableOpacity onPress={() => saveAndExit(this)}>
+                                <View style={styles.sectionBtn}>
+                                    <Text style={styles.boxContent}>{strings.yes}</Text>
+                                </View>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity onPress={() => discardAndExit(this)}>
                                 <View style={styles.sectionTopCancel}>
                                     <View style={styles.sectionContent}>
                                         <Text style={styles.boxContentClose}>{strings.no}</Text>

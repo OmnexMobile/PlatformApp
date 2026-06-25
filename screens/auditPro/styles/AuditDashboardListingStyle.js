@@ -78,6 +78,7 @@ export default StyleSheet.create({
     },
     emptyListContent: {
         flexGrow: 1,
+        justifyContent: 'center',
     },
     appHeight: {
         flex: 1

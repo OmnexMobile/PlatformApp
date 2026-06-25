@@ -10,18 +10,22 @@ import IconComponent from './icon-component';
 import AnimatableView from './animatable-view';
 import TextComponent from './text';
 
+export const FAB_SIZE = RFPercentage(8);
+
 const FAB = ({
     iconType = ICON_TYPE.AntDesign,
     iconName = 'plus',
     bottom = SPACING.NORMAL,
+    right = SPACING.NORMAL,
     text = '',
     color = null,
     badge = null,
+    floating = true,
     ...rest
 }) => {
     const { theme } = useTheme();
     const buttonColor = color || theme.colors.primaryThemeColor;
-    const size = RFPercentage(8);
+    const size = FAB_SIZE;
 
     return (
         <AnimatableView
@@ -36,11 +40,14 @@ const FAB = ({
                     backgroundColor: COLORS.primaryThemeColor,
                     alignItems: 'center',
                     justifyContent: 'center',
-                    position: 'absolute',
                     borderRadius: 50,
-                    bottom,
-                    right: SPACING.NORMAL,
-
+                    ...(floating
+                        ? {
+                              position: 'absolute',
+                              bottom,
+                              right,
+                          }
+                        : null),
                     shadowColor: '#000',
                     shadowOffset: {
                         width: 0,

@@ -58,6 +58,15 @@ import DropdownComponent from 'components/dropdown';
 import InputComponent from 'components/input-component';
 import AttachmentSelectionModal from 'components/attachment-selection-modal';
 import { showErrorMessage, successMessage } from 'helpers/utils';
+import {
+    captureFormBaseline,
+    discardAndExit,
+    requestGoBack,
+    requestGoHome,
+    saveAndExit,
+    setupExitGuard,
+    teardownExitGuard,
+} from '../helpers/createNcExitGuard';
 
 let Window = Dimensions.get('window');
 let timer = null;
@@ -197,6 +206,8 @@ class CreateNC extends Component {
             recommAction: '',
             breadCrumbText: undefined,
             dialogVisible: false,
+            exitDialogVisible: false,
+            go_home: false,
             ProcessType: 1,
             startVoice: false,
             /** voice states */
@@ -345,6 +356,7 @@ class CreateNC extends Component {
         }
         setTimeout(() => this.LongTask(), 1000);
         this.getUserDetails();
+        setupExitGuard(this);
     }
     async getUserDetails() {
         // var userid = await AsyncStorage.getItem('userId');
@@ -738,6 +750,7 @@ class CreateNC extends Component {
     };
 
     componentWillUnmount() {
+        teardownExitGuard(this);
         if (this.dimensionSyncTimeout) {
             clearTimeout(this.dimensionSyncTimeout);
             this.dimensionSyncTimeout = null;
@@ -1934,6 +1947,7 @@ class CreateNC extends Component {
                         () => {
                             console.log('Prcessdta===>', this.state.processdata);
                             this.onSelectedItemsProcessChange(this.state.selectedItemsProcess);
+                            captureFormBaseline(this);
                             // if (this.state.type == 'EDIT') {
                             //   // this.state.selectedItemsProcess
                             //   // this.setEditValues()
@@ -1991,6 +2005,7 @@ class CreateNC extends Component {
                 },
                 () => {
                     this.onSelectedItemsProcessChange(this.state.selectedItemsProcess);
+                    captureFormBaseline(this);
                     // if (this.state.type == 'EDIT') {
                     //   // this.state.selectedItemsProcess
                     //   // this.setEditValues()
@@ -2302,6 +2317,7 @@ class CreateNC extends Component {
             () => {
                 // clear any pending camera captures tied to the form
                 this.props.storeCameraCapture([]);
+                captureFormBaseline(this);
                 successMessage({ message: '', description: strings.FormVal });
             },
         );
@@ -2869,7 +2885,7 @@ class CreateNC extends Component {
                     // console.log('-->',this.state.NCcategoryt,this.state.NCresponsible,this.state.NCrequestby)
 
                     this.setState({ isSaved: false, PageLoader: false, isSavebtn: false }, () => {
-                        alert('Please Fill Mandatory Fields');
+                        showErrorMessage(strings.mandate_message);
 
                         if (this.state.NCrequestby === undefined) {
                             this.setState(
@@ -2980,9 +2996,11 @@ class CreateNC extends Component {
     }
 
     goBack() {
-        this.safeRemoveVoiceListeners();
-        this.InitVoice();
-        this.props.navigation.goBack();
+        requestGoBack(this);
+    }
+
+    goHome() {
+        requestGoHome(this);
     }
 
     attachFiles() {
@@ -3370,7 +3388,7 @@ class CreateNC extends Component {
                     title={headerTitle}
                     subtitle={this.state.breadCrumbText}
                     onLeftPress={() => this.goBack()}
-                    onRightPress={() => this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)}
+                    onRightPress={() => this.goHome()}
                 />
                 {this.state.PageLoader === false ? (
                     <KeyboardAwareScrollView
@@ -3957,6 +3975,42 @@ class CreateNC extends Component {
                             </TouchableOpacity>
 
                             <TouchableOpacity onPress={() => this.setState({ dialogVisible: false })}>
+                                <View style={styles.sectionTopCancel}>
+                                    <View style={styles.sectionContent}>
+                                        <Text style={styles.boxContentClose}>{strings.no}</Text>
+                                    </View>
+                                </View>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </Modal>
+
+                <Modal
+                    isVisible={this.state.exitDialogVisible}
+                    onBackdropPress={() => this.setState({ exitDialogVisible: false, go_home: false })}
+                    backdropColor="rgba(0,0,0,0.5)"
+                    style={styles.modalOuterBox}>
+                    <View style={styles.ncModal}>
+                        <View>
+                            <View style={styles.modalheading}>
+                                <View style={styles.centerAlignedRow}>
+                                    <Text style={styles.confirmTitle}>{strings.Confirm}</Text>
+                                </View>
+                            </View>
+
+                            <View style={styles.sectionTop}>
+                                <View style={styles.sectionContent}>
+                                    <Text style={styles.boxContent}>{strings.Confirm_message}</Text>
+                                </View>
+                            </View>
+
+                            <TouchableOpacity onPress={() => saveAndExit(this)}>
+                                <View style={styles.sectionBtn}>
+                                    <Text style={styles.boxContent}>{strings.yes}</Text>
+                                </View>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity onPress={() => discardAndExit(this)}>
                                 <View style={styles.sectionTopCancel}>
                                     <View style={styles.sectionContent}>
                                         <Text style={styles.boxContentClose}>{strings.no}</Text>

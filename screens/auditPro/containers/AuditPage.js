@@ -28,6 +28,7 @@ import Toast, {DURATION} from 'react-native-easy-toast';
 import Moment from 'moment';
 import Modal from 'react-native-modal';
 import {debounce, once} from 'underscore';
+import {initialWindowMetrics} from 'react-native-safe-area-context';
 import NetInfo from '@react-native-community/netinfo';
 import constant from '../constants/AppConstants';
 import localStorage from 'global/localStorage';
@@ -3427,9 +3428,12 @@ class AuditPage extends Component {
     const footerVisible = !(
       this.state.EnableDownload == false && !this.state.isDownloaded
     );
+    const bottomInset = initialWindowMetrics?.insets?.bottom ?? 0;
+    const footerHeight = 70;
+    const micFabClearance = this.state.isDownloaded ? 96 : 32;
     const scrollBottomPadding = footerVisible
-      ? (this.state.isDownloaded ? 170 : 100)
-      : 24;
+      ? footerHeight + micFabClearance + bottomInset
+      : bottomInset + 24;
 
     return (
       <View style={styles.wrapper}>
@@ -3493,7 +3497,11 @@ class AuditPage extends Component {
         {!this.state.isLoading ? (
           <View style={styles.auditPageBody}>
             <ScrollView
-              contentContainerStyle={{paddingBottom: scrollBottomPadding}}>
+              style={styles.scrollView}
+              contentContainerStyle={{paddingBottom: scrollBottomPadding}}
+              nestedScrollEnabled
+              keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator>
               {this.state.auditDetailList ? (
                 <View style={styles.detailsCard}>
                   <View style={styles.card1}>
@@ -3796,7 +3804,6 @@ class AuditPage extends Component {
                           </Text>
                         </TouchableOpacity>
                       </View>
-                      <View style={{marginBottom: 40}} />
                     </View>
                   ) : null}
 

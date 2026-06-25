@@ -4279,28 +4279,6 @@ class AuditForm extends Component {
                             </ScrollView>
                             ) : null}
                         </View>
-                        <View style={styles.floatingDiv}>
-                            <FAB
-                                iconType={ICON_TYPE.Feather}
-                                iconName="align-justify"
-                                bottom={0}
-                                right={0}
-                                onPress={() => {
-                                    const auditId =
-                                        this.state.AuditID ||
-                                        this.props?.route?.params?.AuditID ||
-                                        this.props?.route?.params?.CreateNCdataBundle?.AuditID;
-                                    const breadCrumbText =
-                                        this.state.breadCrumbText ||
-                                        this.props?.route?.params?.CreateNCdataBundle?.breadCrumb ||
-                                        this.props?.route?.params?.breadCrumbText;
-                                    this.props.navigation.navigate(ROUTES.AUDIT_SUMMARY, {
-                                        AuditID: auditId,
-                                        breadCrumbText,
-                                    });
-                                }}
-                            />
-                        </View>
                     </View>
                 ) : (
                     <View style={styles.auditPageBody}>
@@ -4323,14 +4301,12 @@ class AuditForm extends Component {
                     </View>
                 )}
 
-                {/* Floating sync/proceed control */}
-                <View style={styles.floatingSync}>
+                <View style={styles.fabStack}>
                     {!this.state.isSyncing ? (
                         <FAB
+                            floating={false}
                             iconType={ICON_TYPE.Feather}
                             iconName="refresh-ccw"
-                            bottom={0}
-                            right={0}
                             badge={
                                 this.state.redDotID === 'true'
                                     ? { type: ICON_TYPE.Feather, name: 'target', color: 'red', size: 12 }
@@ -4339,20 +4315,39 @@ class AuditForm extends Component {
                             onPress={() => this.checkoffline()}
                         />
                     ) : this.state.syncMode !== 4 ? (
-                        <View
-                            style={styles.syncingIndicator}>
+                        <View style={styles.syncingIndicator}>
                             <ActivityIndicator size={18} color="white" />
                         </View>
                     ) : (
                         <FAB
+                            floating={false}
                             iconType={ICON_TYPE.Feather}
                             iconName="arrow-right-circle"
-                            bottom={0}
-                            right={0}
                             color="#14D0AE"
                             onPress={() => this.syncResponseHandle()}
                         />
                     )}
+                    {this.state.isLoaderVisible === false ? (
+                        <FAB
+                            floating={false}
+                            iconType={ICON_TYPE.Feather}
+                            iconName="align-justify"
+                            onPress={() => {
+                                const auditId =
+                                    this.state.AuditID ||
+                                    this.props?.route?.params?.AuditID ||
+                                    this.props?.route?.params?.CreateNCdataBundle?.AuditID;
+                                const breadCrumbText =
+                                    this.state.breadCrumbText ||
+                                    this.props?.route?.params?.CreateNCdataBundle?.breadCrumb ||
+                                    this.props?.route?.params?.breadCrumbText;
+                                this.props.navigation.navigate(ROUTES.AUDIT_SUMMARY, {
+                                    AuditID: auditId,
+                                    breadCrumbText,
+                                });
+                            }}
+                        />
+                    ) : null}
                 </View>
 
                 <Toast

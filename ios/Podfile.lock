@@ -25,10 +25,30 @@ PODS:
   - libwebp/sharpyuv (1.5.0)
   - libwebp/webp (1.5.0):
     - libwebp/sharpyuv
-  - lottie-ios (3.4.0)
-  - lottie-react-native (5.1.6):
-    - lottie-ios (~> 3.4.0)
+  - lottie-ios (4.4.1)
+  - lottie-react-native (6.7.2):
+    - hermes-engine
+    - lottie-ios (= 4.4.1)
+    - RCTRequired
+    - RCTTypeSafety
     - React-Core
+    - React-Core-prebuilt
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - ReactNativeDependencies
+    - Yoga
   - RCTDeprecation (0.84.0)
   - RCTRequired (0.84.0)
   - RCTSwiftUI (0.84.0)
@@ -2076,7 +2096,7 @@ PODS:
   - ReactNativeDependencies (0.84.0)
   - ReactNativeLocalization (2.3.1):
     - React-Core
-  - RNBootSplash (4.7.5):
+  - RNBootSplash (7.3.2):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2536,7 +2556,6 @@ DEPENDENCIES:
   - FBLazyVector (from `../node_modules/react-native/Libraries/FBLazyVector`)
   - hermes-engine (from `../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec`)
   - jail-monkey (from `../node_modules/jail-monkey`)
-  - lottie-ios (from `../node_modules/lottie-ios`)
   - lottie-react-native (from `../node_modules/lottie-react-native`)
   - RCTDeprecation (from `../node_modules/react-native/ReactApple/Libraries/RCTFoundation/RCTDeprecation`)
   - RCTRequired (from `../node_modules/react-native/Libraries/Required`)
@@ -2659,6 +2678,7 @@ SPEC REPOS:
   trunk:
     - AppAuth
     - libwebp
+    - lottie-ios
     - SDWebImage
     - SDWebImageWebPCoder
     - SwiftUIIntrospect
@@ -2675,8 +2695,6 @@ EXTERNAL SOURCES:
     :tag: hermes-v250829098.0.8
   jail-monkey:
     :path: "../node_modules/jail-monkey"
-  lottie-ios:
-    :path: "../node_modules/lottie-ios"
   lottie-react-native:
     :path: "../node_modules/lottie-react-native"
   RCTDeprecation:
@@ -2917,8 +2935,8 @@ SPEC CHECKSUMS:
   hermes-engine: db7d6788aa326a029bbf0ffa6f4f67167109199b
   jail-monkey: 1846061ac12e861ac5a8ec7197b0daa775b83733
   libwebp: 02b23773aedb6ff1fd38cec7a77b81414c6842a8
-  lottie-ios: 69495122151a378fdc7d1bb4c5930347e37baf1f
-  lottie-react-native: 5d89c05930d4180a1e39b1757d46e6c0eec90255
+  lottie-ios: e047b1d2e6239b787cc5e9755b988869cf190494
+  lottie-react-native: 921c0f8f208cd08da4975422a71fac382a0da30d
   RCTDeprecation: 3280799c14232a56e5a44f92981a8ee33bc69fd9
   RCTRequired: 9854a51b0f65ccf43ea0b744df4d70fce339db32
   RCTSwiftUI: 96986e49a4fdc2c2103929dee2641e1b57edf33d
@@ -3012,7 +3030,7 @@ SPEC CHECKSUMS:
   ReactNativeART: b0ebceda8689ce026fff56b2f820664029480a4e
   ReactNativeDependencies: e6c0283d5c49c153578dace9b3c956337b1b4c39
   ReactNativeLocalization: e9e44abc2bb8a9ca880d6710ae39ed10d80c0b0a
-  RNBootSplash: faf812ba9c39318e92b9655925971b369b1cb57e
+  RNBootSplash: b0cb090dda213532b2670ca591aa1d5b955866d0
   RNCAsyncStorage: 7a5a6094f9f6b9158e72f1855cd86e769413d851
   RNCMaskedView: 4326a4b674e2178239c4a13e76eeff5b992385d2
   RNColorMatrixImageFilters: 8c135f40100b0fba20bb7fe9ac78f8f5cf56dcc0

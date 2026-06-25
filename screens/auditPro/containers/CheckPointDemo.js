@@ -7,7 +7,6 @@ import {
     InteractionManager,
     TouchableOpacity,
     Dimensions,
-    ScrollView,
     TextInput,
     ImageBackground,
     FlatList,
@@ -48,6 +47,8 @@ import FileViewer from 'react-native-file-viewer';
 import { Image as compressImage, Video as compressVideo, getVideoMetaData } from 'react-native-compressor';
 import NetInfo from '@react-native-community/netinfo';
 import { syncRecentAuditsFromLocalAudits } from 'helpers/audit-status';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { initialWindowMetrics } from 'react-native-safe-area-context';
 // import finalPropsSelectorFactory from 'react-redux/es/connect/selectorFactory';
 import auth from '../../../services/Auditpro-Auth';
 import { ROUTES } from 'constants/app-constant';
@@ -6473,6 +6474,11 @@ class CheckPointDemo extends Component {
         const serialGridHeight = isTablet ? 76 : SERIAL_GRID_HEIGHT;
         const serialGridTextSize = isTablet ? 20 : 16;
         const serialMandatoryIconSize = isTablet ? 18 : 14;
+        const topInset = initialWindowMetrics?.insets?.top ?? 0;
+        const statisticsVisible = this.props.data.audits.smdata !== 2 && this.props.data.audits.smdata !== 3;
+        const remarkKeyboardOffset =
+            Platform.OS === 'ios' ? topInset + (statisticsVisible ? 118 : 72) : 0;
+        const remarkExtraScrollHeight = Platform.OS === 'ios' ? 156 : 48;
         //console.log('CheckPointDemo~checkpointList:>', this.state.checkpointList);
 
         // if (this.state.failureloaded === false){
@@ -6579,12 +6585,19 @@ class CheckPointDemo extends Component {
                                                 const hasRequirement = isRemarkRequired || isAttachmentRequired;
 
                                                 return (
-                                                    <ScrollView
+                                                    <KeyboardAwareScrollView
                                                         style={styles.checkpointScroll}
                                                         contentContainerStyle={styles.checkpointScrollContent}
                                                         nestedScrollEnabled={true}
                                                         keyboardShouldPersistTaps="handled"
-                                                        showsVerticalScrollIndicator={true}>
+                                                        showsVerticalScrollIndicator={true}
+                                                        enableOnAndroid
+                                                        enableAutomaticScroll
+                                                        enableResetScrollToCoords={false}
+                                                        keyboardOpeningTime={0}
+                                                        keyboardVerticalOffset={remarkKeyboardOffset}
+                                                        extraScrollHeight={remarkExtraScrollHeight}
+                                                        extraHeight={remarkExtraScrollHeight}>
                                                         <View
                                                             style={[
                                                                 styles.cartBottomLayout,
@@ -8619,7 +8632,7 @@ class CheckPointDemo extends Component {
                                                             </View>
                                                         </View>
                                                         <View style={styles.bottomSpacer} />
-                                                    </ScrollView>
+                                                    </KeyboardAwareScrollView>
                                                 );
                                             }}
                                             sliderWidth={screenWidth}

@@ -1,8 +1,10 @@
 import { StyleSheet, Dimensions} from 'react-native'
 import { width, height } from 'react-native-dimension'
+import { RFPercentage } from 'react-native-responsive-fontsize'
 import Fonts from '../Themes/Fonts'
 
 let Window = Dimensions.get('window')
+const FAB_SIZE = RFPercentage(8)
 
 export default StyleSheet.create({
 
@@ -492,21 +494,14 @@ alignContent:'center',    borderWidth: 1,
     color:'#485B9E', 
     fontSize: Fonts.size.regular
   },
-  floatingDiv:{
-    position:'absolute',
-    right:20,
-    bottom:20,
-    zIndex:1000,
-    justifyContent:'center',
-    alignItems:'center'
-  },
-  floatingSync:{
-    position:'absolute',
-    right:20,
-    bottom:90,
-    zIndex:1000,
-    justifyContent:'center',
-    alignItems:'center'
+  fabStack: {
+    position: 'absolute',
+    right: RFPercentage(2),
+    bottom: RFPercentage(2),
+    flexDirection: 'column',
+    alignItems: 'flex-end',
+    gap: RFPercentage(1.5),
+    zIndex: 1000,
   },
   floatinBtn:{
     borderWidth:1,
@@ -783,9 +778,12 @@ alignContent:'center',    borderWidth: 1,
     right: -6,
   },
   syncingIndicator: {
-    padding: 12,
-    borderRadius: 30,
+    width: FAB_SIZE,
+    height: FAB_SIZE,
+    borderRadius: FAB_SIZE / 2,
     backgroundColor: '#00b3d6',
+    justifyContent: 'center',
+    alignItems: 'center',
     elevation: 6,
   },
   proceedBtnSuccess: {

@@ -288,59 +288,82 @@ class AuditPage extends Component {
         );
         console.log('AuditPage props', this.props, '---', this.props?.route?.params?.datapass);
         console.log('EnableDownload is', this.state.EnableDownload);
-        if (this.props?.route?.params?.datapass) {
-          this.ACTUALAUDITID =
-            this.props?.route?.params?.datapass?.ActualAuditId;
-          this.ActualAudit =
-            this.props?.route?.params?.datapass?.ActualAudit;
-          this.setState(
-            {
-              AuditProp: this.props?.route?.params?.datapass,
-              AUDITYPE_ORDER:
-                this.props?.route?.params?.datapass?.ActualAuditOrderNo,
-            },
-            () => {
-              var isDownloadedAudit = false;
-              for (
-                var i = 0;
-                i < this.props.data.audits.auditRecords.length;
-                i++
-              ) {
-                if (
-                  this.props.data.audits.auditRecords[i].AuditId ==
-                  this.state.AuditProp.ActualAuditId
-                ) {
-                  isDownloadedAudit = true;
-                }
-              }
-              console.log('this.state.AuditProp', this.state.AuditProp);
-              this.getSessionValues(
-                isDownloadedAudit ? isDownloadedAudit : null,
-              );
-              this.updateRecentAuditList();
-              this.checkDocPro(this.state.AuditProp.ActualAuditId);
-            },
-          );
-        }
+        this.initializeAuditDetails().catch(error => {
+          console.log('initializeAuditDetails failed', error);
+          this.setState({isLoading: false});
+        });
       },
     );
     this.checkUser();
     this.focusListener = this.props.navigation.addListener('focus', this.refreshAuditStatusFromStore);
   }
 
-  refreshAuditStatusFromStore = () => {
-    const resolvedStatus = this.getResolvedAuditStatus();
-    if (!resolvedStatus) {
+  initializeAuditDetails = async () => {
+    const datapass = this.props?.route?.params?.datapass;
+    if (!datapass) {
+      this.setState({isLoading: false});
+      this._initialLoadComplete = true;
       return;
     }
 
-    this.setState(prevState => ({
-      AuditProp: {
-        ...prevState.AuditProp,
-        cStatus: resolvedStatus,
-      },
-    }));
-    this.updateRecentAuditList(undefined, resolvedStatus);
+    this.ACTUALAUDITID = datapass.ActualAuditId;
+    this.ActualAudit = datapass.ActualAudit;
+
+    const auditRecords = this.props.data?.audits?.auditRecords || [];
+    const isDownloadedAudit = auditRecords.some(
+      record => record.AuditId == datapass.ActualAuditId,
+    );
+
+    await new Promise(resolve => {
+      this.setState(
+        {
+          AuditProp: datapass,
+          AUDITYPE_ORDER: datapass.ActualAuditOrderNo,
+        },
+        resolve,
+      );
+    });
+
+    await this.getSessionValues(isDownloadedAudit);
+    this.updateRecentAuditList();
+    this.checkDocPro(datapass.ActualAuditId);
+    this._initialLoadComplete = true;
+  };
+
+  refreshAuditStatusFromStore = async () => {
+    const resolvedStatus = this.getResolvedAuditStatus();
+    if (resolvedStatus) {
+      this.setState(prevState => ({
+        AuditProp: {
+          ...prevState.AuditProp,
+          cStatus: resolvedStatus,
+        },
+      }));
+      this.updateRecentAuditList(undefined, resolvedStatus);
+    }
+
+    if (
+      !this._initialLoadComplete ||
+      this.state.isLoading ||
+      this.state.isDownloading ||
+      this.state.auditDetailList ||
+      !this.props?.route?.params?.datapass
+    ) {
+      return;
+    }
+
+    const auditRecords = this.props.data?.audits?.auditRecords || [];
+    const isDownloadedAudit = auditRecords.some(
+      record => record.AuditId == this.state.AuditProp?.ActualAuditId,
+    );
+
+    if (!isDownloadedAudit && !this.props.data.audits.isOfflineMode) {
+      const netState = await NetInfo.fetch();
+      if (netState.isConnected) {
+        this.setState({isLoading: true});
+        await this.getAuditDetails();
+      }
+    }
   };
 
   componentDidUpdate(prevProps) {
@@ -1579,39 +1602,42 @@ class AuditPage extends Component {
     }
   };
 
-  getSessionValues = isDownloaded => {
+  getSessionValues = async isDownloaded => {
     try {
-      //   const TOKEN = this.props.data.audits.token;
-      var TOKEN = this.getAuthToken()
+      const TOKEN = await this.ensureAuthToken();
       const USER_ID = this.props.data.audits.userId;
 
-      this.setState({token: TOKEN, userId: USER_ID}, () => {
-        console.log('this.state.token', this.state.token);
-        console.log('this.state.userId', this.state.userId);
-        console.log(
-          'this.props.data.audits.isOfflineMode',
-          this.props.data.audits.isOfflineMode,
-        );
+      await new Promise(resolve => {
+        this.setState({token: TOKEN, userId: USER_ID}, resolve);
+      });
 
-        if (this.props.data.audits.isOfflineMode || isDownloaded) {
-          var auditRecords = this.props.data.audits.auditRecords;
-          var auditDetailList = null;
-          var auditNumber = '';
-          var auditStatus = '';
+      console.log('this.state.token', TOKEN);
+      console.log('this.state.userId', USER_ID);
+      console.log(
+        'this.props.data.audits.isOfflineMode',
+        this.props.data.audits.isOfflineMode,
+      );
 
-          for (var i = 0; i < auditRecords.length; i++) {
-            if (auditRecords[i].AuditId == this.state.AuditProp.ActualAuditId) {
-              auditDetailList = auditRecords[i];
-            }
+      if (this.props.data.audits.isOfflineMode || isDownloaded) {
+        var auditRecords = this.props.data.audits.auditRecords || [];
+        var auditDetailList = null;
+        var auditNumber = '';
+        var auditStatus = '';
+
+        for (var i = 0; i < auditRecords.length; i++) {
+          if (auditRecords[i].AuditId == this.state.AuditProp.ActualAuditId) {
+            auditDetailList = auditRecords[i];
           }
-          console.log('auditDetailList*****', auditDetailList);
+        }
+        console.log('auditDetailList*****', auditDetailList);
 
-          if (auditDetailList) {
-            auditNumber = auditDetailList.AuditNumber;
-            auditStatus = auditDetailList.Status;
-          }
+        if (auditDetailList) {
+          auditNumber = auditDetailList.AuditNumber;
+          auditStatus = auditDetailList.Status;
+        }
 
-          const clauseMandatory = this.props?.route?.params?.datapass?.ClauseMandatory;
+        const clauseMandatory = this.props?.route?.params?.datapass?.ClauseMandatory;
+        await new Promise(resolve => {
           this.setState(
             {
               auditDetailList: auditDetailList,
@@ -1622,123 +1648,125 @@ class AuditPage extends Component {
             },
             () => {
               console.log('auditDetailList loaded', this.state.auditDetailList);
+              resolve();
             },
           );
+        });
 
-          if (auditDetailList) {
-            console.log('auditDetailList---->', auditDetailList);
-            this._getLocalValues(auditDetailList);
+        if (auditDetailList) {
+          console.log('auditDetailList---->', auditDetailList);
+          this._getLocalValues(auditDetailList);
+        } else {
+          this.setState({isLoading: false, auditDetailList: null});
+        }
+      } else {
+        const netState = await NetInfo.fetch();
+        if (netState.isConnected) {
+          await this.getAuditDetails();
+        } else {
+          var offlineAuditRecords = this.props.data.audits.auditRecords || [];
+          var offlineAuditDetailList = null;
+          var offlineAuditNumber = '';
+          var offlineAuditStatus = '';
+
+          for (var j = 0; j < offlineAuditRecords.length; j++) {
+            if (
+              offlineAuditRecords[j].AuditId == this.state.AuditProp.ActualAuditId
+            ) {
+              offlineAuditDetailList = offlineAuditRecords[j];
+            }
+          }
+
+          if (offlineAuditDetailList) {
+            offlineAuditNumber = offlineAuditDetailList.AuditNumber;
+            offlineAuditStatus = offlineAuditDetailList.AuditStatus;
+          }
+
+          await new Promise(resolve => {
+            this.setState(
+              {
+                auditDetailList: offlineAuditDetailList,
+                AUDIT_NO: offlineAuditNumber,
+                auditstatus: offlineAuditStatus,
+              },
+              () => {
+                console.log(
+                  'auditDetailList loaded',
+                  this.state.auditDetailList,
+                );
+                resolve();
+              },
+            );
+          });
+
+          if (offlineAuditDetailList) {
+            this._getLocalValues(offlineAuditDetailList);
           } else {
             this.setState({isLoading: false, auditDetailList: null});
           }
-        } else {
-          NetInfo.fetch().then(isConnected => {
-            if (isConnected.isConnected) {
-              this.getAuditDetails();
-            } else {
-              var auditRecords = this.props.data.audits.auditRecords;
-              var auditDetailList = null;
-              var auditNumber = '';
-              var auditStatus = '';
-
-              for (var i = 0; i < auditRecords.length; i++) {
-                if (
-                  auditRecords[i].AuditId == this.state.AuditProp.ActualAuditId
-                ) {
-                  auditDetailList = auditRecords[i];
-                }
-              }
-
-              if (auditDetailList) {
-                auditNumber = auditDetailList.AuditNumber;
-                auditStatus = auditDetailList.AuditStatus;
-              }
-
-              this.setState(
-                {
-                  auditDetailList: auditDetailList,
-                  AUDIT_NO: auditNumber,
-                  auditstatus: auditStatus,
-                },
-                () => {
-                  console.log(
-                    'auditDetailList loaded',
-                    this.state.auditDetailList,
-                  );
-                },
-              );
-
-              if (auditDetailList) {
-                this._getLocalValues(auditDetailList);
-              } else {
-                this.setState({isLoading: false, auditDetailList: null});
-              }
-            }
-          });
         }
-      });
+      }
     } catch (error) {
-      // Error retrieving data
-      console.log('Failed to retrive a login session!!!', error);
+      console.log('Failed to retrieve audit session values', error);
+      this.setState({isLoading: false});
     }
   };
 
   async getAuditDetails() {
-    const storedUserData = await this.getAccessToken()
-    var Token = this.getAuthToken(storedUserData);
+    try {
+      const Token = await this.ensureAuthToken();
+      if (!Token) {
+        this.setState({isLoading: false});
+        this.toast?.show(strings.Audit_Details_Failed, DURATION.LENGTH_LONG);
+        return;
+      }
 
-    auth.getAuditReportDetails(
-      this.state.AuditProp,
-      Token,
-      async (resp, data) => {
-        console.log('Audit Report details data ', data);
-        console.log('venkat url==>', data.data.Data[0].AuditAgendaUrl);
-        var webview = data.data.Data[0].AuditAgendaUrl;
-        var auditId = data.data.Data[0].AuditNumber;
-        await AsyncStorage.setItem('AgendaURL' + auditId, webview);
-        console.log('webview', webview);
-        // const uri = data.data.Data[0].AuditAgendaUrl;
-        // var arr = uri.split("/");
-        // console.log(arr[3], "split5");
-        if (data.data) {
-          if (resp === true) {
-            if (data.data.Message === 'Success') {
+      await new Promise(resolve => {
+        auth.getAuditReportDetails(this.state.AuditProp, Token, async (resp, data) => {
+          try {
+            console.log('Audit Report details data ', data);
+            const responseData = data?.data;
+            const auditPayload = responseData?.Data?.[0];
+
+            if (resp === true && responseData?.Message === 'Success' && auditPayload) {
               console.log('getAuditDetails Successfull');
-              var auditDetailList = null;
-              var auditNumber = '';
-              var auditStatus = '';
-              var clauseMandatory;
-              var agendaUrl = '';
-              if (data.data.Data.length > 0) {
-                auditDetailList = data.data.Data[0];
-                auditNumber = data.data.Data[0].AuditNumber;
-                auditStatus = data.data.Data[0].AuditStatus;
-                agendaUrl = data.data.Data[0].AuditAgendaUrl;
-                clauseMandatory = data.data.Data[0].ClauseMandatory;
+              const agendaUrl = auditPayload.AuditAgendaUrl;
+              const auditId = auditPayload.AuditNumber;
+              if (agendaUrl && auditId) {
+                await AsyncStorage.setItem('AgendaURL' + auditId, agendaUrl);
               }
+
               this.setState(
                 {
-                  auditDetailList: auditDetailList,
-                  AUDIT_NO: auditNumber,
-                  auditstatus: auditStatus,
+                  auditDetailList: auditPayload,
+                  AUDIT_NO: auditPayload.AuditNumber,
+                  auditstatus: auditPayload.AuditStatus,
                   agendaUrl: agendaUrl,
-                  clauseMandatoryState: clauseMandatory,
+                  clauseMandatoryState: auditPayload.ClauseMandatory,
                 },
                 () => {
                   this._getLocalValues(this.state.auditDetailList);
                 },
               );
+            } else {
+              this.setState({isLoading: false});
+              this.toast?.show(strings.Audit_Details_Failed, DURATION.LENGTH_LONG);
+              this.isAuditDownloaded();
             }
+          } catch (error) {
+            console.log('getAuditDetails callback failed', error);
+            this.setState({isLoading: false});
+            this.toast?.show(strings.Audit_Details_Failed, DURATION.LENGTH_LONG);
+          } finally {
+            resolve();
           }
-        } else {
-          this.toast.show(
-            strings.Audit_Details_Failed,
-            DURATION.LENGTH_LONG,
-          );
-          this.isAuditDownloaded();
-        }
-      },
-    );
+        });
+      });
+    } catch (error) {
+      console.log('getAuditDetails failed', error);
+      this.setState({isLoading: false});
+      this.toast?.show(strings.Audit_Details_Failed, DURATION.LENGTH_LONG);
+    }
   }
 
   _getLocalValues(data) {

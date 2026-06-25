@@ -9,6 +9,7 @@ import {
   Alert,
   LogBox,
   ActivityIndicator,
+  NativeModules,
 } from 'react-native';
 import {connect} from 'react-redux';
 import {Camera} from 'react-native-vision-camera';
@@ -44,7 +45,7 @@ class CameraCapture extends Component {
       capturedImagePath: '',
       imageURI: '',
       selectedFormat:
-        this.props.data.audits.userDateFormat === null
+        this.props.data?.audits?.userDateFormat == null
           ? 'DD-MM-YYYY'
           : this.props.data.audits.userDateFormat,
       timestamp: new Date(),
@@ -102,6 +103,44 @@ class CameraCapture extends Component {
     );
   }
 
+  isCameraPermissionGranted(status) {
+    return status === 'authorized' || status === 'granted';
+  }
+
+  getPhotoEditorPath(path) {
+    return this.normalizeFsPath(path);
+  }
+
+  openPhotoEditor(editorPath) {
+    // iOS: skip native photo editor (RNPhotoEditor/iOSPhotoEditor are incompatible with current RN build)
+    if (Platform.OS === 'ios' || !NativeModules.RNPhotoEditor) {
+      this.storePhotoEdited();
+      return;
+    }
+
+    RNPhotoEditor.Edit({
+      path: editorPath,
+      onDone: this.storePhotoEdited,
+      onCancel: this.retakePhoto,
+      hiddenControls: ['save'],
+      colors: [
+        '#ff0000',
+        '#000000',
+        '#808080',
+        '#a9a9a9',
+        '#FFFFFF',
+        '#0000ff',
+        '#00ff00',
+        '#ffff00',
+        '#ffa500',
+        '#800080',
+        '#00ffff',
+        '#a52a2a',
+        '#ff00ff',
+      ],
+    });
+  }
+
   componentDidMount = async () => {
     console.log('camera:capture mounted');
     LogBox.ignoreLogs(['Animated: `useNativeDriver`'])
@@ -125,20 +164,30 @@ class CameraCapture extends Component {
       }
     });
  
-    const newCameraPermission = await Camera.requestCameraPermission();
-    const cameraPermission = await Camera.getCameraPermissionStatus();
-    console.log(cameraPermission, 'camerapermission');
-    if (cameraPermission !== 'authorized') {
-      Alert.alert(
-        'Permission denied',
-        'Please grant access to camera to capture and upload',
-      );
-    } else {
+    try {
+      await Camera.requestCameraPermission();
+      const cameraPermission = await Camera.getCameraPermissionStatus();
+      console.log(cameraPermission, 'camerapermission');
+
+      if (!this.isCameraPermissionGranted(cameraPermission)) {
+        Alert.alert(
+          'Permission denied',
+          'Please grant access to camera to capture and upload',
+        );
+        return;
+      }
+
       const devices = await Camera.getAvailableCameraDevices();
       console.log(devices, 'camerapermission');
       this.setState({
-        devices,
+        devices: Array.isArray(devices) ? devices : [],
       });
+    } catch (error) {
+      console.log('camera:permission init error', error);
+      Alert.alert(
+        'Camera unavailable',
+        'Unable to access the camera. Please try again.',
+      );
     }
   };
  
@@ -216,39 +265,26 @@ class CameraCapture extends Component {
  
   storePhotoEdited = () => {
     console.log('Camera:storePhotoEdited', this.state.capturedImagePath);
-    // console.log('Date ==>', this.state.timestamp)
     console.log('Camera:CAptured time', this.timestamp());
-    var filepath = undefined;
-    var newImgPath = this.getCaptureDirectory();
-   {
-      console.log(this.state.capturedImagePath, 'capturedilepat');
-      filepath = (Platform.OS == 'android' ? this.toFileUri(this.state.capturedImagePath) : this.state.capturedImagePath);
-      console.log(filepath, 'camera:filepath');
+    const filepath = this.normalizeFsPath(this.state.capturedImagePath);
+    const newImgPath = this.getCaptureDirectory();
+
+    if (!filepath) {
+      console.log('camera: missing captured image path');
+      return;
     }
- 
-    const markerOptions = {
-      backgroundImage: {
-        src: filepath,
-        scale: 1,
-      },
-      watermarkTexts: [
-        {
-          text: this.timestamp(),
-          position: {
-            position: 'bottomRight',
-          },
-          style: {
-            color: '#00ADD4',
-            fontName: 'Arial-BoldItalicMT',
-            fontSize: Platform.OS == 'ios' ? 50 : 38,
-          },
-        },
-      ],
+
+    ImageMarker.markText({
+      src: filepath,
+      text: this.timestamp(),
+      position: 'bottomRight',
+      color: '#00ADD4',
+      fontName: 'Arial-BoldItalicMT',
+      fontSize: Platform.OS == 'ios' ? 50 : 38,
+      scale: 1,
       quality: 90,
       saveFormat: 'base64',
-    };
-
-    Promise.resolve().then(() => ImageMarker.markText(markerOptions)).then(res => {
+    }).then(res => {
       if (res.startsWith("data:")){
 
         res = res.split(',')[1];
@@ -328,72 +364,44 @@ class CameraCapture extends Component {
     }
   }
   capturePhoto = async () => {
-    var ImgPath = '';
-    var newImgPath = this.getCaptureDirectory();
-    if (this.camera) {
-      console.log('ccenter');
+    if (!this.camera || !this.getCameraDevice()) {
+      Alert.alert('Camera unavailable', 'Please wait for the camera to initialize.');
+      return;
+    }
+
+    let newImgPath = this.getCaptureDirectory();
+
+    try {
       const photo = await this.camera.takePhoto({
         qualityPrioritization: 'speed',
         flash: 'auto',
-        // enableAutoRedEyeReduction: true
       });
       console.log(photo, 'camera:photoconsole');
-      ImgPath = this.normalizeFsPath(photo.path);
-      let filename = ImgPath.substring(ImgPath.lastIndexOf('/')+1);
-      let extn = filename.substring(filename.lastIndexOf('.')+1);
-      var newfileName = 'CapturedImage_' + Moment().unix() + '.' + extn;
-      try {
-        var data = await RNFS.readFile(
-          ImgPath,
-          'base64',
-        ).then(res => {
-          console.log('camera: ImgPath res', ImgPath, res)
-          newImgPath = newImgPath + '/' + newfileName;
-          console.log('camera:New ImgPath', newImgPath)
-          RNFetchBlob.fs.writeFile(
-          newImgPath,
-          res,
-          'base64',
-        ).then(res => {
-            console.log('camera: New ImgPath', newImgPath,res)
-            this.setState({
-              captureState: 'Capturing',
-              capturedImagePath: newImgPath,
-              imageName: 'photo',
-            }, () => {
-              console.log('Reach RNPhotoEditor-->')
-              // this.storePhotoEdited();
-              // RNPhotoEditor.open()
-              RNPhotoEditor.Edit({
-                path: newImgPath,
-                onDone: this.storePhotoEdited,
-                onCancel: this.retakePhoto,
-    
-                //onClear: this.retakePhoto,
-                hiddenControls: ['save'],
-                colors: [
-                  '#ff0000',
-                  '#000000',
-                  '#808080',
-                  '#a9a9a9',
-                  '#FFFFFF',
-                  '#0000ff',
-                  '#00ff00',
-                  '#ffff00',
-                  '#ffa500',
-                  '#800080',
-                  '#00ffff',
-                  '#a52a2a',
-                  '#ff00ff',
-                ],
-              });
-            });
-          }).catch (err => console.log("camera:Error in Capture Image1:", err))
-        }) .catch(err => console.log("camera:Error in Capture Image2:",err));
- 
-      } catch (err) {
-          console.log("camera:Error in Capture Image3:",err);
-      }
+
+      const ImgPath = this.normalizeFsPath(photo.path);
+      const filename = ImgPath.substring(ImgPath.lastIndexOf('/') + 1);
+      const extn = filename.substring(filename.lastIndexOf('.') + 1);
+      const newfileName = 'CapturedImage_' + Moment().unix() + '.' + extn;
+      const res = await RNFS.readFile(ImgPath, 'base64');
+
+      newImgPath = `${newImgPath}/${newfileName}`;
+      await RNFetchBlob.fs.writeFile(newImgPath, res, 'base64');
+
+      const editorPath = this.getPhotoEditorPath(newImgPath);
+      this.setState(
+        {
+          captureState: 'Capturing',
+          capturedImagePath: newImgPath,
+          imageName: 'photo',
+        },
+        () => {
+          this.openPhotoEditor(editorPath);
+        },
+      );
+    } catch (err) {
+      console.log('camera:Error in Capture Image:', err);
+      this.setState({captureState: 'CameraMode'});
+      Alert.alert('Capture failed', 'Unable to capture photo. Please try again.');
     }
   };
  
@@ -479,30 +487,38 @@ class CameraCapture extends Component {
          
  
         <View style={styles.auditPageBody}>
-          {console.log('this.state.captureState--->', this.state.captureState)}
-          {this.state.captureState == 'CameraMode' &&
-          cameraDevice ? (
-            <Camera
-              ref={ref => {
-                this.camera = ref;
-              }}
-              photo={true}
-              style={styles.detailsCard}
-              device={cameraDevice}
-              zoom={1}
-              captureAudio={false}
-              autoFocus="on"
-              isActive={true}
-              type={this.state.cameraType}
-              mirrorImage={this.state.mirrorMode}
-              // type={RNCamera.Constants.Type.back}
-              // flashMode={RNCamera.Constants.FlashMode.on}
-              // permissionDialogTitle={strings.Camera_Permission_Head}
-              // permissionDialogMessage={strings.Camera_Permission_Content}
-              // onGoogleVisionBarcodesDetected={({ barcodes }) => {
-              //   console.log(barcodes);
-              // }}
-            />
+          {this.state.captureState == 'CameraMode' ? (
+            cameraDevice ? (
+              <Camera
+                ref={ref => {
+                  this.camera = ref;
+                }}
+                photo={true}
+                style={styles.detailsCard}
+                device={cameraDevice}
+                isActive={true}
+              />
+            ) : (
+              <View
+                style={{
+                  flexDirection: 'column',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  width: '100%',
+                  height: '100%',
+                }}>
+                <Text
+                  style={{
+                    fontSize: Fonts.size.regular,
+                    padding: 10,
+                    textAlign: 'center',
+                    fontFamily: 'OpenSans-Regular',
+                  }}>
+                  {strings.Capturing_Message}
+                </Text>
+                <ActivityIndicator size="large" color="#48BCF7" />
+              </View>
+            )
           ) : this.state.captureState == 'Capturing' ? (
             <View
               style={{
@@ -570,13 +586,19 @@ class CameraCapture extends Component {
             ) : (
               <View style={styles.footerDiv}>
                 {this.state.captureState == 'CameraMode' ? (
-                  <View style={styles.floatingCapture}>
-                    <TouchableOpacity
-                      style={styles.captureBtn}
-                      onPress={this.capturePhoto}>
-                      <Icon name="camera" size={24} color="#fff" />
-                    </TouchableOpacity>
-                  </View>
+                  cameraDevice ? (
+                    <View style={styles.floatingCapture}>
+                      <TouchableOpacity
+                        style={styles.captureBtn}
+                        onPress={this.capturePhoto}>
+                        <Icon name="camera" size={24} color="#fff" />
+                      </TouchableOpacity>
+                    </View>
+                  ) : (
+                    <View style={styles.footerLoader}>
+                      <ActivityIndicator size="small" color="white" />
+                    </View>
+                  )
                 ) : (
                   <View style={styles.footerLoader}>
                     <ActivityIndicator size="small" color="white" />

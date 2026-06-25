@@ -1242,7 +1242,7 @@ export default StyleSheet.create({
   },
   bottomSpacer: {
     width: '100%',
-    height: 16,
+    height: 48,
   },
   remarkStarIcon: {
     right: 10,
@@ -1515,7 +1515,7 @@ export default StyleSheet.create({
     width: '100%',
   },
   checkpointScrollContent: {
-    paddingBottom: 220,
+    paddingBottom: 260,
     flexGrow: 1,
   },
   checkpointFormSections: {
