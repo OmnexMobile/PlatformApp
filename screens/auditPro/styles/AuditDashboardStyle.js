@@ -216,7 +216,8 @@ bgCont: {
   auditBoxContent: {
     flexDirection: 'column',
     justifyContent: 'flex-start',
-    padding: 15
+    padding: 5,
+    backgroundColor: 'transparent',
   },
   auditBoxStatusBar: {
     flexDirection: 'column',

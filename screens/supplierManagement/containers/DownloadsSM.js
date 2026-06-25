@@ -3,10 +3,10 @@ import {
   View,
   Text,
   TouchableOpacity,
-  ImageBackground,
   Dimensions,
   FlatList,
   Platform,
+  StyleSheet,
 } from 'react-native';
 import AuditPageStyle from '../../auditPro/styles/AuditDashboardStyle';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -52,7 +52,6 @@ class Download extends Component {
         this.props.data.audits.userDateFormat === null
           ? 'DD-MM-YYYY'
           : this.props.data.audits.userDateFormat,
-      AuditSearch: '',
       filterTypeFG: 0,
       SortBy: '',
       SortOrder: '',
@@ -109,26 +108,33 @@ class Download extends Component {
     console.log('startDate----->', startDate);
     console.log('endDate ---->', endDate);
 
+    const sourceAudits = this.props.data.audits.auditRecords || [];
+
     if (filterType == 0) {
       this.setState({
-        auditList: this.props.data.audits.auditRecords,
+        auditList: sourceAudits,
+        auditListAll: sourceAudits,
         // auditList: this.props.data.audits.audits.filter((item) => item.cStatus == constant.StatusDownloaded),
         loading: false,
         isLazyLoadingRequired: false,
       });
     } else if (filterType == 1) {
+      const filteredAudits = (this.props.data.audits.audits || []).filter(
+        item => item.cStatus == constant.StatusNotSynced,
+      );
       this.setState({
-        auditList: this.props.data.audits.audits.filter(
-          item => item.cStatus == constant.StatusNotSynced,
-        ),
+        auditList: filteredAudits,
+        auditListAll: filteredAudits,
         loading: false,
         isLazyLoadingRequired: false,
       });
     } else if (filterType == 2) {
+      const filteredAudits = (this.props.data.audits.audits || []).filter(
+        item => item.cStatus == constant.StatusSynced,
+      );
       this.setState({
-        auditList: this.props.data.audits.audits.filter(
-          item => item.cStatus == constant.StatusSynced,
-        ),
+        auditList: filteredAudits,
+        auditListAll: filteredAudits,
         loading: false,
         isLazyLoadingRequired: false,
       });
@@ -137,32 +143,49 @@ class Download extends Component {
 
   openAuditPage(iAuditDetails) {
     console.log('iAuditDetails', iAuditDetails);
-    var auditRecords = this.props.data.audits.auditRecords;
-    var isDownloadedDone = false;
+    const auditRecords = this.props.data.audits.auditRecords || [];
+    const smData =
+      this.props?.route?.params?.smData ??
+      iAuditDetails?.smData ??
+      this.props?.data?.audits?.smdata;
 
-    for (var i = 0; i < auditRecords.length; i++) {
-      if (auditRecords[i].AuditId == iAuditDetails.AuditId) {
-        isDownloadedDone = true;
-      }
-    }
+    const actualAuditId =
+      iAuditDetails?.ActualAuditId ?? iAuditDetails?.AuditId;
+    const normalizedAuditStatus =
+      iAuditDetails?.AuditStatus ?? parseInt(iAuditDetails?.Status, 10);
+    const normalizedStatus =
+      iAuditDetails?.cStatus ?? iAuditDetails?.AuditRecordStatus ?? constant.StatusDownloaded;
 
-    var obj = {
-      ...iAuditDetails, ActualAuditId: iAuditDetails.AuditId, cStatus: constant.StatusDownloaded, AuditStatus: parseInt(iAuditDetails.Status)
+    const isDownloadedDone = auditRecords.some(
+      record =>
+        record?.AuditId == actualAuditId ||
+        record?.ActualAuditId == actualAuditId,
+    );
+
+    const datapass = {
+      ...iAuditDetails,
+      ActualAuditId: actualAuditId,
+      AuditStatus: normalizedAuditStatus,
+      cStatus: normalizedStatus,
+      ...(smData !== null && typeof smData !== 'undefined' ? { smData } : {}),
     };
 
-    if (isDownloadedDone) {
-      this.props.navigation.navigate(ROUTES.AUDIT_PAGE, {
-        datapass: { ...iAuditDetails, ActualAuditId: iAuditDetails.AuditId, AuditStatus: parseInt(iAuditDetails.Status) }
+    const navigateToAudit = () =>
+      this.props.navigation.navigate(ROUTES.AUDIT_PAGE_SM, {
+        datapass,
+        auditStatusPass: normalizedStatus,
+        ...(smData !== null && typeof smData !== 'undefined' ? { smData } : {}),
       });
+
+    if (isDownloadedDone) {
+      navigateToAudit();
     } else {
       if (this.props.data.audits.isOfflineMode) {
         this.refs.toast.show(strings.Offline_Notice, DURATION.LENGTH_LONG);
       } else {
         NetInfo.fetch().then(netState => {
           if (netState.isConnected) {
-            this.props.navigation.navigate(ROUTES.AUDIT_PAGE, {
-              datapass: obj,
-            });
+            navigateToAudit();
           } else {
             this.refs.toast.show(strings.No_Internet, DURATION.LENGTH_LONG);
           }
@@ -259,21 +282,65 @@ class Download extends Component {
 
     return color;
   }
+
+  renderAuditCard = item => {
+    const accentColor = this.getCardColor(item);
+
+    return (
+      <TouchableOpacity
+        activeOpacity={0.9}
+        style={styles.cardTouch}
+        onPress={() => this.openAuditPage(item)}>
+        <View style={styles.card}>
+          <View
+            style={[
+              styles.accentBar,
+              { backgroundColor: accentColor },
+            ]}
+          />
+          <View style={styles.cardBody}>
+            <View style={styles.cardHeader}>
+              <View style={styles.cardHeaderContent}>
+                <Text style={styles.cardTitle} numberOfLines={1}>
+                  {item.Auditee}
+                </Text>
+              </View>
+              
+            </View>
+
+            <Text style={styles.cardSubtitle} numberOfLines={1}>
+              {item.AuditCycleName}
+            </Text>
+
+            <View style={styles.dateRow}>
+              <View style={styles.calendarIcon}>
+                <Icon name="calendar-o" size={14} color="#FFFFFF" />
+              </View>
+              <Text style={styles.dateText} numberOfLines={1}>
+                {this.changeDateFormatCard(item.StartDate)} -{' '}
+                {this.changeDateFormatCard(item.EndDate)}
+              </Text>
+            </View>
+
+            <View style={styles.auditNumberWrap}>
+              <Text style={styles.auditNumber} numberOfLines={1}>
+                {item.AuditNumber}
+              </Text>
+            </View>
+          </View>
+        </View>
+      </TouchableOpacity>
+    );
+  };
+
   render() {
     console.log('auditList--------', this.state.auditList);
     return (
-      <View style={AuditPageStyle.container}>
+      <View style={styles.screen}>
         {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }} /> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }} />}
         <OfflineNotice />
-        {/* <View style={AuditPageStyle.headerCont}>
-          <ImageBackground
-            source={Images.DashboardBG}
-            style={AuditPageStyle.bgCont}>
-            {this.renderHeader()}
-          </ImageBackground>
-        </View> */}
         <GlobalHeader
-          title={strings.Audit_Details}
+          title={strings.downloads || 'Downloads'}
           subtitle={this.state.breadCrumb}
           onLeftPress={() => {
             if (!this.state.isLoading && !this.state.isDownloading) {
@@ -285,113 +352,26 @@ class Download extends Component {
             }
           }}
           onRightPress={() => this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)}
+          containerStyle={styles.header}
+          titleStyle={styles.headerTitle}
         />
-        <View style={{ flex: 1 }}>
+        <View style={styles.contentContainer}>
           {this.state.auditList.length > 0 ? (
             <FlatList
               data={this.state.auditList}
               extraData={this.state}
               keyExtractor={item => item.ActualAuditId}
-              // onEndReached={this.handleEnd.bind(this)}
-              // onEndReachedThreshold={0.01}
-              // refreshing={this.state.isRefreshing}
-              // onRefresh={debounce(this.handleRefresh.bind(this), 800)}
-              // ListFooterComponent={this.listFooter.bind(this)}
-              renderItem={({ item }) => (
-                <TouchableOpacity onPress={() => this.openAuditPage(item)}>
-                  <View style={AuditPageStyle.auditBox}>
-                    <View
-                      style={[
-                        AuditPageStyle.auditBoxStatusBar,
-                        { backgroundColor: this.getCardColor(item) },
-                      ]}></View>
-                    <View style={AuditPageStyle.auditBoxContent}>
-                      <Text
-                        numberOfLines={1}
-                        style={{
-                          fontSize: Fonts.size.regular,
-                          color: '#485B9E',
-                          fontFamily: 'OpenSans-Regular',
-                        }}>
-                        {item.Auditee}
-                      </Text>
-                      <Text
-                        numberOfLines={1}
-                        style={{
-                          fontSize: Fonts.size.small,
-                          color: '#A6A6A6',
-                          fontFamily: 'OpenSans-Regular',
-                        }}>
-                        {this.changeDateFormatCard(item.StartDate)} -{' '}
-                        {this.changeDateFormatCard(item.EndDate)}
-                      </Text>
-                      <Text
-                        numberOfLines={1}
-                        style={{
-                          paddingTop: 5,
-                          fontSize: Fonts.size.medium,
-                          color: '#545454',
-                          fontFamily: 'OpenSans-Regular',
-                        }}>
-                        {item.AuditNumber}
-                      </Text>
-                      <Text
-                        numberOfLines={1}
-                        style={{
-                          fontSize: Fonts.size.medium,
-                          color: '#545454',
-                          fontFamily: 'OpenSans-Regular',
-                        }}>
-                        {item.AuditCycleName}
-                      </Text>
-                    </View>
-                    <View style={AuditPageStyle.auditBstoxStatus}>
-                      {/* {(item.cStatus == 'Scheduled') ?
-                        <ResponsiveImage source={Images.downloadIconImg} initWidth="90" initHeight="90" style={styles.downloadIconImg}/> : 
-                        (item.cStatus == 'Not-synced') ? 
-                        <ResponsiveImage source={Images.syncCardImg} initWidth="90" initHeight="90" style={styles.downloadIconImg}/> : */}
-                      {/* <View style={AuditPageStyle.circle}>
-                                            <ProgressCircle
-                                                percent={this.getAuditStatus(item)}
-                                                radius={28}
-                                                borderWidth={5}
-                                                color="#48BCF7"
-                                                shadowColor="lightgrey"
-                                                bgColor="#fff"
-                                            >
-                                                <Text style={AuditPageStyle.progressVal}>{this.getAuditStatus(item)}%</Text>
-                                            </ProgressCircle>
-                                        </View> */}
-                      {/* } */}
-                      {/* <Text style={AuditPageStyle.statusText}>
-                        {item.AuditRecordStatus ==
-                        'Deadline Violated and Completed'
-                          ? 'D.Violated & Completed'
-                          : item.AuditRecordStatus}
-                      </Text> */}
-                    </View>
-                  </View>
-                </TouchableOpacity>
-              )}
-              ItemSeparatorComponent={() => (
-                <View
-                  style={{
-                    width: window_width,
-                    height: 1,
-                    backgroundColor: 'transparent',
-                  }}
-                />
-              )}
+              renderItem={({ item }) => this.renderAuditCard(item)}
+              contentContainerStyle={styles.listContent}
+              ItemSeparatorComponent={() => <View style={styles.listSeparator} />}
             />
           ) : (
-            <View
-              style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <View style={styles.emptyState}>
               <NoRecordsFound
                 title={strings.No_Audits_Found}
                 subtitle={strings.No_Audits_Found_Subtitle}
               />
             </View>
-
           )}
         </View>
       </View>
@@ -431,3 +411,128 @@ const mapDispatchToProps = () => {
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Download);
+
+const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    backgroundColor: '#F8FAFD',
+  },
+  header: {
+    backgroundColor: '#FFFFFF',
+    borderBottomColor: '#E5EAF2',
+    paddingBottom: 18,
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontFamily: 'OpenSans-Bold',
+    color: '#111111',
+  },
+  contentContainer: {
+    flex: 1,
+  },
+  listContent: {
+    paddingHorizontal: 18,
+    paddingTop: 18,
+    paddingBottom: 28,
+  },
+  listSeparator: {
+    height: 16,
+  },
+  cardTouch: {
+    borderRadius: 22,
+  },
+  card: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 22,
+    flexDirection: 'row',
+    paddingVertical: 18,
+    paddingLeft: 18,
+    paddingRight: 16,
+    shadowColor: '#8FA6C3',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.22,
+    shadowRadius: 18,
+    elevation: 4,
+  },
+  accentBar: {
+    width: 8,
+    borderRadius: 8,
+    marginRight: 16,
+  },
+  cardBody: {
+    flex: 1,
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+  },
+  cardHeaderContent: {
+    flex: 1,
+    paddingRight: 12,
+  },
+  cardTitle: {
+    fontSize: 22,
+    lineHeight: 28,
+    color: '#204AA9',
+    fontFamily: 'OpenSans-Bold',
+    marginBottom: 2,
+  },
+  cardIconWrap: {
+    width: 62,
+    height: 62,
+    borderRadius: 31,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E8EEF7',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#D8E5F5',
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+    elevation: 2,
+  },
+  cardSubtitle: {
+    fontSize: 16,
+    color: '#6F737C',
+    fontFamily: 'OpenSans-Regular',
+    marginBottom: 12,
+  },
+  dateRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 14,
+  },
+  calendarIcon: {
+    width: 30,
+    height: 30,
+    borderRadius: 8,
+    backgroundColor: '#FFC107',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 10,
+  },
+  dateText: {
+    flex: 1,
+    color: '#2F3440',
+    fontSize: 17,
+    fontFamily: 'OpenSans-Bold',
+  },
+  auditNumberWrap: {
+    backgroundColor: '#EFF4FA',
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 11,
+  },
+  auditNumber: {
+    color: '#23334D',
+    fontSize: 17,
+    fontFamily: 'OpenSans-Bold',
+  },
+  emptyState: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});

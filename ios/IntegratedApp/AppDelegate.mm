@@ -22,7 +22,12 @@
 - (NSURL *)bundleURL
 {
 #if DEBUG
-  return [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index"];
+  NSURL *bundleURL = [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index"];
+  if (bundleURL != nil) {
+    return bundleURL;
+  }
+
+  return [[NSBundle mainBundle] URLForResource:@"main" withExtension:@"jsbundle"];
 #else
   return [[NSBundle mainBundle] URLForResource:@"main" withExtension:@"jsbundle"];
 #endif

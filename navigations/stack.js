@@ -320,8 +320,8 @@ export const AppStackData = [
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {
-        name: ROUTES.SYNC_DETAILS,
-        getComponent: () => require('../screens/auditPro/containers/SyncDetails').default,
+        name: ROUTES.SYNC_DETAILSSM,
+        getComponent: () => require('../screens/supplierManagement/containers/SyncDetailsSM').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
     {

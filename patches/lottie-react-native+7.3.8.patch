@@ -1,0 +1,13 @@
+diff --git a/node_modules/lottie-react-native/lottie-react-native.podspec b/node_modules/lottie-react-native/lottie-react-native.podspec
+index 1f08d2f..1962a5a 100644
+--- a/node_modules/lottie-react-native/lottie-react-native.podspec
++++ b/node_modules/lottie-react-native/lottie-react-native.podspec
+@@ -22,7 +22,7 @@ Pod::Spec.new do |s|
+     'Lottie_React_Native_Privacy' => ['ios/PrivacyInfo.xcprivacy'],
+   }
+ 
+-  s.dependency 'lottie-ios', '4.6.0'
++  s.dependency 'lottie-ios', '~> 4.6.0'
+ 
+   s.swift_version = '5.9'
+ 

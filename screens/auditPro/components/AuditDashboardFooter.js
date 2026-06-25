@@ -1629,7 +1629,7 @@ class AuditDashboardFooter extends Component {
       this.props.navigation.navigate(ROUTES.DOWNLOADS);
     }
     if (index == 3) {
-      this.props.navigation.navigate(ROUTES.SYNC_DETAILS);
+      this.props.navigation.navigate(ROUTES.SYNC_DETAILSSM);
     }
     if (index == 4) {
       this.props.navigation.navigate(ROUTES.HELP);

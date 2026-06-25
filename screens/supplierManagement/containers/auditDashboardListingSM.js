@@ -268,7 +268,7 @@ class AuditDashboardListing extends Component {
             return;
         }
         if (optionKey === 'syncDetails') {
-            this.props.navigation.navigate(ROUTES.SYNC_DETAILS);
+            this.props.navigation.navigate(ROUTES.SYNC_DETAILSSM);
         }
     };
 

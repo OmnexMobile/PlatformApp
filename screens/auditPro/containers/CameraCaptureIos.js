@@ -303,29 +303,32 @@ class CameraCapture extends Component {
             // } else 
             {
               console.log('reach RNPhotoEditor--->')
-              RNPhotoEditor.Edit({
-                path: this.state.capturedImagePath,
-                onDone: this.storePhotoEdited,
-                onCancel: this.retakePhoto,
-
-                //onClear: this.retakePhoto,
-                hiddenControls: ['save'],
-                colors: [
-                  '#ff0000',
-                  '#000000',
-                  '#808080',
-                  '#a9a9a9',
-                  '#FFFFFF',
-                  '#0000ff',
-                  '#00ff00',
-                  '#ffff00',
-                  '#ffa500',
-                  '#800080',
-                  '#00ffff',
-                  '#a52a2a',
-                  '#ff00ff',
-                ],
-              });
+              if (RNPhotoEditor && typeof RNPhotoEditor.Edit === 'function') {
+                RNPhotoEditor.Edit({
+                  path: newImgPath,
+                  onDone: this.storePhotoEdited,
+                  onCancel: this.retakePhoto,
+                  hiddenControls: ['save'],
+                  colors: [
+                    '#ff0000',
+                    '#000000',
+                    '#808080',
+                    '#a9a9a9',
+                    '#FFFFFF',
+                    '#0000ff',
+                    '#00ff00',
+                    '#ffff00',
+                    '#ffa500',
+                    '#800080',
+                    '#00ffff',
+                    '#a52a2a',
+                    '#ff00ff',
+                  ],
+                });
+              } else {
+                console.log('camera: RNPhotoEditor native module is unavailable on iOS');
+                this.storePhotoEdited();
+              }
               console.log('end RNPhotoEditor--->')
             }
             console.log('end RNPhotoEditor2--->')
