@@ -287,7 +287,7 @@ const InspectionSchedule = () => {
                                         statusBarHeight: 45,
                                         icon: 'danger',
                                         position: 'right',
-                                        style: Platform.OS === 'ios' ? { height: 100, alignItems: 'flex-end' } : {},
+                                        style:{ height: 100, alignItems: 'flex-end' },
                                     });
                                 }
                             }}>
