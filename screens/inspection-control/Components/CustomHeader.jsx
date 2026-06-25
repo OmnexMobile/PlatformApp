@@ -163,7 +163,7 @@ const CustomHeader = ({
                 <View style={[styles.rightIconList]}>
                     {showIcons && (
                         <>
-                            <TouchableOpacity style={styles.notificationContainer} onPress={() => navigation.navigate(ROUTES.NOTIFICATION_SCREEN)}>
+                            {!isExpanded ?<TouchableOpacity style={styles.notificationContainer} onPress={() => navigation.navigate(ROUTES.NOTIFICATION_SCREEN)}>
                                 <IconF name="bell-o" size={20} color="#fff" />
                                 {Number(notificationData?.data?.count) > 0 && (
                                     <View style={styles.badge}>
@@ -172,7 +172,7 @@ const CustomHeader = ({
                                         </Text>
                                     </View>
                                 )}
-                            </TouchableOpacity>
+                            </TouchableOpacity>:null}
                             {(activeTabId == 1 || activeTabId == 4) && (
                                 <TouchableOpacity
                                     onPress={() => {
