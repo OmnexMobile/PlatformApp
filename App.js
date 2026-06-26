@@ -25,14 +25,14 @@ import { persistor } from 'store';
 import { createInspectTable } from 'store/database/inspectStorage';
 import { checkForUpdate } from 'helpers/updateAppAlert';
 import UpdateModal from 'helpers/UpdateModal';
-import {
-    setNavigationRef,
-    setupForegroundHandler,
-    setupBackgroundOpenHandler,
-    setupQuitOpenHandler,
-    fetchFCMToken,
-} from './screens/notificationService';
-import NotificationModal from 'screens/inspection-control/notification/NotificationModal';
+// import {
+//     setNavigationRef,
+//     setupForegroundHandler,
+//     setupBackgroundOpenHandler,
+//     setupQuitOpenHandler,
+//     fetchFCMToken,
+// } from './screens/notificationService';
+// import NotificationModal from 'screens/inspection-control/notification/NotificationModal';
 import TokenPopup from 'screens/TokenPopup';
 
 setupInterceptors();
@@ -56,30 +56,30 @@ const Parent = () => {
     });
     const [modalVisible, setModalVisible] = useState(false);
     const [currentToken, setCurrentToken] = useState('example-apns-token-12345');
-    useEffect(() => {
-        async function init() {
-            const granted = await requestNotificationPermission();
-            console.log('Permission granted:', granted);
-            if (granted) {
-                const fcmToken = await fetchFCMToken();
-                setCurrentToken(fcmToken);
-                setModalVisible(true);
-            }
-        }
+    // useEffect(() => {
+    //     async function init() {
+    //         const granted = await requestNotificationPermission();
+    //         console.log('Permission granted:', granted);
+    //         if (granted) {
+    //             const fcmToken = await fetchFCMToken();
+    //             setCurrentToken(fcmToken);
+    //             setModalVisible(true);
+    //         }
+    //     }
 
-        init();
-    }, []);
+    //     init();
+    // }, []);
 
-    useEffect(() => {
-        setNavigationRef(navigationRef.current);
-        const unsubscribe = setupForegroundHandler(setNotificationData);
-        setupBackgroundOpenHandler(setNotificationData);
-        setupQuitOpenHandler(setNotificationData);
-        console.log('Notification handlers set up');
-        return unsubscribe;
-    }, []);
+    // useEffect(() => {
+    //     setNavigationRef(navigationRef.current);
+    //     const unsubscribe = setupForegroundHandler(setNotificationData);
+    //     setupBackgroundOpenHandler(setNotificationData);
+    //     setupQuitOpenHandler(setNotificationData);
+    //     console.log('Notification handlers set up');
+    //     return unsubscribe;
+    // }, []);
 
-    console.log(notificationData, 'notificationData');
+    // console.log(notificationData, 'notificationData');
 
     // useEffect(() => {
     //     const check = async () => {
@@ -127,12 +127,12 @@ const Parent = () => {
                                 <StatusBarAndroidIOS />
                                 <NavigationContainer onReady={() => RNBootSplash.hide()}>
                                     <AppStack />
-                                    <NotificationModal
+                                    {/* <NotificationModal
                                         visible={notificationData.showModal}
                                         // onClose={() => setNotificationData({ showModal: false })}
                                         data={notificationData.remoteMessage}
                                         setNotificationData={setNotificationData}
-                                    />
+                                    /> */}
                                 </NavigationContainer>
                                 {/* {warningList?.loading ? (x
                         <Loader />

@@ -526,7 +526,8 @@ const CharacteristicsInfo = ({
                             }
                             handleInputChange(cleaned, item.id, type, item);
                         }}
-                        keyboardType={type == 'number' ? 'number-pad' : 'default'}
+                        // keyboardType={type == 'number' ? 'number-pad' : 'default'}
+                        keyboardType={type == 'number' ? Platform.OS === 'ios' ? 'numbers-and-punctuation' : 'numeric' : 'default'}
                         returnKeyType="done"
                         onSubmitEditing={() => handleSubmit(index)}
                         ref={ref => (inputsRef.current[index] = ref)}
@@ -673,7 +674,7 @@ const CharacteristicsInfo = ({
                                 </View>
                                 <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center' }}>
                                     <Text style={[styles.headerText]}>Actual Value</Text>
-                                    {showHeader && (
+                                    {/* {showHeader && (
                                         <TouchableOpacity
                                             style={[styles.deleteIcon]}
                                             onPress={() => {
@@ -681,7 +682,7 @@ const CharacteristicsInfo = ({
                                             }}>
                                             <IconMM name="file-present" size={25} color={COLORS.apptheme} />
                                         </TouchableOpacity>
-                                    )}
+                                    )} */}
                                 </View>
                             </View>
                         </View>
@@ -711,7 +712,7 @@ const CharacteristicsInfo = ({
             <View style={[styles.container]}>
                 <View style={[styles.overallBox]}>{renderFaltList(true)}</View>
                 <View style={[styles.btnContainer]}>
-                    <View
+                    {/* <View
                         style={[
                             {
                                 width: '12%',
@@ -729,13 +730,13 @@ const CharacteristicsInfo = ({
                             }}>
                             <IconM name="camera" size={20} color={COLORS.apptheme} />
                         </TouchableOpacity>
-                    </View>
+                    </View> */}
                     <ButtonComponent
                         textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}
-                        style={{ height: 40, width: '73%' }}
+                        style={{ height: 40, width: '87%' }}
                         onPress={() => {
-                            // handleSavePress(true, 'saveBtn');
-                            setShowCPKModal(true);
+                            handleSavePress(true, 'saveBtn');
+                            // setShowCPKModal(true);
                         }}>
                         Save
                     </ButtonComponent>

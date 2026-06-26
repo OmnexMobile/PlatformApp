@@ -201,13 +201,13 @@ const OperatorWorksheet = () => {
                             }}>
                             <Text style={[styles.launchText]}>{status}</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity
+                        {/* <TouchableOpacity
                             style={[styles.launchCard, { backgroundColor: COLORS.apptheme, marginTop: 10 }]}
                             onPress={() => {
                                 handleReportPress(item);
                             }}>
                             <Text style={[styles.launchText]}>Report</Text>
-                        </TouchableOpacity>
+                        </TouchableOpacity> */}
                     </View>
                     <TouchableOpacity
                         onPress={() => {

@@ -226,7 +226,7 @@ const RegisterFunctional = ({}) => {
                         await AsyncStorage.setItem('storedserverrul', state?.globalServerURL);
                         navigation.goBack();
                         const deviceStatusURL = await getDeviceStatus();
-                        await getLoginLogo(deviceStatusURL.ICApiURL);
+                        // await getLoginLogo(deviceStatusURL.ICApiURL);
                         successMessage({ message: 'Success', description: 'Successfully Registered this Device' });
                         dispatch({ type: 'DATE_FORMAT', dateFormat: 'DD/MM/YYYY' });
                     } else {

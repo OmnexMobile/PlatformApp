@@ -163,7 +163,7 @@ const CustomHeader = ({
                 <View style={[styles.rightIconList]}>
                     {showIcons && (
                         <>
-                            {!isExpanded ?<TouchableOpacity style={styles.notificationContainer} onPress={() => navigation.navigate(ROUTES.NOTIFICATION_SCREEN)}>
+                            {/* {!isExpanded ?<TouchableOpacity style={styles.notificationContainer} onPress={() => navigation.navigate(ROUTES.NOTIFICATION_SCREEN)}>
                                 <IconF name="bell-o" size={20} color="#fff" />
                                 {Number(notificationData?.data?.count) > 0 && (
                                     <View style={styles.badge}>
@@ -172,7 +172,7 @@ const CustomHeader = ({
                                         </Text>
                                     </View>
                                 )}
-                            </TouchableOpacity>:null}
+                            </TouchableOpacity>:null} */}
                             {(activeTabId == 1 || activeTabId == 4) && (
                                 <TouchableOpacity
                                     onPress={() => {
@@ -184,14 +184,14 @@ const CustomHeader = ({
                                     <Icon name={!isExpanded ? 'search1' : 'close'} size={25} style={styles.iconButton} color={COLORS.white} />
                                 </TouchableOpacity>
                             )}
-                            {activeTabId == 1 && (
+                            {/* {activeTabId == 1 && (
                                 <TouchableOpacity
                                     onPress={() => {
                                         handleQRPress();
                                     }}>
                                     <IconI name="barcode-sharp" size={25} style={styles.iconButton} color={COLORS.white} />
                                 </TouchableOpacity>
-                            )}
+                            )} */}
                             {/* {activeTabId == 2 && (
                                 <TouchableOpacity>
                                     <IconI name="settings-outline" size={25} style={styles.iconButton} color={COLORS.white} />

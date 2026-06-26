@@ -121,15 +121,15 @@ const LoginFunctional = ({ }) => {
                 userData: response?.Data[0] || {},
                 token: response?.Token || '',
             };
-            const fcmToken = await fetchFCMToken();
-            const tokenPayload = {
-                UserId: icUserData?.userData?.UserId,
-                Token: fcmToken,
-                DeviceId: deviceId,
-                DeviceType: Platform.OS,
-            }
-            const fcmRegister = await postAPI(`${APIURL}${ApiUrl.IC_FCM_REGISTER}`, tokenPayload);
-            console.log('FCM REGISTER RESPONSE--->', fcmRegister);
+            // const fcmToken = await fetchFCMToken();
+            // const tokenPayload = {
+            //     UserId: icUserData?.userData?.UserId,
+            //     Token: fcmToken,
+            //     DeviceId: deviceId,
+            //     DeviceType: Platform.OS,
+            // }
+            // const fcmRegister = await postAPI(`${APIURL}${ApiUrl.IC_FCM_REGISTER}`, tokenPayload);
+            // console.log('FCM REGISTER RESPONSE--->', fcmRegister);
             dispatch({ type: 'IC_USER_DATA', icUserData: icUserData });
             const newFormData = new FormData();
             newFormData.append('UserID', icUserData?.userData?.UserId);
