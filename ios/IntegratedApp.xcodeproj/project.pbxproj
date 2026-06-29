@@ -223,10 +223,10 @@
 				DB6DAF4730B1B9902B14833D /* [CP] Check Pods Manifest.lock */,
 				FD10A7F022414F080027D42C /* Start Packager */,
 				13B07F871A680F5B00A75B9A /* Sources */,
+				29643B56F820BACD6E499D65 /* [CP] Copy Pods Resources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
-				29643B56F820BACD6E499D65 /* [CP] Copy Pods Resources */,
 				2541FFDE76330F48004A19C8 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (

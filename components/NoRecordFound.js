@@ -1,26 +1,22 @@
-<<<<<<< HEAD
-import React, { useState } from 'react';
-import { Dimensions, Image, Platform, View } from 'react-native';
-=======
-import React from 'react';
-import { View, useWindowDimensions } from 'react-native';
->>>>>>> 8c2370e (downloads screen and bug fix.)
+import React, { useEffect, useRef, useState } from 'react';
+import { Image, Platform, View, useWindowDimensions } from 'react-native';
 import LottieView from 'lottie-react-native';
 import { FONT_SIZE, SPACING } from 'constants/theme-constants';
 import TextComponent from './text';
 import { FONT_TYPE } from 'constants/app-constant';
 
-<<<<<<< HEAD
 const NORECORDS_LOTTIE = require('../assets/lottie/norecords.json');
-const NORECORDS_IMAGE = require('../screens/auditPro/Images/documents.png');
-
-const getLottieSize = () => {
-    const screenWidth = Dimensions.get('window').width;
-    return Math.min(screenWidth * 0.44, 280);
-};
+const NORECORDS_IMAGE = require('../screens/auditPro/Images/emptybox.png');
 
 const NoRecordIllustration = ({ size }) => {
     const [showImageFallback, setShowImageFallback] = useState(false);
+    const lottieRef = useRef(null);
+
+    useEffect(() => {
+        if (!showImageFallback) {
+            lottieRef.current?.play?.();
+        }
+    }, [showImageFallback]);
 
     if (showImageFallback) {
         return (
@@ -37,6 +33,7 @@ const NoRecordIllustration = ({ size }) => {
             collapsable={false}
             style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
             <LottieView
+                ref={lottieRef}
                 source={NORECORDS_LOTTIE}
                 autoPlay
                 loop
@@ -49,10 +46,6 @@ const NoRecordIllustration = ({ size }) => {
     );
 };
 
-const NoRecordFound = () => {
-    const size = getLottieSize();
-
-=======
 const NoRecordFound = ({
     title = 'No Records Found',
     subtitle,
@@ -60,7 +53,6 @@ const NoRecordFound = ({
     const { width } = useWindowDimensions();
     const size = Math.min(width * 0.44, 280);
 
->>>>>>> 8c2370e (downloads screen and bug fix.)
     return (
         <View
             style={{
@@ -70,19 +62,7 @@ const NoRecordFound = ({
                 width: '100%',
                 minHeight: size + SPACING.LARGE * 2,
             }}>
-<<<<<<< HEAD
             <NoRecordIllustration size={size} />
-=======
-            <View style={{ width: size, height: size }}>
-                <LottieView
-                    source={require('../assets/lottie/norecords.json')}
-                    loop
-                    autoPlay
-                    resizeMode="contain"
-                    style={{ width: '100%', height: '100%' }}
-                />
-            </View>
->>>>>>> 8c2370e (downloads screen and bug fix.)
             <TextComponent type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.LARGE}>
                 {title}
             </TextComponent>

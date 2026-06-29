@@ -16,7 +16,7 @@ import {
     FlatList,
 } from 'react-native';
 import { Images } from '../../auditPro/Themes';
-import styles from '../../auditPro/styles/AuditFormStyle';
+import styles from '../containers/AuditFormStyleSM';
 import { width } from 'react-native-dimension';
 import Modal from 'react-native-modal';
 import CryptoJS from 'crypto-js';
@@ -34,7 +34,6 @@ import Fonts from '../../auditPro/Themes/Fonts';
 import Icon from 'react-native-vector-icons/Feather';
 import LinearGradient from 'react-native-linear-gradient';
 import { strings } from '../../auditPro/language/Language';
-import AnimatedLottieView from 'lottie-react-native';
 var RNFS = require('react-native-fs');
 import base64 from 'react-native-base64';
 import NetInfo from '@react-native-community/netinfo';
@@ -50,6 +49,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SPACING } from 'constants/theme-constants';
 import GlobalHeader from 'components/GlobalHeader';
 import CommonAlertModal from 'components/common_alert_modal';
+import { NoRecordFound } from 'components';
 let Window = Dimensions.get('window');
 // Form type -1- Online
 // Form type -2- Reference
@@ -1653,19 +1653,11 @@ class AuditForm extends Component {
         );
     };
 
-    renderEmptyState = message => (
-        <View style={styles.emptyState}>
-            <AnimatedLottieView
-                source={require('../../../assets/lottie/norecords.json')}
-                autoPlay
-                loop
-                renderMode="SOFTWARE"
-                resizeMode="contain"
-                style={styles.emptyLottie}
-            />
-            <Text style={styles.emptyText}>{message}</Text>
-        </View>
-    );
+    // renderEmptyState = message => (
+    //     <View style={styles.emptyState}>
+    //         <NoRecordFound title={message} />
+    //     </View>
+    // );
 
     renderRecordsTab = (label, tabIndex) => {
         const isActive = this.state.ActiveTab === tabIndex;
@@ -3526,7 +3518,8 @@ class AuditForm extends Component {
                                             ))}
                                         </View>
                                     ) : (
-                                        this.renderEmptyState(strings.No_online_form_found)
+                                        // this.renderEmptyState(strings.No_online_form_found)
+                                        <NoRecordFound/>
                                     )}
                                 </ScrollView>
                             ) : null}
@@ -3876,7 +3869,8 @@ class AuditForm extends Component {
                                             ))}
                                         </View>
                                     ) : (
-                                        this.renderEmptyState(strings.No_templates_found)
+                                        // this.renderEmptyState(strings.No_templates_found)
+                                        <NoRecordFound/>
                                     )}
                                 </ScrollView>
                             ) : null}
@@ -4205,7 +4199,8 @@ class AuditForm extends Component {
                                             ))}
                                         </View>
                                     ) : (
-                                        this.renderEmptyState(strings.No_references_found)
+                                        // this.renderEmptyState(strings.No_references_found)
+                                        <NoRecordFound/>
                                     )}
                                 </ScrollView>
                             ) : null}
@@ -4247,14 +4242,7 @@ class AuditForm extends Component {
                         </View>
                     </View>
                 )}
-                <View
-                    style={[
-                        styles.floatingSync,
-                        {
-                            bottom: Platform.OS === 'ios' ? 96 : 84,
-                            right: 22,
-                        },
-                    ]}>
+                <View style={styles.floatingSync}>
                     {!this.state.isSyncing ? (
                         <TouchableOpacity onPress={() => this.checkoffline()} style={styles.floatinBtn}>
                             {this.state.redDotID === 'true' ? (

@@ -50,8 +50,7 @@ import { SPACING } from 'constants/theme-constants';
 import SQLite from 'react-native-sqlite-storage';
 import GlobalHeader from 'components/GlobalHeader';
 import FAB from 'components/fab';
-import AnimatedLottieView from 'lottie-react-native';
-
+import NoRecordFound from 'components/NoRecordFound';
 let Window = Dimensions.get('window');
 //import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -1747,15 +1746,7 @@ class AuditForm extends Component {
 
     renderEmptyState = message => (
         <View style={styles.emptyState}>
-            <AnimatedLottieView
-                source={require('../../../assets/lottie/norecords.json')}
-                autoPlay
-                loop
-                renderMode="SOFTWARE"
-                resizeMode="contain"
-                style={styles.emptyLottie}
-            />
-            <Text style={styles.emptyText}>{message}</Text>
+            <NoRecordFound title={message} />
         </View>
     );
 
@@ -3955,7 +3946,7 @@ class AuditForm extends Component {
                                         ))}
                                     </View>
                                 ) : (
-                                    this.renderEmptyState(strings.No_templates_found)
+                                    <NoRecordFound title={strings.No_templates_found} />
                                 )}
                             </ScrollView>
                             ) : null}
