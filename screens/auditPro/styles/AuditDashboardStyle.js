@@ -325,7 +325,7 @@ bgCont: {
     width: '90%',
     marginLeft: '5%',
     borderRadius: 5,
-    borderColor: '#4ACECD',
+    borderColor: '#123C95',
     borderWidth: 0.5,
     padding: 10,
     marginBottom: 10,

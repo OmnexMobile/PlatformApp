@@ -23,7 +23,7 @@ import Moment from 'moment';
 import RNFS from 'react-native-fs';
 import RNFetchBlob from 'react-native-fetch-blob';
 import RNPhotoEditor from 'react-native-photo-editor';
-import ImageMarker from 'react-native-image-marker';
+import ImageMarker, {ImageFormat, Position} from 'react-native-image-marker';
 import { Image as compressImage, Video, getVideoMetaData} from 'react-native-compressor';
  
 // Styles
@@ -114,7 +114,7 @@ class CameraCapture extends Component {
   openPhotoEditor(editorPath) {
     // iOS: skip native photo editor (RNPhotoEditor/iOSPhotoEditor are incompatible with current RN build)
     if (Platform.OS === 'ios' || !NativeModules.RNPhotoEditor) {
-      this.storePhotoEdited();
+      this.storePhotoEdited(editorPath);
       return;
     }
 
@@ -263,27 +263,43 @@ class CameraCapture extends Component {
     }
   }
  
-  storePhotoEdited = () => {
-    console.log('Camera:storePhotoEdited', this.state.capturedImagePath);
+  storePhotoEdited = editedImagePath => {
+    const sourcePath = this.normalizeFsPath(
+      editedImagePath || this.state.capturedImagePath,
+    );
+    const markerSource = this.toFileUri(sourcePath);
+
+    console.log('Camera:storePhotoEdited', sourcePath);
     console.log('Camera:CAptured time', this.timestamp());
-    const filepath = this.normalizeFsPath(this.state.capturedImagePath);
+    const filepath = sourcePath;
     const newImgPath = this.getCaptureDirectory();
 
-    if (!filepath) {
+    if (!filepath || !markerSource) {
       console.log('camera: missing captured image path');
       return;
     }
 
     ImageMarker.markText({
-      src: filepath,
-      text: this.timestamp(),
-      position: 'bottomRight',
-      color: '#00ADD4',
-      fontName: 'Arial-BoldItalicMT',
-      fontSize: Platform.OS == 'ios' ? 50 : 38,
+      backgroundImage: {
+        src: markerSource,
+        scale: 1,
+      },
+      watermarkTexts: [
+        {
+          text: this.timestamp(),
+          positionOptions: {
+            position: Position.bottomRight,
+          },
+          style: {
+            color: '#00ADD4',
+            fontName: 'Arial-BoldItalicMT',
+            fontSize: Platform.OS == 'ios' ? 50 : 38,
+          },
+        },
+      ],
       scale: 1,
       quality: 90,
-      saveFormat: 'base64',
+      saveFormat: ImageFormat.base64,
     }).then(res => {
       if (res.startsWith("data:")){
 
