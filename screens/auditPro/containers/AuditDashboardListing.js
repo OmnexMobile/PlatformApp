@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text, FlatList, Platform, ActivityIndicator, LogBox } from 'react-native';
+import { View, Text, FlatList, Platform, ActivityIndicator, LogBox, TouchableOpacity, Modal, Pressable, StyleSheet } from 'react-native';
 //styles
 import styles from '../styles/AuditDashboardListingStyle';
 //components
@@ -28,11 +28,108 @@ import DeviceInfo from 'react-native-device-info';
 import { ROUTES } from 'constants/app-constant';
 import ToastNew, { ErrorToast } from 'react-native-toast-message';
 import { AUDITPRO_URL } from 'screens/globalConstant/globalURL';
+import Icon from 'react-native-vector-icons/Feather';
 // import firebase from 'react-native-firebase';
 var RNFS = require('react-native-fs');
 
 const { whitneyBook_18 } = Fonts.style;
 const { blackGrey } = Fonts.colors;
+
+const ACTION_DROPDOWN_OPTIONS = [
+    { key: 'download', label: strings.downloads || 'Downloads', icon: 'download' },
+    { key: 'syncDetails', label: strings.Sync_Details || 'Sync Details', icon: 'refresh-cw' },
+];
+
+const actionMenuStyles = StyleSheet.create({
+    searchRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingRight: 12,
+    },
+    searchArea: {
+        flex: 1,
+    },
+    wrapper: {
+        width: 52,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    button: {
+        width: 44,
+        height: 44,
+        borderRadius: 22,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#FFFFFF',
+        borderWidth: 1,
+        borderColor: '#DFE7F3',
+    },
+    modalBackdrop: {
+        flex: 1,
+        backgroundColor: 'transparent',
+    },
+    dismissLayer: {
+        ...StyleSheet.absoluteFillObject,
+    },
+    dropdownContainer: {
+        position: 'absolute',
+        top: Platform.select({ ios: 146, android: 126, default: 126 }),
+        right: 14,
+        alignItems: 'flex-end',
+        zIndex: 41,
+        elevation: 41,
+    },
+    arrow: {
+        width: 14,
+        height: 14,
+        marginRight: 17,
+        marginBottom: -7,
+        backgroundColor: '#FFFFFF',
+        borderLeftWidth: 1,
+        borderTopWidth: 1,
+        borderColor: '#E6ECF5',
+        transform: [{ rotate: '45deg' }],
+        zIndex: 2,
+    },
+    box: {
+        width: 190,
+        backgroundColor: '#FFFFFF',
+        borderRadius: 14,
+        borderWidth: 1,
+        borderColor: '#E6ECF5',
+        paddingVertical: 6,
+        shadowColor: '#123C95',
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.12,
+        shadowRadius: 18,
+        elevation: 8,
+    },
+    item: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        minHeight: 44,
+        paddingHorizontal: 12,
+        borderBottomWidth: 1,
+        borderBottomColor: '#EEF2F8',
+    },
+    itemLast: {
+        borderBottomWidth: 0,
+    },
+    icon: {
+        width: 30,
+        height: 30,
+        borderRadius: 15,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#EEF4FF',
+        marginRight: 10,
+    },
+    label: {
+        fontSize: 14,
+        color: '#334155',
+        fontFamily: 'OpenSans-SemiBold',
+    },
+});
 
 const toastConfig = {
     error: props => (
@@ -43,12 +140,12 @@ const toastConfig = {
                 // color: 'white',
                 // textAlign: 'center',
             }}
-            // style={{
-            //   backgroundColor: '#313131',
-            //   borderLeftWidth: 0,
-            //   height: 40,
-            //   borderRadius: 10,
-            // }}
+        // style={{
+        //   backgroundColor: '#313131',
+        //   borderLeftWidth: 0,
+        //   height: 40,
+        //   borderRadius: 10,
+        // }}
         />
     ),
 };
@@ -62,6 +159,7 @@ class AuditDashboardListing extends Component {
         this.onEndReachedCalledDuringMomentum = false;
         // this.filterId = this.props.navigation.getParam('filterId');
         this.filterId = this.props?.route?.params?.status ?? this.props?.route?.params?.filterId;
+        this.currentUserData = this.props?.route?.params?.currentUserData;
         this.state = {
             listEndReached: false,
             loader: true,
@@ -104,6 +202,7 @@ class AuditDashboardListing extends Component {
             searchKey: '',
             startDateFilter: '',
             endDateFilter: '',
+            actionDropdownVisible: false
         };
     }
 
@@ -134,8 +233,66 @@ class AuditDashboardListing extends Component {
     }
 
     componentWillUnmount() {
-        this.focusListener();
+        if (this.focusListener) {
+            this.focusListener();
+        }
     }
+
+    toggleActionDropdown = () => {
+        this.setState(prevState => ({ actionDropdownVisible: !prevState.actionDropdownVisible }));
+    };
+
+    closeActionDropdown = () => {
+        this.setState({ actionDropdownVisible: false });
+    };
+
+    handleActionDropdownPress = optionKey => {
+        this.closeActionDropdown();
+
+        if (optionKey === 'download') {
+            this.props.navigation.navigate(ROUTES.DOWNLOADS);
+            return;
+        }
+
+        if (optionKey === 'syncDetails') {
+            console.log('Navigating to Sync Details with userDetails:', this.props);
+            this.props.navigation.navigate(ROUTES.SYNC_DETAILS, {
+                userDetails: this.currentUserData,
+            });
+        }
+    };
+
+    renderActionDropdown = () => (
+        <>
+            <View style={actionMenuStyles.wrapper}>
+                <TouchableOpacity activeOpacity={0.8} style={actionMenuStyles.button} onPress={this.toggleActionDropdown}>
+                    <Icon name="more-vertical" size={22} color="#123C95" />
+                </TouchableOpacity>
+            </View>
+            <Modal transparent visible={this.state.actionDropdownVisible} animationType="fade" onRequestClose={this.closeActionDropdown}>
+                <View style={actionMenuStyles.modalBackdrop}>
+                    <Pressable style={actionMenuStyles.dismissLayer} onPress={this.closeActionDropdown} />
+                    <View style={actionMenuStyles.dropdownContainer}>
+                        <View style={actionMenuStyles.arrow} />
+                        <View style={actionMenuStyles.box}>
+                            {ACTION_DROPDOWN_OPTIONS.map((option, index) => (
+                                <TouchableOpacity
+                                    key={option.key}
+                                    activeOpacity={0.75}
+                                    style={[actionMenuStyles.item, index === ACTION_DROPDOWN_OPTIONS.length - 1 && actionMenuStyles.itemLast]}
+                                    onPress={() => this.handleActionDropdownPress(option.key)}>
+                                    <View style={actionMenuStyles.icon}>
+                                        <Icon name={option.icon} size={17} color="#123C95" />
+                                    </View>
+                                    <Text style={actionMenuStyles.label}>{option.label}</Text>
+                                </TouchableOpacity>
+                            ))}
+                        </View>
+                    </View>
+                </View>
+            </Modal>
+        </>
+    );
 
     async getAuditLists() {
         await this.getUserDetails();
@@ -674,7 +831,7 @@ class AuditDashboardListing extends Component {
                     console.log('tret1 reached login data stored');
                 },
             );
-           
+
         } else {
             console.log(loginDetails?.message, 'tret1 //////loginmessage////////');
         }
@@ -700,12 +857,12 @@ class AuditDashboardListing extends Component {
                             Phone: data?.data?.Data?.Phone,
                         },
                         () => {
-                          
+
                             this._storeToken();
                         },
                     );
                 } else {
-                  
+
                 }
             } else {
                 this.toast.show(strings.ProfileFetchFailed, DURATION.LENGTH_LONG);
@@ -746,7 +903,7 @@ class AuditDashboardListing extends Component {
                     progressVisible: false,
                 },
                 () => {
-                  
+
                     console.log('supplier management value' + this.props?.data?.audits?.suppliermanagementstatus);
                     if (this.props?.data?.audits?.suppliermanagementstatus == 'true') {
                         this.props.navigation.navigate(ROUTES.SUPPLY_MANAGE);
@@ -805,7 +962,7 @@ class AuditDashboardListing extends Component {
                 <OfflineNotice />
                 <GlobalHeader
                     title={
-                        (this.props?.route?.params?.title || this.state.projectData?.auditTitle) 
+                        (this.props?.route?.params?.title || this.state.projectData?.auditTitle)
                     }
                     onLeftPress={() => this.props.navigation.goBack()}
                     onRightPress={() => this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)}
@@ -813,16 +970,20 @@ class AuditDashboardListing extends Component {
                     titleStyle={{ color: '#000' }}
                 />
                 <View style={styles.auditPageBody}>
-                    {/* Search by Audit Number / Auditee / Date */}
-                    <ListSearch
-                        searchKey={this.state.searchKey}
-                        setSearchKey={searchKey =>
-                            this.setState({ searchKey, AuditSearch: searchKey }, () => {
-                                this.applyAuditFilter();
-                            })
-                        }
-                        placeholder="search by Audit no/Auditee"
-                    />
+                    <View style={actionMenuStyles.searchRow}>
+                        <View style={actionMenuStyles.searchArea}>
+                            <ListSearch
+                                searchKey={this.state.searchKey}
+                                setSearchKey={searchKey =>
+                                    this.setState({ searchKey, AuditSearch: searchKey }, () => {
+                                        this.applyAuditFilter();
+                                    })
+                                }
+                                placeholder="search by Audit no/Auditee"
+                            />
+                        </View>
+                        {this.renderActionDropdown()}
+                    </View>
 
                     {this.state.loader ? (
                         <View style={styles.loaderParent}>
@@ -941,9 +1102,9 @@ class AuditDashboardListing extends Component {
                 const filterStatus =
                     Number(
                         this.props?.route?.params?.status ??
-                            this.props?.route?.params?.filterId ??
-                            this.state.projectData?.projectStatus ??
-                            this.state.filterId,
+                        this.props?.route?.params?.filterId ??
+                        this.state.projectData?.projectStatus ??
+                        this.state.filterId,
                     ) || '';
                 const filterStr =
                     filterStatus === 2 || filterStatus === 3 || filterStatus === 4 || filterStatus === 5 ? `AuditStatus IN (${filterStatus})` : '';

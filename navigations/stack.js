@@ -324,6 +324,11 @@ export const AppStackData = [
         getComponent: () => require('../screens/supplierManagement/containers/SyncDetailsSM').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
+     {
+        name: ROUTES.SYNC_DETAILS,
+        getComponent: () => require('../screens/auditPro/containers/SyncDetails').default,
+        cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
+    },
     {
         name: ROUTES.HELP,
         getComponent: () => require('../screens/auditPro/containers/Help').default,

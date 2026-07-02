@@ -137,7 +137,6 @@ class AuditDashboardListing extends Component {
         // this.filterId = this.props.navigation.getParam('filterId');
         this.currentUserData = this.props?.route?.params?.currentUserData;
         console.log('Received User Data --->', this.props);
-
         this.state = {
             listEndReached: false,
             loader: true,
@@ -268,7 +267,9 @@ class AuditDashboardListing extends Component {
             return;
         }
         if (optionKey === 'syncDetails') {
-            this.props.navigation.navigate(ROUTES.SYNC_DETAILSSM);
+            this.props.navigation.navigate(ROUTES.SYNC_DETAILSSM, {
+                   userDetails: this.currentUserData,
+                  });
         }
     };
 

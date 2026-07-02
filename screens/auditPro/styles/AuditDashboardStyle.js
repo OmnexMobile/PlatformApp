@@ -222,7 +222,16 @@ bgCont: {
   auditBoxStatusBar: {
     flexDirection: 'column',
     justifyContent: 'flex-start',
-    width: width(1)
+    width: width(1.5),
+    // width: 8,
+    // height: 150,
+    backgroundColor: '#12B8F6',
+    borderRadius: 20,
+    shadowColor: '#12B8F6',
+    shadowOpacity: 0.4,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 5,
   },
   auditBoxStatus: {
     flexDirection: 'column',

@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { View, Text, TouchableOpacity, ImageBackground, Dimensions, FlatList, ScrollView, CheckBox, BackHandler, Platform } from 'react-native'
+import { View, Text, TouchableOpacity, ImageBackground, Dimensions, FlatList, ScrollView, CheckBox, BackHandler } from 'react-native'
 import AuditPageStyle from '../../auditPro/styles/AuditDashboardStyle'
 
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -18,9 +18,7 @@ import auth from "../../../services/Auditpro-Auth";
 import OfflineNotice from '../../auditPro/components/OfflineNotice'
 import constant from '../../auditPro/constants/AppConstants'
 // import { RadioGroup, RadioButton } from 'react-native-flexi-radio-button'
-import ScrollableTabView, { DefaultTabBar, } from 'react-native-scrollable-tab-view'
 import { ROUTES } from 'constants/app-constant';
-import { SPACING } from 'constants/theme-constants';
 import GlobalHeader from 'components/GlobalHeader';
 
 const moment = extendMoment(Moment);
@@ -56,24 +54,32 @@ class SyncStatus extends Component {
             SortBy: '',
             SortOrder: '',
             cFilterVal: 0,
-            isSynced:true,
-            isNotSynced:false,
-            notSynced_auditList:[],
-            synced_auditList:[],
-            sync_History: []
+            isSynced: true,
+            isNotSynced: false,
+            notSynced_auditList: [],
+            synced_auditList: [],
+            sync_History: [],
+            activeTabIndex: 0,
+            tabRoutes: [
+                { key: 'notSynced', title: strings.Not_Synced, icon: 'history' },
+                { key: 'synced', title: strings.Synced, icon: 'check-circle' },
+                { key: 'history', title: strings.History, icon: 'clock-o' },
+            ],
         }
-        this.willFocusSubscription = props.navigation.addListener('willFocus', () => {
+        this.focusSubscription = props.navigation.addListener('focus', () => {
             this.applyFilterChanges("Forms", 'StartDate', 1, null, null)
             this.applyFilterChanges("Forms", 'StartDate', 2, null, null)
         })
     }
 
-    componentWillUnmount(){
-        // this.willFocusSubscription.remove()
+    componentWillUnmount() {
+        if (this.focusSubscription) {
+            this.focusSubscription()
+        }
     }
 
     componentDidMount() {
-        console.log('AuditDashboardBody mounted', this.props.data.audits)
+        console.log('AuditDashboardBody mountedSyncDetails', this.props.data.audits)
         if (this.props.data.audits.language === 'Chinese') {
             this.setState({ ChineseScript: true }, () => {
                 strings.setLanguage('zh')
@@ -87,8 +93,8 @@ class SyncStatus extends Component {
                 this.setState({})
             })
         }
-        // this.applyFilterChanges("Forms", 'StartDate', 1, null, null)
-        // this.applyFilterChanges("Forms", 'StartDate', 2, null, null)
+        this.applyFilterChanges("Forms", 'StartDate', 1, null, null)
+        this.applyFilterChanges("Forms", 'StartDate', 2, null, null)
         this.getHistory()
         // this.setState({
         //     auditList: this.props.data.audits.audits,
@@ -101,9 +107,11 @@ class SyncStatus extends Component {
         // });
     }
 
-    getHistory(){
-        const UserId = this.props.data.audits.userId;
-        const token = this.props.data.audits.token;
+    getHistory() {
+        const UserId = this.props?.route?.params?.userDetails?.userId;
+        const token = this.props?.route?.params?.userDetails?.accessToken;
+        console.log('checkhistoryval------>', UserId, token);
+        
         auth.getSyncHistory(UserId, token, (res, data) => {
             if (data.data) {
                 if (data.data.Success === true) {
@@ -117,6 +125,55 @@ class SyncStatus extends Component {
         })
     }
 
+    getNormalizedAuditId = item => {
+        return String(
+            item?.ActualAuditId ??
+            item?.AuditId ??
+            ''
+        )
+    }
+
+    getAuditIdAliases = item => {
+        return [
+            item?.ActualAuditId,
+            item?.AuditId,
+        ]
+            .filter(value => value !== null && typeof value !== 'undefined' && `${value}` !== '')
+            .map(value => String(value))
+    }
+
+    getStatusPriority = status => {
+        switch (status) {
+            case constant.StatusSynced:
+                return 4
+            case constant.StatusNotSynced:
+                return 3
+            case constant.StatusDownloaded:
+                return 2
+            case constant.StatusProcessing:
+                return 1
+            default:
+                return 0
+        }
+    }
+
+    getResolvedAuditRecord = (records = []) => {
+        if (!Array.isArray(records) || records.length === 0) {
+            return null
+        }
+
+        return records.reduce((bestRecord, currentRecord) => {
+            if (!bestRecord) {
+                return currentRecord
+            }
+
+            const bestPriority = this.getStatusPriority(bestRecord?.AuditRecordStatus)
+            const currentPriority = this.getStatusPriority(currentRecord?.AuditRecordStatus)
+
+            return currentPriority >= bestPriority ? currentRecord : bestRecord
+        }, null)
+    }
+
     applyFilterChanges(sortype, droptext, filterType, startDate, endDate) {
         console.log('sortype', sortype)
         console.log('droptext', droptext)
@@ -124,49 +181,248 @@ class SyncStatus extends Component {
         console.log('startDate----->', startDate)
         console.log('endDate ---->', endDate)
 
-        var data = this.props.data.audits.auditRecords
-        var notsync = []
-        var sync = []
+        const auditsList = this.props?.data?.audits?.audits || []
+        const auditRecords = this.props?.data?.audits?.auditRecords || []
+        const notsync = []
+        const sync = []
+        const auditRecordMap = new Map()
+        const mergedAudits = []
+        const seenIds = new Set()
 
-        if(data){
-            data.forEach((item)=>{
-                if(item.AuditRecordStatus == constant.StatusNotSynced){
-                    notsync.push(item)
-                }
-                if(item.AuditRecordStatus == constant.StatusSynced){
-                    sync.push(item)
-                }        
+        console.log('auditsList------>', auditsList)
+        console.log('auditRecords------>', auditRecords)
+
+        auditRecords.forEach(item => {
+            this.getAuditIdAliases(item).forEach(recordId => {
+                const existingRecords = auditRecordMap.get(recordId) || []
+                auditRecordMap.set(recordId, [...existingRecords, item])
             })
-        }
+        })
+
+        auditsList.forEach(item => {
+            const itemAliases = this.getAuditIdAliases(item)
+            const itemId = itemAliases[0]
+            const matchingRecords = itemAliases.flatMap(alias => auditRecordMap.get(alias) || [])
+            const matchingRecord = this.getResolvedAuditRecord(matchingRecords)
+            const mergedItem = {
+                ...item,
+                AuditId: item?.AuditId ?? item?.ActualAuditId,
+                ActualAuditId: item?.ActualAuditId ?? item?.AuditId,
+                AuditRecordStatus: matchingRecord?.AuditRecordStatus ?? item?.AuditRecordStatus,
+                cStatus: matchingRecord?.AuditRecordStatus ?? item?.cStatus ?? item?.AuditRecordStatus,
+            }
+
+            mergedAudits.push(mergedItem)
+            itemAliases.forEach(alias => seenIds.add(alias))
+        })
+
+        auditRecords.forEach(item => {
+            const itemAliases = this.getAuditIdAliases(item)
+            const itemId = itemAliases[0]
+            const isSeen = itemAliases.some(alias => seenIds.has(alias))
+
+            if (!itemId || isSeen) {
+                return
+            }
+
+            mergedAudits.push({
+                ...item,
+                AuditId: item?.AuditId ?? item?.ActualAuditId,
+                ActualAuditId: item?.ActualAuditId ?? item?.AuditId,
+                cStatus: item?.AuditRecordStatus ?? item?.cStatus,
+            })
+            itemAliases.forEach(alias => seenIds.add(alias))
+        })
+
+        mergedAudits.forEach((item) => {
+            const auditRecordStatus = item?.AuditRecordStatus
+            const auditStatus = item?.cStatus ?? item?.AuditRecordStatus
+
+            if (typeof auditRecordStatus === 'undefined' || auditRecordStatus === null) {
+                return
+            }
+
+            if (auditStatus == constant.StatusNotSynced) {
+                notsync.push(item)
+            }
+            if (auditStatus == constant.StatusSynced) {
+                sync.push(item)
+            }
+        })
 
         this.setState({
             notSynced_auditList: notsync,
             loading: false,
-            synced_auditList:sync,
+            synced_auditList: sync,
             isLazyLoadingRequired: false
+        }, () => {
+            console.log('notSynced_auditList', this.state.notSynced_auditList)
+            console.log('synced_auditList', this.state.synced_auditList)
         })
+    }
+
+    getAuditListKey = (item, index) => {
+        return String(
+            item?.AuditRecordId ??
+            item?.AuditId ??
+            item?.AuditNumber ??
+            item?.Id ??
+            index
+        )
+    }
+
+    getHistoryKey = (item, index) => {
+        return String(
+            item?.SyncHistoryId ??
+            item?.AuditId ??
+            `${item?.AuditNumber ?? 'history'}-${item?.DateTimeStamp ?? index}`
+        )
+    }
+
+    
+
+    formatHistoryTimestamp = inDate => {
+        if (!inDate) {
+            return ''
+        }
+
+        return Moment(inDate).format('DD MMM YYYY • hh:mm A')
+    }
+
+    onTabPress = index => {
+        this.setState({ activeTabIndex: index })
+    }
+
+    renderTabBar = () => {
+        return (
+            <View
+                style={{
+                    marginHorizontal: 8,
+                    marginTop: 10,
+                    marginBottom: 8,
+                    padding: 6,
+                    flexDirection: 'row',
+                    backgroundColor: '#FFFFFF',
+                    borderRadius: 34,
+                    shadowColor: '#183153',
+                    shadowOpacity: 0.14,
+                    shadowRadius: 18,
+                    shadowOffset: { width: 0, height: 8 },
+                    elevation: 6,
+                }}
+            >
+                {this.state.tabRoutes.map((route, index) => {
+                    const isActive = this.state.activeTabIndex === index
+
+                    return (
+                        <TouchableOpacity
+                            key={route.key}
+                            style={{
+                                flex: 1,
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                paddingVertical: 18,
+                                borderRadius: 28,
+                                backgroundColor: isActive ? '#FFFFFF' : 'transparent',
+                                shadowColor: isActive ? '#183153' : 'transparent',
+                                shadowOpacity: isActive ? 0.12 : 0,
+                                shadowRadius: isActive ? 14 : 0,
+                                shadowOffset: isActive ? { width: 0, height: 6 } : { width: 0, height: 0 },
+                                elevation: isActive ? 5 : 0,
+                                position: 'relative',
+                            }}
+                            activeOpacity={0.8}
+                            onPress={() => this.onTabPress(index)}
+                        >
+                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                <Icon
+                                    name={route.icon}
+                                    size={24}
+                                    color={isActive ? '#0E4FD4' : '#747474'}
+                                />
+                                <Text
+                                    style={{
+                                        marginLeft: 12,
+                                        fontSize: Fonts.size.mediump,
+                                        fontFamily: isActive ? 'OpenSans-Bold' : 'OpenSans-Regular',
+                                        color: isActive ? '#0E4FD4' : '#747474',
+                                    }}
+                                >
+                                    {route.title}
+                                </Text>
+                            </View>
+                            {isActive ? (
+                                <View
+                                    style={{
+                                        position: 'absolute',
+                                        left: 18,
+                                        right: 18,
+                                        bottom: -6,
+                                        height: 4,
+                                        borderRadius: 4,
+                                        backgroundColor: '#0E4FD4',
+                                    }}
+                                />
+                            ) : null}
+                        </TouchableOpacity>
+                    )
+                })}
+            </View>
+        )
+    }
+
+    renderActiveTabContent = () => {
+        switch (this.state.activeTabIndex) {
+            case 0:
+                return this.notSynced()
+            case 1:
+                return this.synced()
+            case 2:
+                return this.renderHistory()
+            default:
+                return this.notSynced()
+        }
     }
 
 
     openAuditPage(iAuditDetails) {
-        console.log('iAuditDetails',iAuditDetails)
-        var auditRecords = this.props.data.audits.auditRecords
-        var isDownloadedDone = false
+        console.log('iAuditDetails', iAuditDetails)
+        const auditRecords = this.props.data.audits.auditRecords || []
+        const smData =
+            this.props?.route?.params?.smData ??
+            iAuditDetails?.smData ??
+            this.props?.data?.audits?.smdata
 
-        for (var i = 0; i < auditRecords.length; i++) {
-            if (auditRecords[i].AuditId == iAuditDetails.AuditId) {
-                isDownloadedDone = true
-            }
+        const actualAuditId =
+            iAuditDetails?.ActualAuditId ?? iAuditDetails?.AuditId
+        const normalizedAuditStatus =
+            iAuditDetails?.AuditStatus ?? parseInt(iAuditDetails?.Status, 10)
+        const normalizedStatus =
+            iAuditDetails?.cStatus ?? iAuditDetails?.AuditRecordStatus ?? constant.StatusDownloaded
+
+        const isDownloadedDone = auditRecords.some(
+            record =>
+                record?.AuditId == actualAuditId ||
+                record?.ActualAuditId == actualAuditId,
+        )
+
+        const datapass = {
+            ...iAuditDetails,
+            ActualAuditId: actualAuditId,
+            AuditStatus: normalizedAuditStatus,
+            cStatus: normalizedStatus,
+            ...(smData !== null && typeof smData !== 'undefined' ? { smData } : {}),
         }
 
-        var obj = {
-            ...iAuditDetails, ActualAuditId:iAuditDetails.AuditId ,  cStatus : constant.StatusDownloaded,  AuditStatus : parseInt(iAuditDetails.Status)
-          };
+        const navigateToAudit = () =>
+            this.props.navigation.navigate(ROUTES.AUDIT_PAGE_SM, {
+                datapass,
+                auditStatusPass: normalizedStatus,
+                ...(smData !== null && typeof smData !== 'undefined' ? { smData } : {}),
+            })
 
         if (isDownloadedDone) {
-            this.props.navigation.navigate(ROUTES.AUDIT_PAGE, {
-                datapass: {...iAuditDetails,ActualAuditId:iAuditDetails.AuditId , AuditStatus : iAuditDetails.Status }
-            })
+            navigateToAudit()
         }
         else {
             if (this.props.data.audits.isOfflineMode) {
@@ -175,9 +431,7 @@ class SyncStatus extends Component {
             else {
                 NetInfo.fetch().then(netState => {
                     if (netState.isConnected) {
-                        this.props.navigation.navigate(ROUTES.AUDIT_PAGE, {
-                            datapass: obj
-                        })
+                        navigateToAudit()
                     }
                     else {
                         this.refs.toast.show(strings.No_Internet, DURATION.LENGTH_LONG)
@@ -189,7 +443,7 @@ class SyncStatus extends Component {
 
     changeDateFormatCardWithTime = (inDate) => {
         if (inDate) {
-            var DefaultFormatL = this.state.selectedFormat+' '+ 'HH:mm'
+            var DefaultFormatL = this.state.selectedFormat + ' ' + 'HH:mm'
             var sDateArr = inDate.split('T')
             var sDateValArr = sDateArr[0].split('-')
             var sTimeValArr = sDateArr[1].split(':')
@@ -245,7 +499,7 @@ class SyncStatus extends Component {
         return percent
     }
 
-    getCardColor(id){
+    getCardColor(id) {
         var color = '#fff'
         switch (id.AuditRecordStatus) {
             case constant.StatusScheduled:
@@ -283,21 +537,20 @@ class SyncStatus extends Component {
         return color
     }
 
-    onSync(id,val){
+    onSync(id, val) {
         this.setState({
-            isSynced:!this.state.isSynced, 
+            isSynced: !this.state.isSynced,
         })
     }
-    onNotSync(){
+    onNotSync() {
         this.setState({
-            isNotSynced:!this.state.isNotSynced,
+            isNotSynced: !this.state.isNotSynced,
         })
     }
     render() {
         const { theme } = this.context || {};
         return (
             <View style={AuditPageStyle.container}>
-                {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
                 <OfflineNotice />
                 {/* <View style={AuditPageStyle.headerCont}>
                     <ImageBackground
@@ -316,59 +569,49 @@ class SyncStatus extends Component {
                 />
                 <View style={{ flex: 1 }}>
 
-                <ScrollableTabView
-                        initialPage={this.state.activeTab}
-                        renderTabBar={() =>
-                            <DefaultTabBar
-                                backgroundColor='white'
-                                activeTextColor='#2CB5FD'
-                                inactiveTextColor='#747474'
-                                underlineStyle={{ backgroundColor: '#2CB5FD', borderBottomColor: '#2CB5FD', height: Platform.select({
-                                    android: 0,
-                                    ios: 5
-                                  }) }}
-                                textStyle={{ fontSize: Fonts.size.mediump,fontFamily:'OpenSans-Regular' }}
-                            />
-                        }
-                        tabBarPosition="overlayTop"
-                    >
-                        {this.notSynced()}
-                        {this.synced()}
-                        {this.renderHistory()}
-                    </ScrollableTabView>
+                    {this.renderTabBar()}
+                    <View style={{ flex: 1 }}>
+                        {this.renderActiveTabContent()}
+                    </View>
                 </View>
             </View>
         )
     }
-    synced(){
-        return(
-            <View tabLabel={strings.Synced} style={AuditPageStyle.scrollViewBody}>
-                <View style={{marginTop:50}}></View>
+    synced() {
+        return (
+            <View key="synced-tab" tabLabel={strings.Synced} style={AuditPageStyle.scrollViewBody}>
                 {this.state.synced_auditList.length > 0 ?
-                        <FlatList
-                            data={this.state.synced_auditList}
-                            extraData={this.state}
-                            // onEndReached={this.handleEnd.bind(this)}
-                            // onEndReachedThreshold={0.01}
-                            // refreshing={this.state.isRefreshing}
-                            // onRefresh={debounce(this.handleRefresh.bind(this), 800)}
-                            // ListFooterComponent={this.listFooter.bind(this)}
-                            renderItem={({ item }) =>
-                                <TouchableOpacity onPress={() => this.openAuditPage(item)}>
-                                    <View style={AuditPageStyle.auditBox}>
-                                        <View style={[AuditPageStyle.auditBoxStatusBar, { backgroundColor: this.getCardColor(item) }]}></View>
-                                        <View style={AuditPageStyle.auditBoxContent}>
-                                            <Text numberOfLines={1} style={{ fontSize: Fonts.size.regular, color: '#485B9E',fontFamily:'OpenSans-Regular'}}>{item.Auditee}</Text>
-                                            <Text numberOfLines={1} style={{ fontSize: Fonts.size.small, color: '#A6A6A6' ,fontFamily:'OpenSans-Regular'}}>{this.changeDateFormatCard(item.StartDate)} - {this.changeDateFormatCard(item.EndDate)}</Text>
-                                            <Text numberOfLines={1} style={{ paddingTop: 5, fontSize: Fonts.size.medium, color: '#545454',fontFamily:'OpenSans-Regular'}}>{item.AuditNumber}</Text>
-                                            <Text numberOfLines={1} style={{ fontSize: Fonts.size.medium, color: '#545454' ,fontFamily:'OpenSans-Regular'}}>{item.AuditCycleName}</Text>
+                    <FlatList
+                        data={this.state.synced_auditList}
+                        extraData={this.state}
+                        // onEndReached={this.handleEnd.bind(this)}
+                        // onEndReachedThreshold={0.01}
+                        // refreshing={this.state.isRefreshing}
+                        // onRefresh={debounce(this.handleRefresh.bind(this), 800)}
+                        // ListFooterComponent={this.listFooter.bind(this)}
+                        renderItem={({ item }) =>
+                            <TouchableOpacity onPress={() => this.openAuditPage(item)}>
+                                <View style={AuditPageStyle.auditBox}>
+                                    <View style={[AuditPageStyle.auditBoxStatusBar, { backgroundColor: this.getCardColor(item) }]}></View>
+                                    <View style={AuditPageStyle.auditBoxContent}>
+                                        <Text numberOfLines={1} style={{ fontSize: Fonts.size.regular, color: '#204AA9', fontFamily: 'OpenSans-Bold', }}>{item.Auditee}</Text>
+                                        <Text numberOfLines={1} style={{ fontSize: Fonts.size.mediump, color: '#000000', fontFamily: 'OpenSans-Bold' }}>{this.changeDateFormatCard(item.StartDate)} - {this.changeDateFormatCard(item.EndDate)}</Text>
+                                        <Text numberOfLines={1} style={{ fontSize: Fonts.size.medium, color: 'grey', fontFamily: 'OpenSans-Bold' }}>{item.AuditCycleName}</Text>
+                                        <View style={{
+                                            backgroundColor: '#EFF4FA',
+                                            borderRadius: 12,
+                                            paddingHorizontal: 14,
+                                            paddingVertical: 11,
+                                        }}>
+                                            <Text numberOfLines={1} style={{ paddingTop: 5, fontSize: Fonts.size.mediump, color: '#000000', fontFamily: 'OpenSans-Bold' }}>{item.AuditNumber}</Text>
                                         </View>
-                                        <View style={AuditPageStyle.auditBoxStatus}>
-                                            {/* {(item.cStatus == 'Scheduled') ?
+                                    </View>
+                                    <View style={AuditPageStyle.auditBoxStatus}>
+                                        {/* {(item.cStatus == 'Scheduled') ?
                         <ResponsiveImage source={Images.downloadIconImg} initWidth="90" initHeight="90" style={styles.downloadIconImg}/> : 
                         (item.cStatus == 'Not-synced') ? 
                         <ResponsiveImage source={Images.syncCardImg} initWidth="90" initHeight="90" style={styles.downloadIconImg}/> : */}
-                                            {/* <View style={AuditPageStyle.circle}>
+                                        {/* <View style={AuditPageStyle.circle}>
                                                 <ProgressCircle
                                                     percent={this.getAuditStatus(item)}
                                                     radius={28}
@@ -380,56 +623,61 @@ class SyncStatus extends Component {
                                                     <Text style={AuditPageStyle.progressVal}>{this.getAuditStatus(item)}%</Text>
                                                 </ProgressCircle>
                                             </View> */}
-                                            {/* } */}
-                                            {/* <Text style={AuditPageStyle.statusText}>{item.AuditRecordStatus == 'Deadline Violated and Completed' ? 'D.Violated & Completed' : item.AuditRecordStatus}</Text> */}
-                                        </View>
+                                        {/* } */}
+                                        {/* <Text style={AuditPageStyle.statusText}>{item.AuditRecordStatus == 'Deadline Violated and Completed' ? 'D.Violated & Completed' : item.AuditRecordStatus}</Text> */}
                                     </View>
-                                </TouchableOpacity>}
-                            keyExtractor={item => item.key}
-                            ItemSeparatorComponent={() =>
-                                <View style={{ width: window_width, height: 1, backgroundColor: 'transparent' }} />
-                            }
-                        />
-                        : <View style={{ flex: 1,justifyContent: 'center', alignItems: 'center'}}>
-                            <Text style={{
-                                fontSize: Fonts.size.h5,fontFamily:'OpenSans-Regular'
-                            }}>{strings.No_records_found}</Text>
-                        </View>
-                    }
+                                </View>
+                            </TouchableOpacity>}
+                        keyExtractor={this.getAuditListKey}
+                        ItemSeparatorComponent={() =>
+                            <View style={{ width: window_width, height: 1, backgroundColor: 'transparent' }} />
+                        }
+                    />
+                    : <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                        <Text style={{
+                            fontSize: Fonts.size.h5, fontFamily: 'OpenSans-Regular'
+                        }}>{strings.No_records_found}</Text>
+                    </View>
+                }
             </View>
         )
     }
 
-    notSynced(){
-        return(
-            <View tabLabel={strings.Not_Synced} style={AuditPageStyle.scrollViewBody}>
-                                <View style={{marginTop:50}}></View>
-
-            {this.state.notSynced_auditList.length > 0 ?
-                        <FlatList
-                            data={this.state.notSynced_auditList}
-                            extraData={this.state}
-                            // onEndReached={this.handleEnd.bind(this)}
-                            // onEndReachedThreshold={0.01}
-                            // refreshing={this.state.isRefreshing}
-                            // onRefresh={debounce(this.handleRefresh.bind(this), 800)}
-                            // ListFooterComponent={this.listFooter.bind(this)}
-                            renderItem={({ item }) =>
-                                <TouchableOpacity onPress={() => this.openAuditPage(item)}>
-                                    <View style={AuditPageStyle.auditBox}>
-                                        <View style={[AuditPageStyle.auditBoxStatusBar, { backgroundColor: this.getCardColor(item) }]}></View>
-                                        <View style={AuditPageStyle.auditBoxContent}>
-                                            <Text numberOfLines={1} style={{ fontSize: Fonts.size.regular, color: '#485B9E',fontFamily:'OpenSans-Regular' }}>{item.Auditee}</Text>
-                                            <Text numberOfLines={1} style={{ fontSize: Fonts.size.small, color: '#A6A6A6',fontFamily:'OpenSans-Regular' }}>{this.changeDateFormatCard(item.StartDate)} - {this.changeDateFormatCard(item.EndDate)}</Text>
-                                            <Text numberOfLines={1} style={{ paddingTop: 5, fontSize: Fonts.size.medium, color: '#545454',fontFamily:'OpenSans-Regular' }}>{item.AuditNumber}</Text>
-                                            <Text numberOfLines={1} style={{ fontSize: Fonts.size.medium, color: '#545454',fontFamily:'OpenSans-Regular' }}>{item.AuditCycleName}</Text>
+    notSynced() {
+        return (
+            <View key="not-synced-tab" tabLabel={strings.Not_Synced} style={AuditPageStyle.scrollViewBody}>
+                {this.state.notSynced_auditList.length > 0 ?
+                    <FlatList
+                        data={this.state.notSynced_auditList}
+                        extraData={this.state}
+                        // onEndReached={this.handleEnd.bind(this)}
+                        // onEndReachedThreshold={0.01}
+                        // refreshing={this.state.isRefreshing}
+                        // onRefresh={debounce(this.handleRefresh.bind(this), 800)}
+                        // ListFooterComponent={this.listFooter.bind(this)}
+                        renderItem={({ item }) =>
+                            <TouchableOpacity onPress={() => this.openAuditPage(item)}>
+                                <View style={AuditPageStyle.auditBox}>
+                                    <View style={[AuditPageStyle.auditBoxStatusBar, { backgroundColor: this.getCardColor(item) }]}></View>
+                                    <View style={AuditPageStyle.auditBoxContent}>
+                                        <Text numberOfLines={1} style={{ fontSize: Fonts.size.regular, color: '#204AA9', fontFamily: 'OpenSans-Bold', }}>{item.Auditee}</Text>
+                                        <Text numberOfLines={1} style={{ fontSize: Fonts.size.mediump, color: '#000000', fontFamily: 'OpenSans-Bold' }}>{this.changeDateFormatCard(item.StartDate)} - {this.changeDateFormatCard(item.EndDate)}</Text>
+                                        <Text numberOfLines={1} style={{ fontSize: Fonts.size.medium, color: 'grey', fontFamily: 'OpenSans-Bold' }}>{item.AuditCycleName}</Text>
+                                        <View style={{
+                                            backgroundColor: '#EFF4FA',
+                                            borderRadius: 12,
+                                            paddingHorizontal: 14,
+                                            paddingVertical: 11,
+                                        }}>
+                                            <Text numberOfLines={1} style={{ paddingTop: 5, fontSize: Fonts.size.mediump, color: '#000000', fontFamily: 'OpenSans-Bold' }}>{item.AuditNumber}</Text>
                                         </View>
-                                        <View style={AuditPageStyle.auditBoxStatus}>
-                                            {/* {(item.cStatus == 'Scheduled') ?
+                                    </View>
+                                    <View style={AuditPageStyle.auditBoxStatus}>
+                                        {/* {(item.cStatus == 'Scheduled') ?
                         <ResponsiveImage source={Images.downloadIconImg} initWidth="90" initHeight="90" style={styles.downloadIconImg}/> : 
                         (item.cStatus == 'Not-synced') ? 
                         <ResponsiveImage source={Images.syncCardImg} initWidth="90" initHeight="90" style={styles.downloadIconImg}/> : */}
-                                            {/* <View style={AuditPageStyle.circle}>
+                                        {/* <View style={AuditPageStyle.circle}>
                                                 <ProgressCircle
                                                     percent={this.getAuditStatus(item)}
                                                     radius={28}
@@ -441,62 +689,129 @@ class SyncStatus extends Component {
                                                     <Text style={AuditPageStyle.progressVal}>{this.getAuditStatus(item)}%</Text>
                                                 </ProgressCircle>
                                             </View> */}
-                                            {/* } */}
-                                            {/* <Text style={AuditPageStyle.statusText}>{item.AuditRecordStatus == 'Deadline Violated and Completed' ? 'D.Violated & Completed' : item.AuditRecordStatus}</Text> */}
+                                        {/* } */}
+                                        {/* <Text style={AuditPageStyle.statusText}>{item.AuditRecordStatus == 'Deadline Violated and Completed' ? 'D.Violated & Completed' : item.AuditRecordStatus}</Text> */}
+                                    </View>
+                                </View>
+                            </TouchableOpacity>}
+                        keyExtractor={this.getAuditListKey}
+                        ItemSeparatorComponent={() =>
+                            <View style={{ width: window_width, height: 1, backgroundColor: 'transparent' }} />
+                        }
+                    />
+
+                    :
+                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                        <Text style={{
+                            fontSize: Fonts.size.h5, fontFamily: 'OpenSans-Regular'
+                        }}>{strings.No_records_found}</Text>
+                    </View>}
+            </View>
+        )
+    }
+    renderHistory() {
+        return (
+            <View key="history-tab" tabLabel={strings.History} style={AuditPageStyle.scrollViewBody}>
+                {
+                    this.state.sync_History.length > 0 ?
+                        <FlatList
+                            data={this.state.sync_History}
+                            style={{ paddingTop: 14, paddingHorizontal: 14 }}
+                            keyExtractor={this.getHistoryKey}
+                            showsVerticalScrollIndicator={false}
+                            renderItem={({ item, index }) => {
+
+                                return (
+                                    <View
+                                        style={{
+                                            backgroundColor: '#FFFFFF',
+                                            borderRadius: 22,
+                                            marginBottom: 18,
+                                            overflow: 'hidden',
+                                            shadowColor: '#183153',
+                                            shadowOpacity: 0.12,
+                                            shadowRadius: 16,
+                                            shadowOffset: { width: 0, height: 8 },
+                                            elevation: 4,
+                                        }}
+                                    >
+                                        <View style={{ flexDirection: 'row', minHeight: 100 }}>
+                                            <View style={{ flex: 1, paddingHorizontal: 18, paddingVertical: 20 }}>
+                                                
+
+                                                <Text
+                                                    style={{
+                                                        color: '#8B909B',
+                                                        fontSize: Fonts.size.medium,
+                                                        fontFamily: 'OpenSans-Bold',
+                                                    }}
+                                                >
+                                                    {strings.auditnumber}
+                                                </Text>
+                                                <Text
+                                                    style={{
+                                                        marginTop: 5,
+                                                        color: '#1D2540',
+                                                        fontSize: Fonts.size.input,
+                                                        fontFamily: 'OpenSans-Bold',
+                                                    }}
+                                                >
+                                                    {item.AuditNumber}
+                                                </Text>
+
+                                                <View
+                                                    style={{
+                                                        height: 1,
+                                                        backgroundColor: '#E6E8EF',
+                                                        marginTop: 10,
+                                                        marginBottom: 10,
+                                                    }}
+                                                />
+
+                                                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                                    <Icon name="calendar-o" size={22} color="#0E4FD4" />
+                                                    <Text
+                                                        style={{
+                                                            marginLeft: 16,
+                                                            color: '#6E7482',
+                                                            fontSize: Fonts.size.medium,
+                                                            fontFamily: 'OpenSans-Bold',
+                                                        }}
+                                                    >
+                                                        Synced on
+                                                    </Text>
+                                                    <Text
+                                                        style={{
+                                                            marginLeft: 14,
+                                                            color: '#1D2540',
+                                                            fontSize: Fonts.size.mediump,
+                                                            fontFamily: 'OpenSans-Bold',
+                                                        }}
+                                                    >
+                                                        {this.formatHistoryTimestamp(item.DateTimeStamp)}
+                                                    </Text>
+                                                </View>
+                                            </View>
                                         </View>
                                     </View>
-                                </TouchableOpacity>}
-                            keyExtractor={item => item.key}
-                            ItemSeparatorComponent={() =>
-                                <View style={{ width: window_width, height: 1, backgroundColor: 'transparent' }} />
-                            }
-                        />
-                       
-             : 
-             <View style={{ flex: 1,justifyContent: 'center', alignItems: 'center' }}>
-             <Text style={{
-                 fontSize: Fonts.size.h5,fontFamily:'OpenSans-Regular'
-             }}>{strings.No_records_found}</Text>
-         </View>}
-         </View>   
-        )  
-    }
-    renderHistory(){
-        return(
-            <View tabLabel={strings.History} style={AuditPageStyle.scrollViewBody}>
-            <View style={{marginTop:50}}></View>
-              {
-                  this.state.sync_History.length > 0 ?
-                      <FlatList
-                          data={this.state.sync_History}
-                          style={AuditPageStyle.marginTop10}
-                          renderItem={({ item }) => {
-                              return (
-                                  <View style={AuditPageStyle.card}>
-                                      <Text style={AuditPageStyle.detailTitle}>{strings.auditnumber}</Text>
-                                      <Text style={AuditPageStyle.detailContent}>{item.AuditNumber}</Text>
-                                      <Text style={AuditPageStyle.rowBorder}/>
-                                      <Text style={AuditPageStyle.detailTitle}>{strings.Audit_SyncedOn} </Text>
-                                      <Text style={AuditPageStyle.detailContent}>{this.changeDateFormatCardWithTime(item.DateTimeStamp)}</Text>
-                                  </View>
-                              )
-                          }}
-                      /> :
-                      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                          <Text style={{
-                              fontSize: Fonts.size.h5,fontFamily:'OpenSans-Regular'
-                          }}>{strings.No_records_found}</Text>
-                      </View>
-              }
-          </View>
+                                )
+                            }}
+                        /> :
+                        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                            <Text style={{
+                                fontSize: Fonts.size.h5, fontFamily: 'OpenSans-Regular'
+                            }}>{strings.No_records_found}</Text>
+                        </View>
+                }
+            </View>
         )
 
     }
-    
-    renderCard(){
-        return(
+
+    renderCard() {
+        return (
             <View>
-                
+
             </View>
         )
     }

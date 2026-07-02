@@ -516,6 +516,7 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
                   filterId: navStatus,
                   category: category.replace(/\n/g, ' '),
                   countValue,
+                  currentUserData: currentUserData,
               })
             : null;
     };

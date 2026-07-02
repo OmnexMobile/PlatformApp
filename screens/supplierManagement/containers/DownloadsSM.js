@@ -5,7 +5,6 @@ import {
   TouchableOpacity,
   Dimensions,
   FlatList,
-  Platform,
   StyleSheet,
 } from 'react-native';
 import AuditPageStyle from '../../auditPro/styles/AuditDashboardStyle';
@@ -20,7 +19,6 @@ import OfflineNotice from '../../auditPro/components/OfflineNotice';
 import constant from '../../auditPro/constants/AppConstants';
 
 import { ROUTES } from 'constants/app-constant';
-import { SPACING } from 'constants/theme-constants';
 import GlobalHeader from 'components/GlobalHeader';
 import NoRecordsFound from '../../../components/NoRecordFound';
 const window_width = Dimensions.get('window').width;
@@ -337,7 +335,6 @@ class Download extends Component {
     console.log('auditList--------', this.state.auditList);
     return (
       <View style={styles.screen}>
-        {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }} /> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }} />}
         <OfflineNotice />
         <GlobalHeader
           title={strings.downloads || 'Downloads'}
@@ -455,7 +452,7 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   accentBar: {
-    width: 8,
+    width: 5,
     borderRadius: 8,
     marginRight: 16,
   },
@@ -472,7 +469,7 @@ const styles = StyleSheet.create({
     paddingRight: 12,
   },
   cardTitle: {
-    fontSize: 22,
+    fontSize: Fonts.size.h5,
     lineHeight: 28,
     color: '#204AA9',
     fontFamily: 'OpenSans-Bold',
@@ -496,8 +493,8 @@ const styles = StyleSheet.create({
   cardSubtitle: {
     fontSize: 16,
     color: '#6F737C',
-    fontFamily: 'OpenSans-Regular',
-    marginBottom: 12,
+    fontFamily: 'OpenSans-Bold',
+    // marginBottom: 12,
   },
   dateRow: {
     flexDirection: 'row',
