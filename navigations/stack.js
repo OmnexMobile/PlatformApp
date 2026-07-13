@@ -91,6 +91,7 @@ import SupervisorSchedule from 'screens/inspection-control/supervisor-schedule';
 import InprocessInspection from 'screens/inspection-control/inprocess-inspection';
 import ContainmentActions from 'screens/inspection-control/containmentActions';
 import NotificationScreen from 'screens/inspection-control/notification';
+import BarcodeList from 'screens/inspection-control/barcodelist';
 import IcSettings from 'screens/inspection-control/icSettings';
 // import SearchInspection from 'screens/inspection-control/search-inspection';
 const Stack = createNativeStackNavigator();
@@ -497,6 +498,10 @@ export const AppStackData = [
     {
         name: ROUTES.NOTIFICATION_SCREEN,
         component: NotificationScreen,
+    },
+    {
+        name: ROUTES.BARCODE_LIST,
+        component: BarcodeList,
     }
     // {
     //     name: ROUTES.SEARCH_INSPECTION,
