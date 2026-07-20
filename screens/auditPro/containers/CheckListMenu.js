@@ -23,6 +23,7 @@ import GlobalHeader from 'components/GlobalHeader';
 import AnimatedLottieView from 'lottie-react-native';
 
 import localStorage from 'global/localStorage';
+import { NoRecordFound } from 'components';
 
 class CheckListMenu extends Component {
   constructor(props) {
@@ -499,34 +500,36 @@ class CheckListMenu extends Component {
                   </View>
                 </ScrollView>
               ) : !this.state.pageLoader ? (
-                <View style={[styles.emptyOverlay, styles.emptyOverlayVisible]}>
-                  <AnimatedLottieView
-                    source={require('../../../assets/lottie/norecords.json')}
-                    autoPlay
-                    loop
-                    renderMode="SOFTWARE"
-                    resizeMode="contain"
-                    style={styles.emptyLottie}
-                  />
-                  <Text style={styles.emptyText}>
-                    No checklists found!
-                  </Text>
-                </View>
+                // <View style={[styles.emptyOverlay, styles.emptyOverlayVisible]}>
+                //   <AnimatedLottieView
+                //     source={require('../../../assets/lottie/norecords.json')}
+                //     autoPlay
+                //     loop
+                //     renderMode="SOFTWARE"
+                //     resizeMode="contain"
+                //     style={styles.emptyLottie}
+                //   />
+                //   <Text style={styles.emptyText}>
+                //     No checklists found!
+                //   </Text>
+                // </View>
+                <NoRecordFound/>
               ) : null
             ) : !this.state.pageLoader ? (
-              <View style={[styles.emptyOverlay, styles.emptyOverlayVisible]}>
-                <AnimatedLottieView
-                  source={require('../../../assets/lottie/norecords.json')}
-                  autoPlay
-                  loop
-                  renderMode="SOFTWARE"
-                  resizeMode="contain"
-                  style={styles.emptyLottie}
-                />
-                <Text style={styles.emptyText}>
-                  {strings.No_checklists_found}
-                </Text>
-              </View>
+              // <View style={[styles.emptyOverlay, styles.emptyOverlayVisible]}>
+              //   <AnimatedLottieView
+              //     source={require('../../../assets/lottie/norecords.json')}
+              //     autoPlay
+              //     loop
+              //     renderMode="SOFTWARE"
+              //     resizeMode="contain"
+              //     style={styles.emptyLottie}
+              //   />
+              //   <Text style={styles.emptyText}>
+              //     {strings.No_checklists_found}
+              //   </Text>
+              // </View>
+              <NoRecordFound/>
             ) : null}
             {this.state.pageLoader ? (
               <View style={styles.loaderWrapper}>

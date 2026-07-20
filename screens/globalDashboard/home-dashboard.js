@@ -796,7 +796,7 @@ const HomeDashboard = () => {
     const displayName = (sites?.selectedSite?.FullName || currentName || '').replace(/\s+/g, ' ').trim();
     const drawerName = (profile?.UserFullName || displayName || 'User').replace(/\s+/g, ' ').trim();
     const selectedSiteName = (sites?.selectedSite?.SiteName || 'Select Site').replace(/\s+/g, ' ').trim();
-    const selectedSiteInitials = getAvatarInitials(selectedSiteName);
+    const userInitial = drawerName.charAt(0).toUpperCase();
     const drawerInitials = getAvatarInitials(drawerName);
     const drawerRole = sites?.selectedSite?.UserType === USER_TYPE.SUPPLIER ? 'Supplier' : 'Administrator';
     const appVersion = packageJson?.version || '1.0.0';
@@ -822,7 +822,7 @@ const HomeDashboard = () => {
                             borderRadius: 100,
                         }}>
                         <Avatar
-                            placeholder={selectedSiteInitials}
+                            placeholder={userInitial}
                             width={RFPercentage(4.6)}
                             height={RFPercentage(4.6)}
                             textSize={FONT_SIZE.LARGE}

@@ -254,8 +254,8 @@ class AuditDashboardListing extends Component {
     handleActionDropdownPress = async optionKey => {
         this.closeActionDropdown();
         const auditIds = this.state.auditListAll
-            .map(item => item?.ActualAuditId ?? item?.AuditId)
-            .filter(id => id !== null && typeof id !== 'undefined')
+            .flatMap(item => [item?.ActualAuditId, item?.AuditId])
+            .filter(id => id !== null && typeof id !== 'undefined' && `${id}` !== '')
             .map(String);
 
         if (optionKey === 'filter') {

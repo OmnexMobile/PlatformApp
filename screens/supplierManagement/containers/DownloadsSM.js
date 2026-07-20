@@ -112,7 +112,10 @@ class Download extends Component {
         return true;
       }
 
-      return selectedAuditIds.includes(String(item?.ActualAuditId ?? item?.AuditId));
+      return [item?.ActualAuditId, item?.AuditId]
+        .filter(id => id !== null && typeof id !== 'undefined' && `${id}` !== '')
+        .map(String)
+        .some(id => selectedAuditIds.includes(id));
     });
 
     if (filterType == 0) {

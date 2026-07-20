@@ -3524,6 +3524,8 @@ class AuditPage extends Component {
     console.log(this.state.auditDetailList, 'AuditDetailsList');
     console.log(this.props?.route?.params, 'venkat12345');
     console.log(this.props?.route?.params?.datapass?.AuditProgramName,"venkat/ncp");
+        const headerActionButtonStyle = { paddingHorizontal: 8, paddingVertical: 6 };
+
     const suggestions = [
       {id: strings.sugesstion1},
       {id: strings.sugesstion2},
@@ -3545,7 +3547,7 @@ class AuditPage extends Component {
       <View style={{flexDirection: 'row', alignItems: 'center'}}>
         {this.state.isDownloaded ? (
           <TouchableOpacity
-            style={styles.rightHeader}
+            style={styles.headerActionButtonStyle}
             onPress={() => {
               this.setState({dialogVisible: true});
             }}>
