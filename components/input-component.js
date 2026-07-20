@@ -85,7 +85,7 @@ const styles = StyleSheet.create({
         marginBottom: SPACING.NORMAL,
         // backgroundColor: COLORS.whiteGrey,
         // paddingHorizontal: SPACING.NORMAL,
-        borderBottomWidth: 1.5,
+        borderBottomWidth: .5,
         flexDirection: 'row',
         marginLeft: 10,
     },
