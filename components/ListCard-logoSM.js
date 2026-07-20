@@ -15,7 +15,7 @@ import { enrichAuditItem } from 'helpers/audit-status';
 
 const EMPTY_AUDITS = [];
 
-const ListCardLogoSM = ({ item = {} }) => {
+const ListCardLogoSM = ({ item = {}, statusBooleans }) => {
     const { sites } = useAppContext();
     const elevation = getElevation();
     const navigation = useNavigation();
@@ -31,6 +31,7 @@ const ListCardLogoSM = ({ item = {} }) => {
         }
         return 1;
     };
+console.log('statusBooleanslist',statusBooleans);
 
     const handleClickCard = async selectedItem => {
         const enrichedItem = enrichAuditItem(selectedItem, localAudits);
@@ -85,6 +86,7 @@ const ListCardLogoSM = ({ item = {} }) => {
                     item={item}
                     title={item?.SiteName || sites?.selectedSite?.SiteName || ''}
                     localAudits={localAudits}
+                    statusBooleans={statusBooleans}
                 />
             </TouchableOpacity>
         </View>

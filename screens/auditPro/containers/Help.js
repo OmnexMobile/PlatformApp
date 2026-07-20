@@ -8,7 +8,7 @@ import { strings } from '../language/Language'
 import { WebView } from 'react-native-webview';
 import { ROUTES } from 'constants/app-constant'
 import { SPACING } from 'constants/theme-constants'
-
+import GlobalHeader from 'components/GlobalHeader'
 const deviceHeight = Dimensions.get('window').height;
 const deviceWidth = Dimensions.get('window').width;
 
@@ -17,15 +17,20 @@ class Help extends Component {
     render() {
         return (
             <View style={styles.container}>
-                {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
+                {/* {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> } */}
                 <OfflineNotice />
-                <View style={styles.headerCont}>
+                {/* <View style={styles.headerCont}>
                     <ImageBackground
                         source={Images.DashboardBG}
                         style={styles.bgCont}>
                         {this.renderHeader()}
                     </ImageBackground>
-                </View>
+                </View> */}
+                <GlobalHeader
+                    title={strings.help}
+                    onLeftPress={() => this.props.navigation.goBack()}
+                    onRightPress={() => this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)}
+                />
                 <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                     <WebView useWebKit={true} source={{ uri: 'https://www.omnexsystems.com/phone-support' }}
                         style={{ width: deviceWidth, height: deviceHeight }}

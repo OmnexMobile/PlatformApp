@@ -106,7 +106,14 @@ class Download extends Component {
     console.log('startDate----->', startDate);
     console.log('endDate ---->', endDate);
 
-    const sourceAudits = this.props.data.audits.auditRecords || [];
+    const selectedAuditIds = this.props.route?.params?.auditIds || [];
+    const sourceAudits = (this.props.data.audits.auditRecords || []).filter(item => {
+      if (selectedAuditIds.length === 0) {
+        return true;
+      }
+
+      return selectedAuditIds.includes(String(item?.ActualAuditId ?? item?.AuditId));
+    });
 
     if (filterType == 0) {
       this.setState({

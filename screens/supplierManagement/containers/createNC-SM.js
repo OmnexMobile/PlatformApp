@@ -673,11 +673,26 @@ class CreateNC extends Component {
                 if (props.data.audits.cameraCapture.length > 0 && cancelled != 1) {
                     var res = props.data.audits.cameraCapture;
                     console.log('exception3', props.data.audits.cameraCapture);
+                    const capturedFileData = res[0].uri || res[0].path || '';
+                    let capturedFileBase64 = res[0].data;
+                    if (!capturedFileBase64 || capturedFileBase64 === 'Camera photo added') {
+                        try {
+                            const capturedFilePath = String(capturedFileData).replace(/^file:\/\//, '');
+                            capturedFileBase64 = await RNFS.readFile(capturedFilePath, 'base64');
+                        } catch (error) {
+                            console.log('CreateNC: unable to read camera preview file', error);
+                        }
+                    }
+                    let capturedFileName = res[0].name || capturedFileData.split('/').pop() || `CapturedImage_${Moment().unix()}.jpg`;
+                    if (!capturedFileName.includes('.') && String(res[0].type || '').startsWith('image/')) {
+                        capturedFileName += '.jpg';
+                    }
                     let FileArrayTemp = this.state.fileArrayList;
                     let FileArrayTempOne = [
                         {
-                            fileName: res[0].name,
-                            fileData: res[0].uri,
+                            fileName: capturedFileName,
+                            fileData: capturedFileData,
+                            fileBase64: capturedFileBase64,
                             fileSize: res[0].type,
                             id: Moment().unix(),
                         },
@@ -1057,23 +1072,20 @@ class CreateNC extends Component {
             return rawUri;
         }
 
-        if (rawUri.startsWith('file:///')) {
-            return rawUri;
-        }
-
-        if (rawUri.startsWith('file:/')) {
+        if (rawUri.startsWith('file:')) {
             return `file://${rawUri.replace(/^file:\/*/, '/')}`;
         }
 
         return rawUri.startsWith('/') ? `file://${rawUri}` : `file:///${rawUri}`;
     };
 
-    getFileIcon(filename, fileData) {
+    getFileIcon(filename, fileData, fileBase64) {
         console.log('XXXXXXXXXXXX-------', fileData, filename);
-        let icon = 'file';
+        let icon = fileBase64 ? 'image' : 'file';
         if (filename == null || typeof filename == 'undefined' || filename == '') return null;
         let type = filename !== '' ? filename.substring(filename.lastIndexOf('.') + 1).toLowerCase() : 'file';
-        switch (type) {
+        if (!fileBase64) {
+            switch (type) {
             case 'pdf': {
                 icon = 'file-pdf-o';
                 break;
@@ -1111,12 +1123,17 @@ class CreateNC extends Component {
             default: {
                 icon = 'file';
             }
+            }
         }
 
         return icon === 'image' ? (
             <Image
                 source={{
-                    uri: this.getAttachmentPreviewUri(fileData),
+                    uri: this.getAttachmentPreviewUri(
+                        Platform.OS === 'ios' && fileBase64
+                            ? `data:image/jpeg;base64,${String(fileBase64).replace(/^data:image\/[^;]+;base64,/, '')}`
+                            : fileData || (fileBase64 ? `data:image/jpeg;base64,${String(fileBase64).replace(/^data:image\/[^;]+;base64,/, '')}` : ''),
+                    ),
                 }}
                 style={styles.attachmentImageLarge}
             />
@@ -2909,9 +2926,9 @@ class CreateNC extends Component {
                 ) : (
                     <View style={styles.columnFlex}>
                         <View>
-                            {item.fileData !== '' && item.fileData !== undefined && item.fileData !== null ? (
+                            {item.fileData || item.fileBase64 ? (
                                 <TouchableOpacity onPress={this.openAttachmentFile.bind(this, item.fileData)}>
-                                    {this.getFileIcon(item.fileName, item.fileData)}
+                                    {this.getFileIcon(item.fileName, item.fileData, item.fileBase64)}
                                 </TouchableOpacity>
                             ) : null}
                         </View>

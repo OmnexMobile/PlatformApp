@@ -23,6 +23,7 @@ target 'IntegratedApp' do
   pod 'RNPhotoEditor', :path => '../node_modules/react-native-photo-editor/ios'
   pod 'iOSPhotoEditor', :git => 'https://github.com/prscX/photo-editor', :branch => 'master'
   use_frameworks! :linkage => :static
+  ENV['RCT_USE_PREBUILT_RNCORE'] = '0'
   use_react_native!(
     :path => config[:reactNativePath],
     :hermes_enabled => false,
@@ -56,6 +57,10 @@ target 'IntegratedApp' do
           if target.name.include?('iOSPhotoEditor')
             config.build_settings['SWIFT_VERSION'] = '5'
           end
+          if ['RNWorklets', 'RNReanimated'].include?(target.name)
+            config.build_settings['HEADER_SEARCH_PATHS'] ||= '$(inherited) '
+            config.build_settings['HEADER_SEARCH_PATHS'] << '"${PODS_CONFIGURATION_BUILD_DIR}/React-jsitooling/JSITooling.framework/Headers" '
+          end
           config.build_settings['OTHER_CPLUSPLUSFLAGS'] ||= '$(inherited) '
           unless config.build_settings['OTHER_CPLUSPLUSFLAGS'].include?('FOLLY_CFG_NO_COROUTINES')
             config.build_settings['OTHER_CPLUSPLUSFLAGS'] << ' -DFOLLY_CFG_NO_COROUTINES'
@@ -69,6 +74,10 @@ target 'IntegratedApp' do
 
     installer.aggregate_targets.each do |target|
       target.xcconfigs.each do |_config_name, xcconfig|
+        xcconfig.attributes['HEADER_SEARCH_PATHS'] ||= '$(inherited)'
+        unless xcconfig.attributes['HEADER_SEARCH_PATHS'].include?('Libraries/AppDelegate')
+          xcconfig.attributes['HEADER_SEARCH_PATHS'] << ' "${PODS_ROOT}/../../node_modules/react-native/Libraries/AppDelegate"'
+        end
         xcconfig.attributes['OTHER_CPLUSPLUSFLAGS'] ||= '$(inherited)'
         unless xcconfig.attributes['OTHER_CPLUSPLUSFLAGS'].include?('FOLLY_CFG_NO_COROUTINES')
           xcconfig.attributes['OTHER_CPLUSPLUSFLAGS'] << ' -DFOLLY_CFG_NO_COROUTINES'

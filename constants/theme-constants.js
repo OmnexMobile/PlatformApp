@@ -130,6 +130,7 @@ export const SPACING = {
     LARGE: RFPercentage(4),
     X_LARGE: RFPercentage(6),
     XX_LARGE: RFPercentage(8),
+    XXX_XLARGE: RFPercentage(10),
 };
 
 // METRICS

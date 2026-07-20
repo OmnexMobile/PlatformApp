@@ -455,6 +455,7 @@ class NCOFIPage extends Component {
 
         console.log('this?.props?.route?.params?.CreateNCdataBundle?.AuditID1', this?.props?.route?.params?.CreateNCdataBundle?.AuditID);
 
+        this.props.storeCameraCapture([]);
         this.props.navigation.navigate(ROUTES.CREATE_NC_SM, {
             auditDetailsList: this.props?.route?.params?.auditDetailsList,
             clauseMandatory: this.props?.route?.params?.clauseMandatory,
@@ -694,6 +695,7 @@ class NCOFIPage extends Component {
         //this.CheckSync();
         if (id === 1) {
             console.log('this?.props?.route?.params?.CreateNCdataBundle?.AuditID2', this?.props?.route?.params?.CreateNCdataBundle?.AuditID);
+            this.props.storeCameraCapture([]);
             this.props.navigation.navigate(ROUTES.CREATE_NC_SM, {
                 auditDetailsList: this.props?.route?.params?.auditDetailsList,
                 CheckpointRoute: 'NC',
@@ -708,6 +710,7 @@ class NCOFIPage extends Component {
         }
         if (id === 2) {
             console.log('this?.props?.route?.params?.CreateNCdataBundle?.AuditID3', this?.props?.route?.params?.CreateNCdataBundle?.AuditID);
+            this.props.storeCameraCapture([]);
             this.props.navigation.navigate(ROUTES.CREATE_NC_SM, {
                 auditDetailsList: this.props?.route?.params?.auditDetailsList,
                 CheckpointRoute: 'OFI',
@@ -2952,6 +2955,7 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
     return {
         storeNCRecords: ncofiRecords => dispatch({ type: 'STORE_NCOFI_RECORDS', ncofiRecords }),
+        storeCameraCapture: cameraCapture => dispatch({ type: 'STORE_CAMERA_CAPTURE', cameraCapture }),
         clearAudits: () => dispatch({ type: 'CLEAR_AUDITS' }),
         storeServerUrl: serverUrl => dispatch({ type: 'STORE_SERVER_URL', serverUrl }),
     };

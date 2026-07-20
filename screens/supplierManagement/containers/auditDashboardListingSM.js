@@ -253,6 +253,10 @@ class AuditDashboardListing extends Component {
 
     handleActionDropdownPress = async optionKey => {
         this.closeActionDropdown();
+        const auditIds = this.state.auditListAll
+            .map(item => item?.ActualAuditId ?? item?.AuditId)
+            .filter(id => id !== null && typeof id !== 'undefined')
+            .map(String);
 
         if (optionKey === 'filter') {
             await this.openFilterScreen();
@@ -263,13 +267,17 @@ class AuditDashboardListing extends Component {
             return;
         }
         if (optionKey === 'download') {
-            this.props.navigation.navigate(ROUTES.DOWNLOAD_SM);
+            const SM = await this.getSelectedSupplierIndex();
+            this.props.navigation.navigate(ROUTES.DOWNLOAD_SM, { smData: SM, auditIds });
             return;
         }
         if (optionKey === 'syncDetails') {
+            const SM = await this.getSelectedSupplierIndex();
             this.props.navigation.navigate(ROUTES.SYNC_DETAILSSM, {
-                   userDetails: this.currentUserData,
-                  });
+                userDetails: this.currentUserData,
+                smData: SM,
+                auditIds,
+            });
         }
     };
 

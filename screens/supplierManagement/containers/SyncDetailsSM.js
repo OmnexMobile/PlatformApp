@@ -181,8 +181,16 @@ class SyncStatus extends Component {
         console.log('startDate----->', startDate)
         console.log('endDate ---->', endDate)
 
-        const auditsList = this.props?.data?.audits?.audits || []
-        const auditRecords = this.props?.data?.audits?.auditRecords || []
+        const selectedAuditIds = this.props?.route?.params?.auditIds || []
+        const isSelectedAudit = item => {
+            if (selectedAuditIds.length === 0) {
+                return true
+            }
+
+            return this.getAuditIdAliases(item).some(id => selectedAuditIds.includes(id))
+        }
+        const auditsList = (this.props?.data?.audits?.audits || []).filter(isSelectedAudit)
+        const auditRecords = (this.props?.data?.audits?.auditRecords || []).filter(isSelectedAudit)
         const notsync = []
         const sync = []
         const auditRecordMap = new Map()

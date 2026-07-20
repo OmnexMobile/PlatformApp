@@ -310,18 +310,19 @@ class CameraCapture extends Component {
           //res = Platform.OS == 'ios' ? '/'+res : res;
           console.log('Camera: modified path ' + res);
       this.doCompressImage(res).then(data => {   
-        let timeStamp = Moment().unix();
+        const imageDataUri = data.startsWith('data:') ? data : `data:image/jpeg;base64,${data}`;
+        let timeStamp = Date.now();
           console.log('Camera:fetch data', data);
           console.log('Camera:newImgPath--->', newImgPath);
           const uripath =
             newImgPath + '/' + 'CapturedImage_' + timeStamp + '.jpg';
-          RNFetchBlob.fs.writeFile(uripath, data, 'base64').then(data => {
+          RNFetchBlob.fs.writeFile(uripath, imageDataUri.replace(/^data:image\/[^;]+;base64,/, ''), 'base64').then(data => {
             console.log('Camera:File added sucessfully');
           }).then((res)=> {
             this.setState(
               {
                 captureState: 'Captured',
-                imageData: 'Camera photo added',//data,
+                imageData: imageDataUri,
                 imageName: 'CapturedImage_' + timeStamp + '.jpg',
                 imageType: 'image/jpg',
                 imageURI: uripath,
@@ -330,7 +331,9 @@ class CameraCapture extends Component {
               () => {
                 console.log('Camera:Capture Success URI.', this.state.imageURI);
                   //Deleting the Captured image after edit operation performed,
-                this.deleteImageAfterEdit(filepath);
+                if (this.normalizeFsPath(filepath) !== this.normalizeFsPath(uripath)) {
+                  this.deleteImageAfterEdit(filepath);
+                }
               },
             );
           
@@ -347,7 +350,10 @@ class CameraCapture extends Component {
       try{
           const result =  compressImage.compress(fileRes, {
             input: 'base64',
+            compressionMethod: 'manual',
+            output: 'jpg',
             maxWidth: 1000,
+            maxHeight: 1000,
             quality: 0.8,
             returnableOutputType: 'base64',
           }).then(res => {            
@@ -395,10 +401,18 @@ class CameraCapture extends Component {
       console.log(photo, 'camera:photoconsole');
 
       const ImgPath = this.normalizeFsPath(photo.path);
-      const filename = ImgPath.substring(ImgPath.lastIndexOf('/') + 1);
-      const extn = filename.substring(filename.lastIndexOf('.') + 1);
-      const newfileName = 'CapturedImage_' + Moment().unix() + '.' + extn;
-      const res = await RNFS.readFile(ImgPath, 'base64');
+      const normalizedUri = await compressImage.compress(this.toFileUri(ImgPath), {
+        input: 'uri',
+        compressionMethod: 'manual',
+        output: 'jpg',
+        maxWidth: 2000,
+        maxHeight: 2000,
+        quality: 1,
+        returnableOutputType: 'uri',
+      });
+      const normalizedPath = this.normalizeFsPath(normalizedUri);
+      const newfileName = 'CapturedImage_raw_' + Date.now() + '.jpg';
+      const res = await RNFS.readFile(normalizedPath || ImgPath, 'base64');
 
       newImgPath = `${newImgPath}/${newfileName}`;
       await RNFetchBlob.fs.writeFile(newImgPath, res, 'base64');
@@ -510,6 +524,7 @@ class CameraCapture extends Component {
                   this.camera = ref;
                 }}
                 photo={true}
+                orientation="portrait"
                 style={styles.detailsCard}
                 device={cameraDevice}
                 isActive={true}
@@ -572,7 +587,7 @@ class CameraCapture extends Component {
                   style={{
                     width: width(90),
                     height: height(65),
-                    resizeMode: 'stretch',
+                    resizeMode: 'contain',
                   }}
                   onError={err => console.log('camera:preview image error', err.nativeEvent)}
                 />

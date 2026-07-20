@@ -13,18 +13,18 @@ import TextComponent from './text';
 
 const LOGO_RESERVE = RFPercentage(7.5);
 
-const AuditActivityCardContent = ({ item = {}, title, localAudits = [], hideAuditeeInMeta = false }) => {
+const AuditActivityCardContent = ({ item = {}, title, localAudits = [], statusBooleans, hideAuditeeInMeta = false,  }) => {
     const { timeSettings } = useAppContext();
     const { theme } = useTheme();
     const enriched = enrichAuditItem(item, localAudits);
     const dateFormat = DATE_FORMAT[timeSettings || 'DD_MM_YYYY'];
+console.log('statusBooleans-----card',statusBooleans);
 
     const metaParts = [
         ...(hideAuditeeInMeta ? [] : [item?.Auditee]),
         item?.AuditTypeName,
     ].filter(Boolean);
     const metaLine = metaParts.join(' · ');
-
     return (
         <View style={styles.content}>
             <View style={[styles.accentBar, { backgroundColor: enriched.color }]} />
@@ -39,9 +39,11 @@ const AuditActivityCardContent = ({ item = {}, title, localAudits = [], hideAudi
                     </TextComponent>
                 </View>
 
-                <View style={styles.statusRow}>
-                    <AuditStatusBadge cStatus={enriched.cStatus} color={enriched.color} size="small" />
-                </View>
+                {!statusBooleans ? (
+                    <View style={styles.statusRow}>
+                        <AuditStatusBadge cStatus={enriched.cStatus} color={enriched.color} size="small" />
+                    </View>
+                ) : null}
 
                 {metaLine ? (
                     <TextComponent numberOfLines={1} fontSize={FONT_SIZE.SMALL} style={styles.metaText}>

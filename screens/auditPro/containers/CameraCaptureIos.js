@@ -56,7 +56,7 @@ class CameraCapture extends Component {
   }
   componentDidMount = async () => {
     console.log('camera:capture mounted');
-    let Files = '/' + RNFetchBlob.fs.dirs.DocumentDir + '/' + (Platform.OS == 'ios' ? 'IosFiles' : 'AuditFiles');
+    let Files = RNFetchBlob.fs.dirs.DocumentDir + '/' + (Platform.OS == 'ios' ? 'IosFiles' : 'AuditFiles');
     console.log('camera:Ios-Android-Path', Files);
     RNFetchBlob.fs.exists(Files).then(exist => {
       if (!exist || exist == '') {
@@ -169,7 +169,7 @@ class CameraCapture extends Component {
     // console.log('Date ==>', this.state.timestamp)
     console.log('Camera:CAptured time', this.timestamp());
     var filepath = undefined;
-    var newImgPath = '/' + RNFetchBlob.fs.dirs.DocumentDir + '/' + (Platform.OS == 'ios' ? 'IosFiles' : 'AuditFiles');
+    var newImgPath = RNFetchBlob.fs.dirs.DocumentDir + '/' + (Platform.OS == 'ios' ? 'IosFiles' : 'AuditFiles');
    {
       console.log(this.state.capturedImagePath, 'capturedilepat');
       filepath = (Platform.OS == 'android' ? 'file:/'+this.state.capturedImagePath : this.state.capturedImagePath);
@@ -196,18 +196,19 @@ class CameraCapture extends Component {
           //res = Platform.OS == 'ios' ? '/'+res : res;
           console.log('Camera: modified path ' + res);
       this.doCompressImage(res).then(data => {   
+        const imageDataUri = data.startsWith('data:') ? data : `data:image/jpeg;base64,${data}`;
         let timeStamp = Moment().unix();
           console.log('Camera:fetch data', data);
           console.log('Camera:newImgPath--->', newImgPath);
           const uripath =
             newImgPath + '/' + 'CapturedImage_' + timeStamp + '.jpg';
-          RNFetchBlob.fs.writeFile(uripath, data, 'base64').then(data => {
+          RNFetchBlob.fs.writeFile(uripath, imageDataUri.replace(/^data:image\/[^;]+;base64,/, ''), 'base64').then(data => {
             console.log('Camera:File added sucessfully');
           }).then((res)=> {
             this.setState(
               {
                 captureState: 'Captured',
-                imageData: 'Camera photo added',//data,
+                imageData: imageDataUri,
                 imageName: 'CapturedImage_' + timeStamp + '.jpg',
                 imageType: 'image/jpg',
                 imageURI: uripath,
@@ -268,7 +269,7 @@ class CameraCapture extends Component {
   capturePhoto = async () => {
     console.log('reach capturePhoto--->')
     var ImgPath = '';
-    var newImgPath = '/' + RNFetchBlob.fs.dirs.DocumentDir + '/' + (Platform.OS == 'ios' ? 'IosFiles' : 'AuditFiles');
+    var newImgPath = RNFetchBlob.fs.dirs.DocumentDir + '/' + (Platform.OS == 'ios' ? 'IosFiles' : 'AuditFiles');
     if (this.camera) {
       console.log('ccenter');
       const options = { quality: 0.4, base64: false, height: 600 };
@@ -406,6 +407,18 @@ class CameraCapture extends Component {
     }));
   };
 
+  getFileUri = path => {
+    if (!path) {
+      return '';
+    }
+
+    const normalizedPath = String(path)
+      .replace(/^file:\/*/, '/')
+      .replace(/^\/+/, '/');
+
+    return `file://${normalizedPath}`;
+  };
+
   render() {
     console.log(this.state.devices, 'devices');
     //console.log(this.state.devices.position,"Pose")
@@ -514,7 +527,7 @@ class CameraCapture extends Component {
               </Text>
               <TouchableOpacity onPress={() => {this.renderImageViewer()}}>                  
                 <Image
-                  source={{uri: 'file:/' + this.state.capturedImagePath}}                 
+                  source={{uri: this.getFileUri(this.state.capturedImagePath)}}
                   style={{
                     width: width(90),
                     height: height(65),
@@ -526,7 +539,7 @@ class CameraCapture extends Component {
                 }} />
               </TouchableOpacity>  
               <ImageView
-                images={[{uri: 'file:/' + this.state.capturedImagePath}]}
+                images={[{uri: this.getFileUri(this.state.capturedImagePath)}]}
                 imageIndex={0}
                 presentationStyle='fullScreen'
                 visible={this.state.visible}

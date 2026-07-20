@@ -389,7 +389,7 @@ class CameraCapture extends Component {
     console.log(this.state.capturedImagePath, 'capturedimagepath');
     return (
       <View style={styles.wrapper}>
-        {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
+        {/* {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> } */}
         <OfflineNotice />
           <View style={styles.header}>
             <TouchableOpacity onPress={() => this.props.navigation.goBack()}>

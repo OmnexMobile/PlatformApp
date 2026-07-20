@@ -2309,6 +2309,9 @@ class CheckPointDemo extends Component {
             var templateId = this.state.attachSelectedItem.ChecklistTemplateId;
 
             if (cameraCapture.length > 0 && checkPointsDetails.length > 0) {
+                const capturedFileUri = cameraCapture[0].uri || cameraCapture[0].path || '';
+                const capturedFileName = cameraCapture[0].name || capturedFileUri.split('/').pop() || `CapturedImage_${Moment().unix()}.jpg`;
+                const capturedFileType = cameraCapture[0].type || 'image/jpeg';
                 for (var i = 0; i < checkPointsDetails.length; i++) {
                     if (checkPointsDetails[i].ChecklistTemplateId == templateId) {
                         checkPointsDetails[i].Modified = true;
@@ -2316,13 +2319,13 @@ class CheckPointDemo extends Component {
                         let FileArrayTempOne = [
                             {
                                 id: Moment().unix() + '_' + i,
-                                FileUri: cameraCapture[0].uri,
+                                FileUri: capturedFileUri,
                                 AuditID: parseInt(this.state.auditId),
                                 ChecklistTemplateID: templateId,
                                 Docid: 0,
                                 FormId: checkPointsDetails[i].FormId,
-                                FileName: cameraCapture[0].name,
-                                FileType: cameraCapture[0].type,
+                                FileName: capturedFileName,
+                                FileType: capturedFileType,
                                 Attachment: cameraCapture[0].data,
                             },
                         ];
@@ -4989,19 +4992,26 @@ class CheckPointDemo extends Component {
 
     getAttachmentPreviewUri = item => {
         const rawUri = item?.FileUri || item?.File || '';
-        if (!rawUri) {
-            return '';
+        const base64 = item?.Attachment || '';
+        const hasBase64Image =
+            typeof base64 === 'string' &&
+            base64.length > 100 &&
+            !['EMPTY', 'FAILED', 'DOWNLOADING'].includes(base64);
+
+        if (Platform.OS === 'ios' && hasBase64Image) {
+            return `data:image/jpeg;base64,${base64.replace(/^data:image\/[^;]+;base64,/, '')}`;
         }
-        if (
-            rawUri.startsWith('file://') ||
-            rawUri.startsWith('file:/') ||
-            rawUri.startsWith('content://') ||
-            rawUri.startsWith('http://') ||
-            rawUri.startsWith('https://')
-        ) {
+
+        if (!rawUri) {
+            return hasBase64Image ? `data:image/jpeg;base64,${base64.replace(/^data:image\/[^;]+;base64,/, '')}` : '';
+        }
+        if (rawUri.startsWith('content://') || rawUri.startsWith('http://') || rawUri.startsWith('https://')) {
             return rawUri;
         }
-        return `file://${rawUri}`;
+        if (rawUri.startsWith('file:')) {
+            return `file://${rawUri.replace(/^file:\/+/, '/')}`;
+        }
+        return `file://${rawUri.startsWith('/') ? '' : '/'}${rawUri}`;
     };
 
     isImageAttachment = item => {

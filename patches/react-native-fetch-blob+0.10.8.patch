@@ -2,7 +2,7 @@ diff --git a/node_modules/react-native-fetch-blob/android/build.gradle b/node_mo
 index e4901d6..355a4a6 100644
 --- a/node_modules/react-native-fetch-blob/android/build.gradle
 +++ b/node_modules/react-native-fetch-blob/android/build.gradle
-@@ -1,26 +1,22 @@
+@@ -1,24 +1,20 @@
  apply plugin: 'com.android.library'
  
 +def safeExtGet(prop, fallback) {

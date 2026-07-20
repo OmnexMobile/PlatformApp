@@ -17,7 +17,7 @@ index 82666ab..a34c5b1 100644
  def getExtOrDefault(name) {
    return rootProject.ext.has(name) ? rootProject.ext.get(name) : project.properties['ReactNativeART_' + name]
  }
-@@ -31,18 +20,9 @@ android {
+@@ -31,21 +20,9 @@ android {
  
  repositories {
    google()

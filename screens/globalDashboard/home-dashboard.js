@@ -30,6 +30,8 @@ import { formReq, getAvatarInitials, getICList, RFPercentage, getICSettingsData 
 import { syncAuditItemsFromLocalAudits } from 'helpers/audit-status';
 import { APQP_URL, AUDITPRO_URL, PROBLEMSOLVING_URL, ensureTrailingSlash } from 'screens/globalConstant/globalURL';
 import constants from '../../constants/SupplierMgnt/AppConstants';
+import packageJson from '../../package.json';
+import LinearGradient from 'react-native-linear-gradient';
 
 const EMPTY_AUDIT_LIST = [];
 
@@ -37,7 +39,7 @@ const HomeDashboard = () => {
     const { theme } = useTheme();
     const navigation = useNavigation();
     const insets = useSafeAreaInsets();
-    const { sites, recentActivities, handleGlobalURL, globalDeviceDetails } = useAppContext();
+    const { sites, profile, recentActivities, handleGlobalURL, globalDeviceDetails } = useAppContext();
     console.log('recentActivities in home dashboard', recentActivities);
     const [currentName, setCurrentName] = useState('');
     //Apqp
@@ -56,6 +58,7 @@ const HomeDashboard = () => {
     const [currentUserData, setCurrentUserData] = useState([]);
     const [appLicenses, setAppLicenses] = useState([]);
     const [notificationsList, setNotificationsList] = useState([]);
+    const [sideMenuVisible, setSideMenuVisible] = useState(false);
 
     const localAuditList = useSelector(state => state?.audits?.audits ?? EMPTY_AUDIT_LIST);
     const recentAuditsRaw = useSelector(state => state?.audits?.recentAudits ?? EMPTY_AUDIT_LIST);
@@ -721,10 +724,6 @@ const HomeDashboard = () => {
     //     navigation.navigate(ROUTES.GLOBAL_SETTINGS);
     // };
 
-    const navigateToSites = () => {
-        console.log('click Sites');
-        navigation.navigate(ROUTES.GLOBAL_SITES);
-    };
     const navigateToNotification = () => {
         console.log('click Notification');
         // navigation.navigate(ROUTES.AUDIT_NOTIFICATIONS, {
@@ -734,6 +733,11 @@ const HomeDashboard = () => {
 
     const navigateToLogout = () => {
         navigation.navigate(ROUTES.GLOBAL_LOGOUT);
+    };
+
+    const navigateFromSideMenu = routeName => {
+        setSideMenuVisible(false);
+        navigation.navigate(routeName);
     };
 
     const getUniqueKey = item =>
@@ -790,6 +794,12 @@ const HomeDashboard = () => {
     console.log(' appLicenses------->', appLicenses);
 
     const displayName = (sites?.selectedSite?.FullName || currentName || '').replace(/\s+/g, ' ').trim();
+    const drawerName = (profile?.UserFullName || displayName || 'User').replace(/\s+/g, ' ').trim();
+    const selectedSiteName = (sites?.selectedSite?.SiteName || 'Select Site').replace(/\s+/g, ' ').trim();
+    const selectedSiteInitials = getAvatarInitials(selectedSiteName);
+    const drawerInitials = getAvatarInitials(drawerName);
+    const drawerRole = sites?.selectedSite?.UserType === USER_TYPE.SUPPLIER ? 'Supplier' : 'Administrator';
+    const appVersion = packageJson?.version || '1.0.0';
     const topSafePadding = Math.max(insets.top, Platform.OS === 'android' ? StatusBar.currentHeight || 0 : 0);
 
     // const orderedRecentList = [
@@ -802,6 +812,27 @@ const HomeDashboard = () => {
     return (
         <Content noPadding>
             <View style={{ padding: SPACING.NORMAL, paddingTop: topSafePadding + SPACING.NORMAL, flexDirection: 'row' }}>
+                <View style={{ justifyContent: 'center', marginRight: SPACING.SMALL }}>
+                    <TouchableOpacity
+                        activeOpacity={0.8}
+                        onPress={() => setSideMenuVisible(true)}
+                        style={{
+                            width: RFPercentage(4.6),
+                            height: RFPercentage(4.6),
+                            borderRadius: 100,
+                        }}>
+                        <Avatar
+                            placeholder={selectedSiteInitials}
+                            width={RFPercentage(4.6)}
+                            height={RFPercentage(4.6)}
+                            textSize={FONT_SIZE.LARGE}
+                            style={{
+                                backgroundColor: theme.colors.primaryThemeColor,
+                                borderRadius: 100,
+                            }}
+                        />
+                    </TouchableOpacity>
+                </View>
                 <View style={{ flex: 9 }}>
                     <TextComponent type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.LARGE}>
                         {strings.welcome}!
@@ -809,21 +840,6 @@ const HomeDashboard = () => {
                     <TextComponent type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.XX_LARGE}>
                         {displayName}
                     </TextComponent>
-                </View>
-                <View style={{ flex: 1, alignItems: 'flex-end', justifyContent: 'center' }}>
-                    <TouchableOpacity activeOpacity={0.8} onPress={() => navigateToSites()}>
-                        <Avatar
-                            // img={activeOrganization?.img}
-                            placeholder={getAvatarInitials(sites?.selectedSite?.SiteName)}
-                            width={RFPercentage(4)}
-                            height={RFPercentage(4)}
-                            textSize={FONT_SIZE.NORMAL}
-                            style={{
-                                backgroundColor: theme.colors.primaryThemeColor,
-                                borderRadius: 100,
-                            }}
-                        />
-                    </TouchableOpacity>
                 </View>
                 {/* <View style={{ alignItems: 'flex-end', justifyContent: 'center', marginLeft: SPACING.SMALL }}>
                     <TouchableOpacity
@@ -842,7 +858,7 @@ const HomeDashboard = () => {
                         <IconComponent type={ICON_TYPE.FontAwesome} name="bell-o" size={18} color={'#fff'} />
                     </TouchableOpacity>
                 </View> */}
-                <View style={{ alignItems: 'flex-end', justifyContent: 'center', marginLeft: SPACING.SMALL }}>
+                {/* <View style={{ alignItems: 'flex-end', justifyContent: 'center', marginLeft: SPACING.SMALL }}>
                     <TouchableOpacity
                         activeOpacity={0.8}
                         onPress={navigateToLogout}
@@ -858,12 +874,13 @@ const HomeDashboard = () => {
                         }}>
                         <IconComponent type={ICON_TYPE.FontAwesome} name="power-off" size={18} color={'#fff'} />
                     </TouchableOpacity>
-                </View>
+                </View> */}
             </View>
             <ScrollView style={{ flex: 1 }} contentContainerStyle={{ flexGrow: 1 }}>
                 {/* Today Activity */}
                 <HomeListComponent
                     {...{
+                        statusBooleans: 'true',
                         statusCode: STATUS_CODES.TODAY_CONCERN,
                         title: 'Today’s Activity',
                         data: todaysActivity,
@@ -965,6 +982,290 @@ const HomeDashboard = () => {
                 </>
             </ScrollView>
             <FAB iconName="tasks" iconType={ICON_TYPE.FontAwesome5} onPress={() => navigation.navigate(ROUTES.HOME_FAB_VIEW)} />
+            {sideMenuVisible ? (
+                <View
+                    style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        zIndex: 1000,
+                        elevation: 1000,
+                        flexDirection: 'row',
+                    }}>
+                    <View
+                        style={{
+                            width: '82%',
+                            maxWidth: 380,
+                            height: '100%',
+                            backgroundColor: COLORS.white,
+                            shadowColor: '#3B4A7A',
+                            shadowOffset: { width: 10, height: 0 },
+                            shadowOpacity: 0.14,
+                            shadowRadius: 28,
+                            elevation: 18,
+                        }}>
+                        <ScrollView
+                            style={{ flex: 1 }}
+                            removeClippedSubviews={false}
+                            bounces={false}
+                            showsVerticalScrollIndicator={false}
+                            contentContainerStyle={{
+                                paddingTop: topSafePadding + RFPercentage(3),
+                                paddingHorizontal: SPACING.LARGE,
+                                paddingBottom: topSafePadding + SPACING.LARGE,
+                            }}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: RFPercentage(5) }}>
+                            <LinearGradient
+                                colors={['#123C95', '#045EF4']}
+                                start={{ x: 0, y: 0 }}
+                                end={{ x: 1, y: 1 }}
+                                style={{
+                                    width: RFPercentage(5),
+                                    height: RFPercentage(5),
+                                    borderRadius: 100,
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    shadowColor: '#123C95',
+                                    shadowOffset: { width: 0, height: 10 },
+                                    shadowOpacity: 0.2,
+                                    shadowRadius: 18,
+                                    elevation: 8,
+                                }}>
+                                <TextComponent type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.NORMAL} style={{ color: COLORS.white }}>
+                                    {drawerInitials}
+                                </TextComponent>
+                            </LinearGradient>
+                            <TouchableOpacity
+                                activeOpacity={0.75}
+                                onPress={() => setSideMenuVisible(false)}
+                                style={{ flex: 1, flexDirection: 'row', alignItems: 'center', marginLeft: SPACING.NORMAL }}>
+                                <View style={{ flex: 1 }}>
+                                    <TextComponent type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.XLARGE} numberOfLines={1} style={{ color: '#101936' }}>
+                                        {drawerName}
+                                    </TextComponent>
+                                    <TextComponent fontSize={FONT_SIZE.NORMAL} numberOfLines={1} style={{ color: '#566174', marginTop: SPACING.XX_SMALL }}>
+                                        {drawerRole}
+                                    </TextComponent>
+                                </View>
+                                {/* <IconComponent type={ICON_TYPE.Feather} name="chevron-down" size={24} color={'#101936'} /> */}
+                            </TouchableOpacity>
+                        </View>
+
+                        <TouchableOpacity
+                            activeOpacity={0.75}
+                            onPress={() => navigateFromSideMenu(ROUTES.GLOBAL_SITES)}
+                            style={{
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                paddingVertical: SPACING.XX_SMALL,
+                                paddingHorizontal: SPACING.XX_SMALL,
+                                borderRadius: 20,
+                                backgroundColor: COLORS.white,
+                                marginBottom: RFPercentage(1),
+                                shadowColor: '#6D7CA8',
+                                shadowOffset: { width: 0, height: 12 },
+                                shadowOpacity: 0.14,
+                                shadowRadius: 24,
+                                elevation: 8,
+                                marginTop: RFPercentage(-2),
+                            }}>
+                            <View
+                                style={{
+                                    width: RFPercentage(4.9),
+                                    height: RFPercentage(5.3),
+                                    borderRadius: 16,
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    backgroundColor: '#E6ECFF',
+                                    marginRight: SPACING.NORMAL,
+                                }}>
+                                <IconComponent type={ICON_TYPE.FontAwesome5} name="building" size={24} color={'#4F73FF'} />
+                            </View>
+                            <View style={{ flex: 1 }}>
+                                <TextComponent type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.SMALL} style={{ color: '#045EF4', letterSpacing: 1.2 }}>
+                                    CURRENT SITE
+                                </TextComponent>
+                                <TextComponent type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.LARGE} numberOfLines={1} style={{ color: '#101936', marginTop: SPACING.XX_SMALL }}>
+                                    {selectedSiteName}
+                                </TextComponent>
+                            </View>
+                            <IconComponent type={ICON_TYPE.Feather} name="chevron-right" size={26} color={'#27334A'} />
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            activeOpacity={0.75}
+                            onPress={() => setSideMenuVisible(false)}
+                            style={{ height: RFPercentage(10), marginBottom: SPACING.NORMAL, borderRadius: 14 }}>
+                            <LinearGradient
+                                colors={['#123C95', '#1465FF']}
+                                start={{ x: 0, y: 0.5 }}
+                                end={{ x: 1, y: 0.5 }}
+                                style={{
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    height: RFPercentage(6),
+                                    overflow: 'hidden',
+                                    paddingHorizontal: SPACING.X_SMALL,
+                                    borderRadius:18,
+                                    shadowColor: '#123C95',
+                                    // shadowOffset: { width: 0, height: 8 },
+                                    // shadowOpacity: 0.22,
+                                    // shadowRadius: 18,
+                                    elevation: 8,
+                                }}>
+                                <View
+                                    style={{
+                                        width: RFPercentage(4.9),
+                                        height: RFPercentage(4.9),
+                                        borderRadius: 14,
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        backgroundColor: 'rgba(255,255,255,0.12)',
+                                    borderRadius:18,
+                                        marginRight: SPACING.NORMAL,
+                                    }}>
+                                    <IconComponent type={ICON_TYPE.Feather} name="home" size={27} color={COLORS.white} />
+                                </View>
+                                <TextComponent
+                                    fontSize={FONT_SIZE.LARGE}
+                                    type={FONT_TYPE.BOLD}
+                                    numberOfLines={1}
+                                    style={{ flex: 1, color: COLORS.white, textAlignVertical: 'center' }}>
+                                    Dashboard
+                                </TextComponent>
+                            </LinearGradient>
+                        </TouchableOpacity>
+{/* //Profile button is commented out for now, can be enabled later if needed */}
+                        <TouchableOpacity
+                            activeOpacity={0.75}
+                            onPress={() => navigateFromSideMenu(ROUTES.PROFILE_SCREEN)}
+                            style={{
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                paddingVertical: SPACING.X_SMALL,
+                                paddingHorizontal: SPACING.X_SMALL,
+                                borderRadius: 18,
+                                backgroundColor: COLORS.white,
+                                marginBottom: RFPercentage(3),
+                                shadowColor: '#6D7CA8',
+                                shadowOffset: { width: 0, height: 10 },
+                                shadowOpacity: 0.1,
+                                shadowRadius: 22,
+                                elevation: 7,
+                            }}>
+                            <View
+                                style={{
+                                    width: RFPercentage(4.8),
+                                    height: RFPercentage(4.8),
+                                    borderRadius: 14,
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    backgroundColor: '#F6F7FB',
+                                    marginRight: SPACING.NORMAL,
+                                }}>
+                                <IconComponent type={ICON_TYPE.Feather} name="user" size={26} color={'#27334A'} />
+                            </View>
+                            <TextComponent fontSize={FONT_SIZE.LARGE} type={FONT_TYPE.BOLD} style={{ flex: 1, color: '#101936' }}>
+                                Profile
+                            </TextComponent>
+                            <IconComponent type={ICON_TYPE.Feather} name="chevron-right" size={24} color={'#27334A'} />
+                        </TouchableOpacity>
+
+                        <View style={{ height: 1, backgroundColor: '#DCE2EE', marginVertical: RFPercentage(3) }} />
+                        <TouchableOpacity
+                            activeOpacity={0.75}
+                            onPress={() => navigateFromSideMenu(ROUTES.HELP)}
+                            style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: SPACING.NORMAL, paddingHorizontal: SPACING.NORMAL }}>
+                            <View
+                                style={{
+                                    width: RFPercentage(4.8),
+                                    height: RFPercentage(4.8),
+                                    borderRadius: 14,
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    backgroundColor: '#F1F0FF',
+                                    marginRight: SPACING.NORMAL,
+                                }}>
+                                <IconComponent type={ICON_TYPE.Feather} name="help-circle" size={25} color={'#123C95'} />
+                            </View>
+                            <TextComponent fontSize={FONT_SIZE.LARGE} style={{ flex: 1, color: '#27334A' }}>
+                                Help & Support
+                            </TextComponent>
+                            <IconComponent type={ICON_TYPE.Feather} name="chevron-right" size={24} color={'#27334A'} />
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            activeOpacity={0.75}
+                            onPress={() => {
+                                setSideMenuVisible(false);
+                                navigateToLogout();
+                            }}
+                            style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: SPACING.NORMAL, paddingHorizontal: SPACING.NORMAL }}>
+                            <View
+                                style={{
+                                    width: RFPercentage(4.8),
+                                    height: RFPercentage(4.8),
+                                    borderRadius: 14,
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    backgroundColor: '#FFF1F1',
+                                    marginRight: SPACING.NORMAL,
+                                }}>
+                                <IconComponent type={ICON_TYPE.Feather} name="log-out" size={25} color={'#C92A2A'} />
+                            </View>
+                            <TextComponent fontSize={FONT_SIZE.LARGE} style={{ flex: 1, color: '#C92A2A' }}>
+                                Logout
+                            </TextComponent>
+                            <IconComponent type={ICON_TYPE.Feather} name="chevron-right" size={24} color={'#27334A'} />
+                        </TouchableOpacity>
+
+                        <View
+                            style={{
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                alignSelf: 'flex-start',
+                                backgroundColor: COLORS.white,
+                                borderRadius: 28,
+                                paddingVertical: SPACING.SMALL,
+                                paddingLeft: SPACING.SMALL,
+                                paddingRight: SPACING.X_LARGE,
+                                borderWidth: 1,
+                                borderColor: '#E8ECF4',
+                                shadowColor: '#6D7CA8',
+                                shadowOffset: { width: 0, height: 8 },
+                                shadowOpacity: 0.1,
+                                shadowRadius: 18,
+                                elevation: 5,
+                            }}>
+                            <View
+                                style={{
+                                    width: RFPercentage(3.8),
+                                    height: RFPercentage(3.8),
+                                    borderRadius: 13,
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    backgroundColor: '#F1F0FF',
+                                    marginRight: SPACING.NORMAL,
+                                }}>
+                                <IconComponent type={ICON_TYPE.Feather} name="shield" size={20} color={'#123C95'} />
+                            </View>
+                            <TextComponent fontSize={FONT_SIZE.NORMAL} style={{ color: '#27334A' }}>
+                                Version {appVersion}
+                            </TextComponent>
+                        </View>
+                        </ScrollView>
+                    </View>
+                    <TouchableOpacity
+                        activeOpacity={1}
+                        onPress={() => setSideMenuVisible(false)}
+                        style={{ flex: 1 }}
+                    />
+
+                </View>
+            ) : null}
         </Content>
     );
 };

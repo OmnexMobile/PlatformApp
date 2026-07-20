@@ -87,248 +87,98 @@ class Profile extends Component {
   redirectGoogle() {
     console.log('Redirecting to google map...', Platform);
 
-    // Geocoder.fallbackToGoogle(Googel_API_KEY);
-
-    // {/** For converting Address to Lat and Lng */}
-    // var Address = this.state.Address
-    // console.log('Address',Address)
-
-    // Geocoder.geocodeAddress(Address).then(res => {
-    //   // res is an Array of geocoding object (see below)
-    //   console.log('==-->',res)
-    //   const Lat = res[0].position.lat
-    //   const Lng = res[0].position.lng
-    //   const scheme = Platform.select({ ios: 'maps:0,0?q=', android: 'geo:0,0?q=' });
-    //   const latLng = `${Lat},${Lng}`
-    //   const label = this.state.Address;
-    //   const url = Platform.select({
-    //     ios: `${scheme}${label}@${latLng}`,
-    //     android: `${scheme}${latLng}(${label})`
-    //   });
-    //   Linking.openURL(url);
-    // })
-    // .catch(err => console.log(err))
   }
 
   render() {
-    return (
-      <View style={{flex: 1}}>
-        {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
-        <ImageBackground
-          source={Images.DashboardBG}
+    const logoSource = this.state.Logo
+      ? {uri: this.state.Logo.startsWith('data:') || this.state.Logo.startsWith('http') || this.state.Logo.startsWith('file:') ? this.state.Logo : `data:image/png;base64,${this.state.Logo}`}
+      : Images.OmnexLogo;
+    const companyName = this.state.CompanyName || 'OmnexSystems';
+    const companyUrl = this.state.CompanyUrl || 'http://www.omnexsystems.com';
+    const phone = this.state.Phone || '(734) 761-4940';
+    const address = this.state.Address || '3025 Boardwalk Suite 290, Ann Arbor, MI 48108';
+    const InfoCard = ({icon, label, value, onPress}) => (
+      <TouchableOpacity activeOpacity={0.85} onPress={onPress} style={{marginBottom: 24}}>
+        <View
           style={{
-            resizeMode: 'stretch',
-            width: '100%',
-            height: 60,
+            minHeight:120,
+            borderRadius: 24,
+            backgroundColor: '#FFFFFF',
+            flexDirection: 'row',
+            alignItems: 'center',
+            paddingHorizontal: 10,
+            shadowColor: '#7A8AA8',
+            shadowOffset: {width: 0, height: 8},
+            shadowOpacity: 0.12,
+            shadowRadius: 18,
+            elevation: 5,
           }}>
           <View
             style={{
-              flex: 1,
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              marginRight: 30,
-              marginLeft: 30,
-              marginTop: 20,
-              marginBottom: 10,
+              width: 50,
+              height: 50,
+              borderRadius: 24,
+              backgroundColor: '#1465F4',
+              justifyContent: 'center',
+              alignItems: 'center',
+              marginRight: 28,
             }}>
-            <View>
-              <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
-                <Icon name="angle-left" size={30} color="white" />
-              </TouchableOpacity>
-            </View>
-            <View>
-              <Text
-                numberOfLines={1}
-                style={{
-                  fontSize: Fonts.size.h6,
-                  color: '#fff',
-                  textAlign: 'center',
-                  // fontWeight:'bold'
-                  fontFamily: 'OpenSans-Bold',
-                }}>
-                {'Profile'}
-              </Text>
-            </View>
-            <View>
-              <TouchableOpacity
-                onPress={() =>
-                  // this.props.navigation.navigate('AuditDashboard')
-                  this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)
-                }>
-                <Icon name="home" size={30} color="white" />
-              </TouchableOpacity>
+            <Icon name={icon} size={42} color="#FFFFFF" />
+          </View>
+          <View style={{flex: 1}}>
+            <Text style={{fontFamily: 'OpenSans-Regular', fontSize: 18, color: '#6B7890', marginBottom: 6}}>{label}</Text>
+            <Text
+              numberOfLines={3}
+              style={{fontFamily: 'OpenSans-Bold', fontSize: 18, lineHeight: 29, color: '#1769EC'}}>
+              {value}
+            </Text>
+          </View>
+          <Icon name="angle-right" size={28} color="#7B879B" />
+        </View>
+      </TouchableOpacity>
+    );
+
+    return (
+      <View style={{flex: 1, backgroundColor: '#F8FAFE'}}>
+        <View pointerEvents="none" style={{position: 'absolute', top: 0, left: 0, right: 0, height: 365, backgroundColor: '#1165E9'}} />
+        <View pointerEvents="none" style={{position: 'absolute', top: 315, left: -40, width: '115%', height: 130, backgroundColor: '#F8FAFE', borderRadius: 100, transform: [{rotate: '6deg'}]}} />
+          <View style={{paddingTop: Platform.OS === 'ios' ? 58 : 28, paddingHorizontal: 28}}>
+           
+            <View style={{alignItems: 'center', marginTop: 48}}>
+              <View style={{width: 220, height: 220, borderRadius: 110, backgroundColor: '#FFFFFF', borderWidth: 10, borderColor: '#3F8AF7', justifyContent: 'center', alignItems: 'center', shadowColor: '#1456C7', shadowOffset: {width: 0, height: 8}, shadowOpacity: 0.25, shadowRadius: 12, elevation: 8}}>
+                <Image source={logoSource} resizeMode="contain" style={{width: 170, height: 170}} />
+              </View>
+              <Text style={{fontFamily: 'OpenSans-Bold', fontSize: 24, color: '#123C95', marginTop: 28, textAlign: 'center'}}>{companyName}</Text>
+              <Text style={{fontFamily: 'OpenSans-Regular', fontSize: 21, color: '#718099', marginTop: 6}}>Company Information</Text>
+              <View style={{width: 126, height: 4, borderRadius: 2, backgroundColor: '#1465F4', marginTop: 18}} />
             </View>
           </View>
-          
-        </ImageBackground>
-        <View>
-        <Text style={{ fontSize: Fonts.size.mediump, color:'#00bcff',fontFamily:'OpenSans-Regular',textAlign:'center',margin:10,marginBottom:10,marginTop:10 }}>{this.state.CompanyName}</Text>
-        </View>
-        <View style={{flexDirection:'row',marginLeft:20,marginRight:20,marginTop:10,marginBottom:10}}>
-          <Text style={{ fontSize: Fonts.size.medium, color: '#A6A6A6',fontFamily:'OpenSans-Regular' }}>{strings.Company_URL} :</Text>
-          <Text style={{ fontSize: Fonts.size.medium, color: '#485B9E' ,fontFamily:'OpenSans-Regular'}}>  { this.state.CompanyUrl}</Text>
-        </View>
-        <View style={{flexDirection:'row',marginLeft:20,marginRight:20,marginTop:10,marginBottom:10}}>
-                  <Text style={{ fontSize: Fonts.size.medium, color: '#A6A6A6',fontFamily:'OpenSans-Regular' }}>{strings.Phone} :</Text>
-                            <Text style={{ fontSize: Fonts.size.medium, color: '#485B9E',fontFamily:'OpenSans-Regular' }}>{this.state.Phone}</Text>
-
-        </View>
-        <View style={{flexDirection:'row',marginLeft:20,marginRight:20,marginTop:10,marginBottom:10}}>
-                <Text style={{ fontSize: Fonts.size.medium, color: '#A6A6A6',fontFamily:'OpenSans-Regular' }}>{strings.Address} :</Text>
-                <TouchableOpacity>
-                 <Text style={{ fontSize: Fonts.size.medium, color: '#485B9E' ,fontFamily:'OpenSans-Regular' }} numberOfLines={3}>{this.state.Address}</Text>
-              </TouchableOpacity>
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{paddingBottom: 40}}>
+          <View style={{paddingHorizontal: 28, marginTop: 42}}>
+            <InfoCard icon="globe" label="Company URL" value={companyUrl} onPress={() => Linking.openURL(companyUrl)} />
+            <InfoCard icon="phone" label="Phone" value={phone} onPress={() => Linking.openURL(`tel:${phone}`)} />
+            <InfoCard icon="map-marker" label="Address" value={address} onPress={() => this.redirectGoogle()} />
+          </View>
+        </ScrollView>
+        <View
+          pointerEvents="box-none"
+          style={{position: 'absolute', top: 0, left: 0, right: 0, height: 125, zIndex: 100, elevation: 100}}>
+          <TouchableOpacity
+            hitSlop={{top: 20, bottom: 20, left: 20, right: 20}}
+            onPress={() => this.props.navigation.goBack()}
+            style={{position: 'absolute', top: Platform.OS === 'ios' ? 58 : 28, left: 28, padding: 8}}>
+            <Icon name="angle-left" size={42} color="#FFFFFF" />
+          </TouchableOpacity>
+          {/* <TouchableOpacity
+            hitSlop={{top: 20, bottom: 20, left: 20, right: 20}}
+            onPress={() => this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)}
+            style={{position: 'absolute', top: Platform.OS === 'ios' ? 58 : 28, right: 28, padding: 8}}>
+            <Icon name="home" size={38} color="#FFFFFF" />
+          </TouchableOpacity> */}
         </View>
       </View>
 
-      // <View style={styles.wrapper}>
 
-      //   <TouchableOpacity onPress={() => this.props.navigation.goBack()} style={styles.backlogo}>
-      //     <Icon name="angle-left" size={40} color="white"/>
-      //   </TouchableOpacity>
-
-      //   {/* <TouchableOpacity onPress={() => this.props.navigation.navigate('VoiceRecognition')} style={styles.VoiceRecognition}>
-      //     <Icon name="microphone" size={40} color="red"/>
-      //   </TouchableOpacity> */}
-      //    <TouchableOpacity style={styles.homeIcon} onPress={()=>this.props.navigation.navigate("AuditDashboard")}>
-      //         <Icon name="home" size={40} color="white" />
-      //     </TouchableOpacity>
-      //   <View style={styles.header}></View>
-
-      //   <TouchableOpacity style={styles.avatarBox} onPress={() => this.setState({ isVisible : true })}>
-      //     <View style={styles.avatar}>
-      //       <Image style={{marginLeft: 8, width: 130, height: 130, resizeMode: 'contain'}} source={{uri: 'data:image/png;base64, ' + this.state.Logo }}/>
-      //     </View>
-      //   </TouchableOpacity>
-
-      //   <View style={{ top: 85, flexDirection: 'column', height: 170, backgroundColor: 'white' }}>
-      //     {/* <View style={{
-      //       width: Window.width,
-      //       backgroundColor:'transparent',
-      //       justifyContent:'center',
-      //       alignItems:'center',
-      //       paddingTop: 20
-      //       }}>
-      //       <Text style={styles.name}>{this.state.username.charAt(0).toUpperCase()+this.state.username.slice(1)}</Text>
-      //     </View> */}
-      //     <View style={{
-      //       width: Window.width,
-      //       backgroundColor:'transparent',
-      //       justifyContent:'center',
-      //       alignItems:'center',
-      //       paddingTop: 20
-      //       }}>
-      //       <Text style={{ fontSize: Fonts.size.h5, color:'#00bcff',fontFamily:'OpenSans-Regular' }}>{this.state.CompanyName}</Text>
-      //     </View>
-
-      //   </View>
-
-      //   <View style={styles.auditPageBody}>
-      //     <ScrollView>
-
-      //       <View style={{
-      //         width:Window.width,
-      //         backgroundColor:'transparent',
-      //         justifyContent:'center',
-      //         alignItems:'center',
-      //         borderBottomColor: 'lightgrey',
-      //         borderBottomWidth: 0.5,
-      //         paddingTop: 25,
-      //         paddingBottom: 10
-      //         }}>
-      //       <View style={{width:width(90),backgroundColor:'transparent',flexDirection:'column'}}>
-      //         <View>
-      //           <Text style={{ fontSize: Fonts.size.medium, color: '#A6A6A6',fontFamily:'OpenSans-Regular' }}>{strings.Company_URL} :</Text>
-      //         </View>
-      //         <View>
-      //           <Text style={{ fontSize: Fonts.size.regular, color: '#485B9E' ,fontFamily:'OpenSans-Regular'}}>{this.state.CompanyUrl}</Text>
-      //         </View>
-      //         </View>
-      //       </View>
-
-      //       <View style={{
-      //         width:Window.width,
-      //         backgroundColor:'transparent',
-      //         justifyContent:'center',
-      //         alignItems:'center',
-      //         borderBottomColor: 'lightgrey',
-      //         borderBottomWidth: 0.5,
-      //         paddingTop: 10,
-      //         paddingBottom: 10
-      //         }}>
-      //       <View style={{width:width(90), backgroundColor:'transparent',flexDirection:'column'}}>
-      //         <View>
-      //           <Text style={{ fontSize: Fonts.size.medium, color: '#A6A6A6',fontFamily:'OpenSans-Regular' }}>{strings.Phone} :</Text>
-      //         </View>
-      //         <View>
-      //           <Text style={{ fontSize: Fonts.size.regular, color: '#485B9E',fontFamily:'OpenSans-Regular' }}>{this.state.Phone}</Text>
-      //         </View>
-      //         </View>
-      //       </View>
-
-      //       <View style={{
-      //         width:Window.width,
-      //         backgroundColor:'transparent',
-      //         justifyContent:'center',
-      //         alignItems:'center',
-      //         paddingTop: 10,
-      //         paddingBottom: 10
-      //         }}>
-      //         <View style={{
-      //           width:width(90),
-      //           backgroundColor:'transparent',
-      //           flexDirection:'column',
-      //           justifyContent:'space-between'
-      //           }}>
-      //         <View>
-      //           <Text style={{ fontSize: Fonts.size.medium, color: '#A6A6A6',fontFamily:'OpenSans-Regular' }}>{strings.Address} :</Text>
-      //         </View>
-      //         <TouchableOpacity style={{flexDirection:'row',justifyContent:'space-between'}}
-      //         onPress={debounce(this.redirectGoogle.bind(this),600) }>
-      //           <Text style={{ fontSize: Fonts.size.regular, color: '#485B9E' ,fontFamily:'OpenSans-Regular' }}>{this.state.Address}</Text>
-      //           <Icon name={'location-arrow'} size={20} color={'black'}/>
-      //         </TouchableOpacity>
-      //         </View>
-      //       </View>
-
-      //     </ScrollView>
-      //   </View>
-
-      //   <View>
-      //     <Modal
-      //     isVisible={this.state.isVisible}
-      //     onBackdropPress={() => this.setState({ isVisible: false })}
-      //     >
-      //       <View style={{
-      //         position:'absolute',
-      //         width:Window.width ,
-      //         height:Window.height,
-      //         justifyContent:'center',
-      //         alignContent:'center',
-      //         paddingTop: 20
-      //         }}>
-
-      //         <View style={styles.modalavatar}>
-
-      //         <TouchableOpacity
-      //         onPress={() => this.setState({ isVisible: false })}
-      //         style={{ backgroundColor:'transparent' ,height:60,width:80}}
-      //         >
-      //         <View style={{
-      //           backgroundColor:'transparent',
-      //           top:18
-      //          }}>
-      //         <Icon style={{left:8}} name="times-circle" size={40} color='white'/>
-      //         </View>
-      //         </TouchableOpacity>
-
-      //           <Image style={styles.modelImage} source={{uri:  'data:image/png;base64, ' + this.state.Logo }}/>
-      //         </View>
-      //       </View>
-      //     </Modal>
-      //   </View>
-
-      // </View>
     );
   }
 }
