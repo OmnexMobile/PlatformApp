@@ -2371,7 +2371,7 @@ class CreateNC extends Component {
         //     documentRef:true
         //   })
         // }
-        if (this.state.selectedItemsProcess.length === 0 && this.state.RouteParam == 'NC') {
+        if (this.state.selectedItemsProcess.length === 0) {
             this.setState({
                 MarkProcess: true,
             });
@@ -2733,7 +2733,8 @@ class CreateNC extends Component {
                     this.state.NCrequestby &&
                     this.state.selectedItems &&
                     this.state.ofitext &&
-                    this.state.objEvidence
+                    this.state.objEvidence &&
+                    this.state.selectedItemsProcess.length > 0
                 ) {
                     console.log('this.state.NCcategoryt', this.state.NCcategoryt);
                     console.log('this.state.NCrequestby', this.state.NCrequestby);
@@ -3709,7 +3710,14 @@ class CreateNC extends Component {
                                                         uniqueKey="id"
                                                         subKey="children"
                                                         selectText={this.state.processdata.length > 0 ? strings.ProcessL : 'No process(s) found'}
-                                                        renderSelectText={() => strings.ProcessL}
+                                                        renderSelectText={() => (
+                                                            <Text style={{ flex: 1 }}>
+                                                                {strings.ProcessL} <Text style={{ color: 'red' }}>*</Text>
+                                                            </Text>
+                                                        )}
+                                                        selectToggleIconComponent={
+                                                            <Icon name="chevron-down" size={20} color="grey" style={{ marginRight: -10 }} />
+                                                        }
                                                         baseColor={this.state.MarkProcess == false ? '#1A1A1A' : 'red'}
                                                         textColor={this.state.MarkProcess == false ? '#1A1A1A' : 'red'}
                                                         showDropDowns={true}
@@ -3731,8 +3739,6 @@ class CreateNC extends Component {
                                                     />
                                                 ) : null}
 
-                                                <View
-                                                    style={this.state.RouteParam == 'OFI' || this.state.isLPA ? styles.hidden : styles.check}></View>
                                                 <View style={styles.columnPadLeft}>
                                                     <Text style={styles.processLabel}>
                                                         {strings.ProcessAll}

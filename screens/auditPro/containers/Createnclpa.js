@@ -2278,7 +2278,7 @@ class CreateNC extends Component {
         //console.log('displayData--->', this.state.displayData);
         //console.log('res=ponse', this.state.selectedItemsResponse);
         console.log(this.state.selectedItemsProcess.length, 'selecteditemprocess', this.state.selectedItemsProcess);
-        if (this.state.selectedItemsProcess.length === 0 && this.state.RouteParam == 'NC') {
+        if (this.state.selectedItemsProcess.length === 0) {
             this.setState({
                 MarkProcess: true,
             });
@@ -2292,7 +2292,7 @@ class CreateNC extends Component {
             this.setState({
                 documentRef: true,
                 objEvidence: true,
-                selectedItemsProcess: true,
+                selectedItemsProcess: Array.isArray(this.state.selectedItemsProcess) ? this.state.selectedItemsProcess : [],
             });
         }
 
@@ -2330,7 +2330,12 @@ class CreateNC extends Component {
                     this.state.displayData !== undefined && this.state.displayData !== null && String(this.state.displayData).trim().length > 0;
                 const clauseRequirementSatisfied = !needsClauseText || this.state.selectedItems.length > 0 || hasDisplayData || this.state.isLPA;
                 const hasMandatoryFields =
-                    this.state.categoryArr && this.state.selectedItemsResponse && this.state.nonconfirmityText && clauseRequirementSatisfied;
+                    this.state.categoryArr &&
+                    this.state.selectedItemsResponse &&
+                    this.state.nonconfirmityText &&
+                    clauseRequirementSatisfied &&
+                    Array.isArray(this.state.selectedItemsProcess) &&
+                    this.state.selectedItemsProcess.length > 0;
 
                 if (hasMandatoryFields) {
                     const fileNames = this.state.fileArrayList.map(file => file.fileName);
@@ -2575,7 +2580,9 @@ class CreateNC extends Component {
                     // this.state.NCrequestby &&
                     this.state.selectedItemsResponse &&
                     this.state.selectedItems &&
-                    this.state.ofitext
+                    this.state.ofitext &&
+                    Array.isArray(this.state.selectedItemsProcess) &&
+                    this.state.selectedItemsProcess.length > 0
                 ) {
                     //console.log('this.state.NCcategoryt', this.state.NCcategoryt);
                     //console.log('this.state.NCrequestby', this.state.NCrequestby);
@@ -3567,7 +3574,14 @@ class CreateNC extends Component {
                                                         subKey="children"
                                                         selectText={this.state.processdata.length > 0 ? strings.ProcessL : 'No process(s) found'}
                                                         //alwaysShowSelectText={multiprocess == "1" ? false : true}
-                                                        renderSelectText={() => strings.ProcessL}
+                                                        renderSelectText={() => (
+                                                            <Text style={{ flex: 1 }}>
+                                                                {strings.ProcessL} <Text style={{ color: 'red' }}>*</Text>
+                                                            </Text>
+                                                        )}
+                                                        selectToggleIconComponent={
+                                                            <Icon name="chevron-down" size={20} color="grey" style={{ marginRight: -10 }} />
+                                                        }
                                                         baseColor={this.state.MarkProcess == false ? '#A6A6A6' : 'red'}
                                                         textColor={this.state.MarkProcess == false ? '#A6A6A6' : 'red'}
                                                         showDropDowns={true}
@@ -3602,13 +3616,6 @@ class CreateNC extends Component {
                                                     />
                                                 ) : null}
 
-                                                {/* <View style={this.state.RouteParam == 'OFI' || this.state.isLPA ? { display: 'none' } : styles.check}>
-                                                    {this.props.data.audits.smdata !== 2 &&
-                                                    this.props.data.audits.smdata !== 3 &&
-                                                    !(this.state.RouteParam === 'NC' && this.state.type === 'EDIT') ? (
-                                                        <Icon style={{ right: 10 }} name="asterisk" size={8} color="red" />
-                                                    ) : null}
-                                                </View> */}
                                                 <View style={{ paddingLeft: 10, flexDirection: 'column' }}>
                                                     <Text
                                                         style={{
