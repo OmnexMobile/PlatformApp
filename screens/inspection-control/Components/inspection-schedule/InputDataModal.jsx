@@ -1,8 +1,8 @@
 import { RadioButton } from 'components';
 import { COLORS } from 'constants/theme-constants';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from 'react-native';
-import { Divider, HelperText, Modal } from 'react-native-paper';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, useWindowDimensions, View, Modal } from 'react-native';
+import { Divider, HelperText } from 'react-native-paper';
 import SingleDropDown from '../SingleDropDown';
 import DynamicDropDown from '../DynamicDropDown';
 import { useSelector } from 'react-redux';
@@ -368,7 +368,7 @@ const InputDataModal = ({
                     attachments: attachments,
                     userId: selectedSite?.UserId,
                     siteId: selectedSite?.Siteid,
-                    backgroundColor:'#fff',
+                    backgroundColor: '#fff',
                     downloadedDate: new Date().toISOString(),
                 };
                 await addInspectionData(selectedSite?.UserId, selectedSite?.Siteid, inspectObj.uniqueId, inspectObj);
@@ -380,7 +380,7 @@ const InputDataModal = ({
                     statusBarHeight: 40,
                     icon: 'success',
                     position: 'right',
-                    style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : { paddingTop: insets.top },
+                    style: { height: 150, alignItems: 'flex-end' },
                 });
                 handleSubmitPress(selectedValue);
                 hideModal();
@@ -393,7 +393,7 @@ const InputDataModal = ({
                     statusBarHeight: 40,
                     icon: 'warning',
                     position: 'right',
-                    style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : { paddingTop: insets.top },
+                    style: { height: 150, alignItems: 'flex-end' },
                 });
             }
         }
@@ -415,7 +415,11 @@ const InputDataModal = ({
                         flex: 1,
                         height: '100%',
                     }}>
-                    <ActivityIndicator size="large" color="#12C0CF" />
+                    <View style={[styles.resultOverlay]}>
+                        <View style={[styles.loaderresultBox]}>
+                            <ActivityIndicator size="large" color="#12C0CF" />
+                        </View>
+                    </View>
                 </Modal>
             ) : (
                 <Modal
@@ -428,17 +432,22 @@ const InputDataModal = ({
                         maxHeight: 500,
                         paddingHorizontal: 20,
                         paddingTop: 20,
-                    }}>
-                    <Text style={styles.headertext}>Form Input Data</Text>
-                    <Divider />
-                    <ScrollView style={[styles.container]} nestedScrollEnabled showsVerticalScrollIndicator={false}>
-                        <View
-                            style={{
-                                flexDirection: isTablet ? 'row' : 'column',
-                                flexWrap: 'wrap', // important for tablet
-                                justifyContent: 'space-between',
-                            }}>
-                            {/* <View style={[styles.inputContainer, { width: isTablet ? '48%' : '100%' }]}>
+                    }}
+                    transparent
+                    animationType="fade"
+                    onRequestClose={hideModal}>
+                    <View style={[styles.resultOverlay]}>
+                        <View style={[styles.resultBox]}>
+                            <Text style={styles.headertext}>Form Input Data</Text>
+                            <Divider />
+                            <ScrollView style={[styles.container]} nestedScrollEnabled showsVerticalScrollIndicator={false}>
+                                <View
+                                    style={{
+                                        flexDirection: isTablet ? 'row' : 'column',
+                                        flexWrap: 'wrap', // important for tablet
+                                        justifyContent: 'space-between',
+                                    }}>
+                                    {/* <View style={[styles.inputContainer, { width: isTablet ? '48%' : '100%' }]}>
                                 <Text style={styles.inputText}>
                                     Operation <Text style={[styles.rquired]}>*</Text>
                                 </Text>
@@ -458,140 +467,142 @@ const InputDataModal = ({
                                     </HelperText>
                                 )}
                             </View> */}
-                            <View style={[styles.inputContainer, { width: isTablet ? '48%' : '100%' }]}>
-                                <Text style={styles.inputText}>
-                                    Shift <Text style={[styles.rquired]}>*</Text>
-                                </Text>
-                                <SingleDropDown
-                                    data={shiftData}
-                                    backgroundColor={COLORS.white}
-                                    borderWidth={1}
-                                    marginTop={10}
-                                    title=""
-                                    borderRadius={4}
-                                    borderColor={COLORS.icBottomBox}
-                                    showSearch={false}
-                                    maxHeight={200}
-                                    value={formFields.shift}
-                                    onChange={val => {
-                                        handleInputChange('shift', val);
-                                    }}
-                                />
-                                {Boolean(errorList.shift) && (
-                                    <HelperText type="error" visible={errorList.shift} padding={'none'} style={styles.errorStyle}>
-                                        This field is required
-                                    </HelperText>
-                                )}
-                            </View>
-                            <View style={[styles.inputContainer, { width: isTablet ? '48%' : '100%' }]}>
-                                <Text style={styles.inputText}>
-                                    Lot Number <Text style={[styles.rquired]}>*</Text>
-                                </Text>
-                                <TextInput
-                                    value={formFields.lotNumber}
-                                    style={styles.inputBox}
-                                    onChangeText={val => {
-                                        handleInputChange('lotNumber', val);
-                                    }}
-                                    editable={isEditableField.lotNo}
-                                />
-                                {Boolean(errorList.lotNumber) && (
-                                    <HelperText type="error" visible={errorList.lotNumber} padding={'none'} style={styles.errorStyle}>
-                                        This field is required
-                                    </HelperText>
-                                )}
-                            </View>
-                            <View style={[styles.inputContainer, { width: isTablet ? '48%' : '100%' }]}>
-                                <Text style={styles.inputText}>
-                                    Lot Size <Text style={[styles.rquired]}>*</Text>
-                                </Text>
-                                <TextInput
-                                    style={styles.inputBox}
-                                    onChangeText={val => {
-                                        handleInputChange('lotQty', val);
-                                    }}
-                                    value={formFields.lotQty}
-                                    keyboardType="numeric"
-                                />
-                                {Boolean(errorList.lotQty) && (
-                                    <HelperText type="error" visible={errorList.lotQty} padding={'none'} style={styles.errorStyle}>
-                                        This field is required
-                                    </HelperText>
-                                )}
-                            </View>
-                            {Boolean(icSettings?.IsRefNo) && (
-                                <View style={[styles.inputContainer, { width: isTablet ? '48%' : '100%' }]}>
-                                    <Text style={styles.inputText}>Serial Number</Text>
-                                    <TextInput
-                                        style={[styles.inputBox, { backgroundColor: COLORS.icborder }]}
-                                        value={selectedValue?.ReferenceNo}
-                                        editable={false}
-                                    />
-                                </View>
-                            )}
-                            {Boolean(selectedValue.TypeOfInspection == 1) && (
-                                <View style={[styles.inputContainer, { width: isTablet ? '48%' : '100%' }]}>
-                                    <Text style={styles.inputText}>
-                                        Receipt Number <Text style={[styles.rquired]}>*</Text>
-                                    </Text>
-                                    <TextInput
-                                        style={styles.inputBox}
-                                        onChangeText={val => {
-                                            handleInputChange('receiptNumber', val);
-                                        }}
-                                        value={formFields.receiptNumber}
-                                    />
-                                    {Boolean(errorList.receiptNumber) && (
-                                        <HelperText type="error" visible={errorList.receiptNumber} padding={'none'} style={styles.errorStyle}>
-                                            This field is required
-                                        </HelperText>
-                                    )}
-                                </View>
-                            )}
-                            <View style={[styles.inputContainer, { width: isTablet ? '48%' : '100%' }]}>
-                                <Text style={styles.inputText}>
-                                    Choose Frequency {Boolean(selectedValue.TypeOfInspection == 2) && <Text style={[styles.rquired]}>*</Text>}
-                                </Text>
-                                <SingleDropDown
-                                    data={frqList}
-                                    backgroundColor={COLORS.white}
-                                    borderWidth={1}
-                                    marginTop={10}
-                                    title=""
-                                    borderRadius={4}
-                                    borderColor={COLORS.icBottomBox}
-                                    showSearch={false}
-                                    maxHeight={200}
-                                    onChange={async val => {
-                                        handleInputChange('frequency', val);
-                                        if (Boolean(selectedValue.TypeOfInspection == 2)) {
-                                            await getResponsibleList(val);
-                                        }
-                                    }}
-                                />
-                                {Boolean(errorList.frequency) && (
-                                    <HelperText type="error" visible={errorList.frequency} padding={'none'} style={[styles.errorStyle]}>
-                                        This field is required
-                                    </HelperText>
-                                )}
-                            </View>
-                            {Boolean(selectedValue.TypeOfInspection == 2) && (
-                                <View style={[styles.inputContainer, { width: isTablet ? '48%' : '100%' }]}>
-                                    <View style={{ flexDirection: 'row' }}>
-                                        <Text style={styles.inputText}>Responsible Person</Text>
-                                        {Boolean(btndisabled) && <ActivityIndicator style={{ marginLeft: 5 }} size="small" color={COLORS.apptheme} />}
+                                    <View style={[styles.inputContainer, { width: isTablet ? '48%' : '100%' }]}>
+                                        <Text style={styles.inputText}>
+                                            Shift <Text style={[styles.rquired]}>*</Text>
+                                        </Text>
+                                        <SingleDropDown
+                                            data={shiftData}
+                                            backgroundColor={COLORS.white}
+                                            borderWidth={1}
+                                            marginTop={10}
+                                            title=""
+                                            borderRadius={4}
+                                            borderColor={COLORS.icBottomBox}
+                                            showSearch={false}
+                                            maxHeight={200}
+                                            value={formFields.shift}
+                                            onChange={val => {
+                                                handleInputChange('shift', val);
+                                            }}
+                                        />
+                                        {Boolean(errorList.shift) && (
+                                            <HelperText type="error" visible={errorList.shift} padding={'none'} style={styles.errorStyle}>
+                                                This field is required
+                                            </HelperText>
+                                        )}
                                     </View>
-                                    <DynamicDropDown
-                                        isMultiSelect={icSettings?.IsRespPartyMultiSelect}
-                                        list={resList || []}
-                                        handleSelectedList={value => {
-                                            handleInputChange('responsible', value);
-                                        }}
-                                        isDisable={icSettings?.IsRespPartyNonEditable}
-                                    />
-                                </View>
-                            )}
-                            {/* <View style={[styles.inputContainer, { width: isTablet ? '48%' : '100%' }]}>
+                                    <View style={[styles.inputContainer, { width: isTablet ? '48%' : '100%' }]}>
+                                        <Text style={styles.inputText}>
+                                            Lot Number <Text style={[styles.rquired]}>*</Text>
+                                        </Text>
+                                        <TextInput
+                                            value={formFields.lotNumber}
+                                            style={styles.inputBox}
+                                            onChangeText={val => {
+                                                handleInputChange('lotNumber', val);
+                                            }}
+                                            editable={isEditableField.lotNo}
+                                        />
+                                        {Boolean(errorList.lotNumber) && (
+                                            <HelperText type="error" visible={errorList.lotNumber} padding={'none'} style={styles.errorStyle}>
+                                                This field is required
+                                            </HelperText>
+                                        )}
+                                    </View>
+                                    <View style={[styles.inputContainer, { width: isTablet ? '48%' : '100%' }]}>
+                                        <Text style={styles.inputText}>
+                                            Lot Size <Text style={[styles.rquired]}>*</Text>
+                                        </Text>
+                                        <TextInput
+                                            style={styles.inputBox}
+                                            onChangeText={val => {
+                                                handleInputChange('lotQty', val);
+                                            }}
+                                            value={formFields.lotQty}
+                                            keyboardType="numeric"
+                                        />
+                                        {Boolean(errorList.lotQty) && (
+                                            <HelperText type="error" visible={errorList.lotQty} padding={'none'} style={styles.errorStyle}>
+                                                This field is required
+                                            </HelperText>
+                                        )}
+                                    </View>
+                                    {Boolean(icSettings?.IsRefNo) && (
+                                        <View style={[styles.inputContainer, { width: isTablet ? '48%' : '100%' }]}>
+                                            <Text style={styles.inputText}>Serial Number</Text>
+                                            <TextInput
+                                                style={[styles.inputBox, { backgroundColor: COLORS.icborder }]}
+                                                value={selectedValue?.ReferenceNo}
+                                                editable={false}
+                                            />
+                                        </View>
+                                    )}
+                                    {Boolean(selectedValue.TypeOfInspection == 1) && (
+                                        <View style={[styles.inputContainer, { width: isTablet ? '48%' : '100%' }]}>
+                                            <Text style={styles.inputText}>
+                                                Receipt Number <Text style={[styles.rquired]}>*</Text>
+                                            </Text>
+                                            <TextInput
+                                                style={styles.inputBox}
+                                                onChangeText={val => {
+                                                    handleInputChange('receiptNumber', val);
+                                                }}
+                                                value={formFields.receiptNumber}
+                                            />
+                                            {Boolean(errorList.receiptNumber) && (
+                                                <HelperText type="error" visible={errorList.receiptNumber} padding={'none'} style={styles.errorStyle}>
+                                                    This field is required
+                                                </HelperText>
+                                            )}
+                                        </View>
+                                    )}
+                                    <View style={[styles.inputContainer, { width: isTablet ? '48%' : '100%' }]}>
+                                        <Text style={styles.inputText}>
+                                            Choose Frequency {Boolean(selectedValue.TypeOfInspection == 2) && <Text style={[styles.rquired]}>*</Text>}
+                                        </Text>
+                                        <SingleDropDown
+                                            data={frqList}
+                                            backgroundColor={COLORS.white}
+                                            borderWidth={1}
+                                            marginTop={10}
+                                            title=""
+                                            borderRadius={4}
+                                            borderColor={COLORS.icBottomBox}
+                                            showSearch={false}
+                                            maxHeight={200}
+                                            onChange={async val => {
+                                                handleInputChange('frequency', val);
+                                                if (Boolean(selectedValue.TypeOfInspection == 2)) {
+                                                    await getResponsibleList(val);
+                                                }
+                                            }}
+                                        />
+                                        {Boolean(errorList.frequency) && (
+                                            <HelperText type="error" visible={errorList.frequency} padding={'none'} style={[styles.errorStyle]}>
+                                                This field is required
+                                            </HelperText>
+                                        )}
+                                    </View>
+                                    {Boolean(selectedValue.TypeOfInspection == 2) && (
+                                        <View style={[styles.inputContainer, { width: isTablet ? '48%' : '100%' }]}>
+                                            <View style={{ flexDirection: 'row' }}>
+                                                <Text style={styles.inputText}>Responsible Person</Text>
+                                                {Boolean(btndisabled) && (
+                                                    <ActivityIndicator style={{ marginLeft: 5 }} size="small" color={COLORS.apptheme} />
+                                                )}
+                                            </View>
+                                            <DynamicDropDown
+                                                isMultiSelect={icSettings?.IsRespPartyMultiSelect}
+                                                list={resList || []}
+                                                handleSelectedList={value => {
+                                                    handleInputChange('responsible', value);
+                                                }}
+                                                isDisable={icSettings?.IsRespPartyNonEditable}
+                                            />
+                                        </View>
+                                    )}
+                                    {/* <View style={[styles.inputContainer, { width: isTablet ? '48%' : '100%' }]}>
                                 <View style={[styles.row]}>
                                     <Text style={styles.inputText}>Inspection Mode</Text>
                                     <TouchableOpacity style={{ paddingHorizontal: 10 }} onPress={() => setShowSamplingModal(true)}>
@@ -600,21 +611,23 @@ const InputDataModal = ({
                                 </View>
                                 <TextInput style={[styles.inputBox]} value={'Normal'} editable={false} />
                             </View> */}
+                                </View>
+                            </ScrollView>
+                            <Divider />
+                            <View style={styles.btnConatiner}>
+                                <TouchableOpacity disabled={btndisabled} style={styles.cancelConatiner} onPress={hideModal}>
+                                    <Text style={styles.btnStyle}>CANCEL</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    disabled={btndisabled}
+                                    style={styles.cancelConatiner}
+                                    onPress={() => {
+                                        handleSubmitBtnPress();
+                                    }}>
+                                    <Text style={styles.btnStyle}>SUBMIT</Text>
+                                </TouchableOpacity>
+                            </View>
                         </View>
-                    </ScrollView>
-                    <Divider />
-                    <View style={styles.btnConatiner}>
-                        <TouchableOpacity disabled={btndisabled} style={styles.cancelConatiner} onPress={hideModal}>
-                            <Text style={styles.btnStyle}>CANCEL</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            disabled={btndisabled}
-                            style={styles.cancelConatiner}
-                            onPress={() => {
-                                handleSubmitBtnPress();
-                            }}>
-                            <Text style={styles.btnStyle}>SUBMIT</Text>
-                        </TouchableOpacity>
                     </View>
                 </Modal>
             )}
@@ -657,6 +670,7 @@ const styles = StyleSheet.create({
         color: COLORS.apptheme,
         fontFamily: 'OpenSans-Bold',
         fontSize: 16,
+        paddingRight: 10,
     },
     rquired: {
         color: COLORS.ERROR,
@@ -672,6 +686,29 @@ const styles = StyleSheet.create({
     row: {
         flexDirection: 'row',
         alignItems: 'center',
+    },
+    resultOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.6)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    resultBox: {
+        backgroundColor: '#fff',
+        width: '90%',
+        alignSelf: 'center',
+        maxHeight: 500,
+        paddingHorizontal: 20,
+        paddingTop: 20,
+        justifyContent: 'center',
+    },
+    loaderresultBox: {
+        width: '90%',
+        alignSelf: 'center',
+        maxHeight: 500,
+        paddingHorizontal: 20,
+        paddingTop: 20,
+        justifyContent: 'center',
     },
 });
 

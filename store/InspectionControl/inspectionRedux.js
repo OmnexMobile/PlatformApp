@@ -18,6 +18,7 @@ const { Types, Creators } = createActions({
     storeLoginLogo: ['storeLoginLogo'],
     resetAll:['resetAll'],
     dateFormat: ['dateFormat'],
+    storeNotificationData: ['storeNotificationData'],
 });
 
 export const InspectTypes = Types;
@@ -31,6 +32,7 @@ export const INITIAL_STATE = {
     icSettings: {},
     icLoginlogo: '',
     dateFormat:'',
+    notificationData: {},
 };
 
 /* ------------- Reducers ------------- */
@@ -99,6 +101,10 @@ const resetToInitial = state => {
 const resetAll = () => {
     return INITIAL_STATE;
 };
+const storeNotificationData = (state, { notificationData }) => {
+    console.log('Storing notification data in Redux:', notificationData);
+    return { ...state, notificationData: notificationData };
+};
 
 /* ------------- Hookup Reducers To Types ------------- */
 const rawReducer = createReducer(INITIAL_STATE, {
@@ -112,6 +118,7 @@ const rawReducer = createReducer(INITIAL_STATE, {
     [Types.STORE_LOGIN_LOGO]: storeLoginLogo,
     [Types.RESET_ALL]: resetAll,
     [Types.DATE_FORMAT]: dateFormat,
+    [Types.STORE_NOTIFICATION_DATA]: storeNotificationData,
 });
 const persistConfig = {
     key: 'inspect', // Unique key for the reducer's data

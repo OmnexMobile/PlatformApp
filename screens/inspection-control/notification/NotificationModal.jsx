@@ -5,15 +5,18 @@ import { Alert } from 'react-native';
 import { View, Text, Modal, TouchableOpacity, StyleSheet, Linking } from 'react-native';
 import VersionCheck from 'react-native-version-check';
 import IconF from 'react-native-vector-icons/Feather';
+import { useNavigation } from '@react-navigation/native';
+import { ROUTES } from 'constants/app-constant';
 
-const NotificationModal = ({ visible, data, setNotificationData = () => { } }) => {
+const NotificationModal = ({ visible, data, setNotificationData = () => {} }) => {
     console.log(data?.notification?.title, 'data in modal');
+    const navigation = useNavigation();
     const onClose = () => {
         setNotificationData({
             showModal: false,
             remoteMessage: null,
         });
-    }
+    };
     const handleSnooze = () => {
         onClose();
     };
@@ -27,7 +30,7 @@ const NotificationModal = ({ visible, data, setNotificationData = () => { } }) =
                         <Text style={styles.title}> {data?.notification?.title} !</Text>
                     </View>
                     <View style={{ backgroundColor: COLORS.notificationShadow, marginBottom: 10, padding: 10, borderRadius: 10 }}>
-                        <Text style={styles.message}>Time for Inspection</Text>
+                        {/* <Text style={styles.message}>Time for Inspection</Text>
                         <View style={{}}>
                             <Text style={styles.content}>
                                 <Text style={styles.keystyle}>Line 3 :</Text> Injection Molding{' '}
@@ -35,7 +38,7 @@ const NotificationModal = ({ visible, data, setNotificationData = () => { } }) =
                             <Text style={styles.content}>
                                 <Text style={styles.keystyle}>Lot Number :</Text> 87849{' '}
                             </Text>
-                        </View>
+                        </View> */}
                         <View
                             style={{
                                 marginVertical: 10,
@@ -46,15 +49,21 @@ const NotificationModal = ({ visible, data, setNotificationData = () => { } }) =
                                 borderTopWidth: 1,
                                 paddingVertical: 10,
                             }}>
-                            <Text style={styles.content}>
+                            {/* <Text style={styles.content}>
                                 <Text style={styles.keystyle}> Next Inspection Due : </Text>
                                 <Text>Inspect 5 samples now</Text>{' '}
-                            </Text>
+                            </Text> */}
+                            <Text style={styles.message}>Time for Inspection</Text>
                             <Text style={styles.lastMessage}>Complete All Measurements for Each sample </Text>
                         </View>
                     </View>
                     <View style={styles.buttons}>
-                        <TouchableOpacity style={styles.buttonUpdate}>
+                        <TouchableOpacity
+                            style={styles.buttonUpdate}
+                            onPress={() => {
+                                navigation.navigate(ROUTES.NOTIFICATION_SCREEN);
+                                onClose();
+                            }}>
                             <Text style={styles.textUpdate}>Start Inspection</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.buttonLater} onPress={handleSnooze}>
@@ -87,7 +96,7 @@ const styles = StyleSheet.create({
         fontSize: 20,
         fontWeight: '700',
         marginLeft: 10,
-        color: COLORS.black
+        color: COLORS.black,
     },
     message: {
         fontSize: 17,
@@ -114,7 +123,6 @@ const styles = StyleSheet.create({
         fontSize: 16,
         textAlign: 'center',
         color: '#504d4d',
-
     },
     buttons: {
         flexDirection: 'row',

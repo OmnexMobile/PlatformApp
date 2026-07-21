@@ -1,12 +1,13 @@
 import { useNavigation } from '@react-navigation/native';
 import { COLORS, FONT_SIZE } from 'constants/theme-constants';
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { Animated, FlatList, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from 'react-native';
+import { Animated, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import Icon from 'react-native-vector-icons/AntDesign';
 import IconF from 'react-native-vector-icons/FontAwesome';
 import IconI from 'react-native-vector-icons/Ionicons';
 import IconO from 'react-native-vector-icons/Octicons';
 import IconM from 'react-native-vector-icons/MaterialIcons';
+import IconMC from 'react-native-vector-icons/MaterialCommunityIcons';
 import InputWithSearch from './InputWithSearch';
 import InspectionInspectionSvg from '../../../assets/images/svg/inspection-scedule.svg';
 import OperatorWorksheetSvg from '../../../assets/images/svg/operator-worksheet.svg';
@@ -14,7 +15,7 @@ import CompletedInspectionnSvg from '../../../assets/images/svg/completed-inspec
 import SupervisorScheduleSvg from '../../../assets/images/svg/supervisor-schedule.svg';
 import SearchInspectionSvg from '../../../assets/images/svg/search-inspection.svg';
 import { ROUTES } from 'constants/app-constant';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { IconButton, Menu, Tooltip } from 'react-native-paper';
 import { useAppContext } from 'contexts/app-context';
 import { useSelector } from 'react-redux';
@@ -51,6 +52,7 @@ const footerList = [
         routeName: ROUTES.SUPERVISOR_SCHEDULE,
     },
 ];
+const notificationCount = 3;
 const footerListWithoutSearch = footerList.filter(item => item.title !== 'Search\nInspection');
 const footerListWithoutSchedule = footerList.filter(item => item.title !== 'Inspection\nSchedule');
 const footerListWithoutSuperVisorandSearch = footerList.filter(item => item.title !== 'Supervisor\nApproval' && item.title !== 'Search\nInspection');
@@ -79,7 +81,7 @@ const CustomHeader = ({
     customHandleGoBack = () => {},
     handleMultiSearch = () => {},
 }) => {
-    const { icSettings } = useSelector(state => state.inspection);
+    const { icSettings, notificationData } = useSelector(state => state.inspection);
     const insets = useSafeAreaInsets();
     const { width } = useWindowDimensions();
     const navigation = useNavigation();
@@ -121,7 +123,7 @@ const CustomHeader = ({
         if (searchValue?.length) {
             setIsExpanded(true);
             Animated.timing(widthAnim, {
-                toValue: activeTabId !== 4 ? width / 1.8 : width / 1.7,
+                toValue: activeTabId !== 4 ? width / 1.5 : width / 2.2,
                 duration: 0,
                 useNativeDriver: false,
             }).start();
@@ -138,7 +140,7 @@ const CustomHeader = ({
         } else {
             setIsExpanded(true);
             Animated.timing(widthAnim, {
-                toValue: activeTabId != 4 ? width / 1.8 : width / 1.7,
+                toValue: activeTabId !== 4 ? width / 1.5 : width / 2.2,
                 duration: 300,
                 useNativeDriver: false,
             }).start();
@@ -176,7 +178,7 @@ const CustomHeader = ({
         }
     };
     return (
-        <SafeAreaView style={[styles.container,{paddingBottom: insets.bottom,}]}>
+        <SafeAreaView style={[styles.container]}>
             <View style={[styles.headerBox]}>
                 <TouchableOpacity
                     onPress={() => {
@@ -186,9 +188,11 @@ const CustomHeader = ({
                 </TouchableOpacity>
                 <View style={{ flex: 1, marginLeft: 10 }}>
                     {!isExpanded ? (
-                        <Text style={[styles.headerText]} numberOfLines={1}>
-                            {title} <Text style={{ fontSize: 15 }}>{`(${sites?.selectedSite.SiteName})`}</Text>
-                        </Text>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <Text style={[styles.headerText]} numberOfLines={1}>
+                                {title} <Text style={{ fontSize: 15 }}>{`(${sites?.selectedSite.SiteName})`}</Text>
+                            </Text>
+                        </View>
                     ) : (
                         <Animated.View style={[{ width: widthAnim }]}>
                             <InputWithSearch
@@ -203,6 +207,24 @@ const CustomHeader = ({
                 <View style={[styles.rightIconList]}>
                     {showIcons && (
                         <>
+                            {!isExpanded ? <TouchableOpacity style={styles.notificationContainer} onPress={() => navigation.navigate(ROUTES.NOTIFICATION_SCREEN)}>
+                                <IconF name="bell-o" size={20} color="#fff" />
+                                {Number(notificationData?.data?.count) > 0 && (
+                                    <View style={styles.badge}>
+                                        <Text style={styles.badgeText}>
+                                            {Number(notificationData?.data?.count) > 99 ? '99+' : notificationData?.data?.count}
+                                        </Text>
+                                    </View>
+                                )}
+                            </TouchableOpacity>: null}
+                            {activeTabId == 1 && (
+                                <TouchableOpacity
+                                    onPress={() => {
+                                        handleQRPress();
+                                    }}>
+                                    <IconI name="barcode-sharp" size={25} style={styles.iconButton} color={COLORS.white} />
+                                </TouchableOpacity>
+                            )}
                             {(activeTabId == 0 || activeTabId == 4) && (
                                 <TouchableOpacity onPress={() => handleMultiSearch()}>
                                     <IconM name="filter-list" size={25} style={styles.iconButton} color={COLORS.white} />
@@ -288,7 +310,7 @@ const styles = StyleSheet.create({
         backgroundColor: COLORS.white,
         height: 80,
         paddingHorizontal: 15,
-        marginBottom: 20,
+        marginBottom: 2,
     },
     tabBox: {
         alignItems: 'center',
@@ -308,6 +330,29 @@ const styles = StyleSheet.create({
         color: COLORS.white,
         fontFamily: 'OpenSans-SemiBold',
         fontSize: 16,
+    },
+    notificationContainer: {
+        padding: 8,
+    },
+
+    badge: {
+        position: 'absolute',
+        top: 2,
+        right: 2,
+        minWidth: 18,
+        height: 18,
+        borderRadius: 18,
+        backgroundColor: 'red',
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingVertical: 2,
+    },
+
+    badgeText: {
+        color: '#fff',
+        fontSize: 10,
+        fontWeight: 'bold',
+        textAlign:'center',
     },
 });
 export default CustomHeader;

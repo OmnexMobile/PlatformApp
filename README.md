@@ -34,8 +34,8 @@ rm -rf android/app/src/main/res/drawable-*
 rm -rf android/app/src/main/res/raw/*
 
 
-npx react-native generate-bootsplash assets/bootsplash_logo.png \
-  --background=#ffffff \
+
+npx react-native-bootsplash generate assets/images/bootsplash_logo.png \
+  --platforms=android \
   --logo-width=100 \
-  --assets-output=assets \
-  --flavor=main
+  --background=#FFFFFF

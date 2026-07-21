@@ -4,7 +4,7 @@ import { COLORS } from 'constants/theme-constants';
 import { useAppContext } from 'contexts/app-context';
 import { getAvatarInitials, showErrorMessage, successMessage } from 'helpers/utils';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, KeyboardAvoidingView, SafeAreaView, Text, TouchableOpacity } from 'react-native';
+import { ActivityIndicator, FlatList, KeyboardAvoidingView, Text, TouchableOpacity } from 'react-native';
 import { StyleSheet, View } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useDispatch, useSelector } from 'react-redux';
@@ -15,7 +15,7 @@ import { Avatar, Divider, Modal } from 'react-native-paper';
 import { ButtonComponent } from 'components';
 import InputWithSearch from '../Components/InputWithSearch';
 import NoDataFound from '../Components/NoDataFound';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { postAPI } from 'global/api-helpers';
 import ApiUrl from 'global/ApiUrl';
 

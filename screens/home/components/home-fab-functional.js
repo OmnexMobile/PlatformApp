@@ -189,7 +189,7 @@ import { FONT_TYPE, ICON_TYPE, LOCAL_STORAGE_VARIABLES, ROUTES } from 'constants
 import TabsView from './home-tab-view';
 import TabsCard from './home-tab-card';
 import localStorage from 'global/localStorage';
-import { ActivityIndicator, Platform, Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { COLORS, FONT_SIZE, SPACING } from 'constants/theme-constants';
 
 import { useAppContext } from 'contexts/app-context';
@@ -199,7 +199,7 @@ import { getUniqueId } from 'react-native-device-info';
 import { useNavigation } from '@react-navigation/native';
 import { Avatar, Divider, Modal } from 'react-native-paper';
 import { useDispatch } from 'react-redux';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaView,useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const HomeFabFunctional = ({ countDetails }) => {
     const insets = useSafeAreaInsets();

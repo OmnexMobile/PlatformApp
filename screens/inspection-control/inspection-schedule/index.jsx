@@ -255,7 +255,7 @@ const InspectionSchedule = () => {
                 statusBarHeight: 40,
                 icon: 'danger',
                 position: 'right',
-                style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : { paddingTop: insets.top },
+                style:{ height: 100, alignItems: 'flex-end' },
             });
         }
     };
@@ -278,7 +278,7 @@ const InspectionSchedule = () => {
                     </Text>
                 </View>
                 <View style={[styles.lastBox]}>
-                    <Text style={[styles.secondText]}>{moment(new Date(item.ProductionStartDate)).format(uiDateFormat)}</Text>
+                    <Text style={[styles.secondText]}>{moment(item.ProductionStartDate,"MM/DD/YYYY").format(uiDateFormat)}</Text>
                     <View style={[styles.iconlist]}>
                         <TouchableOpacity
                             style={{ marginLeft: 15 }}
@@ -301,7 +301,7 @@ const InspectionSchedule = () => {
                                         statusBarHeight: 45,
                                         icon: 'danger',
                                         position: 'right',
-                                        style: Platform.OS === 'ios' ? { height: 100, alignItems: 'flex-end' } : {},
+                                        style:{ height: 100, alignItems: 'flex-end' },
                                     });
                                 }
                             }}>

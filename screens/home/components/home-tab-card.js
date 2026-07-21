@@ -1,5 +1,5 @@
 import React, { useEffect, useLayoutEffect, useState } from 'react';
-import { TouchableOpacity, SafeAreaView, View, FlatList, StyleSheet, Text, Linking, Dimensions, Modal, Platform, RefreshControl, ActivityIndicator } from 'react-native';
+import { TouchableOpacity, View, FlatList, StyleSheet, Text, Linking, Dimensions, Modal, Platform, RefreshControl, ActivityIndicator } from 'react-native';
 import { Card, IconButton } from 'react-native-paper';
 import { COLORS, FONT_SIZE, SPACING } from 'constants/theme-constants';
 import strings from 'config/localization';
@@ -19,6 +19,7 @@ import { postAPI } from 'global/api-helpers';
 import ApiUrl from 'global/ApiUrl';
 import { useDispatch, useSelector } from 'react-redux';
 import { showMessage } from 'react-native-flash-message';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const screenWidth = Dimensions.get('window').width;
 const TabsCard = ({ countDetails, tabIndex, noTab, navigation }) => {
@@ -354,7 +355,7 @@ const TabsCard = ({ countDetails, tabIndex, noTab, navigation }) => {
     );
 
     return (
-        <SafeAreaView style={styles.container}>
+        <View style={styles.container}>
             {loading ? (
                 <Modal
                     transparent={true}
@@ -374,7 +375,7 @@ const TabsCard = ({ countDetails, tabIndex, noTab, navigation }) => {
                 keyExtractor={item => item.id}
                 refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
             />
-        </SafeAreaView>
+        </View>
     );
 };
 

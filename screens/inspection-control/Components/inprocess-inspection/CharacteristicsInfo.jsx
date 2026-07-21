@@ -7,7 +7,6 @@ import {
     Keyboard,
     KeyboardAvoidingView,
     Platform,
-    SafeAreaView,
     ScrollView,
     StyleSheet,
     Text,
@@ -34,6 +33,7 @@ import ImageView from "react-native-image-viewing";
 import ZoomableImage from '../ZoomableImage';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import CaptureDefect from './CaptureDefect';
+import { SafeAreaView } from 'react-native-safe-area-context';
 const moreList = [
     {
         id: 1,
@@ -56,7 +56,6 @@ const suzlonMoreList = [
         iconFrom: 'Ionicons',
     },
 ];
-
 const BorderContent = ({ title = 'Title', count = 0, color = '#000' }) => {
     return (
         <View style={[styles.borderContainer]}>
@@ -696,20 +695,6 @@ const CharacteristicsInfo = ({
                                     inspectionType={inspectionType}
                                 />
                             )}
-                            <View style={{flexDirection: 'row', alignItems: 'center', paddingHorizontal: 15, marginBottom: 10}}>
-                                <View style={{flex: 1}}>
-                                    <TouchableOpacity
-                                        style={{ flexDirection: 'row', alignItems: 'center' }}
-                                        onPress={() => {
-                                            setShowCaptureDefect(true);
-                                        }}>
-                                        <IconM name="camera" size={20} color={COLORS.apptheme} />
-                                    </TouchableOpacity>
-                                </View>
-                                <View style={{flex: 1}}>
-                                    <Text style={[styles.headerText, {marginLeft: 5}]}>Sample Size: {masterData?.length || 0}</Text>
-                                </View>
-                            </View>
                             {Boolean(selectedData?.isSamplePopup) && (
                                 <View style={[styles.headerBox]}>
                                     <View style={{ flex: 1 }}>
@@ -758,9 +743,28 @@ const CharacteristicsInfo = ({
                     {renderFaltList(true)}
                 </View>
                 <View style={[styles.btnContainer]}>
+                    <View
+                        style={[
+                            {
+                                width: '12%',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                backgroundColor: COLORS.icborder,
+                                padding: 10,
+                                borderRadius: 50,
+                            },
+                        ]}>
+                        <TouchableOpacity
+                            style={{ flexDirection: 'row', alignItems: 'center' }}
+                            onPress={() => {
+                                setShowCaptureDefect(true);
+                            }}>
+                            <IconM name="camera" size={20} color={COLORS.apptheme} />
+                        </TouchableOpacity>
+                    </View>
                     <ButtonComponent
                         textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}
-                        style={{ height: 40, width: '89%' }}
+                        style={{ height: 40, width: '73%' }}
                         onPress={() => {
                             setShowCPKModal(true);
                             // handleSavePress(true, 'saveBtn');
@@ -791,12 +795,7 @@ const CharacteristicsInfo = ({
                     cpk: -0.22,
                 }}
             />
-            <Modal
-                visible={showImageWithSample}
-                animationType="slide"
-                transparent={false}
-                onRequestClose={() => setShowImageWithSample(false)}
-            >
+            <Modal visible={showImageWithSample} animationType="slide" transparent={false} onRequestClose={() => setShowImageWithSample(false)}>
                 <GestureHandlerRootView style={{ flex: 1 }}>
                     <SafeAreaView style={styles.modalContainer}>
                         <View style={styles.header}>
@@ -810,19 +809,22 @@ const CharacteristicsInfo = ({
                             </TouchableOpacity>
                         </View>
                         <View style={styles.content}>
-                            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', }}>
+                            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                                 <ZoomableImage fileList={FileList} />
                             </View>
                             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 10 }}>
-                                <View style={{ flex: 1, width: '100%' }}>
-                                    {renderFaltList(false)}
-                                </View>
+                                <View style={{ flex: 1, width: '100%' }}>{renderFaltList(false)}</View>
                             </View>
                         </View>
                     </SafeAreaView>
                 </GestureHandlerRootView>
             </Modal>
-            <CaptureDefect visible={showCaptureDefect} onRequestClose={() => setShowCaptureDefect(false)} />
+            <CaptureDefect
+                visible={showCaptureDefect}
+                onRequestClose={() => setShowCaptureDefect(false)}
+                selectedData={selectedData}
+                setSelectedData={setSelectedData}
+            />
         </KeyboardAvoidingView>
     );
 };
@@ -887,7 +889,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     iconFilter: {
-        width: RFPercentage(4.5),
+        width: '12%',
     },
     mainBox: {
         flex: 1,

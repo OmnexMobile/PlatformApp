@@ -186,7 +186,7 @@ const makeStyles = (SCREEN_WIDTH, SCREEN_HEIGHT) => StyleSheet.create({
   },
   image: {
     width: SCREEN_WIDTH,
-    height: SCREEN_HEIGHT * 0.38,
+    height: SCREEN_HEIGHT * 0.30,
   },
   centered: {
     flex: 1,
@@ -194,6 +194,7 @@ const makeStyles = (SCREEN_WIDTH, SCREEN_HEIGHT) => StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#000',
     width: '100%',
+    paddingTop:5
   },
   placeholderText: {
     color: 'rgba(255,255,255,0.4)',

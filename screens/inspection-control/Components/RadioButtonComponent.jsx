@@ -14,7 +14,6 @@ const RadioButtonComponent = ({
     selectedSize = 15,
     textSize = 19,
 }) => {
-    console.log(value,lable,staticValue, value == lable, staticValue == value,'valuevalue')
     const { theme } = useTheme();
     return (
         <TouchableOpacity onPress={() => onChange(obj)} activeOpacity={0.8} style={styles.container}>
