@@ -1042,10 +1042,10 @@ const HomeDashboard = () => {
                                 onPress={() => setSideMenuVisible(false)}
                                 style={{ flex: 1, flexDirection: 'row', alignItems: 'center', marginLeft: SPACING.NORMAL }}>
                                 <View style={{ flex: 1 }}>
-                                    <TextComponent type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.XLARGE} numberOfLines={1} style={{ color: '#101936' }}>
+                                    <TextComponent type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.LARGE} numberOfLines={1} style={{ color: '#101936' }}>
                                         {drawerName}
                                     </TextComponent>
-                                    <TextComponent fontSize={FONT_SIZE.NORMAL} numberOfLines={1} style={{ color: '#566174', marginTop: SPACING.XX_SMALL }}>
+                                    <TextComponent fontSize={FONT_SIZE.SMALL} ype={FONT_TYPE.BOLD} numberOfLines={1} style={{ color: '#566174', marginTop: SPACING.XX_SMALL }}>
                                         {drawerRole}
                                     </TextComponent>
                                 </View>
@@ -1073,8 +1073,8 @@ const HomeDashboard = () => {
                             }}>
                             <View
                                 style={{
-                                    width: RFPercentage(4.9),
-                                    height: RFPercentage(5.3),
+                                    width: RFPercentage(4.2),
+                                    height: RFPercentage(4.2),
                                     borderRadius: 16,
                                     alignItems: 'center',
                                     justifyContent: 'center',
@@ -1084,60 +1084,17 @@ const HomeDashboard = () => {
                                 <IconComponent type={ICON_TYPE.FontAwesome5} name="building" size={24} color={'#4F73FF'} />
                             </View>
                             <View style={{ flex: 1 }}>
-                                <TextComponent type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.SMALL} style={{ color: '#045EF4', letterSpacing: 1.2 }}>
+                                <TextComponent type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.X_SMALL} style={{ color: '#045EF4', letterSpacing: 1.2 }}>
                                     CURRENT SITE
                                 </TextComponent>
-                                <TextComponent type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.LARGE} numberOfLines={1} style={{ color: '#101936', marginTop: SPACING.XX_SMALL }}>
+                                <TextComponent type={FONT_TYPE.BOLD} fontSize={FONT_SIZE.NORMAL} numberOfLines={1} style={{ color: '#101936', marginTop: SPACING.XX_SMALL }}>
                                     {selectedSiteName}
                                 </TextComponent>
                             </View>
                             <IconComponent type={ICON_TYPE.Feather} name="chevron-right" size={26} color={'#27334A'} />
                         </TouchableOpacity>
 
-                        <TouchableOpacity
-                            activeOpacity={0.75}
-                            onPress={() => setSideMenuVisible(false)}
-                            style={{ height: RFPercentage(10), marginBottom: SPACING.NORMAL, borderRadius: 14 }}>
-                            <LinearGradient
-                                colors={['#123C95', '#1465FF']}
-                                start={{ x: 0, y: 0.5 }}
-                                end={{ x: 1, y: 0.5 }}
-                                style={{
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    height: RFPercentage(6),
-                                    overflow: 'hidden',
-                                    paddingHorizontal: SPACING.X_SMALL,
-                                    borderRadius:18,
-                                    shadowColor: '#123C95',
-                                    // shadowOffset: { width: 0, height: 8 },
-                                    // shadowOpacity: 0.22,
-                                    // shadowRadius: 18,
-                                    elevation: 8,
-                                }}>
-                                <View
-                                    style={{
-                                        width: RFPercentage(4.9),
-                                        height: RFPercentage(4.9),
-                                        borderRadius: 14,
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        backgroundColor: 'rgba(255,255,255,0.12)',
-                                    borderRadius:18,
-                                        marginRight: SPACING.NORMAL,
-                                    }}>
-                                    <IconComponent type={ICON_TYPE.Feather} name="home" size={27} color={COLORS.white} />
-                                </View>
-                                <TextComponent
-                                    fontSize={FONT_SIZE.LARGE}
-                                    type={FONT_TYPE.BOLD}
-                                    numberOfLines={1}
-                                    style={{ flex: 1, color: COLORS.white, textAlignVertical: 'center' }}>
-                                    Dashboard
-                                </TextComponent>
-                            </LinearGradient>
-                        </TouchableOpacity>
+                       
 {/* //Profile button is commented out for now, can be enabled later if needed */}
                         <TouchableOpacity
                             activeOpacity={0.75}
@@ -1158,8 +1115,8 @@ const HomeDashboard = () => {
                             }}>
                             <View
                                 style={{
-                                    width: RFPercentage(4.8),
-                                    height: RFPercentage(4.8),
+                                    width: RFPercentage(4.2),
+                                    height: RFPercentage(4.2),
                                     borderRadius: 14,
                                     alignItems: 'center',
                                     justifyContent: 'center',
@@ -1168,21 +1125,21 @@ const HomeDashboard = () => {
                                 }}>
                                 <IconComponent type={ICON_TYPE.Feather} name="user" size={26} color={'#27334A'} />
                             </View>
-                            <TextComponent fontSize={FONT_SIZE.LARGE} type={FONT_TYPE.BOLD} style={{ flex: 1, color: '#101936' }}>
+                            <TextComponent fontSize={FONT_SIZE.NORMAL} type={FONT_TYPE.BOLD} style={{ flex: 1, color: '#101936' }}>
                                 Profile
                             </TextComponent>
                             <IconComponent type={ICON_TYPE.Feather} name="chevron-right" size={24} color={'#27334A'} />
                         </TouchableOpacity>
-
-                        <View style={{ height: 1, backgroundColor: '#DCE2EE', marginVertical: RFPercentage(3) }} />
+   
+                        <View style={{ height: 1, backgroundColor: '#DCE2EE', marginVertical: RFPercentage(10) }} />
                         <TouchableOpacity
                             activeOpacity={0.75}
                             onPress={() => navigateFromSideMenu(ROUTES.HELP)}
                             style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: SPACING.NORMAL, paddingHorizontal: SPACING.NORMAL }}>
                             <View
                                 style={{
-                                    width: RFPercentage(4.8),
-                                    height: RFPercentage(4.8),
+                                    width: RFPercentage(4.2),
+                                    height: RFPercentage(4.2),
                                     borderRadius: 14,
                                     alignItems: 'center',
                                     justifyContent: 'center',
@@ -1191,7 +1148,7 @@ const HomeDashboard = () => {
                                 }}>
                                 <IconComponent type={ICON_TYPE.Feather} name="help-circle" size={25} color={'#123C95'} />
                             </View>
-                            <TextComponent fontSize={FONT_SIZE.LARGE} style={{ flex: 1, color: '#27334A' }}>
+                            <TextComponent fontSize={FONT_SIZE.NORMAL} style={{ flex: 1, color: '#27334A' }}>
                                 Help & Support
                             </TextComponent>
                             <IconComponent type={ICON_TYPE.Feather} name="chevron-right" size={24} color={'#27334A'} />
@@ -1206,8 +1163,8 @@ const HomeDashboard = () => {
                             style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: SPACING.NORMAL, paddingHorizontal: SPACING.NORMAL }}>
                             <View
                                 style={{
-                                    width: RFPercentage(4.8),
-                                    height: RFPercentage(4.8),
+                                    width: RFPercentage(4.2),
+                                    height: RFPercentage(4.2),
                                     borderRadius: 14,
                                     alignItems: 'center',
                                     justifyContent: 'center',
@@ -1216,7 +1173,7 @@ const HomeDashboard = () => {
                                 }}>
                                 <IconComponent type={ICON_TYPE.Feather} name="log-out" size={25} color={'#C92A2A'} />
                             </View>
-                            <TextComponent fontSize={FONT_SIZE.LARGE} style={{ flex: 1, color: '#C92A2A' }}>
+                            <TextComponent fontSize={FONT_SIZE.NORMAL} style={{ flex: 1, color: '#C92A2A' }}>
                                 Logout
                             </TextComponent>
                             <IconComponent type={ICON_TYPE.Feather} name="chevron-right" size={24} color={'#27334A'} />
@@ -1232,13 +1189,8 @@ const HomeDashboard = () => {
                                 paddingVertical: SPACING.SMALL,
                                 paddingLeft: SPACING.SMALL,
                                 paddingRight: SPACING.X_LARGE,
-                                borderWidth: 1,
-                                borderColor: '#E8ECF4',
-                                shadowColor: '#6D7CA8',
-                                shadowOffset: { width: 0, height: 8 },
-                                shadowOpacity: 0.1,
-                                shadowRadius: 18,
-                                elevation: 5,
+                                borderWidth: .1,
+                                borderColor: '#27334A',
                             }}>
                             <View
                                 style={{

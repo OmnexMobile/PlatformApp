@@ -147,6 +147,12 @@ android {
         buildConfig true
     }
 
+    packaging {
+        jniLibs {
+            excludes += ["**/libtool-checker.so"]
+        }
+    }
+
     compileSdkVersion rootProject.ext.compileSdkVersion
 
     defaultConfig {

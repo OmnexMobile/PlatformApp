@@ -1,0 +1,12 @@
+diff --git a/node_modules/jail-monkey/android/src/main/java/com/gantix/JailMonkey/Rooted/RootedCheck.java b/node_modules/jail-monkey/android/src/main/java/com/gantix/JailMonkey/Rooted/RootedCheck.java
+index bf75f27..22959f9 100644
+--- a/node_modules/jail-monkey/android/src/main/java/com/gantix/JailMonkey/Rooted/RootedCheck.java
++++ b/node_modules/jail-monkey/android/src/main/java/com/gantix/JailMonkey/Rooted/RootedCheck.java
+@@ -60,6 +60,6 @@ public class RootedCheck {
+             checkForRWPaths = rootBeer.checkForRWPaths();
+             detectTestKeys = rootBeer.detectTestKeys();
+             checkSuExists = rootBeer.checkSuExists();
+-            checkForRootNative = rootBeer.checkForRootNative();
++            checkForRootNative = false;
+             checkForMagiskBinary = rootBeer.checkForMagiskBinary();
+         }

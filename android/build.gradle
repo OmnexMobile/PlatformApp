@@ -48,6 +48,12 @@ allprojects {
             // force 'androidx.browser:browser:1.9.0'
             // force "org.jetbrains.kotlin:kotlin-stdlib:1.9.24"
             force 'androidx.browser:browser:1.5.0'
+            eachDependency { dependency ->
+                if (dependency.requested.group == 'androidx.camera') {
+                    dependency.useVersion '1.4.2'
+                    dependency.because 'CameraX 1.4.2 is packaged for 16 KB page-size devices'
+                }
+            }
         
         }
     }
