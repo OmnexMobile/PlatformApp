@@ -211,11 +211,11 @@ const OperatorWorksheet = () => {
                 message: reportFormData?.comment,
                 reportedBy: icUserData?.userData?.UserId
             }
-
             const response = await postAPI(ApiUrl.IC_REPORTDOWNTIME, payload);
             console.log('Downtime Report Response:', response);
             if (response?.success) {
                 successMessage('Downtime reported successfully');
+                handleSingleDeletePress(selectedValue);
                 handleCloseReport();
             } else {
                 showErrorMessage('Error reporting downtime');

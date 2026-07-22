@@ -151,7 +151,7 @@ const OfflineFileViewModal = ({ list = [], visible = false, onDismiss = () => { 
                     statusBarHeight: 40,
                     icon: 'success',
                     position: 'right',
-                    style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : { paddingTop: insets.top },
+                    style:{ height: 150, alignItems: 'flex-end' },
                 });
             } else {
                 const result = await Share.share({
@@ -168,7 +168,7 @@ const OfflineFileViewModal = ({ list = [], visible = false, onDismiss = () => { 
                         statusBarHeight: 40,
                         icon: 'success',
                         position: 'right',
-                        style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : { paddingTop: insets.top },
+                        style:{ height: 150, alignItems: 'flex-end' },
                     });
                 }
             }

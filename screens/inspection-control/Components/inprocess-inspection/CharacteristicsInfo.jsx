@@ -766,8 +766,8 @@ const CharacteristicsInfo = ({
                         textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}
                         style={{ height: 40, width: '73%' }}
                         onPress={() => {
-                            setShowCPKModal(true);
-                            // handleSavePress(true, 'saveBtn');
+                            // setShowCPKModal(true);
+                            handleSavePress(true, 'saveBtn');
 
                         }}>
                         Save

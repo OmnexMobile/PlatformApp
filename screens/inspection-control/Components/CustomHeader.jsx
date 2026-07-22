@@ -332,7 +332,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
     },
     notificationContainer: {
-        padding: 8,
+        paddingLeft: 8,
     },
 
     badge: {

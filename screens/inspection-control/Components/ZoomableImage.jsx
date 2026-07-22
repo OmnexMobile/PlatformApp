@@ -156,14 +156,14 @@ function ZoomableImage({ fileList }) {  // ← pass full list
       )}
 
       {/* ── Counter & filename ── */}
-      <View style={styles.footer}>
+      {/* <View style={styles.footer}>
         <Text style={styles.counter}>
           {currentIndex + 1} / {imageFiles.length}
         </Text>
         <Text style={styles.filename} numberOfLines={1}>
           {currentFile?.FileName}
         </Text>
-      </View>
+      </View> */}
       <Text style={styles.hint}>Pinch to zoom · Double-tap to reset</Text>
     </View>
   );

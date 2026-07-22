@@ -25,6 +25,7 @@ const BarcodeList = () => {
     const { barcodeValue } = route.params;
     const navigation = useNavigation();
     const [showSkeleton, setShowSkeleton] = useState(false);
+    const [payloadData, setPayloadData] = useState(null);
     const { icUserData } = useSelector(state => state.inspection);
     const dispatch = useDispatch();
     const isFocused = useIsFocused();
@@ -49,10 +50,11 @@ const BarcodeList = () => {
     const [showBubble, setShowBubble] = useState(false);
     useEffect(() => {
         if (isFocused && barcodeValue) {
-            handleListFetch();
+            setPayloadData(barcodeValue);
+            handleListFetch(barcodeValue);
         }
     }, [barcodeValue]);
-    const handleListFetch = async () => {
+    const handleListFetch = async barcodeValue => {
         setShowSkeleton(true);
         const response = await postAPI(ApiUrl.IC_BY_BARCODE, barcodeValue);
         if (response?.Data?.InspectionSchedules?.length) {
@@ -68,14 +70,10 @@ const BarcodeList = () => {
         }
     };
     const handleGoBack = () => {
-        if (navigation.canGoBack()) {
-            navigation.goBack();
-        } else {
-            navigation.reset({
-                index: 0,
-                routes: [{ name: ROUTES.HOME_FAB_VIEW }],
-            });
-        }
+        navigation.reset({
+            index: 0,
+            routes: [{ name: ROUTES.INSPECTION_SCHEDULE }],
+        });
     };
     const renderIconBgColor = value => {
         return value == '1' ? COLORS.apptheme : value == '2' ? COLORS.ipBgColor : COLORS.fiBgColor;
@@ -94,9 +92,8 @@ const BarcodeList = () => {
     const handleSubmitBtnPress = async val => {
         setShowBubble(true);
         const latestInspection = await getInspectionDataByUserAndSite(icUserData?.userData?.UserId, icUserData?.userData?.Siteid);
-        const apiData = await handleListFetch(null, false, filterData.type);
-        let filterTemp = filterData.type !== '' ? apiData.filter(item => item.TypeOfInspection == filterData.type) : apiData;
-        let temp = [...filterTemp] || [];
+        const apiData = await handleListFetch(payloadData);
+        let temp = [...apiData] || [];
         const updatedArray = temp.map(item => {
             const match = latestInspection.some(
                 compareItem =>

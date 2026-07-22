@@ -242,7 +242,6 @@ const QRCodeScannerScreen = ({
         codeTypes: ['qr', 'ean-13', 'ean-8', 'upc-a', 'upc-e', 'code-128', 'code-39'],
 
         onCodeScanned: codes => {
-            navigation.navigate(ROUTES.BARCODE_LIST, { barcodeValue: payload });
             if (scanLockRef.current) {
                 return;
             }
