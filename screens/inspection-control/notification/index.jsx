@@ -6,9 +6,9 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import IconI from 'react-native-vector-icons/Ionicons';
 import IconF from 'react-native-vector-icons/Feather';
 import IconA from 'react-native-vector-icons/AntDesign';
-import { useIsFocused, useNavigation } from '@react-navigation/native';
+import { useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
 import IcSkeleton from '../Components/IcSkeleton';
-import { PLACEHOLDERS } from 'constants/app-constant';
+import { PLACEHOLDERS, ROUTES } from 'constants/app-constant';
 import NoDataFound from '../Components/NoDataFound';
 import { showMessage } from 'react-native-flash-message';
 import moment from 'moment';
@@ -176,6 +176,9 @@ const data = {
 
 const NotificationScreen = () => {
     const navigation = useNavigation();
+    const route = useRoute();
+    const { payload } = route.params;
+    const [storePayload, setStorePayload] = useState(null);
     const [showSkeleton, setShowSkeleton] = useState(false);
     const { icUserData } = useSelector(state => state.inspection);
     const dispatch = useDispatch();
@@ -185,17 +188,8 @@ const NotificationScreen = () => {
         sites: { selectedSite },
     } = useAppContext();
     const [showModal, setShowModal] = useState(false);
-    const [filterData, setFilterData] = useState({
-        startDate: moment().subtract(7, 'days').toDate(),
-        endDate: new Date(),
-        type: '',
-    });
-    const [showFileModal, setShowFileModal] = useState(false);
     const [masterData, setMasterData] = useState([]);
     const [overAllData, setOverAllData] = useState([]);
-    const [showQR, setShowQR] = useState(false);
-    const [refreshing, setRefreshing] = useState(false);
-    const [search, setSearch] = useState('');
     const [selectedData, setSelectedData] = useState({});
     const [formList, setFormList] = useState({
         shiftList: [],
@@ -204,51 +198,51 @@ const NotificationScreen = () => {
     });
     const [showBubble, setShowBubble] = useState(false);
     useEffect(() => {
-        if (isFocused) {
-            handleListFetch();
+        if (isFocused && payload) {
+            setStorePayload(payload);
+            handleListFetch(payload);
         }
-    }, [isFocused]);
-    const handleListFetch = async () => {
+    }, [isFocused, payload]);
+    const handleListFetch = async payload => {
+        console.log('payloadtest', payload);
         setShowSkeleton(true);
-        const inspectList = await getInspectionDataByUserAndSite(icUserData?.userData?.UserId, icUserData?.userData?.Siteid);
-        let retunListData = [];
+        const data = await postAPI(`${ApiUrl.IC_NOTIFICATION_LIST}`, payload);
+        console.log('datatest', data);
         if (data?.InspectionSchedules?.length) {
-            let temp = data?.InspectionSchedules || [];
-            const updatedArray = temp.map(item => {
-                const match = inspectList.some(
-                    compareItem =>
-                        compareItem.intProductionItemID === item.ProductionItemId &&
-                        compareItem.OperationID == item.OperationID &&
-                        compareItem?.OrderDetailsId == item?.OrderDetailsId,
-                );
-                return {
-                    ...item,
-                    isDownloaded: match,
-                };
-            });
-            const sortedSchedules = updatedArray.sort((a, b) => {
-                return new Date(b.ProductionStartDate) - new Date(a.ProductionStartDate);
-            });
-            retunListData = sortedSchedules;
-            setMasterData(sortedSchedules || []);
-            setOverAllData(sortedSchedules || []);
-            let tempShift = data?.InspectionShifts.map(item => ({ ...item, label: item.ShiftName, value: item.ShiftID }));
-            setFormList(pre => ({ ...pre, shiftList: tempShift || [] }));
+            const inspectList = await getInspectionDataByUserAndSite(icUserData?.userData?.UserId, icUserData?.userData?.Siteid);
+            let retunListData = [];
+            if (data?.InspectionSchedules?.length) {
+                let temp = data?.InspectionSchedules || [];
+                const updatedArray = temp.map(item => {
+                    const match = inspectList.some(
+                        compareItem =>
+                            compareItem.intProductionItemID === item.ProductionItemId &&
+                            compareItem.OperationID == item.OperationID &&
+                            compareItem?.OrderDetailsId == item?.OrderDetailsId,
+                    );
+                    return {
+                        ...item,
+                        isDownloaded: match,
+                    };
+                });
+                const sortedSchedules = updatedArray.sort((a, b) => {
+                    return new Date(b.ProductionStartDate) - new Date(a.ProductionStartDate);
+                });
+                retunListData = sortedSchedules;
+                setMasterData(sortedSchedules || []);
+                setOverAllData(sortedSchedules || []);
+                let tempShift = data?.InspectionShifts.map(item => ({ ...item, label: item.ShiftName, value: item.ShiftID }));
+                setFormList(pre => ({ ...pre, shiftList: tempShift || [] }));
+                setShowSkeleton(false);
+            }
+        } else {
+            setMasterData([]);
+            setOverAllData([]);
             setShowSkeleton(false);
         }
-
+        setShowSkeleton(false);
         return data?.InspectionSchedules || [];
     };
-    const handleFilePress = item => {
-        let temp = {
-            ProductionItem: item.ProductionItem,
-            OperationID: item.OperationID,
-            ProductionItemId: item.ProductionItemId,
-        };
-        setSelectedData(temp);
-        setShowFileModal(true);
-    };
-
     const handleGoBack = () => {
         if (navigation.canGoBack()) {
             navigation.goBack();
@@ -276,8 +270,8 @@ const NotificationScreen = () => {
     const handleSubmitBtnPress = async val => {
         setShowBubble(true);
         const latestInspection = await getInspectionDataByUserAndSite(icUserData?.userData?.UserId, icUserData?.userData?.Siteid);
-        const apiData = await handleListFetch(null, false, filterData.type);
-        let filterTemp = filterData.type !== '' ? apiData.filter(item => item.TypeOfInspection == filterData.type) : apiData;
+        const apiData = await handleListFetch(storePayload);
+        let filterTemp = apiData;
         let temp = [...filterTemp] || [];
         const updatedArray = temp.map(item => {
             const match = latestInspection.some(
@@ -327,7 +321,7 @@ const NotificationScreen = () => {
                                         statusBarHeight: 45,
                                         icon: 'danger',
                                         position: 'right',
-                                        style: Platform.OS === 'ios' ? { height: 100, alignItems: 'flex-end' } : {},
+                                        style: { height: 100, alignItems: 'flex-end' },
                                     });
                                 }
                             }}>

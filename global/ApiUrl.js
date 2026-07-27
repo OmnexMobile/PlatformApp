@@ -50,5 +50,6 @@ module.exports = {
     IC_FCM_REGISTER:'RegisterToken',
     IC_GETDOWNTIME:'Downtime/GetDowntimeReasons',
     IC_REPORTDOWNTIME:'Downtime/ReportDowntime ',
-    IC_BY_BARCODE:'GetInspectionScheduleByBarcode'
+    IC_BY_BARCODE:'GetInspectionScheduleByBarcode',
+    IC_NOTIFICATION_LIST:'StartInspectionFromSchedule'
 };

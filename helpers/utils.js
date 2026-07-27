@@ -14,7 +14,7 @@ import {
     getToken,
     getAPNSToken,
     isDeviceRegisteredForRemoteMessages,
-    registerDeviceForRemoteMessages
+    registerDeviceForRemoteMessages,
 } from '@react-native-firebase/messaging';
 
 export const getAvatarInitials = textString => {
@@ -234,14 +234,10 @@ export async function requestNotificationPermission() {
         }
 
         if (status === RESULTS.BLOCKED) {
-            Alert.alert(
-                'Notifications Disabled',
-                'Enable notifications from settings.',
-                [
-                    { text: 'Cancel', style: 'cancel' },
-                    { text: 'Open Settings', onPress: openSettings },
-                ]
-            );
+            Alert.alert('Notifications Disabled', 'Enable notifications from settings.', [
+                { text: 'Cancel', style: 'cancel' },
+                { text: 'Open Settings', onPress: openSettings },
+            ]);
         }
         return false;
     }
@@ -304,14 +300,10 @@ export async function requestNotificationPermission() {
             console.log('iOS Permission Status:', authStatus);
 
             if (!enabled) {
-                Alert.alert(
-                    'Notifications Disabled',
-                    'Please enable notifications in settings.',
-                    [
-                        { text: 'Cancel', style: 'cancel' },
-                        { text: 'Open Settings', onPress: openSettings },
-                    ]
-                );
+                Alert.alert('Notifications Disabled', 'Please enable notifications in settings.', [
+                    { text: 'Cancel', style: 'cancel' },
+                    { text: 'Open Settings', onPress: openSettings },
+                ]);
                 return false;
             }
 
@@ -349,3 +341,47 @@ export async function requestNotificationPermission() {
 
     return true;
 }
+const calRound = (num, decimals = 4) => {
+    return Number(num.toFixed(decimals));
+};
+export const calculateCapability = (actualValues, lsl, usl) => {
+    const n = actualValues.length;
+
+    // --- Mean ---
+    const mean = n > 0 ? actualValues.reduce((sum, v) => sum + v, 0) / n : 0;
+
+    // --- Overall Std Dev (sample std dev, n-1) -> Pp/Ppk ---
+    const sumSqDiff = actualValues.reduce((sum, v) => sum + Math.pow(v - mean, 2), 0);
+    const stdDevOverall = n > 1 ? Math.sqrt(sumSqDiff / (n - 1)) : 0;
+
+    // --- Moving Range Std Dev -> Cp/Cpk ---
+    const movingRanges = [];
+    for (let i = 1; i < n; i++) {
+        movingRanges.push(Math.abs(actualValues[i] - actualValues[i - 1]));
+    }
+    const mrBar = movingRanges.length > 0 ? movingRanges.reduce((sum, v) => sum + v, 0) / movingRanges.length : 0;
+
+    const d2 = 1.128; // constant for moving range of 2 consecutive points
+    const stdDevShortTerm = mrBar / d2;
+
+    // --- Guard against divide-by-zero ---
+    const safeOverall = stdDevOverall === 0 ? null : stdDevOverall;
+    const safeShortTerm = stdDevShortTerm === 0 ? null : stdDevShortTerm;
+
+    const pp = safeOverall ? (usl - lsl) / (6 * safeOverall) : null;
+    const ppk = safeOverall ? Math.min((usl - mean) / (3 * safeOverall), (mean - lsl) / (3 * safeOverall)) : null;
+
+    const cp = safeShortTerm ? (usl - lsl) / (6 * safeShortTerm) : null;
+    const cpk = safeShortTerm ? Math.min((usl - mean) / (3 * safeShortTerm), (mean - lsl) / (3 * safeShortTerm)) : null;
+
+    return {
+        sampleSize: n,
+        mean: calRound(mean),
+        stdDevOverall: calRound(stdDevOverall),
+        stdDevShortTerm: calRound(stdDevShortTerm),
+        pp: pp !== null ? calRound(pp) : null,
+        ppk: ppk !== null ? calRound(ppk) : null,
+        cp: cp !== null ? calRound(cp) : null,
+        cpk: cpk !== null ? calRound(cpk) : null,
+    };
+};

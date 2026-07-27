@@ -61,7 +61,15 @@ const NotificationModal = ({ visible, data, setNotificationData = () => {} }) =>
                         <TouchableOpacity
                             style={styles.buttonUpdate}
                             onPress={() => {
-                                navigation.navigate(ROUTES.NOTIFICATION_SCREEN);
+                                navigation.navigate(ROUTES.NOTIFICATION_SCREEN, {
+                                    payload: {
+                                        ScheduleId: 3,
+                                        UserId: 6,
+                                        SiteId: 2,
+                                        ProcessId: 0,
+                                        DeviceId: 'a737d8dda7f4d4ac',
+                                    },
+                                });
                                 onClose();
                             }}>
                             <Text style={styles.textUpdate}>Start Inspection</Text>

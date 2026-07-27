@@ -39,7 +39,7 @@ const CaptureDefect = ({ visible = false, onRequestClose = () => {}, selectedDat
         if (selectedData?.defectImage) {
             setDefectDetails(selectedData?.defectImage);
             setFileList(selectedData?.defectImage?.defectimg ? [selectedData?.defectImage?.defectimg] : []);
-        }else{
+        } else {
             setDefectDetails({
                 defectimg: null,
                 measurement: '',
@@ -191,6 +191,7 @@ const CaptureDefect = ({ visible = false, onRequestClose = () => {}, selectedDat
                                 <View style={styles.inputContainer}>
                                     <Text style={styles.headerText}>Measurement</Text>
                                     <TextInput
+                                        placeholderTextColor={COLORS.grey}
                                         value={defectDetails.measurement}
                                         style={[styles.inputBox, { backgroundColor: COLORS.inputBG }]}
                                         onChangeText={val => {
@@ -203,6 +204,7 @@ const CaptureDefect = ({ visible = false, onRequestClose = () => {}, selectedDat
                                 <View style={styles.inputContainer}>
                                     <Text style={styles.headerText}>Value</Text>
                                     <TextInput
+                                        placeholderTextColor={COLORS.grey}
                                         value={defectDetails.value}
                                         style={[styles.inputBox, { backgroundColor: COLORS.inputBG }]}
                                         onChangeText={val => {
@@ -215,6 +217,7 @@ const CaptureDefect = ({ visible = false, onRequestClose = () => {}, selectedDat
                                 <View style={styles.inputContainer}>
                                     <Text style={styles.headerText}>Defect Type</Text>
                                     <TextInput
+                                        placeholderTextColor={COLORS.grey}
                                         value={defectDetails.defectType}
                                         style={[styles.inputBox, { backgroundColor: COLORS.inputBG }]}
                                         onChangeText={val => {
@@ -227,6 +230,7 @@ const CaptureDefect = ({ visible = false, onRequestClose = () => {}, selectedDat
                                 <View style={styles.inputContainer}>
                                     <Text style={styles.headerText}>Comments</Text>
                                     <TextInput
+                                        placeholderTextColor={COLORS.grey}
                                         style={[styles.textarea, { backgroundColor: COLORS.inputBG }]}
                                         multiline={true}
                                         numberOfLines={4}

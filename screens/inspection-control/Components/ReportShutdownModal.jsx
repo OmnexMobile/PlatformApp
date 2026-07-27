@@ -5,8 +5,17 @@ import { View, Text, StyleSheet, Modal, TouchableOpacity, TextInput } from 'reac
 import Icon from 'react-native-vector-icons/Ionicons';
 import SingleDropDown from './SingleDropDown';
 
-export default function ReportShutdownModal({ visible, data = null, handleClose = () => { }, dropDownList = [], setReportFormData = () => { },
-    reportFormData = null, handleSubmitReport = () => { }, handleCloseReport = () => { }, formError = {} }) {
+export default function ReportShutdownModal({
+    visible,
+    data = null,
+    handleClose = () => {},
+    dropDownList = [],
+    setReportFormData = () => {},
+    reportFormData = null,
+    handleSubmitReport = () => {},
+    handleCloseReport = () => {},
+    formError = {},
+}) {
     return (
         <Modal transparent visible={visible} animationType="fade" onRequestClose={() => handleClose()}>
             <View style={styles.overlay}>
@@ -18,26 +27,27 @@ export default function ReportShutdownModal({ visible, data = null, handleClose 
                         <Text style={[styles.message, { textAlign: 'left', marginTop: 10 }]}>Reason for Downtime</Text>
                         <SingleDropDown
                             data={dropDownList}
-                            onChange={(value) => setReportFormData({ ...reportFormData, downtimeres: value })}
+                            onChange={value => setReportFormData({ ...reportFormData, downtimeres: value })}
                             value={reportFormData?.downtimeres}
+                            placeholder="Select Downtime Reason"
                         />
-                        {Boolean(formError.downtimeres) && <Text style={{ color: COLORS.error, alignSelf: 'flex-start', marginTop: 5 ,fontSize:12}}>
-                            Please select a downtime reason
-                        </Text>}
+                        {Boolean(formError.downtimeres) && (
+                            <Text style={{ color: COLORS.error, alignSelf: 'flex-start', marginTop: 5, fontSize: 12 }}>
+                                Please select a downtime reason
+                            </Text>
+                        )}
                         <TextInput
+                            placeholderTextColor='#333333'
                             style={[styles.textarea, { backgroundColor: COLORS.inputBG }]}
                             multiline={true}
                             numberOfLines={4}
                             placeholder="Type your message..."
                             value={reportFormData?.comment || ''}
-                            onChangeText={(text) => setReportFormData({ ...reportFormData, comment: text })}
+                            onChangeText={text => setReportFormData({ ...reportFormData, comment: text })}
                         />
                     </View>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%' }}>
-                        <TouchableOpacity
-                            style={[styles.closeBtn, { backgroundColor: COLORS.error }]}
-                            onPress={() => handleSubmitReport()}
-                        >
+                        <TouchableOpacity style={[styles.closeBtn, { backgroundColor: COLORS.error }]} onPress={() => handleSubmitReport()}>
                             <Text style={styles.closeText}>Report Downtime</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={[styles.closeBtn, { backgroundColor: COLORS.apptheme }]} onPress={() => handleCloseReport()}>
