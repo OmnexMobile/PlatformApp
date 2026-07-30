@@ -372,13 +372,13 @@ const SupervisorSchedule = () => {
                 });
             }
             let isSamplePopup = Array.isArray(item.charInfo) && item.charInfo.some(c => c.PropertyName === 'ActualValue');
-            // const status = getItemStatus(Samples, isSamplePopup, item.charInfo);
+            const status = getItemStatus(Samples, isSamplePopup, item.charInfo);
             result.push({
                 ...item,
                 isSamplePopup: isSamplePopup,
                 Samples: isSamplePopup ? Samples : [],
-                // status: status,
-                status: 'Inspect',
+                status: status,
+                // status: 'Inspect',
             });
         });
         return result;

@@ -167,6 +167,7 @@ const CompletedInspection = () => {
                         <TouchableOpacity
                             style={{ marginRight: 10 }}
                             onPress={() => {
+                                setIsBulkSync(false)
                                 if (item?.status == 'In Progress') {
                                     setSyncList([...optionsList.slice(0, 1)]);
                                 } else {
@@ -360,7 +361,7 @@ const CompletedInspection = () => {
         const response = await postAPI(selectedValue.intInspectionTypeID == '2' ? ApiUrl.IC_INPROCESS_SINGLE_SYNC : ApiUrl.IC_SINGLE_SYNC, payLoad);
         if (response?.insertedSamples) {
             setSyncModal(false);
-            const flag = await deleteInspectionByUniqueId(selectedValue.uniqueId);
+            // const flag = await deleteInspectionByUniqueId(selectedValue.uniqueId);
             showMessage({
                 message: 'Inspection synced successfully',
                 backgroundColor: COLORS.SUCCESS,
@@ -371,9 +372,9 @@ const CompletedInspection = () => {
                 position: 'right',
                 style: { height: 150, alignItems: 'flex-end' },
             });
-            if (flag) {
-                getAllCompletedData(true);
-            }
+            // if (flag) {
+            //     getAllCompletedData(true);
+            // }
         } else {
             showMessage({
                 message: 'Something went wrong',
@@ -471,7 +472,7 @@ const CompletedInspection = () => {
             console.log('uniqueIds',uniqueIds)
             setSyncModal(false);
             // const flag = await deleteInspectionByUniqueId(selectedValue.uniqueId);
-            const flag = await deleteInspectionsByUniqueIds(uniqueIds);
+            // const flag = await deleteInspectionsByUniqueIds(uniqueIds);
             showMessage({
                 message: 'Inspection synced successfully',
                 backgroundColor: COLORS.SUCCESS,
@@ -482,9 +483,9 @@ const CompletedInspection = () => {
                 position: 'right',
                 style:{ height: 150, alignItems: 'flex-end' },
             });
-            if (flag) {
-                getAllCompletedData(true);
-            }
+            // if (flag) {
+            //     getAllCompletedData(true);
+            // }
         } else {
             showMessage({
                 message: 'Something went wrong',

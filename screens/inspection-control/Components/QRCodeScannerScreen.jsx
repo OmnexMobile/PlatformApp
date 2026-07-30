@@ -232,8 +232,8 @@ const QRCodeScannerScreen = ({
     };
 
     // useEffect(() => {
-    //     let dummyvalue = '20784 27';
-    //     let dummyvalue1 = dummyvalue.split(' ');
+    //     let dummyvalue = '20784-1';
+    //     let dummyvalue1 = dummyvalue.split('-');
     //     console.log('dummyvalue1', dummyvalue1);
     //     let payload = { ProductionItemId: parseInt(dummyvalue1[0]), OperationId: parseInt(dummyvalue1[1]) };
     //     navigation.navigate(ROUTES.BARCODE_LIST, { barcodeValue: payload });
@@ -252,7 +252,7 @@ const QRCodeScannerScreen = ({
 
             scanLockRef.current = true;
 
-            let dummyvalue1 = value.split(' ');
+            let dummyvalue1 = value.split('-');
             let payload = { ProductionItemId: parseInt(dummyvalue1[0]), OperationId: parseInt(dummyvalue1[1]) };
             navigation.navigate(ROUTES.BARCODE_LIST, { barcodeValue: payload });
         },

@@ -29,7 +29,6 @@ import DeleteModal from '../DeleteModal';
 import ConfirmationModal from './ConfirmationModal';
 import { showMessage } from 'react-native-flash-message';
 import CapabilityCard from '../CapabilityCard';
-import ImageView from "react-native-image-viewing";
 import ZoomableImage from '../ZoomableImage';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import CaptureDefect from './CaptureDefect';
@@ -68,51 +67,37 @@ const BorderContent = ({ title = 'Title', count = 0, color = '#000' }) => {
     );
 };
 
-const imageExtensions = [
-    'jpg',
-    'jpeg',
-    'png',
-    'gif',
-    'webp',
-    'bmp',
-    'svg',
-];
+const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'];
 const CharacteristicsInfo = ({
     selectedData = {},
     type = '',
-    setShowChar = () => { },
+    setShowChar = () => {},
     masterData,
-    setMasterData = () => { },
-    setValueUpadted = () => { },
-    handleSavePress = () => { },
-    handleNextSamplePress = () => { },
+    setMasterData = () => {},
+    setValueUpadted = () => {},
+    handleSavePress = () => {},
+    handleNextSamplePress = () => {},
     icSettings = {},
     inspectionType = '',
     showCharInfo = false,
-    setSelectedData = () => { },
-    setShowConfirmModal = () => { },
+    setSelectedData = () => {},
+    setShowConfirmModal = () => {},
     showConfirmModal = false,
-    setTimer = () => { },
+    setTimer = () => {},
     timer = null,
     userUpdateValue,
-    setUserUpdateValue = () => { },
-    setTypeOfModal = () => { },
+    setUserUpdateValue = () => {},
+    setTypeOfModal = () => {},
     flatListRef = null,
-    FileList = []
+    FileList = [],
 }) => {
     const [showCPKModal, setShowCPKModal] = useState(false);
     const [showImageWithSample, setShowImageWithSample] = useState(false);
     const [showCaptureDefect, setShowCaptureDefect] = useState(false);
     const imageFiles = useMemo(() => {
-        return FileList
-            .filter(file =>
-                imageExtensions.includes(
-                    file.FileExtension?.toLowerCase()
-                )
-            )
-            .map(file => ({
-                uri: `data:image/${file.FileExtension};base64,${file.FileContentBase64}`,
-            }));
+        return FileList.filter(file => imageExtensions.includes(file.FileExtension?.toLowerCase())).map(file => ({
+            uri: `data:image/${file.FileExtension};base64,${file.FileContentBase64}`,
+        }));
     }, [FileList]);
 
     console.log('imageFiles', imageFiles.length);
@@ -253,7 +238,7 @@ const CharacteristicsInfo = ({
                     //     style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
                     // });
                 } else {
-                    console.log('********************step6');
+                    console.log('********************step6',...selectedData?.Samples);
                     setMasterData([...selectedData?.Samples]);
                     setValueUpadted([...selectedData?.Samples]);
                 }
@@ -415,13 +400,13 @@ const CharacteristicsInfo = ({
         const updatedData = masterData.map(item =>
             item.id === id
                 ? {
-                    ...item,
-                    value: val,
-                    FunctionValue: val,
-                    EnteredDate: moment(new Date()).format('MM/DD/YYYY h:mm:ss A '),
-                    backColor: getBackColorValue,
-                    IsRejected: getBackColorValue == '#00FF00' ? 0 : 1,
-                }
+                      ...item,
+                      value: val,
+                      FunctionValue: val,
+                      EnteredDate: moment(new Date()).format('MM/DD/YYYY h:mm:ss A '),
+                      backColor: getBackColorValue,
+                      IsRejected: getBackColorValue == '#00FF00' ? 0 : 1,
+                  }
                 : item,
         );
         setMasterData(updatedData);
@@ -431,12 +416,12 @@ const CharacteristicsInfo = ({
         const updatedData = masterData.map(item =>
             item.id === value.id
                 ? {
-                    ...value,
-                    FunctionValue: value.value,
-                    EnteredDate: moment(new Date()).format('MM/DD/YYYY h:mm:ss A '),
-                    backColor: getBackColorValue,
-                    IsRejected: getBackColorValue == '#00FF00' ? 0 : 1,
-                }
+                      ...value,
+                      FunctionValue: value.value,
+                      EnteredDate: moment(new Date()).format('MM/DD/YYYY h:mm:ss A '),
+                      backColor: getBackColorValue,
+                      IsRejected: getBackColorValue == '#00FF00' ? 0 : 1,
+                  }
                 : item,
         );
         setMasterData(updatedData);
@@ -615,7 +600,7 @@ const CharacteristicsInfo = ({
             setMasterData(temp);
             setValueUpadted(temp);
             setSelectedData(pre => ({ ...pre, CSampleSize: temp?.length, Samples: temp }));
-        } else if (value.id == 1) {
+        } else if (value?.id == 1) {
             handleNextSamplePress();
         }
     };
@@ -623,15 +608,15 @@ const CharacteristicsInfo = ({
         let temp =
             type == 'number'
                 ? value?.filter(
-                    x =>
-                        x?.value != '' &&
-                        (inspectionType == 2
-                            ? Number(x?.value) >= Number(x?.tolerance) - Number(x?.lowValue)
-                            : Number(x?.value) >= Number(x?.lowValue)) &&
-                        (inspectionType == 2
-                            ? Number(x?.value) <= Number(x?.tolerance) + Number(x?.highValue)
-                            : Number(x?.value) <= Number(x?.highValue)),
-                )
+                      x =>
+                          x?.value != '' &&
+                          (inspectionType == 2
+                              ? Number(x?.value) >= Number(x?.tolerance) - Number(x?.lowValue)
+                              : Number(x?.value) >= Number(x?.lowValue)) &&
+                          (inspectionType == 2
+                              ? Number(x?.value) <= Number(x?.tolerance) + Number(x?.highValue)
+                              : Number(x?.value) <= Number(x?.highValue)),
+                  )
                 : value.filter(x => x?.value?.toLowerCase() == 'ok' && x?.value !== '');
         return temp.length || 0;
     };
@@ -639,27 +624,28 @@ const CharacteristicsInfo = ({
         let temp =
             type == 'number'
                 ? value.filter(
-                    x =>
-                        x?.value != '' &&
-                        !(
-                            (inspectionType == 2
-                                ? Number(x?.value) >= Number(x?.tolerance) - Number(x?.lowValue)
-                                : Number(x?.value) >= Number(x?.lowValue)) &&
-                            (inspectionType == 2
-                                ? Number(x?.value) <= Number(x?.tolerance) + Number(x?.highValue)
-                                : Number(x?.value) <= Number(x?.highValue))
-                        ),
-                )
+                      x =>
+                          x?.value != '' &&
+                          !(
+                              (inspectionType == 2
+                                  ? Number(x?.value) >= Number(x?.tolerance) - Number(x?.lowValue)
+                                  : Number(x?.value) >= Number(x?.lowValue)) &&
+                              (inspectionType == 2
+                                  ? Number(x?.value) <= Number(x?.tolerance) + Number(x?.highValue)
+                                  : Number(x?.value) <= Number(x?.highValue))
+                          ),
+                  )
                 : value.filter(x => x?.value?.toLowerCase() != 'ok' && x?.value !== '');
         return temp?.length || 0;
     };
     const handleCloseCPKModal = () => {
         setShowCPKModal(false);
-        handleSavePress(true, 'saveBtn')
-    }
+        handleSavePress(true, 'saveBtn');
+    };
     const handleViewPhotoWithSample = (item, index) => {
         setShowImageWithSample(true);
-    }
+    };
+    console.log('masterDatabalu', masterData);
     const renderFaltList = (showHeader = true) => {
         return (
             <View style={{}}>
@@ -696,22 +682,50 @@ const CharacteristicsInfo = ({
                                 />
                             )}
                             {Boolean(selectedData?.isSamplePopup) && (
-                                <View style={[styles.headerBox]}>
-                                    <View style={{ flex: 1 }}>
-                                        <Text style={[styles.headerText, { marginLeft: 15 }]}>No</Text>
+                                <>
+                                    <View style={[styles.headerBox]}>
+                                        <View style={{ flex: 1 }}>
+                                            <Text style={[styles.headerText, { marginLeft: 15 }]}>No</Text>
+                                        </View>
+                                        {/* <View>
+                                        <Text style={[styles.headerText]}>Sample Value</Text>
+                                    </View> */}
+                                        <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center' }}>
+                                            <Text style={[styles.headerText]}>Actual Value</Text>
+                                            {showHeader && (
+                                                <TouchableOpacity
+                                                    style={[styles.deleteIcon]}
+                                                    onPress={() => {
+                                                        handleViewPhotoWithSample();
+                                                    }}>
+                                                    <IconMM name="file-present" size={20} color={COLORS.apptheme} />
+                                                </TouchableOpacity>
+                                            )}
+                                        </View>
                                     </View>
-                                    <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center' }}>
-                                        <Text style={[styles.headerText]}>Actual Value</Text>
-                                        {showHeader && <TouchableOpacity
-                                            style={[styles.deleteIcon]}
-                                            onPress={() => {
-                                                handleViewPhotoWithSample();
+                                    {Boolean(type == 'number') ? (
+                                        <View
+                                            style={{
+                                                flexDirection: 'row',
+                                                justifyContent: 'space-between',
+                                                paddingBottom: 5,
+                                                paddingHorizontal: 10,
+                                                backgroundColor: COLORS.appthemeShadow,
                                             }}>
-                                            <IconMM name="file-present" size={25} color={COLORS.apptheme} />
-                                        </TouchableOpacity>}
-                                    </View>
-
-                                </View>
+                                            <View style={{ flex: 1 }}>
+                                                <Text style={[styles.headerTextValue, { marginLeft: 15 }]}>L : {selectedData?.CLowValue || 0} </Text>
+                                            </View>
+                                            <View style={{ flex: 1 }}>
+                                                <Text style={[styles.headerTextValue, { marginLeft: 15 }]}>H : {selectedData?.CHighValue || 0} </Text>
+                                            </View>
+                                            <View style={{ flex: 1 }}>
+                                                <Text style={[styles.headerTextValue, { marginLeft: 15 }]}>
+                                                    Spec : {selectedData?.CTolerance || 0}{' '}
+                                                </Text>
+                                            </View>
+                                        </View>
+                                    ) : null}
+                                </>
                             )}
                         </View>
                     }
@@ -730,8 +744,8 @@ const CharacteristicsInfo = ({
                                 return renderItem(item, index);
                             })} */}
             </View>
-        )
-    }
+        );
+    };
     return (
         <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -768,7 +782,6 @@ const CharacteristicsInfo = ({
                         onPress={() => {
                             // setShowCPKModal(true);
                             handleSavePress(true, 'saveBtn');
-
                         }}>
                         Save
                     </ButtonComponent>
@@ -854,6 +867,11 @@ const styles = StyleSheet.create({
     headerText: {
         fontFamily: 'OpenSans-SemiBold',
         fontSize: 15,
+        color: '#000',
+    },
+    headerTextValue: {
+        fontFamily: 'OpenSans-SemiBold',
+        fontSize: 12,
         color: '#000',
     },
     contentBox: {

@@ -330,6 +330,7 @@ const InprocessInspection = ({ route }) => {
                                 setShowChar(false);
                                 setSelectedData({});
                                 setMasterData([]);
+                                console.log('masterData1');
                                 setValueUpadted([]);
                             }
                         } else {
@@ -362,6 +363,7 @@ const InprocessInspection = ({ route }) => {
             );
             const finalData = filterdData[0];
             if (showChar) {
+                console.log('finalData', finalData);
                 if (formType == 'number' || formType == 'char') {
                     // if Samples avilable we need to check this or we need to use masterData
                     isChanged = selectedData?.Samples?.some((item, index) => {
@@ -448,6 +450,8 @@ const InprocessInspection = ({ route }) => {
                 [formType === 'number' ? 'VariableCharacteristics' : 'AttributeCharacteristics']: newCharacteristicsList,
             }));
             setMasterData([]);
+                                console.log('masterData2');
+
             setValueUpadted([]);
         } else {
             handleFinalSavePress();
@@ -525,13 +529,15 @@ const InprocessInspection = ({ route }) => {
                 } else {
                     tempData = formType == 'number' ? infoData?.VariableCharacteristics : infoData.AttributeCharacteristics;
                 }
-                if (userFormType == 'SupervisorSchedule') {
-                    await handleSavePress(false);
-                }
+                // if (userFormType == 'SupervisorSchedule') {
+                //     await handleSavePress(false);
+                // }
                 const nextIndex = currentIndex.index + 1;
                 setFormType(tempData[nextIndex]?.type);
                 setCurrentIndex({ index: nextIndex, type: infoData.intInspectionTypeID == 2 ? tempData[nextIndex]?.type : formType });
                 setMasterData([]);
+                                console.log('masterData3');
+
                 setValueUpadted([]);
                 setSelectedData(tempData[nextIndex]);
             } else {
@@ -539,12 +545,14 @@ const InprocessInspection = ({ route }) => {
                 let tempSele = {};
                 let tempCurrentIndex = {};
                 setMasterData([]);
+                                console.log('masterData4');
+
                 setValueUpadted([]);
                 if (infoData.intInspectionTypeID == 2) {
                     const nextIndex = currentIndex.index + 1;
                     tempCurrentIndex = {
                         index: nextIndex,
-                        type: infoData.intInspectionTypeID == 2 ? tempData[nextIndex]?.type : formType,
+                        type: infoData?.intInspectionTypeID == 2 ? tempData[nextIndex]?.type : formType,
                     };
                     tempData = [
                         ...(infoData?.VariableCharacteristics?.map((item, index) => ({
@@ -564,9 +572,9 @@ const InprocessInspection = ({ route }) => {
                     tempSele = tempData[0];
                     tempCurrentIndex = { index: 0, type: 'char' };
                 }
-                if (userFormType == 'SupervisorSchedule') {
-                    await handleSavePress(false);
-                }
+                // if (userFormType == 'SupervisorSchedule') {
+                //     await handleSavePress(false);
+                // }
                 setFormType(tempSele?.type);
                 setSelectedData(tempSele);
                 setCurrentIndex(tempCurrentIndex);
@@ -578,17 +586,21 @@ const InprocessInspection = ({ route }) => {
         } else {
             if (id == '' || id == undefined) {
                 let tempData = formType == 'number' ? infoData?.VariableCharacteristics : infoData.AttributeCharacteristics;
-                if (userFormType == 'SupervisorSchedule') {
-                    await handleSavePress(false);
-                }
+                // if (userFormType == 'SupervisorSchedule') {
+                //     await handleSavePress(false);
+                // }
                 const nextIndex = currentIndex.index + 1;
                 setCurrentIndex({ index: nextIndex, type: formType });
                 setMasterData([]);
+                                console.log('masterData5');
+
                 setValueUpadted([]);
                 setSelectedData(tempData[nextIndex]);
                 console.log('inside5');
             } else {
                 setMasterData([]);
+                                console.log('masterData6');
+
                 setValueUpadted([]);
                 let tempData = infoData.AttributeCharacteristics;
                 setFormType('char');
