@@ -207,16 +207,30 @@ const CustomHeader = ({
                 <View style={[styles.rightIconList]}>
                     {showIcons && (
                         <>
-                            {!isExpanded ? <TouchableOpacity style={styles.notificationContainer} onPress={() => navigation.navigate(ROUTES.NOTIFICATION_SCREEN)}>
-                                <IconF name="bell-o" size={20} color="#fff" />
-                                {Number(notificationData?.data?.count) > 0 && (
-                                    <View style={styles.badge}>
-                                        <Text style={styles.badgeText}>
-                                            {Number(notificationData?.data?.count) > 99 ? '99+' : notificationData?.data?.count}
-                                        </Text>
-                                    </View>
-                                )}
-                            </TouchableOpacity>: null}
+                            {!isExpanded ? (
+                                <TouchableOpacity
+                                    style={styles.notificationContainer}
+                                    onPress={() =>
+                                        navigation.navigate(ROUTES.NOTIFICATION_SCREEN, {
+                                            payload: {
+                                                ScheduleId: notificationData?.data?.ICInspectionScheduleID,
+                                                UserId: notificationData?.data?.UserId,
+                                                SiteId: notificationData?.data?.SiteId,
+                                                ProcessId: notificationData?.data?.ProcessId,
+                                                DeviceId: notificationData?.data?.DeviceId,
+                                            },
+                                        })
+                                    }>
+                                    <IconF name="bell-o" size={20} color="#fff" />
+                                    {Number(notificationData?.data?.count) > 0 && (
+                                        <View style={styles.badge}>
+                                            <Text style={styles.badgeText}>
+                                                {Number(notificationData?.data?.count) > 99 ? '99+' : notificationData?.data?.count}
+                                            </Text>
+                                        </View>
+                                    )}
+                                </TouchableOpacity>
+                            ) : null}
                             {activeTabId == 1 && (
                                 <TouchableOpacity
                                     onPress={() => {
@@ -252,6 +266,14 @@ const CustomHeader = ({
                                         handleSyncPress();
                                     }}>
                                     <IconO name="sync" size={25} style={styles.iconButton} color={COLORS.white} />
+                                </TouchableOpacity>
+                            )}
+                            {activeTabId == 2 && (
+                                <TouchableOpacity
+                                    onPress={() => {
+                                        navigation.navigate(ROUTES.REPORT_DOWNTIME);
+                                    }}>
+                                    <IconM name="report-gmailerrorred" size={25} style={styles.iconButton} color={COLORS.white} />
                                 </TouchableOpacity>
                             )}
                         </>
@@ -352,7 +374,7 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontSize: 10,
         fontWeight: 'bold',
-        textAlign:'center',
+        textAlign: 'center',
     },
 });
 export default CustomHeader;

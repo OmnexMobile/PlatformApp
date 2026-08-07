@@ -51,5 +51,6 @@ module.exports = {
     IC_GETDOWNTIME:'Downtime/GetDowntimeReasons',
     IC_REPORTDOWNTIME:'Downtime/ReportDowntime ',
     IC_BY_BARCODE:'GetInspectionScheduleByBarcode',
-    IC_NOTIFICATION_LIST:'StartInspectionFromSchedule'
+    IC_NOTIFICATION_LIST:'StartInspectionFromSchedule',
+    IC_NOTIFICATION_SNOOZE:'snooze'
 };

@@ -21,6 +21,7 @@ import IconMM from 'react-native-vector-icons/MaterialIcons';
 import FilterWithMenu from '../FilterWithMenu';
 import { ButtonComponent } from 'components';
 import { RFPercentage } from 'helpers/utils';
+import { calculateCapability, getCPKPPKAlert, validateSPC } from 'helpers/processCapability';
 import { useNavigation } from '@react-navigation/native';
 import { ROUTES } from 'constants/app-constant';
 import SampleCharInfo from './SampleCharInfo';
@@ -90,6 +91,7 @@ const CharacteristicsInfo = ({
     setTypeOfModal = () => {},
     flatListRef = null,
     FileList = [],
+    userType = '',
 }) => {
     const [showCPKModal, setShowCPKModal] = useState(false);
     const [showImageWithSample, setShowImageWithSample] = useState(false);
@@ -238,7 +240,7 @@ const CharacteristicsInfo = ({
                     //     style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
                     // });
                 } else {
-                    console.log('********************step6',...selectedData?.Samples);
+                    console.log('********************step6', ...selectedData?.Samples);
                     setMasterData([...selectedData?.Samples]);
                     setValueUpadted([...selectedData?.Samples]);
                 }
@@ -645,10 +647,102 @@ const CharacteristicsInfo = ({
     const handleViewPhotoWithSample = (item, index) => {
         setShowImageWithSample(true);
     };
-    console.log('masterDatabalu', masterData);
+
+    const handleInnerSavePress = (isSave, btntype) => {
+        // if (type == 'number') {
+        //     // console.log(masterData, 'needmemasterDatatest1newvalue');
+        //     // console.log(selectedData?.Samples, 'needmeuserselectedData1oldvalue');
+        //     const samplelistarray = masterData?.filter(x => x?.value != '')?.map(x => parseFloat(x?.value));
+        //     const perviousSampleList =
+        //         selectedData?.Samples?.length && selectedData?.Samples?.filter(x => x?.value != '')?.map(x => parseFloat(x?.value));
+        //     const hasChanges =
+        //         perviousSampleList?.length !== samplelistarray?.length || perviousSampleList.some((value, index) => value !== samplelistarray[index]);
+        //     if (samplelistarray.length >= 2) {
+        //         const result = calculateCapability({
+        //             sampleSize: parseInt(samplelistarray?.length),
+        //             sampleList: samplelistarray,
+        //             lowerSpecLimit: parseInt(userUpdateValue?.CLowValue),
+        //             upperSpecLimit: parseInt(userUpdateValue?.CHighValue),
+        //         });
+        //         const alertOp = getCPKPPKAlert({ cpk: result?.cpk, ppk: result?.ppk });
+        //         if (hasChanges) {
+        //             if (alertOp?.color == 'red') {
+        //                 showMessage({
+        //                     message: alertOp?.message,
+        //                     backgroundColor: COLORS.ERROR,
+        //                     color: COLORS.white,
+        //                     duration: 1500,
+        //                     statusBarHeight: 40,
+        //                     icon: 'warning',
+        //                     position: 'right',
+        //                     style: { height: 150, alignItems: 'flex-end' },
+        //                 });
+        //             } else if (alertOp?.color == 'orange') {
+        //                 showMessage({
+        //                     message: alertOp?.message,
+        //                     backgroundColor: COLORS.WARNING,
+        //                     color: COLORS.white,
+        //                     duration: 1500,
+        //                     statusBarHeight: 40,
+        //                     icon: 'warning',
+        //                     position: 'right',
+        //                     style: { height: 150, alignItems: 'flex-end' },
+        //                 });
+        //             } else if (alertOp?.color == 'green') {
+        //                 showMessage({
+        //                     message: alertOp?.message,
+        //                     backgroundColor: COLORS.SUCCESS,
+        //                     color: COLORS.white,
+        //                     duration: 1500,
+        //                     statusBarHeight: 40,
+        //                     icon: 'success',
+        //                     position: 'right',
+        //                     style: { height: 150, alignItems: 'flex-end' },
+        //                 });
+        //             }
+        //         }
+        //         handleSavePress(isSave, btntype, alertOp?.message, alertOp?.color);
+        //     } else {
+        //         handleSavePress(isSave, btntype);
+        //     }
+        //     // { cp, cpk, pp, ppk, mean, subgroupCount, warnings }
+        // } else {
+        //     handleSavePress(isSave, btntype);
+        // }
+        if (type === 'number' && userType == 'Inspector') {
+            const validation = validateSPC({
+                type,
+                masterData,
+                previousSamples: selectedData?.Samples,
+                lowValue: inspectionType != 2 ? userUpdateValue?.CLowValue : Number(userUpdateValue?.CTolerance) - Number(userUpdateValue?.CLowValue),
+                highValue:
+                    inspectionType != 2 ? userUpdateValue?.CHighValue : Number(userUpdateValue?.CTolerance) + Number(userUpdateValue?.CHighValue),
+            });
+            handleSavePress(isSave, btntype, validation.alertMessage, validation.alertColor);
+        } else {
+            handleSavePress(isSave, btntype);
+        }
+    };
     const renderFaltList = (showHeader = true) => {
         return (
             <View style={{}}>
+                {Boolean(selectedData?.alertCPKPPKMessage?.length) && (
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingBottom: 10, marginBottom: 5 }}>
+                        <Text
+                            style={{
+                                fontSize: 14,
+                                fontFamily: 'OpenSans-SemiBold',
+                                color:
+                                    selectedData?.alertCPKPPKColor == 'red'
+                                        ? COLORS.ERROR
+                                        : selectedData?.alertCPKPPKColor == 'orange'
+                                        ? COLORS.WARNING
+                                        : COLORS.SUCCESS,
+                            }}>
+                            {selectedData?.alertCPKPPKMessage || ''}
+                        </Text>
+                    </View>
+                )}
                 <FlatList
                     keyboardShouldPersistTaps="handled"
                     ref={flatListRef}
@@ -780,8 +874,8 @@ const CharacteristicsInfo = ({
                         textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}
                         style={{ height: 40, width: '73%' }}
                         onPress={() => {
+                            handleInnerSavePress(true, 'saveBtn');
                             // setShowCPKModal(true);
-                            handleSavePress(true, 'saveBtn');
                         }}>
                         Save
                     </ButtonComponent>

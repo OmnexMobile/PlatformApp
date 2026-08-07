@@ -22,6 +22,7 @@ import ConfirmationModal from '../Components/inprocess-inspection/ConfirmationMo
 import { getInspectionDataByUserAndSite, updateInspectionByUniqueId } from 'store/database/inspectStorage';
 import OfflineFileViewModal from '../Components/inprocess-inspection/OfflineFileViewModal';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { validateSPC } from 'helpers/processCapability';
 const moreList = [
     {
         id: 1,
@@ -294,7 +295,7 @@ const InprocessInspection = ({ route }) => {
                     statusBarHeight: 40,
                     icon: 'warning',
                     position: 'right',
-                    style:{ height: 150, alignItems: 'flex-end' },
+                    style: { height: 150, alignItems: 'flex-end' },
                 });
             }
         } else {
@@ -307,7 +308,7 @@ const InprocessInspection = ({ route }) => {
                 statusBarHeight: 40,
                 icon: 'warning',
                 position: 'right',
-                style:{ height: 150, alignItems: 'flex-end' },
+                style: { height: 150, alignItems: 'flex-end' },
             });
         }
     };
@@ -351,8 +352,40 @@ const InprocessInspection = ({ route }) => {
         }
         setShowAlart(false);
     };
+    // function checkDefectImage(item) {
+    //     // 1. Check if the key exists at all
+    //     const hasDefectImageKey = Object.prototype.hasOwnProperty.call(item, 'defectImage');
+
+    //     if (!hasDefectImageKey) {
+    //         return { hasKey: false, isUpdated: false };
+    //     }
+
+    //     const defectImage = item.defectImage;
+
+    //     // 2. Check if it's actually "updated" — i.e. has real image data,
+    //     // not just an empty/default placeholder object
+    //     const base64 = defectImage?.defectimg?.base64;
+    //     const filename = defectImage?.defectimg?.filename;
+
+    //     const isUpdated = Boolean(defectImage && typeof base64 === 'string' && base64.trim().length > 0 && filename);
+
+    //     return { hasKey: true, isUpdated };
+    // }
+    function checkDefectImage(item) {
+        const hasKey = Object.prototype.hasOwnProperty.call(item, 'defectImage');
+
+        const base64 = item?.defectImage?.defectimg?.base64;
+        const filename = item?.defectImage?.defectimg?.filename;
+
+        const isUpdated = Boolean(hasKey && typeof base64 === 'string' && base64.trim().length > 0 && filename);
+        console.log(hasKey, isUpdated, 'balutest4selectedData');
+        // single combined flag
+        return hasKey && isUpdated;
+    }
+
     const handleSaveAlert = useCallback(
         (movenext = '', typeid = '', userFormType = '') => {
+            console.log('balutest2selectedData', selectedData);
             let isChanged = false;
             const filterdData = inspectList.filter(
                 item =>
@@ -377,9 +410,13 @@ const InprocessInspection = ({ route }) => {
                     if (selectedData?.Samples?.length !== undefined && selectedData?.Samples?.length !== masterData?.length) {
                         isChanged = true;
                     }
+                    isChanged = checkDefectImage(selectedData);
+                    console.log(isChanged, 'balutest3selectedData');
                     let arrayList = [...finalData?.VariableCharacteristics, ...finalData?.AttributeCharacteristics];
                     let selectedFinal = arrayList.filter(item => item?.CCharacteristicsId == selectedData?.CCharacteristicsId);
-                    const hasChanges = selectedFinal.length ? JSON.stringify(selectedFinal[0]?.charInfo) != JSON.stringify(selectedData?.charInfo) : false;
+                    const hasChanges = selectedFinal.length
+                        ? JSON.stringify(selectedFinal[0]?.charInfo) != JSON.stringify(selectedData?.charInfo)
+                        : false;
                     if (isChanged || hasChanges) {
                         setShowAlart(true);
                     } else {
@@ -412,7 +449,7 @@ const InprocessInspection = ({ route }) => {
 
         return () => backHandler.remove(); // cleanup on unmount
     }, [handleSaveAlert]);
-    const handleSavePress = async (close = true, btnText = 'noBtn') => {
+    const handleSavePress = async (close = true, btnText = 'noBtn', alertCPKPPKMessage = null, alertCPKPPKColor = null) => {
         if (showChar) {
             const { VariableCharacteristics, AttributeCharacteristics } = infoData;
             const characteristicsList = formType === 'number' ? VariableCharacteristics : AttributeCharacteristics;
@@ -433,6 +470,8 @@ const InprocessInspection = ({ route }) => {
                 ...selectedData,
                 Samples: selectedData?.isSamplePopup ? masterData : [],
                 status: status,
+                alertCPKPPKMessage: alertCPKPPKMessage,
+                alertCPKPPKColor: alertCPKPPKColor,
             };
             const index = characteristicsList.findIndex(
                 obj =>
@@ -450,7 +489,7 @@ const InprocessInspection = ({ route }) => {
                 [formType === 'number' ? 'VariableCharacteristics' : 'AttributeCharacteristics']: newCharacteristicsList,
             }));
             setMasterData([]);
-                                console.log('masterData2');
+            console.log('masterData2');
 
             setValueUpadted([]);
         } else {
@@ -468,6 +507,7 @@ const InprocessInspection = ({ route }) => {
         }
     };
     const handleNextSamplePress = () => {
+        console.log(infoData, 'balutest1');
         if (infoData.intInspectionTypeID != 2) {
             let tempData = formType == 'number' ? infoData?.VariableCharacteristics : infoData.AttributeCharacteristics;
             if (currentIndex.index < tempData?.length - 1) {
@@ -499,9 +539,9 @@ const InprocessInspection = ({ route }) => {
                 setNextSave(false);
                 if (currentFormType == 'char') {
                     setMixedList('2');
-                    handleSaveAlert('nextSample', infoData.intInspectionTypeID,infoData.userType);
+                    handleSaveAlert('nextSample', infoData.intInspectionTypeID, infoData.userType);
                 } else {
-                    handleSaveAlert('nextSample','',infoData.userType);
+                    handleSaveAlert('nextSample', '', infoData.userType);
                 }
                 Keyboard.dismiss();
             } else if (currentIndex.index == tempData?.length - 1) {
@@ -536,7 +576,7 @@ const InprocessInspection = ({ route }) => {
                 setFormType(tempData[nextIndex]?.type);
                 setCurrentIndex({ index: nextIndex, type: infoData.intInspectionTypeID == 2 ? tempData[nextIndex]?.type : formType });
                 setMasterData([]);
-                                console.log('masterData3');
+                console.log('masterData3');
 
                 setValueUpadted([]);
                 setSelectedData(tempData[nextIndex]);
@@ -545,7 +585,7 @@ const InprocessInspection = ({ route }) => {
                 let tempSele = {};
                 let tempCurrentIndex = {};
                 setMasterData([]);
-                                console.log('masterData4');
+                console.log('masterData4');
 
                 setValueUpadted([]);
                 if (infoData.intInspectionTypeID == 2) {
@@ -592,14 +632,14 @@ const InprocessInspection = ({ route }) => {
                 const nextIndex = currentIndex.index + 1;
                 setCurrentIndex({ index: nextIndex, type: formType });
                 setMasterData([]);
-                                console.log('masterData5');
+                console.log('masterData5');
 
                 setValueUpadted([]);
                 setSelectedData(tempData[nextIndex]);
                 console.log('inside5');
             } else {
                 setMasterData([]);
-                                console.log('masterData6');
+                console.log('masterData6');
 
                 setValueUpadted([]);
                 let tempData = infoData.AttributeCharacteristics;
@@ -660,7 +700,7 @@ const InprocessInspection = ({ route }) => {
                     statusBarHeight: 40,
                     icon: 'warning',
                     position: 'right',
-                    style:{ height: 150, alignItems: 'flex-end' },
+                    style: { height: 150, alignItems: 'flex-end' },
                 });
                 let temp = JSON.parse(JSON.stringify(userUpdateValue.charInfo));
                 let updatedtemp = temp.map(item =>
@@ -692,7 +732,7 @@ const InprocessInspection = ({ route }) => {
                     statusBarHeight: 40,
                     icon: 'warning',
                     position: 'right',
-                    style:{ height: 150, alignItems: 'flex-end' },
+                    style: { height: 150, alignItems: 'flex-end' },
                 });
                 let temp = JSON.parse(JSON.stringify(userUpdateValue.charInfo));
                 let updatedtemp = temp.map(item =>
@@ -708,6 +748,29 @@ const InprocessInspection = ({ route }) => {
             setTypeOfModal('');
         }
     };
+    const handleInnerSavePress = async (isSave, btntype) => {
+        console.log(inspectData, 'needme1');
+        if (formType === 'number' && inspectData?.userType == 'Inspector') {
+            const validation = validateSPC({
+                type: formType,
+                masterData,
+                previousSamples: selectedData?.Samples,
+                lowValue:
+                    inspectData.intInspectionTypeID != 2
+                        ? userUpdateValue?.CLowValue
+                        : Number(userUpdateValue?.CTolerance) - Number(userUpdateValue?.CLowValue),
+                highValue:
+                    inspectData.intInspectionTypeID != 2
+                        ? userUpdateValue?.CHighValue
+                        : Number(userUpdateValue?.CTolerance) + Number(userUpdateValue?.CHighValue),
+            });
+            await handleSavePress(isSave, btntype, validation.alertMessage, validation.alertColor);
+        } else {
+            await handleSavePress(isSave, btntype);
+        }
+        return true;
+    };
+
     return (
         <CustomHeader
             title={renderHeader(inspectData.intInspectionTypeID)}
@@ -865,6 +928,7 @@ const InprocessInspection = ({ route }) => {
                                 setTypeOfModal={setTypeOfModal}
                                 flatListRef={flatListRef}
                                 FileList={inspectData?.attachments || []}
+                                userType={inspectData?.userType}
                             />
                         </View>
                     </View>
@@ -925,7 +989,8 @@ const InprocessInspection = ({ route }) => {
                                 success={true}
                                 style={{ height: 30, width: 100 }}
                                 onPress={async () => {
-                                    await handleSavePress(nextSave);
+                                    // await handleSavePress(nextSave, 'noBtn');
+                                    await handleInnerSavePress(nextSave, 'noBtn');
                                 }}
                                 textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}>
                                 {' '}
@@ -1189,4 +1254,3 @@ const styles = StyleSheet.create({
 });
 
 export default InprocessInspection;
-

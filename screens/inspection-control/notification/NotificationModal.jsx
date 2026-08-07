@@ -7,9 +7,13 @@ import VersionCheck from 'react-native-version-check';
 import IconF from 'react-native-vector-icons/Feather';
 import { useNavigation } from '@react-navigation/native';
 import { ROUTES } from 'constants/app-constant';
+import { postAPI } from 'global/api-helpers';
+import ApiUrl from 'global/ApiUrl';
+import { showErrorMessage } from 'helpers/utils';
+import { showMessage } from 'react-native-flash-message';
 
 const NotificationModal = ({ visible, data, setNotificationData = () => {} }) => {
-    console.log(data?.notification?.title, 'data in modal');
+    console.log(data, 'data in modal');
     const navigation = useNavigation();
     const onClose = () => {
         setNotificationData({
@@ -17,8 +21,26 @@ const NotificationModal = ({ visible, data, setNotificationData = () => {} }) =>
             remoteMessage: null,
         });
     };
-    const handleSnooze = () => {
-        onClose();
+    const handleSnooze = async () => {
+        const payload = {
+            InspectionId: data?.data?.ICInspectionScheduleID,
+        };
+        const APIData = await postAPI(`${ApiUrl.IC_NOTIFICATION_SNOOZE}`, payload);
+        if (APIData?.Success) {
+            showMessage({
+                message: `${APIData?.Message}`,
+                backgroundColor: COLORS.SUCCESS,
+                color: COLORS.white,
+                duration: 1500,
+                statusBarHeight: 40,
+                icon: 'success',
+                position: 'right',
+                style: { height: 150, alignItems: 'flex-end' },
+            });
+            onClose();
+        } else {
+            showErrorMessage(`${APIData?.Message}`);
+        }
     };
     return (
         <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
@@ -63,18 +85,22 @@ const NotificationModal = ({ visible, data, setNotificationData = () => {} }) =>
                             onPress={() => {
                                 navigation.navigate(ROUTES.NOTIFICATION_SCREEN, {
                                     payload: {
-                                        ScheduleId: 3,
-                                        UserId: 6,
-                                        SiteId: 2,
-                                        ProcessId: 0,
-                                        DeviceId: 'a737d8dda7f4d4ac',
+                                        ScheduleId: data?.data?.ICInspectionScheduleID,
+                                        UserId: data?.data?.UserId,
+                                        SiteId: data?.data?.SiteId,
+                                        ProcessId: data?.data?.ProcessId,
+                                        DeviceId: data?.data?.DeviceId,
                                     },
                                 });
                                 onClose();
                             }}>
                             <Text style={styles.textUpdate}>Start Inspection</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.buttonLater} onPress={handleSnooze}>
+                        <TouchableOpacity
+                            style={styles.buttonLater}
+                            onPress={() => {
+                                handleSnooze();
+                            }}>
                             <Text style={styles.textLater}>Snooze 10 Min</Text>
                         </TouchableOpacity>
                     </View>

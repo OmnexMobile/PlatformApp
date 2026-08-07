@@ -199,10 +199,12 @@ const NotificationScreen = () => {
     const [showBubble, setShowBubble] = useState(false);
     useEffect(() => {
         if (isFocused && payload) {
+            console.log(payload,'payloadnew')
             setStorePayload(payload);
             handleListFetch(payload);
         }
     }, [isFocused, payload]);
+    console.log(storePayload,'storedpayload')
     const handleListFetch = async payload => {
         console.log('payloadtest', payload);
         setShowSkeleton(true);

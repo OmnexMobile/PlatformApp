@@ -94,6 +94,7 @@ import IcSettings from 'screens/inspection-control/icSettings';
 import SearchInspection from 'screens/inspection-control/search-inspection';
 import NotificationScreen from 'screens/inspection-control/notification';
 import BarcodeList from 'screens/inspection-control/barcodelist';
+import ReportDowntime from 'screens/inspection-control/reportdowntime';
 const Stack = createNativeStackNavigator();
 
 export const AppStackData = [
@@ -507,7 +508,11 @@ export const AppStackData = [
     {
         name: ROUTES.BARCODE_LIST,
         component: BarcodeList,
-    }
+    },
+    {
+        name: ROUTES.REPORT_DOWNTIME,
+        component: ReportDowntime,
+    },
     // ...HomeStackData,
 ];
 // export const ProfileData = [
