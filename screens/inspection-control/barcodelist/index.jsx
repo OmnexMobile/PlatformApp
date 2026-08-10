@@ -142,7 +142,7 @@ const BarcodeList = () => {
                                         statusBarHeight: 45,
                                         icon: 'danger',
                                         position: 'right',
-                                        style: { height: 150, alignItems: 'flex-end' },
+                                        style: { height: 120, alignItems: 'flex-end' },
                                     });
                                 }
                             }}>

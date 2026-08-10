@@ -255,7 +255,7 @@ const InspectionSchedule = () => {
                 statusBarHeight: 40,
                 icon: 'danger',
                 position: 'right',
-                style:{ height: 100, alignItems: 'flex-end' },
+                style:{ height: 120, alignItems: 'flex-end' },
             });
         }
     };
@@ -301,7 +301,7 @@ const InspectionSchedule = () => {
                                         statusBarHeight: 45,
                                         icon: 'danger',
                                         position: 'right',
-                                        style:{ height: 100, alignItems: 'flex-end' },
+                                        style:{ height: 120, alignItems: 'flex-end' },
                                     });
                                 }
                             }}>

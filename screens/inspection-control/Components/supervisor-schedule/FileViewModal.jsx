@@ -187,7 +187,7 @@ const FileViewModal = ({ visible = false, onDismiss = () => { }, selectedValue =
                     statusBarHeight: 40,
                     icon: 'success',
                     position: 'right',
-                    style:{ height: 150, alignItems: 'flex-end' },
+                    style:{ height: 120, alignItems: 'flex-end' },
                 });
             } else {
                 const result = await Share.share({
@@ -204,7 +204,7 @@ const FileViewModal = ({ visible = false, onDismiss = () => { }, selectedValue =
                         statusBarHeight: 40,
                         icon: 'success',
                         position: 'right',
-                        style:{ height: 150, alignItems: 'flex-end' },
+                        style:{ height: 120, alignItems: 'flex-end' },
                     });
                 }
             }

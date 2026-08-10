@@ -295,7 +295,7 @@ const InprocessInspection = ({ route }) => {
                     statusBarHeight: 40,
                     icon: 'warning',
                     position: 'right',
-                    style: { height: 150, alignItems: 'flex-end' },
+                    style: { height: 120, alignItems: 'flex-end' },
                 });
             }
         } else {
@@ -308,7 +308,7 @@ const InprocessInspection = ({ route }) => {
                 statusBarHeight: 40,
                 icon: 'warning',
                 position: 'right',
-                style: { height: 150, alignItems: 'flex-end' },
+                style: { height: 120, alignItems: 'flex-end' },
             });
         }
     };
@@ -700,7 +700,7 @@ const InprocessInspection = ({ route }) => {
                     statusBarHeight: 40,
                     icon: 'warning',
                     position: 'right',
-                    style: { height: 150, alignItems: 'flex-end' },
+                    style: { height: 120, alignItems: 'flex-end' },
                 });
                 let temp = JSON.parse(JSON.stringify(userUpdateValue.charInfo));
                 let updatedtemp = temp.map(item =>
@@ -732,7 +732,7 @@ const InprocessInspection = ({ route }) => {
                     statusBarHeight: 40,
                     icon: 'warning',
                     position: 'right',
-                    style: { height: 150, alignItems: 'flex-end' },
+                    style: { height: 120, alignItems: 'flex-end' },
                 });
                 let temp = JSON.parse(JSON.stringify(userUpdateValue.charInfo));
                 let updatedtemp = temp.map(item =>

@@ -370,7 +370,7 @@ const CompletedInspection = () => {
                 statusBarHeight: 40,
                 icon: 'success',
                 position: 'right',
-                style: { height: 150, alignItems: 'flex-end' },
+                style: { height: 120, alignItems: 'flex-end' },
             });
             if (flag) {
                 getAllCompletedData(true);
@@ -384,7 +384,7 @@ const CompletedInspection = () => {
                 statusBarHeight: 40,
                 icon: 'warning',
                 position: 'right',
-                style: { height: 150, alignItems: 'flex-end' },
+                style: { height: 120, alignItems: 'flex-end' },
             });
         }
         setDisableBtn(false);
@@ -481,7 +481,7 @@ const CompletedInspection = () => {
                 statusBarHeight: 40,
                 icon: 'success',
                 position: 'right',
-                style:{ height: 150, alignItems: 'flex-end' },
+                style:{ height: 120, alignItems: 'flex-end' },
             });
             if (flag) {
                 getAllCompletedData(true);
@@ -495,7 +495,7 @@ const CompletedInspection = () => {
                 statusBarHeight: 40,
                 icon: 'warning',
                 position: 'right',
-                style:{ height: 150, alignItems: 'flex-end' },
+                style:{ height: 120, alignItems: 'flex-end' },
             });
         }
         setDisableBtn(false);

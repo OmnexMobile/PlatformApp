@@ -85,7 +85,7 @@ const CaptureDefect = ({ visible = false, onRequestClose = () => {}, selectedDat
                 defectImage: defectDetails,
             };
             setSelectedData(updatedData);
-            handleRequestClose();
+            onRequestClose();
         }
     };
     const handleInputChange = (field, value) => {

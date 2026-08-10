@@ -546,7 +546,7 @@ const SupervisorSchedule = () => {
                     statusBarHeight: 40,
                     icon: 'success',
                     position: 'right',
-                    style:  { height: 150, alignItems: 'flex-end' },
+                    style:  { height: 120, alignItems: 'flex-end' },
                 });
                 setShowBubble(false);
                 navigation.navigate(ROUTES.INPROCESS_INSPECTION, { inspectData: inspectObj });
@@ -559,7 +559,7 @@ const SupervisorSchedule = () => {
                     statusBarHeight: 40,
                     icon: 'warning',
                     position: 'right',
-                    style:  { height: 150, alignItems: 'flex-end' },
+                    style:  { height: 120, alignItems: 'flex-end' },
                 });
                 setShowBubble(false);
             }
@@ -752,7 +752,7 @@ const SupervisorSchedule = () => {
                                         statusBarHeight: 40,
                                         icon: 'danger',
                                         position: 'right',
-                                        style: { height: 150, alignItems: 'flex-end' },
+                                        style: { height: 120, alignItems: 'flex-end' },
                                     });
                                 }
                             }}
@@ -777,7 +777,7 @@ const SupervisorSchedule = () => {
                                         statusBarHeight: 40,
                                         icon: 'danger',
                                         position: 'right',
-                                        style: { height: 150, alignItems: 'flex-end' },
+                                        style: { height: 120, alignItems: 'flex-end' },
                                     });
                                 }
                             }}
