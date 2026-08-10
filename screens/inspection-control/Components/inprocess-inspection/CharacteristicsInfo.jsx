@@ -926,12 +926,14 @@ const CharacteristicsInfo = ({
                     </SafeAreaView>
                 </GestureHandlerRootView>
             </Modal>
-            <CaptureDefect
-                visible={showCaptureDefect}
-                onRequestClose={() => setShowCaptureDefect(false)}
-                selectedData={selectedData}
-                setSelectedData={setSelectedData}
-            />
+            {Boolean(showCaptureDefect) && (
+                <CaptureDefect
+                    visible={showCaptureDefect}
+                    onRequestClose={() => setShowCaptureDefect(false)}
+                    selectedData={selectedData}
+                    setSelectedData={setSelectedData}
+                />
+            )}
         </KeyboardAvoidingView>
     );
 };

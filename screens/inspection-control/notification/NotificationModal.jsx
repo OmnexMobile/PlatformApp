@@ -55,10 +55,21 @@ const NotificationModal = ({ visible, data, setNotificationData = () => {} }) =>
         <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
             <View style={styles.overlay}>
                 <View style={styles.container}>
-                    <View style={styles.titleContainer}>
-                        <IconF name="alert-triangle" size={25} color={COLORS.WARNING} />
-                        {/* <Text style={styles.title}>Inspection Alert !</Text> */}
-                        <Text style={styles.title}> {data?.notification?.title} !</Text>
+                    <View
+                        style={{
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            width: '100%',
+                        }}>
+                        <View style={styles.titleContainer}>
+                            <IconF name="alert-triangle" size={25} color={COLORS.WARNING} />
+                            {/* <Text style={styles.title}>Inspection Alert !</Text> */}
+                            <Text style={styles.title}> {data?.notification?.title} !</Text>
+                        </View>
+                        <TouchableOpacity style={styles.iconContainer} onPress={onClose}>
+                            <IconF name="x" size={25} color={COLORS.black} />
+                        </TouchableOpacity>
                     </View>
                     <View style={{ backgroundColor: COLORS.notificationShadow, marginBottom: 10, padding: 10, borderRadius: 10 }}>
                         {/* <Text style={styles.message}>Time for Inspection</Text>
@@ -85,6 +96,7 @@ const NotificationModal = ({ visible, data, setNotificationData = () => {} }) =>
                                 <Text>Inspect 5 samples now</Text>{' '}
                             </Text> */}
                             <Text style={styles.message}>Time for Inspection</Text>
+                            <Text style={styles.lastMessage}>{`${data?.notification?.body?.split(':')[1]}`}</Text>
                             <Text style={styles.lastMessage}>Complete All Measurements for Each sample </Text>
                         </View>
                     </View>
@@ -191,5 +203,13 @@ const styles = StyleSheet.create({
     },
     textLater: { color: '#555', fontWeight: '600' },
     textUpdate: { color: '#fff', fontWeight: '600' },
-    titleContainer: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginBottom: 10 },
+    titleContainer: {
+        flex: 8,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    iconContainer: {
+        flex: 1,
+    },
 });

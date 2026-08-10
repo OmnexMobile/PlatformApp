@@ -352,37 +352,55 @@ const InprocessInspection = ({ route }) => {
         }
         setShowAlart(false);
     };
-    // function checkDefectImage(item) {
-    //     // 1. Check if the key exists at all
-    //     const hasDefectImageKey = Object.prototype.hasOwnProperty.call(item, 'defectImage');
+    // function checkDefectImage(item,oldData) {
+    //     const hasKey = Object.prototype.hasOwnProperty.call(item, 'defectImage');
 
-    //     if (!hasDefectImageKey) {
-    //         return { hasKey: false, isUpdated: false };
+    //     const base64 = item?.defectImage?.defectimg?.base64;
+    //     const filename = item?.defectImage?.defectimg?.filename;
+    //     const editedTime1 = new Date(oldData?.defectImage?.editedTime);
+    //     const editedTime2 = new Date(item?.defectImage?.editedTime);
+
+    //     const isUpdated = Boolean(hasKey && typeof base64 === 'string' && base64.trim().length > 0 && filename);
+    //     console.log(editedTime1.getTime(),editedTime2.getTime(),'balutest4selectedData');
+    //     let isEdited = false;
+    //     if(!Number.isNaN(editedTime1.getTime()) && !Number.isNaN(editedTime2.getTime())) {
+    //         isEdited = editedTime1.getTime() !== editedTime2.getTime();
     //     }
-
-    //     const defectImage = item.defectImage;
-
-    //     // 2. Check if it's actually "updated" — i.e. has real image data,
-    //     // not just an empty/default placeholder object
-    //     const base64 = defectImage?.defectimg?.base64;
-    //     const filename = defectImage?.defectimg?.filename;
-
-    //     const isUpdated = Boolean(defectImage && typeof base64 === 'string' && base64.trim().length > 0 && filename);
-
-    //     return { hasKey: true, isUpdated };
+    //     console.log(hasKey,isUpdated,isEdited,'balutest5selectedData');
+    //     // single combined flag
+    //     return hasKey && isUpdated && isEdited;
     // }
-    function checkDefectImage(item) {
+
+    function checkDefectImage(item, oldData) {
         const hasKey = Object.prototype.hasOwnProperty.call(item, 'defectImage');
 
         const base64 = item?.defectImage?.defectimg?.base64;
         const filename = item?.defectImage?.defectimg?.filename;
 
         const isUpdated = Boolean(hasKey && typeof base64 === 'string' && base64.trim().length > 0 && filename);
-        console.log(hasKey, isUpdated, 'balutest4selectedData');
-        // single combined flag
-        return hasKey && isUpdated;
-    }
 
+        const oldEditedTime = oldData?.defectImage?.editedTime;
+        const newEditedTime = item?.defectImage?.editedTime;
+
+        let isEdited = false;
+
+        if (newEditedTime) {
+            // New editedTime exists — compare against old one (which may or may not exist)
+            const t1 = oldEditedTime ? new Date(oldEditedTime).getTime() : NaN;
+            const t2 = new Date(newEditedTime).getTime();
+
+            if (Number.isNaN(t1)) {
+                // No previous editedTime → this is a first-time capture → counts as edited
+                isEdited = !Number.isNaN(t2);
+            } else {
+                isEdited = t1 !== t2;
+            }
+        }
+
+        console.log(hasKey, isUpdated, isEdited, 'balutest5selectedData');
+
+        return hasKey && isUpdated && isEdited;
+    }
     const handleSaveAlert = useCallback(
         (movenext = '', typeid = '', userFormType = '') => {
             console.log('balutest2selectedData', selectedData);
@@ -410,14 +428,15 @@ const InprocessInspection = ({ route }) => {
                     if (selectedData?.Samples?.length !== undefined && selectedData?.Samples?.length !== masterData?.length) {
                         isChanged = true;
                     }
-                    isChanged = checkDefectImage(selectedData);
-                    console.log(isChanged, 'balutest3selectedData');
+
                     let arrayList = [...finalData?.VariableCharacteristics, ...finalData?.AttributeCharacteristics];
                     let selectedFinal = arrayList.filter(item => item?.CCharacteristicsId == selectedData?.CCharacteristicsId);
+                    let isDefectChanged = checkDefectImage(selectedData, selectedFinal[0]);
+                    console.log(isDefectChanged, selectedFinal, selectedData, 'balutest3selectedData');
                     const hasChanges = selectedFinal.length
                         ? JSON.stringify(selectedFinal[0]?.charInfo) != JSON.stringify(selectedData?.charInfo)
                         : false;
-                    if (isChanged || hasChanges) {
+                    if (isChanged || hasChanges || isDefectChanged) {
                         setShowAlart(true);
                     } else {
                         if (movenext == 'nextSample') {

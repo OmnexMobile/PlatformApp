@@ -24,18 +24,21 @@ const CaptureDefect = ({ visible = false, onRequestClose = () => {}, selectedDat
         value: '',
         defectType: '',
         comments: '',
+        editedTime:null
     });
     const handleRetakePhoto = () => {
         setFileList([]);
         setDefectDetails(prev => ({
             ...prev,
             defectimg: null,
+            editedTime:new Date().toISOString()
         }));
         setShowCamera(true);
     };
     console.log('selectedData12', selectedData);
 
     useEffect(() => {
+        console.log('selectedData?.defectImage', selectedData?.defectImage);
         if (selectedData?.defectImage) {
             setDefectDetails(selectedData?.defectImage);
             setFileList(selectedData?.defectImage?.defectimg ? [selectedData?.defectImage?.defectimg] : []);
@@ -46,6 +49,7 @@ const CaptureDefect = ({ visible = false, onRequestClose = () => {}, selectedDat
                 value: '',
                 defectType: '',
                 comments: '',
+                editedTime:null,
             });
             setFileList([]);
         }
@@ -92,6 +96,7 @@ const CaptureDefect = ({ visible = false, onRequestClose = () => {}, selectedDat
         setDefectDetails(prev => ({
             ...prev,
             [field]: value,
+            editedTime:new Date().toISOString()
         }));
     };
     const handlestoreFileData = fileData => {
@@ -112,6 +117,7 @@ const CaptureDefect = ({ visible = false, onRequestClose = () => {}, selectedDat
             value: '',
             defectType: '',
             comments: '',
+            editedTime: null,
         });
         setError({
             image: false,
