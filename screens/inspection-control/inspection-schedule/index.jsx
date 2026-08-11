@@ -61,7 +61,7 @@ const moreList = [
 const InspectionSchedule = () => {
     const insets = useSafeAreaInsets();
     const { height } = useWindowDimensions();
-    const { icUserData,icSettings, dateFormat } = useSelector(state => state.inspection);
+    const { icUserData, icSettings, dateFormat } = useSelector(state => state.inspection);
     const uiDateFormat = dateFormat || 'DD/MM/YYYY';
     const dispatch = useDispatch();
     const isFocused = useIsFocused();
@@ -107,10 +107,10 @@ const InspectionSchedule = () => {
     //     console.log(list, '*********************************************list.length');
     // };
     const getOverAllSettings = async () => {
-        const formDate=new FormData();
+        const formDate = new FormData();
         formDate.append('UserID', parseInt(icUserData?.userData?.UserId));
         formDate.append('SiteID', parseInt(icUserData?.userData?.Siteid));
-        const settingsRes = await postAPI(`${ApiUrl.IC_SETTINGS}`,formDate);
+        const settingsRes = await postAPI(`${ApiUrl.IC_SETTINGS}`, formDate);
         if (settingsRes.Success) {
             const settings = {
                 ...settingsRes?.Data[0],
@@ -121,8 +121,8 @@ const InspectionSchedule = () => {
     };
     const handleListFetch = async (inspect = null, showSktn = true, filterType = '') => {
         // await deleteAllInspectionData();
-        const inspectList = await getInspectionDataByUserAndSite(icUserData?.userData?.UserId, icUserData?.userData?.Siteid);
         showSktn && setShowSkeleton(true);
+        const inspectList = await getInspectionDataByUserAndSite(icUserData?.userData?.UserId, icUserData?.userData?.Siteid);
         const { startDate, endDate, type } = filterData;
         let dateFlag = startDate !== '' && endDate !== '';
         const formData = new FormData();
@@ -206,7 +206,7 @@ const InspectionSchedule = () => {
         return () => {
             setSearch('');
         };
-    }, [icUserData, isFocused]);
+    }, [icUserData, filterData, isFocused]);
     const handleCIbtnpress = () => {
         navigation.navigate(ROUTES.COMPLETED_INSPECTION);
     };
@@ -255,7 +255,7 @@ const InspectionSchedule = () => {
                 statusBarHeight: 40,
                 icon: 'danger',
                 position: 'right',
-                style:{ height: 120, alignItems: 'flex-end' },
+                style: { height: 120, alignItems: 'flex-end' },
             });
         }
     };
@@ -278,7 +278,7 @@ const InspectionSchedule = () => {
                     </Text>
                 </View>
                 <View style={[styles.lastBox]}>
-                    <Text style={[styles.secondText]}>{moment(item.ProductionStartDate,"MM/DD/YYYY").format(uiDateFormat)}</Text>
+                    <Text style={[styles.secondText]}>{moment(item.ProductionStartDate, 'MM/DD/YYYY').format(uiDateFormat)}</Text>
                     <View style={[styles.iconlist]}>
                         <TouchableOpacity
                             style={{ marginLeft: 15 }}
@@ -301,7 +301,7 @@ const InspectionSchedule = () => {
                                         statusBarHeight: 45,
                                         icon: 'danger',
                                         position: 'right',
-                                        style:{ height: 120, alignItems: 'flex-end' },
+                                        style: { height: 120, alignItems: 'flex-end' },
                                     });
                                 }
                             }}>
@@ -392,8 +392,25 @@ const InspectionSchedule = () => {
                         <DataPickerWithIcon
                             value={filterData?.startDate || null}
                             onSelectedDate={val => {
+                                const { endDate } = filterData;
+                                const tempStart = moment(val);
+                                const tempEnd = moment(endDate);
                                 // handleInputChange('startDate', val, 'dateFilter');
-                                setFilterData(pre => ({ ...pre, startDate: val }));
+                                // setFilterData(pre => ({ ...pre, startDate: val }));
+                                if (tempStart.isBefore(tempEnd)) {
+                                    setFilterData(pre => ({ ...pre, startDate: val }));
+                                } else {
+                                    showMessage({
+                                        message: 'Start Date must be less than End Date',
+                                        backgroundColor: COLORS.ERROR,
+                                        color: COLORS.white,
+                                        duration: 1500,
+                                        statusBarHeight: 40,
+                                        icon: 'danger',
+                                        position: 'right',
+                                        style: { height: 120, alignItems: 'flex-end' },
+                                    });
+                                }
                             }}
                         />
                     </View>
@@ -402,8 +419,25 @@ const InspectionSchedule = () => {
                             value={filterData?.endDate || null}
                             placeHolder="End Date"
                             onSelectedDate={val => {
-                                setFilterData(pre => ({ ...pre, endDate: val }));
+                                // setFilterData(pre => ({ ...pre, endDate: val }));
                                 // handleInputChange('endDate', val, 'dateFilter');
+                                const { startDate } = filterData;
+                                const tempStart = moment(startDate);
+                                const tempEnd = moment(val);
+                                if (tempStart.isBefore(tempEnd)) {
+                                    setFilterData(pre => ({ ...pre, endDate: val }));
+                                } else {
+                                    showMessage({
+                                        message: 'Start Date must be less than End Date',
+                                        backgroundColor: COLORS.ERROR,
+                                        color: COLORS.white,
+                                        duration: 1500,
+                                        statusBarHeight: 50,
+                                        icon: 'danger',
+                                        position: 'right',
+                                        style: { height: 120, alignItems: 'flex-end' },
+                                    });
+                                }
                             }}
                         />
                     </View>
