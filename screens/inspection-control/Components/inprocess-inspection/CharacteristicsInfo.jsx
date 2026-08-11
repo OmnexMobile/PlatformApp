@@ -773,6 +773,7 @@ const CharacteristicsInfo = ({
                                     setTypeOfModal={setTypeOfModal}
                                     charType={type}
                                     inspectionType={inspectionType}
+                                    userType={userType}
                                 />
                             )}
                             {Boolean(selectedData?.isSamplePopup) && (

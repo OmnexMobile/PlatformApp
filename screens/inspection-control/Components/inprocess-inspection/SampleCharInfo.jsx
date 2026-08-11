@@ -20,6 +20,7 @@ const SampleCharInfo = ({
     setTypeOfModal = () => {},
     charType = 'number',
     inspectionType = '',
+    userType = '',
 }) => {
     const [defectList, setDefectList] = useState([]);
     const insets = useSafeAreaInsets();
@@ -121,6 +122,7 @@ const SampleCharInfo = ({
             return item?.Value;
         }
     };
+    console.log('userTypebalu', selectedData, userType);
     return (
         <View style={styles.rowContainer}>
             {Boolean(selectedData?.charInfo?.length) &&
@@ -128,7 +130,12 @@ const SampleCharInfo = ({
                     ?.filter(item => {
                         if (
                             item.PropertyName === 'ActualValue' ||
-                            (charType != 'number' && (item.RefData == '##HighToleranceValue##' || item.RefData == '##LowToleranceValue##'))
+                            (charType != 'number' && (item.RefData == '##HighToleranceValue##' || item.RefData == '##LowToleranceValue##')) ||
+                            (userType === 'Inspector' &&
+                                (item.PropertyName === 'Cp' ||
+                                    item.PropertyName === 'Cpk' ||
+                                    item.PropertyName === 'Pp' ||
+                                    item.PropertyName === 'Ppk'))
                         ) {
                             return false;
                         }
