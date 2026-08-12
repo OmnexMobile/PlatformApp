@@ -607,10 +607,10 @@ const styles = StyleSheet.create({
         color: COLORS.headerText,
     },
     filterBox: {
-        width: '30%',
+        width: '32%',
     },
     filterList: {
-        width: '25%',
+        width: '23%',
     },
     iconFilter: {
         width: '10%',
