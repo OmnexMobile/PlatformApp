@@ -468,10 +468,6 @@ const SearchInspection = () => {
                     backgroundColor: COLORS.SUCCESS,
                     color: COLORS.white,
                     duration: 1500,
-                    statusBarHeight: 40,
-                    icon: 'success',
-                    position: 'right',
-                    style:{ height: 120, alignItems: 'flex-end' } ,
                 });
                 setShowBubble(false);
                 navigation.navigate(ROUTES.INPROCESS_INSPECTION, { inspectData: inspectObj });
@@ -482,10 +478,6 @@ const SearchInspection = () => {
                     backgroundColor: COLORS.ERROR,
                     color: COLORS.white,
                     duration: 1500,
-                    statusBarHeight: 40,
-                    icon: 'warning',
-                    position: 'right',
-                    style:{ height: 120, alignItems: 'flex-end' } ,
                 });
                 setShowBubble(false);
             }
@@ -713,10 +705,6 @@ const SearchInspection = () => {
                                         backgroundColor: COLORS.ERROR,
                                         color: COLORS.white,
                                         duration: 1500,
-                                        statusBarHeight: 40,
-                                        icon: 'danger',
-                                        position: 'right',
-                                        style: { height: 120, alignItems: 'flex-end' },
                                     });
                                 }
                             }}
@@ -738,10 +726,6 @@ const SearchInspection = () => {
                                         backgroundColor: COLORS.ERROR,
                                         color: COLORS.white,
                                         duration: 1500,
-                                        statusBarHeight: 40,
-                                        icon: 'danger',
-                                        position: 'right',
-                                        style: { height: 120, alignItems: 'flex-end' },
                                     });
                                 }
                             }}

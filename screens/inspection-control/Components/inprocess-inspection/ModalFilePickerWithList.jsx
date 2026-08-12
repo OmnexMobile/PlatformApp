@@ -7,11 +7,7 @@ import Icon from 'react-native-vector-icons/AntDesign';
 import IconI from 'react-native-vector-icons/Ionicons';
 import IconM from 'react-native-vector-icons/MaterialCommunityIcons';
 // import DocumentPicker from 'react-native-document-picker';
-import {
-    pick,
-    types,
-    errorCodes,
-} from '@react-native-documents/picker';
+import { pick, types, errorCodes } from '@react-native-documents/picker';
 import uuid from 'react-native-uuid';
 import RNBlobUtil from 'react-native-blob-util';
 import FileViewer from 'react-native-file-viewer';
@@ -21,15 +17,15 @@ import CameraScreen from './CameraScreen';
 
 const ModalFilePickerWithList = ({
     visible = false,
-    onDismiss = () => { },
+    onDismiss = () => {},
     selectedData = {},
     masterData = {},
-    setSelectedData = () => { },
+    setSelectedData = () => {},
     infoData = {},
-    setInfoData = () => { },
+    setInfoData = () => {},
     formType = '',
     showCamer = false,
-    setShowCamer = () => { },
+    setShowCamer = () => {},
 }) => {
     const [fileList, setFileList] = useState([]);
     useEffect(() => {
@@ -91,25 +87,14 @@ const ModalFilePickerWithList = ({
 
             const selectedFile = response[0];
 
-            if (
-                selectedFile?.size &&
-                selectedFile.size <= 5 * 1024 * 1024
-            ) {
-                const filePath =
-                    selectedFile.fileCopyUri || selectedFile.uri;
+            if (selectedFile?.size && selectedFile.size <= 5 * 1024 * 1024) {
+                const filePath = selectedFile.fileCopyUri || selectedFile.uri;
 
-                const cleanedPath = filePath.replace(
-                    'file://',
-                    '',
-                );
+                const cleanedPath = filePath.replace('file://', '');
 
-                const base64 = await RNBlobUtil.fs.readFile(
-                    cleanedPath,
-                    'base64',
-                );
+                const base64 = await RNBlobUtil.fs.readFile(cleanedPath, 'base64');
 
-                const fileExtension =
-                    selectedFile?.name?.split('.').pop();
+                const fileExtension = selectedFile?.name?.split('.').pop();
 
                 const file = {
                     ...selectedFile,
@@ -139,19 +124,6 @@ const ModalFilePickerWithList = ({
 
                     duration: 1500,
 
-                    statusBarHeight: 40,
-
-                    icon: 'danger',
-
-                    position: 'right',
-
-                    style:
-                        Platform.OS === 'ios'
-                            ? {
-                                height: 90,
-                                alignItems: 'flex-end',
-                            }
-                            : {},
                 });
             }
         } catch (err) {
@@ -167,20 +139,6 @@ const ModalFilePickerWithList = ({
                 color: COLORS.white,
 
                 duration: 1500,
-
-                statusBarHeight: 40,
-
-                icon: 'danger',
-
-                position: 'right',
-
-                style:
-                    Platform.OS === 'ios'
-                        ? {
-                            height: 90,
-                            alignItems: 'flex-end',
-                        }
-                        : {},
             });
         }
     };
@@ -210,7 +168,6 @@ const ModalFilePickerWithList = ({
         } catch (error) {
             console.error('File open error:', error);
             Alert.alert('Error', 'Unable to open file.');
-
         }
     };
     const handleDeletePress = index => {

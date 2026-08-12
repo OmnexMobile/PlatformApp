@@ -223,13 +223,6 @@ export const validateSPC = ({
             backgroundColor,
             color: COLORS.white,
             duration: 1500,
-            statusBarHeight: 40,
-            icon,
-            position: 'right',
-            style: {
-                height: 150,
-                alignItems: 'flex-end',
-            },
         });
     }
 

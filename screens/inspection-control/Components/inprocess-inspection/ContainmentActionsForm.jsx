@@ -59,10 +59,6 @@ const ContainmentActionsForm = ({ type = '', masterData, handleSubmit = () => {}
                 backgroundColor: COLORS.ERROR,
                 color: COLORS.white,
                 duration: 1500,
-                statusBarHeight: 40,
-                icon: 'warning',
-                position: 'right',
-                style: { height: 120, alignItems: 'flex-end' },
             });
         }
     };

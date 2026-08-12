@@ -252,10 +252,6 @@ const InspectionSchedule = () => {
                 backgroundColor: COLORS.ERROR,
                 color: COLORS.white,
                 duration: 1500,
-                statusBarHeight: 40,
-                icon: 'danger',
-                position: 'right',
-                style: { height: 120, alignItems: 'flex-end' },
             });
         }
     };
@@ -298,10 +294,6 @@ const InspectionSchedule = () => {
                                         backgroundColor: COLORS.WARNING,
                                         color: COLORS.white,
                                         duration: 1500,
-                                        statusBarHeight: 45,
-                                        icon: 'danger',
-                                        position: 'right',
-                                        style: { height: 120, alignItems: 'flex-end' },
                                     });
                                 }
                             }}>
@@ -405,10 +397,6 @@ const InspectionSchedule = () => {
                                         backgroundColor: COLORS.ERROR,
                                         color: COLORS.white,
                                         duration: 1500,
-                                        statusBarHeight: 40,
-                                        icon: 'danger',
-                                        position: 'right',
-                                        style: { height: 120, alignItems: 'flex-end' },
                                     });
                                 }
                             }}
@@ -432,10 +420,6 @@ const InspectionSchedule = () => {
                                         backgroundColor: COLORS.ERROR,
                                         color: COLORS.white,
                                         duration: 1500,
-                                        statusBarHeight: 50,
-                                        icon: 'danger',
-                                        position: 'right',
-                                        style: { height: 120, alignItems: 'flex-end' },
                                     });
                                 }
                             }}

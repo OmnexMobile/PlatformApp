@@ -32,10 +32,6 @@ const NotificationModal = ({ visible, data, setNotificationData = () => {} }) =>
                 backgroundColor: COLORS.SUCCESS,
                 color: COLORS.white,
                 duration: 1500,
-                statusBarHeight: 40,
-                icon: 'success',
-                position: 'right',
-                style: { height: 120, alignItems: 'flex-end' },
             });
             onClose();
         } else {
@@ -44,10 +40,6 @@ const NotificationModal = ({ visible, data, setNotificationData = () => {} }) =>
                 backgroundColor: COLORS.ERROR,
                 color: COLORS.white,
                 duration: 1500,
-                statusBarHeight: 40,
-                icon: 'warning',
-                position: 'right',
-                style: { height: 120, alignItems: 'flex-end' },
             });
         }
     };

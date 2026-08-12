@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Provider } from 'react-redux';
-import { SafeAreaView, useColorScheme, View } from 'react-native';
+import { Platform, StatusBar, useColorScheme, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 // import { Colors } from 'react-native/Libraries/NewAppScreen';
 import FlashMessage from 'react-native-flash-message';
@@ -34,10 +34,12 @@ import {
 } from './screens/notificationService';
 import NotificationModal from 'screens/inspection-control/notification/NotificationModal';
 import TokenPopup from 'screens/TokenPopup';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 setupInterceptors();
 
 const Parent = () => {
+    const statusBarHeight = Platform.OS === 'android' ? StatusBar.currentHeight : 55;
     const navigationRef = useRef();
     const { theme } = useTheme();
     const isDarkMode = useColorScheme() === 'dark';
@@ -116,10 +118,11 @@ const Parent = () => {
     //         </>
     //     );
     // }
-
+console.log('warningList', statusBarHeight);
     return (
         <GestureHandlerRootView style={{ flex: 1 }}>
             <SafeAreaView style={[backgroundStyle, { backgroundColor: theme.mode.backgroundColor }]}>
+                <FlashMessage statusBarHeight={statusBarHeight} />
                 <Provider store={store}>
                     <PersistGate loading={null} persistor={persistor}>
                         <AppProvider>
@@ -127,7 +130,7 @@ const Parent = () => {
                                 <StatusBarAndroidIOS />
                                 <NavigationContainer onReady={() => RNBootSplash.hide()}>
                                     <AppStack />
-                                     <NotificationModal
+                                    <NotificationModal
                                         visible={notificationData.showModal}
                                         // onClose={() => setNotificationData({ showModal: false })}
                                         data={notificationData.remoteMessage}
@@ -155,7 +158,6 @@ const Parent = () => {
             </View>
 
             {/* Notification Component */}
-                <FlashMessage />
             </SafeAreaView>
             <UpdateModal visible={showUpdateModal} onClose={() => setShowUpdateModal(false)} />
             {/* <TokenPopup visible={modalVisible} token={currentToken} onClose={() => setModalVisible(false)} /> */}

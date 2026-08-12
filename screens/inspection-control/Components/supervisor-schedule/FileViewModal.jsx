@@ -184,10 +184,6 @@ const FileViewModal = ({ visible = false, onDismiss = () => { }, selectedValue =
                     backgroundColor: COLORS.SUCCESS,
                     color: COLORS.white,
                     duration: 1500,
-                    statusBarHeight: 40,
-                    icon: 'success',
-                    position: 'right',
-                    style:{ height: 120, alignItems: 'flex-end' },
                 });
             } else {
                 const result = await Share.share({
@@ -201,10 +197,6 @@ const FileViewModal = ({ visible = false, onDismiss = () => { }, selectedValue =
                         backgroundColor: COLORS.SUCCESS,
                         color: COLORS.white,
                         duration: 1500,
-                        statusBarHeight: 40,
-                        icon: 'success',
-                        position: 'right',
-                        style:{ height: 120, alignItems: 'flex-end' },
                     });
                 }
             }

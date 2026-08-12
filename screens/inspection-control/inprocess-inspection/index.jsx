@@ -292,10 +292,6 @@ const InprocessInspection = ({ route }) => {
                     backgroundColor: COLORS.ERROR,
                     color: COLORS.white,
                     duration: 1500,
-                    statusBarHeight: 40,
-                    icon: 'warning',
-                    position: 'right',
-                    style: { height: 120, alignItems: 'flex-end' },
                 });
             }
         } else {
@@ -305,10 +301,6 @@ const InprocessInspection = ({ route }) => {
                 backgroundColor: COLORS.ERROR,
                 color: COLORS.white,
                 duration: 1500,
-                statusBarHeight: 40,
-                icon: 'warning',
-                position: 'right',
-                style: { height: 120, alignItems: 'flex-end' },
             });
         }
     };
@@ -429,7 +421,8 @@ const InprocessInspection = ({ route }) => {
                         isChanged = true;
                     }
 
-                    let arrayList = [...finalData?.VariableCharacteristics, ...finalData?.AttributeCharacteristics];
+                    // let arrayList = [...finalData?.VariableCharacteristics, ...finalData?.AttributeCharacteristics];
+                    let arrayList = [...(finalData?.VariableCharacteristics ?? []), ...(finalData?.AttributeCharacteristics ?? [])];
                     let selectedFinal = arrayList.filter(item => item?.CCharacteristicsId == selectedData?.CCharacteristicsId);
                     let isDefectChanged = checkDefectImage(selectedData, selectedFinal[0]);
                     console.log(isDefectChanged, selectedFinal, selectedData, 'balutest3selectedData');
@@ -716,10 +709,6 @@ const InprocessInspection = ({ route }) => {
                     backgroundColor: COLORS.ERROR,
                     color: COLORS.white,
                     duration: 1500,
-                    statusBarHeight: 40,
-                    icon: 'warning',
-                    position: 'right',
-                    style: { height: 120, alignItems: 'flex-end' },
                 });
                 let temp = JSON.parse(JSON.stringify(userUpdateValue.charInfo));
                 let updatedtemp = temp.map(item =>
@@ -748,10 +737,6 @@ const InprocessInspection = ({ route }) => {
                     backgroundColor: COLORS.ERROR,
                     color: COLORS.white,
                     duration: 1500,
-                    statusBarHeight: 40,
-                    icon: 'warning',
-                    position: 'right',
-                    style: { height: 120, alignItems: 'flex-end' },
                 });
                 let temp = JSON.parse(JSON.stringify(userUpdateValue.charInfo));
                 let updatedtemp = temp.map(item =>

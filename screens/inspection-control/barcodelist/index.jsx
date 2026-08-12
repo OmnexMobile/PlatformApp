@@ -139,10 +139,6 @@ const BarcodeList = () => {
                                         backgroundColor: COLORS.WARNING,
                                         color: COLORS.white,
                                         duration: 1500,
-                                        statusBarHeight: 45,
-                                        icon: 'danger',
-                                        position: 'right',
-                                        style: { height: 120, alignItems: 'flex-end' },
                                     });
                                 }
                             }}>
