@@ -49,14 +49,19 @@ const BarcodeList = () => {
     });
     const [showBubble, setShowBubble] = useState(false);
     useEffect(() => {
-        if (isFocused && barcodeValue) {
+        if (isFocused && barcodeValue && icUserData?.userData?.UserId) {
             setPayloadData(barcodeValue);
             handleListFetch(barcodeValue);
         }
-    }, [barcodeValue]);
+    }, [barcodeValue,icUserData]);
     const handleListFetch = async barcodeValue => {
         setShowSkeleton(true);
-        const response = await postAPI(ApiUrl.IC_BY_BARCODE, barcodeValue);
+        const finalPayload={
+            ...barcodeValue,
+            UserId:icUserData?.userData?.UserId,
+            SiteId:icUserData?.userData?.Siteid
+        }
+        const response = await postAPI(ApiUrl.IC_BY_BARCODE, finalPayload);
         if (response?.Data?.InspectionSchedules?.length) {
             setMasterData(response?.Data?.InspectionSchedules || []);
             let tempShift = response?.Data?.InspectionShifts.map(item => ({ ...item, label: item.ShiftName, value: item.ShiftID }));
