@@ -22,7 +22,7 @@ const DataPickerWithIcon = ({
     value = null,
     editable = true,
 }) => {
-    const { dateFormat} = useSelector(state => state.inspection);
+    const { dateFormat } = useSelector(state => state.inspection);
     const uiDateFormat = dateFormat || 'DD/MM/YYYY';
     const [date, setDate] = useState(null);
     const [tempDate, setTempDate] = useState(new Date());
@@ -106,6 +106,7 @@ const DataPickerWithIcon = ({
             {editable && showPicker && Platform.OS === 'android' && ( */}
             {editable && (
                 <DateTimePicker
+                    date={tempDate}
                     isVisible={showPicker}
                     mode="date"
                     onCancel={() => setShowPicker(false)}
