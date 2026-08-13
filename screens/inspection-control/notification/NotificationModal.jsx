@@ -88,7 +88,8 @@ const NotificationModal = ({ visible, data, setNotificationData = () => {} }) =>
                                 <Text>Inspect 5 samples now</Text>{' '}
                             </Text> */}
                             <Text style={styles.message}>Time for Inspection</Text>
-                            <Text style={styles.lastMessage}>{`${data?.notification?.body?.split(':')[1]}`}</Text>
+                            <Text style={styles.lastMessage}>{`${data?.notification?.body?.split('|')[0]}`}</Text>
+                            <Text style={styles.lastMessage}>{`${data?.notification?.body?.split('|')[1]}`}</Text>
                             <Text style={styles.lastMessage}>Complete All Measurements for Each sample </Text>
                         </View>
                     </View>
@@ -104,6 +105,7 @@ const NotificationModal = ({ visible, data, setNotificationData = () => {} }) =>
                                         ProcessId: data?.data?.ProcessId,
                                         DeviceId: data?.data?.DeviceId,
                                     },
+                                    FrequencyId: data?.data?.FrequencyId,
                                 });
                                 onClose();
                             }}>

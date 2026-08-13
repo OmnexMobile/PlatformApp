@@ -96,6 +96,8 @@ const CharacteristicsInfo = ({
     const [showCPKModal, setShowCPKModal] = useState(false);
     const [showImageWithSample, setShowImageWithSample] = useState(false);
     const [showCaptureDefect, setShowCaptureDefect] = useState(false);
+    const ROW_HEIGHT = 70; // measure your actual contentBox height (padding + input height)
+    const [headerHeight, setHeaderHeight] = useState(0);
     const imageFiles = useMemo(() => {
         return FileList.filter(file => imageExtensions.includes(file.FileExtension?.toLowerCase())).map(file => ({
             uri: `data:image/${file.FileExtension};base64,${file.FileContentBase64}`,
@@ -723,6 +725,12 @@ const CharacteristicsInfo = ({
             handleSavePress(isSave, btntype);
         }
     };
+
+    const getItemLayout = (data, index) => ({
+        length: ROW_HEIGHT,
+        offset: headerHeight + ROW_HEIGHT * index,
+        index,
+    });
     const renderFaltList = (showHeader = true) => {
         return (
             <View style={{}}>
@@ -748,6 +756,13 @@ const CharacteristicsInfo = ({
                     ref={flatListRef}
                     data={masterData}
                     keyExtractor={(item, index) => index.toString()}
+                    getItemLayout={getItemLayout}
+                    initialNumToRender={masterData?.length || 10}
+                    onScrollToIndexFailed={info => {
+                        setTimeout(() => {
+                            flatListRef?.current?.scrollToIndex({ index: info.index, animated: true });
+                        }, 300);
+                    }}
                     renderItem={({ item, index }) => {
                         return <View style={[styles.tableBox]}>{renderItem(item, index)}</View>;
                     }}
@@ -756,7 +771,7 @@ const CharacteristicsInfo = ({
                     // contentContainerStyle={[styles.tableBox]}
 
                     ListHeaderComponent={
-                        <View>
+                        <View onLayout={e => setHeaderHeight(e.nativeEvent.layout.height)}>
                             {showCharInfo && showHeader && (
                                 <SampleCharInfo
                                     selectedData={selectedData}

@@ -143,35 +143,37 @@ const SampleCharInfo = ({
                                 <Text style={styles.headerText} numberOfLines={1}>
                                     {item?.StaticText} {item?.Required && <Text style={styles.isRequired}> *</Text>}
                                 </Text>
-                                <DynamicFormField
-                                    backgroundColor={
-                                        item.RefData == '##StaticSample##'
-                                            ? renderBackGroundColor(item?.Value, charType, selectedData?.charInfo)
-                                            : COLORS.inputBG
-                                    }
-                                    title={item.StaticText}
-                                    fieldType={item.FieldType}
-                                    value={handleGetUserUpadedValue(item) || ''}
-                                    isEditable={Boolean(item?.IsEditable)}
-                                    dropDownData={item.List?.length ? item.List : []}
-                                    handleChange={val => {
-                                        if (item?.PropertyName == 'CHighValue' || item?.RefData == '##HighToleranceValue##') {
-                                            handleUserInputChange(item?.PropertyName, val, 'highvalue', selectedData?.CHighValue, 'CHighValue');
-                                        } else if (item?.PropertyName == 'CLowValue' || item?.RefData == '##LowToleranceValue##') {
-                                            handleUserInputChange(item?.PropertyName, val, 'lowvalue', selectedData?.CLowValue, 'CLowValue');
-                                        } else if (item?.PropertyName == 'CTolerance' || item?.RefData == '##ATTorVAR##') {
-                                            handleUserInputChange(item?.PropertyName, val, 'spec', selectedData?.CTolerance, 'CTolerance');
-                                        } else if (
-                                            item?.PropertyName == 'CSampleSize' ||
-                                            item?.RefData == '##SampleSize##' ||
-                                            item?.PropertyName.includes('SampleSize')
-                                        ) {
-                                            handleUserInputChange('CSampleSize', val, 'samplesize', selectedData?.CSampleSize, 'CSampleSize');
-                                        } else {
-                                            handleInputChange(item?.PropertyName, val);
+                                <View pointerEvents={Boolean(item?.IsEditable) ? 'auto' : 'none'}>
+                                    <DynamicFormField
+                                        backgroundColor={
+                                            item.RefData == '##StaticSample##'
+                                                ? renderBackGroundColor(item?.Value, charType, selectedData?.charInfo)
+                                                : COLORS.inputBG
                                         }
-                                    }}
-                                />
+                                        title={item.StaticText}
+                                        fieldType={item.FieldType}
+                                        value={handleGetUserUpadedValue(item) || ''}
+                                        isEditable={Boolean(item?.IsEditable)}
+                                        dropDownData={item.List?.length ? item.List : []}
+                                        handleChange={val => {
+                                            if (item?.PropertyName == 'CHighValue' || item?.RefData == '##HighToleranceValue##') {
+                                                handleUserInputChange(item?.PropertyName, val, 'highvalue', selectedData?.CHighValue, 'CHighValue');
+                                            } else if (item?.PropertyName == 'CLowValue' || item?.RefData == '##LowToleranceValue##') {
+                                                handleUserInputChange(item?.PropertyName, val, 'lowvalue', selectedData?.CLowValue, 'CLowValue');
+                                            } else if (item?.PropertyName == 'CTolerance' || item?.RefData == '##ATTorVAR##') {
+                                                handleUserInputChange(item?.PropertyName, val, 'spec', selectedData?.CTolerance, 'CTolerance');
+                                            } else if (
+                                                item?.PropertyName == 'CSampleSize' ||
+                                                item?.RefData == '##SampleSize##' ||
+                                                item?.PropertyName.includes('SampleSize')
+                                            ) {
+                                                handleUserInputChange('CSampleSize', val, 'samplesize', selectedData?.CSampleSize, 'CSampleSize');
+                                            } else {
+                                                handleInputChange(item?.PropertyName, val);
+                                            }
+                                        }}
+                                    />
+                                </View>
                             </View>
                         );
                     })}

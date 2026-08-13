@@ -34,6 +34,7 @@ const InputDataModal = ({
     userData = {},
     handleSubmitPress = () => {},
     selectedSite = {},
+    FrequencyId = null,
 }) => {
     const insets = useSafeAreaInsets();
     const { width } = useWindowDimensions();
@@ -57,7 +58,6 @@ const InputDataModal = ({
         lotNo: true,
     });
     const [btndisabled, setBtnDisabled] = useState(false);
-    console.log(formFields.shift, 'ecev');
     // this State is for the Sampling pages fields
     const [showSamplingModal, setShowSamplingModal] = useState(false);
 
@@ -104,7 +104,23 @@ const InputDataModal = ({
         }
         return true;
     };
-
+    useEffect(() => {
+        if (FrequencyId != null && frqList?.length) {
+            console.log('testbalu1212');
+            const selectedFreq = frqList.find(item => item.value == FrequencyId);
+            if (selectedFreq) {
+                setFormFields({ ...formFields, frequency: selectedFreq });
+                const fetchgetResponsibleList = async () => {
+                    try {
+                        await getResponsibleList(selectedFreq);
+                    } catch (error) {
+                        console.log('error', error);
+                    }
+                };
+                fetchgetResponsibleList();
+            }
+        }
+    }, [frqList]);
     const getFrequencyList = async () => {
         // let strType = selectedValue?.TypeOfInspection == '2' ? 'Aqua' : 'Custom';
         const formData = new FormData();
@@ -175,9 +191,9 @@ const InputDataModal = ({
         return true;
     };
     const getPageApi = async () => {
-        await getFrequencyList();
         await getOperationList();
         // await getResponsibleList();
+        await getFrequencyList();
         setShowLoader(false);
     };
     useEffect(() => {
@@ -563,6 +579,7 @@ const InputDataModal = ({
                                             borderColor={COLORS.icBottomBox}
                                             showSearch={false}
                                             maxHeight={200}
+                                            value={formFields.frequency}
                                             onChange={async val => {
                                                 handleInputChange('frequency', val);
                                                 if (Boolean(selectedValue.TypeOfInspection == 2)) {

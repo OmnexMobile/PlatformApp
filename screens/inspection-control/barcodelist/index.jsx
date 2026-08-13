@@ -84,7 +84,10 @@ const BarcodeList = () => {
         return value == '1' ? COLORS.apptheme : value == '2' ? COLORS.ipBgColor : COLORS.fiBgColor;
     };
     const getOverAllSettings = async () => {
-        const settingsRes = await postAPI(`${ApiUrl.IC_SETTINGS}`);
+        const formData = new FormData();
+        formData.append('UserID', icUserData?.userData?.UserId);
+        formData.append('SiteID', parseInt(icUserData?.userData?.Siteid));
+        const settingsRes = await postAPI(`${ApiUrl.IC_SETTINGS}`, formData);
         if (settingsRes.Success) {
             dispatch({ type: 'IC_SETTINGS', icSettings: settingsRes?.Data[0] || {} });
         }

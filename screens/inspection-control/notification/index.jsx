@@ -177,7 +177,7 @@ const data = {
 const NotificationScreen = () => {
     const navigation = useNavigation();
     const route = useRoute();
-    const { payload } = route.params;
+    const { payload,FrequencyId } = route.params;
     const [storePayload, setStorePayload] = useState(null);
     const [showSkeleton, setShowSkeleton] = useState(false);
     const { icUserData } = useSelector(state => state.inspection);
@@ -259,8 +259,12 @@ const NotificationScreen = () => {
         return value == '1' ? COLORS.apptheme : value == '2' ? COLORS.ipBgColor : COLORS.fiBgColor;
     };
     const getOverAllSettings = async () => {
-        const settingsRes = await postAPI(`${ApiUrl.IC_SETTINGS}`);
+        const formData = new FormData();
+        formData.append('UserID', icUserData?.userData?.UserId);
+        formData.append('SiteID', parseInt(icUserData?.userData?.Siteid));
+        const settingsRes = await postAPI(`${ApiUrl.IC_SETTINGS}`, formData);
         if (settingsRes.Success) {
+            console.log(settingsRes?.Data[0], 'settingsRes?.Data[0]');
             dispatch({ type: 'IC_SETTINGS', icSettings: settingsRes?.Data[0] || {} });
         }
     };
@@ -371,6 +375,7 @@ const NotificationScreen = () => {
                     shiftData={formList.shiftList}
                     userData={icUserData?.userData}
                     selectedSite={selectedSite}
+                    FrequencyId={FrequencyId}
                 />
             )}
         </SafeAreaView>

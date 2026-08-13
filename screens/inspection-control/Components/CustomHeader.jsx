@@ -219,6 +219,7 @@ const CustomHeader = ({
                                                 ProcessId: notificationData?.data?.ProcessId,
                                                 DeviceId: notificationData?.data?.DeviceId,
                                             },
+                                            FrequencyId: notificationData?.data?.FrequencyId,
                                         })
                                     }>
                                     <IconF name="bell-o" size={20} color="#fff" />
