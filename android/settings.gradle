@@ -55,3 +55,16 @@ include(":react-native-image-marker")
 project(":react-native-image-marker").projectDir = file("../node_modules/react-native-image-marker/android")
 include(":react-native-pager-view")
 project(":react-native-pager-view").projectDir = file("../node_modules/react-native-pager-view/android")
+
+// Gradle 9 removed RepositoryHandler.jcenter(). Old RN libraries (e.g.
+// react-native-camera) still call it on a clean install. CI skips
+// patch-package, so map jcenter() to mavenCentral() here.
+gradle.beforeProject { project ->
+    def shimJcenter = { handler ->
+        handler.metaClass.jcenter = { Object... args ->
+            handler.mavenCentral()
+        }
+    }
+    shimJcenter(project.buildscript.repositories)
+    shimJcenter(project.repositories)
+}
