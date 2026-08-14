@@ -83,35 +83,15 @@ jobs:
             "MYAPP_UPLOAD_KEY_PASSWORD=${ANDROID_KEY_PASSWORD}" \
             > android/keystore.properties
 
-      # Must run before the jcenter rewrite so this patch still matches the
-      # published package (it removes the AGP 2.2.3 buildscript).
-      - name: Patch react-native-fetch-blob
-        run: patch -p1 --forward < patches/react-native-fetch-blob+0.10.8.patch
-
-      # Gradle 9 removed jcenter(). Clean yarn installs still have it in old RN
-      # libraries. The Groovy shim in settings.gradle cannot patch Gradle's
-      # Java RepositoryHandler, so rewrite the Gradle files instead.
-      - name: Replace jcenter() for Gradle 9
+      # Java/Gradle source patches that a clean yarn install does not apply.
+      - name: Patch legacy Android libraries
         run: |
-          python3 - <<'PY'
-          from pathlib import Path
+          patch -p1 --forward < patches/react-native-fetch-blob+0.10.8.patch
+          patch -p1 --forward < patches/react-native-geocoder+0.5.0.patch
 
-          updated = []
-          for path in Path("node_modules").rglob("*"):
-              if path.suffix not in {".gradle", ".kts"}:
-                  continue
-              try:
-                  text = path.read_text(encoding="utf-8")
-              except (OSError, UnicodeDecodeError):
-                  continue
-              if "jcenter()" not in text:
-                  continue
-              path.write_text(text.replace("jcenter()", "mavenCentral()"), encoding="utf-8")
-              updated.append(str(path))
-          print(f"replaced jcenter() in {len(updated)} files")
-          for item in updated:
-              print(f"  {item}")
-          PY
+      # Remaining old RN Gradle files: jcenter(), compile(), AGP 2.x/3.x classpaths.
+      - name: Make node_modules Gradle 9 compatible
+        run: python3 scripts/ci-gradle9-compat.py
 
       - name: Assemble release APK
         working-directory: android
