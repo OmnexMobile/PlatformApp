@@ -21,6 +21,10 @@ OLD_AGP_BUILDSCRIPT = re.compile(
 
 def rewrite(text: str) -> str:
     text = text.replace("jcenter()", "mavenCentral()")
+    text = text.replace(
+        "com.github.prscX:photo-editor-android:master",
+        "com.github.Rauzon:photo-editor-android:v1.1.0",
+    )
     text = OLD_AGP_BUILDSCRIPT.sub("", text)
     # \bcompile\b does not match compileSdkVersion / compileOptions.
     text = re.sub(r"\bandroidTestCompile\b", "androidTestImplementation", text)
