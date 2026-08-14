@@ -83,12 +83,10 @@ jobs:
             "MYAPP_UPLOAD_KEY_PASSWORD=${ANDROID_KEY_PASSWORD}" \
             > android/keystore.properties
 
-      # Java/Gradle source patches that a clean yarn install does not apply.
+      # Java/Gradle source hunks only. Full patch-package files often include
+      # android/build intermediates that cannot apply on a clean CI install.
       - name: Patch legacy Android libraries
-        run: |
-          patch -p1 --forward < patches/react-native-fetch-blob+0.10.8.patch
-          patch -p1 --forward < patches/react-native-geocoder+0.5.0.patch
-          patch -p1 --forward < "patches/@react-native-community+art+1.2.0.patch"
+        run: python3 scripts/ci-apply-source-patches.py
 
       # Remaining old RN Gradle files: jcenter(), compile(), AGP 2.x/3.x classpaths.
       - name: Make node_modules Gradle 9 compatible
