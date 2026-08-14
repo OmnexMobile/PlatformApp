@@ -22,6 +22,3 @@ jobs:
 
       - name: Install dependencies
         run: yarn install --frozen-lockfile --ignore-scripts
-
-      - name: Apply patches
-        run: yarn patch-package
