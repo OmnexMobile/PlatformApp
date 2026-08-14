@@ -42,7 +42,11 @@ yarn-error.log
 buck-out/
 \.buckd/
 *.keystore
-!debug.keystore
+!android/app/debug.keystore
+
+# Release signing — never commit
+*.jks
+android/keystore.properties
 
 # fastlane
 #
