@@ -83,6 +83,11 @@ jobs:
             "MYAPP_UPLOAD_KEY_PASSWORD=${ANDROID_KEY_PASSWORD}" \
             > android/keystore.properties
 
+      # Must run before the jcenter rewrite so this patch still matches the
+      # published package (it removes the AGP 2.2.3 buildscript).
+      - name: Patch react-native-fetch-blob
+        run: patch -p1 --forward < patches/react-native-fetch-blob+0.10.8.patch
+
       # Gradle 9 removed jcenter(). Clean yarn installs still have it in old RN
       # libraries. The Groovy shim in settings.gradle cannot patch Gradle's
       # Java RepositoryHandler, so rewrite the Gradle files instead.
