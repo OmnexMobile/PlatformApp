@@ -83,6 +83,31 @@ jobs:
             "MYAPP_UPLOAD_KEY_PASSWORD=${ANDROID_KEY_PASSWORD}" \
             > android/keystore.properties
 
+      # Gradle 9 removed jcenter(). Clean yarn installs still have it in old RN
+      # libraries. The Groovy shim in settings.gradle cannot patch Gradle's
+      # Java RepositoryHandler, so rewrite the Gradle files instead.
+      - name: Replace jcenter() for Gradle 9
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          updated = []
+          for path in Path("node_modules").rglob("*"):
+              if path.suffix not in {".gradle", ".kts"}:
+                  continue
+              try:
+                  text = path.read_text(encoding="utf-8")
+              except (OSError, UnicodeDecodeError):
+                  continue
+              if "jcenter()" not in text:
+                  continue
+              path.write_text(text.replace("jcenter()", "mavenCentral()"), encoding="utf-8")
+              updated.append(str(path))
+          print(f"replaced jcenter() in {len(updated)} files")
+          for item in updated:
+              print(f"  {item}")
+          PY
+
       - name: Assemble release APK
         working-directory: android
         run: ./gradlew assembleRelease --no-daemon -PreactNativeArchitectures=arm64-v8a
