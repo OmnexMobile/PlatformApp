@@ -88,6 +88,7 @@ jobs:
         run: |
           patch -p1 --forward < patches/react-native-fetch-blob+0.10.8.patch
           patch -p1 --forward < patches/react-native-geocoder+0.5.0.patch
+          patch -p1 --forward < "patches/@react-native-community+art+1.2.0.patch"
 
       # Remaining old RN Gradle files: jcenter(), compile(), AGP 2.x/3.x classpaths.
       - name: Make node_modules Gradle 9 compatible
