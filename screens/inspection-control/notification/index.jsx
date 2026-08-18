@@ -199,17 +199,13 @@ const NotificationScreen = () => {
     const [showBubble, setShowBubble] = useState(false);
     useEffect(() => {
         if (isFocused && payload) {
-            console.log(payload,'payloadnew')
             setStorePayload(payload);
             handleListFetch(payload);
         }
     }, [isFocused, payload]);
-    console.log(storePayload,'storedpayload')
     const handleListFetch = async payload => {
-        console.log('payloadtest', payload);
         setShowSkeleton(true);
         const data = await postAPI(`${ApiUrl.IC_NOTIFICATION_LIST}`, payload);
-        console.log('datatest', data);
         if (data?.InspectionSchedules?.length) {
             const inspectList = await getInspectionDataByUserAndSite(icUserData?.userData?.UserId, icUserData?.userData?.Siteid);
             let retunListData = [];

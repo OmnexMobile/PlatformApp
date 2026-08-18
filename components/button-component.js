@@ -29,7 +29,7 @@ const ButtonComponent = props => {
         <TouchableRipple
             {...{ disabled }}
             rippleContainerBorderRadius={borderRadius}
-            rippleColor={loading ? COLORS.transparent : COLORS.white}
+            // rippleColor={loading ? COLORS.transparent : COLORS.transparent}
             rippleSize={180}
             onPress={!loading && onPress}
             style={[

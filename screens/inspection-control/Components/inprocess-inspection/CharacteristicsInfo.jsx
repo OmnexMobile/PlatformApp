@@ -33,7 +33,7 @@ import CapabilityCard from '../CapabilityCard';
 import ZoomableImage from '../ZoomableImage';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import CaptureDefect from './CaptureDefect';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 const moreList = [
     {
         id: 1,
@@ -919,28 +919,30 @@ const CharacteristicsInfo = ({
                 }}
             />
             <Modal visible={showImageWithSample} animationType="slide" transparent={false} onRequestClose={() => setShowImageWithSample(false)}>
-                <GestureHandlerRootView style={{ flex: 1 }}>
-                    <SafeAreaView style={styles.modalContainer}>
-                        <View style={styles.header}>
-                            <Text style={styles.title}>View Image Attachment with Sample</Text>
-                            <TouchableOpacity
-                                style={[styles.deleteIcon]}
-                                onPress={() => {
-                                    setShowImageWithSample(false);
-                                }}>
-                                <IconMM name="close" size={25} color={COLORS.apptheme} />
-                            </TouchableOpacity>
-                        </View>
-                        <View style={styles.content}>
-                            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                                <ZoomableImage fileList={FileList} />
+                <SafeAreaProvider>
+                    <GestureHandlerRootView style={{ flex: 1 }}>
+                        <SafeAreaView style={styles.modalContainer}>
+                            <View style={styles.header}>
+                                <Text style={styles.title}>View Image Attachment with Sample</Text>
+                                <TouchableOpacity
+                                    style={[styles.deleteIcon]}
+                                    onPress={() => {
+                                        setShowImageWithSample(false);
+                                    }}>
+                                    <IconMM name="close" size={25} color={COLORS.apptheme} />
+                                </TouchableOpacity>
                             </View>
-                            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 10 }}>
-                                <View style={{ flex: 1, width: '100%' }}>{renderFaltList(false)}</View>
+                            <View style={styles.content}>
+                                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                                    <ZoomableImage fileList={FileList} />
+                                </View>
+                                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 10 }}>
+                                    <View style={{ flex: 1, width: '100%' }}>{renderFaltList(false)}</View>
+                                </View>
                             </View>
-                        </View>
-                    </SafeAreaView>
-                </GestureHandlerRootView>
+                        </SafeAreaView>
+                    </GestureHandlerRootView>
+                </SafeAreaProvider>
             </Modal>
             {Boolean(showCaptureDefect) && (
                 <CaptureDefect

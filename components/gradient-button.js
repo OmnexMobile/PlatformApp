@@ -75,6 +75,6 @@ const styles = StyleSheet.create({
         borderRadius: 3,
         flexDirection: 'row',
         borderRadius: SPACING.SMALL,
-        paddingHorizontal: SPACING.NORMAL,
+        // paddingHorizontal: SPACING.NORMAL,
     },
 });

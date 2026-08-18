@@ -160,14 +160,14 @@ const OperatorWorksheet = () => {
                 label: item.description,
                 value: item.description,
                 ...item,
-            }))
+            }));
             setDownTimeData(downTimeData);
         } else {
             setDownTimeData([]);
         }
 
         setShowReportModal(true);
-    }
+    };
     const handleCloseReport = () => {
         setReportFormData({
             downtimeres: '',
@@ -178,7 +178,7 @@ const OperatorWorksheet = () => {
             comment: false,
         });
         setShowReportModal(false);
-    }
+    };
     const validateReportForm = () => {
         let isValid = false;
         let errors = {
@@ -197,9 +197,8 @@ const OperatorWorksheet = () => {
 
         setFormError(errors);
         return isValid;
-    }
+    };
     const handleSubmitReport = async () => {
-        console.log('Report Form Data:', selectedValue, reportFormData);
         const isValid = validateReportForm();
         if (isValid) {
             return;
@@ -209,8 +208,12 @@ const OperatorWorksheet = () => {
                 lotNumber: selectedValue?.strLotNo || '',
                 operationName: selectedValue?.strOperationName || '',
                 message: reportFormData?.comment,
-                reportedBy: icUserData?.userData?.UserId
-            }
+                reportedBy: icUserData?.userData?.UserId,
+                downtimeReason: reportFormData?.downtimeres?.label || '',
+                siteId:icUserData?.userData?.Siteid || '',
+                productionItemName: selectedValue?.strProductionItemName || '',
+                typeOfInspection: selectedValue?.intInspectionTypeID,
+            };
             const response = await postAPI(ApiUrl.IC_REPORTDOWNTIME, payload);
             console.log('Downtime Report Response:', response);
             if (response?.success) {
@@ -221,9 +224,9 @@ const OperatorWorksheet = () => {
                 showErrorMessage('Error reporting downtime');
             }
         }
-
-    }
+    };
     const renderItem = ({ item }) => {
+        console.log('Rendering item:', item);
         const { status, colorCode } = rendetBtnText(item);
         return (
             <View style={[styles.recordConatiner, { backgroundColor: item?.backgroundColor ? item?.backgroundColor : '#fff' }]}>
@@ -251,13 +254,13 @@ const OperatorWorksheet = () => {
                             }}>
                             <Text style={[styles.launchText]}>{status}</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity
+                        {item?.userType!=="SupervisorSchedule" &&<TouchableOpacity
                             style={[styles.launchCard, { backgroundColor: COLORS.apptheme, marginTop: 10 }]}
                             onPress={() => {
                                 handleReportPress(item);
                             }}>
                             <Text style={[styles.launchText]}>Report</Text>
-                        </TouchableOpacity>
+                        </TouchableOpacity>}
                     </View>
 
                     <TouchableOpacity
@@ -282,7 +285,7 @@ const OperatorWorksheet = () => {
                         renderItem={renderItem}
                         keyExtractor={(item, index) => index + 1}
                         showsVerticalScrollIndicator={false}
-                    // refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+                        // refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
                     />
                 ) : (
                     <NoDataFound />

@@ -118,7 +118,6 @@ const Parent = () => {
     //         </>
     //     );
     // }
-console.log('warningList', statusBarHeight);
     return (
         <GestureHandlerRootView style={{ flex: 1 }}>
             <SafeAreaView style={[backgroundStyle, { backgroundColor: theme.mode.backgroundColor }]}>

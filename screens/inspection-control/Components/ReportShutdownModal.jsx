@@ -111,6 +111,7 @@ const styles = StyleSheet.create({
     closeText: {
         color: '#fff',
         fontWeight: 'bold',
+        fontSize: 13,
     },
     textarea: {
         borderWidth: StyleSheet.hairlineWidth,
