@@ -25,6 +25,7 @@ import ApiUrl from 'global/ApiUrl';
 import { deleteAllInspectionData, getInspectionDataByUserAndSite } from 'store/database/inspectStorage';
 import { Modal } from 'react-native-paper';
 import { Bubbles } from 'react-native-loader';
+import { getICList } from 'helpers/utils';
 
 const filterList = [
     {
@@ -353,6 +354,7 @@ const InspectionSchedule = () => {
         });
         setMasterData(updatedArray);
         setShowBubble(false);
+        await getICList(icUserData?.userData?.UserId, icUserData?.userData?.Siteid);
     };
     console.log(masterData.length, 'masterData');
     return (

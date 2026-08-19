@@ -23,7 +23,7 @@ import { Bubbles } from 'react-native-loader';
 import { showMessage } from 'react-native-flash-message';
 import { deleteInspectionByUniqueId, getInspectionDataByUserAndSite } from 'store/database/inspectStorage';
 import { isArray } from 'underscore';
-import { showErrorMessage } from 'helpers/utils';
+import { getICList, showErrorMessage } from 'helpers/utils';
 
 const optionsList = [
     {
@@ -87,6 +87,7 @@ const CompletedInspection = () => {
         setMasterData(completedList?.length ? completedList : []);
         setShowSkeleton(false);
         setRefreshing(false);
+        await getICList(icUserData?.userData?.UserId, icUserData?.userData?.Siteid);
     };
 
     const onRefresh = () => {
