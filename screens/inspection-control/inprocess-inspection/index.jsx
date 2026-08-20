@@ -778,7 +778,7 @@ const InprocessInspection = ({ route }) => {
     return (
         <CustomHeader
             title={renderHeader(inspectData.intInspectionTypeID)}
-            activeTabId={2}
+            activeTabId={7}
             showIcons={false}
             showFileIcon={true}
             showCharCameraIcon={showChar}

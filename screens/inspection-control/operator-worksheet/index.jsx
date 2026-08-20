@@ -54,7 +54,9 @@ const OperatorWorksheet = () => {
                 .filter(item => item?.userType === 'SupervisorSchedule')
                 .sort((a, b) => new Date(b.downloadedDate) - new Date(a.downloadedDate));
         }
+        superVisorData = superVisorData.filter(item => item.status !== 'Completed' && item.status !== 'In Progress');
         setInspectionList([...filtered, ...superVisorData]);
+        // setInspectionList([...filtered]);
         setShowSkeleton(false);
     };
     const handleCIbtnpress = () => {
@@ -210,7 +212,7 @@ const OperatorWorksheet = () => {
                 message: reportFormData?.comment,
                 reportedBy: icUserData?.userData?.UserId,
                 downtimeReason: reportFormData?.downtimeres?.label || '',
-                siteId:icUserData?.userData?.Siteid || '',
+                siteId: icUserData?.userData?.Siteid || '',
                 productionItemName: selectedValue?.strProductionItemName || '',
                 typeOfInspection: selectedValue?.intInspectionTypeID,
             };
@@ -254,13 +256,15 @@ const OperatorWorksheet = () => {
                             }}>
                             <Text style={[styles.launchText]}>{status}</Text>
                         </TouchableOpacity>
-                        {item?.userType!=="SupervisorSchedule" &&<TouchableOpacity
-                            style={[styles.launchCard, { backgroundColor: COLORS.apptheme, marginTop: 10 }]}
-                            onPress={() => {
-                                handleReportPress(item);
-                            }}>
-                            <Text style={[styles.launchText]}>Report</Text>
-                        </TouchableOpacity>}
+                        {item?.userType !== 'SupervisorSchedule' && (
+                            <TouchableOpacity
+                                style={[styles.launchCard, { backgroundColor: COLORS.apptheme, marginTop: 10 }]}
+                                onPress={() => {
+                                    handleReportPress(item);
+                                }}>
+                                <Text style={[styles.launchText]}>Report</Text>
+                            </TouchableOpacity>
+                        )}
                     </View>
 
                     <TouchableOpacity
