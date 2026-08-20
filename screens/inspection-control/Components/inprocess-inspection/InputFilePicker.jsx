@@ -2,7 +2,7 @@ import { ButtonComponent } from 'components';
 import { COLORS } from 'constants/theme-constants';
 import { RFPercentage } from 'helpers/utils';
 import React, { useEffect, useLayoutEffect, useState } from 'react';
-import { Alert, FlatList, KeyboardAvoidingView, Modal, Platform, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, FlatList, KeyboardAvoidingView, Modal, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 // import { Modal } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/AntDesign';
 import IconI from 'react-native-vector-icons/Ionicons';
@@ -15,8 +15,9 @@ import NoDataFound from '../NoDataFound';
 import { showMessage } from 'react-native-flash-message';
 import CameraScreen from './CameraScreen';
 import { pick, types, errorCodes } from '@react-native-documents/picker';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-const InputFilePicker = ({ ListData = [], maxLimit = 10, isEditable = false, title = '', handleInputChange = () => { } }) => {
+const InputFilePicker = ({ ListData = [], maxLimit = 10, isEditable = false, title = '', handleInputChange = () => {} }) => {
     const [fileList, setFileList] = useState([]);
     const [visible, setVisible] = useState(false);
     const [showCamer, setShowCamer] = useState(false);
@@ -71,22 +72,12 @@ const InputFilePicker = ({ ListData = [], maxLimit = 10, isEditable = false, tit
 
             const selectedFile = response[0];
 
-            if (
-                selectedFile?.size &&
-                selectedFile.size <= 5 * 1024 * 1024
-            ) {
-                const fileUri = selectedFile.uri.replace(
-                    'content://',
-                    '',
-                );
+            if (selectedFile?.size && selectedFile.size <= 5 * 1024 * 1024) {
+                const fileUri = selectedFile.uri.replace('content://', '');
 
-                const base64 = await RNBlobUtil.fs.readFile(
-                    selectedFile.uri,
-                    'base64',
-                );
+                const base64 = await RNBlobUtil.fs.readFile(selectedFile.uri, 'base64');
 
-                const fileExtension =
-                    selectedFile?.name?.split('.').pop();
+                const fileExtension = selectedFile?.name?.split('.').pop();
 
                 const file = {
                     id: uuid.v4(),
@@ -102,10 +93,7 @@ const InputFilePicker = ({ ListData = [], maxLimit = 10, isEditable = false, tit
                 //   fileList: [...fileList, file],
                 // });
             } else {
-                Alert.alert(
-                    'Error',
-                    'File size exceeds 5MB limit.',
-                );
+                Alert.alert('Error', 'File size exceeds 5MB limit.');
             }
         } catch (err) {
             if (err?.code === errorCodes.OPERATION_CANCELED) {
@@ -115,9 +103,29 @@ const InputFilePicker = ({ ListData = [], maxLimit = 10, isEditable = false, tit
             Alert.alert('Error', String(err));
         }
     };
+      const getMimeType = (extension) => {
+        const mimeTypes = {
+            pdf: 'application/pdf',
+            doc: 'application/msword',
+            docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            xls: 'application/vnd.ms-excel',
+            xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            ppt: 'application/vnd.ms-powerpoint',
+            pptx: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+            png: 'image/png',
+            jpg: 'image/jpeg',
+            jpeg: 'image/jpeg',
+            gif: 'image/gif',
+            txt: 'text/plain',
+            mp4: 'video/mp4',
+            mp3: 'audio/mpeg',
+        };
+        return mimeTypes[extension?.toLowerCase()] ?? 'application/octet-stream';
+    };
     const openBase64File = async (base64String, fileType, name) => {
         try {
-            const ext = fileType?.toLowerCase() || 'txt';
+            // const ext = fileType?.toLowerCase() || 'txt';
+            const ext = fileType?.toLowerCase().replace(/^\./, '') || 'txt';
             const fileName = `${name}.${ext}`;
             const path = `${RNBlobUtil.fs.dirs.CacheDir}/${fileName}`;
 
@@ -141,7 +149,6 @@ const InputFilePicker = ({ ListData = [], maxLimit = 10, isEditable = false, tit
         } catch (error) {
             console.error('File open error:', error);
             Alert.alert('Error', 'Unable to open file.');
-
         }
     };
     const handleDeletePress = index => {
@@ -208,6 +215,7 @@ const InputFilePicker = ({ ListData = [], maxLimit = 10, isEditable = false, tit
             ]);
         }
     };
+    console.log('fileList', showCamer,fileList);
     return (
         <View>
             <TouchableOpacity
@@ -233,7 +241,7 @@ const InputFilePicker = ({ ListData = [], maxLimit = 10, isEditable = false, tit
                 contentContainerStyle={[styles.modalContainer]}>
                 <SafeAreaView style={{ flex: 1 }}>
                     {Boolean(showCamer) ? (
-                        <CameraScreen setShowCamer={setShowCamer} setFileList={setFileList} />
+                        <CameraScreen visible={showCamer} setShowCamera={setShowCamer} setFileList={setFileList} handleGetImageData={fileData => {}} />
                     ) : (
                         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={[styles.container]}>
                             <View style={[styles.iconBox]}>

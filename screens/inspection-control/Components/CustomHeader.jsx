@@ -232,7 +232,7 @@ const CustomHeader = ({
                                     )}
                                 </TouchableOpacity>
                             ) : null}
-                            {activeTabId == 1 && (
+                            {activeTabId == 1 && !isExpanded && (
                                 <TouchableOpacity
                                     onPress={() => {
                                         handleQRPress();
@@ -240,12 +240,12 @@ const CustomHeader = ({
                                     <IconI name="barcode-sharp" size={25} style={styles.iconButton} color={COLORS.white} />
                                 </TouchableOpacity>
                             )}
-                            {(activeTabId == 0 || activeTabId == 4) && (
+                            {(activeTabId == 0 || activeTabId == 4) && !isExpanded && (
                                 <TouchableOpacity onPress={() => handleMultiSearch()}>
                                     <IconM name="filter-list" size={25} style={styles.iconButton} color={COLORS.white} />
                                 </TouchableOpacity>
                             )}
-                            {(activeTabId == 0 || activeTabId == 4) && (
+                            {(activeTabId == 0 || activeTabId == 4) && !isExpanded && (
                                 <TouchableOpacity onPress={() => handleFilterPress()}>
                                     <Icon name="filter" size={25} style={styles.iconButton} color={COLORS.white} />
                                 </TouchableOpacity>
@@ -287,6 +287,15 @@ const CustomHeader = ({
                             <IconI name="images" size={25} style={styles.iconButton} color={COLORS.white} />
                         </TouchableOpacity>
                     )}
+                    <TouchableOpacity
+                        onPress={() => {
+                            navigation.reset({
+                                index: 0,
+                                routes: [{ name: ROUTES.HOME_FAB_VIEW }],
+                            });
+                        }}>
+                        <IconMC name="home-outline" size={25} style={styles.iconButton} color={COLORS.white} />
+                    </TouchableOpacity>
                 </View>
             </View>
             <View style={styles.contentContainer}>{children}</View>

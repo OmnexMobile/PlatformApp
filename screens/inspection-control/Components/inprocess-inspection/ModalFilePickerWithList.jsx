@@ -2,7 +2,7 @@ import { ButtonComponent } from 'components';
 import { COLORS } from 'constants/theme-constants';
 import { RFPercentage } from 'helpers/utils';
 import React, { useEffect, useState } from 'react';
-import { Alert, Modal, FlatList, StyleSheet, Text, TouchableOpacity, View, SafeAreaView } from 'react-native';
+import { Alert, Modal, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Icon from 'react-native-vector-icons/AntDesign';
 import IconI from 'react-native-vector-icons/Ionicons';
 import IconM from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -14,6 +14,7 @@ import FileViewer from 'react-native-file-viewer';
 import NoDataFound from '../NoDataFound';
 import { showMessage } from 'react-native-flash-message';
 import CameraScreen from './CameraScreen';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const ModalFilePickerWithList = ({
     visible = false,
@@ -142,7 +143,27 @@ const ModalFilePickerWithList = ({
             });
         }
     };
+      const getMimeType = (extension) => {
+        const mimeTypes = {
+            pdf: 'application/pdf',
+            doc: 'application/msword',
+            docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            xls: 'application/vnd.ms-excel',
+            xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            ppt: 'application/vnd.ms-powerpoint',
+            pptx: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+            png: 'image/png',
+            jpg: 'image/jpeg',
+            jpeg: 'image/jpeg',
+            gif: 'image/gif',
+            txt: 'text/plain',
+            mp4: 'video/mp4',
+            mp3: 'audio/mpeg',
+        };
+        return mimeTypes[extension?.toLowerCase()] ?? 'application/octet-stream';
+    };
     const openBase64File = async (base64String, fileType, name) => {
+        console.log('openBase64File', base64String, fileType, name);
         try {
             const ext = fileType?.toLowerCase() || 'txt';
             const fileName = `${name}.${ext}`;
@@ -229,7 +250,7 @@ const ModalFilePickerWithList = ({
         <Modal visible={visible} onDismiss={onDismiss} onRequestClose={onDismiss} contentContainerStyle={[styles.modalContainer]}>
             <SafeAreaView style={{ flex: 1 }}>
                 {Boolean(showCamer) ? (
-                    <CameraScreen setShowCamer={setShowCamer} setFileList={setFileList} />
+                    <CameraScreen visible={showCamer} setShowCamera={setShowCamer} setFileList={setFileList} handleGetImageData={fileData => {}} />
                 ) : (
                     <View style={[styles.container]}>
                         <View style={[styles.iconBox]}>

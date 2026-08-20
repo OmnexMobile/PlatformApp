@@ -6,7 +6,6 @@ import {
   StyleSheet,
   Alert,
   Modal,
-  SafeAreaView,
   StatusBar,
   Platform,
   Linking,
@@ -20,6 +19,7 @@ import {
 
 import IconM from 'react-native-vector-icons/MaterialCommunityIcons';
 import uuid from 'react-native-uuid';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const CameraScreen = ({
   visible = false,

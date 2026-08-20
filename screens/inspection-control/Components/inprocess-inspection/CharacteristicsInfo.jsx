@@ -867,28 +867,30 @@ const CharacteristicsInfo = ({
                     {renderFaltList(true)}
                 </View>
                 <View style={[styles.btnContainer]}>
-                    <View
-                        style={[
-                            {
-                                width: '12%',
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                backgroundColor: COLORS.icborder,
-                                padding: 10,
-                                borderRadius: 50,
-                            },
-                        ]}>
-                        <TouchableOpacity
-                            style={{ flexDirection: 'row', alignItems: 'center' }}
-                            onPress={() => {
-                                setShowCaptureDefect(true);
-                            }}>
-                            <IconM name="camera" size={20} color={COLORS.apptheme} />
-                        </TouchableOpacity>
-                    </View>
+                    {Boolean(selectedData?.isSamplePopup) && (
+                        <View
+                            style={[
+                                {
+                                    width: '12%',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    backgroundColor: COLORS.icborder,
+                                    padding: 10,
+                                    borderRadius: 50,
+                                },
+                            ]}>
+                            <TouchableOpacity
+                                style={{ flexDirection: 'row', alignItems: 'center' }}
+                                onPress={() => {
+                                    setShowCaptureDefect(true);
+                                }}>
+                                <IconM name="camera" size={20} color={COLORS.apptheme} />
+                            </TouchableOpacity>
+                        </View>
+                    )}
                     <ButtonComponent
                         textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}
-                        style={{ height: 40, width: '73%' }}
+                        style={{ height: 40, width:Boolean(selectedData?.isSamplePopup)?'73%': '85%' }}
                         onPress={() => {
                             handleInnerSavePress(true, 'saveBtn');
                             // setShowCPKModal(true);

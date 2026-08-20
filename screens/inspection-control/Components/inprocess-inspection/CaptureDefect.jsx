@@ -40,8 +40,11 @@ const CaptureDefect = ({ visible = false, onRequestClose = () => {}, selectedDat
     useEffect(() => {
         console.log('selectedData?.defectImage', selectedData?.defectImage);
         if (selectedData?.defectImage) {
-            setDefectDetails(selectedData?.defectImage);
-            setFileList(selectedData?.defectImage?.defectimg ? [selectedData?.defectImage?.defectimg] : []);
+            setDefectDetails({
+                ...selectedData?.defectImage,
+                defectimg: selectedData?.defectImage?.defectimg?.base64 ? selectedData?.defectImage?.defectimg : null,
+            });
+            setFileList(selectedData?.defectImage?.defectimg?.base64 ? [selectedData?.defectImage?.defectimg] : []);
         } else {
             setDefectDetails({
                 defectimg: null,
