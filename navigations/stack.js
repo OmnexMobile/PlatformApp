@@ -95,6 +95,8 @@ import SearchInspection from 'screens/inspection-control/search-inspection';
 import NotificationScreen from 'screens/inspection-control/notification';
 import BarcodeList from 'screens/inspection-control/barcodelist';
 import ReportDowntime from 'screens/inspection-control/reportdowntime';
+import FileUploadScreen from 'screens/inspection-control/Components/inprocess-inspection/FileUploadScreen';
+
 const Stack = createNativeStackNavigator();
 
 export const AppStackData = [
@@ -513,6 +515,10 @@ export const AppStackData = [
         name: ROUTES.REPORT_DOWNTIME,
         component: ReportDowntime,
     },
+    {
+        name: ROUTES.FILE_UPLOAD_SCREEN,
+        component: FileUploadScreen,
+    }
     // ...HomeStackData,
 ];
 // export const ProfileData = [

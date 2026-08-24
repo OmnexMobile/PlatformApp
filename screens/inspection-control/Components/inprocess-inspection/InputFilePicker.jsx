@@ -1,358 +1,52 @@
 import { ButtonComponent } from 'components';
 import { COLORS } from 'constants/theme-constants';
-import { RFPercentage } from 'helpers/utils';
 import React, { useEffect, useLayoutEffect, useState } from 'react';
-import { Alert, FlatList, KeyboardAvoidingView, Modal, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-// import { Modal } from 'react-native-paper';
-import Icon from 'react-native-vector-icons/AntDesign';
-import IconI from 'react-native-vector-icons/Ionicons';
-import IconM from 'react-native-vector-icons/MaterialCommunityIcons';
-// import DocumentPicker, { isCancel } from 'react-native-document-picker';
-import uuid from 'react-native-uuid';
-import RNBlobUtil from 'react-native-blob-util';
-import FileViewer from 'react-native-file-viewer';
-import NoDataFound from '../NoDataFound';
-import { showMessage } from 'react-native-flash-message';
-import CameraScreen from './CameraScreen';
-import { pick, types, errorCodes } from '@react-native-documents/picker';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { ROUTES } from 'constants/app-constant';
 
 const InputFilePicker = ({ ListData = [], maxLimit = 10, isEditable = false, title = '', handleInputChange = () => {} }) => {
+    const navigation = useNavigation();
     const [fileList, setFileList] = useState([]);
-    const [visible, setVisible] = useState(false);
-    const [showCamer, setShowCamer] = useState(false);
     const [disableBtn, setDisableBtn] = useState(false);
+
     useEffect(() => {
-        if (ListData?.length) {
-            setFileList(ListData);
-        } else {
-            setFileList([]);
-        }
+        setFileList(ListData?.length ? ListData : []);
     }, [ListData]);
+
     useLayoutEffect(() => {
-        if (fileList?.length >= maxLimit) {
-            setDisableBtn(true);
-        } else {
-            setDisableBtn(false);
-        }
+        setDisableBtn(fileList?.length >= maxLimit);
     }, [fileList, maxLimit]);
-    // const handlePickFile = async () => {
-    //     try {
-    //         const response = await DocumentPicker.pick({
-    //             presentationStyle: 'fullScreen',
-    //         });
-    //         if (response[0]?.size && response[0]?.size <= 5 * 1024 * 1024) {
-    //             const base64 = await RNFS.readFile(response[0].uri, 'base64');
-    //             const fileExtension = response[0]?.name?.split('.').pop();
-    //             const file = {
-    //                 id: uuid.v4(),
-    //                 Base64: base64,
-    //                 FileType: fileExtension,
-    //                 FileName: response[0]?.name,
-    //             };
-    //             setFileList([...fileList, file]);
-    //             // setSelectedData({ ...selectedData, fileList: [...fileList, file] });
-    //         } else {
-    //             Alert.alert('Error', 'File size exceeds 5MB limit.');
-    //         }
-    //     } catch (err) {
-    //         if (isCancel(err)) {
-    //             // user cancelled, do nothing
-    //             return;
-    //         }
-    //         Alert.alert('Error', String(err));
-    //     }
-    // };
-    const handlePickFile = async () => {
-        try {
-            const response = await pick({
-                allowMultiSelection: false,
-                type: [types.allFiles],
-            });
 
-            const selectedFile = response[0];
-
-            if (selectedFile?.size && selectedFile.size <= 5 * 1024 * 1024) {
-                const fileUri = selectedFile.uri.replace('content://', '');
-
-                const base64 = await RNBlobUtil.fs.readFile(selectedFile.uri, 'base64');
-
-                const fileExtension = selectedFile?.name?.split('.').pop();
-
-                const file = {
-                    id: uuid.v4(),
-                    Base64: base64,
-                    FileType: fileExtension,
-                    FileName: selectedFile?.name,
-                };
-
-                setFileList(prev => [...prev, file]);
-
-                // setSelectedData({
-                //   ...selectedData,
-                //   fileList: [...fileList, file],
-                // });
-            } else {
-                Alert.alert('Error', 'File size exceeds 5MB limit.');
-            }
-        } catch (err) {
-            if (err?.code === errorCodes.OPERATION_CANCELED) {
-                return;
-            }
-
-            Alert.alert('Error', String(err));
-        }
-    };
-      const getMimeType = (extension) => {
-        const mimeTypes = {
-            pdf: 'application/pdf',
-            doc: 'application/msword',
-            docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            xls: 'application/vnd.ms-excel',
-            xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            ppt: 'application/vnd.ms-powerpoint',
-            pptx: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-            png: 'image/png',
-            jpg: 'image/jpeg',
-            jpeg: 'image/jpeg',
-            gif: 'image/gif',
-            txt: 'text/plain',
-            mp4: 'video/mp4',
-            mp3: 'audio/mpeg',
-        };
-        return mimeTypes[extension?.toLowerCase()] ?? 'application/octet-stream';
-    };
-    const openBase64File = async (base64String, fileType, name) => {
-        try {
-            // const ext = fileType?.toLowerCase() || 'txt';
-            const ext = fileType?.toLowerCase().replace(/^\./, '') || 'txt';
-            const fileName = `${name}.${ext}`;
-            const path = `${RNBlobUtil.fs.dirs.CacheDir}/${fileName}`;
-
-            // Write the base64 string to a file
-            await RNBlobUtil.fs.writeFile(path, base64String, 'base64');
-
-            // Verify file written successfully
-            const exists = await RNBlobUtil.fs.exists(path);
-            if (!exists) {
-                Alert.alert('Error', 'File could not be created.');
-                return;
-            }
-
-            if (Platform.OS === 'ios') {
-                // iOS - open document directly
-                await RNBlobUtil.ios.openDocument(path);
-            } else {
-                // Android - open with intent using MIME type
-                await RNBlobUtil.android.actionViewIntent(path, getMimeType(ext));
-            }
-        } catch (error) {
-            console.error('File open error:', error);
-            Alert.alert('Error', 'Unable to open file.');
-        }
-    };
-    const handleDeletePress = index => {
-        let temp = JSON.parse(JSON.stringify(fileList));
-        temp.splice(index, 1);
-        setFileList(temp);
-    };
-    const handleSaveFile = () => {
-        handleInputChange(fileList);
-        setVisible(false);
-    };
-    const renderFileList = ({ item, index }) => {
-        return (
-            <View key={index + 1} style={[styles.listBox]}>
-                <View>
-                    <Text style={[styles.fileText, { marginRight: 10 }]}>{index + 1}</Text>
-                </View>
-                <View style={styles.textContainer}>
-                    <Text style={[styles.fileText]}>{item?.FileName}</Text>
-                </View>
-                <View style={[styles.iconContainer]}>
-                    <TouchableOpacity
-                        style={[styles.iconBoxStyle]}
-                        onPress={() => {
-                            openBase64File(item.Base64, item.FileType, item?.FileName);
-                        }}>
-                        <IconI name="eye-outline" size={22} color={COLORS.grey} />
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        onPress={() => {
-                            handleDeletePress(index);
-                        }}>
-                        <IconM name="delete-outline" size={22} color={COLORS.ERROR} />
-                    </TouchableOpacity>
-                </View>
-            </View>
-        );
-    };
-    const handleCameraPress = () => {
-        setShowCamer(true);
-    };
     const handleFilePress = () => {
-        setVisible(true);
+        navigation.navigate(ROUTES.FILE_UPLOAD_SCREEN, {
+            fileList,
+            maxLimit,
+            title,
+            onSave: (updatedList) => {
+                setFileList(updatedList);
+                handleInputChange(updatedList);
+            },
+        });
     };
-    const handleNoSave = () => {
-        setFileList(ListData);
-        handleInputChange(ListData);
-        setVisible(false);
-    };
-    const handleClose = () => {
-        const hasChanges = JSON.stringify(ListData) !== JSON.stringify(fileList);
-        if (!hasChanges) {
-            setVisible(false);
-        } else {
-            Alert.alert('Confirm', 'There are unsaved changes. Do you want to save them?', [
-                {
-                    text: 'No',
-                    onPress: () => {
-                        handleNoSave();
-                    },
-                    style: 'cancel',
-                },
-                { text: 'Yes', onPress: () => handleSaveFile() },
-            ]);
-        }
-    };
-    console.log('fileList', showCamer,fileList);
+
     return (
-        <View>
-            <TouchableOpacity
-                style={[styles.fileBox, { backgroundColor: isEditable ? COLORS.inputBG : COLORS.whiteGrey, justifyContent: 'center' }]}
-                activeOpacity={isEditable ? 0.5 : 1}
-                onPress={() => {
-                    if (isEditable) {
-                        handleFilePress();
-                    }
-                }}>
-                <View>
-                    <Text style={[styles.fileText]}>{fileList.length ? `${fileList.length} Files Uploaded` : 'Upload File'}</Text>
-                </View>
-            </TouchableOpacity>
-            <Modal
-                visible={visible}
-                onDismiss={() => {
-                    handleClose();
-                }}
-                onRequestClose={() => {
-                    handleClose();
-                }}
-                contentContainerStyle={[styles.modalContainer]}>
-                <SafeAreaView style={{ flex: 1 }}>
-                    {Boolean(showCamer) ? (
-                        <CameraScreen visible={showCamer} setShowCamera={setShowCamer} setFileList={setFileList} handleGetImageData={fileData => {}} />
-                    ) : (
-                        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={[styles.container]}>
-                            <View style={[styles.iconBox]}>
-                                <Text style={[styles.titleText]} numberOfLines={1}>
-                                    Upload File's For {title}{' '}
-                                </Text>
-                                <TouchableOpacity style={[styles.closeIcon]} onPress={() => handleClose()}>
-                                    <Icon name="close" size={20} color={COLORS.white} />
-                                </TouchableOpacity>
-                            </View>
-                            {Boolean(fileList.length) ? (
-                                <FlatList
-                                    data={fileList}
-                                    renderItem={renderFileList}
-                                    contentContainerStyle={{ marginHorizontal: 10 }}
-                                    showsVerticalScrollIndicator={false}
-                                />
-                            ) : (
-                                <NoDataFound />
-                            )}
-                            <View style={[styles.btnContainer]}>
-                                <View style={[styles.btnBox]}>
-                                    <ButtonComponent
-                                        disabled={disableBtn}
-                                        textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}
-                                        style={{ height: 40, width: '48%' }}
-                                        onPress={() => {
-                                            handleCameraPress();
-                                        }}>
-                                        Camera
-                                    </ButtonComponent>
-                                    <ButtonComponent
-                                        disabled={disableBtn}
-                                        textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}
-                                        style={{ height: 40, width: '48%' }}
-                                        onPress={handlePickFile}>
-                                        Upload
-                                    </ButtonComponent>
-                                </View>
-                                <ButtonComponent
-                                    textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}
-                                    style={{ height: 40 }}
-                                    onPress={handleSaveFile}>
-                                    Save
-                                </ButtonComponent>
-                            </View>
-                        </KeyboardAvoidingView>
-                    )}
-                </SafeAreaView>
-            </Modal>
-        </View>
+        <TouchableOpacity
+            style={[styles.fileBox, { backgroundColor: isEditable ? COLORS.inputBG : COLORS.whiteGrey, justifyContent: 'center' }]}
+            activeOpacity={isEditable ? 0.5 : 1}
+            onPress={() => {
+                if (isEditable) {
+                    handleFilePress();
+                }
+            }}>
+            <View>
+                <Text style={[styles.fileText]}>{fileList.length ? `${fileList.length} Files Uploaded` : 'Upload File'}</Text>
+            </View>
+        </TouchableOpacity>
     );
 };
 
 const styles = StyleSheet.create({
-    modalContainer: {
-        flex: 1,
-        flexDirection: 'row',
-        justifyContent: 'center',
-        backgroundColor: '#fff',
-    },
-    container: {
-        flex: 1,
-        backgroundColor: '#fff',
-        borderRadius: 3,
-    },
-    btnContainer: {
-        padding: 10,
-    },
-    closeIcon: {
-        backgroundColor: COLORS.apptheme,
-        height: 30,
-        width: 30,
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderRadius: 30,
-    },
-    iconBox: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        padding: 10,
-        alignItems: 'center',
-    },
-    textContainer: {
-        flex: 1,
-        marginEnd: 20,
-    },
-    listBox: {
-        flex: 1,
-        flexDirection: 'row',
-        padding: 10,
-        alignItems: 'center',
-        borderBottomWidth: StyleSheet.hairlineWidth,
-        borderBottomColor: COLORS.grey,
-    },
-    fileText: {
-        fontFamily: 'OpenSans-SemiBold',
-        fontSize: 14,
-        color: COLORS.black,
-    },
-    iconContainer: {
-        flexDirection: 'row',
-    },
-    iconBoxStyle: {
-        marginEnd: 10,
-    },
-    btnBox: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginBottom: 10,
-    },
     fileBox: {
         borderWidth: 1,
         height: 40,
@@ -364,11 +58,6 @@ const styles = StyleSheet.create({
     fileText: {
         fontFamily: 'OpenSans-Regular',
         fontSize: 13,
-        color: COLORS.headerText,
-    },
-    titleText: {
-        fontFamily: 'OpenSans-Bold',
-        fontSize: 16,
         color: COLORS.headerText,
     },
 });

@@ -543,7 +543,7 @@ const CharacteristicsInfo = ({
                             }
                             handleInputChange(cleaned, item.id, type, item);
                         }}
-                        keyboardType={type == 'number' ? 'number-pad' : 'default'}
+                        keyboardType={type == 'number' ? (Platform.OS === 'ios' ? 'numbers-and-punctuation' : 'number-pad') : 'default'}
                         returnKeyType="done"
                         onSubmitEditing={() => handleSubmit(index)}
                         ref={ref => (inputsRef.current[index] = ref)}
@@ -890,7 +890,7 @@ const CharacteristicsInfo = ({
                     )}
                     <ButtonComponent
                         textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}
-                        style={{ height: 40, width:Boolean(selectedData?.isSamplePopup)?'73%': '85%' }}
+                        style={{ height: 40, width: Boolean(selectedData?.isSamplePopup) ? '73%' : '85%' }}
                         onPress={() => {
                             handleInnerSavePress(true, 'saveBtn');
                             // setShowCPKModal(true);
