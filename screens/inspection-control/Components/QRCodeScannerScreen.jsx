@@ -254,6 +254,7 @@ const QRCodeScannerScreen = ({
 
             let dummyvalue1 = value.split('-');
             let payload = { ProductionItemId: parseInt(dummyvalue1[0]), OperationId: parseInt(dummyvalue1[1]) };
+            hideModal();
             navigation.navigate(ROUTES.BARCODE_LIST, { barcodeValue: payload });
         },
     });
