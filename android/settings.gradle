@@ -47,6 +47,8 @@ if (buildReactNativeFromSource) {
 }
 include(":react-native-community_slider")
 project(":react-native-community_slider").projectDir = file("../node_modules/@react-native-community/slider/android")
+include(":react-native-community_voice")
+project(":react-native-community_voice").projectDir = file("../node_modules/@react-native-community/voice/android")
 include(":react-native-geocoder")
 project(":react-native-geocoder").projectDir = file("../node_modules/react-native-geocoder/android")
 include(":react-native-compressor")
