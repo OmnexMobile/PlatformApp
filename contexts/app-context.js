@@ -393,6 +393,7 @@ const AppProvider = ({ children }) => {
                 handleAppSetting,
                 handleSiteList,
                 handleRecentActivity,
+                handleAddRecentActivities,
                 handleRemoveActivity,
                 handleGlobalURL,
                 handleGlobalLogin,

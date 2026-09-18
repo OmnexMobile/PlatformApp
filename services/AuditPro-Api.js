@@ -356,24 +356,27 @@ import {
       fetch(sURL + auditList, {
         method: 'POST',
         headers: {
-          'Content-Type': 'multipart/form-data',
           Authorization: 'Bearer' + ' ' + token,
         },
         body: formData,
       })
         .then(resp => resp.json())
-        .then(data => {
-          console.log('trets data', data)
-          cb({
-            data,
-          });
-        })
-        .catch(data => {
-          cb({
-            //status: cons.ERROR_500
-            status: data,
-          });
-        });
+        // Two-argument `then` instead of `catch`: a `catch` here also swallows errors thrown by
+        // `cb` itself and re-runs it as a failure, turning any render bug into "no records found".
+        .then(
+          data => {
+            console.log('trets data', data);
+            cb({
+              data,
+            });
+          },
+          error => {
+            cb({
+              //status: cons.ERROR_500
+              status: error,
+            });
+          },
+        );
     },
   
     getstatapi(token, userId, SiteId, SM, cb) {

@@ -173,5 +173,21 @@ index 84fb7f2..15b634d 100644
                          'folly/portability/*.h',
 +                        'folly/synchronization/*.h',
                          'folly/system/*.h',
-  spec.libraries           = "c++abi" # NOTE Apple-only: Keep c++abi here due to https://github.com/react-native-community/releases/issues/251
-  spec.pod_target_xcconfig = { "USE_HEADERMAP" => "NO",
+   spec.libraries           = "c++abi" # NOTE Apple-only: Keep c++abi here due to https://github.com/react-native-community/releases/issues/251
+   spec.pod_target_xcconfig = { "USE_HEADERMAP" => "NO",
+diff --git a/node_modules/react-native/src/private/animated/createAnimatedPropsHook.js b/node_modules/react-native/src/private/animated/createAnimatedPropsHook.js
+index 46a0996..e3e0d3a 100644
+--- a/node_modules/react-native/src/private/animated/createAnimatedPropsHook.js
++++ b/node_modules/react-native/src/private/animated/createAnimatedPropsHook.js
+@@ -84,7 +84,10 @@ export default function createAnimatedPropsHook(
+         NativeAnimatedHelper.API.flushQueue();
+       }
+       let drivenAnimationEndedListener: ?EventSubscription = null;
+-      if (node.__isNative) {
++      // Paper never emits this event. Calling addListener still redboxes in
++      // DEBUG when native only lists `onAnimatedValueUpdate` (RCTLogError is
++      // not a JS exception, so try/catch cannot swallow it).
++      if (node.__isNative && global.RN$Bridgeless === true) {
+         drivenAnimationEndedListener =
+           NativeAnimatedHelper.nativeEventEmitter.addListener(
+             'onUserDrivenAnimationEnded',

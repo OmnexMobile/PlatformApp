@@ -10,9 +10,10 @@ import { getUniqueId } from 'react-native-device-info';
 import localStorage from 'global/localStorage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { GLOBALSERVER_URL, getGlobalUrls, setGlobalUrls } from 'screens/globalConstant/globalURL';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import APQPActions from 'store/APQP/apqpRedux';
 import AUDITPROActions from 'store/AuditPro/auditRedux';
+import { saveRecentViewed } from 'helpers/recent-viewed-store';
 
 const menus = [];
 const versionDetails = {
@@ -26,8 +27,10 @@ const LogoutFunctional = () => {
     console.log('reach ProfileHomeFunctional')
     const [loading, setLoading] = useState(false);
     const [isActive, setIsActive] = useState(false);
-    const { profile, appSettings, handleLogout, globalURL, handleGlobalURL, globalDeviceDetails, clearSite, handleRemoveActivity } = useAppContext();
+    const { profile, appSettings, handleLogout, globalURL, handleGlobalURL, globalDeviceDetails, clearSite, handleRemoveActivity, recentActivities } = useAppContext();
     const navigation = useNavigation();
+    const recentAudits = useSelector(state => state?.audits?.recentAudits);
+    const recentActivityAPQP = useSelector(state => state?.projects?.recentActivity);
     console.log('current appSettings', appSettings)
     
     useEffect(() => {
@@ -53,9 +56,31 @@ const LogoutFunctional = () => {
     //     }
     // };
 
+    // The logged in user is only known before handleLogout() resets the profile.
+    const resolveCurrentUserId = async () => {
+      if (profile?.UserId) {
+        return profile.UserId;
+      }
+      try {
+        const stored = await AsyncStorage.getItem('userDetails');
+        const parsed = stored ? JSON.parse(stored) : null;
+        return parsed?.userId ?? parsed?.Data?.[0]?.UserId ?? null;
+      } catch (err) {
+        console.log('Failed to resolve user id for recent activity snapshot', err);
+        return null;
+      }
+    };
+
     const handleLogoutFun = async () => {
       console.log('reach here logout')
       setLoading(true);
+      // Keep this user's recently viewed items so signing back in restores them.
+      const currentUserId = await resolveCurrentUserId();
+      await saveRecentViewed(currentUserId, {
+        recentAudits,
+        recentActivityAPQP,
+        recentActivityPS: recentActivities,
+      });
       handleLogout();
       dispatch({ type: 'RESET_TO_INITIAL' });
       successMessage({ message: 'Success', description: 'Successfully Logged Out' });
@@ -67,7 +92,8 @@ const LogoutFunctional = () => {
       handleGlobalURL('serverUrl', currentGlobal)
       setGlobalUrls({ globalServerUrl: currentGlobal });
       clearSite();
-      // Clear recent activity on logout
+      // Clear the in-memory/shared copies so the next user cannot see them; the
+      // per-user snapshot taken above is what gets restored on the next login.
       handleRemoveActivity(); //PS
       dispatch(APQPActions.updateRecentActivityList([])); //APQP
       dispatch(AUDITPROActions.clearAudits()); //AuditPro/SM

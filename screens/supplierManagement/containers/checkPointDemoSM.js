@@ -8410,7 +8410,7 @@ class CheckPointDemo extends Component {
                                     end={{ x: 1, y: 0 }}
                                     colors={FOOTER_BUTTON_GRADIENT}
                                     style={styles.serialFloatingPillGradient}>
-                                    <Text style={styles.serialFloatingPillText}>{`S.No ${activeSerialNo}`}</Text>
+                                    <Text numberOfLines={1} style={styles.serialFloatingPillText}>{`S.No ${activeSerialNo}`}</Text>
                                     <Icon name={this.state.serialRailExpanded ? 'chevron-down' : 'chevron-right'} size={16} color="#FFFFFF" />
                                 </LinearGradient>
                             </TouchableOpacity>

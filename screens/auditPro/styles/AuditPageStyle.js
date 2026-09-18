@@ -110,11 +110,29 @@ export default StyleSheet.create({
     alignItems: 'center',
     width: '100%',
   },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  headerActionButton: {
+    padding: 6,
+  },
+  headerActionsPlaceholder: {
+    width: 36,
+    height: 36,
+  },
+  footerAction: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 2,
+  },
   footerTextContent: {
     color: '#000',
     fontSize: 14,
     fontFamily: 'OpenSans-SemiBold',
-   // textAlign: 'center',
+    textAlign: 'center',
 paddingTop:5 },
   
   footerDivContent1: {

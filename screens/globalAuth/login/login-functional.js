@@ -15,10 +15,15 @@ import { useDispatch, useSelector } from 'react-redux';
 import ApiUrl from 'global/ApiUrl';
 import { GLOBALSERVER_URL, ensureTrailingSlash, setGlobalUrls } from 'screens/globalConstant/globalURL';
 import axios from 'axios';
+import APQPActions from 'store/APQP/apqpRedux';
+import AUDITPROActions from 'store/AuditPro/auditRedux';
+import { loadRecentViewed } from 'helpers/recent-viewed-store';
 
 const LoginFunctional = ({}) => {
     const dispatch = useDispatch();
     const { icLoginlogo } = useSelector(state => state.inspection);
+    const currentRecentAudits = useSelector(state => state?.audits?.recentAudits);
+    const currentRecentActivityAPQP = useSelector(state => state?.projects?.recentActivity);
     const [selectLanguageModal, setSelectLanguageModal] = useState(false);
     const [loginDetails, setLoginDetails] = useState({
         // username: 'Champion1@michelin',
@@ -43,6 +48,8 @@ const LoginFunctional = ({}) => {
         handleGlobalURL,
         globalDeviceDetails,
         handleSite,
+        handleAddRecentActivities,
+        recentActivities,
     } = useAppContext();
     const navigation = useNavigation();
     const isRegistered = !!(globalURL?.serverUrl || bootstrappedUrl);
@@ -217,6 +224,29 @@ const LoginFunctional = ({}) => {
         }
     };
 
+    // Logout stores this user's recently viewed items under their own key; bring
+    // them back so the dashboard looks the same as before they signed out. Lists
+    // that already hold data were rehydrated by redux-persist and are newer than
+    // the snapshot, so they are left untouched.
+    const restoreRecentViewed = async userId => {
+        try {
+            const snapshot = await loadRecentViewed(userId);
+            const isEmpty = list => !Array.isArray(list) || list.length === 0;
+
+            if (isEmpty(currentRecentAudits) && !isEmpty(snapshot.recentAudits)) {
+                dispatch(AUDITPROActions.updateRecentAuditList(snapshot.recentAudits));
+            }
+            if (isEmpty(currentRecentActivityAPQP) && !isEmpty(snapshot.recentActivityAPQP)) {
+                dispatch(APQPActions.updateRecentActivityList(snapshot.recentActivityAPQP));
+            }
+            if (isEmpty(recentActivities) && !isEmpty(snapshot.recentActivityPS)) {
+                handleAddRecentActivities(snapshot.recentActivityPS);
+            }
+        } catch (err) {
+            console.log('Failed to restore recently viewed items', err);
+        }
+    };
+
     const setProfileCall = async data => {
         console.log('🚀 ~ file: login-functional.js:148,  ~ setProfileCall ~ data', data, '--', data?.Data);
         const APIURL = await localStorage.getData(LOCAL_STORAGE_VARIABLES.IC_API_URL);
@@ -258,6 +288,7 @@ const LoginFunctional = ({}) => {
         });
         handleSiteList(data?.Data);
         handleSite(data?.Data);
+        await restoreRecentViewed(data?.Data?.[0]?.UserId?.toString());
         setCurrentToken(data?.Token);
         let icUserData = {
             userData: data?.Data[0] || {},

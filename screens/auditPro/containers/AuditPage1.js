@@ -45,6 +45,12 @@ import { LogBox } from 'react-native';
 import GlobalHeader from 'components/GlobalHeader';
 import FAB from 'components/fab';
 import { resolveAuditCStatus } from 'helpers/audit-status';
+import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
+import {
+  FOOTER_BAR_HEIGHT,
+  getAbsoluteFooterStyle,
+  getContentBottomInset,
+} from 'helpers/safe-area';
 let Window = Dimensions.get('window');
 const window_width = Dimensions.get('window').width;
 let timer = null;
@@ -69,6 +75,8 @@ const toastConfig = {
 };
 
 class AuditPage extends Component {
+  static contextType = SafeAreaInsetsContext;
+
   ACTUALAUDITID = '';
 
   constructor(props) {
@@ -171,7 +179,7 @@ class AuditPage extends Component {
       return;
     }
     try {
-      await this.safeRemoveVoiceListeners();
+      await Voice.removeAllListeners();
     } catch (error) {
       console.log('Voice listener cleanup failed', error);
     }
@@ -3524,7 +3532,6 @@ class AuditPage extends Component {
     console.log(this.state.auditDetailList, 'AuditDetailsList');
     console.log(this.props?.route?.params, 'venkat12345');
     console.log(this.props?.route?.params?.datapass?.AuditProgramName,"venkat/ncp");
-        const headerActionButtonStyle = { paddingHorizontal: 8, paddingVertical: 6 };
 
     const suggestions = [
       {id: strings.sugesstion1},
@@ -3543,26 +3550,43 @@ class AuditPage extends Component {
     const canShowHeaderActions =
       !this.state.isLoading && !this.state.isDownloading;
 
+    // Android's system bar gap is applied once by AndroidBottomSafeArea at the
+    // root, so only iOS needs it again here.
+    const bottomInset = getContentBottomInset(this.context);
+    const footerVisible = !!(
+      this.state.isDownloaded && this.state.auditDetailList
+    );
+    // The footer and one of the FABs are absolutely positioned over the
+    // ScrollView, so the content needs matching padding to stay reachable.
+    // Whichever sits highest defines the clearance.
+    const fabVisible =
+      this.state.isDownloaded || this.state.EnableDownload !== false;
+    const scrollBottomPadding =
+      Math.max(footerVisible ? FOOTER_BAR_HEIGHT : 0, fabVisible ? 156 : 0) +
+      bottomInset +
+      24;
+
     const rightActions = canShowHeaderActions ? (
-      <View style={{flexDirection: 'row', alignItems: 'center'}}>
+      <View style={styles.headerActions}>
         {this.state.isDownloaded ? (
           <TouchableOpacity
-            style={styles.headerActionButtonStyle}
+            style={styles.headerActionButton}
             onPress={() => {
               this.setState({dialogVisible: true});
             }}>
-            <Icon name="trash" size={25} color="#123C95" />
+            <Icon name="trash" size={24} color="#123C95" />
           </TouchableOpacity>
         ) : null}
         <TouchableOpacity
+          style={styles.headerActionButton}
           onPress={() =>
             this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)
           }>
-          <Icon name="home" size={25} color="#123C95" />
+          <Icon name="home" size={24} color="#123C95" />
         </TouchableOpacity>
       </View>
     ) : (
-      <View style={{width: 36, height: 36}} />
+      <View style={styles.headerActionsPlaceholder} />
     );
 
     return (
@@ -3588,7 +3612,10 @@ class AuditPage extends Component {
 
         {!this.state.isLoading ? (
           <View style={styles.auditPageBody}>
-            <ScrollView>
+            <ScrollView
+              contentContainerStyle={{paddingBottom: scrollBottomPadding}}
+              keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator>
               {this.state.auditDetailList ? (
                 <View style={styles.detailsCard}>
                   <View style={styles.card1}>
@@ -3908,48 +3935,41 @@ class AuditPage extends Component {
           </View>
         )}
 
-        {this.state.isDownloaded && this.state.auditDetailList ? (
-          <View style={styles.footer}>
+        {footerVisible ? (
+          <View style={getAbsoluteFooterStyle(styles.footer, bottomInset)}>
             <View style={styles.footerDiv}>
               <View
                 style={{
+                  flex: 1,
                   flexDirection: 'row',
-                  justifyContent: 'space-between',
+                  justifyContent: 'space-evenly',
                   alignItems: 'center',
                 }}>
                 {this.state.auditDetailList.AuditProgramName !== 'LPA' ? (
-                  <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-                    <TouchableOpacity
-                      onPress={this.onNavigateTo.bind(this, 4)}>
-                      <Icon
-                        name="paperclip"
-                        size={20}
-                        color="#123C95"
-                        style={{marginLeft: 15}}
-                      />
-                      <Text style={styles.footerTextContent}>
-                        {strings.Attach}
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-                ) : (
-                  <></>
-                )}
-
-                <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
                   <TouchableOpacity
-                    onPress={this.onNavigateTo.bind(this, 2)}>
-                    <Icon
-                      name="list"
-                      size={20}
-                      color="#123C95"
-                      style={{marginLeft: 15}}
-                    />
-                    <Text style={styles.footerTextContent}>
-                      {strings.AuditRecords}
+                    style={styles.footerAction}
+                    onPress={this.onNavigateTo.bind(this, 4)}>
+                    <Icon name="paperclip" size={20} color="#123C95" />
+                    <Text
+                      numberOfLines={1}
+                      adjustsFontSizeToFit
+                      style={styles.footerTextContent}>
+                      {strings.Attach}
                     </Text>
                   </TouchableOpacity>
-                </View>
+                ) : null}
+
+                <TouchableOpacity
+                  style={styles.footerAction}
+                  onPress={this.onNavigateTo.bind(this, 2)}>
+                  <Icon name="list" size={20} color="#123C95" />
+                  <Text
+                    numberOfLines={1}
+                    adjustsFontSizeToFit
+                    style={styles.footerTextContent}>
+                    {strings.AuditRecords}
+                  </Text>
+                </TouchableOpacity>
 
                 {(this.state.auditDetailList.AuditProgramName !== 'LPA' &&
                   this.state.AuditProp.ReportId == 1) ||
@@ -3959,43 +3979,33 @@ class AuditPage extends Component {
                 this.state.AuditProp.ReportId == 6 ||
                 this.state.AuditProp.ReportId == 7 ||
                 this.state.AuditProp.ReportId == 13 ? (
-                  <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-                    <TouchableOpacity
-                      onPress={this.onNavigateTo.bind(this, 3)}>
-                      <Icon
-                        name="file"
-                        size={20}
-                        color="#123C95"
-                        style={{marginLeft: 15}}
-                      />
-                      <Text style={styles.footerTextContent}>
-                        {strings.NC_OFI}
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-                ) : (
-                  <></>
-                )}
+                  <TouchableOpacity
+                    style={styles.footerAction}
+                    onPress={this.onNavigateTo.bind(this, 3)}>
+                    <Icon name="file" size={20} color="#123C95" />
+                    <Text
+                      numberOfLines={1}
+                      adjustsFontSizeToFit
+                      style={styles.footerTextContent}>
+                      {strings.NC_OFI}
+                    </Text>
+                  </TouchableOpacity>
+                ) : null}
 
                 {this.state.AuditProp.ReportId == 3 ||
                 this.state.AuditProp.ReportId == 7 ? (
-                  <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-                    <TouchableOpacity
-                      onPress={this.onNavigateTo.bind(this, 6)}>
-                      <Icon
-                        name="file"
-                        size={20}
-                        color="#123C95"
-                        style={{marginLeft: 30}}
-                      />
-                      <Text style={styles.footerTextContent}>
-                        {strings.conformance}
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-                ) : (
-                  <></>
-                )}
+                  <TouchableOpacity
+                    style={styles.footerAction}
+                    onPress={this.onNavigateTo.bind(this, 6)}>
+                    <Icon name="file" size={20} color="#123C95" />
+                    <Text
+                      numberOfLines={1}
+                      adjustsFontSizeToFit
+                      style={styles.footerTextContent}>
+                      {strings.conformance}
+                    </Text>
+                  </TouchableOpacity>
+                ) : null}
               </View>
             </View>
           </View>
@@ -4028,7 +4038,7 @@ class AuditPage extends Component {
         ) : null}
         
         {!this.state.isDownloaded ? null : (
-          <View style={styles.floatingDiv}>
+          <View style={[styles.floatingDiv, {bottom: 100 + bottomInset}]}>
             <TouchableOpacity
               onPress={() => {
                 this.setState({isVisible: true}, () => {

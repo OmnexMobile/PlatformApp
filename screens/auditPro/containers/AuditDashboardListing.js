@@ -295,11 +295,11 @@ class AuditDashboardListing extends Component {
     );
 
     async getAuditLists() {
-        await this.getUserDetails();
+        const userDetails = await this.getUserDetails();
         var pageNo = 1;
-        var token = this.props?.data?.audits?.token || this.state.currentUserData?.accessToken;
-        var userId = this.props?.data?.audits?.userId || this.state.currentUserData?.userId;
-        var siteId = this.props?.data?.audits?.siteId || this.state.currentUserData?.siteId;
+        var token = this.props?.data?.audits?.token || userDetails?.accessToken;
+        var userId = this.props?.data?.audits?.userId || userDetails?.userId;
+        var siteId = this.props?.data?.audits?.siteId || userDetails?.siteId;
         var filterId = this.state.filterId;
         var pageSize = 10;
         var GlobalFilter = this.state.AuditSearch === undefined ? '' : this.state.AuditSearch;
@@ -458,21 +458,21 @@ class AuditDashboardListing extends Component {
     }
 
     async getAuditStatusDetails() {
-        await this.getUserDetails();
+        const userDetails = await this.getUserDetails();
         this.setState({
             loading: true,
         });
         console.log(
             'getAuditStatusDetails--->',
             this.state.token,
-            this.state.currentUserData?.userId,
-            this.state.currentUserData?.siteId,
+            userDetails?.userId,
+            userDetails?.siteId,
             this.props.data.audits,
         );
         auth.getStat(
-            this.props?.data?.audits?.token || this.state.currentUserData?.accessToken,
-            this.props?.data?.audits?.userId || this.state.currentUserData?.userId,
-            this.props?.data?.audits?.siteId || this.state.currentUserData?.siteId,
+            this.props?.data?.audits?.token || userDetails?.accessToken,
+            this.props?.data?.audits?.userId || userDetails?.userId,
+            this.props?.data?.audits?.siteId || userDetails?.siteId,
             1,
             (response, data) => {
                 if (data.data) {
@@ -520,7 +520,8 @@ class AuditDashboardListing extends Component {
         );
     }
 
-    getAuditlist = (startDate, endDate) => {
+    getAuditlist = async (startDate, endDate) => {
+        const userDetails = await this.getUserDetails();
         this.setState({
             loading: true,
             startDateFilter: startDate || '',
@@ -548,9 +549,9 @@ class AuditDashboardListing extends Component {
             if (netState.isConnected) {
                 console.log('getAuditlist ------>');
                 var pageNo = 1;
-                var token = this.props?.data?.audits?.token || this.state.currentUserData?.accessToken;
-                var userId = this.props?.data?.audits?.userId || this.state.currentUserData?.userId;
-                var siteId = this.props?.data?.audits?.siteId || this.state.currentUserData?.siteId;
+                var token = this.props?.data?.audits?.token || userDetails?.accessToken;
+                var userId = this.props?.data?.audits?.userId || userDetails?.userId;
+                var siteId = this.props?.data?.audits?.siteId || userDetails?.siteId;
                 var filterId = this.state.filterId;
                 var pageSize = 10;
                 var GlobalFilter = this.state.AuditSearch === undefined ? '' : this.state.AuditSearch;
@@ -676,16 +677,16 @@ class AuditDashboardListing extends Component {
     };
 
     checkUser = async () => {
-        await this.getUserDetails();
+        const userDetails = await this.getUserDetails();
         const { userId, token } = this.props?.data?.audits;
         console.log('user audits', this.props?.data?.audits);
         console.log('user id', this.props?.data?.audits?.userId);
-        var currentToken = this.state.currentUserData?.accessToken || token;
-        var userid = this.state.currentUserData?.userId || userId;
+        var currentToken = userDetails?.accessToken || token;
+        var userid = userDetails?.userId || userId;
 
         var UserStatus = '';
         var serverUrl = this.props.data.audits.serverUrl;
-        var ID = this.state.currentUserData?.userId || userId;
+        var ID = userDetails?.userId || userId;
         var type = 3;
         var path = '';
         //  var RegisterDevice = this.props.data.audits.deviceid;
@@ -770,6 +771,10 @@ class AuditDashboardListing extends Component {
         }
     }
 
+    /**
+     * Returns the parsed value as well as storing it. `setState` is not flushed by the time the
+     * caller resumes, so callers must use the returned value instead of reading state back.
+     */
     async getUserDetails() {
         try {
             const stringifiedUserDetails = await AsyncStorage.getItem('userDetails');
@@ -780,9 +785,11 @@ class AuditDashboardListing extends Component {
                     console.log('Token set');
                 });
             }
+            return value || this.state.currentUserData;
         } catch (e) {
             // error reading value
             console.log('error--->', e);
+            return this.state.currentUserData;
         }
     }
 
@@ -797,11 +804,10 @@ class AuditDashboardListing extends Component {
     };
 
     loginCall = async () => {
-        await this.getUserDetails();
-        console.log('currentUserData---get', this.state.currentUserData);
-        await this.getDeviceId();
-        console.log('deviceId--->', this.state.deviceId);
-        const loginDetails = this.state.currentUserData;
+        const loginDetails = await this.getUserDetails();
+        console.log('currentUserData---get', loginDetails);
+        const deviceId = await this.getDeviceId();
+        console.log('deviceId--->', deviceId);
         if (loginDetails?.success == true) {
             console.log('data value checking' + loginDetails?.data);
             this.props.storeLoginData(loginDetails?.data);
@@ -811,7 +817,7 @@ class AuditDashboardListing extends Component {
 
             this.props.storeUserName(loginDetails?.data[0]?.FullName);
             // this.checkUsers(data.data.Data[0].UserId.toString(), data.data.Token)
-            this.storeData('loginDeviceId', this.state.deviceId);
+            this.storeData('loginDeviceId', deviceId);
             this.storeData('loginFcmToken', this.state.fcmToken);
             this.storeData('loginEmail', loginDetails?.data[0]?.FullName);
             this.setState(
@@ -827,7 +833,8 @@ class AuditDashboardListing extends Component {
                     this.getProfileCall(this.state.accessToken);
                     this.checkUser();
                     // this.checkUsers(this.state.userId, this.state.accessToken);
-                    this.getAudits();
+                    // `getAudits` is invoked by the focus listener right after this resolves;
+                    // calling it here too raced the two responses and marked the list as ended.
                     console.log('tret1 reached login data stored');
                 },
             );
@@ -1073,9 +1080,11 @@ class AuditDashboardListing extends Component {
                     filterId: this.state.filterId || value?.projectStatus || '',
                 });
             }
+            return value || this.state.projectData;
         } catch (e) {
             // error reading value
             console.log('projectDetails error--->', e);
+            return this.state.projectData;
         }
     }
 
@@ -1083,10 +1092,10 @@ class AuditDashboardListing extends Component {
         console.log('trets getAudits', this.state.auditList, this.state.userFullName, this.state.userId, this.state.siteId, this.state.accessToken);
         console.log('current trets siteId--->', this.props.data.audits.siteId);
         this.setAccessToken(this.state.accessToken);
-        await this.getProjectDetails();
-        await this.getUserDetails();
-        console.log('currentUserData---get', this.state.currentUserData);
-        console.log('projectData---get', this.state.projectData);
+        const projectDetails = await this.getProjectDetails();
+        const userDetails = await this.getUserDetails();
+        console.log('currentUserData---get', userDetails);
+        console.log('projectData---get', projectDetails);
         NetInfo.fetch().then(netState => {
             if (netState.isConnected) {
                 const { userId, token } = this.props?.data?.audits;
@@ -1103,7 +1112,7 @@ class AuditDashboardListing extends Component {
                     Number(
                         this.props?.route?.params?.status ??
                         this.props?.route?.params?.filterId ??
-                        this.state.projectData?.projectStatus ??
+                        projectDetails?.projectStatus ??
                         this.state.filterId,
                     ) || '';
                 const filterStr =
@@ -1112,12 +1121,12 @@ class AuditDashboardListing extends Component {
                     this.setState({ filterId: filterStatus });
                 }
 
-                console.log('trets data', token, userId, siteId, this.state.currentUserData);
+                console.log('trets data', token, userId, siteId, userDetails);
                 console.log(
                     'reach here 003',
-                    this.state.currentUserData?.accessToken || token,
-                    this.state.currentUserData?.userId || userId,
-                    this.state.currentUserData?.siteId || siteId,
+                    userDetails?.accessToken || token,
+                    userDetails?.userId || userId,
+                    userDetails?.siteId || siteId,
                     this.pageNo,
                     this.pageSize,
                     filterStr,
@@ -1133,9 +1142,9 @@ class AuditDashboardListing extends Component {
                     // this.state.accessToken,
                     // this.state.userId,
                     // this.state.siteId,
-                    this.state.currentUserData?.accessToken || token,
-                    this.state.currentUserData?.userId || userId,
-                    this.state.currentUserData?.siteId || siteId,
+                    userDetails?.accessToken || token,
+                    userDetails?.userId || userId,
+                    userDetails?.siteId || siteId,
                     this.pageNo,
                     this.pageSize,
                     filterStr,
@@ -1250,10 +1259,8 @@ class AuditDashboardListing extends Component {
     }
 
     applyAuditFilter = () => {
-        const { searchKey, auditListAll } = this.state;
-        if (!auditListAll || auditListAll.length === 0) {
-            return;
-        }
+        const { searchKey } = this.state;
+        const auditListAll = this.state.auditListAll || [];
 
         const query = (searchKey || '').toLowerCase().trim();
 
@@ -1274,9 +1281,9 @@ class AuditDashboardListing extends Component {
         this.setState({ auditList: filtered });
     };
 
-    transformAudits(audits) {
+    transformAudits(audits = []) {
         var auditList = [];
-        var auditListProps = this.props.data.audits.auditRecords;
+        var auditListProps = this.props?.data?.audits?.auditRecords || [];
         console.log('AuditListProps', auditListProps);
 
         for (var i = 0; i < audits.length; i++) {

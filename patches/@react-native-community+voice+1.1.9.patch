@@ -119,6 +119,58 @@ index a10af13..fd7f1af 100644
          return new Promise(resolve => {
              Voice.isRecognizing((isRecognizing) => resolve(isRecognizing));
          });
+diff --git a/node_modules/@react-native-community/voice/ios/Voice/Voice.m b/node_modules/@react-native-community/voice/ios/Voice/Voice.m
+index 780dec8..42e41b9 100644
+--- a/node_modules/@react-native-community/voice/ios/Voice/Voice.m
++++ b/node_modules/@react-native-community/voice/ios/Voice/Voice.m
+@@ -216,6 +216,16 @@
+     }];
+     
+     AVAudioFormat* recordingFormat = [inputNode outputFormatForBus:0];
++
++    // A zero sample rate or channel count means the input route is not usable
++    // yet (another session holds it). Installing a tap with that format raises
++    // an Objective-C exception that cannot be caught from JS.
++    if (recordingFormat == nil || recordingFormat.sampleRate <= 0 || recordingFormat.channelCount == 0) {
++        [self sendResult:@{@"code": @"input", @"message": @"Audio input is unavailable"} :nil :nil :nil];
++        [self teardown];
++        return;
++    }
++
+     AVAudioMixerNode *mixer = [[AVAudioMixerNode alloc] init];
+     [self.audioEngine attachNode:mixer];
+     
+@@ -223,8 +233,6 @@
+     @try {
+         [mixer installTapOnBus:0 bufferSize:1024 format:recordingFormat block:^(AVAudioPCMBuffer * _Nonnull buffer, AVAudioTime * _Nonnull when) {
+             //Volume Level Metering
+-            //Buffer frame can be reduced, if you need more output values
+-            [buffer setFrameLength:4096];
+             UInt32 inNumberFrames = buffer.frameLength;
+             float LEVEL_LOWPASS_TRIG = 0.5;
+             if(buffer.format.channelCount>0)
+@@ -263,10 +271,18 @@
+         return;
+     } @finally {}
+     
+-    [self.audioEngine connect:inputNode to:mixer format:recordingFormat];
+-    [self.audioEngine prepare];
+     NSError* audioSessionError = nil;
+-    [self.audioEngine startAndReturnError:&audioSessionError];
++    @try {
++        [self.audioEngine connect:inputNode to:mixer format:recordingFormat];
++        [self.audioEngine prepare];
++        [self.audioEngine startAndReturnError:&audioSessionError];
++    } @catch (NSException *exception) {
++        NSLog(@"[Error] - %@ %@", exception.name, exception.reason);
++        [self sendResult:@{@"code": @"start_recording", @"message": [exception reason]} :nil :nil :nil];
++        [self teardown];
++        return;
++    } @finally {}
++
+     if (audioSessionError != nil) {
+         [self sendResult:@{@"code": @"audio", @"message": [audioSessionError localizedDescription]} :nil :nil :nil];
+         [self teardown];
 diff --git a/node_modules/@react-native-community/voice/src/index.ts b/node_modules/@react-native-community/voice/src/index.ts
 index 8b51121..6eb43a9 100644
 --- a/node_modules/@react-native-community/voice/src/index.ts

@@ -76,7 +76,15 @@ const GlobalHeader = ({
       ]}>
       {renderLeft()}
       <View style={styles.titleContainer}>
-        {title ? <Text style={[styles.title, titleStyle]}>{title}</Text> : null}
+        {title ? (
+          <Text
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            minimumFontScale={0.8}
+            style={[styles.title, titleStyle]}>
+            {title}
+          </Text>
+        ) : null}
         {subtitle ? (
           <Text numberOfLines={1} style={[styles.subtitle, subtitleStyle]}>
             {subtitle}
@@ -105,6 +113,7 @@ const styles = StyleSheet.create({
   },
   titleContainer: {
     flex: 1,
+    minWidth: 0,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 8,
@@ -124,10 +133,12 @@ const styles = StyleSheet.create({
   },
   iconButton: {
     padding: 6,
+    flexShrink: 0,
   },
   iconPlaceholder: {
     width: 36,
     height: 36,
+    flexShrink: 0,
   },
 });
 

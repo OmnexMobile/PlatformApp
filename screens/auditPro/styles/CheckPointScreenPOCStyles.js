@@ -6,6 +6,18 @@ let Window = Dimensions.get('window');
 const Width = Dimensions.get('window').width;
 const Height = Dimensions.get('window').height;
 
+// Scale against the shorter screen edge so sizes stay stable across orientation
+// changes, and clamp it so phones stay usable and tablets don't get huge controls.
+const SERIAL_BASE_WIDTH = 375;
+const SERIAL_SCALE = Math.min(Math.max(Math.min(Width, Height) / SERIAL_BASE_WIDTH, 0.82), 1.25);
+const serialScale = size => Math.round(size * SERIAL_SCALE);
+
+const FOOTER_HEIGHT = 74;
+const SERIAL_PILL_HEIGHT = serialScale(48);
+const SERIAL_PILL_RADIUS = Math.round(SERIAL_PILL_HEIGHT / 2);
+const SERIAL_PILL_GAP = serialScale(5);
+const SERIAL_DOCK_PADDING = serialScale(8);
+
 export default StyleSheet.create({
   mainContainer: {
     flex: 1,
@@ -340,7 +352,7 @@ export default StyleSheet.create({
     position: 'absolute',
     left: 0,
     right: 0,
-    bottom: 74,
+    bottom: FOOTER_HEIGHT,
     zIndex: 2999,
     elevation: 11,
     width: '100%',
@@ -354,42 +366,47 @@ export default StyleSheet.create({
     position: 'absolute',
     left: 0,
     right: 0,
-    bottom: 74,
+    bottom: FOOTER_HEIGHT,
     backgroundColor: '#FFFFFF',
     borderTopWidth: 1,
     borderTopColor: '#E3E8F0',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingHorizontal: SERIAL_DOCK_PADDING,
+    paddingVertical: SERIAL_DOCK_PADDING,
     zIndex: 2999,
     elevation: 12,
     flexDirection: 'row',
     alignItems: 'center',
-    minHeight: 52,
+    minHeight: SERIAL_PILL_HEIGHT + SERIAL_DOCK_PADDING * 2,
   },
   serialDockToggle: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: '#123C95',
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: 22,
-    minHeight: 44,
+    paddingHorizontal: serialScale(14),
+    borderRadius: SERIAL_PILL_RADIUS,
+    height: SERIAL_PILL_HEIGHT,
+    flexShrink: 0,
+    maxWidth: '42%',
   },
   serialDockToggleText: {
     color: '#FFFFFF',
-    fontSize: Fonts.size.medium,
+    fontSize: serialScale(13),
     fontFamily: 'OpenSans-SemiBold',
     marginRight: 6,
+    flexShrink: 1,
   },
   serialDockList: {
     flex: 1,
-    marginLeft: 10,
-    maxHeight: 44,
+    marginLeft: serialScale(10),
+    // Slightly taller than the pills so their rounded borders are never clipped.
+    height: SERIAL_PILL_HEIGHT + 2,
+    flexGrow: 1,
   },
   serialFloatingPill: {
-    width: 112,
-    height: 44,
-    borderRadius: 22,
+    width: serialScale(112),
+    height: SERIAL_PILL_HEIGHT,
+    borderRadius: SERIAL_PILL_RADIUS,
     overflow: 'hidden',
     shadowColor: '#6A6A6A',
     shadowOffset: {width: 0, height: 8},
@@ -400,33 +417,34 @@ export default StyleSheet.create({
   serialFloatingPillGradient: {
     width: '100%',
     height: '100%',
-    borderRadius: 22,
+    borderRadius: SERIAL_PILL_RADIUS,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 10,
+    paddingHorizontal: serialScale(10),
   },
   serialFloatingPillText: {
     color: '#FFFFFF',
-    fontSize: 15,
+    fontSize: serialScale(13),
     fontFamily: 'OpenSans-Bold',
     marginRight: 5,
+    flexShrink: 1,
   },
   serialFloatingPanel: {
     flex: 1,
-    height: 56,
-    marginLeft: 10,
+    height: SERIAL_PILL_HEIGHT + 2,
+    marginLeft: serialScale(10),
   },
   serialFloatingContainer: {
     position: 'absolute',
     left: 0,
     right: 0,
-    bottom: 74,
+    bottom: FOOTER_HEIGHT,
     zIndex: 3001,
     elevation: 13,
-    minHeight: 72,
-    paddingHorizontal: 24,
-    paddingVertical: 8,
+    minHeight: SERIAL_PILL_HEIGHT + SERIAL_DOCK_PADDING * 2,
+    paddingHorizontal: serialScale(16),
+    paddingVertical: SERIAL_DOCK_PADDING,
     backgroundColor: '#FFFFFF',
     borderTopWidth: 1,
     borderTopColor: '#E3E8F0',
@@ -435,30 +453,31 @@ export default StyleSheet.create({
   },
   serialFloatingContainerCollapsed: {
     position: 'absolute',
-    left: 24,
-    bottom: 86,
+    left: serialScale(16),
+    bottom: FOOTER_HEIGHT + SERIAL_DOCK_PADDING,
     zIndex: 3001,
     elevation: 13,
     backgroundColor: 'transparent',
-    width: 112,
-    height: 44,
+    width: serialScale(112),
+    height: SERIAL_PILL_HEIGHT,
     flexDirection: 'row',
     alignItems: 'center',
   },
   serialFloatingListContent: {
     alignItems: 'center',
-    paddingRight: 8,
+    paddingRight: SERIAL_PILL_GAP,
   },
   serialFloatingNumber: {
-    minWidth: 58,
-    height: 52,
-    borderRadius: 18,
+    minWidth: serialScale(54),
+    height: SERIAL_PILL_HEIGHT,
+    paddingHorizontal: serialScale(10),
+    borderRadius: SERIAL_PILL_RADIUS,
     borderWidth: 1,
     borderColor: '#D9DEE8',
     backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
-    marginHorizontal: 5,
+    marginHorizontal: SERIAL_PILL_GAP,
   },
   serialFloatingNumberActive: {
     backgroundColor: '#123C95',
@@ -466,8 +485,9 @@ export default StyleSheet.create({
   },
   serialFloatingNumberText: {
     color: '#10224C',
-    fontSize: 18,
+    fontSize: serialScale(14),
     fontFamily: 'OpenSans-Bold',
+    textAlign: 'center',
   },
   serialRailWrapper: {
     paddingLeft: 8,
@@ -963,7 +983,7 @@ export default StyleSheet.create({
     alignContent: 'center',
     width: '100%',
     backgroundColor: 'transparent',
-    height: 74,
+    height: FOOTER_HEIGHT,
     zIndex: 3000,
     elevation: 12,
   },
@@ -1178,6 +1198,18 @@ export default StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     width: '100%',
+  },
+  scoreFieldLabelRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
+    marginBottom: 2,
+  },
+  scoreFieldLabelText: {
+    color: '#5A5A5A',
+    fontSize: Fonts.size.small,
+    fontFamily: 'OpenSans-Regular',
   },
   dropdownTextStyle: {
     numberOfLines: 2,

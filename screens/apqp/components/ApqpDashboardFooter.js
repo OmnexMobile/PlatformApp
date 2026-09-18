@@ -37,6 +37,8 @@ import {
 import { LOCAL_STORAGE_VARIABLES, ROUTES } from "constants/app-constant";
 // import CryptoJS from "react-native-crypto-js";
 import localStorage from 'global/localStorage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { saveRecentViewed } from 'helpers/recent-viewed-store';
 import { GLOBALSERVER_URL } from "screens/globalConstant/globalURL";
 
 class ApqpDashboardFooter extends Component {
@@ -258,6 +260,19 @@ class ApqpDashboardFooter extends Component {
   }
   // Sudha_Recently_Completed
 
+  // Recently viewed items must outlive logout, so keep a copy under the platform
+  // user id that the global login screen reads back.
+  async saveRecentActivityForNextLogin(recentActivityAPQP, fallbackUserId) {
+    try {
+      const stored = await AsyncStorage.getItem('userDetails');
+      const parsed = stored ? JSON.parse(stored) : null;
+      const userId = parsed?.userId ?? parsed?.Data?.[0]?.UserId ?? fallbackUserId;
+      await saveRecentViewed(userId, { recentActivityAPQP });
+    } catch (err) {
+      console.log('Logout: failed to keep recently viewed activity', err);
+    }
+  }
+
   doLogout() {
     console.log("props------>", this.props);
     if (this.props.data.projects.isOfflineMode) {
@@ -267,6 +282,10 @@ class ApqpDashboardFooter extends Component {
         errorMsg: strings.Offline_Notice,
       });
     } else {
+      this.saveRecentActivityForNextLogin(
+        this.props.data.projects.recentActivity,
+        this.props.data.projects.userId,
+      );
       this.props.clearProjects();
       var serverUrl = this.props.data.projects.serverUrl;
       var ID = this.props.data.projects.userId;

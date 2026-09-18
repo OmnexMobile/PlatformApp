@@ -6050,7 +6050,7 @@ class CheckPointDemo extends Component {
             <View style={styles.row}>
                 <View style={styles.row}>
                     <TouchableOpacity>
-                        <ActivityIndicator style={styles.downloadIndicator} name="hourglass" size={45} color="#48BCF7" />
+                        <ActivityIndicator style={styles.downloadIndicator} size="large" color="#48BCF7" />
                         <View style={styles.downloadFileNameWrap}>
                             <Text>{FileName}</Text>
                         </View>
@@ -6118,7 +6118,7 @@ class CheckPointDemo extends Component {
     renderAttachmentLoading = () => {
         return (
             <View style={styles.attachmentLoadingRow}>
-                <Icon name="hourglass" size={15} color="#A6A6A6" style={styles.hourglassIcon} />
+                <Icon name="clock" size={15} color="#A6A6A6" style={styles.hourglassIcon} />
                 <Text numberOfLines={1} style={styles.attachmentLoadingText}>
                     Loading Attachments...
                 </Text>
@@ -6186,6 +6186,18 @@ class CheckPointDemo extends Component {
         ) : status === '0' ? (
             <Icon name="x" size={20} color="red" style={styles.iconOffsetTop} />
         ) : null;
+    };
+    // Text shown on the score dropdown. '-2' and an empty Scoretext both mean
+    // the auditor has not picked a score yet, so fall back to the placeholder.
+    getScoreDisplayText = index => {
+        const checkpoint = this.state.checkPointsDetails[index];
+        const scoreText = checkpoint?.Scoretext;
+
+        if (checkpoint?.Score === '-2' || scoreText == null || String(scoreText).trim() === '') {
+            return strings.Please_select;
+        }
+
+        return String(scoreText);
     };
     // Toggles the failure-reason dropdown visibility
     toggleDropdown = () => {
@@ -7732,6 +7744,28 @@ class CheckPointDemo extends Component {
                                                                         ) : item.scoreType == 3 ? (
                                                                             //) : item.scoreType == 0 ? (
                                                                             <View>
+                                                                                <View style={styles.scoreFieldLabelRow}>
+                                                                                    <Text style={styles.scoreFieldLabelText}>
+                                                                                        {strings.Score}
+                                                                                    </Text>
+                                                                                    <View style={styles.circleIconWrapper}>
+                                                                                        <Icon
+                                                                                            name="circle"
+                                                                                            size={12}
+                                                                                            color={
+                                                                                                this.state.checkPointsDetails[index]
+                                                                                                    .IsComplete === 0 &&
+                                                                                                this.state.checkPointsDetails[index].Modified ===
+                                                                                                    false
+                                                                                                    ? '#fff'
+                                                                                                    : Colors[
+                                                                                                          this.state.checkPointsDetails[index]
+                                                                                                              .Score
+                                                                                                      ]
+                                                                                            }
+                                                                                        />
+                                                                                    </View>
+                                                                                </View>
                                                                                 {this.props.data.audits.smdata !== 2 ||
                                                                                 this.props.data.audits.smdata !== 3 ? (
                                                                                     <Dropdown
@@ -7748,38 +7782,8 @@ class CheckPointDemo extends Component {
                                                                                         }}
                                                                                         selectedItemColor={'black'}
                                                                                         dropdownTextStyle={styles.dropdownTextStyle}
-                                                                                        label={
-                                                                                            <View style={styles.dropdownLabel}>
-                                                                                                <View>
-                                                                                                    <Text style={styles.scoreLabelText}>
-                                                                                                        {strings.Score}
-                                                                                                    </Text>
-                                                                                                </View>
-                                                                                                <View style={styles.circleIconWrapper}>
-                                                                                                    <Icon
-                                                                                                        name="circle"
-                                                                                                        size={12}
-                                                                                                        color={
-                                                                                                            this.state.checkPointsDetails[index]
-                                                                                                                .IsComplete === 0 &&
-                                                                                                            this.state.checkPointsDetails[index]
-                                                                                                                .Modified === false
-                                                                                                                ? '#fff'
-                                                                                                                : Colors[
-                                                                                                                      this.state.checkPointsDetails[
-                                                                                                                          index
-                                                                                                                      ].Score
-                                                                                                                  ]
-                                                                                                        }
-                                                                                                    />
-                                                                                                </View>
-                                                                                            </View>
-                                                                                        }
-                                                                                        value={
-                                                                                            this.state.checkPointsDetails[index].Score === '-2'
-                                                                                                ? strings.Please_select
-                                                                                                : this.state.checkPointsDetails[index].Scoretext
-                                                                                        }
+                                                                                        label=""
+                                                                                        value={this.getScoreDisplayText(index)}
                                                                                         onChangeText={(value, index, data) => {
                                                                                             console.log(value, data[index].id, 'ttvalue');
                                                                                             this.toggleDropdown();
@@ -7924,34 +7928,7 @@ class CheckPointDemo extends Component {
                                                                                 ) : (
                                                                                     <Dropdown
                                                                                         itemPadding={7}
-                                                                                        label={
-                                                                                            <View style={styles.dropdownLabel}>
-                                                                                                <View>
-                                                                                                    <Text style={styles.scoreLabelText}>
-                                                                                                        {strings.Score}
-                                                                                                    </Text>
-                                                                                                </View>
-                                                                                                <View style={styles.circleIconWrapper}>
-                                                                                                    <Icon
-                                                                                                        name="circle"
-                                                                                                        size={12}
-                                                                                                        color={
-                                                                                                            this.state.checkPointsDetails[index]
-                                                                                                                .IsComplete === 0 &&
-                                                                                                            this.state.checkPointsDetails[index]
-                                                                                                                .Modified === false
-                                                                                                                ? '#fff'
-                                                                                                                : Colors[
-                                                                                                                      this.state.checkPointsDetails[
-                                                                                                                          index
-                                                                                                                      ].Score
-                                                                                                                  ]
-                                                                                                        }
-                                                                                                    />
-                                                                                                </View>
-                                                                                            </View>
-                                                                                        }
-                                                                                        labelTextStyle={{ marginBottom: 10 }}
+                                                                                        label=""
                                                                                         baseColor={'black'}
                                                                                         containerStyle={{
                                                                                             backgroundColor: '#fff',
@@ -7976,11 +7953,7 @@ class CheckPointDemo extends Component {
                                                                                         dropdownTextStyle={{
                                                                                             numberOfLines: 2,
                                                                                         }}
-                                                                                        value={
-                                                                                            this.state.checkPointsDetails[index].Score === '-2'
-                                                                                                ? strings.Please_select
-                                                                                                : this.state.checkPointsDetails[index].Scoretext
-                                                                                        }
+                                                                                        value={this.getScoreDisplayText(index)}
                                                                                         onChangeText={(value, indexvalue, data) => {
                                                                                             console.log(
                                                                                                 Colors[this.state.checkPointsDetails[index].Score],
@@ -8487,7 +8460,7 @@ class CheckPointDemo extends Component {
                                                                                 <View style={styles.rowCenter}>
                                                                                     <View style={styles.flexOne}>
                                                                                         <Dropdown
-                                                                                            label="strings.Please_select"
+                                                                                            label=""
                                                                                             containerStyle={styles.dropdownContainer}
                                                                                             itemPadding={10}
                                                                                             baseColor={'transparent'}
@@ -8545,7 +8518,7 @@ class CheckPointDemo extends Component {
                                                                                         />
                                                                                     </View>
                                                                                     <Icon
-                                                                                        name="angle-down"
+                                                                                        name="chevron-down"
                                                                                         size={16}
                                                                                         color="#777"
                                                                                         style={styles.dropdownAngleIcon}
@@ -8565,7 +8538,7 @@ class CheckPointDemo extends Component {
                                                                                                 });
                                                                                             }}
                                                                                             style={styles.immediateDeleteButton}>
-                                                                                            <Icon name="times-circle" size={18} color="#000" />
+                                                                                            <Icon name="x-circle" size={18} color="#000" />
                                                                                         </TouchableOpacity>
                                                                                     )}
                                                                                 </View>
@@ -8676,7 +8649,7 @@ class CheckPointDemo extends Component {
                                 this.playSerialTouchSound();
                                 this.toggleSerialRail();
                             }}>
-                            <Text style={styles.serialDockToggleText}>
+                            <Text numberOfLines={1} style={styles.serialDockToggleText}>
                                 S.No{' '}
                                 {this.state.checkpointList[this.state.ActiveId]?.SerialNo ??
                                     (this.state.ActiveId != null ? this.state.ActiveId + 1 : 1)}
@@ -8979,7 +8952,7 @@ class CheckPointDemo extends Component {
                     <View style={styles.modalavatar}>
                         <TouchableOpacity onPress={() => this.setState({ dialogVisibleVideo: false })} style={styles.transparentCloseButton}>
                             <View style={styles.transparentCloseInner}>
-                                <Icon style={styles.closeIconOffset} name="times-circle" size={40} color="white" />
+                                <Icon style={styles.closeIconOffset} name="x-circle" size={40} color="white" />
                             </View>
                         </TouchableOpacity>
                         <View style={styles.videoContainer}>

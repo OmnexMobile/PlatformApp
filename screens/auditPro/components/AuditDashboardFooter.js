@@ -34,6 +34,7 @@ var RNFS = require('react-native-fs');
 import RNFetchBlob from 'react-native-fetch-blob';
 import constants from '../constants/AppConstants';
 import { syncRecentAuditsFromLocalAudits } from 'helpers/audit-status';
+import { saveRecentViewed } from 'helpers/recent-viewed-store';
 import ActionSheet from 'react-native-actionsheet';
 import {
   Dialog,
@@ -1674,6 +1675,21 @@ class AuditDashboardFooter extends Component {
     }
 }
 
+  // Recently viewed audits must outlive logout, so keep a copy under the platform
+  // user id that the global login screen reads back.
+  async saveRecentAuditsForNextLogin(fallbackUserId) {
+    try {
+      const stored = await AsyncStorage.getItem('userDetails');
+      const parsed = stored ? JSON.parse(stored) : null;
+      const userId = parsed?.userId ?? parsed?.Data?.[0]?.UserId ?? fallbackUserId;
+      await saveRecentViewed(userId, {
+        recentAudits: this.props?.data?.audits?.recentAudits,
+      });
+    } catch (err) {
+      console.log('Logout: failed to keep recently viewed audits', err);
+    }
+  }
+
   async doLogout() {
 
     this.ChangeActiveStatus();
@@ -1732,6 +1748,7 @@ class AuditDashboardFooter extends Component {
       console.log('Logout:SaveDetails', SaveDetails);
       console.log('Logout:UserDetails', UserDetails);
       var stringify = JSON.stringify(UserDetails);
+      await this.saveRecentAuditsForNextLogin(ID);
       this.props.clearURL()
       this.props.clearAudits();
       // await AsyncStorage.removeItem('storedserverrul');
