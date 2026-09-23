@@ -269,9 +269,11 @@ const InspectionSchedule = () => {
                     <Text style={[styles.operationText]}>
                         Operation Name : <Text style={[styles.secondText]}>{item?.OperationName}</Text>
                     </Text>
-                    <Text style={[styles.operationText]}>
-                        Invoice No : <Text style={[styles.secondText]}>{item?.OrderNumber ? item?.OrderNumber : '-'}</Text>
-                    </Text>
+                    {item?.TypeOfInspection =='1' && (
+                        <Text style={[styles.operationText]}>
+                            Invoice No : <Text style={[styles.secondText]}>{item?.OrderNumber ? item?.OrderNumber : '-'}</Text>
+                        </Text>
+                    )}
                 </View>
                 <View style={[styles.lastBox]}>
                     <Text style={[styles.secondText]}>{moment(item.ProductionStartDate, 'MM/DD/YYYY').format(uiDateFormat)}</Text>

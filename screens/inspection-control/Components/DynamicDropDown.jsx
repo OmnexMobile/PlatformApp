@@ -126,7 +126,8 @@ const DynamicDropDown = ({
                 paddingHorizontal: 10,
                 width: width / 1.2,
                 maxHeight: 200,
-                marginTop: height + 10,
+                // marginTop: height + 10,
+                zIndex: 10000,
             }}
             anchorPosition={anchorPosition}>
             <ScrollView>
