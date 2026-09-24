@@ -30,7 +30,7 @@ const { whitneyBook_18 } = Fonts.style;
 const { blackGrey } = Fonts.colors;
 const ACTION_DROPDOWN_OPTIONS = [
     // { key: 'filter', label: strings.filter || 'Filter', icon: 'filter' },
-    // { key: 'calendar', label: strings.calendar || 'Calendar', icon: 'calendar' },
+    { key: 'calendar', label: strings.calendar || 'Calendar', icon: 'calendar' },
     { key: 'download', label: strings.downloads || 'Downloads', icon: 'download' },
     { key: 'syncDetails', label: strings.Sync_Details || 'Sync Details', icon: 'refresh-cw' },
 ];

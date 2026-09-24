@@ -249,7 +249,7 @@ class AllTabAuditList extends Component {
 
             await this.getAuditLists();
             await this.getAuditStatusDetails();
-            await this.getRecentAuditlist();
+            await this.getAuditlist();
 
             console.log('this.state.activetab', this.state.activeTab);
             console.log('check audits.smdata', this.props.data.audits.smdata);
@@ -813,18 +813,40 @@ class AllTabAuditList extends Component {
     async getUserDetails() {
         try {
             const stringifiedUserDetails = await AsyncStorage.getItem('userDetails');
-            const value = JSON.parse(stringifiedUserDetails);
+            const value = stringifiedUserDetails ? JSON.parse(stringifiedUserDetails) : null;
             console.log('current userDetails--->', value);
             if (value !== null) {
                 this.setState({ currentUserData: value }, () => {
                     console.log('Token set');
                 });
             }
+            return value;
         } catch (e) {
             // error reading value
             console.log('error--->', e);
+            return null;
         }
     }
+
+    getUserSession = async () => {
+        const userDetails = await this.getUserDetails();
+
+        return {
+            siteId: userDetails?.siteId ?? null,
+            userId: userDetails?.userId ?? null,
+            userFullName: userDetails?.userFullName ?? null,
+            accessToken: userDetails?.accessToken ?? null,
+        };
+    };
+
+    getSiteId = async () => {
+        const { siteId } = await this.getUserSession();
+        return siteId;
+    };
+     getBearerToken = async () => {
+        const { accessToken } = await this.getUserSession();
+        return accessToken;
+    };
 
     async getAuditLists() {
         await this.getUserDetails();
@@ -837,20 +859,25 @@ class AllTabAuditList extends Component {
         var filterId = this.state.filterId;
         var pageSize = 10;
         var GlobalFilter = this.state.AuditSearch === undefined ? '' : this.state.AuditSearch;
-        var StartDate = '';
-        var EndDate = '';
+        var StartDate = this.props.route?.params?.filter_Arr[0]?.startDate;
+        var EndDate = this.props.route?.params?.filter_Arr[0]?.endDate;
         var SortBy = '';
         var SortOrder = this.state.SortOrder;
         console.log('reach here 001', token, userId, siteId, pageNo, pageSize, filterId, GlobalFilter, StartDate, EndDate, SortBy, SortOrder, SM, 1);
-        NetInfo.fetch().then(netState => {
+        NetInfo.fetch().then(async netState => {
             this.setState({
                 loading: true,
             });
             if (netState.isConnected) {
+                console.log('auditlist------->1');
+                const storedSiteId = await this.getSiteId();
+                const accessToken = await this.getBearerToken();
+                console.log('startdate-enddate1',StartDate,EndDate);
+                
                 auth.getauditlist(
-                    token,
+                    accessToken,
                     userId,
-                    siteId,
+                    storedSiteId,
                     pageNo,
                     pageSize,
                     filterId,
@@ -1167,7 +1194,8 @@ class AllTabAuditList extends Component {
             } else {
                 // console.log('Email and password', this.state.username, this.state.password)
                 if (this.props?.data?.audits?.isOfflineMode) {
-                    this.refs.toast.show(strings.Offline_Notice);
+                    // this.refs.toast.show(strings.Offline_Notice);
+                    alert(strings.Offline_Notice);
                 } else {
                     await AsyncStorage.setItem('ssologinstatusbool', 'false');
 
@@ -1187,7 +1215,8 @@ class AllTabAuditList extends Component {
                                 },
                             );
                         } else {
-                            this.refs.toast.show(strings.NoInternet);
+                            // this.refs.toast.show(strings.NoInternet);
+                            alert(strings.NoInternet);
                         }
                     });
                 }
@@ -1266,7 +1295,7 @@ class AllTabAuditList extends Component {
                 },
                 () => {
                     // this.refs.toast.show(data.data.Message, DURATION.LENGTH_LONG);
-                    Alert.alert(loginDetails?.Message);
+                    alert(loginDetails?.Message);
                 },
             );
         }
@@ -1315,7 +1344,9 @@ class AllTabAuditList extends Component {
                             progressVisible: false,
                         },
                         () => {
-                            this.refs.toast.show(strings.not_permitted, DURATION.LENGTH_SHORT);
+                            // this.refs.toast.show(strings.not_permitted, DURATION.LENGTH_SHORT);
+                            alert(strings.not_permitted, DURATION.LENGTH_SHORT);
+
                         },
                     );
                 }
@@ -1325,7 +1356,8 @@ class AllTabAuditList extends Component {
                         progressVisible: false,
                     },
                     () => {
-                        this.refs.toast.show(strings.error_connecting, DURATION.LENGTH_SHORT);
+                        // this.refs.toast.show(strings.error_connecting, DURATION.LENGTH_SHORT);
+                        alert(strings.error_connecting, DURATION.LENGTH_SHORT);
                     },
                 );
             }
@@ -2275,10 +2307,12 @@ class AllTabAuditList extends Component {
                         },
                     );
                 } else {
-                    this.refs.toast.show(strings.ProfileFetchFailed, DURATION.LENGTH_LONG);
+                    // this.refs.toast.show(strings.ProfileFetchFailed, DURATION.LENGTH_LONG);
+                    alert(strings.ProfileFetchFailed);
                 }
             } else {
-                this.refs.toast.show(strings.ProfileFetchFailed, DURATION.LENGTH_LONG);
+                // this.refs.toast.show(strings.ProfileFetchFailed, DURATION.LENGTH_LONG);
+                alert(strings.ProfileFetchFailed);
             }
         });
     }
@@ -2295,6 +2329,8 @@ class AllTabAuditList extends Component {
         auth.getYearAudit(value?.siteId || siteid, value?.userId || userid, value?.accessToken || token, SM, (res, data) => {
             // auth.getYearAudit(siteid, userid, token, (res, data) => {
             // console.log('Calender filter api is called',data)
+                console.log('auditlist------->2');
+
             if (data?.data?.Message == 'Success') {
                 var GrossAudits = data.data.Data;
                 var getRawStartDate = [];
@@ -2391,9 +2427,12 @@ class AllTabAuditList extends Component {
         const userId = this.state.userId || this.props.data.audits.userId;
         const SM = await this.getSelectedSupplierIndex();
         console.log(this.props.data.audits, 'SITEIDDDDD');
+            const storedSiteId = await this.getSiteId();
+
         NetInfo.fetch().then(netState => {
             if (netState.isConnected) {
-                auth.getYearAudit(siteId, userId, token, SM, (response, data) => {
+                auth.getYearAudit(storedSiteId, userId, token, SM, (response, data) => {
+                console.log('auditlist------->3');
                     if (data.data) {
                         if (data.data.Message === 'Success') {
                             if (data.data.Data && data.data.Data.length > 0) {
@@ -2562,13 +2601,13 @@ class AllTabAuditList extends Component {
                 auditListAll: [],
                 isMounted: false,
             },
-            () => {
+            async () => {
                 console.log('SortBy', this.state.SortBy);
                 console.log('SortOrder', this.state.SortOrder);
                 console.log('SortOrder', this.state.SortOrder);
 
                 console.log('getAuditlist ------>11111');
-                var pageNo = this.state.page;
+                var pageNo = 1;
                 // var token = this.props.data.audits.token;
                 // var userId = this.props.data.audits.userId;
                 // var siteId = this.props.data.audits.siteId;
@@ -2585,10 +2624,15 @@ class AllTabAuditList extends Component {
                 var Default = this.state.default;
                 // this.getAuditlist(filter.startDate,filter.endDate)
                 // console.log('jdata',getauditlist)
+                console.log('auditlist------->4');
+                const storedSiteId = await this.getSiteId();
+                const accessToken = await this.getBearerToken();
+                console.log('startdate-enddate2',StartDate,EndDate);
+
                 auth.getauditlist(
-                    token,
+                    accessToken,
                     userId,
-                    siteId,
+                    storedSiteId,
                     pageNo,
                     pageSize,
                     filterId,
@@ -2998,7 +3042,8 @@ class AllTabAuditList extends Component {
         var SM = await this.getSelectedSupplierIndex();
         console.log('SM getRecentAuditlist----->', SM);
         if (this.props.data.audits.isOfflineMode) {
-            this.refs.toast.show(strings.Audit_List_Failed, DURATION.LENGTH_LONG);
+            // this.refs.toast.show(strings.Audit_List_Failed, DURATION.LENGTH_LONG);
+            alert(strings.Audit_List_Failed);
             this.setState({
                 auditList: this.props.data.audits.audits,
                 auditListAll: this.props.data.audits.audits,
@@ -3010,11 +3055,11 @@ class AllTabAuditList extends Component {
                 isMounted: true,
             });
         }
-        NetInfo.fetch().then(netState => {
+        NetInfo.fetch().then(async netState => {
             if (netState.isConnected) {
                 console.log('getAuditlist ------>222222', this?.props?.route?.params?.filter_Arr[0]?.startDate);
                 console.log('getAuditlist ------>222222', this?.props?.route?.params?.filter_Arr[0]?.endDate);
-                var pageNo = this.state.page;
+                var pageNo = 1;
                 // var token = this.props.data.audits.token;
                 // var userId = this.props.data.audits.userId;
                 // var siteId = this.props.data.audits.siteId;
@@ -3024,17 +3069,20 @@ class AllTabAuditList extends Component {
                 var filterId = this.state.filterId;
                 var pageSize = 10;
                 var GlobalFilter = this.state.AuditSearch;
-                var StartDate = this?.props?.route?.params?.filter_Arr[0]?.startDate == undefined ? '' : this?.props?.route?.params?.filter_Arr[0]?.startDate;
-                var EndDate = this?.props?.route?.params?.filter_Arr[0]?.endDate == undefined ? '' : this?.props?.route?.params?.filter_Arr[0]?.endDate;
+                var StartDate = startDate ?? '';
+                var EndDate = endDate ?? '';
                 // var SortBy = this.state.SortBy;
                 var SortBy = '';
                 var SortOrder = this.state.SortOrder;
                 var Default = 0;
+                const storedSiteId = await this.getSiteId();
+                const resolvedSiteId = storedSiteId || siteId;
+                const accessToken = await this.getBearerToken();
                 console.log(
                     'api date',
-                    token,
+                    accessToken,
                     userId,
-                    siteId,
+                    resolvedSiteId,
                     pageNo,
                     pageSize,
                     filterId,
@@ -3046,11 +3094,13 @@ class AllTabAuditList extends Component {
                     SM,
                     Default,
                 );
+                console.log('startdate-enddate3',StartDate,EndDate);
 
+                console.log('auditlist------->5');
                 auth.getauditlist(
-                    token,
+                    accessToken,
                     userId,
-                    siteId,
+                    resolvedSiteId,
                     pageNo,
                     pageSize,
                     filterId,
@@ -3224,7 +3274,9 @@ class AllTabAuditList extends Component {
                             }
                         } else {
                             console.log('Error in error fetching list');
-                            this.refs.toast.show(strings.Audit_List_Failed, DURATION.LENGTH_LONG);
+                            // this.refs.toast.show(strings.Audit_List_Failed, DURATION.LENGTH_LONG);
+                            alert(strings.Audit_List_Failed, DURATION.LENGTH_LONG);
+
                             this.setState(
                                 {
                                     loading: false,
@@ -3245,7 +3297,8 @@ class AllTabAuditList extends Component {
                     },
                 );
             } else {
-                this.refs.toast.show(strings.Audit_List_Failed, DURATION.LENGTH_LONG);
+                // this.refs.toast.show(strings.Audit_List_Failed, DURATION.LENGTH_LONG);
+                alert(strings.Audit_List_Failed, DURATION.LENGTH_LONG);
                 this.setState(
                     {
                         auditList: this.props.data.audits.audits,
@@ -3297,7 +3350,8 @@ class AllTabAuditList extends Component {
         var SM = await this.getSelectedSupplierIndex();
         console.log('SM getAuditLists----->', SM);
         if (this.props.data.audits.isOfflineMode) {
-            this.refs.toast.show(strings.Audit_List_Failed, DURATION.LENGTH_LONG);
+            // this.refs.toast.show(strings.Audit_List_Failed, DURATION.LENGTH_LONG);
+            alert(strings.Audit_List_Failed, DURATION.LENGTH_LONG);
             this.setState({
                 auditList: this.props.data.audits.audits,
                 auditListAll: this.props.data.audits.audits,
@@ -3309,10 +3363,10 @@ class AllTabAuditList extends Component {
                 isMounted: true,
             });
         }
-        NetInfo.fetch().then(netState => {
+        NetInfo.fetch().then(async netState => {
             if (netState.isConnected) {
                 console.log('getAuditlist ------>3333');
-                var pageNo = this.state.page;
+                var pageNo = 1;
                 // var token = this.props.data.audits.token;
                 // var userId = this.props.data.audits.userId;
                 // var siteId = this.props.data.audits.siteId;
@@ -3322,17 +3376,23 @@ class AllTabAuditList extends Component {
                 var filterId = this.state.filterId;
                 var pageSize = 10;
                 var GlobalFilter = this.state.AuditSearch;
-                var StartDate = this?.props?.route?.params?.filter_Arr[0]?.startDate == undefined ? '' : this?.props?.route?.params?.filter_Arr[0]?.startDate;
-                var EndDate = this?.props?.route?.params?.filter_Arr[0]?.endDate == undefined ? '' : this?.props?.route?.params?.filter_Arr[0]?.endDate;
+                var StartDate = startDate ?? '';
+                var EndDate = endDate ?? '';
                 // var SortBy = this.state.SortBy;
                 var SortBy = '';
                 var SortOrder = this.state.SortOrder;
                 var Default = 1;
+                const storedSiteId = await this.getSiteId();
+                const accessToken = await this.getBearerToken();
+
+                const resolvedSiteId = storedSiteId || siteId;
+                var StartDate = this.props.route?.params?.filter_Arr[0]?.startDate;
+                var EndDate = this.props.route?.params?.filter_Arr[0]?.endDate;
                 console.log(
                     'api date',
-                    token,
+                    accessToken,
                     userId,
-                    siteId,
+                    resolvedSiteId,
                     pageNo,
                     pageSize,
                     filterId,
@@ -3344,11 +3404,13 @@ class AllTabAuditList extends Component {
                     SM,
                     Default,
                 );
+                console.log('auditlist------->6');
+                console.log('startdate-enddate4',StartDate,EndDate);
 
                 auth.getauditlist(
-                    token,
+                    accessToken,
                     userId,
-                    siteId,
+                    resolvedSiteId,
                     pageNo,
                     pageSize,
                     filterId,
@@ -3361,19 +3423,19 @@ class AllTabAuditList extends Component {
                     Default,
                     (response, data) => {
                         console.log('AuditList list data', data);
-                        console.log('AuditList list data', data?.data?.Data, '----', data.data.Message, '----', this.props);
+                        console.log('AuditList list data', data?.data?.Data, '----', data?.data?.Message, '----', this.props);
 
-                        if (data.data) {
+                        if (data?.data) {
                             if (data.data.Message == 'Success') {
-                                var auditRecords = this.props.data.audits.auditRecords;
+                                var auditRecords = Array.isArray(this.props?.data?.audits?.auditRecords) ? this.props.data.audits.auditRecords : [];
                                 console.log('audit Records', auditRecords);
                                 console.log('auditList API response', data.data);
                                 console.log('auditList from props', this.props.data.audits.audits);
                                 var auditList = [];
-                                var auditListProps = this.props.data.audits.audits;
+                                var responseAudits = Array.isArray(data.data.Data) ? data.data.Data : [];
 
-                                for (var i = 0; i < data.data.Data.length; i++) {
-                                    var auditInfo = data.data.Data[i];
+                                for (var i = 0; i < responseAudits.length; i++) {
+                                    var auditInfo = responseAudits[i];
                                     auditInfo['color'] = '#1081de';
                                     auditInfo['cStatus'] = constant.StatusScheduled;
                                     auditInfo['key'] = this.keyVal + 1;
@@ -3381,20 +3443,20 @@ class AllTabAuditList extends Component {
                                     // Set Audit Status
                                     if (auditInfo.AuditStatus == 3 && (auditInfo.CloseOutStatus === '7' || auditInfo.CloseOutStatus === '9')) {
                                         auditInfo['cStatus'] = constant.StatusCompleted;
-                                    } else if (data.data.Data[i].AuditStatus == 3) {
+                                    } else if (responseAudits[i].AuditStatus == 3) {
                                         auditInfo['cStatus'] = constant.Completed;
-                                    } else if (data.data.Data[i].AuditStatus == 2 && data.data.Data[i].PerformStarted == 0) {
+                                    } else if (responseAudits[i].AuditStatus == 2 && responseAudits[i].PerformStarted == 0) {
                                         auditInfo['cStatus'] = constant.StatusScheduled;
-                                    } else if (data.data.Data[i].AuditStatus == 2 && data.data.Data[i].PerformStarted == 1) {
+                                    } else if (responseAudits[i].AuditStatus == 2 && responseAudits[i].PerformStarted == 1) {
                                         auditInfo['cStatus'] = constant.StatusProcessing;
-                                    } else if (data.data.Data[i].AuditStatus == 4) {
+                                    } else if (responseAudits[i].AuditStatus == 4) {
                                         auditInfo['cStatus'] = constant.StatusDV;
-                                    } else if (data.data.Data[i].AuditStatus == 5) {
+                                    } else if (responseAudits[i].AuditStatus == 5) {
                                         auditInfo['cStatus'] = constant.StatusDVC;
                                     }
 
                                     for (var j = 0; j < auditRecords.length; j++) {
-                                        if (parseInt(auditRecords[j].AuditId) == parseInt(data.data.Data[i].ActualAuditId)) {
+                                        if (parseInt(auditRecords[j].AuditId) == parseInt(responseAudits[i].ActualAuditId)) {
                                             // Update Audit Status
                                             console.log('auditRecords AuditRecordStatus', auditRecords[j].AuditRecordStatus);
                                             if (
@@ -3522,7 +3584,8 @@ class AllTabAuditList extends Component {
                             }
                         } else {
                             console.log('Error in error fetching list');
-                            this.refs.toast.show(strings.Audit_List_Failed, DURATION.LENGTH_LONG);
+                            // this.refs.toast.show(strings.Audit_List_Failed, DURATION.LENGTH_LONG);
+                            alert(strings.Audit_List_Failed);
                             this.setState(
                                 {
                                     loading: false,
@@ -3543,7 +3606,8 @@ class AllTabAuditList extends Component {
                     },
                 );
             } else {
-                this.refs.toast.show(strings.Audit_List_Failed, DURATION.LENGTH_LONG);
+                // this.refs.toast.show(strings.Audit_List_Failed, DURATION.LENGTH_LONG);
+                alert(strings.Audit_List_Failed);
                 this.setState(
                     {
                         auditList: this.props.data.audits.audits,
@@ -3600,7 +3664,8 @@ class AllTabAuditList extends Component {
         // console.log('handle reach')
         if (!this.state.isPageEmpty && !this.state.isLocalFilterApplied && !this.state.isLazyLoading && this.state.isLazyLoadingRequired) {
             if (this.props.data.audits.isOfflineMode) {
-                this.refs.toast.show(strings.Offline_Notice, DURATION.LENGTH_LONG);
+                // this.refs.toast.show(strings.Offline_Notice, DURATION.LENGTH_LONG);
+                alert(strings.Offline_Notice);
             } else {
                 NetInfo.fetch().then(netState => {
                     if (netState.isConnected) {
@@ -3613,6 +3678,8 @@ class AllTabAuditList extends Component {
                                 let startDate = filter_Arr[0].startDate;
                                 let endDate = filter_Arr[0].endDate;
                                 if (startDate && endDate) {
+                                    console.log('checkingggg--------date--->',startDate,endDate);
+                                    
                                     this.getAuditlist(startDate, endDate);
                                 } else {
                                     this.getAuditlist();
@@ -3622,7 +3689,8 @@ class AllTabAuditList extends Component {
                             }
                         });
                     } else {
-                        this.refs.toast.show(strings.No_Internet, DURATION.LENGTH_LONG);
+                        // this.refs.toast.show(strings.No_Internet, DURATION.LENGTH_LONG);
+                        alert(strings.No_Internet);
                     }
                 });
             }
@@ -3649,7 +3717,8 @@ class AllTabAuditList extends Component {
             });
         } else {
             if (this.props.data.audits.isOfflineMode) {
-                this.refs.toast.show(strings.Offline_Notice, DURATION.LENGTH_LONG);
+                // this.refs.toast.show(strings.Offline_Notice, DURATION.LENGTH_LONG);
+                alert(strings.Offline_Notice);
             } else {
                 NetInfo.fetch().then(netState => {
                     if (netState.isConnected) {
@@ -3657,7 +3726,8 @@ class AllTabAuditList extends Component {
                             datapass: iAuditDetails,
                         });
                     } else {
-                        this.refs.toast.show(strings.No_Internet, DURATION.LENGTH_LONG);
+                        // this.refs.toast.show(strings.No_Internet, DURATION.LENGTH_LONG);
+                        alert(strings.No_Internet);
                     }
                 });
             }
@@ -3716,7 +3786,8 @@ class AllTabAuditList extends Component {
         else { */
         console.log('reach handlerefresh ======');
         if (this.props.data.audits.isOfflineMode) {
-            this.refs.toast.show(strings.Offline_Notice, DURATION.LENGTH_LONG);
+            // this.refs.toast.show(strings.Offline_Notice, DURATION.LENGTH_LONG);
+            alert(strings.Offline_Notice);
             this.setState({
                 auditList: this.props.data.audits.audits,
                 auditListAll: this.props.data.audits.audits,
@@ -3749,7 +3820,8 @@ class AllTabAuditList extends Component {
                         },
                     );
                 } else {
-                    this.refs.toast.show(strings.No_refresh, DURATION.LENGTH_LONG);
+                    // this.refs.toast.show(strings.No_refresh, DURATION.LENGTH_LONG);
+                    alert(strings.No_refresh);
                     this.setState({
                         auditList: this.props.data.audits.audits,
                         auditListAll: this.props.data.audits.audits,
@@ -3928,6 +4000,7 @@ class AllTabAuditList extends Component {
                             cFilterVal: 0,
                         },
                         () => {
+                            console.log('checkingggg--------date--->',startDate,endDate);
                             this.getAuditlist(startDate, endDate);
                         },
                     );
@@ -4036,7 +4109,6 @@ class AllTabAuditList extends Component {
             var DefaultFormatL = this.state.selectedFormat; // + ' ' + 'HH:mm';
             var sDateArr = inDate.split('T');
             var sDateValArr = sDateArr[0].split('-');
-            var sTimeValArr = sDateArr[1].split(':');
             var outDate = new Date(sDateValArr[0], sDateValArr[1] - 1, sDateValArr[2]);
             return Moment(outDate).format(DefaultFormatL);
         }

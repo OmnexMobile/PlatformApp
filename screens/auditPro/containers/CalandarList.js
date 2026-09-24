@@ -1,28 +1,29 @@
-import React, {Component} from 'react';
-import {View, ImageBackground, TouchableOpacity, Text, Platform, Alert} from 'react-native';
+import React, { Component } from 'react';
+import { View, ImageBackground, TouchableOpacity, Text, Platform, Alert } from 'react-native';
 //styles
 import styles from '../styles/CalandarListStyle';
 //components
 import OfflineNotice from '../components/OfflineNotice';
 //library
 import * as _ from 'lodash';
-import {DoubleBounce} from 'react-native-loader';
-import {CalendarList, Calendar} from 'react-native-calendars';
-import {connect} from 'react-redux';
+import { DoubleBounce } from 'react-native-loader';
+import { CalendarList, Calendar } from 'react-native-calendars';
+import { connect } from 'react-redux';
 import NetInfo from '@react-native-community/netinfo';
 //assets
-import {Images, Fonts} from '../Themes';
+import { Images, Fonts } from '../Themes';
 import Icon from 'react-native-vector-icons/FontAwesome';
 //services
 import auth from '../../../services/Auditpro-Auth';
 //strings
-import {strings} from '../language/Language';
+import { strings } from '../language/Language';
 import Moment from 'moment';
-import {ActivityIndicator} from 'react-native';
-import {Dropdown} from 'react-native-element-dropdown';
+import { ActivityIndicator } from 'react-native';
+import { Dropdown } from 'react-native-element-dropdown';
 import { SPACING } from 'constants/theme-constants';
 import { ROUTES } from 'constants/app-constant';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import GlobalHeader from 'components/GlobalHeader';
 
 // const nodeColors = ["rgb(168,224,166)", "rgb(255,206,101)", "rgb(252,151,96)", "#138D75",
 //     "#E59866", "#5D6D7E", "#9B59B6", "#E74C3C", "#48C9B0", "#FA8072", "#FF00FF", "#000080"]
@@ -34,55 +35,55 @@ const nodeOBJColors = {
   5: '#AB8C32',
 };
 
-const {whitneyBook_18} = Fonts.style;
-const {blackGrey} = Fonts.colors;
+const { whitneyBook_18 } = Fonts.style;
+const { blackGrey } = Fonts.colors;
 const yearList = [
-  {label: '2000', value: '2000'},
-  {label: '2001', value: '2001'},
-  {label: '2002', value: '2002'},
-  {label: '2003', value: '2003'},
-  {label: '2004', value: '2004'},
-  {label: '2005', value: '2005'},
-  {label: '2006', value: '2006'},
-  {label: '2007', value: '2007'},
-  {label: '2008', value: '2008'},
-  {label: '2009', value: '2009'},
-  {label: '2010', value: '2010'},
-  {label: '2011', value: '2011'},
-  {label: '2012', value: '2012'},
-  {label: '2013', value: '2013'},
-  {label: '2014', value: '2014'},
-  {label: '2015', value: '2015'},
-  {label: '2016', value: '2016'},
-  {label: '2017', value: '2017'},
-  {label: '2018', value: '2018'},
-  {label: '2019', value: '2019'},
-  {label: '2020', value: '2020'},
-  {label: '2021', value: '2021'},
-  {label: '2022', value: '2022'},
-  {label: '2023', value: '2023'},
-  {label: '2024', value: '2024'},
-  {label: '2025', value: '2025'},
-  {label: '2026', value: '2026'},
-  {label: '2027', value: '2027'},
-  {label: '2028', value: '2028'},
-  {label: '2029', value: '2029'},
-  {label: '2030', value: '2030'}
- 
+  { label: '2000', value: '2000' },
+  { label: '2001', value: '2001' },
+  { label: '2002', value: '2002' },
+  { label: '2003', value: '2003' },
+  { label: '2004', value: '2004' },
+  { label: '2005', value: '2005' },
+  { label: '2006', value: '2006' },
+  { label: '2007', value: '2007' },
+  { label: '2008', value: '2008' },
+  { label: '2009', value: '2009' },
+  { label: '2010', value: '2010' },
+  { label: '2011', value: '2011' },
+  { label: '2012', value: '2012' },
+  { label: '2013', value: '2013' },
+  { label: '2014', value: '2014' },
+  { label: '2015', value: '2015' },
+  { label: '2016', value: '2016' },
+  { label: '2017', value: '2017' },
+  { label: '2018', value: '2018' },
+  { label: '2019', value: '2019' },
+  { label: '2020', value: '2020' },
+  { label: '2021', value: '2021' },
+  { label: '2022', value: '2022' },
+  { label: '2023', value: '2023' },
+  { label: '2024', value: '2024' },
+  { label: '2025', value: '2025' },
+  { label: '2026', value: '2026' },
+  { label: '2027', value: '2027' },
+  { label: '2028', value: '2028' },
+  { label: '2029', value: '2029' },
+  { label: '2030', value: '2030' }
+
 ];
 const monthList = [
-  {label: 'Jan', value: '01'},
-  {label: 'Feb', value: '02'},
-  {label: 'Mar', value: '03'},
-  {label: 'Apr', value: '04'},
-  {label: 'May', value: '05'},
-  {label: 'Jun', value: '06'},
-  {label: 'Jul', value: '07'},
-  {label: 'Aug', value: '08'},
-  {label: 'Sep', value: '09'},
-  {label: 'Oct', value: '10'},
-  {label: 'Nov', value: '11'},
-  {label: 'Dec', value: '12'},
+  { label: 'Jan', value: '01' },
+  { label: 'Feb', value: '02' },
+  { label: 'Mar', value: '03' },
+  { label: 'Apr', value: '04' },
+  { label: 'May', value: '05' },
+  { label: 'Jun', value: '06' },
+  { label: 'Jul', value: '07' },
+  { label: 'Aug', value: '08' },
+  { label: 'Sep', value: '09' },
+  { label: 'Oct', value: '10' },
+  { label: 'Nov', value: '11' },
+  { label: 'Dec', value: '12' },
 ];
 class CalandarList extends Component {
   constructor(props) {
@@ -107,7 +108,7 @@ class CalandarList extends Component {
 
   componentDidMount() {
     if (this.props.data.audits.language === 'Chinese') {
-      this.setState({ChineseScript: true}, () => {
+      this.setState({ ChineseScript: true }, () => {
         strings.setLanguage('zh');
         this.setState({});
         // console.log('Chinese script on',this.state.ChineseScript)
@@ -116,7 +117,7 @@ class CalandarList extends Component {
       this.props.data.audits.language === null ||
       this.props.data.audits.language === 'English'
     ) {
-      this.setState({ChineseScript: false}, () => {
+      this.setState({ ChineseScript: false }, () => {
         strings.setLanguage('en-US');
         this.setState({});
       });
@@ -125,7 +126,7 @@ class CalandarList extends Component {
     this.getYearAudits();
   }
 
-  async checkUser () {
+  async checkUser() {
     console.log('user id', this.props.data.audits);
     var userid = this.props.data.audits.userId;
     var token = this.props.data.audits.token;
@@ -156,7 +157,7 @@ class CalandarList extends Component {
       if (data.data.Message == 'Success') {
         console.log('Checking User status', data.data.Data.ActiveStatus);
         UserStatus = data.data.Data.ActiveStatus;
-     
+
         if (this.props.data.audits.isOfflineMode) {
           this.refs.toast.show(strings.Offline_Notice, DURATION.LENGTH_LONG);
         } else {
@@ -171,9 +172,9 @@ class CalandarList extends Component {
             }
           });
         }
-         if (UserStatus == 2) {
+        if (UserStatus == 2) {
           console.log('User active');
-        
+
           // this.syncAuditsToServerMethod()
           this.checkFilePath();
         } else if (UserStatus == 1) {
@@ -203,7 +204,7 @@ class CalandarList extends Component {
           );
           this.props.navigation.navigate(ROUTES.GLOBAL_LOGIN);
         } else if (UserStatus == 0) {
-         Alert.alert("Your session has expired,Please login again.");
+          Alert.alert("Your session has expired,Please login again.");
           this.refs.toast.show(
             strings.user_inactive_text,
             DURATION.LENGTH_SHORT,
@@ -215,14 +216,14 @@ class CalandarList extends Component {
   }
 
   async getYearAudits() {
-    const {userId, token} = this.props.data.audits;
+    const { userId, token } = this.props.data.audits;
     const siteId = this.props.data.audits.siteId;
 
     const stringifiedUserDetails = await AsyncStorage.getItem('userDetails');
     const value = stringifiedUserDetails ? JSON.parse(stringifiedUserDetails) : null;
     console.log('checkinguserSiteselectiongetYearAudits', value);
     console.log('getYearAudits---->', value?.siteId, value?.userId, value?.accessToken);
-    
+
     NetInfo.fetch().then(netState => {
       if (netState.isConnected) {
         auth.getYearAudit(value?.siteId, value?.userId, value?.accessToken, (response, data) => {
@@ -231,13 +232,13 @@ class CalandarList extends Component {
               if (data.data.Data && data.data.Data.length > 0) {
                 this.transformYearAudits(data.data.Data);
               } else {
-                this.setState({loader: false, error: false});
+                this.setState({ loader: false, error: false });
               }
             } else {
-              this.setState({loader: false, error: false});
+              this.setState({ loader: false, error: false });
             }
           } else {
-            this.setState({loader: false, error: false});
+            this.setState({ loader: false, error: false });
           }
         });
       } else {
@@ -464,40 +465,25 @@ class CalandarList extends Component {
 
     return indexIamInserting;
   }
-calendarUpdate(value){
-  console.log("XXXXXXXSDSDSDFDS", value);
-this.setState({
-  calendarupdateKey:value
-})
-}
+  calendarUpdate(value) {
+    console.log("XXXXXXXSDSDSDFDS", value);
+    this.setState({
+      calendarupdateKey: value
+    })
+  }
   render() {
     console.log('xxxxxx!!!!!!!!!!!!', this.state.yearValue);
     return (
       <View style={styles.container}>
-        {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }}/> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }}/> }
+        {/* {Platform.OS === 'ios' ? <View style={{ padding: SPACING.MEDIUM, flexDirection: 'row' }} /> : <View style={{ padding: SPACING.NORMAL, flexDirection: 'row' }} />} */}
         {/* Offline notification */}
         <OfflineNotice />
-        <ImageBackground
-          source={Images.DashboardBG}
-          style={{
-            resizeMode: 'stretch',
-            width: '100%',
-            height: null,
-          }}>
-          <View style={styles.header}>
-            <TouchableOpacity
-              onPress={() => this.props.navigation.goBack()}
-              style={styles.backlogo}>
-              <Icon name="angle-left" size={40} color="white" />
-            </TouchableOpacity>
-            <View style={styles.heading}>
-              <Text style={styles.headingText}>
-                {strings.FilterMenuCalendar}
-              </Text>
-            </View>
-            <Text style={styles.headerDiv} />
-          </View>
-        </ImageBackground>
+       
+        <GlobalHeader
+          title={strings.FilterMenuCalendar}
+          onLeftPress={() => this.props.navigation.goBack()}
+          onRightPress={() => this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)}
+        />
         {/* <View style={{alignItems:"center",margin:5}}><Text style={{color:"red"}}>{"Note: Please select month and year to update"}</Text></View> */}
         <View
           style={{
@@ -506,7 +492,7 @@ this.setState({
             alignContent: 'center',
             alignItems: 'center',
             alignSelf: 'center',
-            justifyContent: 'center',marginTop:'2%'
+            justifyContent: 'center', marginTop: '2%'
           }}>
           <View
             style={{
@@ -514,17 +500,17 @@ this.setState({
               alignItems: 'center',
               justifyContent: 'center',
               width: '40%',
-              borderRadius:10,borderColor:"#20b1d2",borderWidth:2
+              borderRadius: 10, borderColor: "#20b1d2", borderWidth: 2
             }}>
             <View style={{}}>
-              <Text style={{fontWeight:'bold',color:'black'}}>Month</Text>
+              <Text style={{ fontWeight: 'bold', color: 'black' }}>Month</Text>
             </View>
-            <View style={{marginLeft: '5%', width: '50%'}}>
+            <View style={{ marginLeft: '5%', width: '50%' }}>
               <Dropdown
                 style={styles.dropdown}
-                placeholderStyle={{color:'black'}}
-                selectedTextStyle={{color:'black'}}
-                itemTextStyle={{color:'black'}}
+                placeholderStyle={{ color: 'black' }}
+                selectedTextStyle={{ color: 'black' }}
+                itemTextStyle={{ color: 'black' }}
                 inputSearchStyle={styles.inputSearchStyle}
                 iconStyle={styles.iconStyle}
                 data={monthList}
@@ -534,34 +520,34 @@ this.setState({
                 valueField="value"
                 placeholder="Month"
                 // searchPlaceholder="Search..."
-                color = 'black'
+                color='black'
                 value={this.state.monthValue}
                 onChange={item => {
                   console.log('mmm2@@@@@@@@', item);
-                  this.setState({monthValue: item.value});
+                  this.setState({ monthValue: item.value });
                   this.calendarUpdate(item.value)
                 }}
               />
             </View>
           </View>
-          <View style={{width:'2%'}}></View>
+          <View style={{ width: '2%' }}></View>
           <View
             style={{
               flexDirection: 'row',
               alignItems: 'center',
               justifyContent: 'center',
               width: '40%',
-              borderRadius:10,borderColor:'#20b1d2',borderWidth:2
+              borderRadius: 10, borderColor: '#20b1d2', borderWidth: 2
             }}>
             <View style={{}}>
-              <Text style={{fontWeight:'bold',color:'black'}}>Year</Text>
+              <Text style={{ fontWeight: 'bold', color: 'black' }}>Year</Text>
             </View>
-            <View style={{marginLeft: '5%', width: '60%'}}>
+            <View style={{ marginLeft: '5%', width: '60%' }}>
               <Dropdown
                 style={styles.dropdown}
-                placeholderStyle={{color:'black'}}
-                selectedTextStyle={{color:'black'}}
-                itemTextStyle={{color:'black'}}
+                placeholderStyle={{ color: 'black' }}
+                selectedTextStyle={{ color: 'black' }}
+                itemTextStyle={{ color: 'black' }}
                 inputSearchStyle={styles.inputSearchStyle}
                 iconStyle={styles.iconStyle}
                 data={yearList}
@@ -573,7 +559,7 @@ this.setState({
                 // searchPlaceholder="Search..."
                 value={this.state.yearValue}
                 onChange={item => {
-                  this.setState({yearValue: item.value});
+                  this.setState({ yearValue: item.value });
                   this.calendarUpdate(item.value)
 
                 }}
@@ -593,7 +579,7 @@ this.setState({
               style={[
                 whitneyBook_18,
                 blackGrey,
-                {fontFamily: 'OpenSans-Regular'},
+                { fontFamily: 'OpenSans-Regular' },
               ]}>
               {strings.No_records_found}
             </Text>
@@ -608,7 +594,7 @@ this.setState({
   renderCalandar() {
     console.log('xxxxxx!!!!!!!!!!!!222', this.state.yearValue);
     return (
-      <View style={{padding: 5}}>
+      <View style={{ padding: 5 }}>
         <Calendar
           style={styles.calendar}
           key={this.state.calendarupdateKey}
@@ -678,15 +664,15 @@ this.setState({
       },
     };
     console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!@@@@@@@@@@@@@@@@@', markedDates);
-    this.setState({calendarPeriods: markedDates});
+    this.setState({ calendarPeriods: markedDates });
     if (this.state.startDate === '') {
-      this.setState({startDate: myKey2, start: myKey});
+      this.setState({ startDate: myKey2, start: myKey });
       console.log('========>startifstatement', this.state.startDate);
-      console.log('========>startifstatement22222', myKey2,myKey);
+      console.log('========>startifstatement22222', myKey2, myKey);
 
 
     } else if (this.state.endDate === '') {
-      this.setState({endDate: myKey2, end: myKey}, () => {
+      this.setState({ endDate: myKey2, end: myKey }, () => {
         if (this.state.startDate !== '' && this.state.endDate !== '') {
           var StartDateTimeStamp = Moment(this.state.startDate).unix();
           var EndDateTimeStamp = Moment(this.state.endDate).unix();
@@ -696,8 +682,8 @@ this.setState({
 
           console.log('========>start', StartDateTimeStamp, EndDateTimeStamp);
           console.log('========>end', EndDateTimeStamp);
-            var Filter_StartDate = '';
-            var Filter_EndDate = '';
+          var Filter_StartDate = '';
+          var Filter_EndDate = '';
           if (StartDateTimeStamp > EndDateTimeStamp) {
             console.log(
               'reve correcrtStartDateTimeStamp < EndDateTimeStamp',
@@ -718,7 +704,7 @@ this.setState({
             Filter_EndDate = this.state.endDate;
           }
 
-          this.props.navigation.navigate(ROUTES.ALLTABAUDITLIST_SM, {
+          this.props.navigation.navigate(ROUTES.AUDIT_SCREEN_SM, {
             navagationPage: ROUTES?.CALENDER_LIST,
             filter_Arr: [
               {
@@ -730,6 +716,7 @@ this.setState({
                 globalSearch: null,
               },
             ],
+            smData: this.props?.route?.params?.smData,
           });
           this.setState({
             calendarPeriods: this.multiperiods,
@@ -801,13 +788,13 @@ this.setState({
           startDate = finalData[yearKeys[0]][startKeys[0]];
           endDate =
             finalData[yearKeys[yearKeys.length - 1]][
-              endKeys[endKeys.length - 1]
+            endKeys[endKeys.length - 1]
             ];
 
           // console.log("year diff startdtae is", startDate)
           // console.log("year diff endDate is", endDate)
 
-          this.props.navigation.navigate(ROUTES.ALLTABAUDITLIST_SM, {
+          this.props.navigation.navigate(ROUTES.AUDIT_SCREEN_SM, {
             navagationPage: "CalandarList",
             filter_Arr: [
               {
@@ -819,6 +806,7 @@ this.setState({
                 globalSearch: null,
               },
             ],
+            smData: this.props?.route?.params?.smData,
           });
         } else {
           //one year
@@ -830,7 +818,7 @@ this.setState({
           // console.log("startdtae is", startDate)
           // console.log("endDate is", endDate)
 
-          this.props.navigation.navigate(ROUTES.ALLTABAUDITLIST_SM, {
+          this.props.navigation.navigate(ROUTES.AUDIT_SCREEN_SM, {
             navagationPage: "CalandarList",
             filter_Arr: [
               {
@@ -842,6 +830,7 @@ this.setState({
                 globalSearch: null,
               },
             ],
+            smData: this.props?.route?.params?.smData,
           });
         }
       }

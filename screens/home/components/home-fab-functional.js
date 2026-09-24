@@ -3,9 +3,8 @@ import { Content, IconComponent } from 'components';
 import { ICON_TYPE, LOCAL_STORAGE_VARIABLES, ROUTES } from 'constants/app-constant';
 import TabsView from './home-tab-view';
 import localStorage from 'global/localStorage';
-import { Platform, Pressable, StatusBar, StyleSheet, Text, View } from 'react-native';
+import { Platform, Pressable, StatusBar, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { SPACING } from 'constants/theme-constants';
 import { useNavigation } from '@react-navigation/native';
 import { RFPercentage } from 'helpers/utils';
 import { AuditColors, AuditLayout, AuditTypography } from 'constants/audit-hub-design';
@@ -28,14 +27,30 @@ const HomeFabFunctional = ({ countDetails }) => {
         navigations.navigate(ROUTES.GLOBAL_DASHBOARD);
     };
 
+    const handleCalendar = () => {
+        navigations.navigate(ROUTES.CALENDER_LIST);
+    };
+
     return (
         <Content noPadding>
             <View style={[styles.headerContainer, { paddingTop: topSafePadding + 10 }]}>
                 <View style={styles.headerTopRow}>
-                    <Pressable style={styles.backButton} hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }} onPress={handleDashboard}>
+                    <Pressable
+                        accessibilityLabel="Go to dashboard"
+                        style={styles.backButton}
+                        hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+                        onPress={handleDashboard}>
                         <IconComponent name="arrowleft" type={ICON_TYPE.AntDesign} size={RFPercentage(2.6)} color={AuditColors.primary} />
                     </Pressable>
-                </View>              
+                    {/* need to comment while giving the build for phase 1 */}
+                    <Pressable
+                        accessibilityLabel="Open calendar"
+                        style={styles.calendarButton}
+                        hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+                        onPress={handleCalendar}>
+                        <IconComponent name="calendar" type={ICON_TYPE.AntDesign} size={RFPercentage(2.6)} color={AuditColors.primary} />
+                    </Pressable>
+                </View>
             </View>
             <TabsView countDetails={countDetails} currentName={currentName} />
         </Content>
@@ -53,14 +68,21 @@ const styles = StyleSheet.create({
     headerTopRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: SPACING.SMALL,
+        justifyContent: 'space-between',
     },
     backButton: {
         width: 40,
         height: 40,
         alignItems: 'center',
         justifyContent: 'center',
-    },    titleBlock: {},
+    },
+    calendarButton: {
+        width: 40,
+        height: 40,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    titleBlock: {},
     title: {
         ...AuditTypography.h1,
         color: AuditColors.textPrimary,

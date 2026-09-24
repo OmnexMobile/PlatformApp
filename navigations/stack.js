@@ -585,6 +585,11 @@ export const AppStackData = [
         getComponent: () => require('../screens/supplierManagement/containers/auditDashboardListingSM').default,
         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     },
+    {
+        name: ROUTES.AUDIT_SCREEN_SM,
+        getComponent: () => require('../screens/supplierManagement/containers/auditscreensm').default,
+        cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
+    },
 
     {
         name: ROUTES.AUDITPRODASHBOARD_SM,

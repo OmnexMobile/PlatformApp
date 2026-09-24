@@ -49,6 +49,7 @@ class AuditCard extends Component {
     render() {
         const { item } = this.props;
         const localAudits = this.props.data?.audits?.audits || [];
+        const isAuditPro = Number(this.props?.smData) === 1;
 
         return (
             <View>
@@ -56,7 +57,7 @@ class AuditCard extends Component {
                     item={item}
                     localAudits={localAudits}
                     onPress={() => this.openAuditPage(item)}
-                    logo={IMAGES.supplier_logo}
+                    logo={isAuditPro ? IMAGES.auditpro_logo : IMAGES.supplier_logo}
                 />
                 <Toast
                     ref={toast => (this.toast = toast)}

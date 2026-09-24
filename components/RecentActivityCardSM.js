@@ -37,6 +37,7 @@ const RecentActivityCardSM = ({ item = {} }) => {
     };
 
     const isSupplierModule = item?.recent_Module === 'AUDIT_PAGE_SM';
+    const isAuditPro = Number(item?.smData) === 1;
 
     return (
         <View style={{ paddingHorizontal: SPACING.NORMAL }}>
@@ -48,7 +49,7 @@ const RecentActivityCardSM = ({ item = {} }) => {
                     <Ripple rippleContainerBorderRadius={SPACING.SMALL} activeOpacity={1} style={styles.moduleLogo}>
                         <ImageComponent
                             resizeMode="contain"
-                            source={isSupplierModule ? IMAGES.supplier_logo : IMAGES.auditpro_logo}
+                            source={isAuditPro ? IMAGES.auditpro_logo : isSupplierModule ? IMAGES.supplier_logo : IMAGES.auditpro_logo}
                         />
                     </Ripple>
                 )}

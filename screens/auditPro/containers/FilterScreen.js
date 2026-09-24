@@ -105,7 +105,11 @@ class FilterScreen extends Component {
 
     onBackHandle() {
         if (this.state.fromDashBoard) {
-            this.props.navigation.navigate(ROUTES.ALLTABAUDITLIST_SM, { smData: this.props.route?.params?.smData })
+            const previousPage = this.props.route?.params?.PreviousPage;
+            this.props.navigation.navigate(
+                previousPage === ROUTES.AUDIT_SCREEN_SM ? ROUTES.AUDIT_SCREEN_SM : ROUTES.ALLTABAUDITLIST_SM,
+                { smData: this.props.route?.params?.smData },
+            );
         } else {
             this.props.navigation.goBack()
         }
@@ -299,7 +303,11 @@ class FilterScreen extends Component {
         console.log("filterArr-->", filterArr)
         if (filterArr.length > 0) {
             const SM = await this.getSelectedSupplierIndex();
-            this.props.navigation.navigate(ROUTES.ALLTABAUDITLIST_SM,{ filter_Arr: filterArr, smData: SM })
+            const previousPage = this.props.route?.params?.PreviousPage;
+            this.props.navigation.navigate(
+                previousPage === ROUTES.AUDIT_SCREEN_SM ? ROUTES.AUDIT_SCREEN_SM : ROUTES.ALLTABAUDITLIST_SM,
+                { filter_Arr: filterArr, smData: SM },
+            );
             // this.resetAll()
         }
         else{
