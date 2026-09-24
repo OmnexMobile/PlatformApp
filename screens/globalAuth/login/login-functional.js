@@ -124,6 +124,7 @@ const LoginFunctional = ({ }) => {
             const fcmToken = await fetchFCMToken();
             const tokenPayload = {
                 UserId: icUserData?.userData?.UserId,
+                SiteId: icUserData?.userData?.Siteid,
                 Token: fcmToken,
                 DeviceId: deviceId,
                 DeviceType: Platform.OS,

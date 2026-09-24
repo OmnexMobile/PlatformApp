@@ -21,6 +21,26 @@ const DynamicFormField = ({
     backgroundColor = COLORS.inputBG,
     dropdownPosition = 'top',
 }) => {
+    const parseToDate = val => {
+        if (!val) return null;
+        if (val instanceof Date) return val;
+        if (moment.isMoment(val)) return val.toDate();
+
+        const str = typeof val === 'string' ? val.trim() : val;
+
+        const parsed = moment(
+            str,
+            [
+                'MM/DD/YYYY h:mm:ss A', // 12-hour with AM/PM
+                'MM/DD/YYYY HH:mm:ss', // 24-hour
+                'MM/DD/YYYY',
+                moment.ISO_8601,
+            ],
+            true,
+        );
+
+        return parsed.isValid() ? parsed.toDate() : null;
+    };
     const { width } = useWindowDimensions();
     switch (fieldType) {
         case 'textinput':
@@ -72,9 +92,11 @@ const DynamicFormField = ({
             return (
                 <View style={{ marginTop: 8 }}>
                     <DataPickerWithIcon
-                        value={value ? moment(value, 'MM/DD/YYYY').toDate() : null}
+                        // value={value ? moment(value, 'MM/DD/YYYY').toDate() : null}
+                        value={parseToDate(value)}
                         onSelectedDate={val => {
-                            handleChange(val);
+                            // handleChange(val);
+                            handleChange(moment(val).format('MM/DD/YYYY h:mm:ss A'));
                         }}
                         borderRadius={4}
                         paddingVertical={9}
@@ -145,7 +167,12 @@ const DynamicFormField = ({
         case 'TextArea':
             return (
                 <View style={{ marginTop: 8 }}>
-                    <AutoSizingTextInput isEditable={isEditable} value={value || ''} handleChange={val => handleChange(val)} placeholder={placeHolder}/>
+                    <AutoSizingTextInput
+                        isEditable={isEditable}
+                        value={value || ''}
+                        handleChange={val => handleChange(val)}
+                        placeholder={placeHolder}
+                    />
                 </View>
             );
         default:

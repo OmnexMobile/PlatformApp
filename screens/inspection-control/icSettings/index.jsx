@@ -4,7 +4,7 @@ import { COLORS } from 'constants/theme-constants';
 import { useAppContext } from 'contexts/app-context';
 import { getAvatarInitials, showErrorMessage, successMessage } from 'helpers/utils';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, KeyboardAvoidingView, Text, TouchableOpacity } from 'react-native';
+import { ActivityIndicator, FlatList, KeyboardAvoidingView, Platform, Text, TouchableOpacity } from 'react-native';
 import { StyleSheet, View } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useDispatch, useSelector } from 'react-redux';
@@ -18,6 +18,9 @@ import NoDataFound from '../Components/NoDataFound';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { postAPI } from 'global/api-helpers';
 import ApiUrl from 'global/ApiUrl';
+import { fetchFCMToken } from 'screens/notificationService';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 const dateList = [
     {
@@ -129,6 +132,7 @@ const IcSettings = () => {
     const handleSelectedSite = async item => {
         setProfileCall(item);
         await getOverAllSettings();
+        await updateUpdateRegisterToken(item);
         let newIcUserData = {
             userData: item || {},
             token: icUserData?.token || '',
@@ -137,6 +141,20 @@ const IcSettings = () => {
         successMessage({ message: 'Success', description: `You have successfully selected the site: ${item.SiteName}`, position: 'bottom' });
         setSearchText('');
         handleSearch('');
+    };
+    const updateUpdateRegisterToken = async (item) => {
+        const fcmToken = await fetchFCMToken();
+        const deviceId = await AsyncStorage.getItem('deviceid');
+        console.log('🚀 ~ file: index.jsx:174 ~ updateUpdateRegisterToken ~ item:', item)
+        const tokenPayload = {
+            UserId: icUserData?.userData?.UserId,
+            SiteId: item?.Siteid,
+            Token: fcmToken,
+            DeviceId: deviceId,
+            DeviceType: Platform.OS,
+        };
+        const fcmRegister = await postAPI(`${ApiUrl.IC_FCM_REGISTER}`, tokenPayload);
+        console.log('FCM REGISTER RESPONSE--->', fcmRegister);
     };
     const handleDateFormat = item => {
         dispatch({ type: 'DATE_FORMAT', dateFormat: item.value });

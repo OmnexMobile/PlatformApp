@@ -27,11 +27,37 @@ const DataPickerWithIcon = ({
     const [date, setDate] = useState(null);
     const [tempDate, setTempDate] = useState(new Date());
     const [showPicker, setShowPicker] = useState(false);
+    const parseToDate = val => {
+        if (!val) return null;
+        if (val instanceof Date) return val;
+        if (moment.isMoment(val)) return val.toDate();
 
+        const str = typeof val === 'string' ? val.trim() : val;
+
+        const parsed = moment(
+            str,
+            [
+                'MM/DD/YYYY h:mm:ss A', // 12-hour with AM/PM
+                'MM/DD/YYYY HH:mm:ss', // 24-hour
+                'MM/DD/YYYY',
+                moment.ISO_8601,
+            ],
+            true,
+        );
+
+        return parsed.isValid() ? parsed.toDate() : null;
+    };
     useEffect(() => {
+        // if (value !== null) {
+        //     setDate(value);
+        //     setTempDate(value);
+        // }
         if (value !== null) {
-            setDate(value);
-            setTempDate(value);
+            const parsed = parseToDate(value); // reuse the same helper from the parent
+            setDate(parsed);
+            setTempDate(parsed || new Date());
+        } else {
+            setDate(null);
         }
     }, [value]);
 
@@ -113,6 +139,7 @@ const DataPickerWithIcon = ({
                     onConfirm={selectedDate => {
                         setShowPicker(false);
                         if (selectedDate) {
+                            setDate(selectedDate);
                             onSelectedDate(selectedDate);
                         }
                     }}
