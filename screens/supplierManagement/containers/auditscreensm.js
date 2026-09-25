@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { ActivityIndicator, FlatList, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, FlatList, Image, Text, TouchableOpacity, View } from 'react-native';
 import { connect } from 'react-redux';
 import NetInfo from '@react-native-community/netinfo';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -14,11 +14,14 @@ import GlobalHeader from 'components/GlobalHeader';
 import { ROUTES } from 'constants/app-constant';
 import { ThemeContext } from 'theme/ThemeProvider';
 import Icon from 'react-native-vector-icons/Feather';
+import API_URL from 'global/ApiUrl';
+import { postAPI } from 'global/api-helpers';
+import { IMAGES } from 'assets/images';
 
 class AuditScreenSM extends Component {
     static contextType = ThemeContext;
 
-    state = { audits: [], loading: true, error: false };
+    state = { audits: [], loading: true, error: false, selectedModule: null };
 
     componentDidMount() {
         this.loadAudits();
@@ -93,7 +96,7 @@ class AuditScreenSM extends Component {
 
         this.setState({ loading: true, error: false });
         const supplierIndexes = [1, 2, 3];
-        const audits = [];
+        const auditRecords = [];
 
         for (const supplierIndex of supplierIndexes) {
             const responseAudits = await this.getAuditsForSupplier(
@@ -101,7 +104,7 @@ class AuditScreenSM extends Component {
                 startDate, endDate, sortBy, sortOrder, supplierIndex, defaultValue,
             );
             responseAudits.forEach((audit, index) => {
-                audits.push({
+                auditRecords.push({
                     ...audit,
                     key: `${supplierIndex}-${audit.ActualAuditId || audit.AuditId || index}`,
                     AuditId: audit.ActualAuditId || audit.AuditId,
@@ -121,15 +124,58 @@ class AuditScreenSM extends Component {
             this.formatApqpDate(endDate),
             apqpToken,
         );
-        apqpRecords.forEach((record, index) => {
-            audits.push({
+        const apqpListRecords = apqpRecords.map((record, index) => ({
                 ...record,
                 key: `apqp-${record.TaskID || record.TaskId || record.ProjectID || index}`,
                 recordType: 'apqp',
-            });
-        });
+            }));
 
-        this.setState({ audits, loading: false, error: audits.length === 0, smData: 1 });
+        const concernRecords = await this.getConcernList(userId, siteId, startDate, endDate);
+        const concernListRecords = concernRecords.map((record, index) => ({
+                ...record,
+                key: `concern-${record.ConcernID || record.ConcernId || record.ConcernNo || index}`,
+                recordType: 'concern',
+            }));
+
+        // FlatList renders one combined data array, preserving all source lists.
+        const supplierRecords = auditRecords.filter(record => record.smData === 2 || record.smData === 3);
+        const auditProRecords = auditRecords.filter(record => record.smData === 1);
+        const audits = [...auditProRecords, ...supplierRecords, ...apqpListRecords, ...concernListRecords];
+        this.setState({
+            audits,
+            auditRecords,
+            auditProRecords,
+            supplierRecords,
+            apqpRecords: apqpListRecords,
+            concernRecords: concernListRecords,
+            selectedModule: null,
+            loading: false,
+            error: audits.length === 0,
+            smData: 1,
+        });
+    };
+
+    getConcernList = async (userId, siteId, startDate, endDate) => {
+        const formData = new FormData();
+        formData.append('UserId', userId);
+        formData.append('SiteId', siteId);
+        formData.append('maxrow', 500);
+        // The date endpoint requires a complete range. With no active date
+        // filter, use today's date for both bounds (same behavior as the
+        // Problem Solver daily list).
+        const today = new Date();
+        const concernDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+        formData.append('fromdate', startDate || endDate || concernDate);
+        formData.append('todate', endDate || startDate || concernDate);
+
+        try {
+            const response = await postAPI(API_URL.CONCERN_LIST_FILTERED_BY_DATE, formData);
+            const payload = response?.data || response;
+            const data = payload?.Data || payload?.data?.Data || payload?.response?.Data;
+            return Array.isArray(data) ? data : [];
+        } catch (error) {
+            return [];
+        }
     };
 
     getAuditsForSupplier = (token, userId, siteId, pageNo, pageSize, filterId, globalFilter, startDate, endDate, sortBy, sortOrder, supplierIndex, defaultValue) =>
@@ -197,7 +243,56 @@ class AuditScreenSM extends Component {
 
     clearFilters = () => this.loadAudits(true);
 
+    getModuleCards = () => [
+        { id: 'auditpro', title: 'Audit Pro', subtitle: 'Total Audits', data: this.state.auditProRecords || [], image: IMAGES.auditpro_logo },
+        { id: 'supplier', title: 'Supplier', subtitle: 'Total Audits', data: this.state.supplierRecords || [], image: IMAGES.supplier_logo },
+        { id: 'apqp', title: 'APQP', subtitle: 'Total Items', data: this.state.apqpRecords || [], image: IMAGES.apqp_logo },
+        { id: 'problemSolver', title: 'Problem Solver', subtitle: 'Total Concerns', data: this.state.concernRecords || [], image: IMAGES.ps_logo },
+    ];
+
+    renderModuleCard = ({ item }) => (
+        <View>
+            <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={() => this.setState(state => ({ selectedModule: state.selectedModule === item.id ? null : item.id }))}
+                style={{ marginHorizontal: 12, marginVertical: 10, minHeight: 132, paddingHorizontal: 24, paddingVertical: 20, borderRadius: 24, backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E7E9EC', elevation: 4, flexDirection: 'row', alignItems: 'center' }}>
+                <View style={{ width: 88, height: 88, borderRadius: 44, backgroundColor: '#EFF6FF', alignItems: 'center', justifyContent: 'center', marginRight: 24 }}>
+                    <Image source={item.image} resizeMode="contain" style={{ width: 48, height: 48 }} />
+                </View>
+                <View style={{ flex: 1 }}>
+                    <Text style={{ color: '#171923', fontSize: 25, fontWeight: '500' }}>{item.title}</Text>
+                    <Text style={{ color: '#123C95', fontSize: 20, fontWeight: '600', marginTop: 8 }}>{item.data.length} {item.subtitle}</Text>
+                </View>
+                <Icon name={this.state.selectedModule === item.id ? 'chevron-up' : 'chevron-down'} size={32} color="#64748B" />
+            </TouchableOpacity>
+            {this.state.selectedModule === item.id && (
+                <View style={{ marginHorizontal: 12, marginBottom: 8 }}>
+                    {item.data.length ? item.data.map((record, index) => (
+                        <View key={record.key || `${item.id}-${index}`}>{this.renderListItem({ item: record, index })}</View>
+                    )) : <NoRecordFound />}
+                </View>
+            )}
+        </View>
+    );
+
     renderListItem = ({ item, index }) => {
+        if (item.recordType === 'concern') {
+            return (
+                <View style={{ marginHorizontal: 12, marginVertical: 6, padding: 14, borderRadius: 10, backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#DFE7F3', flexDirection: 'row', alignItems: 'center' }}>
+                    <Image source={IMAGES.ps_logo} resizeMode="contain" style={{ width: 44, height: 44, marginRight: 12 }} />
+                    <View style={{ flex: 1 }}>
+                        <Text style={{ color: '#123C95', fontSize: 13, fontWeight: '600' }}>{item.ConcernNo || 'Problem Solver Concern'}</Text>
+                        <Text style={{ color: '#1F2937', fontSize: 16, marginTop: 4 }}>{item.Title || item.ConcernTitle || 'Concern'}</Text>
+                        {!!(item.Status || item.CreatedDate) && (
+                            <Text style={{ color: '#64748B', fontSize: 13, marginTop: 4 }}>
+                                {[item.Status, item.CreatedDate].filter(Boolean).join(' · ')}
+                            </Text>
+                        )}
+                    </View>
+                </View>
+            );
+        }
+
         if (item.recordType === 'apqp') {
             return (
                 <View style={{ marginHorizontal: 12, marginVertical: 6, padding: 14, borderRadius: 10, backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#DFE7F3' }}>
@@ -217,7 +312,8 @@ class AuditScreenSM extends Component {
 
     render() {
         const { theme } = this.context || {};
-        const { audits, loading, error } = this.state;
+        const { loading, error } = this.state;
+        const modules = this.getModuleCards();
         return (
             <View style={styles.wrapper}>
                 <OfflineNotice />
@@ -243,12 +339,14 @@ class AuditScreenSM extends Component {
                 />
                 <View style={styles.auditPageBody}>
                     {loading ? <View style={styles.loaderParent}><ActivityIndicator size={20} color={theme?.colors?.primaryThemeColor} /></View> : error ? <NoRecordFound /> : (
+                        <>
                         <FlatList
                             contentContainerStyle={styles.listPadding}
-                            data={audits}
-                            keyExtractor={item => item.key}
-                            renderItem={this.renderListItem}
+                            data={modules}
+                            keyExtractor={item => item.id}
+                            renderItem={this.renderModuleCard}
                         />
+                        </>
                     )}
                 </View>
             </View>
