@@ -77,9 +77,25 @@ const IcSettings = () => {
             setSiteList([]);
         }
     }, [sites?.siteList]);
+    const handleRemoveNotificationData = async () => {
+        const deviceId = await AsyncStorage.getItem('deviceid');
+       const payload = {
+            userId: icUserData?.userData?.UserId,
+            deviceId: deviceId,
+        };
+        const response = await postAPI(`${ApiUrl.IC_REMOVE_NOTIFICATION}`, payload);
+        console.log('Remove Notification Response--->', response);
+        return response;
+        // if (removeNotificationRes.Success) {
+        //     console.log('Notification data removed successfully');
+        // } else {
+        //     console.log('Error removing notification data:', removeNotificationRes?.Error || 'Something went wrong while removing notification data');
+        // }
+    }
     const handleLogoutCall = async () => {
         setShowLogoutModal(false);
         setShowLoader(true);
+        await handleRemoveNotificationData();
         const currentServerUrl = await localStorage.getData(LOCAL_STORAGE_VARIABLES.globalRegister);
         await registerDevice(
             currentServerUrl,

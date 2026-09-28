@@ -53,5 +53,6 @@ module.exports = {
     IC_BY_BARCODE:'GetInspectionScheduleByBarcode',
     IC_NOTIFICATION_LIST:'StartInspectionFromSchedule',
     IC_NOTIFICATION_SNOOZE:'snooze',
-    IC_REPORT_DOWNTIME_LIST:'Downtime/GetReportDowntimeList'
+    IC_REPORT_DOWNTIME_LIST:'Downtime/GetReportDowntimeList',
+    IC_REMOVE_NOTIFICATION:'RemovePushRecord',
 };
