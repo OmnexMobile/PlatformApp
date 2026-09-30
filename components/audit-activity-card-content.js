@@ -18,31 +18,75 @@ const AuditActivityCardContent = ({ item = {}, title, localAudits = [], statusBo
     const { theme } = useTheme();
     const enriched = enrichAuditItem(item, localAudits);
     const dateFormat = DATE_FORMAT[timeSettings || 'DD_MM_YYYY'];
-console.log('statusBooleans-----card',statusBooleans);
+    console.log('statusBooleans-----card',statusBooleans);
 
     const metaParts = [
         ...(hideAuditeeInMeta ? [] : [item?.Auditee]),
         item?.AuditTypeName,
     ].filter(Boolean);
     const metaLine = metaParts.join(' · ');
+
+    const themedStyles = React.useMemo(
+        () =>
+            StyleSheet.create({
+                dueText: {
+                    color: '#000',
+                    fontSize: 15,
+                    fontFamily: 'OpenSans-Regular',
+                },
+                dueByDaysPositive: {
+                    fontSize: 15,
+                    color: '#123C95',
+                    fontFamily: 'OpenSans-SemiBold',
+                },
+                dueByDaysNegative: {
+                    fontSize: 15,
+                    color: 'red',
+                    fontFamily: 'OpenSans-SemiBold',
+                },
+            }),
+        [theme],
+    );
+
+
     return (
         <View style={styles.content}>
             <View style={[styles.accentBar, { backgroundColor: enriched.color }]} />
             <View style={styles.body}>
-                <View style={styles.headerRow}>
-                    <TextComponent
-                        numberOfLines={2}
-                        fontSize={FONT_SIZE.NORMAL}
-                        type={FONT_TYPE.BOLD}
-                        style={[styles.title, { color: theme.colors.primaryThemeColor }]}>
-                        {title}
-                    </TextComponent>
+                {item?.Auditee || item?.SiteName ? (
+                    <View style={styles.headerRow}>
+                        <TextComponent
+                            numberOfLines={2}
+                            fontSize={FONT_SIZE.NORMAL}
+                            type={FONT_TYPE.BOLD}
+                            style={[styles.title, { color: theme.colors.primaryThemeColor }]}>
+                            {item?.Auditee || item?.SiteName}
+                        </TextComponent>
                 </View>
+                ) : null}
 
-                {!statusBooleans ? (
+                {item?.ProjectDescription || item?.Actions ? (
+                    <View style={styles.headerRow}>
+                        <TextComponent
+                            numberOfLines={2}
+                            fontSize={FONT_SIZE.NORMAL}
+                            type={FONT_TYPE.BOLD}
+                            style={[styles.title, { color: theme.colors.primaryThemeColor }]}>
+                            {item?.ProjectDescription || item?.Actions}
+                        </TextComponent>
+                </View>
+                ) : null}
+
+                {!statusBooleans && (item?.Auditee || item?.SiteName) ? (
                     <View style={styles.statusRow}>
                         <AuditStatusBadge cStatus={enriched.cStatus} color={enriched.color} size="small" />
                     </View>
+                ) : null}
+
+                {item?.Description || item?.TaskDescription ? (
+                    <TextComponent numberOfLines={1} fontSize={FONT_SIZE.SMALL} style={styles.metaText}>
+                        {item.Description || item?.TaskDescription}
+                    </TextComponent>
                 ) : null}
 
                 {metaLine ? (
@@ -84,6 +128,13 @@ console.log('statusBooleans-----card',statusBooleans);
                         Last opened: {moment(item.lastOpened).fromNow()}
                     </TextComponent>
                 ) : null}
+
+                {item?.DueByDays ? (<TextComponent style={themedStyles.dueText} numberOfLines={1}>
+                    Due by days: <TextComponent type={FONT_TYPE.BOLD}
+                    style={item.DueByDays > 0 ? themedStyles.dueByDaysPositive : themedStyles.dueByDaysNegative}
+                    >{item?.DueByDays}</TextComponent>
+                </TextComponent>) : null}
+
             </View>
         </View>
     );

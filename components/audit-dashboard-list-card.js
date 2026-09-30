@@ -28,7 +28,7 @@ const AuditDashboardListCard = ({
                 )}
                 <AuditActivityCardContent
                     item={item}
-                    title={item?.Auditee || item?.SiteName || ''}
+                    title={item?.Auditee || item?.SiteName || item?.ProjectDescription || item?.Actions || ''}
                     localAudits={localAudits}
                     hideAuditeeInMeta
                 />

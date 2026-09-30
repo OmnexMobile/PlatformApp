@@ -17,6 +17,7 @@ import Icon from 'react-native-vector-icons/Feather';
 import API_URL from 'global/ApiUrl';
 import { postAPI } from 'global/api-helpers';
 import { IMAGES } from 'assets/images';
+import AuditCardApqp from 'screens/auditPro/components/AuditCardApqp';
 
 class AuditScreenSM extends Component {
     static contextType = ThemeContext;
@@ -295,19 +296,12 @@ class AuditScreenSM extends Component {
 
         if (item.recordType === 'apqp') {
             return (
-                <View style={{ marginHorizontal: 12, marginVertical: 6, padding: 14, borderRadius: 10, backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#DFE7F3' }}>
-                    <Text style={{ color: '#123C95', fontSize: 13, fontWeight: '600' }}>APQP</Text>
-                    <Text style={{ color: '#1F2937', fontSize: 16, marginTop: 4 }}>{item.TaskDescription || item.Actions || item.ProjectName || 'APQP Action'}</Text>
-                    {!!(item.ProjectDescription || item.StartDate || item.FinishDate) && (
-                        <Text style={{ color: '#64748B', fontSize: 13, marginTop: 4 }}>
-                            {item.ProjectDescription || `${item.StartDate || ''}${item.FinishDate ? ` - ${item.FinishDate}` : ''}`}
-                        </Text>
-                    )}
-                </View>
+                 <AuditCardApqp item={item} index={index} naviData={this.props.navigation} statusBooleans={false} />
             );
         }
-
-        return <AuditCardSM dateFormat={this.props?.data?.audits?.userDateFormat} item={item} index={index} length={this.state.audits.length} naviData={this.props.navigation} smData={item.smData || this.state.smData} />;
+        else {
+            return <AuditCardSM dateFormat={this.props?.data?.audits?.userDateFormat} item={item} index={index} length={this.state.audits.length} naviData={this.props.navigation} smData={item.smData || this.state.smData} />;
+        }
     };
 
     render() {
