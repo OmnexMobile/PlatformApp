@@ -292,7 +292,7 @@ const CompletedInspection = () => {
                 samples: samples.map(sample => ({
                     sampleName: String(sample.sampleName || ''),
                     data: {
-                        FuncDetailsId: sample.FuncDetailsId || '',
+                        FuncDetailsId: sample?.FuncDetailsId || item?.FuncDetailsId ||'',
                         SerialNo: String(sample.SerialNo || ''),
                         FunctionValue: sample.FunctionValue || '',
                         status: sample.backColor === '#00FF00' ? 0 : 1,

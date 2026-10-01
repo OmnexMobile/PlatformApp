@@ -18,7 +18,7 @@ export const setupForegroundHandler = setNotificationData => {
     const messaging = getMessaging();
 
     return onMessage(messaging, async remoteMessage => {
-        console.log('🟢 Foreground:', remoteMessage);
+        console.log('🟢 Foreground:',remoteMessage?.data?.ICInspectionScheduleID, remoteMessage);
         store.dispatch({ type: 'STORE_NOTIFICATION_DATA', notificationData: remoteMessage });
         setNotificationData({
             remoteMessage,
