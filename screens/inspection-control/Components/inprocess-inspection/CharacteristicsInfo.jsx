@@ -96,7 +96,7 @@ const CharacteristicsInfo = ({
     const [showCPKModal, setShowCPKModal] = useState(false);
     const [showImageWithSample, setShowImageWithSample] = useState(false);
     const [showCaptureDefect, setShowCaptureDefect] = useState(false);
-    const ROW_HEIGHT = 70; // measure your actual contentBox height (padding + input height)
+    const ROW_HEIGHT = 56; // measure your actual contentBox height (padding + input height)
     const [headerHeight, setHeaderHeight] = useState(0);
     const imageFiles = useMemo(() => {
         return FileList.filter(file => imageExtensions.includes(file.FileExtension?.toLowerCase())).map(file => ({
@@ -104,7 +104,6 @@ const CharacteristicsInfo = ({
         }));
     }, [FileList]);
 
-    console.log('imageFiles', imageFiles.length);
     useEffect(() => {
         const backAction = () => {
             setShowChar(false);
@@ -115,7 +114,6 @@ const CharacteristicsInfo = ({
     }, []);
     const inputsRef = useRef([]);
     const navigation = useNavigation();
-    console.log('FileList', FileList.length);
     useEffect(() => {
         getOverAllData();
     }, [type, selectedData]);
@@ -161,7 +159,7 @@ const CharacteristicsInfo = ({
                     setMasterData([...updatedSample]);
                     setValueUpadted([...updatedSample]);
                 } else if (valueSampleSize == 0 && selectedData?.CSampleSize > 0 && sampleEnterdSize == 0) {
-                    console.log(valueSampleSize, masterData.filter(x => x?.value != '').length, '********************step3');
+                    console.log('********************step3');
                     let sampleSize = selectedData.CSampleSize;
                     const temp = Array.from({ length: sampleSize }, (_, index) => ({
                         id: index + 1,
@@ -187,7 +185,7 @@ const CharacteristicsInfo = ({
                     setMasterData([...temp]);
                     setValueUpadted([...temp]);
                 } else if (sampleEnterdSize != 0 && selectedData?.CSampleSize >= sampleEnterdSize) {
-                    console.log(sampleEnterdSize, selectedData?.CSampleSize, '********************step4');
+                    console.log('********************step4');
                     let filterMasterData = masterData
                         .filter(x => x?.value != '')
                         .map((item, index) => ({
@@ -228,7 +226,6 @@ const CharacteristicsInfo = ({
                     console.log('********************step5');
                     let temp = JSON.parse(JSON.stringify(masterData)); // Deep copy
                     let slicedList = temp.slice(0, Number(selectedData.CSampleSize));
-                    console.log(slicedList.length, 'slicedList');
                     setMasterData([...slicedList]);
                     setValueUpadted([...slicedList]);
                     // showMessage({
@@ -242,7 +239,7 @@ const CharacteristicsInfo = ({
                     //     style: Platform.OS === 'ios' ? { height: 90, alignItems: 'flex-end' } : {},
                     // });
                 } else {
-                    console.log('********************step6', ...selectedData?.Samples);
+                    console.log('********************step6');
                     setMasterData([...selectedData?.Samples]);
                     setValueUpadted([...selectedData?.Samples]);
                 }
@@ -288,7 +285,7 @@ const CharacteristicsInfo = ({
                     setMasterData([...selectedData?.Samples]);
                     setValueUpadted([...selectedData?.Samples]);
                 } else if (valueSampleSize == 0 && selectedData?.CSampleSize > 0 && sampleEnterdSize == 0) {
-                    console.log(valueSampleSize, masterData.filter(x => x?.value != '').length, '********************step3');
+                    console.log('********************step3');
                     let sampleSize = selectedData.CSampleSize;
                     const temp = Array.from({ length: sampleSize }, (_, index) => ({
                         id: index + 1,
@@ -321,7 +318,7 @@ const CharacteristicsInfo = ({
                         setValueUpadted([...temp]);
                     }
                 } else if (sampleEnterdSize != 0 && selectedData?.CSampleSize >= sampleEnterdSize) {
-                    console.log(sampleEnterdSize, selectedData?.CSampleSize, '1111********************step4');
+                    console.log('1111********************step4');
                     let filterMasterData = masterData
                         .filter(x => x?.value != '')
                         .map((item, index) => ({
@@ -752,12 +749,16 @@ const CharacteristicsInfo = ({
                     </View>
                 )}
                 <FlatList
+                    initialNumToRender={12}
+                    maxToRenderPerBatch={10}
+                    windowSize={7}
+                    removeClippedSubviews
                     keyboardShouldPersistTaps="handled"
                     ref={flatListRef}
                     data={masterData}
                     keyExtractor={(item, index) => index.toString()}
                     getItemLayout={getItemLayout}
-                    initialNumToRender={masterData?.length || 10}
+                    // initialNumToRender={masterData?.length || 10}
                     onScrollToIndexFailed={info => {
                         setTimeout(() => {
                             flatListRef?.current?.scrollToIndex({ index: info.index, animated: true });

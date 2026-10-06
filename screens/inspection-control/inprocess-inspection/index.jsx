@@ -268,7 +268,6 @@ const InprocessInspection = ({ route }) => {
         const result = handleValidation(infoData);
         if (result) {
             const getStatus = rendetBtnText(infoData);
-            console.log(getStatus, '******************getStatus');
             const sqlitFlag = await updateInspectionByUniqueId(infoData.uniqueId, {
                 ...infoData,
                 status: getStatus?.status,
@@ -323,7 +322,6 @@ const InprocessInspection = ({ route }) => {
                                 setShowChar(false);
                                 setSelectedData({});
                                 setMasterData([]);
-                                console.log('masterData1');
                                 setValueUpadted([]);
                             }
                         } else {
@@ -389,13 +387,10 @@ const InprocessInspection = ({ route }) => {
             }
         }
 
-        console.log(hasKey, isUpdated, isEdited, 'balutest5selectedData');
-
         return hasKey && isUpdated && isEdited;
     }
     const handleSaveAlert = useCallback(
         (movenext = '', typeid = '', userFormType = '') => {
-            console.log('balutest2selectedData', selectedData);
             let isChanged = false;
             const filterdData = inspectList.filter(
                 item =>
@@ -406,7 +401,6 @@ const InprocessInspection = ({ route }) => {
             );
             const finalData = filterdData[0];
             if (showChar) {
-                console.log('finalData', finalData);
                 if (formType == 'number' || formType == 'char') {
                     // if Samples avilable we need to check this or we need to use masterData
                     isChanged = selectedData?.Samples?.some((item, index) => {
@@ -425,7 +419,6 @@ const InprocessInspection = ({ route }) => {
                     let arrayList = [...(finalData?.VariableCharacteristics ?? []), ...(finalData?.AttributeCharacteristics ?? [])];
                     let selectedFinal = arrayList.filter(item => item?.CCharacteristicsId == selectedData?.CCharacteristicsId);
                     let isDefectChanged = checkDefectImage(selectedData, selectedFinal[0]);
-                    console.log(isDefectChanged, selectedFinal, selectedData, 'balutest3selectedData');
                     const hasChanges = selectedFinal.length
                         ? JSON.stringify(selectedFinal[0]?.charInfo) != JSON.stringify(selectedData?.charInfo)
                         : false;
@@ -501,13 +494,11 @@ const InprocessInspection = ({ route }) => {
                 [formType === 'number' ? 'VariableCharacteristics' : 'AttributeCharacteristics']: newCharacteristicsList,
             }));
             setMasterData([]);
-            console.log('masterData2');
 
             setValueUpadted([]);
         } else {
             handleFinalSavePress();
 
-            console.log('inside2', infoData);
         }
         if (close && showChar) {
             setShowChar(false);
@@ -519,7 +510,6 @@ const InprocessInspection = ({ route }) => {
         }
     };
     const handleNextSamplePress = () => {
-        console.log(infoData, 'balutest1');
         if (infoData.intInspectionTypeID != 2) {
             let tempData = formType == 'number' ? infoData?.VariableCharacteristics : infoData.AttributeCharacteristics;
             if (currentIndex.index < tempData?.length - 1) {
@@ -753,7 +743,6 @@ const InprocessInspection = ({ route }) => {
         }
     };
     const handleInnerSavePress = async (isSave, btntype) => {
-        console.log(inspectData, 'needme1');
         if (formType === 'number' && inspectData?.userType == 'Inspector') {
             const validation = validateSPC({
                 type: formType,
@@ -983,7 +972,6 @@ const InprocessInspection = ({ route }) => {
                                 danger={true}
                                 style={{ height: 30, width: 100, marginRight: 20 }}
                                 onPress={() => {
-                                    console.log('nextSave', nextSave);
                                     nextSave ? handleBackPress() : handleNextItem();
                                 }}
                                 textStyle={{ fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}>

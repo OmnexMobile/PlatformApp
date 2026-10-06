@@ -20,164 +20,10 @@ import ApiUrl from 'global/ApiUrl';
 import InputDataModal from '../Components/inspection-schedule/InputDataModal';
 import { getInspectionDataByUserAndSite } from 'store/database/inspectStorage';
 
-const data = {
-    InspectionSchedules: [
-        {
-            OrderDetailsId: 6,
-            OrderNumber: '',
-            Description: '',
-            ReferenceNo: '',
-            PIHierarchy: ',1079,20787',
-            OperationHierarchy: 'obi20787,obi20859,obi20799,obi20804,obi20806',
-            OperationWSID: '18',
-            ProductionQty: 100,
-            SupplierId: 0,
-            SupplierName: '',
-            SupplierCode: '',
-            CustomerId: 0,
-            CustomerName: '',
-            CustomerCode: '',
-            InspectionLevelId: 0,
-            InspectionLevel: 'NA',
-            SamplingPlanId: 0,
-            SamplingPlan: 'NA',
-            DefectTypeId: 0,
-            DefectTypeNumber: null,
-            InspectionId: 0,
-            Inspection: 'NA',
-            TypeOfInspection: '2',
-            LotNo: 'GLOBAL00444Lot',
-            ReceiptNo: '',
-            ProductionStartDate: '08/08/2025',
-            ProductionStartTime: '09:00',
-            ProductionEndTime: '17:30',
-            StartDate: '02/19/2025',
-            EndDate: '02/19/2026',
-            ICInspectionEntryID: 0,
-            ICInspectionLotDetailsID: 0,
-            ICInspectionEntryDetailsID: 0,
-            ProductionItemId: 20787,
-            ProductionItem: '01_Battery Management',
-            OperationName: 'Voltage Reading',
-            OperationID: '20806',
-            InspectionType: 'Aqua',
-            ShiftId: null,
-            FrequencyId: null,
-            FormId: 271,
-            canDownload: true,
-            ReceivedQuantity: 100,
-            InspectedQty: 251,
-            LotSize: 0,
-        },
-        {
-            OrderDetailsId: 6,
-            OrderNumber: '',
-            Description: '',
-            ReferenceNo: '',
-            PIHierarchy: ',1079,20787',
-            OperationHierarchy: 'obi20787,obi20859,obi20799,obi20804,obi20807',
-            OperationWSID: '19',
-            ProductionQty: 100,
-            SupplierId: 0,
-            SupplierName: '',
-            SupplierCode: '',
-            CustomerId: 0,
-            CustomerName: '',
-            CustomerCode: '',
-            InspectionLevelId: 0,
-            InspectionLevel: 'NA',
-            SamplingPlanId: 0,
-            SamplingPlan: 'NA',
-            DefectTypeId: 0,
-            DefectTypeNumber: null,
-            InspectionId: 0,
-            Inspection: 'NA',
-            TypeOfInspection: '2',
-            LotNo: 'GLOBAL00444Lot',
-            ReceiptNo: '',
-            ProductionStartDate: '08/08/2025',
-            ProductionStartTime: '09:00',
-            ProductionEndTime: '17:30',
-            StartDate: '02/19/2025',
-            EndDate: '02/19/2026',
-            ICInspectionEntryID: 0,
-            ICInspectionLotDetailsID: 0,
-            ICInspectionEntryDetailsID: 0,
-            ProductionItemId: 20787,
-            ProductionItem: '01_Battery Management',
-            OperationName: 'Temperature Control',
-            OperationID: '20807',
-            InspectionType: 'Aqua',
-            ShiftId: null,
-            FrequencyId: null,
-            FormId: 271,
-            canDownload: true,
-            ReceivedQuantity: 100,
-            InspectedQty: 251,
-            LotSize: 0,
-        },
-        {
-            OrderDetailsId: 6,
-            OrderNumber: '',
-            Description: '',
-            ReferenceNo: '',
-            PIHierarchy: ',1079,20787',
-            OperationHierarchy: 'obi20787,obi20859,obi20799,obi20804,obi20805',
-            OperationWSID: '20',
-            ProductionQty: 100,
-            SupplierId: 0,
-            SupplierName: '',
-            SupplierCode: '',
-            CustomerId: 0,
-            CustomerName: '',
-            CustomerCode: '',
-            InspectionLevelId: 0,
-            InspectionLevel: 'NA',
-            SamplingPlanId: 0,
-            SamplingPlan: 'NA',
-            DefectTypeId: 0,
-            DefectTypeNumber: null,
-            InspectionId: 0,
-            Inspection: 'NA',
-            TypeOfInspection: '2',
-            LotNo: 'GLOBAL00444Lot',
-            ReceiptNo: '',
-            ProductionStartDate: '08/08/2025',
-            ProductionStartTime: '09:00',
-            ProductionEndTime: '17:30',
-            StartDate: '02/19/2025',
-            EndDate: '02/19/2026',
-            ICInspectionEntryID: 0,
-            ICInspectionLotDetailsID: 0,
-            ICInspectionEntryDetailsID: 0,
-            ProductionItemId: 20787,
-            ProductionItem: '01_Battery Management',
-            OperationName: 'Current Measurement',
-            OperationID: '20805',
-            InspectionType: 'Aqua',
-            ShiftId: null,
-            FrequencyId: null,
-            FormId: 271,
-            canDownload: true,
-            ReceivedQuantity: 100,
-            InspectedQty: 251,
-            LotSize: 0,
-        },
-    ],
-    InspectionShifts: [
-        {
-            ShiftID: 2,
-            ShiftName: 'Default',
-            Fromtime: '9:00 am',
-            Totime: '5:30 pm',
-        },
-    ],
-};
-
 const NotificationScreen = () => {
     const navigation = useNavigation();
     const route = useRoute();
-    const { payload,FrequencyId } = route.params;
+    const { payload, FrequencyId } = route.params;
     const [storePayload, setStorePayload] = useState(null);
     const [showSkeleton, setShowSkeleton] = useState(false);
     const { icUserData } = useSelector(state => state.inspection);
@@ -302,9 +148,14 @@ const NotificationScreen = () => {
                     <Text style={[styles.operationText]}>
                         Operation Name : <Text style={[styles.secondText]}>{item?.OperationName}</Text>
                     </Text>
-                    <Text style={[styles.operationText]}>
+                    {/* <Text style={[styles.operationText]}>
                         Invoice No : <Text style={[styles.secondText]}>{item?.OrderNumber ? item?.OrderNumber : '-'}</Text>
-                    </Text>
+                    </Text> */}
+                    {item?.TypeOfInspection == '1' && (
+                        <Text style={[styles.operationText]}>
+                            Invoice No : <Text style={[styles.secondText]}>{item?.OrderNumber ? item?.OrderNumber : '-'}</Text>
+                        </Text>
+                    )}
                 </View>
                 <View style={[styles.lastBox]}>
                     <Text style={[styles.secondText]}>{moment(item.ProductionStartDate, 'MM/DD/YYYY').format('DD/MM/YYYY')}</Text>

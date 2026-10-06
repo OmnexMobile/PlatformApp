@@ -118,7 +118,6 @@ const SampleCharInfo = ({
             return item?.Value;
         }
     };
-    console.log('userTypebalu', selectedData, userType);
     return (
         <View style={styles.rowContainer}>
             {Boolean(selectedData?.charInfo?.length) &&
