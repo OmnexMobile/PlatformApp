@@ -35,6 +35,8 @@ import {
 import NotificationModal from 'screens/inspection-control/notification/NotificationModal';
 import TokenPopup from 'screens/TokenPopup';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNetworkToast,toastConfig } from './screens/inspection-control/Components/useNetworkToast';
+import Toast from 'react-native-toast-message';
 
 setupInterceptors();
 
@@ -58,6 +60,7 @@ const Parent = () => {
     });
     const [modalVisible, setModalVisible] = useState(false);
     const [currentToken, setCurrentToken] = useState('example-apns-token-12345');
+    useNetworkToast();
     useEffect(() => {
         async function init() {
             const granted = await requestNotificationPermission();
@@ -159,6 +162,7 @@ const Parent = () => {
             {/* Notification Component */}
             </SafeAreaView>
             <UpdateModal visible={showUpdateModal} onClose={() => setShowUpdateModal(false)} />
+                <Toast config={toastConfig} />
             {/* <TokenPopup visible={modalVisible} token={currentToken} onClose={() => setModalVisible(false)} /> */}
         </GestureHandlerRootView>
     );
