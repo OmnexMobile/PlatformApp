@@ -449,7 +449,7 @@ const InputDataModal = ({
                             <View style={[styles.resultBox]}>
                                 <Text style={styles.headertext}>Form Input Data</Text>
                                 <Divider />
-                                <ScrollView style={[styles.container]} nestedScrollEnabled showsVerticalScrollIndicator={false}>
+                                <ScrollView style={[styles.container]} nestedScrollEnabled showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
                                     <View
                                         style={{
                                             flexDirection: isTablet ? 'row' : 'column',
@@ -583,7 +583,7 @@ const InputDataModal = ({
                                                 title=""
                                                 borderRadius={4}
                                                 borderColor={COLORS.icBottomBox}
-                                                showSearch={false}
+                                                showSearch={true}
                                                 maxHeight={200}
                                                 value={formFields.frequency}
                                                 onChange={async val => {

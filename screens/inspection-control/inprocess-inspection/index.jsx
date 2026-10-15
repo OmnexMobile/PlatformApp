@@ -792,7 +792,7 @@ const InprocessInspection = ({ route }) => {
                         </TouchableOpacity>
                         {showGeneral && (
                             <View style={[styles.tabBox]}>
-                                <GeneralInfo infoData={infoData} setInfoData={setInfoData} intInspectionTypeID={inspectData.intInspectionTypeID} />
+                                <GeneralInfo infoData={infoData} setInfoData={setInfoData} intInspectionTypeID={inspectData.intInspectionTypeID} isSamplePopup={[...infoData?.VariableCharacteristics,...infoData?.AttributeCharacteristics][0]?.charInfo?.some(c => c.PropertyName === 'ActualValue')} />
                             </View>
                         )}
                     </View>

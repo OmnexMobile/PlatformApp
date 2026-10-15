@@ -4,7 +4,7 @@ import { COLORS } from 'constants/theme-constants';
 import DynamicFormField from '../DynamicFormField';
 import ListRadioButton from './ListRadioButton';
 
-const GeneralInfo = ({ infoData = {}, setInfoData = () => {}, intInspectionTypeID = '' }) => {
+const GeneralInfo = ({ infoData = {}, setInfoData = () => {}, intInspectionTypeID = '', isSamplePopup = false }) => {
     const handleInputChange = (val, item) => {
         const updatedData = infoData.GeneralInfo.map(i => (i.PropertyName === item.PropertyName ? { ...i, Value: val } : i));
         setInfoData(pre => ({ ...pre, GeneralInfo: updatedData }));
@@ -23,8 +23,12 @@ const GeneralInfo = ({ infoData = {}, setInfoData = () => {}, intInspectionTypeI
                         return (
                             <View style={styles.subBox} key={`${item.PropertyName}-${index}`}>
                                 <Text style={styles.headerText} numberOfLines={1}>
-                                    {item.StaticText}
-                                    {item?.Required ==1 && <Text style={styles.isRequired}> *</Text>}
+                                    {intInspectionTypeID == 3
+                                        ? item?.PropertyName == 'RevNo' && isSamplePopup
+                                            ? 'Model'
+                                            : item.StaticText
+                                        : item.StaticText}
+                                    {item?.Required == 1 && <Text style={styles.isRequired}> *</Text>}
                                 </Text>
                                 <DynamicFormField
                                     title="Supplier Name"
