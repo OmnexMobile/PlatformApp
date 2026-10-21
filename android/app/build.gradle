@@ -80,11 +80,12 @@ android {
 
     namespace "com.integratedapp"
     defaultConfig {
-        applicationId "com.integratedapp"
+        // applicationId "com.integratedapp"
+        applicationId "com.Omnex.IntegratedApp"   // changed
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 22
-        versionName "2.0.2"
+        versionCode 17   // must be higher than the last version uploaded to Play Console
+        versionName "1.5.0"
           manifestPlaceholders = [
             appAuthRedirectScheme: "com.omnex.IntegratedApp"
         ]
@@ -96,15 +97,23 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+        release {
+            // Values come from gradle.properties (MYAPP_UPLOAD_*)
+            // Keystore file is resolved relative to android/app/
+            if (project.hasProperty('MYAPP_UPLOAD_STORE_FILE')) {
+                storeFile file(MYAPP_UPLOAD_STORE_FILE)
+                storePassword MYAPP_UPLOAD_STORE_PASSWORD
+                keyAlias MYAPP_UPLOAD_KEY_ALIAS
+                keyPassword MYAPP_UPLOAD_KEY_PASSWORD
+            }
+        }
     }
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
         }
         release {
-            // Caution! In production, you need to generate your own keystore file.
-            // see https://reactnative.dev/docs/signed-apk-android.
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
