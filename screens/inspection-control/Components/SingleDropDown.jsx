@@ -22,55 +22,44 @@ const SingleDropDown = ({
     dropdownPosition = 'top',
 }) => {
     const dropdownRef = useRef(null);
-    const isOpen = useRef(false);
-    const searchText = useRef('');
+    const isOpen = useRef(false); // true while the dropdown list is showing
+    const timers = useRef([]);
+
+    // clear any pending timers on unmount
     useEffect(() => {
-        const sub = Keyboard.addListener('keyboardDidHide', () => {
-            if (isOpen.current && dropdownRef.current) {
-                if (Platform.OS !== 'android') return;
-                dropdownRef.current.close();
-                // wait for the modal layout to settle, then reopen so it re-measures
-                setTimeout(() => dropdownRef.current?.open(), 50);
-            }
-        });
-        return () => sub.remove();
+        return () => timers.current.forEach(clearTimeout);
     }, []);
-    // return (
-    //     <View style={[styles.container]}>
-    //         {title !== '' && <Text style={[styles.headerText]}>{title}</Text>}
-    //         <Dropdown
-    //             style={[{
-    //                 backgroundColor: backgroundColor,
-    //                 borderWidth: borderWidth,
-    //                 padding: padding, marginTop: marginTop,
-    //                 borderRadius: borderRadius,
-    //                 borderColor: borderColor,
-    //                 height: 40,
-    //             }]}
-    //             placeholderStyle={styles.placeholderStyle}
-    //             selectedTextStyle={styles.selectedTextStyle}
-    //             inputSearchStyle={styles.inputSearchStyle}
-    //             iconStyle={styles.iconStyle}
-    //             itemTextStyle={styles.itemTextStyle}
-    //             data={data}
-    //             search={showSearch}
-    //             maxHeight={maxHeight}
-    //             labelField="label"
-    //             valueField="value"
-    //             placeholder={placeholder}
-    //             searchPlaceholder="Search..."
-    //             value={value}
-    //             onChange={item => {
-    //                 onChange(item);
-    //             }}
-    //             disable={!editable}
-    //             containerStyle={containerStyle}
-    //             dropdownPosition={dropdownPosition}
-    //         />
-    //     </View>
-    // );
+
+    // Only intercept the tap that OPENS the dropdown while a keyboard is up.
+    // Never intercept taps while the list is already open (search + item selection).
+    const handleTouchCapture = () => {
+        if (!editable || isOpen.current || !Keyboard.isVisible()) {
+            return false;
+        }
+
+        const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+        let opened = false;
+
+        const openOnce = () => {
+            if (opened) return;
+            opened = true;
+            sub.remove();
+            timers.current.push(
+                setTimeout(() => {
+                    dropdownRef.current?.open();
+                }, 250), // tune between 150-350ms if needed
+            );
+        };
+
+        const sub = Keyboard.addListener(hideEvent, openOnce);
+        timers.current.push(setTimeout(openOnce, 700)); // fallback if the event never fires
+
+        Keyboard.dismiss();
+        return true;
+    };
+
     return (
-        <View style={styles.container}>
+        <View style={styles.container} onStartShouldSetResponderCapture={handleTouchCapture}>
             {title !== '' && <Text style={styles.headerText}>{title}</Text>}
             <Dropdown
                 ref={dropdownRef}
@@ -108,12 +97,9 @@ const SingleDropDown = ({
                 disable={!editable}
                 containerStyle={containerStyle}
                 dropdownPosition={dropdownPosition}
-                keyboardAvoiding={true}
+                keyboardAvoiding={showSearch}
                 statusBarIsTranslucent={true}
-                onChangeText={t => {
-                    searchText.current = t;
-                }}
-                flatListProps={{ keyboardShouldPersistTaps: 'handled' }}
+                flatListProps={{ keyboardShouldPersistTaps: 'always' }}
             />
         </View>
     );
@@ -122,6 +108,7 @@ const SingleDropDown = ({
 export default SingleDropDown;
 
 const styles = StyleSheet.create({
+    container: {},
     icon: {
         marginRight: 5,
     },

@@ -1,8 +1,7 @@
 import React, { useCallback } from 'react';
-import { KeyboardAvoidingView, ScrollView, StyleSheet, Text, View, Platform } from 'react-native';
+import { KeyboardAvoidingView, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { COLORS } from 'constants/theme-constants';
 import DynamicFormField from '../DynamicFormField';
-import ListRadioButton from './ListRadioButton';
 
 const GeneralInfo = ({ infoData = {}, setInfoData = () => {}, intInspectionTypeID = '', isSamplePopup = false }) => {
     const handleInputChange = (val, item) => {
@@ -118,6 +117,7 @@ const GeneralInfo = ({ infoData = {}, setInfoData = () => {}, intInspectionTypeI
 const styles = StyleSheet.create({
     scrollContainer: {
         padding: 10,
+        paddingBottom: 150
     },
     rowContainer: {
         flexDirection: 'row',

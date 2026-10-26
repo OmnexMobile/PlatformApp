@@ -204,7 +204,7 @@ const styles = StyleSheet.create({
   },
   topBar: {
     position: 'absolute',
-    top: Platform.OS === 'android' ? StatusBar.currentHeight ?? 24 : 0,
+    top: Platform.OS === 'android' ? StatusBar.currentHeight ?? 24 : 30,
     left: 0,
     right: 0,
     flexDirection: 'row',
