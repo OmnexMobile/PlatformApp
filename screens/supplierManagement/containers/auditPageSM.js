@@ -1570,12 +1570,12 @@ class AuditPage extends Component {
                     console.log('*** path', path);
                     // this.deleteUserFile(path)
                     this.refs.toast.show(strings.user_disabled_text, DURATION.LENGTH_SHORT);
-                   console.log('Your session has expired,Please login again.33333333333333');
+                    console.log('Your session has expired,Please login again.33333333333333');
 
                     this.props.navigation.navigate(ROUTES.GLOBAL_LOGIN);
                 } else if (UserStatus == 0) {
                     Alert.alert('Your session has expired,Please login again.');
-                   console.log('Your session has expired,Please login again.');
+                    console.log('Your session has expired,Please login again.');
 
 
                     this.refs.toast.show(strings.user_inactive_text, DURATION.LENGTH_SHORT);
@@ -3051,7 +3051,8 @@ class AuditPage extends Component {
         ];
         const currentAuditStatus = this.getCurrentAuditCStatus();
         const canShowHeaderActions = !this.state.isLoading && !this.state.isDownloading;
-        const scrollBottomPadding = this.state.isDownloaded ? 170 : 132;
+        const detailData = this.state.auditDetailList;
+        const detailValue = value => (value === null || value === undefined || value === '' ? 'N/A' : value);
         const headerActionButtonStyle = { paddingHorizontal: 8, paddingVertical: 6 };
         const downloadedFooterStyle = [
             styles.footer,
@@ -3121,12 +3122,14 @@ class AuditPage extends Component {
                     <View style={styles.auditPageBody}>
                         <ScrollView
                             style={{ flex: 1 }}
-                            contentContainerStyle={{ paddingBottom: scrollBottomPadding }}
+                            contentContainerStyle={styles.auditDetailsContent}
                             nestedScrollEnabled
                             keyboardShouldPersistTaps="handled"
                             showsVerticalScrollIndicator>
                             {this.state.auditDetailList ? (
-                                <View style={styles.detailsCard}>
+                                <View style={styles.auditDetailsCard}>
+
+                                   
                                     <View style={styles.card1}>
                                         <View style={styles.boxCard1}>
                                             {this.state.smData != 2 && this.state.smData != 3 ? (
@@ -3137,11 +3140,11 @@ class AuditPage extends Component {
                                         </View>
                                         <View style={styles.boxCard2}>
                                             <Text numberOfLines={2} style={styles.detailContent}>
-                                                {this.state.auditDetailList.Auditee}
+                                                {detailValue(detailData.Auditee)}
                                             </Text>
                                         </View>
                                     </View>
-                                    {this.state.smData != 2 ? (
+                                    {this.state.smData != 2 && this.state.smData != 3 ? (
                                         <View style={styles.card}>
                                             <View style={styles.boxCard1}>
                                                 {this.state.smData != 2 && this.state.smData != 3 ? (
@@ -3152,7 +3155,7 @@ class AuditPage extends Component {
                                             </View>
                                             <View style={styles.boxCard2}>
                                                 <Text numberOfLines={2} style={styles.detailContent}>
-                                                    {this.state.auditDetailList.AuditeeContactPersonName}
+                                                    {detailValue(detailData.AuditeeContactPersonName)}
                                                 </Text>
                                             </View>
                                         </View>
@@ -3160,27 +3163,10 @@ class AuditPage extends Component {
 
                                     <View style={styles.card}>
                                         <View style={styles.boxCard1}>
-                                            <Text style={styles.detailTitle}>{strings.Start_date}</Text>
-                                        </View>
-                                        <View style={styles.boxCard2}>
-                                            <Text style={styles.detailContent}>{this.changeDateFormat(this.state.auditDetailList.StartDate)}</Text>
-                                        </View>
-                                    </View>
-
-                                    <View style={styles.card}>
-                                        <View style={styles.boxCard1}>
-                                            <Text style={styles.detailTitle}>{strings.End_date}</Text>
-                                        </View>
-                                        <View style={styles.boxCard2}>
-                                            <Text style={styles.detailContent}>{this.changeDateFormat(this.state.auditDetailList.EndDate)}</Text>
-                                        </View>
-                                    </View>
-                                    <View style={styles.card}>
-                                        <View style={styles.boxCard1}>
                                             <Text style={styles.detailTitle}>{strings.Lead_Auditor}</Text>
                                         </View>
                                         <View style={styles.boxCard2}>
-                                            <Text style={styles.detailContent}>{this.state.auditDetailList.LeadAuditor}</Text>
+                                            <Text style={styles.detailContent}>{detailValue(detailData.LeadAuditor)}</Text>
                                         </View>
                                     </View>
                                     {this.state.auditDetailList.AuditProgramName !== 'LPA' && this.state.smData !== 2 && this.state.smData !== 3 ? (
@@ -3196,15 +3182,7 @@ class AuditPage extends Component {
                                         </View>
                                     ) : null}
 
-                                    <View style={styles.card}>
-                                        <View style={styles.boxCard1}>
-                                            <Text style={styles.detailTitle}>{strings.Audit_Status}</Text>
-                                        </View>
-                                        <View style={styles.boxCard2}>
-                                            {this.displayStatusNew(this.getCurrentAuditCStatus())}
-                                            {/* } */}
-                                        </View>
-                                    </View>
+                                   
 
                                     <View style={styles.card}>
                                         <View style={styles.boxCard1}>
@@ -3215,6 +3193,16 @@ class AuditPage extends Component {
                                                 {this.state.auditDetailList.AuditNumber}
                                             </Text>
                                         </View>
+                                    </View>
+                                     <View style={styles.card}>
+                                        <View style={styles.boxCard1}>
+                                            <Text style={styles.detailTitle}>{strings.Audit_Status}</Text>
+                                        </View>
+                                        <View style={styles.boxCard2}>
+                                            <View style={styles.auditStatusPill}>
+                                                <View style={styles.auditStatusDot} />
+                                                <Text style={styles.auditStatusPillText}>{detailValue(currentAuditStatus)}</Text>
+                                            </View>                                        </View>
                                     </View>
                                     {/* edited for supplier management "Starts"*/}
                                     {this.state.smData == 3 ? (
@@ -3268,33 +3256,27 @@ class AuditPage extends Component {
                                             </View>
                                         </View>
                                     ) : null}
-                                    {(this.state.auditDetailList.AuditProgramName !== 'LPA' && this.state.smData === 2) || this.state.smData === 3 ? (
-                                        <View style={styles.lastCard}>
-                                            <View style={styles.boxCard1}>
-                                                <Text style={styles.detailTitle}>Plant</Text>
-                                            </View>
-                                            <View style={styles.boxCard2}>
-                                                <Text numberOfLines={2} style={styles.detailContent}>
-                                                    {this.props?.route?.params?.datapass?.Plant !== '' &&
-                                                    this.props?.route?.params?.datapass?.Plant !== undefined
-                                                        ? this.props?.route?.params?.datapass?.Plant
-                                                        : 'N/A'}
-                                                </Text>
-                                            </View>
+                                     <View style={styles.auditSplitCard}>
+                                        <View style={styles.auditSplitCell}>
+                                            <Text style={styles.detailTitle}>{strings.Start_date}</Text>
+                                            <Text style={styles.detailContent}>{this.changeDateFormat(detailData.StartDate)}</Text>
                                         </View>
-                                    ) : null}
+                                        <View style={styles.auditSplitDivider} />
+                                        <View style={styles.auditSplitCell}>
+                                            <Text style={styles.detailTitle}>{strings.End_date}</Text>
+                                            <Text style={styles.detailContent}>{this.changeDateFormat(detailData.EndDate)}</Text>
+                                        </View>
+                                    </View>
                                     {(this.state.auditDetailList.AuditProgramName !== 'LPA' && this.state.smData === 2) || this.state.smData === 3 ? (
-                                        <View style={styles.lastCard}>
-                                            <View style={styles.boxCard1}>
-                                                <Text style={styles.detailTitle}>Part</Text>
+                                        <View style={styles.auditSplitCard}>
+                                            <View style={styles.auditSplitCell}>
+                                                <Text style={styles.detailTitle}>Plant</Text>
+                                                <Text numberOfLines={2} style={styles.detailContent}>{detailValue(this.props?.route?.params?.datapass?.Plant)}</Text>
                                             </View>
-                                            <View style={styles.boxCard2}>
-                                                <Text numberOfLines={2} style={styles.detailContent}>
-                                                    {this.props?.route?.params?.datapass?.Part !== '' &&
-                                                    this.props?.route?.params?.datapass?.Part !== undefined
-                                                        ? this.props?.route?.params?.datapass?.Part
-                                                        : 'N/A'}
-                                                </Text>
+                                            <View style={styles.auditSplitDivider} />
+                                            <View style={styles.auditSplitCell}>
+                                                <Text style={styles.detailTitle}>Part</Text>
+                                                <Text numberOfLines={2} style={styles.detailContent}>{detailValue(this.props?.route?.params?.datapass?.Part)}</Text>
                                             </View>
                                         </View>
                                     ) : null}
@@ -3324,9 +3306,9 @@ class AuditPage extends Component {
                                         </View>
                                     ) : null}
                                     {this.state.smData != 2 &&
-                                    this.state.smData != 3 &&
-                                    this.state.AuditProp.ReportId != 10 &&
-                                    this.state.auditDetailList.AuditProgramName !== 'LPA' ? (
+                                        this.state.smData != 3 &&
+                                        this.state.AuditProp.ReportId != 10 &&
+                                        this.state.auditDetailList.AuditProgramName !== 'LPA' ? (
                                         <View style={styles.lastCard}>
                                             <View style={styles.boxCard1}>
                                                 <Text style={styles.detailTitle}>{'Audit Agenda'}</Text>
@@ -3411,8 +3393,8 @@ class AuditPage extends Component {
                             {!this.state.isDownloading ? (
                                 <View style={styles.footerDivContent}>
                                     {this.state.checkSync === true ||
-                                    currentAuditStatus == constant.StatusSynced ||
-                                    currentAuditStatus == constant.StatusCompleted ? (
+                                        currentAuditStatus == constant.StatusSynced ||
+                                        currentAuditStatus == constant.StatusCompleted ? (
                                         <View style={{ width: '25%' }}>
                                             <TouchableOpacity
                                                 onPress={this.onNavigateTo.bind(this, 4)}
@@ -3441,12 +3423,12 @@ class AuditPage extends Component {
                                     <View
                                         style={
                                             this.state.checkSync === true ||
-                                            currentAuditStatus == constant.StatusSynced ||
-                                            currentAuditStatus == constant.StatusCompleted
+                                                currentAuditStatus == constant.StatusSynced ||
+                                                currentAuditStatus == constant.StatusCompleted
                                                 ? { width: '25%' }
                                                 : {
-                                                      width: this.state.auditDetailList.AuditProgramName !== 'LPA' ? '28%' : '30%',
-                                                  }
+                                                    width: this.state.auditDetailList.AuditProgramName !== 'LPA' ? '28%' : '30%',
+                                                }
                                         }>
                                         <TouchableOpacity onPress={this.onNavigateTo.bind(this, 2)} style={{ alignItems: 'center' }}>
                                             {/* <ResponsiveImage source={Images.BTN2} initWidth="26" initHeight="25"/> */}

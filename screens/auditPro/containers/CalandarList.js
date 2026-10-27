@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, ImageBackground, TouchableOpacity, Text, Platform, Alert } from 'react-native';
+import { View, ImageBackground, StyleSheet, TouchableOpacity, Text, Platform, Alert } from 'react-native';
 //styles
 import styles from '../styles/CalandarListStyle';
 //components
@@ -12,7 +12,7 @@ import { connect } from 'react-redux';
 import NetInfo from '@react-native-community/netinfo';
 //assets
 import { Images, Fonts } from '../Themes';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import Icon from 'react-native-vector-icons/Feather';
 //services
 import auth from '../../../services/Auditpro-Auth';
 //strings
@@ -89,6 +89,7 @@ class CalandarList extends Component {
   constructor(props) {
     super(props);
     this.multiperiods = {};
+    const currentMonth = Moment();
     this.state = {
       loader: true,
       error: false,
@@ -100,11 +101,49 @@ class CalandarList extends Component {
       start: '',
       end: '',
       month_change: '',
-      monthValue: '01',
-      yearValue: '2025',
+      monthValue: currentMonth.format('MM'),
+      yearValue: currentMonth.format('YYYY'),
       calendarupdateKey: ''
     };
   }
+
+  moveMonth = amount => {
+    const nextMonth = Moment(`${this.state.yearValue}-${this.state.monthValue}-01`).add(amount, 'month');
+    console.log('nextMonth', nextMonth.format('MM'), nextMonth.format('YYYY'));
+    this.setState({
+      monthValue: nextMonth.format('MM'),
+      yearValue: nextMonth.format('YYYY'),
+      calendarupdateKey: `${nextMonth.format('YYYY-MM')}-${Date.now()}`,
+    });
+  };
+
+  renderDatePicker = (label, data, value, iconName, onChange) => (
+    <View style={styles.datePickerCard}>
+      <Icon name={iconName} size={30} color="#5D6F8B" />
+      <View style={styles.datePickerTextWrap}>
+        <Text style={styles.datePickerLabel}>{label}</Text>
+        <View style={styles.datePickerDropdown}>
+          <Text style={styles.datePickerValue}>{data.find(item => item.value === value)?.label || value}</Text>
+          <Icon name="chevron-down" size={22} color="#64748B" />
+          <Dropdown
+            key={`${label}-${value}`}
+            style={[StyleSheet.absoluteFillObject, { opacity: 0 }]}
+            placeholder={data.find(item => item.value === value)?.label || value}
+            placeholderStyle={styles.datePickerValue}
+            selectedTextStyle={styles.datePickerValue}
+            itemTextStyle={styles.datePickerItem}
+            data={data}
+            maxHeight={300}
+            labelField="label"
+            valueField="value"
+            value={value}
+            renderRightIcon={() => <View />}
+            onChange={onChange}
+          />
+        </View>
+      </View>
+    </View>
+  );
 
   componentDidMount() {
     if (this.props.data.audits.language === 'Chinese') {
@@ -485,87 +524,13 @@ class CalandarList extends Component {
           onRightPress={() => this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD)}
         />
         {/* <View style={{alignItems:"center",margin:5}}><Text style={{color:"red"}}>{"Note: Please select month and year to update"}</Text></View> */}
-        <View
-          style={{
-            flexDirection: 'row',
-            width: '100%',
-            alignContent: 'center',
-            alignItems: 'center',
-            alignSelf: 'center',
-            justifyContent: 'center', marginTop: '2%'
-          }}>
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: '40%',
-              borderRadius: 10, borderColor: "#20b1d2", borderWidth: 2
-            }}>
-            <View style={{}}>
-              <Text style={{ fontWeight: 'bold', color: 'black' }}>Month</Text>
-            </View>
-            <View style={{ marginLeft: '5%', width: '50%' }}>
-              <Dropdown
-                style={styles.dropdown}
-                placeholderStyle={{ color: 'black' }}
-                selectedTextStyle={{ color: 'black' }}
-                itemTextStyle={{ color: 'black' }}
-                inputSearchStyle={styles.inputSearchStyle}
-                iconStyle={styles.iconStyle}
-                data={monthList}
-                // search
-                maxHeight={300}
-                labelField="label"
-                valueField="value"
-                placeholder="Month"
-                // searchPlaceholder="Search..."
-                color='black'
-                value={this.state.monthValue}
-                onChange={item => {
-                  console.log('mmm2@@@@@@@@', item);
-                  this.setState({ monthValue: item.value });
-                  this.calendarUpdate(item.value)
-                }}
-              />
-            </View>
-          </View>
-          <View style={{ width: '2%' }}></View>
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: '40%',
-              borderRadius: 10, borderColor: '#20b1d2', borderWidth: 2
-            }}>
-            <View style={{}}>
-              <Text style={{ fontWeight: 'bold', color: 'black' }}>Year</Text>
-            </View>
-            <View style={{ marginLeft: '5%', width: '60%' }}>
-              <Dropdown
-                style={styles.dropdown}
-                placeholderStyle={{ color: 'black' }}
-                selectedTextStyle={{ color: 'black' }}
-                itemTextStyle={{ color: 'black' }}
-                inputSearchStyle={styles.inputSearchStyle}
-                iconStyle={styles.iconStyle}
-                data={yearList}
-                // search
-                maxHeight={300}
-                labelField="label"
-                valueField="value"
-                placeholder="Year"
-                // searchPlaceholder="Search..."
-                value={this.state.yearValue}
-                onChange={item => {
-                  this.setState({ yearValue: item.value });
-                  this.calendarUpdate(item.value)
-
-                }}
-              />
-            </View>
-          </View>
+        <View style={styles.datePickersRow}>
+          {this.renderDatePicker('Month', monthList, this.state.monthValue, 'calendar', item => {
+            this.setState({ monthValue: item.value, calendarupdateKey: `${this.state.yearValue}-${item.value}-${Date.now()}` });
+          })}
+          {this.renderDatePicker('Year', yearList, this.state.yearValue, 'calendar', item => {
+            this.setState({ yearValue: this.state.yearValue, calendarupdateKey: `${item.value}-${this.state.monthValue}-${Date.now()}` });
+          })}
         </View>
         {this.state.loader ? (
           <View style={styles.wrapper}>
@@ -592,26 +557,70 @@ class CalandarList extends Component {
   }
 
   renderCalandar() {
-    console.log('xxxxxx!!!!!!!!!!!!222', this.state.yearValue);
+    const currentMonth = Moment(`${this.state.yearValue}-${this.state.monthValue}-01`, 'YYYY-MM-DD', true);
+    const displayDate = currentMonth.format('ddd, DD MMM YYYY');
     return (
-      <View style={{ padding: 5 }}>
+      <View style={styles.calendarCard}>
+        <View style={styles.calendarDateHeader}>
+          <TouchableOpacity style={styles.calendarArrowButton} onPress={() => this.moveMonth(-1)} accessibilityLabel="Previous month">
+            <Icon name="chevron-left" size={25} color="#1455BC" />
+          </TouchableOpacity>
+          <View style={styles.calendarDateTitle}>
+            <Icon name="calendar" size={28} color="#5D6F8B" />
+            <Text style={styles.calendarDateText}>{displayDate}</Text>
+          </View>
+          <TouchableOpacity style={styles.calendarArrowButton} onPress={() => this.moveMonth(1)} accessibilityLabel="Next month">
+            <Icon name="chevron-right" size={25} color="#1455BC" />
+          </TouchableOpacity>
+        </View>
         <Calendar
           style={styles.calendar}
           key={this.state.calendarupdateKey}
           current={`${this.state.yearValue}-${this.state.monthValue}-01`}
-          onDayPress={day => {
-            this.OnCalenderFilter(day);
-          }}
+          onDayPress={day => this.OnCalenderFilter(day)}
           markedDates={this.state.calendarPeriods}
           markingType="multi-period"
-          hideArrows={false}
-          onMonthChange={month => {
-            console.log('month changed', month);
-          }}
+          hideArrows
+          hideExtraDays={false}
+          firstDay={0}
           theme={{
+            calendarBackground: 'transparent',
             textDayFontFamily: 'OpenSans-Regular',
-            textMonthFontFamily: 'OpenSans-Regular',
-            textDayHeaderFontFamily: 'OpenSans-Regular',
+            textMonthFontFamily: 'OpenSans-SemiBold',
+            textDayHeaderFontFamily: 'OpenSans-SemiBold',
+            textDayHeaderFontSize: 15,
+            textDayHeaderFontWeight: '600',
+            textSectionTitleColor: '#647895',
+            dayTextColor: '#102344',
+            textDisabledColor: '#BBC5D5',
+            todayTextColor: '#0875EF',
+            monthTextColor: 'transparent',
+            arrowColor: '#1455BC',
+            'stylesheet.calendar.header': {
+              header: { height: 0, opacity: 0 },
+              week: {
+                marginTop: 4,
+                flexDirection: 'row',
+                justifyContent: 'space-around',
+                backgroundColor: '#F2F6FC',
+                borderRadius: 20,
+                paddingVertical: 12,
+              },
+            },
+            'stylesheet.day.basic': {
+              base: {
+                width: 42,
+                height: 42,
+                alignItems: 'center',
+                justifyContent: 'center',
+              },
+              text: {
+                marginTop: 4,
+                fontSize: 17,
+                fontFamily: 'OpenSans-SemiBold',
+                color: '#102344',
+              },
+            },
           }}
         />
       </View>
@@ -658,7 +667,7 @@ class CalandarList extends Component {
           {
             startingDay: this.state.startDate === '' ? true : false,
             endingDay: this.state.startDate === '' ? false : true,
-            color: '#2DDFBF',
+            color: '#DCEBFF',
           },
         ],
       },

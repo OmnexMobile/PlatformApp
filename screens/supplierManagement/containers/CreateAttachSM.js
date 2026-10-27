@@ -6,6 +6,7 @@ import {
     Image,
     TouchableOpacity,
     Dimensions,
+    SafeAreaView,
     ScrollView,
     FlatList,
     Button,
@@ -172,8 +173,7 @@ class CreateAttach extends React.Component {
     }
 
     FormType() {
-        var Type = [];
-        Type.push(
+        const Type = [
             {
                 value: 'Attachment',
                 id: 1,
@@ -182,7 +182,8 @@ class CreateAttach extends React.Component {
                 value: 'Link',
                 id: 2,
             },
-        );
+            
+        ];
         this.setState({ attachType: Type }, () => {});
     }
 
@@ -800,7 +801,9 @@ class CreateAttach extends React.Component {
                     // rightIconColor="#fff"
                 />
                 {/** ---------------------- */}
-                <View style={styles.auditPageBody}>
+                <SafeAreaView style={styles.createAttachmentSafeArea}>
+                    <ScrollView contentContainerStyle={styles.createAttachmentScrollContent} keyboardShouldPersistTaps="handled">
+                        <View style={styles.auditPageBody}>
                     {this.state.EditFlag === true ? (
                         <View style={styles.manFields}>
                             <View style={styles.attachTypeSection}>
@@ -815,31 +818,43 @@ class CreateAttach extends React.Component {
                             </View>
                         </View>
                     ) : (
-                        <View style={styles.manFields}>
-                            <View style={styles.attachTypeSection}>
+                        <View style={styles.createAttachmentFields}>
+                            <View style={styles.createAttachmentSectionHeading}>
+                                    <View style={styles.createAttachmentSectionAccent} />
+                                    <Text style={styles.createAttachmentSectionTitle}>ATTACHMENT DETAILS</Text>
+                                <View style={styles.createAttachmentSectionRule} />
+                            </View>
+                            <View style={styles.createAttachmentFieldGroup}>
+                                <View style={styles.requiredLabelRow}>
+                                    <Text style={styles.createAttachmentLabel}>{strings.Select_item}</Text>
+                                    <Text style={styles.requiredAsteriskText}>*</Text>
+                                </View>
                                 <Dropdown
-                                    style={[styles.dropdownInput, dropdownBorderStyle]}
-                                    placeholderStyle={styles.dropdownPlaceholderStyle}
-                                    placeholder={
-                                        <Text>
-                                            <Text>{strings.Select_item}</Text>
-                                            <Text style={styles.requiredAsteriskColor}> *</Text>
-                                        </Text>
-                                    }
-                                    selectedTextStyle={styles.dropdownSelectedTextStyle}
-                                    containerStyle={dropdownContainerBackground}
+                                    style={styles.createAttachmentDropdown}
+                                    placeholderStyle={styles.createAttachmentPlaceholder}
+                                    placeholder={'Choose an item'}
+                                    selectedTextStyle={styles.createAttachmentSelectedText}
                                     data={attach}
                                     label={strings.DropType}
                                     value={this.state.attachText}
                                     fontSize={Fonts.size.regular}
                                     labelFontSize={Fonts.size.small}
                                     baseColor={'#A6A6A6'}
-                                    selectedItemColor={textColor}
+                                    selectedItemColor={'#123C95'}
                                     textColor={textColor}
                                     itemColor={textColor}
+                                    activeColor="#EDF4FF"
+                                    containerStyle={[styles.createAttachmentDropdownMenu, dropdownContainerBackground]}
+                                    itemContainerStyle={styles.createAttachmentDropdownItem}
                                     labelField="value"
                                     valueField="value"
-                                    itemPadding={5}
+                                    renderRightIcon={() => <Icon name="chevron-down" size={24} color="#1F56C5" />}
+                                    renderItem={(item, selected) => (
+                                        <View style={[styles.createAttachmentDropdownRow, selected && styles.createAttachmentDropdownRowSelected]}>
+                                            <Text style={styles.createAttachmentDropdownItemText}>{item.value}</Text>
+                                            {selected ? <Icon name="check" size={22} color="#0875EF" /> : null}
+                                        </View>
+                                    )}
                                     dropdownOffset={{ top: 10, left: 0 }}
                                     itemTextStyle={[styles.dropdownItemTextStyle, themedTextStyle]}
                                     onChange={text => {
@@ -860,95 +875,54 @@ class CreateAttach extends React.Component {
                         </View>
                     )}
 
-                    {this.state.ShowTypeDiv === true ? (
-                        <View style={styles.manFields}>
-                            {this.state.TypeID === 1 ? (
-                                <TouchableOpacity
-                                    style={styles.div01}
-                                    onPress={
-                                        this.state.isControllAttach === true
-                                            ? () => {
-                                                  this.refs.toast.show(strings.NavErr, DURATION.LENGTH_SHORT);
-                                              }
-                                            : () => {
-                                                  // iPhone/Android
-                                                  this.handleDocumentSelection();
-                                              }
-                                    }>
-                                    {this.state.isControllAttach === true ? (
-                                        <View style={styles.attachmentFieldContainer}>
-                                            <Text style={[styles.attachmentFieldLabel, themedTextStyle]}>{strings.Attach_EvidenceL}</Text>
-                                            <Text style={[styles.attachmentFieldValue, themedTextStyle]} numberOfLines={1}>
-                                                {this.state.attachment}
-                                            </Text>
-                                            {this.state.isErrorFound && this.state.attachment == '' ? (
-                                                <Text style={styles.attachmentMissingText}>{strings.AttachMissing} </Text>
-                                            ) : null}
-                                        </View>
-                                    ) : (
-                                        <View style={styles.attachmentFieldContainer}>
-                                            <View style={styles.requiredLabelRow}>
-                                                <Text style={styles.requiredLabelText}>{strings.Attach_EvidenceL}</Text>
-                                                <Text style={styles.requiredAsteriskNoMargin}>{'*'}</Text>
-                                            </View>
-
-                                            {this.state.attachText === 'Link' ? (
-                                                <TextInput style={[styles.attachmentTextValueInput, themedTextStyle]} numberOfLines={1}>
-                                                    {this.state.uncontrolledLink}
-                                                </TextInput>
-                                            ) : (
-                                                <Text style={[styles.attachmentTextValueInput, themedTextStyle]} numberOfLines={1}>
-                                                    {this.state.attachment}
-                                                </Text>
-                                            )}
-                                            {this.state.isErrorFound && this.state.attachment == '' ? (
-                                                <Text style={styles.attachmentMissingBottomText}>{strings.AttachMissing} </Text>
-                                            ) : null}
-                                        </View>
-                                    )}
-
-                                    <View style={styles.check}>
-                                        {this.state.attachText == 'Link' ? null : (
-                                            <Icon style={styles.editIconSmallOffset} name="paperclip" size={20} color="#123C95" />
-                                        )}
+                    {this.state.ShowTypeDiv === true && this.state.TypeID === 1 && this.state.isControllAttach !== true ? (
+                        <View style={styles.createAttachmentFields}>
+                            <View style={styles.createAttachmentFieldGroup}>
+                                <View style={styles.requiredLabelRow}>
+                                    <Text style={styles.createAttachmentLabel}>{strings.Attach_EvidenceL}</Text>
+                                    <Text style={styles.requiredAsteriskText}>*</Text>
+                                </View>
+                                <TouchableOpacity style={styles.createAttachmentUploadCard} onPress={this.handleDocumentSelection} activeOpacity={0.75}>
+                                    <Icon name="paperclip" size={24} color="#3471D3" style={styles.createAttachmentUploadLeadingIcon} />
+                                    <Text style={styles.createAttachmentUploadText} numberOfLines={1}>
+                                        {this.state.attachment || 'Tap to add file or drag and drop'}
+                                    </Text>
+                                    <View style={styles.createAttachmentUploadIconBox}>
+                                        <Icon name="paperclip" size={26} color="#0875EF" />
                                     </View>
                                 </TouchableOpacity>
-                            ) : (
-                                <View style={styles.manFields}>
-                                    <View style={styles.linkInputSection}>
-                                        <View>
-                                            <TextInput
-                                                style={[styles.linkTextInput, themedTextStyle]}
-                                                value={this.state.attachment}
-                                                //placeholder={strings.UncontrolledLink}
-                                                //fontSize={Fonts.size.h6}
-                                                onChangeText={text =>
-                                                    this.setState({ attachment: text }, () => {
-                                                        console.log('printing', this.state.attachment);
-                                                    })
-                                                }
-                                                onBlur={() => {
-                                                    console.log('this.state.AppreciableComments', this.state.attachment);
-                                                }}
-                                            />
-                                            {this.state.isErrorFound && (this.state.attachment == '' || this.state.isUrlInValid) ? (
-                                                <Text
-                                                    style={[styles.urlMissingText, Platform.OS === 'android' ? styles.urlMissingTextAndroid : null]}>
-                                                    {strings.UrlMissing}{' '}
-                                                </Text>
-                                            ) : null}
-                                        </View>
-                                    </View>
-                                    <View style={styles.check}>
-                                        <Text style={styles.requiredAsteriskNoMargin}>{'*'}</Text>
-                                        <Icon style={styles.editIconSmallOffset} name="edit" size={20} color="#123C95" />
-                                    </View>
-                                </View>
-                            )}
+                                {this.state.isErrorFound && this.state.attachment === '' ? (
+                                    <Text style={styles.typeMissingText}>{strings.AttachMissing}</Text>
+                                ) : null}
+                            </View>
                         </View>
-                    ) : (
-                        <View></View>
-                    )}
+                    ) : null}
+
+                    {this.state.ShowTypeDiv === true && this.state.TypeID === 2 && this.state.isControllAttach !== true ? (
+                        <View style={styles.createAttachmentFields}>
+                            <View style={styles.createAttachmentFieldGroup}>
+                                <View style={styles.requiredLabelRow}>
+                                    <Text style={styles.createAttachmentLabel}>Link</Text>
+                                    <Text style={styles.requiredAsteriskText}>*</Text>
+                                </View>
+                                <View style={styles.createAttachmentUrlCard}>
+                                    <Icon name="link" size={24} color="#8090AA" style={styles.createAttachmentCommentIcon} />
+                                    <TextInput
+                                        style={[styles.createAttachmentUrlInput, themedTextStyle]}
+                                        value={this.state.attachment}
+                                        placeholder="Enter URL or link"
+                                        placeholderTextColor="#8A99B2"
+                                        autoCapitalize="none"
+                                        keyboardType="url"
+                                        onChangeText={text => this.setState({ attachment: text })}
+                                    />
+                                </View>
+                                {this.state.isErrorFound && (this.state.attachment === '' || this.state.isUrlInValid) ? (
+                                    <Text style={styles.typeMissingText}>{strings.UrlMissing}</Text>
+                                ) : null}
+                            </View>
+                        </View>
+                    ) : null}
 
                     {this.state.isControllAttach === true ? (
                         <View style={styles.manFields}>
@@ -983,40 +957,29 @@ class CreateAttach extends React.Component {
                             </View>
                         </View>
                     ) : (
-                        <View style={styles.manFields}>
-                            <View style={styles.commentSectionContainer}>
-                                {this.state.comments != '' || this.state.comments == '' ? (
-                                    <View style={styles.boxCard}>
-                                        <View style={styles.requiredLabelRow}>
-                                            <Text style={styles.requiredLabelText}>{strings.AttachComments}</Text>
-                                            <Text style={styles.requiredAsteriskText}>{'*'}</Text>
-                                        </View>
-
-                                        <View style={styles.check1}>
-                                            <Icon style={styles.editIconCommentsAlt} name="edit" size={20} color="#123C95" />
-                                        </View>
-                                    </View>
+                        <View style={styles.createAttachmentFields}>
+                            <View style={[styles.createAttachmentFieldGroup, { marginTop: this.state.TypeID === 2 || this.state.TypeID === 1 ? 8 : 0 }]}>
+                                <View style={styles.requiredLabelRow}>
+                                    <Text style={styles.createAttachmentLabel}>{strings.AttachComments}</Text>
+                                    <Text style={styles.requiredAsteriskText}>*</Text>
+                                </View>
+                                <View style={styles.createAttachmentCommentCard}>
+                                    <Icon name="edit-2" size={22} color="#8090AA" style={styles.createAttachmentCommentIcon} />
+                                    <TextInput
+                                        style={[styles.createAttachmentCommentInput, themedTextStyle]}
+                                        value={this.state.comments === null || this.state.comments == 'null' ? '' : this.state.comments}
+                                        placeholder="Add your comments..."
+                                        placeholderTextColor="#8A99B2"
+                                        multiline
+                                        textAlignVertical="top"
+                                        maxLength={this.state.TypeID === 1 || this.state.TypeID === 2 ? 500 : undefined}
+                                        onChangeText={text => this.setState({ comments: text })}
+                                        returnKeyType="default"
+                                    />
+                                </View>
+                                {this.state.TypeID === 1 || this.state.TypeID === 2 ? (
+                                    <Text style={styles.createAttachmentCharacterCount}>{(this.state.comments || '').length}/500</Text>
                                 ) : null}
-                                <TextInput
-                                    style={[
-                                        styles.commentInputTextEditable,
-                                        themedTextStyle,
-                                        Platform.OS === 'ios' ? styles.commentInputTextEditableIOS : null,
-                                    ]}
-                                    value={this.state.comments === null || this.state.comments == 'null' ? '' : this.state.comments}
-                                    //placeholder={strings.AttachComments}
-                                    fontSize={Fonts.size.regular}
-                                    // onBlur={() => Keyboard.dismiss()}
-                                    onChangeText={text =>
-                                        this.setState({ comments: text }, () => {
-                                            console.log('printing');
-                                        })
-                                    }
-                                    onBlur={() => {
-                                        console.log('this.state.comments', this.state.comments);
-                                    }}
-                                    returnKeyType="default"
-                                />
 
                                 {this.state.commentFlag == false && this.state.comments == '' ? (
                                     <Text style={[styles.commentErrorText, Platform.OS === 'android' ? styles.commentErrorTextAndroid : null]}>
@@ -1048,7 +1011,19 @@ class CreateAttach extends React.Component {
                     ) : null}
 
                     <View></View>
-                </View>
+                        </View>
+                    </ScrollView>
+                    {this.props.route?.params?.Type !== 'Edit' ? (
+                        <TouchableOpacity
+                            style={styles.createAttachmentSaveButton}
+                            disabled={this.state.saveLoader}
+                            onPress={debounce(this.onSave.bind(this), 1000)}>
+                            {this.state.saveLoader ? <ActivityIndicator size="small" color="#fff" /> : <Icon name="save" size={25} color="white" />}
+                            <View style={styles.createAttachmentSaveDivider} />
+                            <Text style={styles.createAttachmentSaveText}>Save attachment</Text>
+                        </TouchableOpacity>
+                    ) : null}
+                </SafeAreaView>
 
                 {/** Floating Delete FAB (Edit mode only) */}
                 {this.props.route?.params?.Type == 'Edit' ? (
@@ -1064,12 +1039,14 @@ class CreateAttach extends React.Component {
                 ) : null}
 
                 {/** Floating Save FAB */}
-                <TouchableOpacity
-                    style={[styles.floatingSaveButton, Platform.OS === 'ios' ? styles.floatingButtonIOSOffset : styles.floatingButtonAndroidOffset]}
-                    disabled={this.state.saveLoader}
-                    onPress={debounce(this.onSave.bind(this), 1000)}>
-                    {this.state.saveLoader ? <ActivityIndicator size="small" color="#fff" /> : <Icon name="save" size={25} color="white" />}
-                </TouchableOpacity>
+                {this.props.route?.params?.Type === 'Edit' ? (
+                    <TouchableOpacity
+                        style={[styles.floatingSaveButton, Platform.OS === 'ios' ? styles.floatingButtonIOSOffset : styles.floatingButtonAndroidOffset]}
+                        disabled={this.state.saveLoader}
+                        onPress={debounce(this.onSave.bind(this), 1000)}>
+                        {this.state.saveLoader ? <ActivityIndicator size="small" color="#fff" /> : <Icon name="save" size={25} color="white" />}
+                    </TouchableOpacity>
+                ) : null}
 
                 <CommonAlertModal
                     visible={this.state.dialogVisible}

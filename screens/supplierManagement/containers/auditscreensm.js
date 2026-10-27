@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { ActivityIndicator, FlatList, Image, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, FlatList, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { connect } from 'react-redux';
 import NetInfo from '@react-native-community/netinfo';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -9,7 +9,7 @@ import constant from '../../../constants/SupplierMgnt/AppConstants';
 import styles from '../../auditPro/styles/AuditDashboardListingStyle';
 import AuditCardSM from '../../auditPro/components/AuditCardSM';
 import OfflineNotice from '../../auditPro/components/OfflineNotice';
-import { NoRecordFound } from 'components';
+import { ListCard, NoRecordFound } from 'components';
 import GlobalHeader from 'components/GlobalHeader';
 import { ROUTES } from 'constants/app-constant';
 import { ThemeContext } from 'theme/ThemeProvider';
@@ -18,11 +18,59 @@ import API_URL from 'global/ApiUrl';
 import { postAPI } from 'global/api-helpers';
 import { IMAGES } from 'assets/images';
 import AuditCardApqp from 'screens/auditPro/components/AuditCardApqp';
+import { APP_VARIABLES, LOCAL_STORAGE_VARIABLES } from 'constants/app-constant';
+
+const problemSolverListStyles = StyleSheet.create({
+    container: {
+        backgroundColor: '#F7F9FC',
+        paddingTop: 20,
+        paddingBottom: 88,
+    },
+    title: {
+        color: '#4A4A4A',
+        fontSize: 24,
+        fontWeight: '700',
+        textAlign: 'center',
+        paddingVertical: 18,
+        borderBottomWidth: 1,
+        borderBottomColor: '#E8EDF3',
+        marginBottom: 14,
+    },
+    search: {
+        minHeight: 64,
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 22,
+        marginHorizontal: 18,
+        marginBottom: 20,
+        backgroundColor: '#fff',
+        borderRadius: 16,
+    },
+    searchInput: {
+        flex: 1,
+        fontSize: 18,
+        fontWeight: '600',
+        paddingLeft: 16,
+        color: '#24344D',
+    },
+    fab: {
+        position: 'absolute',
+        right: 20,
+        bottom: 22,
+        width: 72,
+        height: 72,
+        borderRadius: 36,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#16449B',
+        elevation: 8,
+    },
+});
 
 class AuditScreenSM extends Component {
     static contextType = ThemeContext;
 
-    state = { audits: [], loading: true, error: false, selectedModule: null };
+    state = { audits: [], loading: true, error: false, selectedModule: null, concernSearch: '' };
 
     componentDidMount() {
         this.loadAudits();
@@ -35,6 +83,10 @@ class AuditScreenSM extends Component {
         // React Navigation reuses this screen after Filter apply, so reload when
         // its filter payload changes instead of waiting for a new mount.
         if (previousFilter !== currentFilter) {
+            if (this.clearingFilters) {
+                this.clearingFilters = false;
+                return;
+            }
             this.loadAudits();
         }
     }
@@ -131,7 +183,7 @@ class AuditScreenSM extends Component {
                 recordType: 'apqp',
             }));
 
-        const concernRecords = await this.getConcernList(userId, siteId, startDate, endDate);
+        const concernRecords = await this.getConcernList(userId, siteId, startDate, endDate, clearDateFilter);
         const concernListRecords = concernRecords.map((record, index) => ({
                 ...record,
                 key: `concern-${record.ConcernID || record.ConcernId || record.ConcernNo || index}`,
@@ -156,21 +208,40 @@ class AuditScreenSM extends Component {
         });
     };
 
-    getConcernList = async (userId, siteId, startDate, endDate) => {
-        const formData = new FormData();
-        formData.append('UserId', userId);
-        formData.append('SiteId', siteId);
-        formData.append('maxrow', 500);
+    getConcernList = async (userId, siteId, startDate, endDate, clearDateFilter = false) => {
+        // Filtered concerns use the date endpoint. Clear returns to the full
+        // Problem Solver list, matching list-screen-functional's GET_LIST call.
+        if (clearDateFilter) {
+            const listFormData = new FormData();
+            listFormData.append(LOCAL_STORAGE_VARIABLES.UserId, String(userId));
+            listFormData.append(LOCAL_STORAGE_VARIABLES.SiteId, String(siteId));
+            listFormData.append(APP_VARIABLES.CONCERN_STATUS_ID, '0');
+            listFormData.append(APP_VARIABLES.MAX_ROW, '500');
+            try {
+                const response = await postAPI(API_URL.GET_LIST, listFormData);
+                const payload = response?.data || response;
+                const data = payload?.Data || payload?.data?.Data || payload?.response?.Data;
+                return Array.isArray(data) ? data : [];
+            } catch (error) {
+                return [];
+            }
+        }
+
         // The date endpoint requires a complete range. With no active date
         // filter, use today's date for both bounds (same behavior as the
         // Problem Solver daily list).
         const today = new Date();
         const concernDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-        formData.append('fromdate', startDate || endDate || concernDate);
-        formData.append('todate', endDate || startDate || concernDate);
+        const filteredFormData = new FormData();
+        filteredFormData.append('UserId', String(userId));
+        filteredFormData.append('SiteId', String(siteId));
+        filteredFormData.append('maxrow', '500');
+        filteredFormData.append('fromdate', startDate || endDate || concernDate);
+        filteredFormData.append('todate', endDate || startDate || concernDate);
+        filteredFormData.append('ConcernStatusID', '0');
 
         try {
-            const response = await postAPI(API_URL.CONCERN_LIST_FILTERED_BY_DATE, formData);
+            const response = await postAPI(API_URL.CONCERN_LIST_FILTERED_BY_DATE, filteredFormData);
             const payload = response?.data || response;
             const data = payload?.Data || payload?.data?.Data || payload?.response?.Data;
             return Array.isArray(data) ? data : [];
@@ -242,7 +313,13 @@ class AuditScreenSM extends Component {
         });
     };
 
-    clearFilters = () => this.loadAudits(true);
+    // clearFilters = () => {
+    //     if (this.props?.route?.params?.filter_Arr) {
+    //         this.clearingFilters = true;
+    //         this.props.navigation.setParams({ filter_Arr: undefined });
+    //     }
+    //     this.loadAudits(true);
+    // };
 
     getModuleCards = () => [
         { id: 'auditpro', title: 'Audit Pro', subtitle: 'Total Audits', data: this.state.auditProRecords || [], image: IMAGES.auditpro_logo },
@@ -268,13 +345,41 @@ class AuditScreenSM extends Component {
             </TouchableOpacity>
             {this.state.selectedModule === item.id && (
                 <View style={{ marginHorizontal: 12, marginBottom: 8 }}>
-                    {item.data.length ? item.data.map((record, index) => (
-                        <View key={record.key || `${item.id}-${index}`}>{this.renderListItem({ item: record, index })}</View>
-                    )) : <NoRecordFound />}
+                    {item.id === 'problemSolver' ? this.renderProblemSolverList(item.data) : (
+                        item.data.length ? item.data.map((record, index) => (
+                            <View key={record.key || `${item.id}-${index}`}>{this.renderListItem({ item: record, index })}</View>
+                        )) : <NoRecordFound />
+                    )}
                 </View>
             )}
         </View>
     );
+
+    renderProblemSolverList = records => {
+        const filteredRecords = (records || []).filter(record => {
+            const query = this.state.concernSearch.trim().toLowerCase();
+            if (!query) return true;
+            return `${record.ConcernNo || ''} ${record.Title || record.ConcernTitle || ''}`.toLowerCase().includes(query);
+        });
+
+        return (
+            <View style={problemSolverListStyles.container}>
+                
+                {filteredRecords.length ? filteredRecords.map((record, index) => (
+                    <ListCard
+                        key={record.key || `${record.ConcernID || 'concern'}-${index}`}
+                        item={{ ...record, Type: record.Type || record.ConcernType || record.ActionType }}
+                    />
+                )) : <NoRecordFound />}
+                <TouchableOpacity
+                    accessibilityRole="button"
+                    style={problemSolverListStyles.fab}
+                    onPress={() => this.props.navigation.navigate(ROUTES.CONCERN_SCREEN)}>
+                    <Icon name="plus" size={34} color="#fff" />
+                </TouchableOpacity>
+            </View>
+        );
+    };
 
     renderListItem = ({ item, index }) => {
         if (item.recordType === 'concern') {
@@ -282,8 +387,9 @@ class AuditScreenSM extends Component {
                 <View style={{ marginHorizontal: 12, marginVertical: 6, padding: 14, borderRadius: 10, backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#DFE7F3', flexDirection: 'row', alignItems: 'center' }}>
                     <Image source={IMAGES.ps_logo} resizeMode="contain" style={{ width: 44, height: 44, marginRight: 12 }} />
                     <View style={{ flex: 1 }}>
-                        <Text style={{ color: '#123C95', fontSize: 13, fontWeight: '600' }}>{item.ConcernNo || 'Problem Solver Concern'}</Text>
-                        <Text style={{ color: '#1F2937', fontSize: 16, marginTop: 4 }}>{item.Title || item.ConcernTitle || 'Concern'}</Text>
+                        <Text style={{ color: '#1F2937', fontSize: 21, marginTop: 4 }}>{item.Title || item.ConcernTitle || 'Concern'}</Text>
+                        <Text style={{ color: '#123C95', fontSize: 15, fontWeight: '600' }}>{'Type: '}{item.ConcernType || 'Problem Solver Concern'}</Text>
+                        <Text style={{ color: '#123C95', fontSize: 18, fontWeight: '600' }}>{'Concern NO: '}{item.ConcernNo || 'Problem Solver Concern'}</Text>
                         {!!(item.Status || item.CreatedDate) && (
                             <Text style={{ color: '#64748B', fontSize: 13, marginTop: 4 }}>
                                 {[item.Status, item.CreatedDate].filter(Boolean).join(' · ')}
@@ -316,9 +422,9 @@ class AuditScreenSM extends Component {
                     onLeftPress={() => this.props.navigation.goBack()}
                     rightComponent={
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                            <TouchableOpacity onPress={this.clearFilters} style={{ padding: 6 }}>
+                            {/* <TouchableOpacity onPress={this.clearFilters} style={{ padding: 6 }}>
                                 <Icon name="x-circle" size={24} color="#123C95" />
-                            </TouchableOpacity>
+                            </TouchableOpacity> */}
                             <TouchableOpacity onPress={this.openFilterScreen} style={{ padding: 6 }}>
                                 <Icon name="filter" size={24} color="#123C95" />
                             </TouchableOpacity>

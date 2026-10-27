@@ -156,11 +156,17 @@ class AuditDashboardListing extends Component {
         console.log('checkfilterID--------------------', this.props?.route?.params?.filterId);
         console.log('checkfilterID--------------------smmdata', this.props);
 
-        var filterIDasync = await AsyncStorage.getItem('FILTERIDLIST');
-        var SMDATAraw = await AsyncStorage.getItem('supplierIndex');
+        const routeFilterId = this.props?.route?.params?.filterId;
+        var filterIDasync = routeFilterId !== undefined && routeFilterId !== null
+            ? JSON.stringify(routeFilterId)
+            : await AsyncStorage.getItem('FILTERIDLIST');
+        var SMDATAraw = this.props?.route?.params?.smData ?? await AsyncStorage.getItem('supplierIndex');
 
         const SMDATA = this.normalizeSupplierIndex(SMDATAraw || this.props?.route?.params?.smData || this.props?.data?.audits?.smdata);
         await AsyncStorage.setItem('supplierIndex', JSON.stringify(SMDATA));
+        if (routeFilterId !== undefined && routeFilterId !== null) {
+            await AsyncStorage.setItem('FILTERIDLIST', JSON.stringify(routeFilterId));
+        }
         console.log('checkingsmdatvalllll', SMDATA);
 
         if (this.props.data.audits.language === 'Chinese') {
@@ -498,7 +504,7 @@ class AuditDashboardListing extends Component {
                 const { userId, token } = this.props.data.audits;
                 const siteId = this.props.data.audits.siteId;
 
-                var SM = this.props.data.audits.smdata;
+                var SM = this.state.SM || this.props?.route?.params?.smData || this.props.data.audits.smdata;
                 var GlobalFilter = '',
                     StartDate = '',
                     EndDate = '';

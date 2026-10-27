@@ -721,7 +721,7 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
         localStorage.storeData('CurrentApp', recentApp);
     };
 
-    const handleNavigation = async (title, status, category, auditTitle, routeName, index, subTitle, countValue) => {
+    const handleNavigation = async (title, status, category, auditTitle, routeName, index, subTitle, countValue, supplierIndexOverride) => {
         console.log(
             'handleNavigation currentUserData?.accessToken--->',
             currentUserData,
@@ -771,7 +771,7 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
                 console.log('sm_ current click--->', strings.supplierMgnt);
                 console.log('sm_ current category--->', category);
                 const normalizedSubTitle = (subTitle || '').replace(/\n/g, ' ').trim();
-                let supplierIndex = normalizedSubTitle === 'Supplier Initial Assessment' ? 2 : 3;
+                let supplierIndex = supplierIndexOverride || (normalizedSubTitle === 'Supplier Initial Assessment' ? 2 : 3);
 
                 if (category == 'Scheduled\nAudit') {
                     await AsyncStorage.setItem('FILTERIDLIST', JSON.stringify(2));
@@ -785,12 +785,19 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
                 console.log('checksmdataonpress', supplierIndex);
 
                 await AsyncStorage.setItem('supplierIndex', JSON.stringify(supplierIndex));
+                const showAllSupplierAudits = category === 'All Audits';
+                if (showAllSupplierAudits) {
+                    await AsyncStorage.setItem('FILTERIDLIST', JSON.stringify(0));
+                }
                 currentGlobalURL = globalDeviceDetails?.deviceDetails?.AuditProURL ? globalDeviceDetails?.deviceDetails?.AuditProURL : AUDITPRO_URL;
                 supplierAuth.setServerUrl(currentGlobalURL);
                 auditproAuth.setServerUrl(currentGlobalURL);
                 storeUrl(currentGlobalURL, strings.supplierMgnt);
                 navigations.navigate(ROUTES.AUDIT_DASHBOARD_LISTING_SM, {
                     currentUserData: currentUserData, // pass the array here
+                    smData: supplierIndex,
+                    filterId: showAllSupplierAudits ? 0 : undefined,
+                    title: showAllSupplierAudits ? 'All Audits' : undefined,
                 });
                 // DOCUMENT PRO //
             }
@@ -1062,7 +1069,7 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
         );
     };
 
-    const renderModuleSection = ({ sectionKey, title, items, onMetricPress }) => {
+    const renderModuleSection = ({ sectionKey, title, items, onMetricPress, allAuditsPress }) => {
         const visibleItems = (items || []).filter(item => item?.category?.length);
         if (!visibleItems.length) return null;
 
@@ -1095,10 +1102,28 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
 
                 {expanded ? (
                     <View style={styles.statsGrid}>
+                        {allAuditsPress ? (
+                            <TouchableOpacity
+                                accessibilityRole="button"
+                                activeOpacity={0.85}
+                                style={[styles.allAuditsCard, AuditShadows.metric]}
+                                onPress={allAuditsPress}>
+                                <View style={styles.allAuditsIconCircle}>
+                                    <IconComponent type={ICON_TYPE.Feather} name="file-text" size={RFPercentage(3.5)} color={AuditColors.primary} />
+                                </View>
+                                <View style={styles.allAuditsContent}>
+                                    <Text style={styles.allAuditsTitle}>All Audits</Text>
+                                    <Text style={styles.allAuditsValue}>{total}</Text>
+                                    <Text style={styles.allAuditsSubtitle}>Total audits</Text>
+                                </View>
+                                <IconComponent type={ICON_TYPE.AntDesign} name="right" size={RFPercentage(2.2)} color={AuditColors.textSecondary} />
+                                <View style={styles.allAuditsAccentBar} />
+                            </TouchableOpacity>
+                        ) : null}
                         {chunkIntoRows(visibleItems, GRID_COLUMNS).map((row, rowIndex) => (
                             <View
                                 key={`${sectionKey}-row-${rowIndex}`}
-                                style={[styles.metricsRow, rowIndex > 0 && styles.metricsRowSpacing]}>
+                                style={[styles.metricsRow, (rowIndex > 0 || allAuditsPress) && styles.metricsRowSpacing]}>
                                 {row.map((item, index) =>
                                     renderMetricCard(item, rowIndex * GRID_COLUMNS + index, sectionKey, () =>
                                         onMetricPress(item, rowIndex * GRID_COLUMNS + index),
@@ -1126,6 +1151,20 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
                             sectionKey: `${title}-${idx}`,
                             title: group.groupTitle,
                             items: group.audits,
+                            allAuditsPress: () => {
+                                const initialAssessment = group.groupTitle?.replace(/\n/g, ' ').trim() === 'Supplier Initial Assessment';
+                                handleNavigation(
+                                    title,
+                                    undefined,
+                                    'All Audits',
+                                    undefined,
+                                    undefined,
+                                    undefined,
+                                    group.groupTitle,
+                                    sumMetricTotal(group.audits || []),
+                                    initialAssessment ? 2 : 3,
+                                );
+                            },
                             onMetricPress: audit =>
                                 handleNavigation(
                                     title,
@@ -1257,6 +1296,52 @@ const styles = StyleSheet.create({
     },
     statsGrid: {
         marginTop: 20,
+    },
+    allAuditsCard: {
+        minHeight: 150,
+        backgroundColor: '#F8FBFF',
+        borderRadius: AuditLayout.metricCardRadius,
+        borderWidth: 1,
+        borderColor: '#DCE9FA',
+        padding: 20,
+        marginBottom: AuditLayout.cardGap,
+        flexDirection: 'row',
+        alignItems: 'center',
+        overflow: 'hidden',
+    },
+    allAuditsIconCircle: {
+        width: 64,
+        height: 64,
+        borderRadius: 32,
+        backgroundColor: '#EAF3FF',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginRight: 18,
+    },
+    allAuditsContent: {
+        flex: 1,
+    },
+    allAuditsTitle: {
+        ...AuditTypography.metricTitle,
+        color: AuditColors.textPrimary,
+    },
+    allAuditsValue: {
+        ...AuditTypography.metricValue,
+        color: '#0875EF',
+        marginTop: 2,
+        textAlign: 'left',
+    },
+    allAuditsSubtitle: {
+        ...AuditTypography.metricSubtitle,
+        color: AuditColors.textSecondary,
+    },
+    allAuditsAccentBar: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        height: AuditLayout.metricCardBottomBorder,
+        backgroundColor: '#0875EF',
     },
     metricsRow: {
         flexDirection: 'row',
