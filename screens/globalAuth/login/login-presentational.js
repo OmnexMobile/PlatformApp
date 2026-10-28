@@ -1,15 +1,16 @@
 import React from 'react';
-import { Image, ImageBackground, StyleSheet, TouchableOpacity, View,useWindowDimensions } from 'react-native';
+import { Image, ImageBackground, LayoutAnimation, StyleSheet, TouchableOpacity, View, useWindowDimensions } from 'react-native';
 import { RFPercentage } from '../../../helpers/responsiveFont';
 import { IMAGES } from 'assets/images';
 import { AnimatableView, GradientButton, IconComponent, ImageComponent, KeyboardAwareScrollViewComponent, TextComponent } from 'components';
 import SelectLanguage from 'components/select-language';
 import strings from 'config/localization';
-import { FONT_TYPE, ICON_TYPE, OPACITY_ANIMATION, OPACITY_TRANSLATE_Y_ANIMATION, ROUTES } from 'constants/app-constant';
+import { APP_VARIABLES, FONT_TYPE, ICON_TYPE, OPACITY_ANIMATION, OPACITY_TRANSLATE_Y_ANIMATION, ROUTES } from 'constants/app-constant';
 import { COLORS, FONT_SIZE, SPACING } from 'constants/theme-constants';
 import useTheme from 'theme/useTheme';
 import LoginInput from './login-input';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { RFValue } from 'helpers/utils';
 
 const LoginPresentational = ({
     selectLanguageModal,
@@ -20,9 +21,15 @@ const LoginPresentational = ({
     navigation,
     isRegistered,
     loginLogo,
+    ssoConfigs,
+    loginWithSSO,
+    selectedLoginType,
+    setSelectedLoginType,
 }) => {
+    const LOGIN_TYPE = ssoConfigs?.clientId &&ssoConfigs?.SSOActive  ? [APP_VARIABLES.SSO, APP_VARIABLES.EWQIMS] : [APP_VARIABLES.EWQIMS];
     const { theme } = useTheme();
-    const {height} = useWindowDimensions();
+    const { height } = useWindowDimensions();
+
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.white }}>
             {/* need image with transparent background */}
@@ -39,29 +46,78 @@ const LoginPresentational = ({
                 </AnimatableView>
                 <AnimatableView animationConfig={OPACITY_TRANSLATE_Y_ANIMATION} style={styles.topArea}>
                     {Boolean(loginLogo?.length) ? (
-                        <Image source={{ uri: `data:image/jpeg;base64,${loginLogo}` }} style={{ height: RFPercentage(10), width: '100%' }} resizeMode="contain" />
+                        <Image
+                            source={{ uri: `data:image/jpeg;base64,${loginLogo}` }}
+                            style={{ height: RFPercentage(10), width: '100%' }}
+                            resizeMode="contain"
+                        />
                     ) : (
                         <ImageComponent source={IMAGES.omnexLogo} resizeMode="contain" style={{ height: RFPercentage(10), width: '100%' }} />
                     )}
                 </AnimatableView>
                 <AnimatableView animationConfig={OPACITY_TRANSLATE_Y_ANIMATION} delay={500} style={{ flex: 6 }}>
-                    <LoginInput {...{ placeholder: strings.Username, name: 'username', onChangeText: handleInputChange }} />
-                    <LoginInput
-                        {...{
-                            placeholder: strings.Password,
-                            name: 'password',
-                            type: 'password',
-                            onChangeText: handleInputChange,
-                            returnKeyType: 'done',
-                            onSubmitEditing: () => loginDetails?.username?.length > 1 && loginDetails?.password?.length > 1 && handleSubmit(),
-                        }}
-                    />
-                    <GradientButton
-                        loading={loginDetails?.loggingIn}
-                        disabled={!(loginDetails?.username?.length > 1 && loginDetails?.password?.length > 1)}
-                        onPress={handleSubmit}>
-                        {strings.Login}
-                    </GradientButton>
+                    <View
+                        style={{
+                            flexDirection: 'row',
+                            justifyContent: 'center',
+                            paddingBottom: SPACING.NORMAL,
+                        }}>
+                        {ssoConfigs?.clientId &&
+                            ssoConfigs?.SSOActive &&
+                            LOGIN_TYPE?.map((type, index) => (
+                                <TouchableOpacity
+                                    activeOpacity={1}
+                                    onPress={() => {
+                                        setSelectedLoginType(type);
+                                    }}
+                                    key={index}
+                                    style={{
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
+                                        marginRight: SPACING.NORMAL,
+                                    }}>
+                                    <IconComponent
+                                        color={theme.colors.primaryThemeColor}
+                                        type={ICON_TYPE.Ionicons}
+                                        name={selectedLoginType === type ? 'radio-button-on' : 'radio-button-off'}
+                                        size={FONT_SIZE.X_LARGE}
+                                    />
+                                    <TextComponent
+                                        type={FONT_TYPE.BOLD}
+                                        fontSize={RFValue(15)}
+                                        style={{
+                                            marginLeft: SPACING.SMALL,
+                                        }}>
+                                        {type}
+                                    </TextComponent>
+                                </TouchableOpacity>
+                            ))}
+                    </View>
+                    {selectedLoginType === APP_VARIABLES.SSO && ssoConfigs?.clientId ? (
+                        <GradientButton disabled={!isRegistered} onPress={loginWithSSO} loading={loginDetails?.loggingIn}>
+                            Login
+                        </GradientButton>
+                    ) : (
+                        <>
+                            <LoginInput {...{ placeholder: strings.Username, name: 'username', onChangeText: handleInputChange }} />
+                            <LoginInput
+                                {...{
+                                    placeholder: strings.Password,
+                                    name: 'password',
+                                    type: 'password',
+                                    onChangeText: handleInputChange,
+                                    returnKeyType: 'done',
+                                    onSubmitEditing: () => loginDetails?.username?.length > 1 && loginDetails?.password?.length > 1 && handleSubmit(),
+                                }}
+                            />
+                            <GradientButton
+                                loading={loginDetails?.loggingIn}
+                                disabled={!(loginDetails?.username?.length > 1 && loginDetails?.password?.length > 1)}
+                                onPress={handleSubmit}>
+                                {strings.Login}
+                            </GradientButton>
+                        </>
+                    )}
                 </AnimatableView>
                 <SelectLanguage modalVisible={selectLanguageModal} onRequestClose={() => setSelectLanguageModal(false)} />
             </KeyboardAwareScrollViewComponent>

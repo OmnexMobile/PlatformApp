@@ -28,6 +28,19 @@
 	<array>
 		<string>Intent</string>
 	</array>
+	<key>CFBundleURLTypes</key>
+	<array>
+	<dict>
+		<key>CFBundleURLName</key>
+		<string>com.omnex.integratedapp</string>
+		<key>CFBundleURLSchemes</key>
+		<array>
+		<string>com.omnex.integratedapp</string>
+		<!-- only needed if the IdP is Azure / Entra -->
+		<string>msauth.com.omnex.integratedapp</string>
+		</array>
+	</dict>
+	</array>
 	<key>LSApplicationCategoryType</key>
 	<string></string>
 	<key>LSRequiresIPhoneOS</key>

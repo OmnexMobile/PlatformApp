@@ -87,7 +87,7 @@ android {
         versionCode 17   // must be higher than the last version uploaded to Play Console
         versionName "1.5.0"
           manifestPlaceholders = [
-            appAuthRedirectScheme: "com.omnex.IntegratedApp"
+            appAuthRedirectScheme: "com.omnex.integratedapp"
         ]
     }
     signingConfigs {

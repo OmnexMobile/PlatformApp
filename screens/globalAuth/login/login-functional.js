@@ -1,7 +1,7 @@
 import React, { useEffect, useLayoutEffect, useState } from 'react';
-import { useIsFocused, useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
 import CryptoJS from 'react-native-crypto-js';
-import { LOCAL_STORAGE_VARIABLES, ROUTES } from 'constants/app-constant';
+import { APP_VARIABLES, LOCAL_STORAGE_VARIABLES, ROUTES } from 'constants/app-constant';
 import localStorage from 'global/localStorage';
 import { formReq, showErrorMessage } from 'helpers/utils';
 import strings from 'config/localization';
@@ -14,10 +14,14 @@ import ApiUrl from 'global/ApiUrl';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchFCMToken } from 'screens/notificationService';
 import { Platform } from 'react-native';
+import { runSsoAuthorization } from '../../../services/ssoAuthorizeFlow'; // adjust path
+import { normalizeSsoConfig } from '../../../services/SsoAuthConfig';
 
-const LoginFunctional = ({ }) => {
+const LoginFunctional = ({}) => {
     const dispatch = useDispatch();
     const { icLoginlogo } = useSelector(state => state.inspection);
+    const [selectedLoginType, setSelectedLoginType] = useState(APP_VARIABLES.EWQIMS);
+    const [ssoConfigs, setSsoConfigs] = useState(null);
     const [selectLanguageModal, setSelectLanguageModal] = useState(false);
     const [loginDetails, setLoginDetails] = useState({
         // username: 'Champion1@michelin',
@@ -43,7 +47,50 @@ const LoginFunctional = ({ }) => {
         globalDeviceDetails,
     } = useAppContext();
     const navigation = useNavigation();
+    const getSSOConfigs = async () => {
+        try {
+            const saved = (await localStorage.getData(LOCAL_STORAGE_VARIABLES.SSO_CONFIGS)) || {};
+            const hasConfig = Object.keys(saved).length > 0;
+            setSsoConfigs(saved);
+            setSelectedLoginType(saved?.SSOActive && hasConfig && normalizeSsoConfig(saved).issuer ? APP_VARIABLES.SSO : APP_VARIABLES.EWQIMS);
+        } catch (error) {
+            console.log('getSSOConfigs error:', error);
+        }
+    };
+    const loginWithSSO = async () => {
+        if (!isRegistered) {
+            navigation.navigate(ROUTES.GLOBAL_REGISTER);
+            return;
+        }
 
+        setLoginDetails(prev => ({ ...prev, loggingIn: true }));
+        const result = await runSsoAuthorization(ssoConfigs);
+        console.log('SSO login result:', result);
+
+        if (!result.ok) {
+            setLoginDetails(prev => ({ ...prev, loggingIn: false }));
+            if (!result.cancelled) {
+                showErrorMessage(result.message, 'top');
+            }
+            return;
+        }
+
+        await AsyncStorage.setItem('ssologinstatusbool', 'true');
+        // loggingIn stays true until handleLoginCall finishes
+        await handleLoginCall(null, 1, result.isSso);
+    };
+
+    useEffect(() => {
+        const load = async () => {
+            try {
+                await getSSOConfigs();
+                // anything that must run after the configs load
+            } catch (e) {
+                console.log('getSSOConfigs failed:', e);
+            }
+        };
+        load();
+    }, [icLoginlogo]);
     useEffect(() => {
         currentToken && navigation.navigate(ROUTES.SPLASH_SCREEN);
     }, [currentToken]);
@@ -109,9 +156,17 @@ const LoginFunctional = ({ }) => {
         const deviceId = await AsyncStorage.getItem('deviceid');
         const APIURL = await localStorage.getData(LOCAL_STORAGE_VARIABLES.IC_API_URL);
         const formData = new FormData();
-        formData.append('UserName', loginDetails?.username);
+        if (isSso) {
+            // Same shape the AuditPro app used: token goes in the username field, password empty.
+            formData.append('UserName', isSso.backendLoginValue);
+            formData.append('Password', '');
+            formData.append('fromSSO', 1);
+            // TODO: append any extra SSO fields your backend expects (see "Check before shipping")
+        } else {
+            formData.append('UserName', loginDetails?.username);
+            formData.append('Password', encryptedPassword.toString());
+        }
         formData.append('RegisteredDeviceId', deviceId);
-        formData.append('Password', encryptedPassword.toString());
         formData.append('LoginFlag', 1);
         const response = await postAPI(`${APIURL}${ApiUrl.IC_LOGIN}`, formData);
 
@@ -128,7 +183,7 @@ const LoginFunctional = ({ }) => {
                 Token: fcmToken,
                 DeviceId: deviceId,
                 DeviceType: Platform.OS,
-            }
+            };
             const fcmRegister = await postAPI(`${APIURL}${ApiUrl.IC_FCM_REGISTER}`, tokenPayload);
             console.log('FCM REGISTER RESPONSE--->', fcmRegister);
             dispatch({ type: 'IC_USER_DATA', icUserData: icUserData });
@@ -156,7 +211,7 @@ const LoginFunctional = ({ }) => {
     };
 
     const setProfileCall = data => {
-        console.log(data?.Data[0], '***********data?.Data[0]')
+        console.log(data?.Data[0], '***********data?.Data[0]');
         console.log('🚀 ~ file: login-functional.js:69 ~ setProfileCall ~ data', data);
         localStorage.storeData(LOCAL_STORAGE_VARIABLES.Token, data?.Token);
         localStorage.storeData(LOCAL_STORAGE_VARIABLES.UserId, data?.Data[0]?.UserId);
@@ -174,7 +229,20 @@ const LoginFunctional = ({ }) => {
     };
     return (
         <LoginPresentational
-            {...{ selectLanguageModal, setSelectLanguageModal, handleInputChange, handleSubmit, loginDetails, navigation, isRegistered, loginLogo: icLoginlogo }}
+            {...{
+                selectLanguageModal,
+                setSelectLanguageModal,
+                handleInputChange,
+                handleSubmit,
+                loginDetails,
+                navigation,
+                isRegistered,
+                loginLogo: icLoginlogo,
+                ssoConfigs,
+                loginWithSSO,
+                selectedLoginType,
+                setSelectedLoginType,
+            }}
         />
     );
 };

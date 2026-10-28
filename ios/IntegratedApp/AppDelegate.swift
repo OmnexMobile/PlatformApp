@@ -8,9 +8,9 @@ import RNBootSplash
 import UserNotifications  // ✅ Add this
 
 @main
-class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate, MessagingDelegate {  // ✅ Add delegates
+class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate, MessagingDelegate ,RNAppAuthAuthorizationFlowManager{  // ✅ Add delegates
   var window: UIWindow?
-
+  public weak var authorizationFlowManagerDelegate: RNAppAuthAuthorizationFlowManagerDelegate?
   var reactNativeDelegate: ReactNativeDelegate?
   var reactNativeFactory: RCTReactNativeFactory?
 
@@ -42,7 +42,23 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
     return true
   }
+func application(
+  _ app: UIApplication,
+  open url: URL,
+  options: [UIApplication.OpenURLOptionsKey: Any] = [:]
+) -> Bool {
 
+  if let delegate = authorizationFlowManagerDelegate,
+     delegate.resumeExternalUserAgentFlow(with: url) {
+    return true
+  }
+
+  return RCTLinkingManager.application(
+    app,
+    open: url,
+    options: options
+  )
+}
   // ✅ Forward APNS token to Firebase — THIS fixes "No APNS token" error
   func application(_ application: UIApplication,
                    didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {

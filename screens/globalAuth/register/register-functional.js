@@ -13,6 +13,7 @@ import globalAuth from '../../../services/Auditpro-Auth';
 import { ROUTES } from 'constants/app-constant';
 import { deleteAllInspectionData } from 'store/database/inspectStorage';
 import { useDispatch } from 'react-redux';
+import useSsoRegistration from '../../../services/useSsoRegistration';
 
 export const REGISTER_TYPES = {
     REGISTER: 1,
@@ -56,6 +57,7 @@ export const registerDevice = async (requestURL, request, type) => {
 // const DEFAULT_URL = 'https://saasmobile.ewqims.net/EwQIMSAPI/api/';
 
 const RegisterFunctional = ({}) => {
+    const { processSsoResponse, clearSsoData } = useSsoRegistration();
     const [loading, setLoading] = useState(false);
     const [state, setState] = useState({
         // serverUrl: DEFAULT_URL,
@@ -137,10 +139,28 @@ const RegisterFunctional = ({}) => {
             //     deviceStatusSettings: data?.Data || {},
             // });
             // localStorage.storeData(LOCAL_STORAGE_VARIABLES.DEVICE_STATUS_SETTINGS, data?.Data);
+            // let dummySsoFlags = {
+            //     issuer: 'https://integrator-1861188.okta.com/oauth2/default',
+            //     clientId: '0oa198d2mcwm4BRr7698',
+            //     redirectUrl: '',
+            //     endSessionRedirectUri: '',
+            //     discoveryUri: 'https://integrator-1861188.okta.com/oauth2/default/.well-known/openid-configuration',
+            //     scope: 'openid profile email',
+            //     requireHardwareBackedKeyStore: 'False',
+            //     httpReadTimeout: '10',
+            //     customUriScheme: '',
+            // };
             handleGlobalURL('serverUrl', state?.globalServerURL);
             localStorage.storeData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL, state?.globalServerURL);
             localStorage.storeData(LOCAL_STORAGE_VARIABLES.globalRegister, state?.globalServerURL);
+            // localStorage.storeData(LOCAL_STORAGE_VARIABLES.SSO_CONFIGS, dummySsoFlags);
+            //  await processSsoResponse({
+            //     SSOFlags: dummySsoFlags,
+            //     SSOActive: true,
+            // });
+            localStorage.storeData(LOCAL_STORAGE_VARIABLES.SSO_CONFIGS, data?.Data?.SSOFlags);
             localStorage.storeData(LOCAL_STORAGE_VARIABLES.IC_API_URL, data?.Data.ICApiURL);
+            await processSsoResponse(data?.Data); // <-- new: stores sso_login_state + normalized config
             // handleDeviceDetails(data?.Data)
             console.log('data?.Data--->', data?.Data);
             handleDeviceDetails({ ...data?.Data });
@@ -182,6 +202,7 @@ const RegisterFunctional = ({}) => {
                 setLoading(false);
                 if (data?.Success) {
                     await deleteAllInspectionData();
+                    await clearSsoData(); // <-- new
                     localStorage.removeItem(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL);
                     localStorage.removeItem(LOCAL_STORAGE_VARIABLES.globalRegister);
                     handleAppSetting('serverUrl', '');

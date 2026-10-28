@@ -94,6 +94,14 @@ export const APP_VARIABLES = {
     FORM_TYPE: 'FormType',
     FORM_TYPE_ID: 'FormTypeID',
     CONCERN_FORM_ID: 'ConcernFormID',
+    DocumentStatus: 'DocumentStatus',
+    Remarks: 'Remarks',
+    FileId: 'FileId',
+    Type: 'Type',
+    UsageType: 'UsageType',
+    UsageID: 'UsageID',
+    SSO: 'SSO',
+    EWQIMS: 'EWQIMS',
 };
 
 export const COMPANY_DETAILS = {
@@ -162,7 +170,10 @@ export const LOCAL_STORAGE_VARIABLES = {
     globalLogin: 'globalLogin',
     globalRegister: 'globalRegister',
     IC_API_URL: 'IC_API_URL',
-    LOGIN_LOGO:'LOGIN_LOGO'
+    LOGIN_LOGO:'LOGIN_LOGO',
+    SSOAccessToken: 'SSOAccessToken',
+    LOGIN_TYPE: 'LOGIN_TYPE',
+    SSO_CONFIGS: 'SSO_CONFIGS',
 };
 
 export const POST = 'POST';
