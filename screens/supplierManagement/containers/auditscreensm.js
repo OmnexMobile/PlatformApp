@@ -371,12 +371,6 @@ class AuditScreenSM extends Component {
                         item={{ ...record, Type: record.Type || record.ConcernType || record.ActionType }}
                     />
                 )) : <NoRecordFound />}
-                <TouchableOpacity
-                    accessibilityRole="button"
-                    style={problemSolverListStyles.fab}
-                    onPress={() => this.props.navigation.navigate(ROUTES.CONCERN_SCREEN)}>
-                    <Icon name="plus" size={34} color="#fff" />
-                </TouchableOpacity>
             </View>
         );
     };
@@ -387,7 +381,7 @@ class AuditScreenSM extends Component {
                 <View style={{ marginHorizontal: 12, marginVertical: 6, padding: 14, borderRadius: 10, backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#DFE7F3', flexDirection: 'row', alignItems: 'center' }}>
                     <Image source={IMAGES.ps_logo} resizeMode="contain" style={{ width: 44, height: 44, marginRight: 12 }} />
                     <View style={{ flex: 1 }}>
-                        <Text style={{ color: '#1F2937', fontSize: 21, marginTop: 4 }}>{item.Title || item.ConcernTitle || 'Concern'}</Text>
+                        <Text style={{ color: '#123C95', fontSize: 21, marginTop: 4,  }}>{item.Title || item.ConcernTitle || 'Concern'}</Text>
                         <Text style={{ color: '#123C95', fontSize: 15, fontWeight: '600' }}>{'Type: '}{item.ConcernType || 'Problem Solver Concern'}</Text>
                         <Text style={{ color: '#123C95', fontSize: 18, fontWeight: '600' }}>{'Concern NO: '}{item.ConcernNo || 'Problem Solver Concern'}</Text>
                         {!!(item.Status || item.CreatedDate) && (

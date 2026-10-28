@@ -735,6 +735,20 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
             console.log('handleNavigation reach here1', title);
             if (title === strings.auditPro) {
                 currentGlobalURL = globalDeviceDetails?.deviceDetails?.AuditProURL ? globalDeviceDetails?.deviceDetails?.AuditProURL : AUDITPRO_URL;
+                if (category === 'All Audits') {
+                    await AsyncStorage.setItem('supplierIndex', JSON.stringify(1));
+                    await AsyncStorage.setItem('FILTERIDLIST', JSON.stringify(0));
+                    supplierAuth.setServerUrl(currentGlobalURL);
+                    auditproAuth.setServerUrl(currentGlobalURL);
+                    await storeUrl(currentGlobalURL, strings.auditPro);
+                    navigations.navigate(ROUTES.AUDIT_DASHBOARD_LISTING_SM, {
+                        currentUserData,
+                        smData: 1,
+                        filterId: 0,
+                        title: 'All Audits',
+                    });
+                    return;
+                }
                 auditproAuth.setServerUrl(currentGlobalURL);
                 storeUrl(currentGlobalURL, strings.auditPro);
                 const projectDetails = {
@@ -1114,7 +1128,7 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
                                 <View style={styles.allAuditsContent}>
                                     <Text style={styles.allAuditsTitle}>All Audits</Text>
                                     <Text style={styles.allAuditsValue}>{total}</Text>
-                                    <Text style={styles.allAuditsSubtitle}>Total audits</Text>
+                                    {/* <Text style={styles.allAuditsSubtitle}>Total audits</Text> */}
                                 </View>
                                 <IconComponent type={ICON_TYPE.AntDesign} name="right" size={RFPercentage(2.2)} color={AuditColors.textSecondary} />
                                 <View style={styles.allAuditsAccentBar} />
@@ -1185,6 +1199,10 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
             sectionKey: title,
             title,
             items: detail,
+            allAuditsPress:
+                title === strings.auditPro
+                    ? () => handleNavigation(title, undefined, 'All Audits', undefined, undefined, undefined, undefined, sumMetricTotal(detail || []), 1)
+                    : undefined,
             onMetricPress: items =>
                 handleNavigation(
                     title,
@@ -1298,7 +1316,7 @@ const styles = StyleSheet.create({
         marginTop: 20,
     },
     allAuditsCard: {
-        minHeight: 150,
+        minHeight: 100,
         backgroundColor: '#F8FBFF',
         borderRadius: AuditLayout.metricCardRadius,
         borderWidth: 1,
@@ -1328,7 +1346,7 @@ const styles = StyleSheet.create({
     allAuditsValue: {
         ...AuditTypography.metricValue,
         color: '#0875EF',
-        marginTop: 2,
+        marginTop: 10,
         textAlign: 'left',
     },
     allAuditsSubtitle: {

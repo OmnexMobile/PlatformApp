@@ -78,7 +78,7 @@ const ListCard = ({ item = {} }) => {
                                 <TextComponent
                                     numberOfLines={2}
                                     fontSize={FONT_SIZE.LARGE}
-                                    // type={FONT_TYPE.BOLD}
+                                    type={FONT_TYPE.BOLD}
                                     style={{
                                         color: theme.colors.primaryThemeColor,
                                     }}>
@@ -92,7 +92,9 @@ const ListCard = ({ item = {} }) => {
                             </View>
                         ) : null}
                         <View style={{ width: '100%', paddingBottom: SPACING.SMALL }}>
-                            <TextComponent numberOfLines={1}>Concern No: {item?.ConcernNo}</TextComponent>
+                            <TextComponent color={theme.colors.ictextBlack} numberOfLines={1}>
+                                Concern No: {item?.ConcernNo}
+                            </TextComponent>
                         </View>
                         {/* <View style={{ width: '100%', paddingBottom: SPACING.SMALL }}>
                             <TextComponent numberOfLines={1}>Status: {item?.Status}</TextComponent>

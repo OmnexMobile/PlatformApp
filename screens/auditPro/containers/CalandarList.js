@@ -29,10 +29,10 @@ import GlobalHeader from 'components/GlobalHeader';
 //     "#E59866", "#5D6D7E", "#9B59B6", "#E74C3C", "#48C9B0", "#FA8072", "#FF00FF", "#000080"]
 
 const nodeOBJColors = {
-  2: '#F1EB0E',
-  3: 'green',
-  4: 'red',
-  5: '#AB8C32',
+  2: '#FFD84D',
+  3: '#11B981',
+  4: '#e66868',
+  5: '#8B5CF6',
 };
 
 const { whitneyBook_18 } = Fonts.style;
@@ -103,6 +103,7 @@ class CalandarList extends Component {
       month_change: '',
       monthValue: currentMonth.format('MM'),
       yearValue: currentMonth.format('YYYY'),
+      selectedDate: currentMonth.format('YYYY-MM-DD'),
       calendarupdateKey: ''
     };
   }
@@ -113,6 +114,7 @@ class CalandarList extends Component {
     this.setState({
       monthValue: nextMonth.format('MM'),
       yearValue: nextMonth.format('YYYY'),
+      selectedDate: nextMonth.format('YYYY-MM-01'),
       calendarupdateKey: `${nextMonth.format('YYYY-MM')}-${Date.now()}`,
     });
   };
@@ -291,98 +293,31 @@ class CalandarList extends Component {
    * [ {AuditID: "21", AuditNumber: "2018-MC-I9-2-2", StartDate: "2018-04-30T08:00:00", EndDate: "2018-05-01T17:00:00"} ]
    */
   transformYearAudits(yearAudits) {
-    let index = 0;
-    let self = this;
-    let dateWiseSplit = [];
-    let dateWiseSplitKeys = {};
-    _.forEach(yearAudits, function (yearAudit_res) {
-      if (yearAudit_res.StartDate && yearAudit_res.EndDate) {
-        let dateS = new Date(yearAudit_res.StartDate);
-        let _s_month =
-          dateS.getMonth() + 1 < 10
-            ? '0' + (dateS.getMonth() + 1)
-            : dateS.getMonth() + 1;
-        let _s_datestr =
-          dateS.getDate() < 10 ? '0' + dateS.getDate() : dateS.getDate();
-        let start_key = dateS.getFullYear() + '-' + _s_month + '-' + _s_datestr;
-        let dateE = new Date(yearAudit_res.EndDate);
-        let _e_month =
-          dateE.getMonth() + 1 < 10
-            ? '0' + (dateE.getMonth() + 1)
-            : dateE.getMonth() + 1;
-        let _e_datestr =
-          dateE.getDate() < 10 ? '0' + dateE.getDate() : dateE.getDate();
-        let end_key = dateS.getFullYear() + '-' + _e_month + '-' + _e_datestr;
+    const dateWiseSplit = [];
+    this.multiperiods = {};
 
-        /** caluclating between dates */
-        let betweenDates = 1;
-        if (parseInt(_s_datestr) < parseInt(_e_datestr)) {
-          betweenDates = parseInt(_e_datestr) - parseInt(_s_datestr);
-        } else {
-          betweenDates = parseInt(_s_datestr) - parseInt(_e_datestr);
-        }
+    (yearAudits || []).forEach(audit => {
+      if (!audit.StartDate || !audit.EndDate) return;
 
-        dateWiseSplitKeys[start_key] = {};
-        dateWiseSplitKeys[end_key] = {};
+      let startDate = Moment(audit.StartDate).startOf('day');
+      let endDate = Moment(audit.EndDate).startOf('day');
+      if (endDate.isBefore(startDate)) [startDate, endDate] = [endDate, startDate];
 
-        //nodeOBJColors[parseInt(yearAudit_res.status)],
-
-        /** retreiving insertion index of the particular audit */
-        let indexIamInserting = self.multiPeriodMark(
-          start_key,
-          end_key,
-          nodeOBJColors[yearAudit_res.AuditStatus],
-          'start',
-          undefined,
-        );
-        /** between dates wil lies in 1 example startDate: 2020-02-10, endDate: 2020-02-11 */
-        if (betweenDates !== 1 && betweenDates !== 0) {
-          let i = 1;
-          /** loopin gour between dates */
-          while (i < betweenDates) {
-            const nextDate = new Date(dateS);
-            nextDate.setDate(nextDate.getDate() + i);
-
-            let _mid_month =
-              nextDate.getMonth() + 1 < 10
-                ? '0' + (nextDate.getMonth() + 1)
-                : nextDate.getMonth() + 1;
-            let _mid_datestr =
-              nextDate.getDate() < 10
-                ? '0' + nextDate.getDate()
-                : nextDate.getDate();
-            let mid_key =
-              nextDate.getFullYear() + '-' + _mid_month + '-' + _mid_datestr;
-
-            if (
-              nextDate.getDate() === dateE.getDate() &&
-              nextDate.getMonth() === dateE.getMonth() &&
-              nextDate.getFullYear() === dateE.getFullYear()
-            ) {
-              i = betweenDates;
-            } else {
-              dateWiseSplitKeys[mid_key] = {};
-              /** creating between dates keys and insert in calendar period */
-              let ind = self.multiPeriodMark(
-                mid_key,
-                undefined,
-                nodeOBJColors[yearAudit_res.AuditStatus],
-                'middle',
-                indexIamInserting,
-              );
-              i++;
-            }
-          }
-        }
+      const color = nodeOBJColors[audit.AuditStatus] || '#DCEBFF';
+      const auditDates = {};
+      const dayCount = endDate.diff(startDate, 'days');
+      for (let offset = 0; offset <= dayCount; offset += 1) {
+        const date = startDate.clone().add(offset, 'days');
+        const key = date.format('YYYY-MM-DD');
+        auditDates[key] = {};
+        this.multiperiods[key] = {
+          startingDay: offset === 0,
+          endingDay: offset === dayCount,
+          color,
+          textColor: '#102344',
+        };
       }
-      // if (nodeColors[(index + 1)]) {
-      //     index = index + 1
-      // } else {
-      //     index = 0
-      // }
-
-      dateWiseSplitKeys = {};
-      dateWiseSplit.push(dateWiseSplitKeys);
+      dateWiseSplit.push(auditDates);
     });
 
     this.setState({
@@ -526,10 +461,18 @@ class CalandarList extends Component {
         {/* <View style={{alignItems:"center",margin:5}}><Text style={{color:"red"}}>{"Note: Please select month and year to update"}</Text></View> */}
         <View style={styles.datePickersRow}>
           {this.renderDatePicker('Month', monthList, this.state.monthValue, 'calendar', item => {
-            this.setState({ monthValue: item.value, calendarupdateKey: `${this.state.yearValue}-${item.value}-${Date.now()}` });
+            this.setState({
+              monthValue: item.value,
+              selectedDate: `${this.state.yearValue}-${item.value}-01`,
+              calendarupdateKey: `${this.state.yearValue}-${item.value}-${Date.now()}`,
+            });
           })}
           {this.renderDatePicker('Year', yearList, this.state.yearValue, 'calendar', item => {
-            this.setState({ yearValue: this.state.yearValue, calendarupdateKey: `${item.value}-${this.state.monthValue}-${Date.now()}` });
+            this.setState({
+              yearValue: item.value,
+              selectedDate: `${item.value}-${this.state.monthValue}-01`,
+              calendarupdateKey: `${item.value}-${this.state.monthValue}-${Date.now()}`,
+            });
           })}
         </View>
         {this.state.loader ? (
@@ -557,8 +500,7 @@ class CalandarList extends Component {
   }
 
   renderCalandar() {
-    const currentMonth = Moment(`${this.state.yearValue}-${this.state.monthValue}-01`, 'YYYY-MM-DD', true);
-    const displayDate = currentMonth.format('ddd, DD MMM YYYY');
+    const displayDate = Moment(this.state.selectedDate, 'YYYY-MM-DD', true).format('ddd, DD MMM YYYY');
     return (
       <View style={styles.calendarCard}>
         <View style={styles.calendarDateHeader}>
@@ -579,7 +521,7 @@ class CalandarList extends Component {
           current={`${this.state.yearValue}-${this.state.monthValue}-01`}
           onDayPress={day => this.OnCalenderFilter(day)}
           markedDates={this.state.calendarPeriods}
-          markingType="multi-period"
+          markingType="period"
           hideArrows
           hideExtraDays={false}
           firstDay={0}
@@ -607,15 +549,39 @@ class CalandarList extends Component {
                 paddingVertical: 12,
               },
             },
-            'stylesheet.day.basic': {
+            'stylesheet.day.period': {
               base: {
-                width: 42,
-                height: 42,
+                width: 44,
+                height: 44,
                 alignItems: 'center',
                 justifyContent: 'center',
+                borderRadius: 22,
+                overflow: 'hidden',
+              },
+              wrapper: {
+                alignItems: 'center',
+                alignSelf: 'stretch',
+                marginLeft: -1,
+              },
+              fillers: {
+                position: 'absolute',
+                height: 44,
+                flexDirection: 'row',
+                left: 0,
+                right: 0,
+              },
+              leftFiller: {
+                height: 44,
+                flex: 1,
+                backgroundColor: '#FFFFFF',
+              },
+              rightFiller: {
+                height: 44,
+                flex: 1,
+                backgroundColor: '#FFFFFF',
               },
               text: {
-                marginTop: 4,
+                marginTop: 0,
                 fontSize: 17,
                 fontFamily: 'OpenSans-SemiBold',
                 color: '#102344',
@@ -655,6 +621,7 @@ class CalandarList extends Component {
   // }
 
   OnCalenderFilter(date) {
+    this.setState({ selectedDate: date.dateString || Moment(`${date.year}-${date.month}-${date.day}`).format('YYYY-MM-DD') });
     let _s_month = date.month < 10 ? '0' + date.month : date.month;
     let _s_datestr = date.day < 10 ? '0' + date.day : date.day;
     let myKey = _s_month + '-' + _s_datestr + '-' + date.year;
@@ -663,13 +630,10 @@ class CalandarList extends Component {
     let markedDates = {
       ...this.state.calendarPeriods,
       [start_key]: {
-        periods: [
-          {
-            startingDay: this.state.startDate === '' ? true : false,
-            endingDay: this.state.startDate === '' ? false : true,
-            color: '#DCEBFF',
-          },
-        ],
+        startingDay: this.state.startDate === '',
+        endingDay: this.state.startDate !== '',
+        color: '#1769E8',
+        textColor: '#FFFFFF',
       },
     };
     console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!@@@@@@@@@@@@@@@@@', markedDates);
