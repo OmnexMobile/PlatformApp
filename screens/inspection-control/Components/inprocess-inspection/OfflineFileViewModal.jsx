@@ -12,12 +12,12 @@ import { check, request, PERMISSIONS, RESULTS, openSettings } from 'react-native
 import { showMessage } from 'react-native-flash-message';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-const OfflineFileViewModal = ({ list = [], visible = false, onDismiss = () => { } }) => {
+const OfflineFileViewModal = ({ list = [], visible = false, onDismiss = () => {} }) => {
     const [fileList, setFileList] = useState([]);
     const [showLoader, setShowLoader] = useState(false);
     const insets = useSafeAreaInsets();
 
-    const getMimeType = (extension) => {
+    const getMimeType = extension => {
         const mimeTypes = {
             pdf: 'application/pdf',
             doc: 'application/msword',
@@ -73,14 +73,10 @@ const OfflineFileViewModal = ({ list = [], visible = false, onDismiss = () => { 
             }
 
             if (status === RESULTS.BLOCKED) {
-                Alert.alert(
-                    'Permission Blocked',
-                    'Storage permission is blocked. Please enable it from Settings.',
-                    [
-                        { text: 'Cancel', style: 'cancel' },
-                        { text: 'Open Settings', onPress: () => openSettings() },
-                    ]
-                );
+                Alert.alert('Permission Blocked', 'Storage permission is blocked. Please enable it from Settings.', [
+                    { text: 'Cancel', style: 'cancel' },
+                    { text: 'Open Settings', onPress: () => openSettings() },
+                ]);
                 granted = false;
             } else if (status !== RESULTS.GRANTED) {
                 Alert.alert('Permission Denied', 'Storage permission is required to download files.');
@@ -118,14 +114,12 @@ const OfflineFileViewModal = ({ list = [], visible = false, onDismiss = () => { 
         return { fileName, filePath };
     };
 
-
     const handleDownloadLocal = async (fileNameValue, base64Data, fileExtension) => {
         try {
-            const dir =
-                Platform.OS === 'android'
-                    ? RNBlobUtil.fs.dirs.DownloadDir
-                    : RNBlobUtil.fs.dirs.TemporaryDir;
-
+            const dir = Platform.OS === 'android' ? RNBlobUtil.fs.dirs.DownloadDir : RNBlobUtil.fs.dirs.DocumentDir;
+            if (!dir) {
+                throw new Error('Unable to determine the destination directory.');
+            }
             const fileNameText = fileNameValue?.split('.')[0] || 'File';
             const ext = fileExtension || fileNameValue?.split('.').pop() || 'txt';
 

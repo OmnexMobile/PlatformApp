@@ -14,7 +14,7 @@ import { check, request, PERMISSIONS, RESULTS, openSettings } from 'react-native
 import { showMessage } from 'react-native-flash-message';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-const FileViewModal = ({ visible = false, onDismiss = () => { }, selectedValue = {}, userData = {} }) => {
+const FileViewModal = ({ visible = false, onDismiss = () => {}, selectedValue = {}, userData = {} }) => {
     const [fileList, setFileList] = useState([]);
     const [showLoader, setShowLoader] = useState(false);
     const insets = useSafeAreaInsets();
@@ -34,7 +34,7 @@ const FileViewModal = ({ visible = false, onDismiss = () => { }, selectedValue =
     //         Alert.alert('Error', 'Failed to open file: ' + error.message);
     //     }
     // };
-        const getAllFiles = async () => {
+    const getAllFiles = async () => {
         setShowLoader(true);
         const formData = new FormData();
         formData.append('operationId', selectedValue?.OperationID);
@@ -53,7 +53,7 @@ const FileViewModal = ({ visible = false, onDismiss = () => { }, selectedValue =
             getAllFiles();
         }
     }, [selectedValue]);
-    const getMimeType = (extension) => {
+    const getMimeType = extension => {
         const mimeTypes = {
             pdf: 'application/pdf',
             doc: 'application/msword',
@@ -109,14 +109,10 @@ const FileViewModal = ({ visible = false, onDismiss = () => { }, selectedValue =
             }
 
             if (status === RESULTS.BLOCKED) {
-                Alert.alert(
-                    'Permission Blocked',
-                    'Storage permission is blocked. Please enable it from Settings.',
-                    [
-                        { text: 'Cancel', style: 'cancel' },
-                        { text: 'Open Settings', onPress: () => openSettings() },
-                    ]
-                );
+                Alert.alert('Permission Blocked', 'Storage permission is blocked. Please enable it from Settings.', [
+                    { text: 'Cancel', style: 'cancel' },
+                    { text: 'Open Settings', onPress: () => openSettings() },
+                ]);
                 granted = false;
             } else if (status !== RESULTS.GRANTED) {
                 Alert.alert('Permission Denied', 'Storage permission is required to download files.');
@@ -154,14 +150,13 @@ const FileViewModal = ({ visible = false, onDismiss = () => { }, selectedValue =
         return { fileName, filePath };
     };
 
-
     const handleDownloadLocal = async (fileNameValue, base64Data, fileExtension) => {
         try {
-            const dir =
-                Platform.OS === 'android'
-                    ? RNBlobUtil.fs.dirs.DownloadDir
-                    : RNBlobUtil.fs.dirs.TemporaryDir;
-
+            const dir = Platform.OS === 'android' ? RNBlobUtil.fs.dirs.DownloadDir : RNBlobUtil.fs.dirs.DocumentDir;
+            // : RNBlobUtil.fs.dirs.TemporaryDir;
+            if (!dir) {
+                throw new Error('Unable to determine the destination directory.');
+            }
             const fileNameText = fileNameValue?.split('.')[0] || 'File';
             const ext = fileExtension || fileNameValue?.split('.').pop() || 'txt';
 
