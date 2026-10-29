@@ -55,7 +55,8 @@ const tryConfigsInOrder = async attemptConfigs => {
             return { resultAuth, requestConfig: config };
         } catch (error) {
             const isLast = index === attemptConfigs.length - 1;
-            if (isLast || !isRetriableAuthorizeCallbackError(error)) {
+            const wasCancelled = /cancel/i.test(errorText(error));
+            if (wasCancelled || isLast || !isRetriableAuthorizeCallbackError(error)) {
                 throw error;
             }
             console.log('SSO attempt failed, trying next redirect', {
@@ -67,8 +68,20 @@ const tryConfigsInOrder = async attemptConfigs => {
     }
 };
 
+// const runAzureAttempts = async (ssoConfig, initialConfig) => {
+//     const attempts = getAzureIosAuthorizeRedirectAttemptConfigs(ssoConfig, Platform.OS) || [];
+
+//     return attempts.length === 0
+//         ? {
+//               resultAuth: await authorizeWithWatchdog(initialConfig),
+//               requestConfig: initialConfig,
+//           }
+//         : tryConfigsInOrder(attempts);
+// };
 const runAzureAttempts = async (ssoConfig, initialConfig) => {
-    const attempts = getAzureIosAuthorizeRedirectAttemptConfigs(ssoConfig, Platform.OS) || [];
+    const all = getAzureIosAuthorizeRedirectAttemptConfigs(ssoConfig, Platform.OS) || [];
+    // Entra only accepts custom-scheme redirects with "://". Skip single-slash variants.
+    const attempts = all.filter(c => /^[a-z][a-z0-9+.-]*:\/\//i.test(c.redirectUrl || ''));
 
     return attempts.length === 0
         ? {
@@ -126,9 +139,7 @@ const retryAfterFailure = async (error, ssoConfig, currentConfig) => {
 // };
 export const authorizeSso = async (ssoConfig, built) => {
     const { config, normalizedConfig } = built;
-    const isAzure =
-        normalizedConfig?.isAzureProvider ||
-        /^https:\/\/login\.microsoftonline\.com/i.test(normalizedConfig?.issuer || '');
+    const isAzure = normalizedConfig?.isAzureProvider || /^https:\/\/login\.microsoftonline\.com/i.test(normalizedConfig?.issuer || '');
 
     let outcome;
     try {
@@ -146,32 +157,88 @@ export const authorizeSso = async (ssoConfig, built) => {
     return outcome;
 };
 
+// export const runSsoAuthorization = async rawConfig => {
+//     const ssoConfig = rawConfig && Object.keys(rawConfig).length > 0 ? normalizeSsoConfig(rawConfig) : {};
+
+//     try {
+//         const built = buildAuthorizeConfig(ssoConfig);
+//         if (built.error) {
+//             return { ok: false, message: built.error };
+//         }
+
+//         // const { resultAuth, requestConfig } = await authorizeSso(ssoConfig, built);
+//         const outcome = await authorizeSso(ssoConfig, built);
+//         const { resultAuth, requestConfig } = outcome || {};
+//         console.log('SSO authorize result:', resultAuth, 'requestConfig:', requestConfig);
+//         if (!resultAuth) {
+//             throw new Error('SSO returned no result. The browser may have closed before sign-in finished.');
+//         }
+//         const ctx = getSsoBackendLoginContext(resultAuth);
+
+//         if (!ctx.backendLoginValue) {
+//             throw new Error('SSO response did not include an idToken or accessToken.');
+//         }
+
+//         return {
+//             ok: true,
+//             isSso: {
+//                 backendLoginValue: ctx.backendLoginValue,
+//                 loginIdentifier: ctx.displayLoginIdentifier,
+//                 config: requestConfig,
+//                 token: { tokenToRevoke: ctx.tokenToRevoke, sendClientId: true },
+//             },
+//         };
+//     } catch (err) {
+//         const text = String(err?.message || err?.error || err);
+//         return {
+//             ok: false,
+//             cancelled: /cancel/i.test(text), // user closed the browser, not a real error
+//             message: getSsoLoginErrorMessage(err, ssoConfig),
+//         };
+//     }
+// };
+
 export const runSsoAuthorization = async rawConfig => {
     const ssoConfig = rawConfig && Object.keys(rawConfig).length > 0 ? normalizeSsoConfig(rawConfig) : {};
 
     try {
-        const built = buildAuthorizeConfig(ssoConfig);
+        const effectiveConfig =
+            Platform.OS === 'ios' ? { ...ssoConfig, forcePlatformCallbackRedirect: true, iosRedirectVariant: 'doubleslash' } : ssoConfig;
+        const built = buildAuthorizeConfig(effectiveConfig);
         if (built.error) {
             return { ok: false, message: built.error };
         }
-
-        // const { resultAuth, requestConfig } = await authorizeSso(ssoConfig, built);
-        const outcome = await authorizeSso(ssoConfig, built);
+        console.log('SSO FINAL CONFIG:', {
+            platform: Platform.OS,
+            forceAzureRedirect: effectiveConfig.forceAzureRedirect,
+            forcePlatformCallbackRedirect: effectiveConfig.forcePlatformCallbackRedirect,
+            redirectUrl: built?.config?.redirectUrl,
+            builtConfig: built,
+        });
+        const outcome = await authorizeSso(effectiveConfig, built);
         const { resultAuth, requestConfig } = outcome || {};
-        console.log('SSO authorize result:', resultAuth, 'requestConfig:', requestConfig);
+        // Log only which fields came back, never the tokens themselves.
+        console.log('SSO authorize fields:', resultAuth && Object.keys(resultAuth), 'redirect:', requestConfig?.redirectUrl);
         if (!resultAuth) {
             throw new Error('SSO returned no result. The browser may have closed before sign-in finished.');
         }
         const ctx = getSsoBackendLoginContext(resultAuth);
 
-        if (!ctx.backendLoginValue) {
+        // Azure: the access token is issued for Microsoft Graph and can't be
+        // validated by your backend, so send the ID token instead.
+        const isAzure = Boolean(built.normalizedConfig?.isAzureProvider);
+        const backendLoginValue = isAzure && resultAuth.idToken ? resultAuth.idToken : ctx.backendLoginValue;
+
+        if (!backendLoginValue) {
             throw new Error('SSO response did not include an idToken or accessToken.');
         }
+
+        console.log('SSO backend token type:', isAzure && resultAuth.idToken ? 'idToken' : ctx.backendLoginValueType);
 
         return {
             ok: true,
             isSso: {
-                backendLoginValue: ctx.backendLoginValue,
+                backendLoginValue,
                 loginIdentifier: ctx.displayLoginIdentifier,
                 config: requestConfig,
                 token: { tokenToRevoke: ctx.tokenToRevoke, sendClientId: true },
