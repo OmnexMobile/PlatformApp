@@ -75,30 +75,26 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
 //   return RCTLinkingManager.application(app, open: url, options: options)
 // }
-func application(
-  _ app: UIApplication,
-  open url: URL,
-  options: [UIApplication.OpenURLOptionsKey: Any] = [:]
-) -> Bool {
- NSLog("🔗 openURL called: \(url.absoluteString)")
-  NSLog("🔗 flow delegate nil? \(authorizationFlowManagerDelegate == nil)")
-  // Azure returns scheme://host/?code=... ; AppAuth expects scheme://host?code=...
-  var normalizedURL = url
-  if var components = URLComponents(url: url, resolvingAgainstBaseURL: false),
-     components.path == "/" {
-    components.path = ""
-    normalizedURL = components.url ?? url
-  }
- NSLog("🔗 openURL normalizedURL: \(normalizedURL)")
- NSLog("🔗 openURL authorizationFlowManagerDelegate: \(authorizationFlowManagerDelegate)")
+  func application(
+    _ app: UIApplication,
+    open url: URL,
+    options: [UIApplication.OpenURLOptionsKey: Any] = [:]
+  ) -> Bool {
 
-  if let delegate = authorizationFlowManagerDelegate,
-     delegate.resumeExternalUserAgentFlow(with: normalizedURL) {
-    return true
-  }
+    // Azure returns scheme://host/?code=... ; AppAuth expects scheme://host?code=...
+    var normalizedURL = url
+    if var components = URLComponents(url: url, resolvingAgainstBaseURL: false),
+      components.path == "/" {
+      components.path = ""
+      normalizedURL = components.url ?? url
+    }
+    if let delegate = authorizationFlowManagerDelegate,
+      delegate.resumeExternalUserAgentFlow(with: normalizedURL) {
+      return true
+    }
 
-  return RCTLinkingManager.application(app, open: url, options: options)
-}
+    return RCTLinkingManager.application(app, open: url, options: options)
+  }
   // ✅ Forward APNS token to Firebase — THIS fixes "No APNS token" error
   func application(_ application: UIApplication,
                    didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {

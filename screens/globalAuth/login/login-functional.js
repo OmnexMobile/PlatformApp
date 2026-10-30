@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
 import CryptoJS from 'react-native-crypto-js';
 import { APP_VARIABLES, LOCAL_STORAGE_VARIABLES, ROUTES } from 'constants/app-constant';
@@ -19,10 +19,11 @@ import { normalizeSsoConfig } from '../../../services/SsoAuthConfig';
 
 const LoginFunctional = ({}) => {
     const dispatch = useDispatch();
-    const { icLoginlogo } = useSelector(state => state.inspection);
+    const { dateFormat, icLoginlogo } = useSelector(state => state.inspection);
     const [selectedLoginType, setSelectedLoginType] = useState(APP_VARIABLES.EWQIMS);
     const [ssoConfigs, setSsoConfigs] = useState(null);
     const [selectLanguageModal, setSelectLanguageModal] = useState(false);
+    const [localDateFormat, setLocalDateFormat] = useState('');
     const [loginDetails, setLoginDetails] = useState({
         // username: 'Champion1@michelin',
         // password: 'a1',
@@ -90,7 +91,10 @@ const LoginFunctional = ({}) => {
             }
         };
         load();
-    }, [icLoginlogo]);
+    }, [localDateFormat]);
+    useEffect(() => {
+        setLocalDateFormat(dateFormat);
+    }, [dateFormat]);
     useEffect(() => {
         currentToken && navigation.navigate(ROUTES.SPLASH_SCREEN);
     }, [currentToken]);

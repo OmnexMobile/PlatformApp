@@ -150,6 +150,29 @@ const RegisterFunctional = ({}) => {
             //     httpReadTimeout: '10',
             //     customUriScheme: '',
             // };
+            // octserup
+            // let dummySsoFlags = {
+            //     issuer: 'https://integrator-1861188.okta.com/oauth2/default',
+            //     clientId: '0oa198d2mcwm4BRr7698',
+            //     redirectUrl: 'com.omnex.integratedapp:/callback',
+            //     endSessionRedirectUri: 'com.omnex.integratedapp:/callback',
+            //     discoveryUri: 'https://integrator-1861188.okta.com/oauth2/default/.well-known/openid-configuration',
+            //     scope: "['openid', 'profile', 'email', 'offline_access']",
+            //     requireHardwareBackedKeyStore: 'False',
+            //     httpReadTimeout: '10',
+            //     customUriScheme: '',
+            // };
+            // let dummySsoFlags = {
+            //       issuer: 'https://login.microsoftonline.com/78b0f1ae-6e74-4272-9010-b896d5c1d907/v2.0',
+            //     clientId: 'fad4993b-d732-40ba-bcd0-198eda2cb696',
+            //     redirectUrl: '',
+            //     endSessionRedirectUri: '',
+            //     discoveryUri: 'https://login.microsoftonline.com/78b0f1ae-6e74-4272-9010-b896d5c1d907/v2.0/.well-known/openid-configuration',
+            //     scope: 'openid profile email offline_access',
+            //     requireHardwareBackedKeyStore: 'False',
+            //     httpReadTimeout: '10',
+            //     customUriScheme: '',
+            // };
             handleGlobalURL('serverUrl', state?.globalServerURL);
             localStorage.storeData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL, state?.globalServerURL);
             localStorage.storeData(LOCAL_STORAGE_VARIABLES.globalRegister, state?.globalServerURL);
@@ -183,7 +206,7 @@ const RegisterFunctional = ({}) => {
                 dispatch({ type: 'STORE_LOGIN_LOGO', icLoginlogo: data?.Data?.LogoBig });
             }
         } catch (err) {
-            console.log('🚀 ~ file: DEVICE_STATUS ~ err', err);
+            console.log('🚀 ~ file: STORE_LOGIN_LOGO ~ err', err);
         }
     };
 
