@@ -39,6 +39,9 @@ export const authorizeWithWatchdog = async (requestConfig, timeoutSeconds = DEFA
 
     try {
         const result = await Promise.race([authorize(requestConfig), timeout]);
+    //     const request =
+    // Platform.OS === 'ios' ? { ...requestConfig, iosCustomBrowser: 'safari' } : requestConfig;
+// const result = await Promise.race([authorize(request), timeout]);
         console.log('SSO authorize raw:', typeof result, result && Object.keys(result));
         return result;
     } finally {
@@ -202,8 +205,8 @@ export const runSsoAuthorization = async rawConfig => {
     const ssoConfig = rawConfig && Object.keys(rawConfig).length > 0 ? normalizeSsoConfig(rawConfig) : {};
 
     try {
-        const effectiveConfig =
-            Platform.OS === 'ios' ? { ...ssoConfig, forcePlatformCallbackRedirect: true, iosRedirectVariant: 'doubleslash' } : ssoConfig;
+        const effectiveConfig =ssoConfig
+            // Platform.OS === 'ios' ? { ...ssoConfig, forcePlatformCallbackRedirect: true, iosRedirectVariant: 'doubleslash' } : ssoConfig;
         const built = buildAuthorizeConfig(effectiveConfig);
         if (built.error) {
             return { ok: false, message: built.error };

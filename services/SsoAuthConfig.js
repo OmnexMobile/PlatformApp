@@ -6,10 +6,13 @@ const DEFAULT_RESPONSE_TYPES = ['code'];
 const DEFAULT_HTTP_READ_TIMEOUT_SECONDS = 10;
 export const DEFAULT_SSO_AUTHORIZE_TIMEOUT_SECONDS = 90;
 
+
 const PLATFORM_CALLBACK_SCHEMES = {
   ios: 'com.omnex.integratedapp',
   android: 'com.omnex.integratedapp',
 };
+const IOS_AZURE_REDIRECT_URL = `${PLATFORM_CALLBACK_SCHEMES.ios}://auth/callback`;
+const IOS_AZURE_END_SESSION_URL = `${PLATFORM_CALLBACK_SCHEMES.ios}://auth/logout`;
 
 const AZURE_AUTHORITY_HOSTS = [
   'login.microsoftonline.com',
@@ -757,7 +760,14 @@ const resolvePlatformSsoRedirectConfig = ({
   const isLegacyAndroidAzureRedirect =
     platform === 'android' &&
     explicitRedirectConfig?.scheme === AZURE_ANDROID_REDIRECT_SCHEME;
-
+  // iOS + Azure: use a URI with a real path so Azure doesn't append "/" to the callback.
+  if (platform === 'ios' && isAzureProvider) {
+    return {
+      scheme: PLATFORM_CALLBACK_SCHEMES.ios,
+      redirectUrl: IOS_AZURE_REDIRECT_URL,
+      endSessionRedirectUri: IOS_AZURE_END_SESSION_URL,
+    };
+  }
   if (forcePlatformCallbackRedirect) {
     return getDefaultPlatformSsoRedirectConfig(platform, {
       iosVariant: iosRedirectVariant,
@@ -772,17 +782,28 @@ const resolvePlatformSsoRedirectConfig = ({
     });
   }
 
-  if (isAzureProvider) {
-    if (explicitRedirectConfig?.isAzureRedirect && !isLegacyAndroidAzureRedirect) {
-      return explicitRedirectConfig;
-    }
+if (isAzureProvider) {
+  if (explicitRedirectConfig?.isAzureRedirect && !isLegacyAndroidAzureRedirect) {
+    return explicitRedirectConfig;
+  }
 
-    return getAzurePlatformSsoRedirectConfig(platform, {
-      iosVariant: azureIosVariant,
-      androidVariant: azureAndroidVariant || androidRedirectVariant,
+  // Azure only accepts custom-scheme://path (double slash) in the Authentication UI,
+  // so upgrade a single-slash platform callback from the backend to double slash.
+  if (
+    explicitRedirectConfig &&
+    isPlatformIosCallbackRedirect(explicitRedirectConfig.redirectUrl)
+  ) {
+    return getDefaultPlatformSsoRedirectConfig(platform, {
+      iosVariant: 'doubleslash',
+      androidVariant: 'doubleslash',
     });
   }
 
+  return getAzurePlatformSsoRedirectConfig(platform, {
+    iosVariant: azureIosVariant,
+    androidVariant: azureAndroidVariant || androidRedirectVariant,
+  });
+}
   if (explicitRedirectConfig) {
     if (isLegacyAndroidAzureRedirect) {
       return getAzurePlatformSsoRedirectConfig(platform, {
@@ -809,10 +830,11 @@ const resolvePlatformSsoRedirectConfig = ({
     });
   }
 
-  return getDefaultPlatformSsoRedirectConfig(platform, {
-    iosVariant: iosRedirectVariant,
-    androidVariant: androidRedirectVariant,
-  });
+return getDefaultPlatformSsoRedirectConfig(platform, {
+  iosVariant: iosRedirectVariant || (isAzureProvider ? 'doubleslash' : undefined),
+  androidVariant:
+    androidRedirectVariant || (isAzureProvider ? 'doubleslash' : undefined),
+});
 };
 
 export const getPlatformSsoRedirectConfig = (
@@ -1363,27 +1385,27 @@ export const getAzureIosAuthorizeRedirectAttemptConfigs = (
   const attemptSources =
     platform === 'ios'
       ? [
-          rawConfig,
-          {
-            ...rawConfig,
-            forceAzureRedirect: true,
-          },
-          {
-            ...rawConfig,
-            forceAzureRedirect: true,
-            azureIosRedirectVariant: 'singleSlash',
-          },
-          {
-            ...rawConfig,
-            forcePlatformCallbackRedirect: true,
-            iosRedirectVariant: 'doubleslash',
-          },
-          {
-            ...rawConfig,
-            forcePlatformCallbackRedirect: true,
-            iosRedirectVariant: 'singleSlash',
-          },
-        ]
+  {
+    ...rawConfig,
+    forcePlatformCallbackRedirect: true,
+    iosRedirectVariant: 'doubleslash',   // com.omnex.integratedapp://callback (registered in Azure)
+  },
+  rawConfig,                              // msauth.com.omnex.integratedapp://auth
+  {
+    ...rawConfig,
+    forceAzureRedirect: true,
+  },
+  {
+    ...rawConfig,
+    forcePlatformCallbackRedirect: true,
+    iosRedirectVariant: 'singleslash',   // last resort
+  },
+  {
+    ...rawConfig,
+    forceAzureRedirect: true,
+    azureIosRedirectVariant: 'singleslash',
+  },
+]
       : [
           rawConfig,
           {
@@ -1591,8 +1613,8 @@ export const getSsoLoginErrorMessage = (
 
   if (/timed out waiting for.*browser callback/i.test(rawMessage)) {
     if (platform === 'ios' && normalizedConfig.isAzureProvider === true) {
-      return `Microsoft Entra login timed out waiting for the app callback. Register one of these exact iOS redirect URIs in Azure: msauth.com.omnex.integratedapp://auth, msauth.com.omnex.integratedapp:/auth, com.omnex.integratedapp://callback, or com.omnex.integratedapp:/callback. The app last tried ${redirectUrl}.`;
-    }
+       return `Microsoft Entra login timed out waiting for the app callback. Register this exact iOS redirect URI in Azure under Mobile and desktop applications: ${IOS_AZURE_REDIRECT_URL}. The app last tried ${redirectUrl}.`;
+}
 
     return `SSO login timed out waiting for the browser callback. Verify ${redirectUrl} is registered exactly in the identity provider.`;
   }
