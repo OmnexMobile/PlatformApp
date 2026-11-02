@@ -14,7 +14,7 @@ import {
 } from './SsoAuthConfig';
 
 const WARN_AFTER_MS = 30000;
-const RETRY_TIMEOUT_SECONDS = 45;
+const RETRY_TIMEOUT_SECONDS = 300;
 
 const errorText = e => e?.message || e?.error || String(e);
 

@@ -4,7 +4,7 @@ const DEFAULT_SCOPES = ['openid', 'email'];
 const AZURE_DEFAULT_SCOPES = ['openid', 'profile', 'email', 'offline_access'];
 const DEFAULT_RESPONSE_TYPES = ['code'];
 const DEFAULT_HTTP_READ_TIMEOUT_SECONDS = 10;
-export const DEFAULT_SSO_AUTHORIZE_TIMEOUT_SECONDS = 90;
+export const DEFAULT_SSO_AUTHORIZE_TIMEOUT_SECONDS = 300;
 
 
 const PLATFORM_CALLBACK_SCHEMES = {

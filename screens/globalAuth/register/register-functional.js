@@ -181,7 +181,7 @@ const RegisterFunctional = ({}) => {
             //     SSOFlags: dummySsoFlags,
             //     SSOActive: true,
             // });
-            localStorage.storeData(LOCAL_STORAGE_VARIABLES.SSO_CONFIGS, data?.Data?.SSOFlags);
+            localStorage.storeData(LOCAL_STORAGE_VARIABLES.SSO_CONFIGS, {...data?.Data?.SSOFlags, SSOActive: data?.Data?.SSOActive});
             localStorage.storeData(LOCAL_STORAGE_VARIABLES.IC_API_URL, data?.Data.ICApiURL);
             await processSsoResponse(data?.Data); // <-- new: stores sso_login_state + normalized config
             // handleDeviceDetails(data?.Data)
