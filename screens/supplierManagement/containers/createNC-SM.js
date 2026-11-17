@@ -183,6 +183,7 @@ class CreateNC extends Component {
             MarkReq: false,
             MarkDept: false,
             MarkFailure: false,
+            MarkOFIText: false,
             MarkClause: false,
             MarkProcess: false,
             MarkClausedrop: false,
@@ -2284,6 +2285,26 @@ class CreateNC extends Component {
                 MarkClause: false,
                 MarkProcess: false,
             });
+        } else if (this.state.RouteParam === 'OFI') {
+            const hasOfiText = typeof this.state.ofitext === 'string' ? this.state.ofitext.trim().length > 0 : !!this.state.ofitext;
+            const isCategoryFilled = !!this.state.NCcategoryt;
+            const isResponsibilityFilled = !!this.state.NCrequestby;
+            const isRequestedByFilled = !!this.state.NCresponsible;
+
+            if (!hasOfiText || !isCategoryFilled || !isResponsibilityFilled || !isRequestedByFilled) {
+                this.setState({
+                    isSaved: false,
+                    PageLoader: false,
+                    isSavebtn: false,
+                    MarkOFIText: !hasOfiText,
+                    MarkCat: !isCategoryFilled,
+                    MarkReq: !isResponsibilityFilled,
+                    MarkUser: !isRequestedByFilled,
+                }, () => showErrorMessage('Please fill the mandatory fields.'));
+                return;
+            }
+
+            this.setState({ MarkOFIText: false, MarkCat: false, MarkReq: false, MarkUser: false });
         }
 
         if (this.props.data.audits.smdata === 2 || this.props.data.audits.smdata === 3) {
@@ -3214,7 +3235,9 @@ class CreateNC extends Component {
                                                         name="ofitext"
                                                         required
                                                         value={this.state.ofitext}
+                                                        error={this.state.MarkOFIText}
                                                         placeholder={strings.Opportunity_ApproachL}
+                                                        error={this.state.MarkOFIText}
                                                         inputStyle={styles.inputNoHorizontalPadding}
                                                         multiline
                                                         numberOfLines={3}
@@ -3222,7 +3245,8 @@ class CreateNC extends Component {
                                                         inputRef={ref => (this.ofiTxtField = ref)}
                                                         containerStyle={styles.inputContainerNoPad}
                                                         onChangeText={(field, value) => {
-                                                            this.setState({ ofitext: value }, () => {
+                                                            const hasValue = typeof value === 'string' ? value.trim().length > 0 : !!value;
+                                                            this.setState({ ofitext: value, MarkOFIText: !hasValue }, () => {
                                                                 this.isCheck3 = true;
                                                             });
                                                         }}

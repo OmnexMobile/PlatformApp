@@ -199,6 +199,9 @@ class CheckPointDemo extends Component {
         this.isCheckpointDeckAnimating = false;
         this.isCheckpointStepLocked = false;
         this.isInteractingWithHorizontalControl = false;
+        this.allowCheckpointNavigation = false;
+        this.exitPromptVisible = false;
+        this.navigationGuardUnsubscribe = null;
         this.checkpointSwipeResponder = PanResponder.create({
             onMoveShouldSetPanResponder: (_, gestureState) => this.shouldHandleCheckpointSwipe(gestureState),
             onMoveShouldSetPanResponderCapture: (_, gestureState) => this.shouldHandleCheckpointSwipe(gestureState),
@@ -210,6 +213,21 @@ class CheckPointDemo extends Component {
     }
 
     componentDidMount() {
+        this.navigationGuardUnsubscribe = this.props.navigation.addListener('beforeRemove', event => {
+            if (this.allowCheckpointNavigation || !this.state.isUnsavedData) {
+                return;
+            }
+
+            event.preventDefault();
+            if (!this.exitPromptVisible) {
+                this.exitPromptVisible = true;
+                this.setState({
+                    dialogVisible: true,
+                    dialogVisibleNC: false,
+                    go_home: false,
+                });
+            }
+        });
         this.dimensionSubscription = Dimensions.addEventListener('change', this.handleOrientationChange);
         this.syncWindowDimensions();
         let Files = '/' + RNFetchBlob.fs.dirs.DocumentDir + '/' + (Platform.OS == 'ios' ? 'IosFiles' : 'AuditFiles');
@@ -251,6 +269,7 @@ class CheckPointDemo extends Component {
     }
 
     componentWillUnmount() {
+        this.navigationGuardUnsubscribe?.();
         if (this.orientationSyncTimeout) {
             clearTimeout(this.orientationSyncTimeout);
             this.orientationSyncTimeout = null;
@@ -3080,6 +3099,8 @@ class CheckPointDemo extends Component {
                                     },
                                     () => {
                                         // this.showToast(strings.CheckpointSave, 5000);
+                                        this.exitPromptVisible = false;
+                                        this.allowCheckpointNavigation = true;
                                         if (this.state.go_home) {
                                             this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD);
                                             this.getTotalNCStatus();
@@ -8534,11 +8555,18 @@ class CheckPointDemo extends Component {
                         confirmText={strings.yes}
                         cancelText={strings.no}
                         onConfirm={this.updateCheckPointsValues.bind(this)}
-                        onCancel={() =>
-                            this.setState({ dialogVisible: false }, () => {
-                                this.state.go_home ? this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD) : this.props.navigation.goBack();
-                            })
-                        }
+                        onCancel={() => {
+                            const navigateHome = this.state.go_home;
+                            this.setState({ dialogVisible: false, go_home: false }, () => {
+                                this.exitPromptVisible = false;
+                                this.allowCheckpointNavigation = true;
+                                navigateHome ? this.props.navigation.navigate(ROUTES.GLOBAL_DASHBOARD) : this.props.navigation.goBack();
+                            });
+                        }}
+                        onRequestClose={() => {
+                            this.exitPromptVisible = false;
+                            this.setState({ dialogVisible: false, go_home: false });
+                        }}
                     />
 
                     <Modal
