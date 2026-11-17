@@ -48,16 +48,36 @@ const DynamicFormField = ({
         case 'Integer':
         case 'Text':
             return (
+                // <TextInput
+                //     value={value || ''}
+                //     style={[styles.inputBox, { backgroundColor: isEditable ? backgroundColor : COLORS.whiteGrey }]}
+                //     onChangeText={val => {
+                //         if (isEditable) {
+                //             handleChange(val);
+                //         }
+                //     }}
+                //     placeholder={placeHolder}
+                //     // multiline={true}
+                //     // editable={isEditable}
+                // />
                 <TextInput
                     value={value || ''}
-                    style={[styles.inputBox, { backgroundColor: isEditable ? backgroundColor : COLORS.whiteGrey }]}
+                    style={[
+                        styles.multilineInput,
+                        {
+                            backgroundColor: isEditable ? backgroundColor : COLORS.whiteGrey,
+                        },
+                    ]}
                     onChangeText={val => {
                         if (isEditable) {
                             handleChange(val);
                         }
                     }}
                     placeholder={placeHolder}
-                    // editable={isEditable}
+                    multiline={true}
+                    scrollEnabled={true}
+                    textAlignVertical="center"
+                    // numberOfLines={3}
                 />
             );
         case 'singleDropDown':
@@ -71,7 +91,7 @@ const DynamicFormField = ({
                     title=""
                     borderRadius={4}
                     borderColor={COLORS.icBottomBox}
-                    showSearch={false}
+                    showSearch={dropDownData?.length > 10 ? true : false}
                     maxHeight={200}
                     value={value || {}}
                     onChange={val => {
@@ -177,16 +197,35 @@ const DynamicFormField = ({
             );
         default:
             return (
+                // <TextInput
+                //     value={value || ''}
+                //     style={[styles.inputBox, { backgroundColor: isEditable ? backgroundColor : COLORS.whiteGrey }]}
+                //     onChangeText={val => {
+                //         if (isEditable) {
+                //             handleChange(val);
+                //         }
+                //     }}
+                //     placeholder={placeHolder}
+                //     // editable={isEditable}
+                // />
                 <TextInput
                     value={value || ''}
-                    style={[styles.inputBox, { backgroundColor: isEditable ? backgroundColor : COLORS.whiteGrey }]}
+                    style={[
+                        styles.multilineInput,
+                        {
+                            backgroundColor: isEditable ? backgroundColor : COLORS.whiteGrey,
+                        },
+                    ]}
                     onChangeText={val => {
                         if (isEditable) {
                             handleChange(val);
                         }
                     }}
                     placeholder={placeHolder}
-                    // editable={isEditable}
+                    multiline={true}
+                    scrollEnabled={true}
+                    textAlignVertical="center"
+                    // numberOfLines={3}
                 />
             );
     }
@@ -213,6 +252,18 @@ const styles = StyleSheet.create({
         fontFamily: 'OpenSans-Regular',
         fontSize: 13,
         color: COLORS.headerText,
+    },
+    multilineInput: {
+        minHeight: 40,
+        height: undefined,
+        paddingVertical: 10,
+        textAlignVertical: 'center',
+        borderWidth: 1,
+        borderRadius: 4,
+        borderColor: COLORS.icBottomBox,
+        marginTop: 8,
+        color: COLORS.ictextBlack,
+        paddingHorizontal: 10,
     },
 });
 

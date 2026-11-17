@@ -123,7 +123,12 @@ const SampleCharInfo = ({
             return userUpdateValue.CLowValue?.toString();
         } else if (item?.PropertyName === 'CTolerance' || item?.RefData === '##ATTorVAR##') {
             return userUpdateValue.CTolerance?.toString();
-        } else if (item?.PropertyName === 'CSampleSize' || item?.RefData === '##SampleSize##' || item.PropertyName.includes('SampleSize')) {
+        } else if (
+            item?.PropertyName === 'CSampleSize' ||
+            item?.ReferenceName == 'CSampleSize' ||
+            item?.RefData === '##SampleSize##' ||
+            item?.PropertyName.includes('SampleSize')
+        ) {
             return userUpdateValue.CSampleSize?.toString();
         } else {
             return item?.Value;
@@ -155,8 +160,6 @@ const SampleCharInfo = ({
                                 </Text>
                                 <View>
                                     <DynamicFormField
-                                        index={`${selectedData.FuncDetailsId}+${index}`}
-                                        key={`${index + 1}-${item.PropertyName}-${index}`}
                                         backgroundColor={
                                             item.RefData == '##StaticSample##'
                                                 ? renderBackGroundColor(item?.Value, charType, selectedData?.charInfo)
@@ -181,6 +184,7 @@ const SampleCharInfo = ({
                                             } else if (
                                                 item?.PropertyName == 'CSampleSize' ||
                                                 item?.RefData == '##SampleSize##' ||
+                                                item?.ReferenceName == 'CSampleSize' ||
                                                 item?.PropertyName.includes('SampleSize')
                                             ) {
                                                 handleUserInputChange('CSampleSize', val, 'samplesize', selectedData?.CSampleSize, 'CSampleSize');

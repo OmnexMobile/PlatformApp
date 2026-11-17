@@ -498,7 +498,7 @@ const InprocessInspection = ({ route }) => {
             setValueUpadted([]);
         } else {
             handleFinalSavePress();
-
+            
         }
         if (close && showChar) {
             setShowChar(false);
@@ -685,7 +685,11 @@ const InprocessInspection = ({ route }) => {
                 // setUserUpdateValue(pre => ({ ...pre, CSampleSize: selectedData.CSampleSize.toString() }));
             } else {
                 let temp = JSON.parse(JSON.stringify(userUpdateValue.charInfo));
-                let updatedtemp = temp.map(item => (item.PropertyName === 'CSampleSize' ? { ...item, Value: userUpdateValue.CSampleSize } : item));
+                let updatedtemp = temp.map(item =>
+                    item.PropertyName === 'CSampleSize' || item?.ReferenceName === 'CSampleSize'
+                        ? { ...item, Value: userUpdateValue.CSampleSize }
+                        : item,
+                );
                 setSelectedData(pre => ({ ...pre, CSampleSize: userUpdateValue.CSampleSize, charInfo: updatedtemp }));
                 setShowConfirmModal(false);
                 setTypeOfModal('');
@@ -792,7 +796,14 @@ const InprocessInspection = ({ route }) => {
                         </TouchableOpacity>
                         {showGeneral && (
                             <View style={[styles.tabBox]}>
-                                <GeneralInfo infoData={infoData} setInfoData={setInfoData} intInspectionTypeID={inspectData.intInspectionTypeID} isSamplePopup={[...infoData?.VariableCharacteristics,...infoData?.AttributeCharacteristics][0]?.charInfo?.some(c => c.PropertyName === 'ActualValue')} />
+                                <GeneralInfo
+                                    infoData={infoData}
+                                    setInfoData={setInfoData}
+                                    intInspectionTypeID={inspectData.intInspectionTypeID}
+                                    isSamplePopup={[...infoData?.VariableCharacteristics, ...infoData?.AttributeCharacteristics][0]?.charInfo?.some(
+                                        c => c.PropertyName === 'ActualValue',
+                                    )}
+                                />
                             </View>
                         )}
                     </View>
