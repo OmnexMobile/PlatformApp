@@ -203,6 +203,7 @@ const LoginFunctional = ({}) => {
             }
             response?.Token && setProfileCall(response);
             localStorage.storeData(LOCAL_STORAGE_VARIABLES.GLOBAL_SERVER_URL, APIURL);
+            await AsyncStorage.setItem('IsMultiOperation', '1');
             handleGlobalLogin(response);
             handleServerURL(response);
         } else if (response?.Message !== '') {

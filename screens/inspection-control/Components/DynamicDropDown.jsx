@@ -56,7 +56,7 @@ const DynamicDropDown = ({
         let temp = JSON.parse(JSON.stringify(listData));
         const updatedData = temp.map(item => (item.value === val.value ? { ...item, isChecked: !item.isChecked } : item));
         const filterList = updatedData.filter(item => item.isChecked);
-        handleSelectedList(filterList);
+        handleSelectedList(filterList,updatedData);
         setMultiValue(filterList);
         setListData([...updatedData]);
     };
@@ -64,10 +64,10 @@ const DynamicDropDown = ({
         let temp = JSON.parse(JSON.stringify(listData));
         const updatedData = temp.map(item => ({ ...item, isChecked: item.value === val.value ? true : false }));
         const filterList = updatedData.filter(item => item.isChecked);
-        handleSelectedList(filterList);
+        handleSelectedList(filterList, updatedData);
         setListData([...updatedData]);
         setMultiValue([val]);
-        handleSelectedList([val]);
+        handleSelectedList([val], updatedData);
         closeMenu();
     };
     const handleRemove = () => {
@@ -75,13 +75,13 @@ const DynamicDropDown = ({
         let updatedtemp = temp.map(item => ({ ...item, isChecked: false }));
         setListData([...updatedtemp]);
         setMultiValue([]);
-        handleSelectedList([]);
+        handleSelectedList([],[]);
     };
     const handleSelectAllPress=()=>{
         let temp = JSON.parse(JSON.stringify(listData));
         const updatedData = temp.map(item => ({ ...item, isChecked:true }));
         const filterList = updatedData.filter(item => item.isChecked);
-        handleSelectedList(filterList);
+        handleSelectedList(filterList,updatedData);
         setMultiValue(filterList);
         setListData([...updatedData]);
     }

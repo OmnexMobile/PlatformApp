@@ -76,7 +76,7 @@ const SampleCharInfo = ({
         }
     }, [selectedData]);
 
-    const handleUserInputChange = (key, val, type, oldValue, staticKey) => {
+    const handleUserInputChange = (key, val, type, oldValue, staticKey, sharedItem) => {
         let temp = JSON.parse(JSON.stringify(userUpdateValue.charInfo));
         let updatedtemp = temp.map(item => (item.PropertyName === key ? { ...item, Value: val } : item));
         setUserUpdateValue(pre => ({ ...pre, [staticKey]: val, charInfo: updatedtemp }));
@@ -88,6 +88,17 @@ const SampleCharInfo = ({
                     setShowConfirmModal(true);
                 }, 1000); // 1 second delay
                 setTimer(newTimer);
+            } else if (val.length && charType == 'char') {
+                if (key != 'CTolerance' || sharedItem?.ReferenceName == 'CTolerance') {
+                    // handleInputChange(key, val);
+                    let temp = JSON.parse(JSON.stringify(selectedData.charInfo));
+                    let updatedtemp = temp.map(item => (item.PropertyName === key ? { ...item, Value: val } : item));
+                    setSelectedData(pre => ({ ...pre, [staticKey]: val, charInfo: updatedtemp }));
+                    return;
+                } else {
+                    handleInputChange(key, val);
+                }
+                return;
             } else {
                 if (timer) clearTimeout(timer);
                 type === 'samplesize' &&
@@ -138,12 +149,14 @@ const SampleCharInfo = ({
                     })
                     .map((item, index) => {
                         return (
-                            <View style={styles.subBox} key={index + 1}>
+                            <View style={styles.subBox} key={`${item.PropertyName}-${index}`}>
                                 <Text style={styles.headerText} numberOfLines={1}>
                                     {item?.StaticText} {item?.Required && <Text style={styles.isRequired}> *</Text>}
                                 </Text>
-                                <View pointerEvents={Boolean(item?.IsEditable) ? 'auto' : 'none'}>
+                                <View>
                                     <DynamicFormField
+                                        index={`${selectedData.FuncDetailsId}+${index}`}
+                                        key={`${index + 1}-${item.PropertyName}-${index}`}
                                         backgroundColor={
                                             item.RefData == '##StaticSample##'
                                                 ? renderBackGroundColor(item?.Value, charType, selectedData?.charInfo)
@@ -159,8 +172,12 @@ const SampleCharInfo = ({
                                                 handleUserInputChange(item?.PropertyName, val, 'highvalue', selectedData?.CHighValue, 'CHighValue');
                                             } else if (item?.PropertyName == 'CLowValue' || item?.RefData == '##LowToleranceValue##') {
                                                 handleUserInputChange(item?.PropertyName, val, 'lowvalue', selectedData?.CLowValue, 'CLowValue');
-                                            } else if (item?.PropertyName == 'CTolerance' || item?.RefData == '##ATTorVAR##') {
-                                                handleUserInputChange(item?.PropertyName, val, 'spec', selectedData?.CTolerance, 'CTolerance');
+                                            } else if (
+                                                item?.PropertyName == 'CTolerance' ||
+                                                item?.RefData == '##ATTorVAR##' ||
+                                                item.ReferenceName == 'CTolerance'
+                                            ) {
+                                                handleUserInputChange(item?.PropertyName, val, 'spec', selectedData?.CTolerance, 'CTolerance', item);
                                             } else if (
                                                 item?.PropertyName == 'CSampleSize' ||
                                                 item?.RefData == '##SampleSize##' ||

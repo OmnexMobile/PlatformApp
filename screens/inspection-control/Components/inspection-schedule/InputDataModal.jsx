@@ -23,7 +23,7 @@ const errorObj = {
     lotQty: false,
     receiptNumber: false,
     frequency: false,
-    // operation: false,
+    operation: false,
 };
 
 const InputDataModal = ({
@@ -35,6 +35,7 @@ const InputDataModal = ({
     handleSubmitPress = () => {},
     selectedSite = {},
     FrequencyId = null,
+    multiOperationEnabled = false,
 }) => {
     const insets = useSafeAreaInsets();
     const { width } = useWindowDimensions();
@@ -47,7 +48,7 @@ const InputDataModal = ({
         frequency: null,
         responsible: [],
         receiptNumber: '',
-        // operation: [],
+        operation: [],
     });
     const [frqList, setFrqList] = useState([]);
     const [operationList, setOperationList] = useState([]);
@@ -84,13 +85,18 @@ const InputDataModal = ({
     };
 
     const getOperationList = async () => {
-        const formData = new FormData();
-        formData.append('ProductionItemId', selectedValue?.ProductionItemId);
-        const response = await postAPI(`${ApiUrl.IC_OPERATION_LIST}`, formData);
+        const payload = {
+            ProductionItemId: selectedValue?.ProductionItemId,
+            UserId: userData?.UserId,
+            SiteId: userData?.Siteid,
+            LanguageId: 1,
+            OperationIds:selectedValue?.OperationID
+        };
+        const response = await postAPI(`${ApiUrl.IC_OPERATION_LIST}`, payload);
         console.log(response, 'getOperationList');
-        if (response?.length) {
+        if (response?.Status == true && response?.Data?.length) {
             let temp = [];
-            response?.forEach(item => {
+            response?.Data?.forEach(item => {
                 temp.push({
                     label: item?.OperationName,
                     value: item?.OperationId,
@@ -106,7 +112,6 @@ const InputDataModal = ({
     };
     useEffect(() => {
         if (FrequencyId != null && frqList?.length) {
-            console.log('testbalu1212');
             const selectedFreq = frqList.find(item => item.value == FrequencyId);
             if (selectedFreq) {
                 setFormFields({ ...formFields, frequency: selectedFreq });
@@ -213,14 +218,14 @@ const InputDataModal = ({
         setFormFields(pre => ({ ...pre, [key]: value }));
     };
     const handleValidation = () => {
-        const { shift, lotNumber, lotQty, frequency, receiptNumber } = formFields;
+        const { shift, lotNumber, lotQty, frequency, receiptNumber, operation } = formFields;
         const errorobj = {
             shift: false,
             lotNumber: false,
             lotQty: false,
             frequency: false,
             receiptNumber: false,
-            // operation: false,
+            operation: false,
         };
         if (shift == null) {
             errorobj.shift = true;
@@ -231,9 +236,9 @@ const InputDataModal = ({
         if (lotQty == '') {
             errorobj.lotQty = true;
         }
-        // if (operation.length == 0) {
-        //     errorobj.operation = true;
-        // }
+        if (operation.length == 0 && multiOperationEnabled) {
+            errorobj.operation = true;
+        }
         if (frequency == null && selectedValue.TypeOfInspection == 2) {
             errorobj.frequency = true;
         }
@@ -282,10 +287,20 @@ const InputDataModal = ({
             formData.append('Description', selectedValue?.Description || '');
             formData.append('PIDHierarchy', selectedValue?.PIHierarchy || '');
 
-            formData.append('OperationIds', selectedValue?.OperationID || '');
-            formData.append('OperationName', selectedValue?.OperationName || '');
-            // formData.append('OperationName', formFields.operation.length > 0 ? formFields.operation.map(item => item.OperationName).join(';') : '');
-            // formData.append('OperationIds', formFields.operation.length > 0 ? formFields.operation.map(item => item.OperationId).join(';') : '');
+            // formData.append('OperationIds', selectedValue?.OperationID || '');
+            // formData.append('OperationName', selectedValue?.OperationName || '');
+            let selecedOperationIds = multiOperationEnabled
+                ? formFields.operation.length > 0
+                    ? formFields.operation.map(item => item.OperationId).join(',')
+                    : ''
+                : selectedValue?.OperationID;
+            let selecedOperationNames = multiOperationEnabled
+                ? formFields.operation.length > 0
+                    ? formFields.operation.map(item => item.OperationName).join(',')
+                    : ''
+                : selectedValue?.OperationName;
+            formData.append('OperationName', selecedOperationNames);
+            formData.append('OperationIds', selecedOperationIds);
 
             formData.append('OperationHierarchy', selectedValue?.OperationHierarchy || '');
             formData.append('SupplierId', selectedValue.SupplierId || '');
@@ -348,6 +363,7 @@ const InputDataModal = ({
             formData.append('PropertyName', 'ActualValue');
 
             const response = await postAPI(ApiUrl.IC_FORM_SUBMIT, formData);
+            console.log(response, 'responsebalue');
             if (response.Success) {
                 const attachments = await getAllFiles();
                 const { shift, lotNumber, lotQty, frequency, receiptNumber } = formFields;
@@ -362,12 +378,12 @@ const InputDataModal = ({
                 let inspectObj = {
                     uniqueId: uuid.v4(),
                     FormId: selectedValue?.FormId,
-                    OperationID: selectedValue?.OperationID,
+                    OperationID: selecedOperationIds,
                     intProductionItemID: selectedValue?.ProductionItemId,
                     strProductionItemName: selectedValue?.ProductionItem,
                     intShiftID: shift?.ShiftID,
                     strShiftName: shift?.ShiftName,
-                    strOperationName: selectedValue.OperationName,
+                    strOperationName: selecedOperationNames,
                     strFrequencyName: frequency?.SampleFrequency,
                     intInspectionTypeID: selectedValue?.TypeOfInspection,
                     strInspectionType: selectedValue.InspectionType,
@@ -449,33 +465,40 @@ const InputDataModal = ({
                             <View style={[styles.resultBox]}>
                                 <Text style={styles.headertext}>Form Input Data</Text>
                                 <Divider />
-                                <ScrollView style={[styles.container]} nestedScrollEnabled showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+                                <ScrollView
+                                    style={[styles.container]}
+                                    nestedScrollEnabled
+                                    showsVerticalScrollIndicator={false}
+                                    keyboardShouldPersistTaps="handled">
                                     <View
                                         style={{
                                             flexDirection: isTablet ? 'row' : 'column',
                                             flexWrap: 'wrap', // important for tablet
                                             justifyContent: 'space-between',
                                         }}>
-                                        {/* <View style={[styles.inputContainer, { width: isTablet ? '48%' : '100%' }]}>
-                                <Text style={styles.inputText}>
-                                    Operation <Text style={[styles.rquired]}>*</Text>
-                                </Text>
-                                <DynamicDropDown
-                                    showSelectAll={true}
-                                    anchorPosition={'bottom'}
-                                    isMultiSelect={true}
-                                    list={operationList || []}
-                                    handleSelectedList={value => {
-                                        console.log('value', value);
-                                        handleInputChange('operation', value);
-                                    }}
-                                />
-                                {Boolean(errorList.operation) && (
-                                    <HelperText type="error" visible={errorList.operation} padding={'none'} style={styles.errorStyle}>
-                                        This field is required
-                                    </HelperText>
-                                )}
-                            </View> */}
+                                        {Boolean(multiOperationEnabled) && (
+                                            <View style={[styles.inputContainer, { width: isTablet ? '48%' : '100%' }]}>
+                                                <Text style={styles.inputText}>
+                                                    Operation <Text style={[styles.rquired]}>*</Text>
+                                                </Text>
+                                                <DynamicDropDown
+                                                    showSelectAll={true}
+                                                    anchorPosition={'bottom'}
+                                                    isMultiSelect={true}
+                                                    list={operationList || []}
+                                                    handleSelectedList={(value, updatedList) => {
+                                                        console.log('operationvalue', value);
+                                                        setOperationList(updatedList);
+                                                        handleInputChange('operation', value);
+                                                    }}
+                                                />
+                                                {Boolean(errorList.operation) && (
+                                                    <HelperText type="error" visible={errorList.operation} padding={'none'} style={styles.errorStyle}>
+                                                        This field is required
+                                                    </HelperText>
+                                                )}
+                                            </View>
+                                        )}
                                         <View style={[styles.inputContainer, { width: isTablet ? '48%' : '100%' }]}>
                                             <Text style={styles.inputText}>
                                                 Shift <Text style={[styles.rquired]}>*</Text>

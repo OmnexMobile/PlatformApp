@@ -1,6 +1,17 @@
 import { ButtonComponent } from 'components';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, Platform, RefreshControl, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
+import {
+    ActivityIndicator,
+    FlatList,
+    Platform,
+    RefreshControl,
+    StyleSheet,
+    Switch,
+    Text,
+    TouchableOpacity,
+    useWindowDimensions,
+    View,
+} from 'react-native';
 import CustomHeader from '../Components/CustomHeader';
 import { COLORS } from 'constants/theme-constants';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
@@ -25,6 +36,7 @@ import ApiUrl from 'global/ApiUrl';
 import { deleteAllInspectionData, getInspectionDataByUserAndSite } from 'store/database/inspectStorage';
 import { Modal } from 'react-native-paper';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const filterList = [
     {
@@ -71,6 +83,7 @@ const InspectionSchedule = () => {
     } = useAppContext();
     const navigation = useNavigation();
     const [showModal, setShowModal] = useState(false);
+    const [multiOperationEnabled, setMultiOperationEnabled] = useState(true);
     const [filterData, setFilterData] = useState({
         startDate: moment().subtract(7, 'days').toDate(),
         endDate: new Date(),
@@ -119,7 +132,7 @@ const InspectionSchedule = () => {
         }
         return settingsRes;
     };
-    const handleListFetch = async (inspect = null, showSktn = true, filterType = '') => {
+    const handleListFetch = async (inspect = null, showSktn = true, filterType = '', isMultiOperation = false) => {
         // await deleteAllInspectionData();
         showSktn && setShowSkeleton(true);
         const inspectList = await getInspectionDataByUserAndSite(icUserData?.userData?.UserId, icUserData?.userData?.Siteid);
@@ -131,6 +144,7 @@ const InspectionSchedule = () => {
         formData.append('LanguageID', 1);
         formData.append('StartDate', dateFlag ? moment(startDate).format('MM/DD/YYYY') : '');
         formData.append('EndDate', dateFlag ? moment(endDate).format('MM/DD/YYYY') : '');
+        formData.append('isMultiOperation', isMultiOperation);
         const response = await postAPI(`${ApiUrl.IC_GET_IS}`, formData);
         await getOverAllSettings();
         let retunListData = [];
@@ -198,10 +212,15 @@ const InspectionSchedule = () => {
         }
         setMasterData(tempSearch);
     };
-
+    const handlegetApiCall = async () => {
+        const isGetMultiOperation = await AsyncStorage.getItem('IsMultiOperation');
+        console.log('isGetMultiOperation', isGetMultiOperation);
+        setMultiOperationEnabled(isGetMultiOperation === '1' ? true : false);
+        await handleListFetch(null, true, filterData.type, isGetMultiOperation === '1' ? true : false);
+    };
     useEffect(() => {
         if (icUserData.userData && isFocused) {
-            handleListFetch(null, true, filterData.type);
+            handlegetApiCall(null, true, filterData.type, multiOperationEnabled);
         }
         return () => {
             setSearch('');
@@ -245,7 +264,7 @@ const InspectionSchedule = () => {
         const tempStart = moment(startDate);
         const tempEnd = moment(endDate);
         if (tempStart.isBefore(tempEnd)) {
-            handleListFetch(null, true, filterData.type);
+            handleListFetch(null, true, filterData.type, multiOperationEnabled);
         } else {
             showMessage({
                 message: 'Start Date must be less than End Date',
@@ -269,7 +288,7 @@ const InspectionSchedule = () => {
                     <Text style={[styles.operationText]}>
                         Operation Name : <Text style={[styles.secondText]}>{item?.OperationName}</Text>
                     </Text>
-                    {item?.TypeOfInspection =='1' && (
+                    {item?.TypeOfInspection == '1' && (
                         <Text style={[styles.operationText]}>
                             Invoice No : <Text style={[styles.secondText]}>{item?.OrderNumber ? item?.OrderNumber : '-'}</Text>
                         </Text>
@@ -309,7 +328,7 @@ const InspectionSchedule = () => {
     const onRefresh = () => {
         setRefreshing(true);
         setSearch('');
-        handleListFetch(null, false, filterData.type);
+        handleListFetch(null, false, filterData.type, multiOperationEnabled);
     };
     const handleSearch = (value, filterType) => {
         let temp = JSON.parse(JSON.stringify(overAllData));
@@ -343,7 +362,7 @@ const InspectionSchedule = () => {
     const handleSubmitBtnPress = async val => {
         setShowBubble(true);
         const latestInspection = await getInspectionDataByUserAndSite(icUserData?.userData?.UserId, icUserData?.userData?.Siteid);
-        const apiData = await handleListFetch(null, false, filterData.type);
+        const apiData = await handleListFetch(null, false, filterData.type, multiOperationEnabled);
         let filterTemp = filterData.type !== '' ? apiData.filter(item => item.TypeOfInspection == filterData.type) : apiData;
         let temp = [...filterTemp] || [];
         const updatedArray = temp.map(item => {
@@ -454,6 +473,28 @@ const InspectionSchedule = () => {
                         /> */}
                     </View>
                 </View>
+                <View style={styles.multiOperationToggle}>
+                    <View style={styles.toggleTextContainer}>
+                        <Text style={styles.toggleTitle}>Multi-operation view</Text>
+
+                        <Text style={styles.toggleDescription}>Group operations by production item</Text>
+                    </View>
+                    <Switch
+                        value={multiOperationEnabled}
+                        onValueChange={async handleToggleChange => {
+                            console.log('handleToggleChange', handleToggleChange);
+                            setMultiOperationEnabled(handleToggleChange);
+                            await AsyncStorage.setItem('IsMultiOperation', handleToggleChange ? '1' : '0');
+                            await handleListFetch(null, true, filterData.type, handleToggleChange);
+                        }}
+                        trackColor={{
+                            false: '#BDBDBD',
+                            true: '#12C0CF',
+                        }}
+                        thumbColor={COLORS.white}
+                        accessibilityLabel="Multi-operation view"
+                    />
+                </View>
                 {showSkeleton ? (
                     <IcSkeleton type={PLACEHOLDERS.INSPECTION_CARD} />
                 ) : Boolean(masterData?.length) ? (
@@ -497,6 +538,7 @@ const InspectionSchedule = () => {
                     shiftData={formList.shiftList}
                     userData={icUserData?.userData}
                     selectedSite={selectedSite}
+                    multiOperationEnabled={multiOperationEnabled}
                 />
             )}
             {Boolean(showFileModal) && (
@@ -631,6 +673,37 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         borderRadius: 40,
+    },
+    multiOperationToggle: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: 15,
+        paddingVertical: 12,
+        marginHorizontal: 10,
+        marginBottom: 10,
+        borderRadius: 10,
+        borderWidth: 1,
+        borderColor: COLORS.icborder,
+        backgroundColor: COLORS.white,
+    },
+
+    toggleTextContainer: {
+        flex: 1,
+        paddingRight: 10,
+    },
+
+    toggleTitle: {
+        fontSize: 15,
+        fontFamily: 'OpenSans-SemiBold',
+        color: COLORS.ictextBlack,
+    },
+
+    toggleDescription: {
+        fontSize: 12,
+        fontFamily: 'OpenSans-Regular',
+        color: COLORS.textDark,
+        marginTop: 3,
     },
 });
 
