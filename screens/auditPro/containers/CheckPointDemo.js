@@ -17,6 +17,7 @@ import {
     Button,
     DeviceEventEmitter,
     NativeModules,
+    BackHandler,
 } from 'react-native';
 import styles from '../styles/CheckPointScreenPOCStyles';
 import Icon from 'react-native-vector-icons/Feather';
@@ -281,6 +282,7 @@ class CheckPointDemo extends Component {
     };
 
     handleDiscardUnsavedChanges = async navigateHome => {
+        const pendingExitAction = this.pendingExitAction;
         if (this.state.isUnsavedData) {
             try {
                 await this.restoreBaselineNCOFI();
@@ -296,8 +298,11 @@ class CheckPointDemo extends Component {
                 go_home: false,
             },
             () => {
+                this.pendingExitAction = null;
                 if (navigateHome) {
                     this.props.navigation.navigate(ROUTES.AUDIT_DASHBOARD_LISTING);
+                } else if (pendingExitAction) {
+                    this.props.navigation.dispatch(pendingExitAction);
                 } else {
                     this.props.navigation.goBack();
                 }
@@ -307,6 +312,23 @@ class CheckPointDemo extends Component {
 
     // Loads initial data and wiring once the screen mounts
     componentDidMount() {
+        this.beforeRemoveUnsubscribe = this.props.navigation.addListener('beforeRemove', event => {
+            if (!this.state.isUnsavedData) {
+                return;
+            }
+
+            event.preventDefault();
+            this.pendingExitAction = event.data.action;
+            this.setState({ dialogVisible: true, dialogVisibleNC: false, go_home: false });
+        });
+        this.backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+            if (!this.props.navigation.isFocused()) {
+                return false;
+            }
+
+            this.goBackToChecklist();
+            return true;
+        });
         this.dimensionSubscription = Dimensions.addEventListener('change', this.handleOrientationChange);
         this.syncWindowDimensions();
         let Files = '/' + RNFetchBlob.fs.dirs.DocumentDir + '/' + (Platform.OS == 'ios' ? 'IosFiles' : 'AuditFiles');
@@ -2446,6 +2468,8 @@ class CheckPointDemo extends Component {
     };
     // Removes listeners and restores baseline data if needed
     componentWillUnmount() {
+        this.beforeRemoveUnsubscribe?.();
+        this.backHandler?.remove();
         if (this.orientationSyncTimeout) {
             clearTimeout(this.orientationSyncTimeout);
             this.orientationSyncTimeout = null;
@@ -2700,6 +2724,7 @@ class CheckPointDemo extends Component {
 
     // Handles exit to dashboard, prompting if there are unsaved changes
     goHome = () => {
+        this.pendingExitAction = null;
         if (this.state.isUnsavedData == true) {
             this.setState({
                 dialogVisible: true,
@@ -3312,7 +3337,13 @@ class CheckPointDemo extends Component {
                                         } else {
                                             //console.log('goBack3');
                                             this.props.changeAuditState(false); // 🔴 Reset red dot flag on save
-                                            this.props.navigation.goBack();
+                                            if (this.pendingExitAction) {
+                                                const action = this.pendingExitAction;
+                                                this.pendingExitAction = null;
+                                                this.props.navigation.dispatch(action);
+                                            } else {
+                                                this.props.navigation.goBack();
+                                            }
                                             this.getTotalNCStatus();
                                         }
                                     },
@@ -6245,12 +6276,6 @@ class CheckPointDemo extends Component {
         const filteredData = responseData.filter(item => item.ISSelection === 'True').map(item => item.userid);
 
         const auditProgramName = (this.state.AuditProgramName || '').toLowerCase();
-        const sanitizedChecklistName =
-            (selectedChecklist.ChecklistName || '')
-                .replace(/<\/?p>/gi, '')
-                .replace(/<br\s*\/?>/gi, '\n')
-                .replace(/&nbsp;/gi, ' ')
-                .replace(/&amp;/gi, '&') + ':No';
 
         const formId =
             auditProgramName === 'lpa'
@@ -6263,7 +6288,7 @@ class CheckPointDemo extends Component {
 
         const bundleEntry = {
             requiretext: '-',
-            NonConfirmity: auditProgramName === 'lpa' ? sanitizedChecklistName : '-',
+            NonConfirmity: '-',
             categoryDrop: clauseProps.Category?.[0]?.CategoryId ?? 0,
             ResponsibilityUser: filteredData,
             requestDrop: clauseProps.RequestBy?.[0]?.AuditeeContactPersonId ?? 0,
@@ -8815,7 +8840,14 @@ class CheckPointDemo extends Component {
 
                 <Modal
                     isVisible={this.state.dialogVisible}
-                    onBackdropPress={() => this.setState({ dialogVisible: false, go_home: false })}
+                    onBackdropPress={() => {
+                        this.pendingExitAction = null;
+                        this.setState({ dialogVisible: false, go_home: false });
+                    }}
+                    onBackButtonPress={() => {
+                        this.pendingExitAction = null;
+                        this.setState({ dialogVisible: false, go_home: false });
+                    }}
                     backdropColor="rgba(0,0,0,0.5)"
                     style={styles.modalOuterBox}>
                     <View style={styles.ncModal}>

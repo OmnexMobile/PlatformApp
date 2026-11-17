@@ -1,5 +1,30 @@
 const normalizeText = value => (value === undefined || value === null ? '' : String(value).trim());
 
+export const getCreateNcValidationErrors = (state, { isLpaForm = false, smdata } = {}) => {
+    const hasText = value => typeof value === 'string' && value.trim().length > 0;
+    const hasSelection = value => Array.isArray(value) && value.length > 0;
+    const hasDropdownValue = value => {
+        const id = value && typeof value === 'object' ? value.id ?? value.value : value;
+        return id !== undefined && id !== null && String(id).trim() !== '' && String(id) !== '0';
+    };
+    const isNC = state.RouteParam === 'NC';
+    const simplifiedForm = Number(smdata) === 2 || Number(smdata) === 3;
+    const needsClause = isNC && Number(state.clauseMandatory) === 1 && !(isLpaForm && state.isLPA);
+    const category = isLpaForm && isNC ? state.NCcategoryt || state.categoryArr?.[0] : state.NCcategoryt;
+
+    return {
+        nonconfirmityText: isNC && !hasText(state.nonconfirmityText),
+        ofitext: !isNC && !hasText(state.ofitext),
+        NCcategoryt: !hasDropdownValue(category),
+        NCrequestby: !isLpaForm && !hasDropdownValue(state.NCrequestby),
+        selectedItemsResponse: isLpaForm && !hasSelection(state.selectedItemsResponse),
+        selectedItemsProcess: !hasSelection(state.selectedItemsProcess),
+        selectedItems: needsClause && !hasSelection(state.selectedItems) && !(isLpaForm && hasText(state.displayData)),
+        objEvidence: !isLpaForm && !simplifiedForm && !hasText(state.objEvidence),
+        displayData: !isLpaForm && isNC && Number(smdata) !== 3 && !hasText(state.displayData),
+    };
+};
+
 const normalizeArray = value => {
     const items = Array.isArray(value) ? value : [];
     return JSON.stringify(

@@ -38,7 +38,7 @@ const DropdownComponent = ({
             ]}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <TextComponent
-                    style={[{ fontSize: FONT_SIZE.SMALL }, labelStyle]}
+                    style={[{ fontSize: FONT_SIZE.SMALL }, labelStyle, error && { color: COLORS.ERROR }]}
                     type={FONT_TYPE.BOLD}
                     color={error ? COLORS.ERROR : COLORS.themeBlack}>
                     {label}

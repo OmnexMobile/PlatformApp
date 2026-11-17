@@ -45,6 +45,7 @@ import constant from '../constants/AppConstants';
 import { ROUTES } from 'constants/app-constant';
 import { SPACING } from 'constants/theme-constants';
 import GlobalHeader from 'components/GlobalHeader';
+import { getCreateNcValidationErrors } from '../helpers/createNcFormSnapshot';
 import InputComponent from 'components/input-component';
 import DropdownComponent from 'components/dropdown';
 import AttachmentSelectionModal from 'components/attachment-selection-modal';
@@ -332,17 +333,16 @@ class CreateNC extends Component {
         ////console.log('checklistdataaaalogggg********', checklistName);
         ////console.log('radioValdataaaalogggg********', numericRadioVal);
 
-        // Auto-fill NC text when answer is NO / NOT OK
+        // Use a placeholder for new NC statements when the answer is NO / NOT OK.
         if (numericRadioVal === 10 || numericRadioVal === 15) {
             ////console.log('looooggggtrue');
             this.setState(
                 {
                     editnclpa: true,
                     radioVal: numericRadioVal,
-                    nonconfirmityText: checklistName ? `${checklistName}:No` : '',
+                    nonconfirmityText: '-',
                     //  NCresponsible: responsibiltyField
 
-                    // Ensure it falls back to an empty string if checklistName is undefined
                 },
                 () => {
                     // Debugging the updated state
@@ -2271,7 +2271,20 @@ class CreateNC extends Component {
         }
     }
 
+    getValidationErrors = () => getCreateNcValidationErrors(this.state, {
+        isLpaForm: true,
+        smdata: this.props.data.audits.smdata,
+    });
+
     onSave() {
+        const errors = this.getValidationErrors();
+        this.setState({ validationAttempted: true });
+        if (Object.values(errors).some(Boolean)) {
+            this.setState({ PageLoader: false, isSavebtn: false, isSaved: false });
+            showErrorMessage('Please fill the mandatory fields.');
+            return;
+        }
+
         //console.log('on click save');
         //console.log('faliurecategory', this.state.FailureCategory);
         //console.log(this.state.clausedata, 'marcclause');
@@ -2287,17 +2300,6 @@ class CreateNC extends Component {
             this.setState({
                 MarkClause: true,
             });
-        }
-        if (this.props.data.audits.smdata === 2 || this.props.data.audits.smdata === 3) {
-            this.setState({
-                documentRef: true,
-                objEvidence: true,
-                selectedItemsProcess: Array.isArray(this.state.selectedItemsProcess) ? this.state.selectedItemsProcess : [],
-            });
-        }
-
-        if (this.props.data.audits.smdata === 3) {
-            this.setState({ displayData: true });
         }
 
         //console.log(this.state.MarkClausedrop, 'marsk');
@@ -2325,19 +2327,7 @@ class CreateNC extends Component {
                     this.isCheckRequest = true;
                 }
 
-                const needsClauseText = this.state.clauseMandatory === 1 && this.state.RouteParam === 'NC' && !this.state.isLPA;
-                const hasDisplayData =
-                    this.state.displayData !== undefined && this.state.displayData !== null && String(this.state.displayData).trim().length > 0;
-                const clauseRequirementSatisfied = !needsClauseText || this.state.selectedItems.length > 0 || hasDisplayData || this.state.isLPA;
-                const hasMandatoryFields =
-                    this.state.categoryArr &&
-                    this.state.selectedItemsResponse &&
-                    this.state.nonconfirmityText &&
-                    clauseRequirementSatisfied &&
-                    Array.isArray(this.state.selectedItemsProcess) &&
-                    this.state.selectedItemsProcess.length > 0;
-
-                if (hasMandatoryFields) {
+                if (!Object.values(this.getValidationErrors()).some(Boolean)) {
                     const fileNames = this.state.fileArrayList.map(file => file.fileName);
                     const fileDatas = this.state.fileArrayList;
                     const resolvedCategoryDrop =
@@ -2574,16 +2564,7 @@ class CreateNC extends Component {
                 // //console.log('this.state.fileData',this.state.fileData)
                 // //console.log('this.state.fileName',this.state.fileName)
 
-                if (
-                    /* this.state.NCdept &&  */ this.state.NCcategoryt &&
-                    // this.state.NCresponsible &&
-                    // this.state.NCrequestby &&
-                    this.state.selectedItemsResponse &&
-                    this.state.selectedItems &&
-                    this.state.ofitext &&
-                    Array.isArray(this.state.selectedItemsProcess) &&
-                    this.state.selectedItemsProcess.length > 0
-                ) {
+                if (!Object.values(this.getValidationErrors()).some(Boolean)) {
                     //console.log('this.state.NCcategoryt', this.state.NCcategoryt);
                     //console.log('this.state.NCrequestby', this.state.NCrequestby);
                     //console.log('this.state.NCresponsible ', this.state.NCresponsible);
@@ -3156,6 +3137,8 @@ class CreateNC extends Component {
     };
 
     render() {
+        const fieldErrors = this.state.validationAttempted ? this.getValidationErrors() : {};
+
         // const { checklistName } = this.state;
         //console.log(this.state.radioValue, 'vlrad');
         //console.log(this.state.NCcategoryt,this.state.categoryArr, 'categoryt');
@@ -3274,6 +3257,7 @@ class CreateNC extends Component {
                                             <View style={styles.input02}>
                                                 <InputComponent
                                                     name="nonconfirmityText"
+                                                    error={!!fieldErrors.nonconfirmityText}
                                                     label={strings.Non_confirmityL}
                                                     placeholder={strings.Non_confirmityL}
                                                     defaultValue={this.state.nonconfirmityText}
@@ -3289,7 +3273,9 @@ class CreateNC extends Component {
                                                 </View> */}
                                                 <InputComponent
                                                     name="ofitext"
+                                                    error={!!fieldErrors.ofitext}
                                                     label={strings.Opportunity_ApproachL}
+                                                    required
                                                     placeholder={strings.Opportunity_ApproachL}
                                                     defaultValue={this.state.ofitext}
                                                     multiline
@@ -3315,6 +3301,7 @@ class CreateNC extends Component {
                                             <View style={styles.input02}>
                                                 <InputComponent
                                                     name="objEvidence"
+                                                    error={!!fieldErrors.objEvidence}
                                                     label={strings.Objective_Evidence}
                                                     placeholder={strings.Objective_Evidence}
                                                     defaultValue={radioValue === 15 ? 'N/A' : this.state.objEvidence}
@@ -3333,6 +3320,7 @@ class CreateNC extends Component {
                                                 </View> */}
                                                 <InputComponent
                                                     name="objEvidence"
+                                                    error={!!fieldErrors.objEvidence}
                                                     label={strings.Objective_Evidence}
                                                     placeholder={strings.Objective_Evidence}
                                                     defaultValue={this.state.objEvidence}
@@ -3355,12 +3343,7 @@ class CreateNC extends Component {
                                     <View style={styles.input02}>
                                         <Text
                                             style={{
-                                                color:
-                                                    this.state.clauseMandatory === 1 &&
-                                                    this.state.RouteParam === 'NC' &&
-                                                    this.state.MarkClause == false
-                                                        ? '#A6A6A6'
-                                                        : '#000000',
+                                                color: fieldErrors.selectedItems ? 'red' : '#000000',
                                             }}>
                                             {strings.ClausesL}
                                         </Text>
@@ -3376,8 +3359,8 @@ class CreateNC extends Component {
                                                     subKey="children"
                                                     single
                                                     selectText={strings.SelectClauses}
-                                                    baseColor={this.state.MarkClause == false ? '#A6A6A6' : 'red'}
-                                                    textColor={this.state.MarkClause == false ? '#A6A6A6' : 'red'}
+                                                    baseColor={!fieldErrors.selectedItems ? '#A6A6A6' : 'red'}
+                                                    textColor={!fieldErrors.selectedItems ? '#A6A6A6' : 'red'}
                                                     showDropDowns={true}
                                                     readOnlyHeadings={true}
                                                     onSelectedItemsChange={this.onSelectedItemsChange}
@@ -3388,6 +3371,7 @@ class CreateNC extends Component {
                                                     itemNumberOfLines={3}
                                                     selectLabelNumberOfLines={3}
                                                     styles={{
+                                                        selectToggle: { borderWidth: fieldErrors.selectedItems ? 1 : 0, borderColor: 'red' },
                                                         chipText: {
                                                             maxWidth: Dimensions.get('screen').width - 90,
                                                         },
@@ -3395,7 +3379,7 @@ class CreateNC extends Component {
                                                     colors={{
                                                         text: '#A6A6A6',
                                                         subText: '#A6A6A6',
-                                                        selectToggleTextColor: this.state.MarkClause == false ? '#A6A6A6' : 'red',
+                                                        selectToggleTextColor: !fieldErrors.selectedItems ? '#A6A6A6' : 'red',
                                                     }}
                                                 />
                                             </View>
@@ -3456,6 +3440,7 @@ class CreateNC extends Component {
                                                 }
                                                 required
                                                 data={categoryOptions}
+                                                error={!!fieldErrors.NCcategoryt}
                                                 value={this.state.NCcategoryt?.id || categoryOptions?.[0]?.value || null}
                                                 onChange={value => {
                                                     const selected = this.state.categoryArr?.find(item => item.id === value) || null;
@@ -3521,7 +3506,9 @@ class CreateNC extends Component {
                                     <View style={styles.div2}>
                                         <View style={styles.inputhigh}>
                                             <View>
-                                                <Text style={{ marginLeft: 5 }}>{'Responsiblity'}</Text>
+                                                <Text style={{ marginLeft: 5, color: fieldErrors.selectedItemsResponse ? 'red' : '#1A1A1A' }}>
+                                                    {strings.ResponsibilityL} <Text style={{ color: 'red' }}>*</Text>
+                                                </Text>
                                                 <SectionedMultiSelect
                                                     IconRenderer={this.icon}
                                                     items={itemsResponse}
@@ -3546,6 +3533,7 @@ class CreateNC extends Component {
                                                     expandDropDowns={true}
                                                     single={true}
                                                     styles={{
+                                                        selectToggle: { borderWidth: fieldErrors.selectedItemsResponse ? 1 : 0, borderColor: 'red' },
                                                         selectedItem: {
                                                             backgroundColor: '#f0f8ff',
                                                             padding: 5,
@@ -3575,15 +3563,15 @@ class CreateNC extends Component {
                                                         selectText={this.state.processdata.length > 0 ? strings.ProcessL : 'No process(s) found'}
                                                         //alwaysShowSelectText={multiprocess == "1" ? false : true}
                                                         renderSelectText={() => (
-                                                            <Text style={{ flex: 1 }}>
+                                                            <Text style={{ flex: 1, color: fieldErrors.selectedItemsProcess ? 'red' : '#1A1A1A' }}>
                                                                 {strings.ProcessL} <Text style={{ color: 'red' }}>*</Text>
                                                             </Text>
                                                         )}
                                                         selectToggleIconComponent={
                                                             <Icon name="chevron-down" size={20} color="grey" style={{ marginRight: -10 }} />
                                                         }
-                                                        baseColor={this.state.MarkProcess == false ? '#A6A6A6' : 'red'}
-                                                        textColor={this.state.MarkProcess == false ? '#A6A6A6' : 'red'}
+                                                        baseColor={!fieldErrors.selectedItemsProcess ? '#A6A6A6' : 'red'}
+                                                        textColor={!fieldErrors.selectedItemsProcess ? '#A6A6A6' : 'red'}
                                                         showDropDowns={true}
                                                         readOnlyHeadings={true}
                                                         selectedIconComponent={
@@ -3604,6 +3592,7 @@ class CreateNC extends Component {
                                                         itemNumberOfLines={3}
                                                         selectLabelNumberOfLines={3}
                                                         styles={{
+                                                            selectToggle: { borderWidth: fieldErrors.selectedItemsProcess ? 1 : 0, borderColor: 'red' },
                                                             chipText: {
                                                                 maxWidth: Dimensions.get('screen').width - 90,
                                                             },
@@ -3611,7 +3600,7 @@ class CreateNC extends Component {
                                                         colors={{
                                                             text: '#A6A6A6',
                                                             subText: '#A6A6A6',
-                                                            selectToggleTextColor: this.state.MarkProcess == false ? '#A6A6A6' : '#A6A6A6',
+                                                            selectToggleTextColor: fieldErrors.selectedItemsProcess ? 'red' : '#A6A6A6',
                                                         }}
                                                     />
                                                 ) : null}

@@ -39,10 +39,11 @@ const InputComponent = ({
                 },
                 styles.inputContainer,
                 containerStyle,
+                error && { borderColor: errorBorderColor, borderBottomWidth: 1.5 },
             ]}>
             <View style={{ flex: 1 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: SPACING.SMALL }}>
-                    <TextComponent style={[{ fontSize: FONT_SIZE.SMALL }, labelStyle]} type={FONT_TYPE.BOLD} color={error ? COLORS.ERROR : null}>
+                    <TextComponent style={[{ fontSize: FONT_SIZE.SMALL }, labelStyle, error && { color: COLORS.ERROR }]} type={FONT_TYPE.BOLD} color={error ? COLORS.ERROR : null}>
                         {label}
                     </TextComponent>
                     {required && (

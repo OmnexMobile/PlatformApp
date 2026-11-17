@@ -55,6 +55,7 @@ import GlobalHeader from 'components/GlobalHeader';
 import NCFormInput from '../components/NCFormInput';
 import Icon from 'react-native-vector-icons/Feather';
 import DropdownComponent from 'components/dropdown';
+import { getCreateNcValidationErrors } from '../helpers/createNcFormSnapshot';
 import InputComponent from 'components/input-component';
 import AttachmentSelectionModal from 'components/attachment-selection-modal';
 import { showErrorMessage, successMessage } from 'helpers/utils';
@@ -2359,7 +2360,20 @@ class CreateNC extends Component {
         }
     }
 
+    getValidationErrors = () => getCreateNcValidationErrors(this.state, {
+        isLpaForm: false,
+        smdata: this.props.data.audits.smdata,
+    });
+
     onSave() {
+        const errors = this.getValidationErrors();
+        this.setState({ validationAttempted: true });
+        if (Object.values(errors).some(Boolean)) {
+            this.setState({ PageLoader: false, isSavebtn: false, isSaved: false });
+            showErrorMessage('Please fill the mandatory fields.');
+            return;
+        }
+
         console.log('on click save');
         console.log('faliurecategory', this.state.FailureCategory);
         console.log(this.state.clausedata, 'marcclause');
@@ -2380,17 +2394,6 @@ class CreateNC extends Component {
             this.setState({
                 MarkClause: true,
             });
-        }
-        if (this.props.data.audits.smdata === 2 || this.props.data.audits.smdata === 3) {
-            this.setState({
-                documentRef: true,
-                objEvidence: true,
-                selectedItemsProcess: Array.isArray(this.state.selectedItemsProcess) ? this.state.selectedItemsProcess : [],
-            });
-        }
-
-        if (this.props.data.audits.smdata === 3) {
-            this.setState({ displayData: true });
         }
 
         console.log(this.state.MarkClausedrop, 'marsk');
@@ -2424,26 +2427,7 @@ class CreateNC extends Component {
                 console.log('AuditOrder', this.state.AuditOrder);
                 console.log('isUploaded', this.state.isUploaded);
 
-                let bcontinue = true;
-                let pcontinue = true;
-                if (this.state.selectedItems.length == 0 && this.state.clauseMandatory === 1 && this.state.RouteParam == 'NC') {
-                    bcontinue = false;
-                }
-
-                if (this.state.selectedItemsProcess.length == 0) {
-                    pcontinue = false;
-                }
-                if (
-                    this.state.NCcategoryt &&
-                    // this.state.NCresponsible &&
-                    this.state.NCrequestby &&
-                    bcontinue &&
-                    this.state.nonconfirmityText &&
-                    this.state.objEvidence &&
-                    this.state.documentRef &&
-                    pcontinue &&
-                    this.state.displayData
-                ) {
+                if (!Object.values(this.getValidationErrors()).some(Boolean)) {
                     if (this.state.selectedItems.length > 0 || this.state.selectedItems.length == 0 || this.state.isLPA == true) {
                         console.log('passes...', this.state.fileArrayList);
                         const fileNames = this.state.fileArrayList.map(file => file.fileName);
@@ -2727,15 +2711,7 @@ class CreateNC extends Component {
                 // console.log('this.state.fileData',this.state.fileData)
                 // console.log('this.state.fileName',this.state.fileName)
 
-                if (
-                    /* this.state.NCdept &&  */ this.state.NCcategoryt &&
-                    // this.state.NCresponsible &&
-                    this.state.NCrequestby &&
-                    this.state.selectedItems &&
-                    this.state.ofitext &&
-                    this.state.objEvidence &&
-                    this.state.selectedItemsProcess.length > 0
-                ) {
+                if (!Object.values(this.getValidationErrors()).some(Boolean)) {
                     console.log('this.state.NCcategoryt', this.state.NCcategoryt);
                     console.log('this.state.NCrequestby', this.state.NCrequestby);
                     console.log('this.state.NCresponsible ', this.state.NCresponsible);
@@ -3283,6 +3259,8 @@ class CreateNC extends Component {
     }
 
     render() {
+        const fieldErrors = this.state.validationAttempted ? this.getValidationErrors() : {};
+
         const layoutProfile = this.getLayoutProfile();
         const contentWidthStyle = layoutProfile.maxContentWidth ? { maxWidth: layoutProfile.maxContentWidth } : null;
         const responsiveAuditBodyStyle = [
@@ -3406,6 +3384,7 @@ class CreateNC extends Component {
                                                 <InputComponent
                                                     label={strings.Non_confirmityL}
                                                     name="nonconfirmityText"
+                                                    error={!!fieldErrors.nonconfirmityText}
                                                     required
                                                     value={this.state.nonconfirmityText}
                                                     placeholder={strings.Non_confirmityL}
@@ -3427,6 +3406,7 @@ class CreateNC extends Component {
                                                     <InputComponent
                                                         label={strings.Opportunity_ApproachL}
                                                         name="ofitext"
+                                                        error={!!fieldErrors.ofitext}
                                                         required
                                                         value={this.state.ofitext}
                                                         placeholder={strings.Opportunity_ApproachL}
@@ -3452,6 +3432,7 @@ class CreateNC extends Component {
                                                 <InputComponent
                                                     label={strings.Objective_Evidence}
                                                     name="objEvidence"
+                                                    error={!!fieldErrors.objEvidence}
                                                     required
                                                     value={this.state.objEvidence}
                                                     placeholder={strings.Objective_Evidence}
@@ -3472,6 +3453,7 @@ class CreateNC extends Component {
                                                 <InputComponent
                                                     label={strings.Objective_Evidence}
                                                     name="objEvidence"
+                                                    error={!!fieldErrors.objEvidence}
                                                     required
                                                     value={this.state.objEvidence}
                                                     placeholder={strings.Objective_Evidence}
@@ -3493,7 +3475,7 @@ class CreateNC extends Component {
                                         <Text
                                             style={[
                                                 styles.fieldLabel,
-                                                this.state.clauseMandatory === 1 && this.state.RouteParam === 'NC' && this.state.MarkClause == false
+                                                fieldErrors.selectedItems
                                                     ? { color: 'red' }
                                                     : null,
                                             ]}>
@@ -3509,8 +3491,8 @@ class CreateNC extends Component {
                                                     subKey="children"
                                                     single
                                                     selectText={strings.SelectClauses}
-                                                    baseColor={this.state.MarkClause == false ? '#1A1A1A' : 'red'}
-                                                    textColor={this.state.MarkClause == false ? '#1A1A1A' : 'red'}
+                                                    baseColor={!fieldErrors.selectedItems ? '#1A1A1A' : 'red'}
+                                                    textColor={!fieldErrors.selectedItems ? '#1A1A1A' : 'red'}
                                                     showDropDowns={true}
                                                     readOnlyHeadings={true}
                                                     onSelectedItemsChange={this.onSelectedItemsChange}
@@ -3519,10 +3501,10 @@ class CreateNC extends Component {
                                                     placeholderTextColor="#5C5C5C"
                                                     itemNumberOfLines={3}
                                                     selectLabelNumberOfLines={3}
-                                                    styles={multiSelectStyles}
+                                                    styles={{ ...multiSelectStyles, selectToggle: { borderWidth: fieldErrors.selectedItems ? 1 : 0, borderColor: 'red' } }}
                                                     colors={{
                                                         ...multiSelectColors,
-                                                        selectToggleTextColor: this.state.MarkClause == false ? '#1A1A1A' : 'red',
+                                                        selectToggleTextColor: !fieldErrors.selectedItems ? '#1A1A1A' : 'red',
                                                     }}
                                                 />
                                             </View>
@@ -3534,6 +3516,7 @@ class CreateNC extends Component {
                                                 <InputComponent
                                                     label={strings.StandardRequirementsL}
                                                     name="standardRequirements"
+                                                    error={!!fieldErrors.displayData}
                                                     value={
                                                         this.state.displayData
                                                             ? this.state.displayData.length > 40
@@ -3560,6 +3543,7 @@ class CreateNC extends Component {
                                         <View style={styles.input03}>
                                             <DropdownComponent
                                                 data={category}
+                                                error={!!fieldErrors.NCcategoryt}
                                                 label={
                                                     this.state.RouteParam === 'NC' ? 'NC' + ' ' + strings.CategoryL : 'OFI' + ' ' + strings.CategoryL
                                                 }
@@ -3585,6 +3569,7 @@ class CreateNC extends Component {
                                         <View style={styles.input05}>
                                             <DropdownComponent
                                                 data={request}
+                                                error={!!fieldErrors.NCrequestby}
                                                 label={strings.ResponsibilityL}
                                                 value={this.state.NCrequestby ? this.state.NCrequestby.value : ''}
                                                 required
@@ -3711,15 +3696,15 @@ class CreateNC extends Component {
                                                         subKey="children"
                                                         selectText={this.state.processdata.length > 0 ? strings.ProcessL : 'No process(s) found'}
                                                         renderSelectText={() => (
-                                                            <Text style={{ flex: 1 }}>
+                                                            <Text style={{ flex: 1, color: fieldErrors.selectedItemsProcess ? 'red' : '#1A1A1A' }}>
                                                                 {strings.ProcessL} <Text style={{ color: 'red' }}>*</Text>
                                                             </Text>
                                                         )}
                                                         selectToggleIconComponent={
                                                             <Icon name="chevron-down" size={20} color="grey" style={{ marginRight: -10 }} />
                                                         }
-                                                        baseColor={this.state.MarkProcess == false ? '#1A1A1A' : 'red'}
-                                                        textColor={this.state.MarkProcess == false ? '#1A1A1A' : 'red'}
+                                                        baseColor={!fieldErrors.selectedItemsProcess ? '#1A1A1A' : 'red'}
+                                                        textColor={!fieldErrors.selectedItemsProcess ? '#1A1A1A' : 'red'}
                                                         showDropDowns={true}
                                                         readOnlyHeadings={true}
                                                         selectedIconComponent={<Icon name="check" size={18} style={styles.selectedIconStyle} />}
@@ -3731,10 +3716,10 @@ class CreateNC extends Component {
                                                         placeholderTextColor="#5C5C5C"
                                                         itemNumberOfLines={3}
                                                         selectLabelNumberOfLines={3}
-                                                        styles={multiSelectStyles}
+                                                        styles={{ ...multiSelectStyles, selectToggle: { borderWidth: fieldErrors.selectedItemsProcess ? 1 : 0, borderColor: 'red' } }}
                                                         colors={{
                                                             ...multiSelectColors,
-                                                            selectToggleTextColor: this.state.MarkProcess == false ? '#1A1A1A' : 'red',
+                                                            selectToggleTextColor: !fieldErrors.selectedItemsProcess ? '#1A1A1A' : 'red',
                                                         }}
                                                     />
                                                 ) : null}
@@ -3789,7 +3774,7 @@ class CreateNC extends Component {
                                                 <InputComponent
                                                     label={strings.Document_reference}
                                                     name="documentRef"
-                                                    required={this.props.data.audits.smdata != 2 && this.props.data.audits.smdata != 3}
+                                                    required={false}
                                                     value={this.state.documentRef}
                                                     placeholder={strings.Document_reference}
                                                     multiline
@@ -3809,6 +3794,7 @@ class CreateNC extends Component {
                                                 <InputComponent
                                                     label={strings.Document_reference}
                                                     name="documentRef"
+                                                    required={false}
                                                     value={this.state.documentRef}
                                                     placeholder={strings.Document_reference}
                                                     multiline
