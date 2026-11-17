@@ -11,8 +11,9 @@ const CommonAlertModal = ({
     showCancel = false,
     onConfirm = () => {},
     onCancel = () => {},
+    onRequestClose,
 }) => {
-    const handleClose = showCancel ? onCancel : onConfirm;
+    const handleClose = onRequestClose || (showCancel ? onCancel : onConfirm);
 
     return (
         <ModalComponent modalVisible={visible} onRequestClose={handleClose} onBackdropPress={handleClose} modalBackgroundColor="rgba(0,0,0,0.45)">
