@@ -32,7 +32,7 @@ import CryptoJS from 'react-native-crypto-js';
 import { postAPI } from 'global/api-helpers';
 import ApiUrl from 'global/ApiUrl';
 import { Bubbles } from 'react-native-loader';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { showMessage } from 'react-native-flash-message';
 import { Images } from 'theme/Apqp';
 import { APQP_URL, AUDITPRO_URL, GLOBAL_BASE_URL, PROBLEMSOLVING_URL, IC_URL, ensureTrailingSlash } from 'screens/globalConstant/globalURL';
@@ -96,6 +96,7 @@ const sumMetricTotal = items =>
 
 const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
     const navigations = useNavigation();
+    const dispatch = useDispatch();
     const [currentUserData, setCurrentUserData] = useState([]);
     // This hook returns `true` if the screen is focused, `false` otherwise
     const isFocused = useIsFocused();
@@ -741,9 +742,10 @@ const TabsCard = ({ countDetails, tabIndex, currentUser, isSupplier }) => {
                     supplierAuth.setServerUrl(currentGlobalURL);
                     auditproAuth.setServerUrl(currentGlobalURL);
                     await storeUrl(currentGlobalURL, strings.auditPro);
-                    navigations.navigate(ROUTES.AUDIT_DASHBOARD_LISTING_SM, {
+                    dispatch({ type: 'STORE_SUPPLIER_DATA', smdata: 1 });
+                    navigations.navigate(ROUTES.AUDIT_DASHBOARD_LISTING, {
                         currentUserData,
-                        smData: 1,
+                        status: 0,
                         filterId: 0,
                         title: 'All Audits',
                     });

@@ -2223,6 +2223,17 @@ class CreateNC extends Component {
             });
         }
 
+        const requestedBySource = this.state.NCresponsible ?? this.state.ncData?.requestDrop;
+        const requestedById = requestedBySource && typeof requestedBySource === 'object'
+            ? requestedBySource.id ?? requestedBySource.value
+            : requestedBySource;
+        const defaultUserId = this.state.requestDropdown?.[0]?.id ?? this.props.data.audits.userId;
+        const isAutoFilledRequestedBy = defaultUserId != null && String(requestedById) === String(defaultUserId);
+        const resolvedRequestedBy = isAutoFilledRequestedBy
+            ? undefined
+            : RequestArr.find(item => String(item.id) === String(requestedById)) ||
+              (requestedBySource && typeof requestedBySource === 'object' ? requestedBySource : undefined);
+
         this.setState(
             {
                 categoryArr: categoryArr,
@@ -2230,6 +2241,7 @@ class CreateNC extends Component {
                 UserArr: UserArr,
                 RequestArr: RequestArr,
                 FailureCategory: FailureCategory,
+                NCresponsible: resolvedRequestedBy,
                 // NCresponsible: (this.state.NCresponsible) ? this.state.NCresponsible : NCresponsible
                 // PageLoader: false
             },
@@ -2444,7 +2456,7 @@ class CreateNC extends Component {
                             userDrop: this.state.NCrequestby,
                             //  requestDrop: this.state.RequestArr,
                             // requestDrop: this.state.NCresponsible,
-                            requestDrop: this.state.requestDropdown[0].id,
+                            requestDrop: this.state.NCresponsible?.id || 0,
                             deptDrop: this.state.NCdept === undefined ? 0 : this.state.NCdept,
                             failureDrop: this.state.NCFailure === undefined ? 0 : this.state.NCFailure,
                             filename: fileNames?.length == 0 ? [] : fileNames,
@@ -2732,7 +2744,7 @@ class CreateNC extends Component {
                         categoryDrop: this.state.NCcategoryt,
                         userDrop: this.state.NCrequestby,
                         // requestDrop: this.state.NCresponsible,
-                        requestDrop: this.state.requestDropdown[0].id,
+                        requestDrop: this.state.NCresponsible?.id || 0,
                         deptDrop: this.state.NCdept === undefined ? 0 : this.state.NCdept,
                         failureDrop: this.state.NCFailure === undefined ? 0 : this.state.NCFailure,
 
@@ -3595,13 +3607,8 @@ class CreateNC extends Component {
                                             <DropdownComponent
                                                 data={user}
                                                 label={strings.RequestedL}
-                                                value={
-                                                    this.state.NCresponsible
-                                                        ? this.state.NCresponsible.value
-                                                        : this.state.requestDropdown && this.state.requestDropdown.length >= 1
-                                                        ? this.state.requestDropdown[0].value
-                                                        : ''
-                                                }
+                                                error={!!fieldErrors.NCresponsible}
+                                                value={this.state.NCresponsible ? this.state.NCresponsible.value : ''}
                                                 required
                                                 editable={this.state.isContainValue3}
                                                 dropdownRef={ref => (this.requestTxtField = ref)}
@@ -3645,6 +3652,7 @@ class CreateNC extends Component {
                                                         label={strings.FailureCategory}
                                                         value={this.state.NCFailure ? this.state.NCFailure.value : ''}
                                                         required
+                                                        error={!!fieldErrors.NCFailure}
                                                         editable={this.state.isContainValue4}
                                                         dropdownRef={ref => (this.departmentTxtField = ref)}
                                                         {...formDropdownProps}
@@ -3667,6 +3675,7 @@ class CreateNC extends Component {
                                                         value={this.state.NCFailure ? this.state.NCFailure.value : ''}
                                                         required
                                                         editable={this.state.isContainValue4}
+                                                        error={!!fieldErrors.NCFailure}
                                                         dropdownRef={ref => (this.departmentTxtField = ref)}
                                                         {...formDropdownProps}
                                                         onChange={value => {
@@ -3716,7 +3725,7 @@ class CreateNC extends Component {
                                                         placeholderTextColor="#5C5C5C"
                                                         itemNumberOfLines={3}
                                                         selectLabelNumberOfLines={3}
-                                                        styles={{ ...multiSelectStyles, selectToggle: { borderWidth: fieldErrors.selectedItemsProcess ? 1 : 0, borderColor: 'red' } }}
+                                                        styles={{ ...multiSelectStyles, selectToggle: { } }}
                                                         colors={{
                                                             ...multiSelectColors,
                                                             selectToggleTextColor: !fieldErrors.selectedItemsProcess ? '#1A1A1A' : 'red',

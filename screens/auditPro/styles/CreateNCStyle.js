@@ -569,7 +569,7 @@ export default StyleSheet.create({
     },
     inputhigh: {
         backgroundColor: 'transparent',
-        width: '100%',
+        width: '97%',
         // paddingLeft:3,
         // backgroundColor:'red'
         // height:'80%',
@@ -582,6 +582,12 @@ export default StyleSheet.create({
         backgroundColor: 'transparent',
         flexDirection: 'column',
         marginBottom: 8,
+    },
+    standardRequirementHeader: {
+        width: '100%',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
     },
     div1: {
         width: '100%',

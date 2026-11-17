@@ -1929,6 +1929,11 @@ class CreateNC extends Component {
         for (var i = 0; i < this.state.ncData.selectedItemsProcess.length; i++) {
             processListIntArr.push(parseInt(this.state.ncData.selectedItemsProcess[i]));
         }
+        const savedRequestedBy = this.state.ncData.requestDrop;
+        const requestedBySelection =
+            this.state.UserArr.find(item => String(item.id) === String(savedRequestedBy)) ||
+            this.state.RequestArr.find(item => String(item.id) === String(savedRequestedBy)) ||
+            (savedRequestedBy && typeof savedRequestedBy === 'object' ? savedRequestedBy : undefined);
         this.setState(
             {
                 selectedItems: this.state.ncData.selectedItems,
@@ -1940,9 +1945,7 @@ class CreateNC extends Component {
                 NCFailure: this.state.ncData.failureDrop,
                 nonconfirmityText: this.state.ncData.NonConfirmity,
                 ResponsibilityUser: this.state.ncData.selectedItemsResponse,
-                // NCresponsible: this.state.ncData.userDrop,
-                // NCresponsible: this.state.RequestArr[0],
-                NCresponsible: this.state.requestDropdown[0].id,
+                NCresponsible: requestedBySelection,
                 ofitext: this.state.ncData.ofitext,
                 fileName: this.state.ncData.filename,
                 fileData: this.state.ncData.filedata,
@@ -2130,6 +2133,10 @@ class CreateNC extends Component {
                 return undefined;
             }
 
+            if (String(current) === '0') {
+                return undefined;
+            }
+
             // When we already have an object with an id, try to re-use it.
             if (typeof current === 'object' && current.id !== undefined) {
                 const found = list.find(item => item.id === current.id);
@@ -2151,6 +2158,13 @@ class CreateNC extends Component {
         // stored in `ncData.requestDrop`.
         const requestSource = this.state.NCrequestby || (this.state.ncData ? this.state.ncData.requestDrop : undefined);
         const resolvedRequest = resolveOption(requestSource, RequestArr);
+        const requestedBySource = this.state.NCresponsible ?? this.state.ncData?.requestDrop;
+        const requestedById = requestedBySource && typeof requestedBySource === 'object'
+            ? requestedBySource.id ?? requestedBySource.value
+            : requestedBySource;
+        const defaultUserId = this.state.requestDropdown?.[0]?.id ?? this.props.data.audits.userId;
+        const isAutoFilledRequestedBy = defaultUserId != null && String(requestedById) === String(defaultUserId);
+        const resolvedRequestedBy = isAutoFilledRequestedBy ? undefined : resolveOption(requestedBySource, RequestArr);
 
         this.setState(
             {
@@ -2165,6 +2179,7 @@ class CreateNC extends Component {
                 NCcategoryt: resolvedCategoryWithDefault,
                 NCdept: resolvedDept,
                 NCrequestby: resolvedRequest,
+                NCresponsible: resolvedRequestedBy,
             },
 
             () => {
@@ -2344,7 +2359,7 @@ class CreateNC extends Component {
                         NonConfirmity: this.state.nonconfirmityText === undefined ? undefined : this.state.nonconfirmityText,
                         categoryDrop: resolvedCategoryDrop,
                         ResponsibilityUser: this.state.selectedItemsResponse,
-                        requestDrop: this.state.requestDropdown[0].id,
+                        requestDrop: this.state.NCresponsible?.id || 0,
                         deptDrop: this.state.NCdept === undefined ? 0 : this.state.NCdept,
                         failureDrop: this.state.NCFailure === undefined ? 0 : this.state.NCFailure,
                         filename: fileNames?.length == 0 ? [] : fileNames,
@@ -2596,7 +2611,7 @@ class CreateNC extends Component {
                         userDrop: this.state.NCrequestby,
                         ResponsibilityUser: this.state.selectedItemsResponse,
                         // requestDrop: this.state.NCresponsible,
-                        requestDrop: this.state.requestDropdown[0].id,
+                        requestDrop: this.state.NCresponsible?.id || 0,
                         deptDrop: this.state.NCdept === undefined ? 0 : this.state.NCdept,
                         failureDrop: this.state.NCFailure === undefined ? 0 : this.state.NCFailure,
 
@@ -3343,9 +3358,13 @@ class CreateNC extends Component {
                                     <View style={styles.input02}>
                                         <Text
                                             style={{
+                                                marginLeft: 10,
                                                 color: fieldErrors.selectedItems ? 'red' : '#000000',
                                             }}>
                                             {strings.ClausesL}
+                                            {this.state.RouteParam === 'NC' && Number(this.state.clauseMandatory) === 1 && !this.state.isLPA ? (
+                                                <Text style={{ color: fieldErrors.selectedItems ? 'red' : '#E53935' }}> *</Text>
+                                            ) : null}
                                         </Text>
                                     </View>
                                     <View style={styles.div2}>
@@ -3371,7 +3390,12 @@ class CreateNC extends Component {
                                                     itemNumberOfLines={3}
                                                     selectLabelNumberOfLines={3}
                                                     styles={{
-                                                        selectToggle: { borderWidth: fieldErrors.selectedItems ? 1 : 0, borderColor: 'red' },
+                                                        selectToggle: {
+                                                            marginHorizontal: 10,
+                                                            paddingHorizontal: 0,
+                                                            borderWidth: fieldErrors.selectedItems ? 1 : 0,
+                                                            borderColor: fieldErrors.selectedItems ? 'red' : 'transparent',
+                                                        },
                                                         chipText: {
                                                             maxWidth: Dimensions.get('screen').width - 90,
                                                         },
@@ -3385,32 +3409,21 @@ class CreateNC extends Component {
                                             </View>
                                         </View>
                                     </View>
-                                    <View
-                                        style={{
-                                            flexDirection: 'row',
-                                            justifyContent: 'space-between',
-                                            alignContent: 'space-between',
-                                        }}>
-                                        <Text>{''}</Text>
-                                        <TouchableOpacity onPress={() => this.setState({ NCtxtFlag: false, isVisible: true })}>
-                                            <Icon name={'eye'} size={20} style={{ marginRight: 35 }} />
-                                        </TouchableOpacity>
-                                    </View>
-                                    <View style={styles.div01}>
-                                        <View style={[styles.input002]} onPress={() => this.setState({ isVisible: true })}>
-                                            {this.state.displayData ? (
-                                                <Text
-                                                    style={{
-                                                        padding: 0,
-                                                        margin: 0,
-                                                        color: '#A6A6A6',
-                                                        width: '80%',
-                                                        fontSize: Fonts.size.regular,
-                                                        fontFamily: 'OpenSans-Regular',
-                                                    }}>
-                                                    {strings.StandardRequirementsL}
-                                                </Text>
-                                            ) : null}
+                                    <View style={[styles.div01, { paddingHorizontal: 10 }]}>
+                                        <View style={styles.standardRequirementHeader}>
+                                            <Text
+                                                style={{
+                                                    color: '#A6A6A6',
+                                                    fontSize: Fonts.size.regular,
+                                                    fontFamily: 'OpenSans-Regular',
+                                                }}>
+                                                {strings.StandardRequirementsL}
+                                            </Text>
+                                            <TouchableOpacity onPress={() => this.setState({ NCtxtFlag: false, isVisible: true })}>
+                                                <Icon name="eye" size={20} color="#000000" />
+                                            </TouchableOpacity>
+                                        </View>
+                                        <View style={styles.input002} onPress={() => this.setState({ isVisible: true })}>
                                             <View style={{ flexDirection: 'row' }}>
                                                 <TextInput
                                                     multiline={true}
@@ -3438,10 +3451,11 @@ class CreateNC extends Component {
                                                 label={
                                                     this.state.RouteParam === 'NC' ? 'NC' + ' ' + strings.CategoryL : 'OFI' + ' ' + strings.CategoryL
                                                 }
+                                                containerStyle={{ marginLeft: 10, padding: 0, paddingBottom: 0, marginBottom: 10 }}
                                                 required
                                                 data={categoryOptions}
                                                 error={!!fieldErrors.NCcategoryt}
-                                                value={this.state.NCcategoryt?.id || categoryOptions?.[0]?.value || null}
+                                                value={this.state.NCcategoryt?.id || this.state.NCcategoryt?.value || null}
                                                 onChange={value => {
                                                     const selected = this.state.categoryArr?.find(item => item.id === value) || null;
                                                     this.isCheckCategory = !!selected;
@@ -3454,9 +3468,11 @@ class CreateNC extends Component {
                                         <View style={{ flex: 1 }}>
                                             <DropdownComponent
                                                 label={strings.RequestedL}
+                                                containerStyle={{ marginLeft: 10, padding: 0, paddingBottom: 0, marginBottom: 10 }}
                                                 required
+                                                error={!!fieldErrors.NCresponsible}
                                                 data={requestByOptions}
-                                                value={this.state.NCresponsible?.id || requestByOptions?.[0]?.value || null}
+                                                value={this.state.NCresponsible?.id || this.state.NCresponsible?.value || null}
                                                 onChange={value => {
                                                     const selected =
                                                         this.state.RequestArr?.find(item => item.id === value) ||
@@ -3486,7 +3502,10 @@ class CreateNC extends Component {
                                             )}
                                             <DropdownComponent
                                                 label={strings.FailureCategory}
+                                                containerStyle={{ marginLeft: 10, padding: 0, paddingBottom: 0, marginBottom: 10 }}
+                                                required
                                                 data={failureOptions}
+                                                error={!!fieldErrors.NCFailure}
                                                 value={
                                                     this.state.NCFailure?.id ||
                                                     this.state.NCFailure?.FailureCategoryId ||
@@ -3506,7 +3525,7 @@ class CreateNC extends Component {
                                     <View style={styles.div2}>
                                         <View style={styles.inputhigh}>
                                             <View>
-                                                <Text style={{ marginLeft: 5, color: fieldErrors.selectedItemsResponse ? 'red' : '#1A1A1A' }}>
+                                                <Text style={{ marginLeft: 10, color: fieldErrors.selectedItemsResponse ? 'red' : '#1A1A1A' }}>
                                                     {strings.ResponsibilityL} <Text style={{ color: 'red' }}>*</Text>
                                                 </Text>
                                                 <SectionedMultiSelect
@@ -3533,7 +3552,12 @@ class CreateNC extends Component {
                                                     expandDropDowns={true}
                                                     single={true}
                                                     styles={{
-                                                        selectToggle: { borderWidth: fieldErrors.selectedItemsResponse ? 1 : 0, borderColor: 'red' },
+                                                        selectToggle: {
+                                                            marginHorizontal: 10,
+                                                            paddingHorizontal: 0,
+                                                            borderWidth: fieldErrors.selectedItemsResponse ? 1 : 0,
+                                                            borderColor: fieldErrors.selectedItemsResponse ? 'red' : 'transparent',
+                                                        },
                                                         selectedItem: {
                                                             backgroundColor: '#f0f8ff',
                                                             padding: 5,
@@ -3563,7 +3587,7 @@ class CreateNC extends Component {
                                                         selectText={this.state.processdata.length > 0 ? strings.ProcessL : 'No process(s) found'}
                                                         //alwaysShowSelectText={multiprocess == "1" ? false : true}
                                                         renderSelectText={() => (
-                                                            <Text style={{ flex: 1, color: fieldErrors.selectedItemsProcess ? 'red' : '#1A1A1A' }}>
+                                                            <Text style={{ flex: 1, marginLeft: 10, color: fieldErrors.selectedItemsProcess ? 'red' : '#1A1A1A' }}>
                                                                 {strings.ProcessL} <Text style={{ color: 'red' }}>*</Text>
                                                             </Text>
                                                         )}
@@ -3592,7 +3616,7 @@ class CreateNC extends Component {
                                                         itemNumberOfLines={3}
                                                         selectLabelNumberOfLines={3}
                                                         styles={{
-                                                            selectToggle: { borderWidth: fieldErrors.selectedItemsProcess ? 1 : 0, borderColor: 'red' },
+                                                            selectToggle: {  },
                                                             chipText: {
                                                                 maxWidth: Dimensions.get('screen').width - 90,
                                                             },
@@ -3696,12 +3720,12 @@ class CreateNC extends Component {
                                         </View> */}
                                     </View>
 
-                                    <View style={styles.div1}>
+                                    <View style={[styles.div1, { marginTop: 8 }]}>
                                         <Text
                                             style={{
                                                 fontSize: Fonts.size.regular,
                                                 color: '#A6A6A6',
-                                                left: 10,
+                                                marginLeft: 10,
                                                 fontFamily: 'OpenSans-Regular',
                                             }}>
                                             {strings.Attach_EvidenceL}
@@ -3713,7 +3737,12 @@ class CreateNC extends Component {
                                                 })
                                             }
                                             ref={evidenceField => (this.evidenceField = evidenceField)}
-                                            style={styles.check}>
+                                            style={{
+                                                position: 'absolute',
+                                                right: 10,
+                                                top: 0,
+                                                padding: 4,
+                                            }}>
                                             <ResponsiveImage initWidth="24" initHeight="22" source={Images.AttachIcon} />
                                         </TouchableOpacity>
                                     </View>
