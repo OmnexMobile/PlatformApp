@@ -660,7 +660,12 @@ const InprocessInspection = ({ route }) => {
         setShowCharInfo(!showCharInfo);
     };
     const handleFinalConfirmYesPress = () => {
-        setSelectedData(pre => ({ ...pre, CSampleSize: userUpdateValue.CSampleSize }));
+        // setSelectedData(pre => ({ ...pre, CSampleSize: userUpdateValue.CSampleSize }));
+        let temp = JSON.parse(JSON.stringify(userUpdateValue.charInfo));
+        let updatedtemp = temp.map(item =>
+            item.PropertyName === 'CSampleSize' || item?.ReferenceName === 'CSampleSize' ? { ...item, Value: userUpdateValue.CSampleSize } : item,
+        );
+        setSelectedData(pre => ({ ...pre, CSampleSize: userUpdateValue.CSampleSize, charInfo: updatedtemp }));
         setFinalConfirmation(false);
         setTypeOfModal('');
     };

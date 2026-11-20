@@ -84,8 +84,8 @@ android {
         applicationId "com.Omnex.IntegratedApp"   // changed
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 18   // must be higher than the last version uploaded to Play Console
-        versionName "1.6.0"
+        versionCode 20   // must be higher than the last version uploaded to Play Console
+        versionName "1.7.0"
           manifestPlaceholders = [
             appAuthRedirectScheme: "com.omnex.integratedapp"
         ]

@@ -60,24 +60,35 @@ const DynamicFormField = ({
                 //     // multiline={true}
                 //     // editable={isEditable}
                 // />
-                <TextInput
+                // <TextInput
+                //     value={value || ''}
+                //     style={[
+                //         styles.multilineInput,
+                //         {
+                //             backgroundColor: isEditable ? backgroundColor : COLORS.whiteGrey,
+                //         },
+                //     ]}
+                //     onChangeText={val => {
+                //         if (isEditable) {
+                //             handleChange(val);
+                //         }
+                //     }}
+                //     placeholder={placeHolder}
+                //     multiline={true}
+                //     scrollEnabled={true}
+                //     textAlignVertical="center"
+                //     // numberOfLines={3}
+                // />
+                <AutoSizingTextInput
                     value={value || ''}
-                    style={[
-                        styles.multilineInput,
-                        {
-                            backgroundColor: isEditable ? backgroundColor : COLORS.whiteGrey,
-                        },
-                    ]}
-                    onChangeText={val => {
-                        if (isEditable) {
-                            handleChange(val);
-                        }
-                    }}
+                    onChangeText={handleChange}
+                    editable={isEditable}
                     placeholder={placeHolder}
-                    multiline={true}
-                    scrollEnabled={true}
-                    textAlignVertical="center"
-                    // numberOfLines={3}
+                    backgroundColor={isEditable ? backgroundColor : COLORS.whiteGrey}
+                    borderColor={COLORS.icBottomBox}
+                    color={COLORS.ictextBlack}
+                    style={{ marginTop: 8 }}
+                    maxHeight={120}
                 />
             );
         case 'singleDropDown':
@@ -187,11 +198,23 @@ const DynamicFormField = ({
         case 'TextArea':
             return (
                 <View style={{ marginTop: 8 }}>
-                    <AutoSizingTextInput
+                    {/* <AutoSizingTextInput
                         isEditable={isEditable}
                         value={value || ''}
                         handleChange={val => handleChange(val)}
                         placeholder={placeHolder}
+                    /> */}
+
+                    <AutoSizingTextInput
+                        value={value || ''}
+                        onChangeText={handleChange}
+                        editable={isEditable}
+                        placeholder={placeHolder}
+                        backgroundColor={isEditable ? backgroundColor : COLORS.whiteGrey}
+                        borderColor={COLORS.icBottomBox}
+                        color={COLORS.ictextBlack}
+                        style={{ marginTop: 8 }}
+                        maxHeight={80}
                     />
                 </View>
             );
@@ -208,24 +231,35 @@ const DynamicFormField = ({
                 //     placeholder={placeHolder}
                 //     // editable={isEditable}
                 // />
-                <TextInput
+                // <TextInput
+                //     value={value || ''}
+                //     style={[
+                //         styles.multilineInput,
+                //         {
+                //             backgroundColor: isEditable ? backgroundColor : COLORS.whiteGrey,
+                //         },
+                //     ]}
+                //     onChangeText={val => {
+                //         if (isEditable) {
+                //             handleChange(val);
+                //         }
+                //     }}
+                //     placeholder={placeHolder}
+                //     multiline={true}
+                //     scrollEnabled={true}
+                //     textAlignVertical="center"
+                //     // numberOfLines={3}
+                // />
+                <AutoSizingTextInput
                     value={value || ''}
-                    style={[
-                        styles.multilineInput,
-                        {
-                            backgroundColor: isEditable ? backgroundColor : COLORS.whiteGrey,
-                        },
-                    ]}
-                    onChangeText={val => {
-                        if (isEditable) {
-                            handleChange(val);
-                        }
-                    }}
+                    onChangeText={handleChange}
+                    editable={isEditable}
                     placeholder={placeHolder}
-                    multiline={true}
-                    scrollEnabled={true}
-                    textAlignVertical="center"
-                    // numberOfLines={3}
+                    backgroundColor={isEditable ? backgroundColor : COLORS.whiteGrey}
+                    borderColor={COLORS.icBottomBox}
+                    color={COLORS.ictextBlack}
+                    style={{ marginTop: 8 }}
+                    maxHeight={120}
                 />
             );
     }

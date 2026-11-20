@@ -1,6 +1,6 @@
 import { COLORS } from 'constants/theme-constants';
 import React, { useEffect, useState } from 'react';
-import { Button, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Button, Modal, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import Icon from 'react-native-vector-icons/Entypo';
 import IconE from 'react-native-vector-icons/Fontisto';
 // import DateTimePicker from '@react-native-community/datetimepicker';
@@ -22,6 +22,8 @@ const DataPickerWithIcon = ({
     value = null,
     editable = true,
 }) => {
+    // inside the component
+    const { width } = useWindowDimensions();
     const { dateFormat } = useSelector(state => state.inspection);
     const uiDateFormat = dateFormat || 'DD/MM/YYYY';
     const [date, setDate] = useState(null);
@@ -143,6 +145,8 @@ const DataPickerWithIcon = ({
                             onSelectedDate(selectedDate);
                         }
                     }}
+                    modalStyleIOS={{ alignItems: 'center' }}
+                    pickerContainerStyleIOS={{ alignItems: 'center', width: width * 0.97, alignSelf: 'center' }}
                 />
             )}
         </>
